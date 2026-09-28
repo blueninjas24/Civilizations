@@ -44,12 +44,20 @@ public class DatabaseManager {
                     center_x INTEGER NOT NULL,
                     center_y INTEGER NOT NULL,
                     center_z INTEGER NOT NULL,
-                    discovered_at INTEGER NOT NULL
+                 discovered_at INTEGER NOT NULL,
+                 population INTEGER NOT NULL DEFAULT 0
                 );
                 """;
 
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
+            try {
+                statement.execute(
+                        "ALTER TABLE settlements ADD COLUMN population INTEGER NOT NULL DEFAULT 0"
+                );
+            } catch (SQLException ignored) {
+                // Column already exists.
+            }
         }
     }
 
@@ -88,9 +96,24 @@ public class DatabaseManager {
                         result.getInt("center_x"),
                         result.getInt("center_y"),
                         result.getInt("center_z"),
-                        result.getLong("discovered_at")
+                        result.getLong("discovered_at"),
+                        result.getInt("population")
                 );
             }
+        }
+    }
+
+    public void updatePopulation(Settlement settlement) throws SQLException {
+        String sql = """
+            UPDATE settlements
+            SET population = ?
+            WHERE id = ?;
+            """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, settlement.getPopulation());
+            statement.setString(2, settlement.getId().toString());
+            statement.executeUpdate();
         }
     }
 
@@ -104,6 +127,7 @@ public class DatabaseManager {
                 center_y,
                 center_z,
                 discovered_at
+                population
             ) VALUES (?, ?, ?, ?, ?, ?, ?);
             """;
 
@@ -115,6 +139,7 @@ public class DatabaseManager {
             statement.setInt(5, settlement.getCenterY());
             statement.setInt(6, settlement.getCenterZ());
             statement.setLong(7, settlement.getDiscoveredAt());
+            statement.setInt(8, settlement.getPopulation());
 
             statement.executeUpdate();
         }

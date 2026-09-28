@@ -17,6 +17,8 @@ import java.util.UUID;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.entity.Villager;
+
 public class VillageDiscoveryListener implements Listener {
 
     private final Civilizations plugin;
@@ -67,9 +69,21 @@ public class VillageDiscoveryListener implements Listener {
                         );
 
                 if (existingSettlement != null) {
+
+                    int population = location.getWorld()
+                            .getNearbyEntities(location, 128, 64, 128)
+                            .stream()
+                            .filter(entity -> entity instanceof Villager)
+                            .toList()
+                            .size();
+
+                    existingSettlement.setPopulation(population);
+
                     player.sendMessage(
                             "§6[Civilizations] §fYou have entered §e"
                                     + existingSettlement.getName()
+                                    + " §7— Population: §f"
+                                    + population
                     );
 
                     return;
@@ -90,7 +104,8 @@ public class VillageDiscoveryListener implements Listener {
                     location.getBlockX(),
                     location.getBlockY(),
                     location.getBlockZ(),
-                    System.currentTimeMillis()
+                    System.currentTimeMillis(),
+                    0
             );
 
             try {

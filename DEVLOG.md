@@ -74,3 +74,25 @@ Civilizations now:
 - Preserves settlement identity across server restarts.
 
 Stonevale survived its first restart and was correctly recognized by name.
+
+### Stonevale Gets a Census
+
+Civilizations can now track settlement population.
+
+Population was added to the persistent settlement model and SQLite database, including a migration path for existing databases.
+
+When a known settlement is encountered, Civilizations:
+- Counts nearby villagers.
+- Updates the settlement's population.
+- Saves the census to SQLite.
+- Displays the current population to the player.
+
+Stonevale's first recorded census reported **11 residents**.
+
+The current census uses nearby villager entities and is intentionally approximate. Future residency logic will associate villagers more precisely with settlement boundaries and POIs.
+
+### Next Goal
+
+Give settlements awareness of their housing capacity.
+
+Once Civilizations understands both **population** and **available beds**, Stonevale can identify a housing shortage — the first step toward autonomous construction.

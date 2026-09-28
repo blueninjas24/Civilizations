@@ -11,6 +11,7 @@ public class Settlement {
     private final int centerY;
     private final int centerZ;
     private final long discoveredAt;
+    private int population;
 
     public Settlement(
             UUID id,
@@ -19,7 +20,8 @@ public class Settlement {
             int centerX,
             int centerY,
             int centerZ,
-            long discoveredAt
+            long discoveredAt,
+            int population
     ) {
         this.id = id;
         this.name = name;
@@ -28,6 +30,7 @@ public class Settlement {
         this.centerY = centerY;
         this.centerZ = centerZ;
         this.discoveredAt = discoveredAt;
+        this.population = population;
     }
 
     public UUID getId() {
@@ -56,5 +59,13 @@ public class Settlement {
 
     public long getDiscoveredAt() {
         return discoveredAt;
+    }
+
+    public int getPopulation() {
+        return population;
+    }
+
+    public void setPopulation(int population) {
+        this.population = population;
     }
 }
