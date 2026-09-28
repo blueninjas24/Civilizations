@@ -45,12 +45,14 @@ public class DatabaseManager {
                     center_y INTEGER NOT NULL,
                     center_z INTEGER NOT NULL,
                  discovered_at INTEGER NOT NULL,
-                 population INTEGER NOT NULL DEFAULT 0
+                 population INTEGER NOT NULL DEFAULT 0,
+                                                      beds INTEGER NOT NULL DEFAULT 0
                 );
                 """;
 
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
+
             try {
                 statement.execute(
                         "ALTER TABLE settlements ADD COLUMN population INTEGER NOT NULL DEFAULT 0"
@@ -58,7 +60,17 @@ public class DatabaseManager {
             } catch (SQLException ignored) {
                 // Column already exists.
             }
+
+            try {
+                statement.execute(
+                        "ALTER TABLE settlements ADD COLUMN beds INTEGER NOT NULL DEFAULT 0"
+                );
+            } catch (SQLException ignored) {
+                // Column already exists.
+            }
         }
+
+
     }
 
     public Settlement findNearbySettlement(
@@ -97,7 +109,8 @@ public class DatabaseManager {
                         result.getInt("center_y"),
                         result.getInt("center_z"),
                         result.getLong("discovered_at"),
-                        result.getInt("population")
+                        result.getInt("population"),
+                        result.getInt("beds")
                 );
             }
         }
@@ -160,6 +173,20 @@ public class DatabaseManager {
             plugin.getLogger().warning(
                     "Failed to close Civilizations database: " + e.getMessage()
             );
+        }
+    }
+
+    public void updateBeds(Settlement settlement) throws SQLException {
+        String sql = """
+            UPDATE settlements
+            SET beds = ?
+            WHERE id = ?;
+            """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, settlement.getBeds());
+            statement.setString(2, settlement.getId().toString());
+            statement.executeUpdate();
         }
     }
 }

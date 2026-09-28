@@ -96,3 +96,29 @@ The current census uses nearby villager entities and is intentionally approximat
 Give settlements awareness of their housing capacity.
 
 Once Civilizations understands both **population** and **available beds**, Stonevale can identify a housing shortage — the first step toward autonomous construction.
+
+### Stonevale Develops Needs
+
+Civilizations can now evaluate basic settlement housing needs.
+
+Settlements track:
+- Population
+- Available beds
+- Housing status
+
+Stonevale's first housing census recorded:
+- Population: 11
+- Beds: 13
+- Housing: ADEQUATE
+
+A new Needs Engine compares population against housing capacity. When population meets or exceeds available beds, the settlement identifies a `HOUSING_SHORTAGE`.
+
+This establishes the first autonomous decision-making system in Civilizations.
+
+### Next Goal
+
+Turn a housing shortage into action:
+
+`HOUSING_SHORTAGE → Construction Request → Site Selection → House Construction`
+
+This will be the beginning of autonomous settlement development.
