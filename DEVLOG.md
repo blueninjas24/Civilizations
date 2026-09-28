@@ -31,3 +31,14 @@ Instead of villages remaining static forever, settlements will grow and evolve b
 A vanilla village recognizes that it needs additional housing, chooses an appropriate location, and autonomously constructs its first house over time.
 
 If that works, Civilizations is alive.
+
+### Project Foundation
+
+- Created the Maven project using Java 25.
+- Initialized Git and published the repository to GitHub.
+- Added README and development log.
+- Configured the Paper API.
+- Paper API pinned to `26.2.build.129-stable` to match the server.
+- Confirmed the project successfully builds with Maven.
+
+**Status:** BUILD SUCCESS
