@@ -61,3 +61,16 @@ The initial prototype detects nearby HOME POIs when a player crosses a chunk bou
 This is intentionally a temporary detection method. Future settlement identification will use multiple signals such as villagers, beds, job sites, bells, and POI clustering.
 
 **Milestone:** Civilizations can now recognize settlement activity in the Minecraft world.
+
+### Stonevale — First Persistent Settlement
+
+The first permanently recognized settlement was created: **Stonevale**.
+
+Civilizations now:
+- Generates settlement identities and names.
+- Stores settlements persistently in SQLite.
+- Records their world, center coordinates, UUID, and discovery time.
+- Searches for existing nearby settlements before creating new ones.
+- Preserves settlement identity across server restarts.
+
+Stonevale survived its first restart and was correctly recognized by name.

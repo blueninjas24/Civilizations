@@ -7,11 +7,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import com.blueninjas24.civilizations.Civilizations;
+import com.blueninjas24.civilizations.settlement.Settlement;
+import com.blueninjas24.civilizations.settlement.SettlementNameGenerator;
+
+import java.sql.SQLException;
+import java.util.UUID;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class VillageDiscoveryListener implements Listener {
+
+    private final Civilizations plugin;
+
+    public VillageDiscoveryListener(Civilizations plugin) {
+        this.plugin = plugin;
+    }
 
     private final Set<String> discoveredVillages = new HashSet<>();
 
@@ -44,14 +56,60 @@ public class VillageDiscoveryListener implements Listener {
                         + (location.getBlockZ() >> 7);
 
         if (discoveredVillages.add(villageKey)) {
-            player.sendMessage("§6[Civilizations] §fYou have discovered a settlement!");
 
-            player.getServer().getLogger().info(
-                    "[Civilizations] "
-                            + player.getName()
-                            + " discovered a settlement near "
-                            + location.getBlockX()
-                            + ", "
+            try {
+                Settlement existingSettlement =
+                        plugin.getDatabaseManager().findNearbySettlement(
+                                location.getWorld().getName(),
+                                location.getBlockX(),
+                                location.getBlockZ(),
+                                128
+                        );
+
+                if (existingSettlement != null) {
+                    player.sendMessage(
+                            "§6[Civilizations] §fYou have entered §e"
+                                    + existingSettlement.getName()
+                    );
+
+                    return;
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().severe(
+                        "Failed to check for existing settlement: " + e.getMessage()
+                );
+                return;
+            }
+
+            String name = SettlementNameGenerator.generate();
+
+            Settlement settlement = new Settlement(
+                    UUID.randomUUID(),
+                    name,
+                    location.getWorld().getName(),
+                    location.getBlockX(),
+                    location.getBlockY(),
+                    location.getBlockZ(),
+                    System.currentTimeMillis()
+            );
+
+            try {
+                plugin.getDatabaseManager().saveSettlement(settlement);
+            } catch (SQLException e) {
+                plugin.getLogger().severe(
+                        "Failed to save settlement " + name + ": " + e.getMessage()
+                );
+                return;
+            }
+
+            player.sendMessage(
+                    "§6[Civilizations] §fSettlement discovered: §e" + name
+            );
+
+            plugin.getLogger().info(
+                    player.getName() + " discovered " + name
+                            + " near "
+                            + location.getBlockX() + ", "
                             + location.getBlockZ()
             );
         }
