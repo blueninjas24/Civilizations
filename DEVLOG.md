@@ -51,3 +51,13 @@ The plugin loaded successfully and reported:
 > Civilizations is awakening...
 
 Civilizations is officially running inside Minecraft.
+
+### First Settlement Discovered
+
+Civilizations successfully detected its first vanilla settlement in-game.
+
+The initial prototype detects nearby HOME POIs when a player crosses a chunk boundary and announces a newly discovered settlement.
+
+This is intentionally a temporary detection method. Future settlement identification will use multiple signals such as villagers, beds, job sites, bells, and POI clustering.
+
+**Milestone:** Civilizations can now recognize settlement activity in the Minecraft world.
