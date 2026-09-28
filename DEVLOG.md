@@ -42,3 +42,12 @@ If that works, Civilizations is alive.
 - Confirmed the project successfully builds with Maven.
 
 **Status:** BUILD SUCCESS
+### First Successful Server Launch
+
+Civilizations was packaged and installed on a local Paper test server.
+
+The plugin loaded successfully and reported:
+
+> Civilizations is awakening...
+
+Civilizations is officially running inside Minecraft.

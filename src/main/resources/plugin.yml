@@ -1,0 +1,6 @@
+name: Civilizations
+version: '0.0.1'
+main: com.blueninjas24.civilizations.Civilizations
+api-version: '1.21'
+author: Blueninjas24
+description: Evolving, autonomous civilizations for Minecraft.
