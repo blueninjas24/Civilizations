@@ -36,6 +36,10 @@
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- Work foundation: schema v9 records resident skill experience totals; qualification
+  requirements are immutable caller inputs and explain failures. No employment or
+  fake businesses are created. Skill units/learning rates, actual hiring/prosperity
+  remain later roadmap work. Job foundation does not complete the economy/business phases.
 - Migration prototype (editable, not canon): 0.02 monthly chance for an observed
   housing-pressured household; move the living household together into vacant
   sufficiently sized same-world housing. External adult arrival chance 0.005 per

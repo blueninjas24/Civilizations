@@ -16,8 +16,10 @@ people, run demographic changes or spawn physical villagers.
   or guessed capacity is created. Calendar conversion is intentionally undefined;
   an age step is not declared to be a Minecraft day, month or year.
 - Parent/child and partner links are saved separately from housing. Siblings derive
-  from shared recorded parents. Homes/buildings, occupations, skills and prosperity
-  are not stored yet. No demographic or seeding probabilities are chosen.
+  from shared recorded parents. Skill counters and qualification checks are now
+  implemented (WORK_FOUNDATION.md). Homes/buildings, occupations and prosperity
+  are not stored yet. Demographic prototypes are in POPULATION_SIMULATION.md;
+  automatic seeding is not yet wired.
 
 ## Storage and safety
 

@@ -59,11 +59,11 @@ class SchemaMigratorTest {
         try (Connection connection = connect()) {
             new SchemaMigrator().migrate(connection);
             createRow(connection, 2);
-            SchemaMigrator failing = new SchemaMigrator(List.of(
-                    ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {},
-                    c -> execute(c, "CREATE TABLE rollback_marker (id INTEGER)"),
-                    c -> execute(c, "THIS IS INVALID SQL")
-            ));
+            List<SchemaMigrator.Migration> steps = new java.util.ArrayList<>(java.util.Collections.nCopies(
+                    SchemaMigrator.CURRENT_VERSION, ignored -> {}));
+            steps.add(c -> execute(c, "CREATE TABLE rollback_marker (id INTEGER)"));
+            steps.add(c -> execute(c, "THIS IS INVALID SQL"));
+            SchemaMigrator failing = new SchemaMigrator(steps);
             assertThrows(SQLException.class, () -> failing.migrate(connection));
             assertEquals(SchemaMigrator.CURRENT_VERSION, version(connection));
             assertTrue(connection.getAutoCommit());

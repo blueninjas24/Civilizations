@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 8;
+    static final int CURRENT_VERSION = 9;
 
     @FunctionalInterface
     interface Migration {
@@ -40,7 +40,15 @@ final class SchemaMigrator {
                 SchemaMigrator::createFamilyTable,
                 SchemaMigrator::createPopulationClock,
                 SchemaMigrator::createDemographicStorage,
-                SchemaMigrator::extendMigrationEvents
+                SchemaMigrator::extendMigrationEvents,
+                connection -> execute(connection, """
+                        CREATE TABLE resident_skills (
+                            resident_id TEXT NOT NULL REFERENCES residents(id),
+                            skill TEXT NOT NULL CHECK(length(trim(skill)) > 0),
+                            experience INTEGER NOT NULL CHECK(typeof(experience) = 'integer' AND experience >= 0),
+                            PRIMARY KEY(resident_id, skill)
+                        )
+                        """)
         ));
     }
 
@@ -94,6 +102,9 @@ final class SchemaMigrator {
             }
             if (migrations.size() >= 8) {
                 requireColumns(connection, "population_events", Set.of("source_settlement_id"));
+            }
+            if (migrations.size() >= 9) {
+                requireColumns(connection, "resident_skills", Set.of("resident_id", "skill", "experience"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {

@@ -180,11 +180,7 @@ class DemographicRepositoryTest {
     @Test
     void failedVersionSixUpgradeRollsBackClockAndCapacityTablesWithoutLosingPeople() throws SQLException {
         try (var statement = database.getConnection().createStatement()) {
-            statement.execute("DROP TRIGGER reject_mixed_aging_clock");
-            statement.execute("DROP TABLE population_events");
-            statement.execute("DROP TABLE household_capacity");
-            statement.execute("DROP TABLE demographic_clock");
-            statement.execute("PRAGMA user_version = 6");
+            SchemaFixtures.rewind(database.getConnection(), 6);
             statement.execute("CREATE TABLE population_events (sequence INTEGER)");
         }
         assertThrows(SQLException.class, () -> new SchemaMigrator().migrate(database.getConnection()));
@@ -203,6 +199,8 @@ class DemographicRepositoryTest {
 
     @Test
     void householdMigrationPersistsAcrossRestartAndRetainsOriginEvents() throws SQLException {
+        people.recordSkillExperience(first.id(), "carpentry", 10);
+        var originalProfile = people.findWorkProfile(first.id());
         Household destination = destination("temporary-world");
         var policy = policy(0, 0);
         var migration = new MigrationPolicy(1, 0);
@@ -218,6 +216,7 @@ class DemographicRepositoryTest {
         assertEquals(destination.id(), moved.householdId());
         assertEquals(first.name(), moved.name());
         assertEquals(241, moved.ageSteps());
+        assertEquals(originalProfile, people.findWorkProfile(first.id()));
         assertEquals(1, people.findFamilyTies(first.id()).size());
         assertEquals(2, simulation.findEvents(0, 1000).size());
         assertTrue(simulation.findEvents(0, 1000).stream().allMatch(e -> e.event().sourceSettlementId().equals(settlement)));
@@ -318,7 +317,7 @@ class DemographicRepositoryTest {
             statement.execute("DROP TABLE population_events");
             statement.execute("ALTER TABLE old_events RENAME TO population_events");
             statement.execute("CREATE INDEX events_by_resident ON population_events(resident_id, sequence)");
-            statement.execute("PRAGMA user_version = 7");
+            SchemaFixtures.rewind(database.getConnection(), 7);
             statement.execute("CREATE TABLE population_events_v7 (sequence INTEGER)");
         }
         assertThrows(SQLException.class, () -> new SchemaMigrator().migrate(database.getConnection()));

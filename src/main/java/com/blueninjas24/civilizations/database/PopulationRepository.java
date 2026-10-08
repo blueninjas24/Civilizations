@@ -3,6 +3,7 @@ package com.blueninjas24.civilizations.database;
 import com.blueninjas24.civilizations.population.Household;
 import com.blueninjas24.civilizations.population.Resident;
 import com.blueninjas24.civilizations.population.FamilyTie;
+import com.blueninjas24.civilizations.population.WorkProfile;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -202,6 +203,32 @@ public final class PopulationRepository {
                 }
             }
             return List.copyOf(siblings);
+        }
+    }
+
+    /** Caller supplies the new total; retries do not double-count learning. */
+    public void recordSkillExperience(UUID residentId, String skill, long experience) throws SQLException {
+        new WorkProfile(residentId, java.util.Map.of(skill, experience));
+        try (var statement = connection.prepareStatement("""
+                INSERT INTO resident_skills(resident_id, skill, experience) VALUES(?, ?, ?)
+                ON CONFLICT(resident_id, skill) DO UPDATE SET experience = excluded.experience
+                """)) {
+            statement.setString(1, residentId.toString());
+            statement.setString(2, skill);
+            statement.setLong(3, experience);
+            statement.executeUpdate();
+        }
+    }
+
+    public Optional<WorkProfile> findWorkProfile(UUID residentId) throws SQLException {
+        if (findResident(residentId).isEmpty()) return Optional.empty();
+        try (var statement = connection.prepareStatement("SELECT skill, experience FROM resident_skills WHERE resident_id = ? ORDER BY skill")) {
+            statement.setString(1, residentId.toString());
+            var skills = new java.util.TreeMap<String, Long>();
+            try (var result = statement.executeQuery()) {
+                while (result.next()) skills.put(result.getString("skill"), result.getLong("experience"));
+            }
+            return Optional.of(new WorkProfile(residentId, skills));
         }
     }
 

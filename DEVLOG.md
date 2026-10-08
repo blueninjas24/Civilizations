@@ -1,5 +1,16 @@
 # Civilizations Development Log
 
+### Work qualification foundation — October 7, 2026
+
+- Schema v9 stores resident skill totals across restarts, migration, death and backups.
+  Added immutable job requirements and explainable living/age/skill qualification checks.
+- No fabricated employers, hiring, salaries, occupations or learning rates. This is
+  the Phase 1 qualification base for later real labor/business systems.
+- Windows wrapper clean verify passed 117 cases (115 unit, two integration), including
+  skill snapshots/upgrade failure/retry and migrant skill retention.
+- Phase 1 7/10 (70%); calendar and Minecraft integration/validation remain. No actual
+  DB/world/server changes, merge or push. Centralized temporary prior-schema fixtures.
+
 ### Saved migration — October 7, 2026
 
 - Added deterministic household movement driven by observed housing pressure and
