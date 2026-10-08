@@ -1,6 +1,9 @@
 # Civilizations — locked decisions and unresolved questions
 
 ## Locked / approved
+- October 8 economy authorization: Codex may choose documented configurable prototype
+  economy settings. Keep tuning in an easy-to-edit server file, including support for
+  different famine/feast scenarios; these defaults are experimental, not final canon.
 - October 8 authorization: disable zombie conversion for Civilizations-managed
   villagers in the prototype. Cancel INFECTION transforms for saved entity identities;
   do not cancel unrelated conversions or grant general damage immunity.
@@ -30,14 +33,6 @@
 - Public Civilizations source is acceptable after auditing secrets/history; Chronicler source remains private. This repository must not contain hidden Chronicler mechanics.
 
 ## Open — do not silently lock numerical/behavioral rules
-Pending Phase 2 tuning approval (October 8): may Codex choose editable experimental
-food consumption, starting reserves, economic cadence, shortage thresholds and price
-ranges? Recommend configurable documented prototype inputs, with protected saved
-settings and later balance testing. Alternative: select each rule with the user first.
-Question submitted; no answer assumed. Accounting APIs/tests proceed using explicit
-caller fixtures; no live economy rules enabled. Starting production must have plausible
-physical evidence; scarcity does not authorize invented farms or automatic deaths.
-
 1. Exact criteria for recognizing a settlement: POI cluster, villagers, vanilla village, player-founded location; distinction from player settlement.
 2. Center/border evolution and merging/splitting criteria. World UUID and saved
    bed/villager identity matching approved; multi-town overlap must be diagnosed.
@@ -57,6 +52,15 @@ physical evidence; scarcity does not authorize invented farms or automatic death
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- October 8 approved economy prototype: separate `economy.yml`, one 60-second period,
+  offline cap 120 and batch two, adult/child food demand 2/1, output four per evidenced
+  available worker at editable 100%. Famine/feast recipes use 25%/200% output. Initial
+  units per resident: food 12, timber/stone four each, iron/coal one each, livestock zero.
+  Severe shortage <=50% coverage for three deficits; surplus >=125%, abundant >=200%.
+  Base Trade Values food 2/timber 4/stone 3/iron 12/coal 6/livestock 5; scarcity multipliers
+  250/150/100/85/70%. Strict validation and comments; no automatic refilling on restart.
+  Tested formulas and startup config are implemented; live scheduler/facilities/merchants,
+  demographic crisis effects and recorded existing-save tuning transitions remain pending.
 - October 8 Phase 2: schema 14 stores explicit commodity inventory, protected policy,
   independent completed economic periods and retained flow inputs. Accounting replay 1
   uses exact nonnegative integers and deterministic ordering; all initialized goods

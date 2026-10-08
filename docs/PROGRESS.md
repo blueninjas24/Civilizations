@@ -52,8 +52,11 @@ The prototype has a simple population-versus-beds check; that does not complete
 the household-driven needs/economy milestone.
 
 Phase 2 is 25% by these four reporting milestones, not 25% of gameplay or time.
-The economy is not scheduled in live villages. Editable economy tuning approval,
-labor/production, welfare, decisions and player trade remain. See COMMODITY_ACCOUNTING.md.
+The economy is not scheduled in live villages. Approved editable `economy.yml` now
+defines prototype demand, evidenced-worker output and scarcity price calculations;
+normal/famine/feast examples are tested. Facility observation, saved scheduling,
+treasury/welfare, decisions and player trade remain. See COMMODITY_ACCOUNTING.md and
+ECONOMY_TUNING.md. Partial work does not complete a second milestone.
 
 ## Phase 3 — planned
 

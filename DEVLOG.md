@@ -1,5 +1,21 @@
 # Civilizations Development Log
 
+### Editable economy prototype — October 8, 2026
+
+- User authorized prototype defaults and easy server-owner famine/feast tuning.
+  Added commented economy.yml and strict startup parser; existing edits never overwritten.
+- Added independent immutable settings, demand/initial-supply calculations, food output
+  bounded by evidenced worker slots/labor, and exact abstract scarcity prices. Recipes
+  use 100% normal, 25% famine, 200% feast; no invented farms or automatic deaths.
+- Nineteen new cases; Wrapper clean verify passed 261 (259 unit/two integration),
+  all passing. Real Paper created the file, accepted 25% edit, preserved its hash/comment
+  on restart, served population diagnostics and stopped cleanly. Restored normal settings.
+- Schema remains 14, no automatic inventory seeding/live economy/merchant behavior.
+  Saved threshold transition still pending; current API rejects silent history changes.
+  Phase 2 stays 25% with partial labor/price work; next is observed facility evidence,
+  saved economic pacing and runtime integration. No decisions needed for approved tuning.
+  Documentation/status/progress updated; no production reset, merge or push.
+
 ### Phase 2 commodity accounting — October 8, 2026
 
 - Built commodity reserves, explicit supply/demand flows, duration-sensitive shortage

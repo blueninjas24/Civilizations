@@ -2,6 +2,7 @@ package com.blueninjas24.civilizations;
 
 import com.blueninjas24.civilizations.application.PopulationSession;
 import com.blueninjas24.civilizations.paper.PopulationConfiguration;
+import com.blueninjas24.civilizations.paper.EconomyConfiguration;
 import com.blueninjas24.civilizations.paper.PopulationDebugCommand;
 import com.blueninjas24.civilizations.paper.VillageObserver;
 import com.blueninjas24.civilizations.paper.ManagedVillagerConversionGuard;
@@ -34,6 +35,13 @@ public final class Civilizations extends JavaPlugin {
             var settings = PopulationConfiguration.read(config);
             var observerSettings = PopulationConfiguration.readObserver(config);
             var projectionSettings = PopulationConfiguration.readProjection(config);
+            var economyFile = new File(getDataFolder(), "economy.yml");
+            if (!economyFile.exists()) saveResource("economy.yml", false);
+            var economyConfig = new YamlConfiguration(); economyConfig.load(economyFile);
+            var economySettings = EconomyConfiguration.read(economyConfig);
+            getLogger().info("Economy prototype settings validated: " + economySettings.secondsPerPeriod()
+                    + " seconds/period, food output " + economySettings.foodOutputPercent()
+                    + "%; live economy scheduling is not connected yet.");
             population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis);
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)

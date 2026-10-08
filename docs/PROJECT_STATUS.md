@@ -20,14 +20,33 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
-1. Pending approval: choose documented configurable prototype economic quantities,
-   cadence and shortage/price thresholds, then evidence-backed labor/production,
-   treasury/wellbeing, economic scheduling and feasible explainable decisions.
+1. Economy tuning approved and implemented in commented `economy.yml`. Next:
+   evidence-backed labor/production, saved economic timing and owner scheduling,
+   treasury/wellbeing and feasible explainable decisions.
 2. Human client playtest can follow later; user authorized Phase 2 without it.
    Preserve vanilla profession/trades/inventory when physical villagers are recreated,
    and handle other native transformations before recommending established survival worlds.
 3. Current roadmap phase: needs, commodities and explainable economy decisions; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
+
+## Editable economy prototype settings — October 8, 2026
+- User authorized configurable economy defaults and requested easy famine/feast tuning.
+  `economy.yml` is created only if missing and validated before database startup.
+  Comments, owner edits and matching custom commodity stock/price entries are preserved.
+- Plain-Java EconomySettings computes explicit first-enrollment supplies, adult/child
+  demand, production bounded by workers plus evidenced capacity, and exact abstract
+  scarcity prices. No fabricated facility, block change or merchant transaction.
+- Defaults/recipes/ranges documented in ECONOMY_TUNING.md. Nineteen new cases test
+  the shipped file, malformed/partial/unsafe edits, exact prices, unknown capacity,
+  overflow, immutable settings and distinct normal/famine/feast accounting scenarios.
+- Wrapper clean verify passed 261 cases (259 unit/two integration), no failures/errors/
+  skips. Paper first-run creation, 25% edit/comment surviving restart byte-for-byte,
+  normal population diagnostics/unloaded fixture and clean shutdown verified. Restored
+  test settings to normal; schema remains 14 and no economy accounts were auto-created.
+- Settings and calculations are prepared, not live consumption or trading. Recorded
+  tuning transitions for already initialized accounts still pending; saved policies
+  continue to reject silent changes. No approval blocker remains for prototype tuning.
+  Phase 2 stays 1/4 (25%) with partial labor/price work; no merge/push/main changes.
 
 ## Phase 2 commodity accounting — October 8, 2026
 - Branch `codex/phase2-commodity-accounting`: plain-Java commodity keys, exact stock
@@ -43,8 +62,8 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - Backed up marked disposable schema-13 DB; real Paper schema-14 startup/commands,
   unloaded fixture, no forced chunks and clean shutdown verified. Integrity/FKs OK;
   original identities/families preserved; zero economy accounts as intended.
-- Phase 2 1/4 (25% of reporting milestones), not a running/balanced economy. Need
-  economic tuning approval before selecting live consumption/cadence/price rules.
+- At this accounting milestone Phase 2 was 1/4 (25%), not a running/balanced economy.
+  Tuning approval was pending then; subsequently approved and implemented above.
   Human client playtest deferred explicitly; known Phase 1 recreation limits remain.
   No production reset, construction, main modification, remote push or merge.
   See COMMODITY_ACCOUNTING.md for contract and remaining gates.

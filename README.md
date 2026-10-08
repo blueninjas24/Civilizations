@@ -21,6 +21,10 @@ Phase 2 now has tested, persistent commodity accounting: reserves, explicit supp
 and demand, shortage duration and recovery. This is an internal foundation; automatic
 village economy and player trade are still pending. See [accounting scope](docs/COMMODITY_ACCOUNTING.md).
 
+Prototype economy tuning is in a separate commented `economy.yml`, created under
+`plugins/Civilizations` on first startup. It includes simple famine/feast examples
+and strict validation. Live economy scheduling remains pending; see [tuning guide](docs/ECONOMY_TUNING.md).
+
 ## Core Philosophy
 
 - Keep the experience recognizably vanilla Minecraft.

@@ -28,8 +28,9 @@ negative; checked integer arithmetic fails on overflow. Exact ratio comparisons
 avoid floating-point drift and multiplication overflow. Immutable snapshots and
 stable commodity ordering make replay independent of caller map order.
 
-There are **no runtime default quantities or thresholds**. Test fixtures use
-illustrative inputs only. All initialized commodities require explicit period inputs;
+The accounting engine has **no implicit default quantities or thresholds**. Approved
+prototype inputs now come from `economy.yml`; see ECONOMY_TUNING.md. The original
+accounting tests use illustrative inputs. All initialized commodities require explicit period inputs;
 missing evidence is not silently converted to zero production/consumption.
 Requested uses are aggregated; this does not choose how scarce goods are rationed
 between families, exports and industry. A requested export is not a completed shipment.
@@ -80,8 +81,8 @@ No production database/world reset, remote push or merge.
 
 ## Next gate
 
-Approve editable experimental economy quantities/cadence/thresholds before live
-consumption and pricing. Then implement evidence-backed production and labor,
+Editable experimental economy settings are now approved and implemented. Next,
+connect evidence-backed production and labor, saved independent economy timing,
 treasury versus household wellbeing, bounded economic scheduling and explanations.
-Food crisis population effects, material allocation priority, prices, barter and
+Food crisis population effects, material allocation priority, merchant price application, barter and
 autonomous response execution still need implementation and appropriate decisions.
