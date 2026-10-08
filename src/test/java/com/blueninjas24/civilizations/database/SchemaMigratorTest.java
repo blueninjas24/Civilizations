@@ -43,7 +43,7 @@ class SchemaMigratorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 2})
+    @ValueSource(ints = {1, 2, 3})
     void upgradesVersionedSchemasIncrementally(int startingVersion) throws SQLException {
         try (Connection connection = connect()) {
             createLegacy(connection, startingVersion - 1);
@@ -60,12 +60,12 @@ class SchemaMigratorTest {
             new SchemaMigrator().migrate(connection);
             createRow(connection, 2);
             SchemaMigrator failing = new SchemaMigrator(List.of(
-                    ignored -> {}, ignored -> {}, ignored -> {},
+                    ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {},
                     c -> execute(c, "CREATE TABLE rollback_marker (id INTEGER)"),
                     c -> execute(c, "THIS IS INVALID SQL")
             ));
             assertThrows(SQLException.class, () -> failing.migrate(connection));
-            assertEquals(3, version(connection));
+            assertEquals(SchemaMigrator.CURRENT_VERSION, version(connection));
             assertTrue(connection.getAutoCommit());
             try (var statement = connection.createStatement();
                  var result = statement.executeQuery(
@@ -83,11 +83,11 @@ class SchemaMigratorTest {
         try (Connection connection = connect()) {
             new SchemaMigrator().migrate(connection);
             createRow(connection, 2);
-            execute(connection, "PRAGMA user_version = 4");
+            execute(connection, "PRAGMA user_version = " + (SchemaMigrator.CURRENT_VERSION + 1));
             SQLException failure = assertThrows(SQLException.class,
                     () -> new SchemaMigrator().migrate(connection));
             assertTrue(failure.getMessage().contains("Unsupported"));
-            assertEquals(4, version(connection));
+            assertEquals(SchemaMigrator.CURRENT_VERSION + 1, version(connection));
             assertLegacyRow(connection, 2);
         }
     }
@@ -106,7 +106,7 @@ class SchemaMigratorTest {
     @Test
     void databaseManagerClosesConnectionWhenMigrationFails() throws SQLException {
         try (Connection connection = connect()) {
-            execute(connection, "PRAGMA user_version = 4");
+            execute(connection, "PRAGMA user_version = " + (SchemaMigrator.CURRENT_VERSION + 1));
         }
         DatabaseManager manager = new DatabaseManager(directory.toFile(), Logger.getLogger("MigrationTest"));
         assertThrows(SQLException.class, manager::initialize);
@@ -118,7 +118,7 @@ class SchemaMigratorTest {
         }
         try {
             manager.initialize();
-            assertEquals(3, version(manager.getConnection()));
+            assertEquals(SchemaMigrator.CURRENT_VERSION, version(manager.getConnection()));
         } finally {
             manager.close();
         }
@@ -126,6 +126,28 @@ class SchemaMigratorTest {
 
     private Connection connect() throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:" + directory.resolve("civilizations.db"));
+    }
+
+    @Test
+    void populationMigrationFailureRollsBackNewTablesAndPreservesLegacyData() throws SQLException {
+        try (Connection connection = connect()) {
+            createLegacy(connection, 2);
+            execute(connection, "PRAGMA user_version = 3");
+            execute(connection, "CREATE TABLE residents (id TEXT)");
+            assertThrows(SQLException.class, () -> new SchemaMigrator().migrate(connection));
+            assertEquals(3, version(connection));
+            assertLegacyRow(connection, 2);
+            try (var statement = connection.createStatement();
+                 var result = statement.executeQuery(
+                         "SELECT COUNT(*) FROM sqlite_master WHERE name = 'households'")) {
+                assertTrue(result.next());
+                assertEquals(0, result.getInt(1));
+            }
+            execute(connection, "DROP TABLE residents"); // Only this test's disposable database.
+            new SchemaMigrator().migrate(connection);
+            assertEquals(SchemaMigrator.CURRENT_VERSION, version(connection));
+            assertLegacyRow(connection, 2);
+        }
     }
 
     private static void createLegacy(Connection connection, int censusColumns) throws SQLException {

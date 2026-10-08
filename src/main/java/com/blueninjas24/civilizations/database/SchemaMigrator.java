@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 3;
+    static final int CURRENT_VERSION = 4;
 
     @FunctionalInterface
     interface Migration {
@@ -35,7 +35,8 @@ final class SchemaMigrator {
                             "center_y", "center_z", "discovered_at"));
                 },
                 connection -> addColumnIfMissing(connection, "population"),
-                connection -> addColumnIfMissing(connection, "beds")
+                connection -> addColumnIfMissing(connection, "beds"),
+                SchemaMigrator::createPopulationTables
         ));
     }
 
@@ -69,6 +70,11 @@ final class SchemaMigrator {
             }
             requireColumns(connection, Set.of("id", "name", "world", "center_x", "center_y",
                     "center_z", "discovered_at", "population", "beds"));
+            if (migrations.size() >= 4) {
+                requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
+                requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",
+                        "household_id", "age_steps", "status"));
+            }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {
@@ -90,9 +96,13 @@ final class SchemaMigrator {
     }
 
     private static Set<String> columns(Connection connection) throws SQLException {
+        return columns(connection, "settlements");
+    }
+
+    private static Set<String> columns(Connection connection, String table) throws SQLException {
         Set<String> columns = new HashSet<>();
         try (var statement = connection.createStatement();
-             var result = statement.executeQuery("PRAGMA table_info(settlements)")) {
+             var result = statement.executeQuery("PRAGMA table_info(" + table + ")")) {
             while (result.next()) {
                 columns.add(result.getString("name").toLowerCase(java.util.Locale.ROOT));
             }
@@ -101,11 +111,40 @@ final class SchemaMigrator {
     }
 
     private static void requireColumns(Connection connection, Set<String> required) throws SQLException {
+        requireColumns(connection, "settlements", required);
+    }
+
+    private static void requireColumns(Connection connection, String table, Set<String> required) throws SQLException {
         Set<String> missing = new HashSet<>(required);
-        missing.removeAll(columns(connection));
+        missing.removeAll(columns(connection, table));
         if (!missing.isEmpty()) {
-            throw new SQLException("Civilizations settlements schema is missing columns: " + missing);
+            throw new SQLException("Civilizations " + table + " schema is missing columns: " + missing);
         }
+    }
+
+    private static void createPopulationTables(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE households (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                    name TEXT NOT NULL CHECK(length(trim(name)) > 0),
+                    UNIQUE(id, settlement_id)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE residents (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    name TEXT NOT NULL CHECK(length(trim(name)) > 0),
+                    settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                    household_id TEXT,
+                    age_steps INTEGER NOT NULL CHECK(typeof(age_steps) = 'integer' AND age_steps >= 0),
+                    status TEXT NOT NULL CHECK(status IN ('ALIVE', 'DECEASED')),
+                    FOREIGN KEY(household_id, settlement_id) REFERENCES households(id, settlement_id)
+                )
+                """);
+        execute(connection, "CREATE INDEX households_by_settlement ON households(settlement_id, id)");
+        execute(connection, "CREATE INDEX residents_by_settlement ON residents(settlement_id, id)");
+        execute(connection, "CREATE INDEX residents_by_household ON residents(household_id, settlement_id)");
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

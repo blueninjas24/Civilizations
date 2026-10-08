@@ -10,7 +10,7 @@ not a replacement for ROADMAP.md or its design requirements.
 
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
-| 1. Foundation & Population | Villages remember their people; families and population change over time | 3 / 10 | `███░░░░░░░` 30% — active |
+| 1. Foundation & Population | Villages remember their people; families and population change over time | 4 / 10 | `████░░░░░░` 40% — active |
 | 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 0 / 4 | `░░░░░░░░░░` 0% |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -26,8 +26,8 @@ not a replacement for ROADMAP.md or its design requirements.
 - [x] Settlement saving and safe database upgrade machinery.
 - [x] Repeatable simulation test runner, separate from Minecraft.
 - [ ] Validate automatic online builds, disposable server setup and backup recovery. Tools/procedures exist; hosted CI, Paper testing and recovery drill remain pending.
-- [ ] Save named individual residents across restarts. **Next development milestone.**
-- [ ] Households, basic family ties and the foundation for jobs.
+- [x] Save named individual residents across restarts. Verified headlessly; in-game seeding/projection remains in the final milestone.
+- [ ] Households, basic family ties and the foundation for jobs. Household identities/membership are saved; family ties and job foundation remain. **Next development milestone.**
 - [ ] Aging, births and deaths.
 - [ ] Immigration and emigration.
 - [ ] Civilization calendar and saved simulation/catch-up state. Logical stepping exists; real-world/calendar ratios are not chosen.

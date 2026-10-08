@@ -40,6 +40,9 @@ public class DatabaseManager {
         );
 
         try {
+            try (var statement = connection.createStatement()) {
+                statement.execute("PRAGMA foreign_keys = ON");
+            }
             new SchemaMigrator().migrate(connection);
         } catch (SQLException | RuntimeException failure) {
             try {
@@ -141,6 +144,10 @@ public class DatabaseManager {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    public PopulationRepository getPopulationRepository() throws SQLException {
+        return new PopulationRepository(connection);
     }
 
     public void close() {

@@ -165,3 +165,11 @@ This will be the beginning of autonomous settlement development.
 - Initial reporting snapshot: three of ten Phase 1 milestones complete; later phases have no completed reporting milestones. Percentages count milestones, not hours or deadlines.
 - Added an AGENTS.md maintenance instruction and linked the tracker from README. Canonical roadmap requirements and gameplay behavior are unchanged.
 - Reviewed tracker against ROADMAP and verified PROJECT_STATUS. Documentation-only change; no build/test rerun needed.
+
+### Persistent residents and household identities
+
+- Added immutable Resident/Household records and a focused population repository. People retain stable identities, names, logical age, household assignment and living/deceased status across restarts.
+- Schema v4 adds indexed population tables with foreign key/age/status constraints. Household member batches commit atomically; duplicate/missing/mismatched identities fail, and failed batches can retry.
+- Existing settlement rows/census preserved; no resets, automatic villagers-to-residents conversion, live DB operations or new gameplay tuning.
+- Windows `.\mvnw.cmd clean verify -B -ntp` passed 58 cases (56 unit, two integration), including restart, constraints, rollback/retry, v3 upgrade/recovery and population backup round-trip coverage.
+- Phase 1 advances to four of ten reporting milestones complete (40% by checklist). Household storage is present; family ties/jobs and live gameplay integration remain pending. Docs/POPULATION.md records limitations.
