@@ -56,5 +56,7 @@ or access a Minecraft server's plugin data folder.
 Use `.\mvnw.cmd clean verify` for full verification, including the packaged-JAR
 backup integration test. See [development and recovery procedures](docs/DEVELOPMENT.md)
 for CI, a disposable local Paper setup, and consistent SQLite snapshots.
+The [headless simulation harness](docs/SIMULATION_HARNESS.md) exercises seeded,
+bounded stepping independently of Minecraft; it does not yet simulate population.
 
 Development began September 27, 2026.
