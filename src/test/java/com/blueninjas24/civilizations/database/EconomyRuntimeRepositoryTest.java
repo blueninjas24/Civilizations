@@ -35,6 +35,37 @@ class EconomyRuntimeRepositoryTest {
     private EconomyRuntimeRepository runtime(EconomySettings settings) { return new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216); }
     private void observe(long time, boolean complete, long crops) throws SQLException { runtime.observe(new FarmObservation(town,world,time,complete,crops),time); }
     private void sql(String sql) throws SQLException { try (var s = db.getConnection().createStatement()) { s.execute(sql); } }
+    @Test void householdSnapshotsRetainHousingAndDemandAcrossChangingEvidenceAndRestart() throws SQLException {
+        var id = UUID.randomUUID(); db.getPopulationRepository().insertHousehold(new com.blueninjas24.civilizations.population.Household(id,town,"Family"));
+        for (var person : db.getPopulationRepository().findResidents(town)) if (person.status() == Resident.Status.ALIVE)
+            db.getPopulationRepository().updateResident(new Resident(person.id(),person.name(),town,id,person.ageSteps(),person.status()));
+        db.getDemographicRepository().recordCapacity(id,2); observe(1000,true,0); runtime.pulse(2000,false);
+        var first = runtime.views().get(town).needs(); assertEquals(0,first.unassignedResidents());
+        assertEquals(5,first.homes().getFirst().foodDemand()); assertEquals(HouseholdNeeds.Housing.CROWDED,first.homes().getFirst().housing());
+        assertNull(runtime.views().get(town).treasury());
+        db.getDemographicRepository().recordCapacity(id,4); runtime.pulse(3000,false);
+        assertEquals(HouseholdNeeds.Housing.SUFFICIENT,runtime.views().get(town).needs().homes().getFirst().housing());
+        db.close();db = new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();runtime = runtime(settings);
+        assertEquals(first,new HouseholdNeedsRepository(db.getConnection()).load(town,1).orElseThrow());
+        assertEquals(2,runtime.views().get(town).needs().period());
+    }
+    @Test void failedNeedsWriteRollsBackFoodAndCheckpointWithRetryableTarget() throws SQLException {
+        observe(1000,true,32);
+        sql("CREATE TRIGGER reject_needs BEFORE INSERT ON needs_periods BEGIN SELECT RAISE(ABORT,'injected'); END");
+        assertThrows(SQLException.class,()->runtime.pulse(2000,false));
+        var before = runtime.views().get(town);assertEquals(0,before.account().state().completedPeriods());assertNull(before.needs());
+        assertEquals(36,before.account().state().stocks().get(Commodity.FOOD).units());assertEquals(1,before.queuedPeriods());
+        sql("DROP TRIGGER reject_needs");runtime.pulse(2000,false);
+        var after = runtime.views().get(town);assertEquals(1,after.needs().period());assertEquals(3,after.needs().unassignedResidents());
+        assertEquals(39,after.account().state().stocks().get(Commodity.FOOD).units());
+    }
+    @Test void schema15UpgradePreservesFoodHistoryWithoutInventingPastHouseholdEvidence() throws SQLException {
+        observe(1000,true,32);runtime.pulse(2000,false);var original=runtime.views().get(town).latest();
+        SchemaFixtures.rewind(db.getConnection(),15);new SchemaMigrator().migrate(db.getConnection());
+        assertEquals(original,runtime.views().get(town).latest());assertNull(runtime.views().get(town).needs());
+        runtime.pulse(3000,false);assertEquals(2,runtime.views().get(town).needs().period());
+        assertTrue(new TreasuryRepository(db.getConnection()).load(town).isEmpty());
+    }
     @Test void partialIsUnknownAndCompleteEvidenceEnrollsOnceUsingRealResidentsNotLegacyCensus() throws SQLException {
         runtime.start(1000); observe(1000,false,0); assertTrue(runtime.views().isEmpty());
         observe(1001,true,32); assertEquals(36,runtime.views().get(town).account().state().stocks().get(Commodity.FOOD).units());

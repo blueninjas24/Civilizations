@@ -136,3 +136,17 @@ Catch-up uses current saved residents rather than exact historical event interle
 These prototype approximations are documented in LIVE_FOOD_ECONOMY.md, remain editable,
 and do not revise locked design principles. Household rationing, treasury transactions,
 food-driven mortality and player merchant rules remain separate future work.
+
+
+## October 8, 2026 — household needs and treasury boundaries
+
+Engineering implementation records existing household food demand and observed
+housing per completed economic period, with shared village food condition separately
+identified. It does not assign individual rations or a numeric prosperity score.
+Equal occupancy follows the existing prototype's sufficient-capacity convention;
+unknown housing is never measured zero. No housing or migration rule is changed.
+Treasury uses exact hundredths of abstract Trade Value, with explicit source/reason
+and retry-safe operation IDs. No live treasury is initialized or credited by guesswork.
+Funding, rationing, food-linked population effects and full prosperity rules remain
+open implementation/design work; this accounting does not choose them. See
+HOUSEHOLD_NEEDS_AND_TREASURY.md. Existing configurable prototype authority is retained.

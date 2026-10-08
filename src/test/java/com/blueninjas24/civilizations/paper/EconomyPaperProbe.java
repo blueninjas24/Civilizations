@@ -29,6 +29,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private UUID town;
     private Set<UUID> residents;
     private Result famine;
+    private HouseholdNeeds.Assessment famineNeeds;
     private final Set<Long> tickets = new HashSet<>();
     private int stage, ticks;
     private long deadline;
@@ -86,12 +87,18 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 1->{if(!ready())return;town=session.snapshot().orElseThrow().households().getFirst().settlementId();residents=new HashSet<>();session.snapshot().orElseThrow().residents().forEach(p->residents.add(p.id()));scan();stage++;}
         case 2->{var view=session.economyView().get(town);if(view==null)return;require(view.farm().complete()&&view.farm().plantedCrops()==64,"Field count wrong");now.addAndGet(1000);future=session.pulse();stage++;}
         case 3->{if(!ready())return;var report=session.economyView().get(town).latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
-            require(report.flow().production()==8&&report.demand()==4&&report.after().units()==28,"Production/demand wrong");crops(false);observer.cancel();scan();stage++;}
+            require(report.flow().production()==8&&report.demand()==4&&report.after().units()==28,"Production/demand wrong");
+            var needs=session.economyView().get(town).needs();require(needs!=null&&needs.homes().size()==1&&needs.homes().getFirst().foodDemand()==4,"Household needs wrong");
+            require(session.economyView().get(town).treasury()==null,"Invented starting treasury");
+            new PopulationDebugCommand(session,()->"Food test").onCommand(Bukkit.getConsoleSender(),Objects.requireNonNull(Bukkit.getPluginCommand("civ")),"civ",new String[]{"debug","economy",town.toString()});
+            crops(false);observer.cancel();scan();stage++;}
         case 4->{if(session.economyView().get(town).farm().plantedCrops()!=0)return;require(session.economyView().get(town).farm().complete(),"Empty field was unknown");now.addAndGet(1000);future=session.pulse();stage++;}
         case 5->{if(!ready())return;var view=session.economyView().get(town);if(view.account().state().completedPeriods()<11){now.addAndGet(1000);future=session.pulse();return;}
             famine=view.latest();require(famine.reports().stream().anyMatch(r->r.commodity().equals(Commodity.FOOD)&&r.condition()==Condition.SEVERE_SHORTAGE),"Famine did not escalate");
+            famineNeeds=view.needs();require(famineNeeds.sharedFood()==Condition.SEVERE_SHORTAGE,"Needs did not retain crisis evidence");
             observer.cancel();session.close();economy=tune(economy,200);now.addAndGet(10000);open();stage++;}
         case 6->{if(!ready())return;require(famine.equals(session.economyView().get(town).latest()),"Past famine report changed on retuning");
+            require(famineNeeds.equals(session.economyView().get(town).needs()),"Household history changed on restart/retuning");
             var ids=new HashSet<UUID>();session.snapshot().orElseThrow().residents().forEach(p->ids.add(p.id()));require(ids.equals(residents),"Residents changed on restart");crops(true);scan();stage++;}
         case 7->{if(session.economyView().get(town).farm().plantedCrops()!=64)return;now.addAndGet(1000);future=session.pulse();stage++;}
         case 8->{if(!ready())return;require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==12,"Feast recovery wrong");

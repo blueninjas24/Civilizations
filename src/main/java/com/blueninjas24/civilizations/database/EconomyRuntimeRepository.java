@@ -8,7 +8,8 @@ import java.util.*;
 
 /** Single SQL-owner food runtime. Saved clocks, evidence and period effects; no Bukkit access. */
 public final class EconomyRuntimeRepository {
-    public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods) {}
+    public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods,
+                       HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury) {}
     private record Clock(long cadence, CivilizationTime.Anchor anchor, String settings, long completed) {}
     private final Connection connection;
     private final CommodityRepository commodities;
@@ -107,7 +108,9 @@ public final class EconomyRuntimeRepository {
         long output = settings.foodProduction(adults, OptionalLong.of(farm.plantedCrops() / farms.cropsPerWorker()));
         var flows = new TreeMap<Commodity, Flow>(); account.state().stocks().keySet().forEach(commodity -> flows.put(commodity, Flow.idle()));
         flows.put(Commodity.FOOD, new Flow(output, 0, settings.foodDemand(adults, children), 0, 0, 0, 0));
-        commodities.advanceRows(town, Math.incrementExact(clock.completed()), flows, settings.shortages());
+        var period = commodities.advanceRows(town, Math.incrementExact(clock.completed()), flows, settings.shortages());
+        var needs = new HouseholdNeedsRepository(connection);
+        needs.save(HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings));
         return true;
     }
     public Map<UUID, View> views() throws SQLException {
@@ -115,7 +118,9 @@ public final class EconomyRuntimeRepository {
         for (var town : towns()) {
             var account = commodities.load(town).orElseThrow();
             var latest = account.state().completedPeriods() == 0 ? null : commodities.history(town, account.state().completedPeriods()).orElseThrow();
-            result.put(town, new View(account, farm(town), latest, clock(town).anchor().targetSteps() - account.state().completedPeriods()));
+            result.put(town, new View(account, farm(town), latest, clock(town).anchor().targetSteps() - account.state().completedPeriods(),
+                    new HouseholdNeedsRepository(connection).load(town, account.state().completedPeriods()).orElse(null),
+                    new TreasuryRepository(connection).load(town).orElse(null)));
         }
         return Collections.unmodifiableMap(result);
     }

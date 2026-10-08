@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 15;
+    static final int CURRENT_VERSION = 16;
 
     @FunctionalInterface
     interface Migration {
@@ -63,7 +63,8 @@ final class SchemaMigrator {
                         "ALTER TABLE village_beds ADD COLUMN household_id TEXT REFERENCES households(id)"),
                 SchemaMigrator::createResidentProjection,
                 SchemaMigrator::createCommodityAccounting,
-                SchemaMigrator::createFoodRuntime
+                SchemaMigrator::createFoodRuntime,
+                SchemaMigrator::createHouseholdNeedsAndTreasury
         ));
     }
 
@@ -148,6 +149,12 @@ final class SchemaMigrator {
                 requireColumns(connection, "economy_runtime", Set.of("settlement_id", "millis_per_period", "last_observed_millis", "remainder_millis", "target_periods", "settings"));
                 requireColumns(connection, "economy_tuning", Set.of("sequence", "settlement_id", "after_period", "observed_millis", "discarded_millis", "old_settings", "new_settings"));
                 requireColumns(connection, "economy_periods", Set.of("severe_bps", "surplus_bps", "abundant_bps", "severe_after"));
+            }
+            if (migrations.size() >= 16) {
+                requireColumns(connection, "needs_periods", Set.of("settlement_id", "period", "food_condition", "shortage_periods", "fulfilled", "demand", "unassigned_residents"));
+                requireColumns(connection, "household_needs", Set.of("settlement_id", "period", "household_id", "adults", "children", "food_demand", "capacity"));
+                requireColumns(connection, "treasuries", Set.of("settlement_id", "hundredths"));
+                requireColumns(connection, "treasury_entries", Set.of("sequence", "operation_id", "settlement_id", "kind", "amount", "balance_after", "reason"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
@@ -491,6 +498,52 @@ final class SchemaMigrator {
             execute(connection, "ALTER TABLE economy_periods ADD COLUMN " + column + " INTEGER NOT NULL DEFAULT 0");
             execute(connection, "UPDATE economy_periods SET " + column + " = (SELECT " + column + " FROM economy_accounts WHERE settlement_id = economy_periods.settlement_id)");
         }
+    }
+
+    private static void createHouseholdNeedsAndTreasury(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE needs_periods (
+                    settlement_id TEXT NOT NULL REFERENCES economy_accounts(settlement_id),
+                    period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                    food_condition TEXT NOT NULL CHECK(food_condition IN ('SEVERE_SHORTAGE','SHORTAGE','BALANCED','SURPLUS','ABUNDANT')),
+                    shortage_periods INTEGER NOT NULL CHECK(typeof(shortage_periods)='integer' AND shortage_periods>=0),
+                    fulfilled INTEGER NOT NULL CHECK(typeof(fulfilled)='integer' AND fulfilled>=0),
+                    demand INTEGER NOT NULL CHECK(typeof(demand)='integer' AND demand>=fulfilled),
+                    unassigned_residents INTEGER NOT NULL CHECK(typeof(unassigned_residents)='integer' AND unassigned_residents>=0),
+                    PRIMARY KEY(settlement_id,period)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE household_needs (
+                    settlement_id TEXT NOT NULL,
+                    period INTEGER NOT NULL,
+                    household_id TEXT NOT NULL REFERENCES households(id),
+                    adults INTEGER NOT NULL CHECK(typeof(adults)='integer' AND adults>=0),
+                    children INTEGER NOT NULL CHECK(typeof(children)='integer' AND children>=0),
+                    food_demand INTEGER NOT NULL CHECK(typeof(food_demand)='integer' AND food_demand>=0),
+                    capacity INTEGER CHECK(capacity IS NULL OR (typeof(capacity)='integer' AND capacity>=0)),
+                    PRIMARY KEY(settlement_id,period,household_id),
+                    FOREIGN KEY(settlement_id,period) REFERENCES needs_periods(settlement_id,period)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE treasuries (
+                    settlement_id TEXT PRIMARY KEY NOT NULL REFERENCES settlements(id),
+                    hundredths INTEGER NOT NULL CHECK(typeof(hundredths)='integer' AND hundredths>=0)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE treasury_entries (
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    operation_id TEXT NOT NULL UNIQUE,
+                    settlement_id TEXT NOT NULL REFERENCES treasuries(settlement_id),
+                    kind TEXT NOT NULL CHECK(kind IN ('OPENING','CREDIT','DEBIT')),
+                    amount INTEGER NOT NULL CHECK(typeof(amount)='integer' AND amount>=0 AND (kind='OPENING' OR amount>0)),
+                    balance_after INTEGER NOT NULL CHECK(typeof(balance_after)='integer' AND balance_after>=0),
+                    reason TEXT NOT NULL CHECK(length(trim(reason))>0)
+                )
+                """);
+        execute(connection, "CREATE INDEX treasury_history ON treasury_entries(settlement_id,sequence)");
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

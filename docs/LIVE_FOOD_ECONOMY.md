@@ -59,8 +59,12 @@ population catch-up. Do not describe this approximation as exact historic food u
 evidence, reserves, shortage explanations and indicative prices from immutable caches.
 An uninitialized village is reported as awaiting reliable evidence, not starving.
 
+Subsequent schema 16 work adds household needs snapshots and explicit treasury
+accounting; see HOUSEHOLD_NEEDS_AND_TREASURY.md.
+
 Only food has automatic flows. Other commodity stocks remain idle. Scarcity prices
-are diagnostic Trade Values, not merchant offers. Treasury, household allocation and
-wellbeing, famine mortality, business employment, autonomous responses and player
-transactions are not implemented by this batch. A synthetic Paper probe validates
-food behavior; human survival playtesting and tuning remain outstanding.
+are diagnostic Trade Values, not merchant offers. Automatic treasury funding,
+household allocation/full wellbeing, famine mortality, business employment,
+autonomous responses and player transactions remain pending. Observable household
+needs are now saved separately. A synthetic Paper probe validates food behavior;
+human survival playtesting and tuning remain outstanding.

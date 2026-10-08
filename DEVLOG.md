@@ -443,3 +443,21 @@ This will be the beginning of autonomous settlement development.
   decisions and player transactions remain; no starvation deaths. Current demographic
   checkpoint is used during food catch-up, not exact historical interleaving. Large
   city profiling and human client play remain outstanding. No push/merge/main changes.
+
+## October 8, 2026 — household needs and explicit treasury accounting
+
+- Food periods now save household demand/age counts, known/unknown/crowded housing
+  and unassigned living residents atomically with stocks/history/checkpoint. Food
+  coverage remains shared village evidence, not invented family rations/prosperity.
+- Transactional schema 16 preserves old data without fabricating past needs. Added
+  exact Trade Value treasury accounts/ordered ledger: explicit sources, operation-ID
+  retry protection, no negative funds or guessed live income/personal wallets.
+- Fourteen added automated cases; Windows Wrapper clean verify passed 288 cases
+  (286 unit/two integration), no failures/errors/skips. Long 1,200-period crisis/
+  recovery replay, historic evidence, failed-save rollback/retry and migration tested.
+- Real guarded Paper probe passed household diagnostics and preserved needs during
+  restart/feast retuning alongside actual field/food/unloaded checks. Dev schema-15
+  snapshot first; identities/families preserved, SQLite integrity and FKs verified.
+- Status/progress/docs updated. Phase 2 remains 25%: broader wellbeing and live budget
+  flows, autonomous responses and player trade remain. No demographic penalties,
+  production save reset, remote push/merge or main modification.

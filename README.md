@@ -25,6 +25,11 @@ Prototype economy tuning is in a separate commented `economy.yml`, created under
 `plugins/Civilizations` on first startup. It includes simple famine/feast examples
 and strict validation. Live food supports recorded forward tuning on restart; see [tuning guide](docs/ECONOMY_TUNING.md).
 
+Household needs now retain food demand, housing pressure and shared food conditions
+for each saved economic period. Explicit treasury accounting is separate; automatic
+funding, full prosperity and player transactions remain pending. See
+[household needs and treasury scope](docs/HOUSEHOLD_NEEDS_AND_TREASURY.md).
+
 ## Core Philosophy
 
 - Keep the experience recognizably vanilla Minecraft.

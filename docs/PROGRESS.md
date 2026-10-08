@@ -11,7 +11,7 @@ not a replacement for ROADMAP.md or its design requirements.
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
-| 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 1 / 4 | `██▌░░░░░░░` 25% — live food added; second milestone partial |
+| 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 1 / 4 | `██▌░░░░░░░` 25% — live food and household needs; second milestone partial |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -48,16 +48,16 @@ PHASE1_PLAYTEST.md for setup and material limitations, including trade resets on
 - [ ] Feasible autonomous decisions with explanations.
 - [ ] Player trade/prices and long-running economy/shortage tests.
 
-The prototype has a simple population-versus-beds check; that does not complete
-the household-driven needs/economy milestone.
+Live food runs on a saved independent clock with real planted-field evidence,
+shortage/recovery explanations and editable famine/feast tuning. Household demand,
+housing pressure and shared food conditions now save with each period. Treasury
+accounting is tested separately from wellbeing; actual funding/spending is not wired.
+These reports do not establish personal food rations or complete prosperity.
 
-Phase 2 is 25% by these four reporting milestones, not 25% of gameplay or time.
-Live food runs on a saved independent clock, with planted-field evidence, restart
-catch-up, shortage/recovery explanations and forward famine/feast retuning. Paper
-verified production, depleted supplies, recovery and unloaded operation. Treasury,
-household wellbeing, autonomous responses and player trade still remain. The second
-reporting milestone is partial, so Phase 2 stays 1/4 (25%). See LIVE_FOOD_ECONOMY.md
-and ECONOMY_TUNING.md. Percentages count finished milestone groups, not hours.
+The second reporting milestone remains partial. Full wellbeing, live treasury flows,
+autonomous responses and player trade remain. Phase 2 is 1/4 (25%) by finished groups,
+not a measure of hours or all partial gameplay work. See LIVE_FOOD_ECONOMY.md,
+HOUSEHOLD_NEEDS_AND_TREASURY.md and ECONOMY_TUNING.md.
 
 ## Phase 3 — planned
 

@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food is implemented; treasury/wellbeing and responses remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food and household needs are implemented; treasury accounting is prepared, while funding, complete wellbeing and responses remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
 ## Initial audit
 Prototype contained six Java source files: `Civilizations`, `DatabaseManager`, `VillageDiscoveryListener`, `Settlement`, `SettlementNameGenerator`, `NeedsEngine`. Discovery via player chunk movement/HOME POIs, simple settlement persistence, population/bed census and binary housing shortage. No actual economy, business, roads, physical construction, history or simulation yet.
@@ -21,13 +21,41 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 
 ## Immediate next work
 1. Economy tuning approved and implemented in commented `economy.yml`. Next:
-   treasury/household wellbeing and feasible explainable decisions. Live field-backed
-   food production, saved economic timing and forward tuning are now implemented.
+   feasible explainable responses, actual treasury funding/spending integration and
+   household allocation/full wellbeing. Saved household needs and explicit treasury
+   accounting are now implemented; no automatic taxation or personal wealth inferred.
 2. Human client playtest can follow later; user authorized Phase 2 without it.
    Preserve vanilla profession/trades/inventory when physical villagers are recreated,
    and handle other native transformations before recommending established survival worlds.
 3. Current roadmap phase: needs, commodities and explainable economy decisions; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
+
+## Household needs and treasury accounting — October 8, 2026
+- Branch `codex/phase2-household-needs`: food periods now retain household adults,
+  children, configured demand, observed housing and unassigned living residents.
+  Unknown capacity is distinct from crowded housing. Shared food pressure is not
+  presented as proof of individual rations or complete prosperity.
+- Needs and food effects/checkpoint share one transaction. Historical housing and
+  crisis evidence remain intact through restart, retuning and later observations.
+  Schema 16 adds needs snapshots and an independent exact Trade Value treasury
+  ledger; old periods are not backfilled with invented household observations.
+- Explicit treasury opening/credit/debit APIs require a source/reason and operation
+  UUID. Idempotent retries, rollback, insufficient funds and overflow are tested.
+  No automatic live account, money creation, income, tax, salary or personal wallet.
+- Fourteen added automated cases; Wrapper clean verify passed 288 cases (286 unit,
+  two packaged integration), no failures/errors/skips. Includes two repeatable
+  1,200-period needs scenarios and schema-15 upgrade failure/retry.
+- Guarded real Paper food probe passed needs output, actual household demand/housing,
+  preserved crisis assessment after restart/retuning, no invented treasury and the
+  earlier food/unloaded behaviors. Consistent schema-15 dev snapshot first. Original
+  people/families retained, integrity/FKs verified; no production save/world reset.
+- `/civ debug economy` uses cached period evidence, limits household output to twenty
+  entries and distinguishes spending budget from prosperity. Large-city profiling,
+  rationing, full wellbeing, actual budget flows and player trade remain outstanding.
+- Phase 2 stays 1/4 (25%) by reporting groups. The second group is partial: observable
+  needs and budget machinery do not complete the broader labor/prosperity gameplay.
+  Next gate: feasible decision pressures/responses with tested causal prerequisites.
+  See HOUSEHOLD_NEEDS_AND_TREASURY.md. No merge/push/main changes.
 
 ## Live food economy — October 8, 2026
 - Branch `codex/phase2-live-food`: loaded main-thread crop snapshots around saved
@@ -358,6 +386,6 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   changed; no schema change, production data, merge or push. Phase 1 stays 90%.
 
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has one of four reporting milestones complete (accounting APIs, not live economy); Phases 3–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has one of four reporting milestones complete (accounting complete; live food and household needs added, later groups partial); Phases 3–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

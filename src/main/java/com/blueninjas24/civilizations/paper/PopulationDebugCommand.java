@@ -49,6 +49,14 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
                 else {
                     sender.sendMessage("Economy: completed " + view.account().state().completedPeriods() + " periods, queued " + view.queuedPeriods());
                     sender.sendMessage("Farm evidence: " + (view.farm().complete() ? "complete" : "partial: economy paused") + "; planted crops " + view.farm().plantedCrops());
+                    sender.sendMessage(view.treasury() == null ? "Treasury: uninitialized; no income or starting money assumed."
+                            : "Treasury: " + view.treasury().tradeValue() + " Trade Value (spending budget, not prosperity).");
+                    if (view.needs() == null) sender.sendMessage("Household needs: no assessment saved for this period yet.");
+                    else {
+                        sender.sendMessage(view.needs().explanation());
+                        view.needs().homes().stream().limit(20).forEach(home -> sender.sendMessage(home.explanation()));
+                        if (view.needs().homes().size() > 20) sender.sendMessage("Showing 20 of " + view.needs().homes().size() + " saved household assessments.");
+                    }
                     if (view.latest() != null) for (var report : view.latest().reports()) {
                         sender.sendMessage(report.explanation());
                         session.economySettings().ifPresent(settings -> sender.sendMessage("Indicative Trade Value/unit: " + settings.price(report.commodity(), report.condition())));
