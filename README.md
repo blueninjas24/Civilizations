@@ -3,8 +3,8 @@
 Civilizations is a PaperMC plugin that transforms vanilla Minecraft villages into persistent, evolving settlements.
 
 The long-term goal is villages that grow, construct buildings, develop economies,
-trade and form interconnected regional civilizations. Construction and economy are
-planned; the implemented Phase 1 prototype provides persistent people and population.
+trade and form interconnected regional civilizations. Construction is planned; the implemented prototype provides persistent people,
+population and early food economy accounting.
 
 ## Playable population prototype
 
@@ -33,6 +33,11 @@ funding, full prosperity and player transactions remain pending. See
 Villages now select saved planning priorities from food deficits and observed crowded
 homes, with seeded choices and readable explanations. Actual purchase/building execution
 remains pending. See [village priorities](docs/VILLAGE_PRIORITIES.md).
+
+Explicit food delivery accounting now supports saved, retry-safe supplies that
+relieve shortages in future periods. This prepares the backend for player aid;
+player inventory transfers and donation commands remain pending. See
+[food delivery scope](docs/FOOD_RELIEF.md).
 
 ## Core Philosophy
 

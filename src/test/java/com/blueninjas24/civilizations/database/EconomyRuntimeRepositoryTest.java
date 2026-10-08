@@ -35,6 +35,63 @@ class EconomyRuntimeRepositoryTest {
     private EconomyRuntimeRepository runtime(EconomySettings settings) { return new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216); }
     private void observe(long time, boolean complete, long crops) throws SQLException { runtime.observe(new FarmObservation(town,world,time,complete,crops),time); }
     private void sql(String sql) throws SQLException { try (var s = db.getConnection().createStatement()) { s.execute(sql); } }
+    @Test void explicitFoodReliefEndsCrisisWithoutFabricatedProductionOrDuplicateImports() throws SQLException {
+        observe(1000,true,0);for(int period=1;period<=10;period++)runtime.pulse(1000L+1000L*period,false);
+        assertEquals(Condition.SEVERE_SHORTAGE,runtime.views().get(town).needs().sharedFood());
+        var operation=UUID.randomUUID();assertTrue(runtime.recordDeliveredFood(operation,town,20,"Test relief shipment",11000));
+        assertFalse(runtime.recordDeliveredFood(operation,town,20,"Test relief shipment",11000));
+        assertEquals(1,runtime.views().get(town).foodAid().pendingDeliveries());
+        runtime.pulse(12000,false);var view=runtime.views().get(town);var food=view.latest().reports().getFirst();
+        assertEquals(0,food.flow().production());assertEquals(20,food.flow().imports());assertEquals(15,food.after().units());assertEquals(0,view.needs().shortagePeriods());
+        assertEquals(VillagePriorities.Action.MONITOR,view.priority().selected());assertEquals(0,view.foodAid().pendingDeliveries());
+        assertEquals(11,new FoodDeliveryRepository(db.getConnection()).find(operation).orElseThrow().appliedPeriod());
+        runtime.pulse(13000,false);assertEquals(0,runtime.views().get(town).latest().reports().getFirst().flow().imports());
+    }
+    @Test void NewDeliveryCannotRewriteQueuedPastPeriods() throws SQLException {
+        observe(1000,true,0);var operation=UUID.randomUUID();runtime.recordDeliveredFood(operation,town,20,"Late relief",11000);
+        assertEquals(10,new FoodDeliveryRepository(db.getConnection()).find(operation).orElseThrow().eligibleAfterPeriod());
+        for(int period=1;period<=10;period++) {runtime.pulse(11000,false);assertEquals(0,runtime.views().get(town).latest().reports().getFirst().flow().imports());}
+        assertEquals(1,runtime.views().get(town).foodAid().pendingDeliveries());
+        runtime.pulse(12000,false);assertEquals(20,runtime.views().get(town).latest().reports().getFirst().flow().imports());
+    }
+    @Test void receiptWriteFailureRollsBackPeriodEffectsAndRetriesSameGoodsExactlyOnce() throws SQLException {
+        observe(1000,true,0);var id=UUID.randomUUID();runtime.recordDeliveredFood(id,town,20,"Relief",1000);
+        sql("CREATE TRIGGER reject_delivery BEFORE UPDATE ON food_deliveries BEGIN SELECT RAISE(ABORT,'injected'); END");
+        assertThrows(SQLException.class,()->runtime.pulse(2000,false));var before=runtime.views().get(town);
+        assertEquals(0,before.account().state().completedPeriods());assertNull(before.needs());assertNull(before.priority());assertEquals(36,before.account().state().stocks().get(Commodity.FOOD).units());
+        assertNull(new FoodDeliveryRepository(db.getConnection()).find(id).orElseThrow().appliedPeriod());
+        sql("DROP TRIGGER reject_delivery");runtime.pulse(2000,false);assertEquals(51,runtime.views().get(town).account().state().stocks().get(Commodity.FOOD).units());
+        assertEquals(1,new FoodDeliveryRepository(db.getConnection()).find(id).orElseThrow().appliedPeriod());
+    }
+    @Test void pendingFoodSurvivesPartialEvidenceAndRestartUntilARealFuturePeriod() throws SQLException {
+        observe(1000,true,0);observe(1001,false,0);var id=UUID.randomUUID();runtime.recordDeliveredFood(id,town,20,"Relief",1001);
+        db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();runtime=runtime(settings);
+        runtime.start(100000);assertEquals(0,runtime.views().get(town).account().state().completedPeriods());assertEquals(1,runtime.views().get(town).foodAid().pendingDeliveries());
+        observe(100001,true,0);runtime.pulse(101001,false);assertEquals(51,runtime.views().get(town).account().state().stocks().get(Commodity.FOOD).units());
+    }
+    @Test void invalidUnknownAndConflictingDeliveryInputsFailWithoutCreatingInventory() throws SQLException {
+        var id=UUID.randomUUID();assertThrows(SQLException.class,()->runtime.recordDeliveredFood(id,town,10,"No enrollment",1000));
+        assertTrue(runtime.views().isEmpty());observe(1000,true,0);
+        assertThrows(IllegalArgumentException.class,()->runtime.recordDeliveredFood(id,town,0,"Invalid",1000));
+        assertThrows(IllegalArgumentException.class,()->runtime.recordDeliveredFood(id,town,10," ",1000));
+        runtime.recordDeliveredFood(id,town,10,"Relief",1000);
+        assertThrows(SQLException.class,()->runtime.recordDeliveredFood(id,town,11,"Relief",1000));
+        assertThrows(SQLException.class,()->runtime.recordDeliveredFood(id,town,10,"Different source",1000));
+        assertEquals(1,runtime.views().get(town).foodAid().pendingDeliveries());assertEquals(36,runtime.views().get(town).account().state().stocks().get(Commodity.FOOD).units());
+    }
+    @Test void foodDeliveryBudgetProcessesAtMost64ReceiptsPerPeriodWithoutDroppingTheRemainder() throws SQLException {
+        observe(1000,true,0);for(int i=0;i<65;i++)runtime.recordDeliveredFood(UUID.randomUUID(),town,1,"Test source",1000);
+        runtime.pulse(2000,false);assertEquals(64,runtime.views().get(town).latest().reports().getFirst().flow().imports());assertEquals(1,runtime.views().get(town).foodAid().pendingDeliveries());
+        runtime.pulse(3000,false);assertEquals(1,runtime.views().get(town).latest().reports().getFirst().flow().imports());assertEquals(0,runtime.views().get(town).foodAid().pendingDeliveries());
+    }
+    @Test void schema17DeliveryMigrationFailureAndRetryPreserveHistoryAndDoNotInventRelief() throws SQLException {
+        observe(1000,true,0);runtime.pulse(2000,false);var original=runtime.views().get(town).latest();var priority=runtime.views().get(town).priority();
+        SchemaFixtures.rewind(db.getConnection(),17);sql("CREATE TABLE food_deliveries(blocker INTEGER)");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(17,r.getInt(1));}
+        sql("DROP TABLE food_deliveries");new SchemaMigrator().migrate(db.getConnection());
+        assertEquals(original,runtime.views().get(town).latest());assertEquals(priority,runtime.views().get(town).priority());assertEquals(0,runtime.views().get(town).foodAid().pendingDeliveries());
+    }
     @Test void priorityFailureRollsBackNeedsAndFoodAndRetriesWithoutDuplicateChoice() throws SQLException {
         observe(1000,true,32);sql("CREATE TRIGGER reject_priority BEFORE INSERT ON village_priorities BEGIN SELECT RAISE(ABORT,'injected'); END");
         assertThrows(SQLException.class,()->runtime.pulse(2000,false));var before=runtime.views().get(town);

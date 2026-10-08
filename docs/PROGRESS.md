@@ -39,7 +39,7 @@ probe uses synthetic observation positions; a human Minecraft client playtest is
 needed. This is the Phase 1 foundation gate, not a balanced survival release. See
 PHASE1_PLAYTEST.md for setup and material limitations, including trade resets on moves.
 
-## Phase 2 — accounting complete; live food connected
+## Phase 2 — accounting complete; live food and delivery ledger connected
 
 - [x] Commodity supplies, demand, reserves and shortages. Explicit headless inputs,
   saved reserves/history, shortage duration/recovery and transactional restart verified.
@@ -54,6 +54,10 @@ housing pressure and shared food conditions now save with each period. Treasury
 accounting is tested separately from wellbeing; actual funding/spending is not wired.
 These reports do not establish personal food rations or complete prosperity.
 
+Explicit delivered-food receipts now survive restart and enter future periods once,
+with transactional shortage relief and no retroactive catch-up aid. This is internal
+accounting; players cannot yet donate items through a command or merchant.
+
 Villages now choose and save an explainable priority: seek food, investigate
 observed crowding, or monitor. Seeded selection filters infeasible/irrelevant options,
 reviews on a bounded cadence and reconsiders when pressures appear or clear. These
@@ -66,12 +70,12 @@ are planning intentions, not executed purchases or building permissions.
 | Supplies and shortages — complete | Commodity accounting, saved reserves/history, duration/recovery, long crisis fixtures | Complete as an accounting foundation |
 | Labor, treasury and wellbeing — partial | Field-backed adult production, food clock, household demand/housing snapshots, explicit treasury ledger | Actual funding/spending integration, fuller wellbeing/allocation and economic effects |
 | Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery | Executing feasible economic responses and learning weights from actual outcomes |
-| Player economy and stability — partial | Configurable scarcity prices and long shortage/recovery tests | Actual player trade/barter, budget/stock effects and integrated economy balance tests |
+| Player economy and stability — partial | Configurable scarcity prices, long shortage/recovery tests and explicit delivery accounting | Safe player inventory handoff, actual trade/barter, budget/stock effects and integrated economy balance tests |
 
 Completed pieces in a partial group are real progress. The top bar counts whole
 reporting groups, so it remains 1/4 (25%); it does not measure coding hours or all
 partial work. It will advance when a full group and its acceptance gate are verified.
-See VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
+See FOOD_RELIEF.md, VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
 HOUSEHOLD_NEEDS_AND_TREASURY.md and ECONOMY_TUNING.md.
 
 ## Phase 3 — planned

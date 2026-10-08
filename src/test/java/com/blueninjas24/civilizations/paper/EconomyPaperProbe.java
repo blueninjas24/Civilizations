@@ -31,6 +31,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private Result famine;
     private HouseholdNeeds.Assessment famineNeeds;
     private VillagePriorities.Decision faminePriority;
+    private final UUID reliefOperation=UUID.randomUUID();
     private final Set<Long> tickets = new HashSet<>();
     private int stage, ticks;
     private long deadline;
@@ -102,14 +103,22 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 6->{if(!ready())return;require(famine.equals(session.economyView().get(town).latest()),"Past famine report changed on retuning");
             require(famineNeeds.equals(session.economyView().get(town).needs()),"Household history changed on restart/retuning");
             require(faminePriority.equals(session.economyView().get(town).priority()),"Priority history changed on restart/retuning");
-            var ids=new HashSet<UUID>();session.snapshot().orElseThrow().residents().forEach(p->ids.add(p.id()));require(ids.equals(residents),"Residents changed on restart");crops(true);scan();stage++;}
+            var ids=new HashSet<UUID>();session.snapshot().orElseThrow().residents().forEach(p->ids.add(p.id()));require(ids.equals(residents),"Residents changed on restart");
+            future=session.recordDeliveredFood(reliefOperation,town,12,"Explicit disposable test fixture shipment");stage=20;}
+        case 20->{if(!ready())return;session.close();open();stage=21;}
+        case 21->{if(!ready())return;require(session.economyView().get(town).foodAid().pendingDeliveries()==1,"Pending relief lost on restart");now.addAndGet(1000);future=session.pulse();stage=22;}
+        case 22->{if(!ready())return;var view=session.economyView().get(town);var food=view.latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
+            require(food.flow().production()==0&&food.flow().imports()==12&&food.after().units()==8,"Actual receipt relief failed");
+            require(view.priority().selected()==VillagePriorities.Action.MONITOR,"Relief did not resolve crisis priority");
+            future=session.recordDeliveredFood(reliefOperation,town,12,"Explicit disposable test fixture shipment");stage=23;}
+        case 23->{if(!ready())return;require(Boolean.FALSE.equals(future.join()),"Duplicate relief accepted");require(session.economyView().get(town).foodAid().pendingDeliveries()==0,"Duplicate receipt changed pending goods");crops(true);scan();stage=7;}
         case 7->{if(session.economyView().get(town).farm().plantedCrops()!=64)return;now.addAndGet(1000);future=session.pulse();stage++;}
-        case 8->{if(!ready())return;require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==12,"Feast recovery wrong");
+        case 8->{if(!ready())return;require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==20,"Feast recovery wrong");
             require(session.economyView().get(town).priority().selected()==VillagePriorities.Action.MONITOR,"Recovered priority did not clear");
             for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();stage++;}
         case 9->{if(world.isChunkLoaded(Math.floorDiv(X,16),Math.floorDiv(Z,16)))return;now.addAndGet(1000);future=session.pulse();stage++;}
         case 10->{if(!ready())return;require(!world.isChunkLoaded(Math.floorDiv(X,16),Math.floorDiv(Z,16)),"Economy force loaded chunk");
-            require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==24,"Unloaded food accounting failed");stage=99;}
+            require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==32,"Unloaded food accounting failed");stage=99;}
         default->throw new AssertionError("Unknown stage");
     }}
     private void cleanup(){if(observer!=null)observer.cancel();if(session!=null)session.close();if(world!=null)for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();}

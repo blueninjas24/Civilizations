@@ -9,7 +9,8 @@ import java.util.*;
 /** Single SQL-owner food runtime. Saved clocks, evidence and period effects; no Bukkit access. */
 public final class EconomyRuntimeRepository {
     public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods,
-                       HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority) {}
+                       HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority, FoodAid foodAid) {}
+    public record FoodAid(long pendingDeliveries, long nextPeriodUnits) {}
     private record Clock(long cadence, CivilizationTime.Anchor anchor, String settings, long completed) {}
     private final Connection connection;
     private final CommodityRepository commodities;
@@ -89,14 +90,32 @@ public final class EconomyRuntimeRepository {
             return null;
         });
     }
+    /** Trusted caller records already-delivered goods; never a substitute for verifying/removing player items. */
+    public boolean recordDeliveredFood(UUID operation, UUID town, long units, String source, long now) throws SQLException {
+        FoodDeliveryRepository.validate(operation,town,units,source);
+        return transaction(() -> {
+            var deliveries=new FoodDeliveryRepository(connection);var old=deliveries.find(operation);
+            if(old.isPresent()) {
+                var receipt=old.orElseThrow();
+                if(!receipt.settlement().equals(town)||receipt.units()!=units||!receipt.source().equals(source)) throw new SQLException("Food delivery ID reused with different inputs");
+                return false;
+            }
+            if(!hasRuntime(town)) throw new SQLException("Food economy not initialized; no inventory inferred");
+            accrue(town,now,false);var target=clock(town).anchor().targetSteps();
+            if(target==Long.MAX_VALUE) throw new SQLException("No representable future food period");
+            deliveries.record(operation,town,units,source,target);return true;
+        });
+    }
+    private void accrue(UUID town,long now,boolean offline) throws SQLException {
+        var clock=clock(town);requireSettings(clock);var evidence=farm(town);
+        if(evidence==null||!evidence.complete()) saveClock(town,new CivilizationTime.Anchor(Math.max(now,clock.anchor().lastObservedMillis()),0,clock.completed()));
+        else saveClock(town,CivilizationTime.accrue(clock.anchor(),now,clock.cadence(),offline
+                ? Math.multiplyExact(clock.cadence(),settings.maximumOfflinePeriods()) : Long.MAX_VALUE).anchor());
+    }
     public int pulse(long now, boolean offline) throws SQLException {
         var towns = towns();
         for (var town : towns) transaction(() -> {
-            var clock = clock(town); requireSettings(clock);
-            var farm = farm(town);
-            if (farm == null || !farm.complete()) saveClock(town, new CivilizationTime.Anchor(Math.max(now, clock.anchor().lastObservedMillis()), 0, clock.completed()));
-            else saveClock(town, CivilizationTime.accrue(clock.anchor(), now, clock.cadence(), offline
-                    ? Math.multiplyExact(clock.cadence(), settings.maximumOfflinePeriods()) : Long.MAX_VALUE).anchor());
+            accrue(town,now,offline);
             return null;
         });
         int processed = 0;
@@ -113,13 +132,16 @@ public final class EconomyRuntimeRepository {
         var account = commodities.read(town).orElseThrow();
         long adults = living(town, false), children = living(town, true);
         long output = settings.foodProduction(adults, OptionalLong.of(farm.plantedCrops() / farms.cropsPerWorker()));
+        long nextPeriod=Math.incrementExact(clock.completed());var deliveries=new FoodDeliveryRepository(connection);
+        var incoming=deliveries.eligible(town,nextPeriod);
         var flows = new TreeMap<Commodity, Flow>(); account.state().stocks().keySet().forEach(commodity -> flows.put(commodity, Flow.idle()));
-        flows.put(Commodity.FOOD, new Flow(output, 0, settings.foodDemand(adults, children), 0, 0, 0, 0));
-        var period = commodities.advanceRows(town, Math.incrementExact(clock.completed()), flows, settings.shortages());
+        flows.put(Commodity.FOOD, new Flow(output, FoodDeliveryRepository.units(incoming), settings.foodDemand(adults, children), 0, 0, 0, 0));
+        var period = commodities.advanceRows(town, nextPeriod, flows, settings.shortages());
         var needs = new HouseholdNeedsRepository(connection);
         var assessment = HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings);
         needs.save(assessment);
         new VillagePriorityRepository(connection).consider(assessment,seed,priorities);
+        deliveries.apply(incoming,nextPeriod);
         return true;
     }
     public Map<UUID, View> views() throws SQLException {
@@ -127,9 +149,11 @@ public final class EconomyRuntimeRepository {
         for (var town : towns()) {
             var account = commodities.load(town).orElseThrow();
             var latest = account.state().completedPeriods() == 0 ? null : commodities.history(town, account.state().completedPeriods()).orElseThrow();
+            var pending=new FoodDeliveryRepository(connection).pending(town,account.state().completedPeriods()==Long.MAX_VALUE ? Long.MAX_VALUE : account.state().completedPeriods()+1);
             result.put(town, new View(account, farm(town), latest, clock(town).anchor().targetSteps() - account.state().completedPeriods(),
                     new HouseholdNeedsRepository(connection).load(town, account.state().completedPeriods()).orElse(null),
-                    new TreasuryRepository(connection).load(town).orElse(null),new VillagePriorityRepository(connection).latest(town).orElse(null)));
+                    new TreasuryRepository(connection).load(town).orElse(null),new VillagePriorityRepository(connection).latest(town).orElse(null),
+                    new FoodAid(pending.deliveries(),pending.eligibleNextPeriodUnits())));
         }
         return Collections.unmodifiableMap(result);
     }

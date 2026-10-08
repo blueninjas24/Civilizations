@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and saved planning priorities are implemented; treasury accounting is prepared, while funding, complete wellbeing and response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs, saved planning priorities and explicit delivery accounting are implemented; treasury accounting is prepared, while funding, complete wellbeing and response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
 ## Initial audit
 Prototype contained six Java source files: `Civilizations`, `DatabaseManager`, `VillageDiscoveryListener`, `Settlement`, `SettlementNameGenerator`, `NeedsEngine`. Discovery via player chunk movement/HOME POIs, simple settlement persistence, population/bed census and binary housing shortage. No actual economy, business, roads, physical construction, history or simulation yet.
@@ -21,7 +21,8 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 
 ## Immediate next work
 1. Economy tuning approved and implemented in commented `economy.yml`. Next:
-   execution of feasible responses, actual treasury funding/spending integration and
+   a safe player inventory handoff for the tested food-delivery ledger, execution
+   of feasible responses, actual treasury funding/spending integration and
    household allocation/full wellbeing. Saved household needs and explicit treasury
    accounting are now implemented; no automatic taxation or personal wealth inferred.
 2. Human client playtest can follow later; user authorized Phase 2 without it.
@@ -29,6 +30,30 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
    and handle other native transformations before recommending established survival worlds.
 3. Current roadmap phase: needs, commodities and explainable economy decisions; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
+
+## Explicit food delivery accounting — October 8, 2026
+
+- Branch `codex/phase2-food-relief`: trusted internal adapters can record explicit
+  delivered food with source, quantity and operation ID. Pending goods enter a future
+  food period; retries cannot duplicate imports and new arrivals cannot rewrite old
+  catch-up periods. Receipt processing is bounded to 64 per village period.
+- Food, needs, priorities, checkpoint and applied receipt marks share one transaction.
+  Failure rolls back effects for retry; partial evidence pauses delivery use. Schema 18
+  adds the ledger without backfilling or resetting people, histories or reserves.
+- Seven new temporary-SQLite cases cover relief, duplicates, arrival timing, rollback,
+  restart/pause, input validation, batch limits and schema-17 migration recovery.
+  Windows Wrapper clean verify passed 307 cases (305 unit/two packaged integration),
+  zero failures/errors/skips. Production JAR excludes probes/JUnit.
+- Disposable Paper probe passed a synthetic 12-unit shipment surviving restart,
+  clearing zero-production shortage and rejecting duplication, followed by farm
+  recovery/unloaded operation. Consistent schema-17 dev backup first; original people,
+  households/family/entity links retained, schema 18 integrity/FKs verified. Normal
+  single-plugin startup, unloaded fixture and clean shutdown also verified.
+- This is backend delivery accounting, not a player inventory handoff, donation
+  command, merchant or autonomous supplier. No normal gameplay caller submits goods.
+  Player item exchange and full economic responses remain; Phase 2 stays 1/4 full
+  reporting groups with these verified partial pieces listed in PROGRESS.md.
+  See FOOD_RELIEF.md. No production reset, push, merge or main modification.
 
 ## Evidence-based village priorities — October 8, 2026
 - Branch `codex/phase2-village-priorities`: villages choose MONITOR, SEEK_FOOD or

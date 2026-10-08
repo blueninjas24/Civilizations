@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 17;
+    static final int CURRENT_VERSION = 18;
 
     @FunctionalInterface
     interface Migration {
@@ -84,7 +84,22 @@ final class SchemaMigrator {
                             PRIMARY KEY(settlement_id,period),
                             FOREIGN KEY(settlement_id,period) REFERENCES needs_periods(settlement_id,period)
                         )
-                        """)
+                        """),
+                connection -> {
+                    execute(connection, """
+                            CREATE TABLE food_deliveries (
+                                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                                operation_id TEXT NOT NULL UNIQUE,
+                                settlement_id TEXT NOT NULL REFERENCES economy_runtime(settlement_id),
+                                units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>0),
+                                source TEXT NOT NULL CHECK(length(trim(source)) BETWEEN 1 AND 256),
+                                eligible_after INTEGER NOT NULL CHECK(typeof(eligible_after)='integer' AND eligible_after>=0),
+                                applied_period INTEGER CHECK(applied_period IS NULL OR (typeof(applied_period)='integer' AND applied_period>eligible_after)),
+                                FOREIGN KEY(settlement_id,applied_period) REFERENCES needs_periods(settlement_id,period)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX pending_food_deliveries ON food_deliveries(settlement_id,sequence) WHERE applied_period IS NULL");
+                }
         ));
     }
 
@@ -178,6 +193,7 @@ final class SchemaMigrator {
             }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
+            if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

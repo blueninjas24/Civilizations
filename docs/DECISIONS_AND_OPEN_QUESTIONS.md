@@ -164,3 +164,16 @@ Seeking food/investigating housing require evidence but do not purchase goods,
 create suppliers/jobs or authorize construction. Actual action feasibility must later
 include real funds, counterparties, labor/materials and safe sites. Stored replay-one
 inputs preserve original explanations and apply tuning forward. See VILLAGE_PRIORITIES.md.
+
+
+## October 8, 2026 — explicit food receipt boundary
+
+Engineering delivery accounting accepts only an explicit trusted source/amount and
+unique operation ID; it does not establish physical goods or invent counterparties.
+New goods become eligible after the queued target at arrival, preserving historical
+catch-up periods. Receipt use shares the food/needs/priority transaction. The cap of
+64 receipts per village period bounds SQL work; deferred receipts are retained.
+No player-facing donation, item conversion, payout, transport or reputation rule is
+chosen here. A future bridge must establish actual goods/consent and a recoverable
+inventory handoff before exposing commands. See FOOD_RELIEF.md. This preserves
+approved configurable economy authority and the canonical roadmap.

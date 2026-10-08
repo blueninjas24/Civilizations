@@ -177,6 +177,13 @@ public final class PopulationSession implements AutoCloseable {
             economy.observe(observation, now.getAsLong()); economyView.set(economy.views()); return null;
         });
     }
+    /** Internal delivery bridge; source adapter must first establish the actual goods/consent. */
+    public CompletableFuture<Boolean> recordDeliveredFood(UUID operation, UUID town, long units, String source) {
+        return submit(() -> {
+            requireReady();if(economy==null)throw new IllegalStateException("Economy not enabled in this session");
+            boolean accepted=economy.recordDeliveredFood(operation,town,units,source,now.getAsLong());economyView.set(economy.views());return accepted;
+        });
+    }
     public CompletableFuture<Boolean> activateProjection(UUID person, UUID entity) {
         return projectionWork(() -> database.getResidentProjectionRepository().activate(person, entity));
     }

@@ -1,5 +1,30 @@
 # Civilizations Development Log
 
+### Explicit food delivery accounting — October 8, 2026
+
+- Branch `codex/phase2-food-relief`: trusted internal adapters can record explicit
+  delivered food with source, quantity and operation ID. Pending goods enter a future
+  food period; retries cannot duplicate imports and new arrivals cannot rewrite old
+  catch-up periods. Receipt processing is bounded to 64 per village period.
+- Food, needs, priorities, checkpoint and applied receipt marks share one transaction.
+  Failure rolls back effects for retry; partial evidence pauses delivery use. Schema 18
+  adds the ledger without backfilling or resetting people, histories or reserves.
+- Seven new temporary-SQLite cases cover relief, duplicates, arrival timing, rollback,
+  restart/pause, input validation, batch limits and schema-17 migration recovery.
+  Windows Wrapper clean verify passed 307 cases (305 unit/two packaged integration),
+  zero failures/errors/skips. Production JAR excludes probes/JUnit.
+- Disposable Paper probe passed a synthetic 12-unit shipment surviving restart,
+  clearing zero-production shortage and rejecting duplication, followed by farm
+  recovery/unloaded operation. Consistent schema-17 dev backup first; original people,
+  households/family/entity links retained, schema 18 integrity/FKs verified. Normal
+  single-plugin startup, unloaded fixture and clean shutdown also verified.
+- This is backend delivery accounting, not a player inventory handoff, donation
+  command, merchant or autonomous supplier. No normal gameplay caller submits goods.
+  Player item exchange and full economic responses remain; Phase 2 stays 1/4 full
+  reporting groups with these verified partial pieces listed in PROGRESS.md.
+  See FOOD_RELIEF.md. No production reset, push, merge or main modification.
+
+
 ### Editable economy prototype — October 8, 2026
 
 - User authorized prototype defaults and easy server-owner famine/feast tuning.
