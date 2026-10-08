@@ -1,5 +1,16 @@
 # Civilizations Development Log
 
+### Saved migration — October 7, 2026
+
+- Added deterministic household movement driven by observed housing pressure and
+  occasional external adults. Families move together; identities and family links stay.
+- Schema v8 preserves event sequences and records migration origins. Replay 3 guards
+  algorithm/settings changes. All changes/progress/events share one transaction.
+- Windows wrapper clean verify passed 107 cases (105 unit, two integration), including
+  restored century replay/accounting, whole-family rollback and migration-then-death.
+- Phase 1 now 6/10 (60% by checklist); jobs, runtime calendar and Minecraft integration
+  plus real-server validation remain. No actual DB/world/server changes, merge or push.
+
 ### Atomic demographic persistence — October 7, 2026
 
 - Schema v7 saves monthly clock/settings, observed housing capacity and sequenced

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 7;
+    static final int CURRENT_VERSION = 8;
 
     @FunctionalInterface
     interface Migration {
@@ -39,7 +39,8 @@ final class SchemaMigrator {
                 SchemaMigrator::createPopulationTables,
                 SchemaMigrator::createFamilyTable,
                 SchemaMigrator::createPopulationClock,
-                SchemaMigrator::createDemographicStorage
+                SchemaMigrator::createDemographicStorage,
+                SchemaMigrator::extendMigrationEvents
         ));
     }
 
@@ -90,6 +91,9 @@ final class SchemaMigrator {
                 requireColumns(connection, "household_capacity", Set.of("household_id", "capacity"));
                 requireColumns(connection, "population_events", Set.of("sequence", "step", "type", "resident_id",
                         "settlement_id", "first_relative", "second_relative", "reason"));
+            }
+            if (migrations.size() >= 8) {
+                requireColumns(connection, "population_events", Set.of("source_settlement_id"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
@@ -255,6 +259,35 @@ final class SchemaMigrator {
                 WHEN EXISTS (SELECT 1 FROM demographic_clock)
                 BEGIN SELECT RAISE(ABORT, 'Demographic clock already exists'); END
                 """);
+    }
+
+    private static void extendMigrationEvents(Connection connection) throws SQLException {
+        execute(connection, "ALTER TABLE population_events RENAME TO population_events_v7");
+        execute(connection, """
+                CREATE TABLE population_events (
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    step INTEGER NOT NULL CHECK(typeof(step) = 'integer' AND step > 0),
+                    type TEXT NOT NULL CHECK(type IN ('BIRTH', 'DEATH', 'MIGRATION', 'ARRIVAL')),
+                    resident_id TEXT NOT NULL REFERENCES residents(id),
+                    settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                    first_relative TEXT REFERENCES residents(id),
+                    second_relative TEXT REFERENCES residents(id),
+                    reason TEXT NOT NULL,
+                    source_settlement_id TEXT REFERENCES settlements(id),
+                    UNIQUE(step, type, resident_id),
+                    CHECK((type = 'BIRTH' AND first_relative IS NOT NULL AND second_relative IS NOT NULL)
+                       OR (type <> 'BIRTH' AND first_relative IS NULL AND second_relative IS NULL)),
+                    CHECK((type = 'MIGRATION' AND source_settlement_id IS NOT NULL AND source_settlement_id <> settlement_id)
+                       OR (type <> 'MIGRATION' AND source_settlement_id IS NULL))
+                )
+                """);
+        execute(connection, """
+                INSERT INTO population_events(sequence, step, type, resident_id, settlement_id, first_relative, second_relative, reason)
+                SELECT sequence, step, type, resident_id, settlement_id, first_relative, second_relative, reason
+                FROM population_events_v7 ORDER BY sequence
+                """);
+        execute(connection, "DROP TABLE population_events_v7");
+        execute(connection, "CREATE INDEX events_by_resident ON population_events(resident_id, sequence)");
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

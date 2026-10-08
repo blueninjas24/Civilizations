@@ -88,3 +88,39 @@ partner formation and actual Paper validation remain pending.
 This implementation loads global people/relationships into memory per batch and
 writes existing residents per processed batch. Step count bounds work, not wall-clock
 cost; profiling/optimization is required before connecting it to a server tick loop.
+
+## Migration prototype (current replay version 3, schema v8)
+
+Monthly order is aging/deaths/births, then migration, then occasional external
+arrivals. `MigrationPolicy.prototype()` uses a 0.02 monthly chance for a pressured
+household and 0.005 per receiving settlement for an external adult. These are
+editable experimental inputs under user approval. Existing overloads explicitly
+disable migration; Minecraft runtime configuration remains upcoming work.
+
+Pressure is unassigned housing or **observed** household overcapacity. An adult
+initiates a move; all living members of that household move together, including
+children. A destination must be another known settlement in the same known world,
+with a vacant observed household large enough for everyone. Comfortable households,
+unknown observations, unaccompanied minors and cross-world destinations cannot
+trigger moves. UUIDs/names/ages/family links remain; the former household record
+is retained and destination household membership is updated. No world entities
+or physical homes are modified. This temporary model has no jobs/wealth pull yet.
+
+Each receiving settlement can admit at most one external adult per month if observed
+household space exists. Seeded new identity distinguishes external arrival from an
+internal transfer; arrivals start at the configured adulthood age. These occasional
+arrivals prevent a permanently closed population. Automatic partner formation and
+long-term balance are still pending.
+
+Migration events include structured source/destination settlement IDs. Schema v8
+transactionally rebuilds the event table, preserving old sequences/content while
+adding migration/arrival types. Replay version 3/settings fingerprint prevents
+silently loading version-2 clocks under the new algorithm. No implicit replay upgrade
+is performed. An explicit transition will be required for any future live save.
+Current world boundaries use the legacy stored world names; UUID-based identity
+and discovery adapter integration remain separate gates.
+
+Seven domain and six new storage cases verify whole-family conservation, capacity
+and world limits, external identity/accounting, restart, event-failure rollback,
+movement followed by death within one batch, v7 rebuild failure/retry, and snapshot
+restored 100-year replay including every event page. All use temporary databases.

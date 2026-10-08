@@ -201,6 +201,159 @@ class DemographicRepositoryTest {
         assertEquals(2, simulation.advance(1, 1, policy(0, 0)).checkpoint().state().livingCount());
     }
 
+    @Test
+    void householdMigrationPersistsAcrossRestartAndRetainsOriginEvents() throws SQLException {
+        Household destination = destination("temporary-world");
+        var policy = policy(0, 0);
+        var migration = new MigrationPolicy(1, 0);
+        simulation.recordCapacity(household.id(), 1);
+        simulation.recordCapacity(destination.id(), 4);
+        simulation.initializeClock(42, policy, migration);
+        simulation.advance(1, 1, policy, migration);
+        database.close();
+        open();
+        assertEquals(0, people.countLivingResidents(settlement));
+        assertEquals(2, people.countLivingResidents(destination.settlementId()));
+        Resident moved = people.findResident(first.id()).orElseThrow();
+        assertEquals(destination.id(), moved.householdId());
+        assertEquals(first.name(), moved.name());
+        assertEquals(241, moved.ageSteps());
+        assertEquals(1, people.findFamilyTies(first.id()).size());
+        assertEquals(2, simulation.findEvents(0, 1000).size());
+        assertTrue(simulation.findEvents(0, 1000).stream().allMatch(e -> e.event().sourceSettlementId().equals(settlement)));
+        assertEquals(0, simulation.advance(1, 1, policy, migration).processedSteps());
+    }
+
+    @Test
+    void migrationEventFailureRollsBackWholeHouseholdAndRetries() throws SQLException {
+        Household destination = destination("temporary-world");
+        var policy = policy(0, 0);
+        var migration = new MigrationPolicy(1, 0);
+        simulation.recordCapacity(household.id(), 1);
+        simulation.recordCapacity(destination.id(), 4);
+        simulation.initializeClock(42, policy, migration);
+        var before = simulation.load(policy, migration);
+        try (var statement = database.getConnection().createStatement()) {
+            statement.execute("CREATE TRIGGER fail_move BEFORE INSERT ON population_events WHEN NEW.type = 'MIGRATION' BEGIN SELECT RAISE(ABORT, 'test failure'); END");
+        }
+        assertThrows(SQLException.class, () -> simulation.advance(1, 1, policy, migration));
+        assertEquals(before, simulation.load(policy, migration));
+        assertEquals(first, people.findResident(first.id()).orElseThrow());
+        assertTrue(simulation.findEvents(0, 1000).isEmpty());
+        try (var statement = database.getConnection().createStatement()) { statement.execute("DROP TRIGGER fail_move"); }
+        simulation.advance(1, 1, policy, migration);
+        assertEquals(2, people.countLivingResidents(destination.settlementId()));
+    }
+
+    @Test
+    void databaseWorldBoundaryAndUnknownCapacityBlockMigration() throws SQLException {
+        Household destination = destination("another-world");
+        var policy = policy(0, 0);
+        var migration = new MigrationPolicy(1, 0);
+        simulation.recordCapacity(household.id(), 1);
+        simulation.recordCapacity(destination.id(), 4);
+        simulation.initializeClock(42, policy, migration);
+        simulation.advance(1, 1, policy, migration);
+        assertEquals(settlement, people.findResident(first.id()).orElseThrow().settlementId());
+        assertTrue(simulation.findEvents(0, 1000).isEmpty());
+        assertThrows(SQLException.class, () -> simulation.load(policy, new MigrationPolicy(0.5, 0)));
+    }
+
+    @Test
+    void movedThenDeceasedWithinOneBatchRetainsDestinationAndBothHistoricalEvents() throws SQLException {
+        Household destination = destination("temporary-world");
+        var policy = new PopulationPolicy(12, 216, 240, 480, 250, 0, 0, 1);
+        var migration = new MigrationPolicy(1, 0);
+        simulation.recordCapacity(household.id(), 1);
+        simulation.recordCapacity(destination.id(), 4);
+        simulation.initializeClock(42, policy, migration);
+        simulation.advance(30, 30, policy, migration);
+        assertEquals(0, people.countLivingResidents(destination.settlementId()));
+        for (Resident original : List.of(first, second)) {
+            var retained = people.findResident(original.id()).orElseThrow();
+            assertEquals(Resident.Status.DECEASED, retained.status());
+            assertEquals(destination.settlementId(), retained.settlementId());
+        }
+        assertEquals(4, simulation.findEvents(0, 1000).size());
+    }
+
+    @Test
+    void snapshotCenturyReplayMatchesForBirthDeathMovesAndExternalArrivals() throws Exception {
+        Household destination = destination("temporary-world");
+        var policy = policy(0.1, 0.01);
+        var migration = new MigrationPolicy(0.5, 0.2);
+        simulation.recordCapacity(household.id(), 1);
+        simulation.recordCapacity(destination.id(), 4);
+        simulation.initializeClock(42, policy, migration);
+        Path snapshot = directory.resolve("migration-snapshot.db");
+        DatabaseBackup.snapshot(directory.resolve("civilizations.db"), snapshot);
+        try (var connection = DriverManager.getConnection("jdbc:sqlite:" + snapshot);
+             var statement = connection.createStatement()) {
+            statement.execute("PRAGMA foreign_keys = ON");
+            var restored = new DemographicRepository(connection);
+            var all = restored.advance(1200, 1200, policy, migration);
+            var partial = simulation.advance(1200, 13, policy, migration);
+            while (!partial.complete()) partial = simulation.advance(1200, 29, policy, migration);
+            assertEquals(all.checkpoint(), partial.checkpoint());
+            var events = allEvents(simulation);
+            assertEquals(allEvents(restored), events);
+            long births = events.stream().filter(e -> e.event().type() == PopulationEvent.Type.BIRTH).count();
+            long arrivals = events.stream().filter(e -> e.event().type() == PopulationEvent.Type.ARRIVAL).count();
+            long deaths = events.stream().filter(e -> e.event().type() == PopulationEvent.Type.DEATH).count();
+            assertEquals(2 + births + arrivals - deaths, partial.checkpoint().state().livingCount());
+            assertTrue(arrivals > 0);
+            assertTrue(events.stream().anyMatch(e -> e.event().type() == PopulationEvent.Type.MIGRATION));
+            try (var result = statement.executeQuery("PRAGMA foreign_key_check")) { assertFalse(result.next()); }
+        }
+    }
+
+    @Test
+    void versionSevenEventRebuildPreservesSequencesAndRollsBackNameConflicts() throws SQLException {
+        var policy = policy(0, 1);
+        simulation.initializeClock(42, policy);
+        simulation.advance(1, 1, policy);
+        var originalEvents = simulation.findEvents(0, 1000);
+        try (var statement = database.getConnection().createStatement()) {
+            statement.execute("CREATE TABLE old_events AS SELECT sequence, step, type, resident_id, settlement_id, first_relative, second_relative, reason FROM population_events");
+            statement.execute("DROP TABLE population_events");
+            statement.execute("ALTER TABLE old_events RENAME TO population_events");
+            statement.execute("CREATE INDEX events_by_resident ON population_events(resident_id, sequence)");
+            statement.execute("PRAGMA user_version = 7");
+            statement.execute("CREATE TABLE population_events_v7 (sequence INTEGER)");
+        }
+        assertThrows(SQLException.class, () -> new SchemaMigrator().migrate(database.getConnection()));
+        try (var statement = database.getConnection().createStatement()) {
+            try (var result = statement.executeQuery("PRAGMA user_version")) { assertEquals(7, result.getInt(1)); }
+            try (var result = statement.executeQuery("SELECT COUNT(*) FROM population_events")) { assertEquals(2, result.getInt(1)); }
+            statement.execute("DROP TABLE population_events_v7");
+        }
+        new SchemaMigrator().migrate(database.getConnection());
+        assertEquals(originalEvents, simulation.findEvents(0, 1000));
+        // A schema upgrade must not silently rewrite an older replay convention.
+        try (var statement = database.getConnection().createStatement()) { statement.executeUpdate("UPDATE demographic_clock SET replay_version = 2"); }
+        assertThrows(SQLException.class, () -> simulation.load(policy));
+        assertEquals(originalEvents, simulation.findEvents(0, 1000));
+    }
+
+    private Household destination(String world) throws SQLException {
+        UUID id = UUID.randomUUID();
+        database.saveSettlement(new Settlement(id, "Destination", world, 100, 64, 0, 0, 0, 0));
+        Household destination = new Household(UUID.randomUUID(), id, "Vacant home");
+        people.insertHousehold(destination);
+        return destination;
+    }
+
+    private List<DemographicRepository.StoredEvent> allEvents(DemographicRepository repository) throws SQLException {
+        var events = new java.util.ArrayList<DemographicRepository.StoredEvent>();
+        long cursor = 0;
+        while (true) {
+            var page = repository.findEvents(cursor, 100);
+            if (page.isEmpty()) return List.copyOf(events);
+            events.addAll(page);
+            cursor = page.getLast().sequence();
+        }
+    }
+
     private PopulationPolicy policy(double births, double deaths) {
         return new PopulationPolicy(12, 216, 240, 480, 720, births, deaths, 0);
     }

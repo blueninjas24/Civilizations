@@ -205,6 +205,26 @@ public final class PopulationRepository {
         }
     }
 
+    /** Only the transactional demographic adapter may apply an explicit planned transfer. */
+    void updateMigratedResident(Resident resident, UUID expectedSource) throws SQLException {
+        try (var statement = connection.prepareStatement("""
+                UPDATE residents SET name = ?, household_id = ?, age_steps = ?, status = ?, settlement_id = ?
+                WHERE id = ? AND settlement_id = ? AND status = 'ALIVE'
+                  AND (SELECT world FROM settlements WHERE id = ?) = (SELECT world FROM settlements WHERE id = ?)
+                """)) {
+            statement.setString(1, resident.name());
+            bindHousehold(statement, 2, resident.householdId());
+            statement.setLong(3, resident.ageSteps());
+            statement.setString(4, resident.status().name());
+            statement.setString(5, resident.settlementId().toString());
+            statement.setString(6, resident.id().toString());
+            statement.setString(7, expectedSource.toString());
+            statement.setString(8, expectedSource.toString());
+            statement.setString(9, resident.settlementId().toString());
+            if (statement.executeUpdate() != 1) throw new SQLException("Invalid or stale resident migration");
+        }
+    }
+
     static Resident readResident(ResultSet result) throws SQLException {
         String household = result.getString("household_id");
         return new Resident(UUID.fromString(result.getString("id")), result.getString("name"),

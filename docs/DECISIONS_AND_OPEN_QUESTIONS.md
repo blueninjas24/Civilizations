@@ -36,6 +36,12 @@
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- Migration prototype (editable, not canon): 0.02 monthly chance for an observed
+  housing-pressured household; move the living household together into vacant
+  sufficiently sized same-world housing. External adult arrival chance 0.005 per
+  receiving settlement/month with observed space. Unknown housing/worlds block moves.
+  IDs/family links persist; events preserve origin/destination. Schema v8 retains old
+  history; replay 3 rejects older clocks/settings. No silent live-save transition.
 - Schema v7 adds a global monthly demographic clock (replay 2), observed housing
   capacities and birth/death events. No silent transition from age-only clocks;
   mixed engines/settings changes rejected. Runtime policy changes require an explicit

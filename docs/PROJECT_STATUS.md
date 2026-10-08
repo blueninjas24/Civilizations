@@ -20,7 +20,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
-1. Extend family/household storage with job foundations and deterministic population steps; preserve open tuning rules.
+1. Add job/skill eligibility foundation, calendar scheduling and automatic village import/projections; preserve open identity/safety rules.
 2. Complete a disposable Paper smoke test and recovery drill when an exact server JAR and approved local setup are available.
 3. Resolve settlement recognition/identity and census semantics before changing discovery or seeding authoritative residents.
 
@@ -85,13 +85,20 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - Phase 1 remains 40% pending demographic persistence and remaining milestone gates. No server/world/actual database changes, merge or push.
 
 ## Atomic demographic saving milestone
-- Current branch: `codex/population-demographic-storage`. Schema v7 adds a global monthly clock, capacity observations and sequenced birth/death events. Additive upgrades preserve existing people/family/settlements.
+- Demographic storage milestone branch: `codex/population-demographic-storage`. Schema v7 adds a global monthly clock, capacity observations and sequenced birth/death events. Additive upgrades preserve existing people/family/settlements.
 - People, newborn identities, parent links, event reasons and progress commit together. Retry/restart/snapshot replay preserves outcomes; settings/replay changes and mixed aging/demographic clocks fail explicitly.
 - Windows `.\mvnw.cmd clean verify -B -ntp`: 92 unit and two integration (94 total), no failures/errors/skips. Tests include a snapshot-restored 100-year run across batch sizes, failure after newborn/link writes and safe event pagination.
 - Phase 1: 5/10 reporting milestones (50% by count). Headless saved aging/birth/death is complete; runtime calendar/scheduler, import/projections, migration, job foundation and Paper validation remain. Global snapshot/writes require profiling before tick-loop integration.
 - No actual server database/world changes, merge or push. Demographic engine remains explicit opt-in through Java APIs; original listener unchanged.
 
+## Saved migration milestone
+- Current branch: `codex/population-migration`. Schema v8 preserves/rebuilds event history with structured migration origins and external arrivals. Current demographic replay convention is 3; older clocks/settings fail explicitly rather than changing silently.
+- Pure seeded migration resolves observed housing pressure, moves whole living households to vacant same-world housing and retains every identity/family link. Occasional external adults require observed space. No world or entity work.
+- Seven new domain and six new storage cases. Windows `.\mvnw.cmd clean verify -B -ntp`: 105 unit plus two integration (107 total), no failures/errors/skips. Restored 100-year combined replay, every event page, rollback/retry, v7 upgrade, cross-world safety and move-then-death in a single batch verified.
+- Phase 1: 6/10 (60% by reporting milestone count). Job foundation, runtime calendar/catch-up, import/projection/diagnostics and real Paper/CI/recovery validation remain.
+- No actual server/world/production DB changes, merge or push. Prototype uses legacy stored world names for boundaries; stable world identity remains a discovery integration decision. No automatic partnership formation or proven long-term balance yet.
+
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has five of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has six of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

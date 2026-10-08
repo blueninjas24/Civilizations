@@ -16,7 +16,7 @@ import java.util.UUID;
 
 /** Single owner-thread global monthly replay: people, links, events and clock commit together. */
 public final class DemographicRepository {
-    public static final int REPLAY_VERSION = 2;
+    public static final int REPLAY_VERSION = 3;
     private final Connection connection;
     private final PopulationRepository people;
 
@@ -26,13 +26,17 @@ public final class DemographicRepository {
     }
 
     public void initializeClock(long seed, PopulationPolicy policy) throws SQLException {
+        initializeClock(seed, policy, MigrationPolicy.disabled());
+    }
+
+    public void initializeClock(long seed, PopulationPolicy policy, MigrationPolicy migration) throws SQLException {
         try (var statement = connection.prepareStatement("""
                 INSERT INTO demographic_clock(id, seed, completed_steps, replay_version, policy)
                 VALUES(1, ?, 0, ?, ?)
                 """)) {
             statement.setLong(1, seed);
             statement.setInt(2, REPLAY_VERSION);
-            statement.setString(3, policy.replayKey());
+            statement.setString(3, settingsKey(policy, migration));
             statement.executeUpdate();
         }
     }
@@ -51,9 +55,13 @@ public final class DemographicRepository {
     }
 
     public Optional<SimulationCheckpoint<PopulationState>> load(PopulationPolicy policy) throws SQLException {
+        return load(policy, MigrationPolicy.disabled());
+    }
+
+    public Optional<SimulationCheckpoint<PopulationState>> load(PopulationPolicy policy, MigrationPolicy migration) throws SQLException {
         begin();
         try {
-            var result = read(policy);
+            var result = read(policy, migration);
             connection.commit();
             connection.setAutoCommit(true);
             return result;
@@ -69,23 +77,36 @@ public final class DemographicRepository {
 
     public SimulationRunner.Batch<PopulationState> advance(long targetSteps, int maximumSteps,
                                                            PopulationPolicy policy) throws SQLException {
+        return advance(targetSteps, maximumSteps, policy, MigrationPolicy.disabled());
+    }
+
+    public SimulationRunner.Batch<PopulationState> advance(long targetSteps, int maximumSteps,
+                                                           PopulationPolicy policy, MigrationPolicy migration) throws SQLException {
         begin();
         try {
-            var before = read(policy).orElseThrow(() -> new SQLException("Demographic clock not initialized"));
+            var before = read(policy, migration).orElseThrow(() -> new SQLException("Demographic clock not initialized"));
+            var worlds = new HashMap<UUID, String>();
+            try (var statement = connection.createStatement(); var result = statement.executeQuery("SELECT id, world FROM settlements")) {
+                while (result.next()) worlds.put(UUID.fromString(result.getString("id")), result.getString("world"));
+            }
             var pending = new SimulationCheckpoint<>(before.seed(), before.completedSteps(), new Pending(before.state(), List.of()));
             var batch = SimulationRunner.advance(pending, targetSteps, maximumSteps, (state, context) -> {
                 var outcome = PopulationStep.advance(state.state(), context, policy);
+                var moved = PopulationMigration.advance(outcome.state(), context, policy.adulthoodSteps(), migration, worlds);
                 var events = new ArrayList<>(state.events());
                 events.addAll(outcome.events());
-                return new Pending(outcome.state(), events);
+                events.addAll(moved.events());
+                return new Pending(moved.state(), events);
             });
             PopulationState after = batch.checkpoint().state().state();
             if (batch.processedSteps() > 0) {
-                var originalIds = new HashSet<UUID>();
-                before.state().residents().forEach(p -> originalIds.add(p.id()));
+                var originals = new HashMap<UUID, Resident>();
+                before.state().residents().forEach(p -> originals.put(p.id(), p));
                 for (Resident person : after.residents()) {
-                    if (originalIds.contains(person.id())) people.updateResident(person);
-                    else people.insertResident(person);
+                    Resident original = originals.get(person.id());
+                    if (original == null) people.insertResident(person);
+                    else if (!original.settlementId().equals(person.settlementId())) people.updateMigratedResident(person, original.settlementId());
+                    else if (!original.equals(person)) people.updateResident(person);
                 }
                 var originalTies = new HashSet<>(before.state().familyTies());
                 for (FamilyTie tie : after.familyTies()) {
@@ -100,7 +121,7 @@ public final class DemographicRepository {
                     statement.setLong(2, before.completedSteps());
                     statement.setLong(3, before.seed());
                     statement.setInt(4, REPLAY_VERSION);
-                    statement.setString(5, policy.replayKey());
+                    statement.setString(5, settingsKey(policy, migration));
                     if (statement.executeUpdate() != 1) throw new SQLException("Demographic clock changed during simulation");
                 }
             }
@@ -130,19 +151,20 @@ public final class DemographicRepository {
                             UUID.fromString(result.getString("second_relative")));
                     events.add(new StoredEvent(result.getLong("sequence"), new PopulationEvent(result.getLong("step"),
                             PopulationEvent.Type.valueOf(result.getString("type")), UUID.fromString(result.getString("resident_id")),
-                            UUID.fromString(result.getString("settlement_id")), related, result.getString("reason"))));
+                            UUID.fromString(result.getString("settlement_id")), related, result.getString("reason"),
+                            result.getString("source_settlement_id") == null ? null : UUID.fromString(result.getString("source_settlement_id")))));
                 }
             }
             return List.copyOf(events);
         }
     }
 
-    private Optional<SimulationCheckpoint<PopulationState>> read(PopulationPolicy policy) throws SQLException {
+    private Optional<SimulationCheckpoint<PopulationState>> read(PopulationPolicy policy, MigrationPolicy migration) throws SQLException {
         long seed;
         long steps;
         try (var statement = connection.createStatement(); var result = statement.executeQuery("SELECT * FROM demographic_clock WHERE id = 1")) {
             if (!result.next()) return Optional.empty();
-            if (result.getInt("replay_version") != REPLAY_VERSION || !policy.replayKey().equals(result.getString("policy"))) {
+            if (result.getInt("replay_version") != REPLAY_VERSION || !settingsKey(policy, migration).equals(result.getString("policy"))) {
                 throw new SQLException("Demographic replay version/settings mismatch; explicit transition required");
             }
             seed = result.getLong("seed");
@@ -173,8 +195,8 @@ public final class DemographicRepository {
 
     private void insertEvent(PopulationEvent event) throws SQLException {
         try (var statement = connection.prepareStatement("""
-                INSERT INTO population_events(step, type, resident_id, settlement_id, first_relative, second_relative, reason)
-                VALUES(?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO population_events(step, type, resident_id, settlement_id, first_relative, second_relative, reason, source_settlement_id)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)
                 """)) {
             statement.setLong(1, event.step());
             statement.setString(2, event.type().name());
@@ -188,8 +210,14 @@ public final class DemographicRepository {
                 statement.setString(6, event.relatedResidents().get(1).toString());
             }
             statement.setString(7, event.reason());
+            if (event.sourceSettlementId() == null) statement.setNull(8, Types.VARCHAR);
+            else statement.setString(8, event.sourceSettlementId().toString());
             statement.executeUpdate();
         }
+    }
+
+    private static String settingsKey(PopulationPolicy policy, MigrationPolicy migration) {
+        return policy.replayKey() + ";" + migration.replayKey();
     }
 
     private void begin() throws SQLException {
