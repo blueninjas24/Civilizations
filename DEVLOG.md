@@ -296,3 +296,11 @@ This will be the beginning of autonomous settlement development.
 - Nine new temporary-DB tests; wrapper clean verify passed 154 cases (152 unit,
   two integration), zero failures/errors/skips. Runtime integration remains pending.
 - No actual DB/world/server change, merge or push; Phase 1 remains 70%.
+
+## October 7, 2026 — schema-11 Paper follow-up
+
+- 154-test JAR from 62550ee enabled on the authorized disposable Paper server.
+  Test database upgraded from schema 9 to 11; read-only integrity check ok.
+- Server reached Done and stopped cleanly. No production data changed.
+- Reachable tracked history checked for common credential/private-key signatures;
+  no matches. Hosted CI/publication still pending; gameplay integration still upcoming.

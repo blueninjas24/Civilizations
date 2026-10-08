@@ -167,6 +167,13 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - Runtime importer, observer, projections, calendar scheduling and diagnostics remain
   pending. Phase 1 stays 70%; no actual DB/world/server changes, merge or push here.
 
+## Schema-11 Paper follow-up
+- Source 62550ee/154-test JAR enabled on the authorized disposable Paper server;
+  schema 9 upgraded to 11, integrity verified and clean stop confirmed.
+- Signature audit found no common GitHub/AWS credential/private-key patterns in
+  reachable tracked history; no remote publication. Hosted CI remains pending.
+- Population import/scheduling/projection remain upcoming; Phase 1 stays 70%.
+
 ## User workflow
 `docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has seven of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 

@@ -62,3 +62,14 @@ durable server or backup. Do not keep valuable worlds here.
   contextual resident projection and bounded runtime catch-up remain pending.
 
 Startup/recovery checks do not complete the population gameplay gate or hosted CI.
+
+## Schema-11 follow-up
+
+- Plugin built from 62550ee (154 passing wrapper tests) replaced only the JAR in
+  the already authorized disposable server. Paper enabled Civilizations, reached
+  `Done`, upgraded the test DB from schema 9 to 11 and stopped cleanly.
+- Read-only verification of that disposable DB: schema 11, integrity ok, zero
+  settlements. This tests migration/enablement, not recognition or resident gameplay.
+- Reachable tracked Git history was checked for common GitHub/AWS credential and
+  private-key signatures; no matches found. This bounded signature check is not
+  a guarantee that every possible secret format is absent. Nothing pushed.
