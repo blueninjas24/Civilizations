@@ -31,7 +31,7 @@ not a replacement for ROADMAP.md or its design requirements.
 - [x] Aging, births and deaths. Headless rules, family/event saving and restart recovery verified; live gameplay connection remains in the final milestone.
 - [x] Immigration and emigration. Saved headless household moves/external arrivals verified; live projection remains in the final milestone.
 - [ ] Civilization calendar and saved simulation/catch-up state. Calendar dates, fractional elapsed time and queued catch-up survive restarts; runtime scheduling remains.
-- [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Bounded populated-bed recognition tested headlessly; import/projection/diagnostics remain.
+- [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Bounded populated-bed recognition and saved world/bed/entity identity tested headlessly; import/projection/diagnostics remain.
 
 First playable target: a village whose named residents survive restarts and whose
 population changes over time. No new population gameplay is implemented yet.

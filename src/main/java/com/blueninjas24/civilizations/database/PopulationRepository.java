@@ -237,7 +237,10 @@ public final class PopulationRepository {
         try (var statement = connection.prepareStatement("""
                 UPDATE residents SET name = ?, household_id = ?, age_steps = ?, status = ?, settlement_id = ?
                 WHERE id = ? AND settlement_id = ? AND status = 'ALIVE'
-                  AND (SELECT world FROM settlements WHERE id = ?) = (SELECT world FROM settlements WHERE id = ?)
+                  AND (SELECT COALESCE(w.world_id, 'legacy:' || s.world) FROM settlements s
+                       LEFT JOIN settlement_worlds w ON w.settlement_id = s.id WHERE s.id = ?)
+                    = (SELECT COALESCE(w.world_id, 'legacy:' || s.world) FROM settlements s
+                       LEFT JOIN settlement_worlds w ON w.settlement_id = s.id WHERE s.id = ?)
                 """)) {
             statement.setString(1, resident.name());
             bindHousehold(statement, 2, resident.householdId());

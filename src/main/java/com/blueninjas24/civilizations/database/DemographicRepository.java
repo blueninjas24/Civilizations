@@ -86,7 +86,10 @@ public final class DemographicRepository {
         try {
             var before = read(policy, migration).orElseThrow(() -> new SQLException("Demographic clock not initialized"));
             var worlds = new HashMap<UUID, String>();
-            try (var statement = connection.createStatement(); var result = statement.executeQuery("SELECT id, world FROM settlements")) {
+            try (var statement = connection.createStatement(); var result = statement.executeQuery("""
+                    SELECT s.id, COALESCE(w.world_id, 'legacy:' || s.world) AS world
+                    FROM settlements s LEFT JOIN settlement_worlds w ON w.settlement_id = s.id
+                    """)) {
                 while (result.next()) worlds.put(UUID.fromString(result.getString("id")), result.getString("world"));
             }
             var pending = new SimulationCheckpoint<>(before.seed(), before.completedSteps(), new Pending(before.state(), List.of()));

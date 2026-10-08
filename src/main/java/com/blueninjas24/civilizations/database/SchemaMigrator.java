@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 10;
+    static final int CURRENT_VERSION = 11;
 
     @FunctionalInterface
     interface Migration {
@@ -57,7 +57,8 @@ final class SchemaMigrator {
                             remainder_millis INTEGER NOT NULL CHECK(typeof(remainder_millis) = 'integer' AND remainder_millis >= 0 AND remainder_millis < millis_per_step),
                             target_steps INTEGER NOT NULL CHECK(typeof(target_steps) = 'integer' AND target_steps >= 0)
                         )
-                        """)
+                        """),
+                SchemaMigrator::createVillageIdentity
         ));
     }
 
@@ -118,6 +119,12 @@ final class SchemaMigrator {
             if (migrations.size() >= 10) {
                 requireColumns(connection, "civilization_time", Set.of("id", "millis_per_step",
                         "last_observed_millis", "remainder_millis", "target_steps"));
+            }
+            if (migrations.size() >= 11) {
+                requireColumns(connection, "observed_worlds", Set.of("id", "name"));
+                requireColumns(connection, "settlement_worlds", Set.of("settlement_id", "world_id"));
+                requireColumns(connection, "village_beds", Set.of("world_id", "x", "y", "z", "settlement_id"));
+                requireColumns(connection, "village_entities", Set.of("world_id", "entity_id", "resident_id"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
@@ -312,6 +319,43 @@ final class SchemaMigrator {
                 """);
         execute(connection, "DROP TABLE population_events_v7");
         execute(connection, "CREATE INDEX events_by_resident ON population_events(resident_id, sequence)");
+    }
+
+    private static void createVillageIdentity(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE observed_worlds (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    name TEXT NOT NULL CHECK(length(trim(name)) > 0)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE settlement_worlds (
+                    settlement_id TEXT PRIMARY KEY NOT NULL REFERENCES settlements(id),
+                    world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                    UNIQUE(settlement_id, world_id)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE village_beds (
+                    world_id TEXT NOT NULL,
+                    x INTEGER NOT NULL CHECK(typeof(x) = 'integer'),
+                    y INTEGER NOT NULL CHECK(typeof(y) = 'integer'),
+                    z INTEGER NOT NULL CHECK(typeof(z) = 'integer'),
+                    settlement_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, x, y, z),
+                    FOREIGN KEY(settlement_id, world_id) REFERENCES settlement_worlds(settlement_id, world_id)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE village_entities (
+                    world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                    entity_id TEXT NOT NULL,
+                    resident_id TEXT NOT NULL REFERENCES residents(id),
+                    PRIMARY KEY(world_id, entity_id)
+                )
+                """);
+        execute(connection, "CREATE INDEX village_entities_by_resident ON village_entities(resident_id)");
+        execute(connection, "CREATE INDEX settlement_beds ON village_beds(settlement_id)");
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

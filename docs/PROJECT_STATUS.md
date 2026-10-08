@@ -155,6 +155,18 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   overlapping existing towns will be diagnosed instead of automatically merged.
 - Phase 1 remains 70%; no merge or push.
 
+## Permanent village identity storage
+- Branch `codex/village-identity-storage`; schema 11 adds world UUID/name evidence,
+  settlement bindings, bed ownership and entity/resident links, preserving all old data.
+- Repeat visits/renames match identities; conflicting town evidence is reported and
+  never merged. Bindings cannot silently change owners. Legacy rows are not auto-bound.
+- Migration uses bound world UUIDs and prevents same-folder-name cross-world moves;
+  old unbound rows retain separated legacy boundaries.
+- Nine new temporary-DB tests. Windows wrapper clean verify passed 152 unit and
+  two integration cases (154 total), zero failures/errors/skips.
+- Runtime importer, observer, projections, calendar scheduling and diagnostics remain
+  pending. Phase 1 stays 70%; no actual DB/world/server changes, merge or push here.
+
 ## User workflow
 `docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has seven of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 

@@ -162,6 +162,10 @@ public class DatabaseManager {
         return new CivilizationClockRepository(connection);
     }
 
+    public VillageIdentityRepository getVillageIdentityRepository() {
+        return new VillageIdentityRepository(connection);
+    }
+
     public void close() {
         if (connection == null) {
             return;

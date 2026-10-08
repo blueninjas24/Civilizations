@@ -286,3 +286,13 @@ This will be the beginning of autonomous settlement development.
 - Not yet wired into import/monthly simulation; existing replay/schema unchanged.
 - User approved world UUID and saved bed/villager matching; ambiguous town overlaps
   must produce diagnostics, not an automatic merge. Phase 1 stays 70%.
+
+## October 7, 2026 — permanent village identity storage
+
+- Schema 11 saves world UUID/display-name evidence and immutable-owner settlement,
+  bed and entity/resident links. Matching reports new/existing/conflicting evidence.
+- No implicit merge, legacy adoption, census overwrite or absent-data deletion.
+  Migration respects permanent world IDs rather than duplicate/renamed folders.
+- Nine new temporary-DB tests; wrapper clean verify passed 154 cases (152 unit,
+  two integration), zero failures/errors/skips. Runtime integration remains pending.
+- No actual DB/world/server change, merge or push; Phase 1 remains 70%.
