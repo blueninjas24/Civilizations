@@ -11,22 +11,30 @@ import com.blueninjas24.civilizations.settlement.Settlement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class DatabaseManager {
 
-    private final JavaPlugin plugin;
+    private final File dataFolder;
+    private final Logger logger;
     private Connection connection;
 
     public DatabaseManager(JavaPlugin plugin) {
-        this.plugin = plugin;
+        this(plugin.getDataFolder(), plugin.getLogger());
+    }
+
+    // Allows isolated persistence tests without starting a Paper server.
+    DatabaseManager(File dataFolder, Logger logger) {
+        this.dataFolder = dataFolder;
+        this.logger = logger;
     }
 
     public void initialize() throws SQLException {
-        if (!plugin.getDataFolder().exists()) {
-            plugin.getDataFolder().mkdirs();
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs();
         }
 
-        File databaseFile = new File(plugin.getDataFolder(), "civilizations.db");
+        File databaseFile = new File(dataFolder, "civilizations.db");
 
         connection = DriverManager.getConnection(
                 "jdbc:sqlite:" + databaseFile.getAbsolutePath()
@@ -139,9 +147,10 @@ public class DatabaseManager {
                 center_x,
                 center_y,
                 center_z,
-                discovered_at
-                population
-            ) VALUES (?, ?, ?, ?, ?, ?, ?);
+                discovered_at,
+                population,
+                beds
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
             """;
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -153,6 +162,7 @@ public class DatabaseManager {
             statement.setInt(6, settlement.getCenterZ());
             statement.setLong(7, settlement.getDiscoveredAt());
             statement.setInt(8, settlement.getPopulation());
+            statement.setInt(9, settlement.getBeds());
 
             statement.executeUpdate();
         }
@@ -170,7 +180,7 @@ public class DatabaseManager {
         try {
             connection.close();
         } catch (SQLException e) {
-            plugin.getLogger().warning(
+            logger.warning(
                     "Failed to close Civilizations database: " + e.getMessage()
             );
         }
