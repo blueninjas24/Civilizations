@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 11;
+    static final int CURRENT_VERSION = 12;
 
     @FunctionalInterface
     interface Migration {
@@ -58,7 +58,9 @@ final class SchemaMigrator {
                             target_steps INTEGER NOT NULL CHECK(typeof(target_steps) = 'integer' AND target_steps >= 0)
                         )
                         """),
-                SchemaMigrator::createVillageIdentity
+                SchemaMigrator::createVillageIdentity,
+                connection -> execute(connection,
+                        "ALTER TABLE village_beds ADD COLUMN household_id TEXT REFERENCES households(id)")
         ));
     }
 
@@ -126,6 +128,7 @@ final class SchemaMigrator {
                 requireColumns(connection, "village_beds", Set.of("world_id", "x", "y", "z", "settlement_id"));
                 requireColumns(connection, "village_entities", Set.of("world_id", "entity_id", "resident_id"));
             }
+            if (migrations.size() >= 12) requireColumns(connection, "village_beds", Set.of("household_id"));
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

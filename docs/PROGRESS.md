@@ -1,6 +1,6 @@
 # Civilizations progress tracker
 
-Updated October 7, 2026. Based on verified work, not planned features.
+Updated October 8, 2026. Based on verified work, not planned features.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
@@ -10,7 +10,7 @@ not a replacement for ROADMAP.md or its design requirements.
 
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
-| 1. Foundation & Population | Villages remember their people; families and population change over time | 7 / 10 | `███████░░░` 70% — active |
+| 1. Foundation & Population | Villages remember their people; families and population change over time | 8 / 10 | `████████░░` 80% — active |
 | 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 0 / 4 | `░░░░░░░░░░` 0% |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -25,13 +25,13 @@ not a replacement for ROADMAP.md or its design requirements.
 - [x] Reliable plugin build and automated testing.
 - [x] Settlement saving and safe database upgrade machinery.
 - [x] Repeatable simulation test runner, separate from Minecraft.
-- [ ] Validate automatic online builds, disposable server setup and backup recovery. Paper startup/restart and disposable source/world/config/SQLite recovery verified; hosted CI remains pending.
+- [x] Validate automatic online builds, disposable server setup and backup recovery. Hosted Windows/Linux CI passed on approved snapshot e85416e; Paper startup/restart and disposable source/world/config/SQLite recovery verified. Newer local work still needs runtime validation.
 - [x] Save named individual residents across restarts. Verified headlessly; in-game seeding/projection remains in the final milestone.
 - [x] Households, basic family ties and the foundation for jobs. Saved households/relationships/skills and explainable age/skill qualification checks verified. Actual businesses/hiring belong to later phases.
 - [x] Aging, births and deaths. Headless rules, family/event saving and restart recovery verified; live gameplay connection remains in the final milestone.
 - [x] Immigration and emigration. Saved headless household moves/external arrivals verified; live projection remains in the final milestone.
 - [ ] Civilization calendar and saved simulation/catch-up state. Calendar dates, fractional elapsed time and queued catch-up survive restarts; runtime scheduling remains.
-- [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Bounded populated-bed recognition and saved world/bed/entity identity tested headlessly; import/projection/diagnostics remain.
+- [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Recognition, saved identity and atomic village import tested headlessly; runtime observer/projection/diagnostics remain.
 
 First playable target: a village whose named residents survive restarts and whose
 population changes over time. No new population gameplay is implemented yet.

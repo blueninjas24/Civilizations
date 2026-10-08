@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git and wrapper build on October 7, 2026.** Canonical docs agree on the nine-phase dependency order; roadmap dates are estimates, not completion claims. Phase 1 is in progress.
+**Verified against local source, Git and wrapper build on October 8, 2026.** Canonical docs agree on the nine-phase dependency order; roadmap dates are estimates, not completion claims. Phase 1 is in progress.
 
 ## Initial audit
 Prototype contained six Java source files: `Civilizations`, `DatabaseManager`, `VillageDiscoveryListener`, `Settlement`, `SettlementNameGenerator`, `NeedsEngine`. Discovery via player chunk movement/HOME POIs, simple settlement persistence, population/bed census and binary housing shortage. No actual economy, business, roads, physical construction, history or simulation yet.
@@ -174,7 +174,23 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   reachable tracked history; no remote publication. Hosted CI remains pending.
 - Population import/scheduling/projection remain upcoming; Phase 1 stays 70%.
 
+## Atomic village enrollment and hosted CI
+- Branch `codex/village-enrollment`; schema 12 adds optional bed/home links.
+  One transaction imports names/ages/identities, shared homes, housing evidence,
+  approved prototype partners and authoritative headcount. Failure rolls all back.
+- Eleven new temporary-DB cases include restart/rename, partial observations,
+  deceased identities, final-write failure/retry, protected old/overlapping homes
+  and actual calendar-driven saved births independent of visible census.
+- Windows wrapper clean verify passed 163 unit and two integration cases (165 total),
+  zero failures/errors/skips. Observer/runtime scheduling/projection still unwired.
+- User approved pushing exact snapshot e85416e on `codex/phase1-foundation-ci`.
+  Both hosted Windows and Ubuntu jobs passed:
+  https://github.com/blueninjas24/Civilizations/actions/runs/37725399200
+- That snapshot has 154 tests; newer enrollment work remains local. Main unchanged,
+  no merge. Phase 1 now 8/10 (80%), with the CI/Paper/recovery gate verified.
+- No actual DB/world/server change in this enrollment batch. See VILLAGE_ENROLLMENT.md.
+
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has seven of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has eight of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

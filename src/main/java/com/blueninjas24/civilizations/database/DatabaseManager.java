@@ -166,6 +166,10 @@ public class DatabaseManager {
         return new VillageIdentityRepository(connection);
     }
 
+    public VillageEnrollmentRepository getVillageEnrollmentRepository() {
+        return new VillageEnrollmentRepository(this);
+    }
+
     public void close() {
         if (connection == null) {
             return;

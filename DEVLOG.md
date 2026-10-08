@@ -304,3 +304,15 @@ This will be the beginning of autonomous settlement development.
 - Server reached Done and stopped cleanly. No production data changed.
 - Reachable tracked history checked for common credential/private-key signatures;
   no matches. Hosted CI/publication still pending; gameplay integration still upcoming.
+
+## October 8, 2026 — atomic enrollment and hosted CI
+
+- Schema 12/atomic enrollment imports stable people, shared homes, housing evidence,
+  approved prototype partners and headcount. Repeat visits never overwrite saved ages
+  or resurrect deceased people. Partial observations invalidate housing confidence.
+- Eleven new tests include rollback/retry, explicit legacy/overlap protection and
+  calendar-driven saved births. Wrapper clean verify passed 165 cases (163 unit,
+  two integration), zero failures/errors/skips; Paper runtime integration remains.
+- With explicit approval, pushed only e85416e on codex/phase1-foundation-ci. Hosted
+  Windows/Linux both passed run 37725399200. Enrollment remains local; main unchanged.
+- CI/Paper/recovery milestone complete: Phase 1 8/10 (80%). No merge or production change.

@@ -173,6 +173,11 @@ public final class DemographicRepository {
             seed = result.getLong("seed");
             steps = result.getLong("completed_steps");
         }
+        return Optional.of(new SimulationCheckpoint<>(seed, steps, readPopulationState()));
+    }
+
+    /** Caller holds the owning connection/transaction; also used by atomic village enrollment. */
+    PopulationState readPopulationState() throws SQLException {
         var residents = new ArrayList<Resident>();
         var households = new ArrayList<Household>();
         var ties = new ArrayList<FamilyTie>();
@@ -193,7 +198,7 @@ public final class DemographicRepository {
                 while (result.next()) capacities.put(UUID.fromString(result.getString("household_id")), result.getInt("capacity"));
             }
         }
-        return Optional.of(new SimulationCheckpoint<>(seed, steps, new PopulationState(residents, households, ties, capacities)));
+        return new PopulationState(residents, households, ties, capacities);
     }
 
     private void insertEvent(PopulationEvent event) throws SQLException {
