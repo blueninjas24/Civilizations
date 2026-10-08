@@ -20,12 +20,18 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
-1. Install these docs without overwriting existing project work; inspect conflicts and update status from code.
-2. Review current feature-branch diff; rerun wrapper `clean verify`; commit coherent passing work.
-3. Implement explicit schema versioning/migrations and test them on disposable DBs.
-4. Establish CI, consistent backups and reproducible local Paper development environment.
-5. Resolve settlement recognition/identity and census semantics; separate listener observation from simulation state.
-6. Implement deterministic accelerated simulation/debug tooling and persistent population domain.
+1. Establish CI, consistent backups and reproducible local Paper development environment.
+2. Resolve settlement recognition/identity and census semantics; separate listener observation from simulation state.
+3. Implement deterministic accelerated simulation/debug tooling and persistent population domain.
+
+## Transactional schema migration milestone
+- Work continues on `foundation/schema-migrations`, branched from the committed persistence/build foundation and canonical documents. Main remains unchanged; nothing pushed or merged.
+- `SchemaMigrator` uses SQLite `PRAGMA user_version`: 1 = base settlement identity, 2 = population, 3 = beds. All pending DDL and version markers share one transaction.
+- Unversioned prototype databases are adopted by inspecting columns, preserving existing rows and adding only missing census columns with zero defaults. No reset is required.
+- Newer schema versions and missing required columns fail explicitly. Failed initialization closes the connection. No arbitrary migration exceptions are swallowed.
+- Ten migration test cases plus the six persistence tests pass with Windows `.\mvnw.cmd clean verify -B -ntp`: fresh install/reopen, three legacy shapes, incremental upgrades, rollback/recovery, newer-version rejection, malformed schema and connection cleanup.
+- Tests use only temporary SQLite files. Actual server DBs were not opened or upgraded. No gameplay behavior, world identity, discovery or housing rule was redesigned.
+- Known limits: no live backup tooling or migration smoke test on Paper yet; column presence is checked, not exhaustive validation of legacy constraints/data types. Schema steps are intentionally small and internal, without a migration framework.
 
 ## User workflow
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

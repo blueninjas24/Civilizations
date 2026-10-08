@@ -6,7 +6,6 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import com.blueninjas24.civilizations.settlement.Settlement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,45 +39,17 @@ public class DatabaseManager {
                 "jdbc:sqlite:" + databaseFile.getAbsolutePath()
         );
 
-        createTables();
-    }
-
-    private void createTables() throws SQLException {
-        String sql = """
-                CREATE TABLE IF NOT EXISTS settlements (
-                    id TEXT PRIMARY KEY,
-                    name TEXT NOT NULL,
-                    world TEXT NOT NULL,
-                    center_x INTEGER NOT NULL,
-                    center_y INTEGER NOT NULL,
-                    center_z INTEGER NOT NULL,
-                 discovered_at INTEGER NOT NULL,
-                 population INTEGER NOT NULL DEFAULT 0,
-                                                      beds INTEGER NOT NULL DEFAULT 0
-                );
-                """;
-
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(sql);
-
+        try {
+            new SchemaMigrator().migrate(connection);
+        } catch (SQLException | RuntimeException failure) {
             try {
-                statement.execute(
-                        "ALTER TABLE settlements ADD COLUMN population INTEGER NOT NULL DEFAULT 0"
-                );
-            } catch (SQLException ignored) {
-                // Column already exists.
+                connection.close();
+            } catch (SQLException closeFailure) {
+                failure.addSuppressed(closeFailure);
             }
-
-            try {
-                statement.execute(
-                        "ALTER TABLE settlements ADD COLUMN beds INTEGER NOT NULL DEFAULT 0"
-                );
-            } catch (SQLException ignored) {
-                // Column already exists.
-            }
+            connection = null;
+            throw failure;
         }
-
-
     }
 
     public Settlement findNearbySettlement(
