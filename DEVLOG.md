@@ -1,5 +1,16 @@
 # Civilizations Development Log
 
+### Family memory — October 7, 2026
+
+- Added saved parent/child and canonical partner relationships; shared parents
+  identify siblings across households/settlements. Deceased relatives remain linked.
+- Schema v5 protects identities and prevents self-links, duplicate/reversed partners,
+  ancestry cycles and in-place overwrites. No demographic or marriage policy chosen.
+- Windows wrapper clean verify passed 64 cases (62 unit, two integration), including
+  family restart/snapshot preservation and v4 upgrade rollback/retry.
+- Phase 1 remains 40%: family portion advanced; jobs and in-game integration pending.
+- No actual Minecraft/server database changes, merge or push.
+
 A running record of Civilizations development, major decisions, experiments, successes, and spectacular failures.
 
 ---

@@ -2,6 +2,7 @@ package com.blueninjas24.civilizations.database;
 
 import com.blueninjas24.civilizations.population.Household;
 import com.blueninjas24.civilizations.population.Resident;
+import com.blueninjas24.civilizations.population.FamilyTie;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -151,6 +152,57 @@ public final class PopulationRepository {
             throw failure;
         }
         connection.setAutoCommit(true);
+    }
+
+    public void insertFamilyTie(FamilyTie tie) throws SQLException {
+        try (var statement = connection.prepareStatement(
+                "INSERT INTO family_ties (first_id, second_id, type) VALUES (?, ?, ?)")) {
+            statement.setString(1, tie.first().toString());
+            statement.setString(2, tie.second().toString());
+            statement.setString(3, tie.type().name());
+            statement.executeUpdate();
+        }
+    }
+
+    /** Both incoming/outgoing links, including deceased relatives and relatives elsewhere. */
+    public List<FamilyTie> findFamilyTies(UUID residentId) throws SQLException {
+        try (var statement = connection.prepareStatement("""
+                SELECT * FROM family_ties WHERE first_id = ? OR second_id = ?
+                ORDER BY type, first_id, second_id
+                """)) {
+            statement.setString(1, residentId.toString());
+            statement.setString(2, residentId.toString());
+            List<FamilyTie> ties = new ArrayList<>();
+            try (var result = statement.executeQuery()) {
+                while (result.next()) {
+                    ties.add(new FamilyTie(UUID.fromString(result.getString("first_id")),
+                            UUID.fromString(result.getString("second_id")),
+                            FamilyTie.Type.valueOf(result.getString("type"))));
+                }
+            }
+            return List.copyOf(ties);
+        }
+    }
+
+    /** Shared recorded parent, including half-siblings; unrelated housemates are not siblings. */
+    public List<UUID> findSiblings(UUID residentId) throws SQLException {
+        try (var statement = connection.prepareStatement("""
+                SELECT DISTINCT sibling.second_id FROM family_ties own
+                JOIN family_ties sibling ON sibling.first_id = own.first_id
+                WHERE own.type = 'PARENT_CHILD' AND sibling.type = 'PARENT_CHILD'
+                  AND own.second_id = ? AND sibling.second_id <> ?
+                ORDER BY sibling.second_id
+                """)) {
+            statement.setString(1, residentId.toString());
+            statement.setString(2, residentId.toString());
+            List<UUID> siblings = new ArrayList<>();
+            try (var result = statement.executeQuery()) {
+                while (result.next()) {
+                    siblings.add(UUID.fromString(result.getString(1)));
+                }
+            }
+            return List.copyOf(siblings);
+        }
     }
 
     private static Resident readResident(ResultSet result) throws SQLException {

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 4;
+    static final int CURRENT_VERSION = 5;
 
     @FunctionalInterface
     interface Migration {
@@ -36,7 +36,8 @@ final class SchemaMigrator {
                 },
                 connection -> addColumnIfMissing(connection, "population"),
                 connection -> addColumnIfMissing(connection, "beds"),
-                SchemaMigrator::createPopulationTables
+                SchemaMigrator::createPopulationTables,
+                SchemaMigrator::createFamilyTable
         ));
     }
 
@@ -74,6 +75,9 @@ final class SchemaMigrator {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
                 requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",
                         "household_id", "age_steps", "status"));
+            }
+            if (migrations.size() >= 5) {
+                requireColumns(connection, "family_ties", Set.of("first_id", "second_id", "type"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
@@ -145,6 +149,45 @@ final class SchemaMigrator {
         execute(connection, "CREATE INDEX households_by_settlement ON households(settlement_id, id)");
         execute(connection, "CREATE INDEX residents_by_settlement ON residents(settlement_id, id)");
         execute(connection, "CREATE INDEX residents_by_household ON residents(household_id, settlement_id)");
+    }
+
+    private static void createFamilyTable(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE family_ties (
+                    first_id TEXT NOT NULL REFERENCES residents(id),
+                    second_id TEXT NOT NULL REFERENCES residents(id),
+                    type TEXT NOT NULL CHECK(type IN ('PARENT_CHILD', 'PARTNER')),
+                    PRIMARY KEY(first_id, second_id, type),
+                    CHECK(first_id <> second_id),
+                    CHECK(type <> 'PARTNER' OR first_id < second_id)
+                )
+                """);
+        execute(connection, "CREATE INDEX family_by_second ON family_ties(second_id, type, first_id)");
+        // Check the existing descendants of the child before admitting a parent edge.
+        // UNION (not UNION ALL) bounds traversal even if a manually damaged graph has a cycle.
+        execute(connection, """
+                CREATE TRIGGER reject_parent_cycle BEFORE INSERT ON family_ties
+                WHEN NEW.type = 'PARENT_CHILD'
+                BEGIN
+                    SELECT RAISE(ABORT, 'Parent relationship would create an ancestry cycle')
+                    WHERE EXISTS (
+                        WITH RECURSIVE descendants(id) AS (
+                            SELECT NEW.second_id
+                            UNION
+                            SELECT f.second_id FROM family_ties f JOIN descendants d ON f.first_id = d.id
+                            WHERE f.type = 'PARENT_CHILD'
+                        )
+                        SELECT 1 FROM descendants WHERE id = NEW.first_id
+                    );
+                END
+                """);
+        // Recorded ties are historical facts. Corrections/new relationship lifecycles need an explicit API.
+        execute(connection, """
+                CREATE TRIGGER reject_family_update BEFORE UPDATE ON family_ties
+                BEGIN
+                    SELECT RAISE(ABORT, 'Family ties cannot be overwritten');
+                END
+                """);
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

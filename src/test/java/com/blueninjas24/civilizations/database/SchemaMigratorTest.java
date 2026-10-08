@@ -60,7 +60,7 @@ class SchemaMigratorTest {
             new SchemaMigrator().migrate(connection);
             createRow(connection, 2);
             SchemaMigrator failing = new SchemaMigrator(List.of(
-                    ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {},
+                    ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {}, ignored -> {},
                     c -> execute(c, "CREATE TABLE rollback_marker (id INTEGER)"),
                     c -> execute(c, "THIS IS INVALID SQL")
             ));
