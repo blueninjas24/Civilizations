@@ -3,6 +3,7 @@ package com.blueninjas24.civilizations;
 import com.blueninjas24.civilizations.application.PopulationSession;
 import com.blueninjas24.civilizations.paper.PopulationConfiguration;
 import com.blueninjas24.civilizations.paper.EconomyConfiguration;
+import com.blueninjas24.civilizations.paper.PaperFarmObserver;
 import com.blueninjas24.civilizations.paper.PopulationDebugCommand;
 import com.blueninjas24.civilizations.paper.VillageObserver;
 import com.blueninjas24.civilizations.paper.ManagedVillagerConversionGuard;
@@ -25,6 +26,7 @@ public final class Civilizations extends JavaPlugin {
     private VillageObserver observer;
     private PaperResidentProjector projector;
     private ManagedVillagerLifecycle lifecycle;
+    private PaperFarmObserver farms;
 
     @Override
     public void onEnable() {
@@ -39,16 +41,17 @@ public final class Civilizations extends JavaPlugin {
             if (!economyFile.exists()) saveResource("economy.yml", false);
             var economyConfig = new YamlConfiguration(); economyConfig.load(economyFile);
             var economySettings = EconomyConfiguration.read(economyConfig);
+            var farmSettings = EconomyConfiguration.readFarms(economyConfig);
             getLogger().info("Economy prototype settings validated: " + economySettings.secondsPerPeriod()
                     + " seconds/period, food output " + economySettings.foodOutputPercent()
-                    + "%; live economy scheduling is not connected yet.");
-            population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis);
+                    + "%; food accounting waits for reliable field evidence.");
+            population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis, economySettings, farmSettings);
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)
                             .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);
             var debug = new PopulationDebugCommand(population,
                     () -> observer == null ? "Village observer not started" : observer.diagnostic()
-                            + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic());
+                            + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic());
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
             command.setExecutor(debug); command.setTabCompleter(debug);
             var startup = population.start();
@@ -60,6 +63,7 @@ public final class Civilizations extends JavaPlugin {
                     try {
                         var status = startup.join();
                         observer = new VillageObserver(Civilizations.this, population, observerSettings);
+                        farms = new PaperFarmObserver(population, farmSettings); farms.runTaskTimer(Civilizations.this, 1, 1);
                         lifecycle = new ManagedVillagerLifecycle(population, getLogger());
                         getServer().getPluginManager().registerEvents(lifecycle, Civilizations.this);
                         lifecycle.runTaskTimer(Civilizations.this, 1, 1);

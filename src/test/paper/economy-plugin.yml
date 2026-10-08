@@ -1,0 +1,5 @@
+name: CivilizationsEconomyProbe
+version: '1'
+main: com.blueninjas24.civilizations.paper.EconomyPaperProbe
+api-version: '1.21'
+depend: [Civilizations]

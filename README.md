@@ -18,12 +18,12 @@ when a moving person's physical villager is recreated. This is a tested foundati
 not a balanced survival release. See [Phase 1 playtest notes](docs/PHASE1_PLAYTEST.md).
 
 Phase 2 now has tested, persistent commodity accounting: reserves, explicit supplies
-and demand, shortage duration and recovery. This is an internal foundation; automatic
-village economy and player trade are still pending. See [accounting scope](docs/COMMODITY_ACCOUNTING.md).
+and demand, shortage duration and recovery. Live food accounting now uses observed planted fields and saved time; treasury,
+household wellbeing and player trade remain pending. See [accounting scope](docs/COMMODITY_ACCOUNTING.md).
 
 Prototype economy tuning is in a separate commented `economy.yml`, created under
 `plugins/Civilizations` on first startup. It includes simple famine/feast examples
-and strict validation. Live economy scheduling remains pending; see [tuning guide](docs/ECONOMY_TUNING.md).
+and strict validation. Live food supports recorded forward tuning on restart; see [tuning guide](docs/ECONOMY_TUNING.md).
 
 ## Core Philosophy
 

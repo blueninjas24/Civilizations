@@ -11,7 +11,7 @@ not a replacement for ROADMAP.md or its design requirements.
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
-| 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 1 / 4 | `██▌░░░░░░░` 25% — accounting foundation |
+| 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 1 / 4 | `██▌░░░░░░░` 25% — live food added; second milestone partial |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -39,11 +39,11 @@ probe uses synthetic observation positions; a human Minecraft client playtest is
 needed. This is the Phase 1 foundation gate, not a balanced survival release. See
 PHASE1_PLAYTEST.md for setup and material limitations, including trade resets on moves.
 
-## Phase 2 — accounting foundation complete; live economy pending
+## Phase 2 — accounting complete; live food connected
 
 - [x] Commodity supplies, demand, reserves and shortages. Explicit headless inputs,
   saved reserves/history, shortage duration/recovery and transactional restart verified.
-  No automatic consumption, production or starvation is enabled yet.
+  Live food production/consumption now uses observed fields. No starvation deaths.
 - [ ] Labor, production, treasury and household wellbeing.
 - [ ] Feasible autonomous decisions with explanations.
 - [ ] Player trade/prices and long-running economy/shortage tests.
@@ -52,11 +52,12 @@ The prototype has a simple population-versus-beds check; that does not complete
 the household-driven needs/economy milestone.
 
 Phase 2 is 25% by these four reporting milestones, not 25% of gameplay or time.
-The economy is not scheduled in live villages. Approved editable `economy.yml` now
-defines prototype demand, evidenced-worker output and scarcity price calculations;
-normal/famine/feast examples are tested. Facility observation, saved scheduling,
-treasury/welfare, decisions and player trade remain. See COMMODITY_ACCOUNTING.md and
-ECONOMY_TUNING.md. Partial work does not complete a second milestone.
+Live food runs on a saved independent clock, with planted-field evidence, restart
+catch-up, shortage/recovery explanations and forward famine/feast retuning. Paper
+verified production, depleted supplies, recovery and unloaded operation. Treasury,
+household wellbeing, autonomous responses and player trade still remain. The second
+reporting milestone is partial, so Phase 2 stays 1/4 (25%). See LIVE_FOOD_ECONOMY.md
+and ECONOMY_TUNING.md. Percentages count finished milestone groups, not hours.
 
 ## Phase 3 — planned
 

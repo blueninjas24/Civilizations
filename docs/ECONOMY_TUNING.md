@@ -4,11 +4,10 @@ The economy settings live in **`plugins/Civilizations/economy.yml`** on a server
 The plugin creates the commented file on first startup and preserves your edits.
 The repository copy is `src/main/resources/economy.yml`.
 
-**Current scope:** the file is loaded/validated and its consumption, production and
-price calculations are tested. Automatic village economy scheduling, observed
-production facilities and merchant transactions are not connected yet. Changing
-these settings currently prepares the prototype; it does not make villagers starve
-or create a live feast. No automatic starvation deaths are implemented.
+**Current scope:** automatic food accounting runs after reliable planted-field evidence.
+It uses saved adult/child demand, worker capacity and a separate economic clock.
+Fields are observed without harvesting or editing blocks. No automatic starvation
+mortality or merchant transactions are implemented. See LIVE_FOOD_ECONOMY.md.
 
 ## Normal, famine and feast
 
@@ -39,7 +38,7 @@ to `0` disables that group's food demand in the calculation.
 
 - **Pace:** one economic period is 60 real seconds. These are separate from population
   months. A shorter period accelerates both consumption and production; it does not
-  by itself create a famine. Future offline catch-up defaults to at most 120 periods
+  by itself create a famine. Offline catch-up defaults to at most 120 periods
   (two hours at this pace); zero disables it. Two periods per batch is a work limit,
   not a guarantee of server tick time.
 - **Food output:** a worker produces four units per period at 100%, bounded by the
@@ -47,7 +46,7 @@ to `0` disables that group's food demand in the calculation.
 - **Starting supplies:** food defaults to 12 units per living resident, about six
   adult periods without production. Timber/stone each start at four, iron/coal each
   one, livestock products zero. These seed an inventory only once on explicit initial
-  enrollment. Editing the file or restarting never refills existing reserves.
+  reliable field enrollment. Editing the file or restarting never refills existing reserves.
 - **Shortages:** reserves are used first. Deficits become severe after three consecutive
   periods with coverage at most 50%. Any fully supplied period clears the streak.
   Coverage at least 125% is surplus; at least 200% is abundant. These labels explain
@@ -73,10 +72,20 @@ for that commodity remains separate implementation work.
    Invalid/missing/unknown keys fail with a diagnostic instead of silently using defaults.
    Correct the indicated file entry and restart; the plugin does not reset saved data.
 
-There is no live reload command yet. Existing accounting APIs protect saved shortage
-thresholds and reject silent policy changes. A future explicit, recorded tuning
-transition must apply new rules forward without rewriting historical explanations;
-that transition is not implemented in this batch. Do not edit SQLite to bypass it.
+There is no live reload command yet. Restart applies changes forward and records
+a tuning transition; old reserves and period explanations remain intact. The offline
+interval and partial period at the transition are skipped and logged in the save.
+If old economic work is queued, startup rejects retuning: restore the old file,
+let catch-up finish, then stop and make the edit. Never edit SQLite to bypass it.
+A price-only edit also starts a recorded settings boundary. Changing starting
+supplies does not refill accounts. Changing the commodity catalog of an existing
+account requires an explicit inventory transition and is currently rejected.
+
+The optional `farms` section uses `radius-blocks: 32`, `vertical-radius-blocks: 16`
+and `crops-per-worker: 16`. These editable observation/capacity defaults support the
+prototype without claiming farmland ownership or assigning business jobs. Old
+format-1 files missing the entire section retain these defaults; partial/invalid
+sections fail clearly. Missing coverage or overlapping town fields pauses work.
 
 ## Verified examples
 
@@ -85,8 +94,9 @@ With four adults, two evidenced worker slots and 48 starting food units, the sam
 and 208 units at 200%. These are controlled automated fixtures, not a balance claim
 for a survival world.
 
-Windows Wrapper `clean verify` passed 261 cases (259 unit/two packaged integration).
-Paper verified first-run file creation at 100%, a 25% edit surviving restart byte for
-byte including an owner comment, normal population diagnostics/unloaded fixture and
-clean shutdown. Restored the disposable test file to normal afterward. Schema remains
-14; no existing economy inventories, villagers, histories or production saves reset.
+Windows Wrapper `clean verify` passed 274 cases (272 unit/two packaged integration).
+The real Paper food probe verified planted-field supply, depletion/severe shortage,
+forward normal-to-feast restart tuning, unchanged residents/history and continued
+accounting without loaded chunks. Normal startup also preserves old owner files
+without the farms section. Schema 15 retains history and identities; no production
+save or world was reset. These are controlled fixtures, not survival balance claims.

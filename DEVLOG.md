@@ -423,3 +423,23 @@ This will be the beginning of autonomous settlement development.
   manually applied fixture tickets removed. No production/main/remote changes.
 - Phase 1 remains 90%; visible resident projection and vanilla lifecycle coordination
   are the next batch. Large-server profiling and actual client play remain pending.
+
+## October 8, 2026 — live field-backed food economy
+
+- Saved independent food clock and transactional period effects now use actual saved
+  living residents plus loaded crop snapshots near household homes. No harvesting,
+  player-block changes, invented farms, business jobs or chunk force-loading.
+- Schema 15 retains evidence/clocks and forward tuning history, backfills original
+  period policies and preserves old explanations. Partial/conflicting evidence pauses
+  accounting. Offline villages use their last reliable observed capacity.
+- Read-only economy diagnostics; commented farm settings with old-file compatibility.
+  Added 13 automated cases. Windows Wrapper clean verify passed 274 cases (272 unit,
+  two packaged integration), zero failures/errors/skips.
+- Consistent disposable schema-14 backup before deployment. Guarded real Paper probe
+  passed actual field supply, food depletion/severe shortage, forward feast recovery,
+  restart person/history preservation and accounting while chunks remained unloaded.
+  Probe archived outside plugins afterward; normal startup/shutdown also verified.
+- Phase 2 remains 25% by completed reporting groups. Treasury/wellbeing, autonomous
+  decisions and player transactions remain; no starvation deaths. Current demographic
+  checkpoint is used during food catch-up, not exact historical interleaving. Large
+  city profiling and human client play remain outstanding. No push/merge/main changes.

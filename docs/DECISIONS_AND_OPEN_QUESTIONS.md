@@ -122,3 +122,17 @@
 - Schema version 4 stores resident/household identities separately from the old census. Age is an unconverted logical step count; optional household means unassigned housing. Deceased records are retained. No residents are inferred from old counts, no housing capacity is chosen and no implicit settlement transfer is supported. Family, occupation, seeding and demographic rules remain separate upcoming work.
 
 Codex may choose internal implementation details that do not change gameplay intent; document the choice. For consequential open rules, present 2–3 concrete options with tradeoffs and a recommendation; wait for user approval. Add approved outcomes here and update other canonical docs. Do not present hypothetical illustrative numbers as settled decisions.
+
+
+## October 8, 2026 — approved configurable economy applied to live food
+
+Within the approved prototype settings authority: sixteen planted crops per worker,
+32-block horizontal/16-block vertical household observation, one-minute food periods,
+and saved adult/child demand now drive live accounting. Capacity evidence does not
+claim ownership, harvest blocks or create businesses. Missing/shared evidence pauses
+work; entirely unloaded villages retain last reliable capacity. Recorded settings
+boundaries apply forward, preserve history/reserves and skip elapsed time at retuning.
+Catch-up uses current saved residents rather than exact historical event interleaving.
+These prototype approximations are documented in LIVE_FOOD_ECONOMY.md, remain editable,
+and do not revise locked design principles. Household rationing, treasury transactions,
+food-driven mortality and player merchant rules remain separate future work.

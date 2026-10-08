@@ -2,22 +2,30 @@
 # On a server: plugins/Civilizations/economy.yml
 # Keep indentation: two spaces. Use numbers without quotes and % signs.
 # Edit while stopped, then restart. This file is never overwritten automatically.
-# CURRENT SCOPE: validated settings and tested calculations. Live economy scheduling,
-# facility observation and merchant transactions are not connected yet.
+# Live food accounting uses planted fields and saved residents. Merchant transactions
+# and starvation effects are not enabled.
 format-version: 1
 
 # Economic periods are separate from population months. Consumption below is PER PERIOD.
 # Changing only the speed makes BOTH consumption and production happen more often.
 pace:
   seconds-per-period: 60
-  maximum-offline-periods: 120  # Future catch-up cap; 0 = no offline economy catch-up.
-  periods-per-batch: 2         # Future SQL-owner work budget, not a Paper tick deadline.
+  maximum-offline-periods: 120  # Catch-up cap; 0 = no offline economy catch-up.
+  periods-per-batch: 2         # SQL-owner work budget, not a Paper tick deadline.
 
 food:
   units-per-adult: 2
   units-per-child: 1
   units-per-worker: 4          # Only with an evidenced facility slot AND available adult labor.
   output-percent: 100          # 100 = normal; 25 = famine; 200 = feast; 0 = no output.
+
+# Read-only crops on farmland near saved homes. These do not claim block ownership,
+# harvest crops or grant building permission. Shared/ambiguous fields defer both towns.
+# Older files may omit this whole section and receive these documented defaults.
+farms:
+  radius-blocks: 32
+  vertical-radius-blocks: 16
+  crops-per-worker: 16
 
 # Coverage = (reserves + production + imports) / requested demand.
 # Severe requires BOTH low coverage and this many consecutive deficit periods.
@@ -60,5 +68,5 @@ prices:
 # FEAST EXAMPLE: output-percent: 200 (or units-per-adult: 1).
 # Keep 100 for ordinary play until tuning. These examples need real production capacity;
 # a multiplier cannot conjure farms. Whole food output rounds down each period.
-# Saved commodity policies still require an explicit transition before changing
-# shortage thresholds for an EXISTING account. Historical explanations stay protected.
+# Restart tuning records a forward transition, skips the offline interval at that
+# change, and preserves past explanations. Finish queued catch-up before retuning.

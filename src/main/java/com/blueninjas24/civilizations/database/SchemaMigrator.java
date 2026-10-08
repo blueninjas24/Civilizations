@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 14;
+    static final int CURRENT_VERSION = 15;
 
     @FunctionalInterface
     interface Migration {
@@ -62,7 +62,8 @@ final class SchemaMigrator {
                 connection -> execute(connection,
                         "ALTER TABLE village_beds ADD COLUMN household_id TEXT REFERENCES households(id)"),
                 SchemaMigrator::createResidentProjection,
-                SchemaMigrator::createCommodityAccounting
+                SchemaMigrator::createCommodityAccounting,
+                SchemaMigrator::createFoodRuntime
         ));
     }
 
@@ -141,6 +142,12 @@ final class SchemaMigrator {
                 requireColumns(connection, "economy_stocks", Set.of("settlement_id", "commodity", "units", "shortage_periods"));
                 requireColumns(connection, "economy_periods", Set.of("settlement_id", "commodity", "period", "opening", "prior_shortage",
                         "production", "imports", "households", "industry", "construction", "exports", "events"));
+            }
+            if (migrations.size() >= 15) {
+                requireColumns(connection, "farm_evidence", Set.of("settlement_id", "world_id", "observed_millis", "complete", "planted_crops"));
+                requireColumns(connection, "economy_runtime", Set.of("settlement_id", "millis_per_period", "last_observed_millis", "remainder_millis", "target_periods", "settings"));
+                requireColumns(connection, "economy_tuning", Set.of("sequence", "settlement_id", "after_period", "observed_millis", "discarded_millis", "old_settings", "new_settings"));
+                requireColumns(connection, "economy_periods", Set.of("severe_bps", "surplus_bps", "abundant_bps", "severe_after"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
@@ -446,6 +453,44 @@ final class SchemaMigrator {
                     FOREIGN KEY(settlement_id, commodity) REFERENCES economy_stocks(settlement_id, commodity)
                 )
                 """);
+    }
+
+    private static void createFoodRuntime(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE farm_evidence (
+                    settlement_id TEXT PRIMARY KEY NOT NULL,
+                    world_id TEXT NOT NULL,
+                    observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis) = 'integer' AND observed_millis >= 0),
+                    complete INTEGER NOT NULL CHECK(complete IN (0, 1)),
+                    planted_crops INTEGER NOT NULL CHECK(typeof(planted_crops) = 'integer' AND planted_crops BETWEEN 0 AND 100000),
+                    FOREIGN KEY(settlement_id, world_id) REFERENCES settlement_worlds(settlement_id, world_id)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE economy_runtime (
+                    settlement_id TEXT PRIMARY KEY NOT NULL REFERENCES economy_accounts(settlement_id),
+                    millis_per_period INTEGER NOT NULL CHECK(typeof(millis_per_period) = 'integer' AND millis_per_period > 0),
+                    last_observed_millis INTEGER NOT NULL CHECK(typeof(last_observed_millis) = 'integer' AND last_observed_millis >= 0),
+                    remainder_millis INTEGER NOT NULL CHECK(typeof(remainder_millis) = 'integer' AND remainder_millis >= 0 AND remainder_millis < millis_per_period),
+                    target_periods INTEGER NOT NULL CHECK(typeof(target_periods) = 'integer' AND target_periods >= 0),
+                    settings TEXT NOT NULL
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE economy_tuning (
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    settlement_id TEXT NOT NULL REFERENCES economy_accounts(settlement_id),
+                    after_period INTEGER NOT NULL CHECK(typeof(after_period) = 'integer' AND after_period >= 0),
+                    observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis) = 'integer' AND observed_millis >= 0),
+                    discarded_millis INTEGER NOT NULL CHECK(typeof(discarded_millis) = 'integer' AND discarded_millis >= 0),
+                    old_settings TEXT NOT NULL,
+                    new_settings TEXT NOT NULL
+                )
+                """);
+        for (var column : List.of("severe_bps", "surplus_bps", "abundant_bps", "severe_after")) {
+            execute(connection, "ALTER TABLE economy_periods ADD COLUMN " + column + " INTEGER NOT NULL DEFAULT 0");
+            execute(connection, "UPDATE economy_periods SET " + column + " = (SELECT " + column + " FROM economy_accounts WHERE settlement_id = economy_periods.settlement_id)");
+        }
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

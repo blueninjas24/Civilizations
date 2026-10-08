@@ -13,6 +13,15 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void existingOwnerFilesWithoutFarmSectionKeepApprovedDefaults() throws Exception {
+        var config = defaults(); config.set("farms", null); config.set("food.output-percent", 25);
+        assertEquals(FarmObservation.Policy.prototype(), EconomyConfiguration.readFarms(config));
+        assertEquals(25, EconomyConfiguration.read(config).foodOutputPercent());
+    }
+    @Test void partialFarmSettingsFailInsteadOfGuessingCapacity() throws Exception {
+        var config = defaults(); config.set("farms.crops-per-worker", null);
+        assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(config));
+    }
     private YamlConfiguration defaults() throws Exception {
         var config = new YamlConfiguration();
         try (var input = Objects.requireNonNull(getClass().getResourceAsStream("/economy.yml"));

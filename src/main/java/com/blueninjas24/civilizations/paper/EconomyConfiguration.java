@@ -10,7 +10,10 @@ import java.util.*;
 public final class EconomyConfiguration {
     private EconomyConfiguration() {}
     public static EconomySettings read(ConfigurationSection config) {
-        exactKeys(config, Set.of("format-version", "pace", "food", "shortages", "starting-units-per-resident", "prices"));
+        var rootKeys = new HashSet<>(Set.of("format-version", "pace", "food", "shortages", "starting-units-per-resident", "prices"));
+        if (config.contains("farms")) rootKeys.add("farms");
+        exactKeys(config, rootKeys);
+        readFarms(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -38,6 +41,13 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    /** Preserve existing commented format-1 files: an entirely absent new section gets documented defaults. */
+    public static FarmObservation.Policy readFarms(ConfigurationSection config) {
+        if (!config.contains("farms")) return FarmObservation.Policy.prototype();
+        exactKeys(section(config, "farms"), Set.of("radius-blocks", "vertical-radius-blocks", "crops-per-worker"));
+        return new FarmObservation.Policy(smallInteger(config, "farms.radius-blocks"), smallInteger(config, "farms.vertical-radius-blocks"),
+                smallInteger(config, "farms.crops-per-worker"));
     }
     private static ConfigurationSection section(ConfigurationSection config, String path) {
         var section = config.getConfigurationSection(path);

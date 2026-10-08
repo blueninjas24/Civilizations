@@ -42,14 +42,30 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;
         }
-        sender.sendMessage("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid>");
+        if (args.length == 3 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("economy")) {
+            try {
+                var id = UUID.fromString(args[2]); var view = session.economyView().get(id);
+                if (view == null) sender.sendMessage("Economy awaiting a reliable complete farm scan; unknown is not zero food.");
+                else {
+                    sender.sendMessage("Economy: completed " + view.account().state().completedPeriods() + " periods, queued " + view.queuedPeriods());
+                    sender.sendMessage("Farm evidence: " + (view.farm().complete() ? "complete" : "partial: economy paused") + "; planted crops " + view.farm().plantedCrops());
+                    if (view.latest() != null) for (var report : view.latest().reports()) {
+                        sender.sendMessage(report.explanation());
+                        session.economySettings().ifPresent(settings -> sender.sendMessage("Indicative Trade Value/unit: " + settings.price(report.commodity(), report.condition())));
+                    }
+                    sender.sendMessage("Last economy failure: " + (session.economyFailure() == null ? "none" : session.economyFailure()));
+                }
+            } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
+            return true;
+        }
+        sender.sendMessage("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid>");
         return true;
     }
 
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) return List.of();
         List<String> choices = args.length == 1 ? List.of("debug")
-                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "settlement", "explain") : List.of();
+                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "settlement", "explain", "economy") : List.of();
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(java.util.Locale.ROOT);
         return choices.stream().filter(value -> value.startsWith(prefix)).toList();
     }

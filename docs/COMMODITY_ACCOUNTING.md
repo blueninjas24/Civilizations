@@ -1,7 +1,7 @@
 # Phase 2 — commodity accounting foundation
 
 Verified October 8, 2026. This is the first Phase 2 reporting milestone, not a
-running village economy or a completed phase. Phase 1 gameplay remains enabled.
+completed phase. Live food was subsequently connected; see LIVE_FOOD_ECONOMY.md. Phase 1 gameplay remains enabled.
 
 ## Implemented
 
@@ -50,10 +50,12 @@ An absent account means uninitialized economy, not a village with zero food.
 - `advance`: consume one consecutive period's explicit inputs. Repeated/skipped work
   and policy changes fail. Stocks, retained inputs and checkpoint commit together.
 - `history`: reconstruct exact period calculations/explanations from retained inputs
-  using protected policy/replay version 1. No silent tuning transition is supported.
+  using per-period saved policy/replay version 1. Schema 15 preserves those policies
+  while the live runtime records explicit forward tuning transitions.
 
-Economic periods are separate from demographic months; no cadence, scheduler,
-automatic enrollment, live effects, command, merchant or inventory mutation is wired.
+Economic periods are separate from demographic months. The later food runtime wires
+cadence, observed enrollment and a read-only command; merchant transactions and
+physical inventory mutation remain pending.
 Production inputs must eventually come from plausible observed/owned facilities and
 labor. This API does not prove production capacity or invent offscreen farms/mines.
 
@@ -82,7 +84,7 @@ No production database/world reset, remote push or merge.
 ## Next gate
 
 Editable experimental economy settings are now approved and implemented. Next,
-connect evidence-backed production and labor, saved independent economy timing,
-treasury versus household wellbeing, bounded economic scheduling and explanations.
+food evidence, saved timing and bounded scheduling are now implemented. Next: treasury
+versus household wellbeing and feasible responses.
 Food crisis population effects, material allocation priority, merchant price application, barter and
 autonomous response execution still need implementation and appropriate decisions.

@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live economy remains pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food is implemented; treasury/wellbeing and responses remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
 ## Initial audit
 Prototype contained six Java source files: `Civilizations`, `DatabaseManager`, `VillageDiscoveryListener`, `Settlement`, `SettlementNameGenerator`, `NeedsEngine`. Discovery via player chunk movement/HOME POIs, simple settlement persistence, population/bed census and binary housing shortage. No actual economy, business, roads, physical construction, history or simulation yet.
@@ -21,13 +21,38 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 
 ## Immediate next work
 1. Economy tuning approved and implemented in commented `economy.yml`. Next:
-   evidence-backed labor/production, saved economic timing and owner scheduling,
-   treasury/wellbeing and feasible explainable decisions.
+   treasury/household wellbeing and feasible explainable decisions. Live field-backed
+   food production, saved economic timing and forward tuning are now implemented.
 2. Human client playtest can follow later; user authorized Phase 2 without it.
    Preserve vanilla profession/trades/inventory when physical villagers are recreated,
    and handle other native transformations before recommending established survival worlds.
 3. Current roadmap phase: needs, commodities and explainable economy decisions; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
+
+## Live food economy — October 8, 2026
+- Branch `codex/phase2-live-food`: loaded main-thread crop snapshots around saved
+  homes feed the existing SQL owner. Saved living adults supply bounded prototype
+  labor; children consume food. Default capacity is one worker per 16 planted crops.
+  No harvesting, ownership claim, player-block edit or invented offscreen facility.
+- Schema 15 adds evidence, saved independent economic clocks and recorded forward
+  tuning. Per-period policies preserve old explanations across threshold edits.
+  Stocks/inputs/checkpoint commit together; partial/conflicting scans pause work.
+  Unloaded villages use last reliable capacity without forcing chunks.
+- New read-only `/civ debug economy <UUID>` shows reserves, evidence, shortage
+  explanations and indicative prices. These are not merchant offers.
+- Windows Wrapper clean verify: 274 cases (272 unit/two integration), no failures,
+  errors or skips. Tests cover actual saved demographics, temporary databases,
+  clock/restart limits, pauses, failed-save rollback/retry, history-preserving tuning,
+  migration backfill, negative-height crop scanning and old owner configuration.
+- Guarded real Paper probe passed planted-field supply, depleted food/severe shortage,
+  forward feast retuning, identity/history restart preservation and unloaded accounting.
+  Consistent disposable schema-14 backup taken first. No production reset or world
+  deletion. Test helper is excluded from the production JAR.
+- Phase 2 stays 1/4 (25%): the second milestone is partial. Treasury, family allocation
+  and wellbeing, business hiring, autonomous responses and player trade remain.
+  No starvation population penalty. Catch-up uses current saved demographics and last
+  reliable field evidence rather than full historical event interleaving. Scale and
+  human survival playtesting remain pending. See LIVE_FOOD_ECONOMY.md.
 
 ## Editable economy prototype settings — October 8, 2026
 - User authorized configurable economy defaults and requested easy famine/feast tuning.
@@ -43,9 +68,8 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   skips. Paper first-run creation, 25% edit/comment surviving restart byte-for-byte,
   normal population diagnostics/unloaded fixture and clean shutdown verified. Restored
   test settings to normal; schema remains 14 and no economy accounts were auto-created.
-- Settings and calculations are prepared, not live consumption or trading. Recorded
-  tuning transitions for already initialized accounts still pending; saved policies
-  continue to reject silent changes. No approval blocker remains for prototype tuning.
+- At that batch settings/calculations were prepared, not live consumption or trading.
+  Recorded tuning transitions and live food were subsequently implemented above. No approval blocker remains for prototype tuning.
   Phase 2 stays 1/4 (25%) with partial labor/price work; no merge/push/main changes.
 
 ## Phase 2 commodity accounting — October 8, 2026

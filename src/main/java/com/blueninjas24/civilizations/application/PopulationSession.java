@@ -4,6 +4,8 @@ import com.blueninjas24.civilizations.database.DatabaseManager;
 import com.blueninjas24.civilizations.database.VillageEnrollmentRepository;
 import com.blueninjas24.civilizations.database.ResidentProjectionRepository;
 import com.blueninjas24.civilizations.database.DemographicRepository;
+import com.blueninjas24.civilizations.database.EconomyRuntimeRepository;
+import com.blueninjas24.civilizations.economy.*;
 import com.blueninjas24.civilizations.population.*;
 import com.blueninjas24.civilizations.settlement.*;
 import com.blueninjas24.civilizations.simulation.CivilizationTime;
@@ -63,9 +65,19 @@ public final class PopulationSession implements AutoCloseable {
     private final AtomicReference<Thread> ownerThread = new AtomicReference<>();
     private volatile ScheduledFuture<?> timer;
     private boolean readyForWork; // Owner-thread readiness survives graceful draining, not new submissions.
+    private final EconomySettings economySettings;
+    private final FarmObservation.Policy farmPolicy;
+    private EconomyRuntimeRepository economy;
+    private final AtomicReference<java.util.Map<UUID, EconomyRuntimeRepository.View>> economyView = new AtomicReference<>(java.util.Map.of());
+    private volatile String economyFailure;
 
     public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now) {
+        this(dataFolder, logger, settings, now, null, FarmObservation.Policy.prototype());
+    }
+    public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now,
+                             EconomySettings economySettings, FarmObservation.Policy farmPolicy) {
         this.logger = logger; this.settings = settings; this.now = now;
+        this.economySettings = economySettings; this.farmPolicy = java.util.Objects.requireNonNull(farmPolicy);
         database = new DatabaseManager(dataFolder, logger);
         owner = new ScheduledThreadPoolExecutor(1, runnable -> {
             Thread thread = Thread.ofPlatform().daemon(true).name("Civilizations-population").unstarted(runnable);
@@ -80,6 +92,9 @@ public final class PopulationSession implements AutoCloseable {
     public Optional<PopulationState> snapshot() { return Optional.ofNullable(snapshot.get()); }
     public Optional<ProjectionView> projectionView() { return Optional.ofNullable(projectionView.get()); }
     public Settings settings() { return settings; }
+    public java.util.Map<UUID, EconomyRuntimeRepository.View> economyView() { return economyView.get(); }
+    public Optional<EconomySettings> economySettings() { return Optional.ofNullable(economySettings); }
+    public String economyFailure() { return economyFailure; }
 
     public CompletableFuture<Status> start() {
         return start(true);
@@ -103,6 +118,10 @@ public final class PopulationSession implements AutoCloseable {
                         Math.multiplyExact(settings.millisPerMonth(), settings.maximumOfflineMonths()));
                 if (accrued.discardedMillis() > 0) logger.info("Prototype offline calendar cap discarded " + accrued.discardedMillis() + " real milliseconds");
                 advance(accrued.anchor().targetSteps());
+                if (economySettings != null) {
+                    economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps());
+                    economy.start(now.getAsLong()); economyView.set(economy.views());
+                }
                 readyForWork = true;
                 if (scheduleAutomatically) timer = owner.scheduleWithFixedDelay(() -> {
                     if (!closing.get()) {
@@ -145,6 +164,12 @@ public final class PopulationSession implements AutoCloseable {
 
     public CompletableFuture<Boolean> claimProjection(UUID person, UUID world, UUID entity, UUID household, VillageObservation.Position position) {
         return projectionWork(() -> database.getResidentProjectionRepository().claim(person, world, entity, household, position));
+    }
+    public CompletableFuture<Void> observeFarms(FarmObservation observation) {
+        return submit(() -> {
+            requireReady(); if (economy == null) throw new IllegalStateException("Economy not enabled in this session");
+            economy.observe(observation, now.getAsLong()); economyView.set(economy.views()); return null;
+        });
     }
     public CompletableFuture<Boolean> activateProjection(UUID person, UUID entity) {
         return projectionWork(() -> database.getResidentProjectionRepository().activate(person, entity));
@@ -189,6 +214,13 @@ public final class PopulationSession implements AutoCloseable {
         status.set(new Status(previous.ready(), previous.completedMonths(), queuedTime.anchor().targetSteps(),
                 previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
         advance(queuedTime.anchor().targetSteps());
+        if (economy != null && status.get().remainingMonths() == 0) {
+            try { economy.pulse(now.getAsLong(), false); economyView.set(economy.views()); economyFailure = null; }
+            catch (SQLException | RuntimeException failure) {
+                if (!java.util.Objects.equals(economyFailure, failure.getMessage())) logger.log(Level.SEVERE, "Economy update deferred; saved periods remain retryable", failure);
+                economyFailure = failure.getMessage();
+            }
+        }
     }
     private void advance(long target) throws SQLException {
         long began = System.nanoTime();
