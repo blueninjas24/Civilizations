@@ -1,5 +1,16 @@
 # Civilizations Development Log
 
+### Headless births and deaths — October 7, 2026
+
+- Added immutable population snapshots, editable prototype monthly demographic
+  policy, eligible housing-constrained births and age-dependent deaths.
+- Seeded newborn identities and parent links; structured reasons; deceased records
+  retained. Missing capacity blocks births; impossible close-relative births rejected.
+- Windows wrapper clean verify passed 85 cases (83 unit, two integration), with
+  100-year accounting and replay scenarios. This is not a balanced live simulation.
+- Phase 1 remains 40%; demographic saving/runtime integration next. No server/world
+  or actual DB changes, merge or push. Settings follow user's prototype authorization.
+
 ### Saved logical aging — October 7, 2026
 
 - Added pure immutable resident aging and opt-in schema v6 seed/progress clocks.

@@ -36,6 +36,12 @@
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- Experimental demographic prototype: 12 monthly steps/year, adulthood 18, parent
+  ages 20–40, senior threshold 60; eligible-pair birth chance 0.015/month, baseline
+  death chance 0.0001/month plus 0.0005 per year beyond 60. Editable policy inputs
+  under user authorization, not locked canon. Births require observed housing space
+  and living unrelated partners. Runtime cadence, seeding and housing observation
+  remain unwired. See POPULATION_SIMULATION.md for exact limitations.
 - Schema v6 stores opt-in age-only clocks, seed/progress and replay version 1.
   Aging and clock changes share a transaction. Future demographic/calendar rules
   require a distinct replay convention; no automatic live scheduling chosen here.
