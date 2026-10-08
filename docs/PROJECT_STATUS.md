@@ -105,6 +105,19 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - Phase 1 7/10 (70%): household/family/job qualification foundation complete. Calendar scheduling, automatic village import/projection/diagnostics and real Paper/CI/recovery remain.
 - No server/world/actual DB changes, merge or push. See WORK_FOUNDATION.md for exact scope.
 
+## Disposable Paper and recovery verification
+- Branch `codex/paper-test-preparation`: guarded launcher validates test marker,
+  pinned JAR checksum, accepted EULA, loopback properties and Java 25.
+- Following explicit user EULA acceptance, exact Paper 26.2 build 129 started,
+  restarted and started from a restored test-world/config/SQLite backup; all
+  stopped cleanly. Plugin bd8f4ce enabled and initialized schema 9 successfully.
+- Verified complete source Git bundle and archive, all 68 restored world/config
+  files, SQLite integrity, and recovered-source wrapper build: 117 tests passed.
+- Only new disposable temporary directories outside OneDrive were used. No
+  production save, existing world, main branch, remote push or merge changed.
+- See PAPER_SMOKE_TEST.md for download recovery and non-fatal Windows warnings.
+  Hosted CI and integrated population playtesting remain pending. Phase 1 stays 70%.
+
 ## User workflow
 `docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has seven of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 

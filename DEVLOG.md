@@ -241,3 +241,15 @@ This will be the beginning of autonomous settlement development.
 - Existing settlement rows/census preserved; no resets, automatic villagers-to-residents conversion, live DB operations or new gameplay tuning.
 - Windows `.\mvnw.cmd clean verify -B -ntp` passed 58 cases (56 unit, two integration), including restart, constraints, rollback/retry, v3 upgrade/recovery and population backup round-trip coverage.
 - Phase 1 advances to four of ten reporting milestones complete (40% by checklist). Household storage is present; family ties/jobs and live gameplay integration remain pending. Docs/POPULATION.md records limitations.
+
+## October 7, 2026 — disposable Paper startup and recovery
+
+- User accepted the EULA for the isolated localhost test. Guarded launcher checks
+  the disposable marker, pinned Paper checksum, Java 25 and isolation properties.
+- Paper 26.2-129 enabled schema-9 Civilizations, restarted, and ran a restored
+  source/world/config/SQLite copy. Clean shutdown verified after each run.
+- Verified Git bundle, 68 world/config file hashes, SQLite integrity and restored
+  source wrapper build (117 passing tests). No production data or main/remote changed.
+- Incomplete Minecraft download retried with exact required checksum; non-fatal
+  Windows performance-counter error documented without OS changes.
+- Phase 1 remains 70%; hosted CI and real population integration remain pending.

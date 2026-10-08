@@ -25,7 +25,7 @@ not a replacement for ROADMAP.md or its design requirements.
 - [x] Reliable plugin build and automated testing.
 - [x] Settlement saving and safe database upgrade machinery.
 - [x] Repeatable simulation test runner, separate from Minecraft.
-- [ ] Validate automatic online builds, disposable server setup and backup recovery. Tools/procedures exist; hosted CI, Paper testing and recovery drill remain pending.
+- [ ] Validate automatic online builds, disposable server setup and backup recovery. Paper startup/restart and disposable source/world/config/SQLite recovery verified; hosted CI remains pending.
 - [x] Save named individual residents across restarts. Verified headlessly; in-game seeding/projection remains in the final milestone.
 - [x] Households, basic family ties and the foundation for jobs. Saved households/relationships/skills and explainable age/skill qualification checks verified. Actual businesses/hiring belong to later phases.
 - [x] Aging, births and deaths. Headless rules, family/event saving and restart recovery verified; live gameplay connection remains in the final milestone.
