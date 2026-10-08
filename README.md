@@ -28,6 +28,8 @@ Villages can grow, construct buildings, develop economies, form relationships, t
 
 ## Development
 
+See the [plain-English progress tracker](docs/PROGRESS.md) for progress through all nine phases.
+
 Platform: PaperMC 26.2  
 Language: Java  
 Build system: Maven

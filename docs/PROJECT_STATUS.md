@@ -56,4 +56,6 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - Schema remains version 3; no live database/world/server changes. Household capacity, time scale, demographic rates, authoritative seeding and recognition remain open. Paper smoke testing and hosted CI still pending.
 
 ## User workflow
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Initial snapshot: Phase 1 has three of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

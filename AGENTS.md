@@ -13,6 +13,7 @@ Read `docs/MASTER_DESIGN.md`, `docs/ROADMAP.md`, `docs/ARCHITECTURE.md`, `docs/S
 - Introduce versioned, tested, transactional SQLite migrations; avoid exception swallowing. Preserve identity/history once non-disposable data exists.
 - Make simulations deterministic under a seed and accelerated-testable. Provide diagnostics explaining decisions.
 - Add or update tests, docs and devlog with each meaningful feature. Mark features as implemented only after code and verification.
+- Update `docs/PROGRESS.md` after each meaningful batch using verified milestones; keep its plain-English progress consistent with PROJECT_STATUS and the nine-phase roadmap. Percentages count checklist milestones, not hours or promised dates.
 - Never expose secrets, private server addresses, or player-specific data in public Git history.
 
 ## Priorities
