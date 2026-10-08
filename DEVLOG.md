@@ -275,3 +275,14 @@ This will be the beginning of autonomous settlement development.
   two integration). Phase 1 remains 70% pending Minecraft integration.
 - User approved configurable adult partner formation without invented child ancestry.
   No new server/world/production DB changes, merge or push.
+
+## October 7, 2026 — approved adult partnership prototype
+
+- Explicit pure configurable adult pairing, with known-blood-relative exclusion,
+  living-partner exclusivity and retained deceased relationship history.
+- Existing child ancestry remains unknown. Seven tests include repeatability,
+  eligibility, historical partners and birth integration. Wrapper clean verify:
+  145 passing cases (143 unit, two integration), zero failures/errors/skips.
+- Not yet wired into import/monthly simulation; existing replay/schema unchanged.
+- User approved world UUID and saved bed/villager matching; ambiguous town overlaps
+  must produce diagnostics, not an automatic merge. Phase 1 stays 70%.

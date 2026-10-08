@@ -16,7 +16,10 @@ Illustrative dependency direction: `Paper listener -> application service -> dom
 - Offline/unloaded simulation uses elapsed time in bounded steps; reconcile world effects over multiple ticks. Never force-load chunks just to progress statistics.
 
 ## Identity and discovery
-- Use stable UUIDs, avoid identifying settlements by current name, player's position or fixed 128×128 region. World UUID/identity strategy and POI cluster matching require design confirmation.
+- Use stable UUIDs, avoid identifying settlements by current name, player's position
+  or fixed 128×128 region. User approved permanent world UUIDs and saved bed/villager
+  identity matching. Diagnose multi-town overlaps rather than merging automatically;
+  center/border evolution and merger/split rules remain open.
 - Notifications are per player and separately throttled from authoritative census/simulation updates.
 - Discovery should be idempotent; failures retry safely; overlapping settlements resolved deterministically with diagnostics.
 

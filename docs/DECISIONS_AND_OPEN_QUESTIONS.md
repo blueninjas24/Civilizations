@@ -1,6 +1,9 @@
 # Civilizations — locked decisions and unresolved questions
 
 ## Locked / approved
+- October 7 authorization: use permanent Minecraft world UUIDs and saved bed/villager
+  identity matching for settlements. Renames/revisits must retain identity; overlap
+  with multiple saved towns produces diagnostics, never an automatic merge.
 - October 7 authorization: create simple configurable prototype partner pairs among
   unrelated adult residents sharing a home, enabling future births. Do not assign
   invented parentage to already existing children.
@@ -25,7 +28,8 @@
 
 ## Open — do not silently lock numerical/behavioral rules
 1. Exact criteria for recognizing a settlement: POI cluster, villagers, vanilla village, player-founded location; distinction from player settlement.
-2. Center/border computation, nearby overlap and merging/splitting criteria, world UUID versus name.
+2. Center/border evolution and merging/splitting criteria. World UUID and saved
+   bed/villager identity matching approved; multi-town overlap must be diagnosed.
 3. Housing unit/capacity formula, treatment of zero/zero, and whether equal occupancy counts as shortage or full capacity.
 4. Calendar time dilation, economic tick cadence, migration/birth/death probabilities and physical NPC density budget.
 5. Commodity unit scale, reserves, price bands, shortage thresholds, treasury and prosperity equations.

@@ -143,6 +143,18 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - User approved configurable prototype adult partnerships; implementation upcoming.
   No new world/server/production DB changes, merge or push in this batch.
 
+## Approved partnership prototype
+- Branch `codex/population-partner-formation`: explicit pure pairing of unrelated,
+  unpartnered living adults sharing a home. Enable/minimum-age inputs configurable;
+  repeatable UUID order, retained deceased partners, no invented existing child ancestry.
+- Seven new tests, including birth integration. Windows wrapper clean verify passed
+  143 unit and two integration cases (145 total), zero failures/errors/skips.
+- Import/monthly runtime integration remains pending; existing demographic replay 3
+  is unchanged. No schema change or actual DB/world/server change in this batch.
+- User approved permanent world UUID and saved bed/villager identity matching;
+  overlapping existing towns will be diagnosed instead of automatically merged.
+- Phase 1 remains 70%; no merge or push.
+
 ## User workflow
 `docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has seven of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
