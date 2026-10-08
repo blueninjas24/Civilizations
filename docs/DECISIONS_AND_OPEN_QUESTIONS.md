@@ -1,6 +1,9 @@
 # Civilizations — locked decisions and unresolved questions
 
 ## Locked / approved
+- October 8 authorization: disable zombie conversion for Civilizations-managed
+  villagers in the prototype. Cancel INFECTION transforms for saved entity identities;
+  do not cancel unrelated conversions or grant general damage immunity.
 - October 7 authorization: use permanent Minecraft world UUIDs and saved bed/villager
   identity matching for settlements. Renames/revisits must retain identity; overlap
   with multiple saved towns produces diagnostics, never an automatic merge.
@@ -27,11 +30,6 @@
 - Public Civilizations source is acceptable after auditing secrets/history; Chronicler source remains private. This repository must not contain hidden Chronicler mechanics.
 
 ## Open — do not silently lock numerical/behavioral rules
-Pending Phase 1 lifecycle decision (October 8): preserve the saved person through
-zombie infection and curing (recommended), or prevent conversion for managed
-prototype villagers? No choice is enabled. This blocks complete native lifecycle
-integration, not persistence work.
-
 1. Exact criteria for recognizing a settlement: POI cluster, villagers, vanilla village, player-founded location; distinction from player settlement.
 2. Center/border evolution and merging/splitting criteria. World UUID and saved
    bed/villager identity matching approved; multi-town overlap must be diagnosed.
@@ -51,6 +49,14 @@ integration, not persistence work.
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- October 8 live projection: main-thread create/claim/add/activate handshake with a
+  persistent temporary-freeze marker; loaded absence never infers death. Actual native
+  deaths and late enrollment evidence save on SQL owner; accepted shutdown work drains.
+  Editable radius/density budgets use 64 blocks, 32/day and eight/night per world.
+  Night limits new spawns; existing villagers retain vanilla behavior. These are
+  prototype performance/context settings, not a new locked population law. Vanilla
+  trades/profession/inventory on recreation remain an explicit limitation, not a
+  decision to reset trade progression in the eventual survival experience.
 - October 8 projection preparation: schema 13 retains aliases and records one current
   CLAIMED/ACTIVE/RETIRED incarnation per person. Claims commit before future Paper
   spawns; active absence never implies death. Pending recovery requires a frozen entity

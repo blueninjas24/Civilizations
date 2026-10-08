@@ -1,5 +1,26 @@
 # Civilizations Development Log
 
+### Phase 1 live population gate — October 8, 2026
+
+- Implemented approved managed-villager zombie conversion prevention. Paper verified
+  infection canceled and lethal damage still saved the resident's actual death.
+- Wired names/age locks, safe nearby births/arrivals, household migration and simulated
+  death removal. Native breeding coordinates with the saved calendar/families.
+- Fixed accepted-save shutdown draining, enrollment/death publication race and the
+  activation-before-unfreeze restart window. Added persistent freeze marker, retry
+  backoff and editable nearby/day/night reconciliation budgets. No new schema beyond 13.
+- Wrapper clean verify: 224 tests (222 unit, two integration), zero failures/errors/skips;
+  nine new automated cases. Real Paper probe passed safe-placement deferral, names,
+  babies/adulthood, restart/pending/freeze recovery, native breeding/infection/death,
+  five-person migration, simulated death and enrollment/death race. Test code excluded
+  from production JAR; normal plugin-only restart/commands/unloaded checks also passed.
+- Phase 1 now 10/10 (100% of prototype milestones). Human client/balance/scale checks
+  and vanilla trade-state preservation on recreation remain explicit limits; use a
+  disposable play world. No merge/push/main/production/world deletion/roadmap change.
+- Final deployment review found an older duplicate Civilizations JAR in the disposable
+  server. Archived it outside plugins, confirmed the remaining JAR matches the build,
+  and repeated the complete Paper probe and ordinary plugin-only restart successfully.
+
 ### Resident projection preparation — October 8, 2026
 
 - Schema 13 current incarnations, retained aliases, durable spawn claims, actual-death

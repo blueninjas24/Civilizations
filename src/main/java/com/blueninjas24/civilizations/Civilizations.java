@@ -4,6 +4,10 @@ import com.blueninjas24.civilizations.application.PopulationSession;
 import com.blueninjas24.civilizations.paper.PopulationConfiguration;
 import com.blueninjas24.civilizations.paper.PopulationDebugCommand;
 import com.blueninjas24.civilizations.paper.VillageObserver;
+import com.blueninjas24.civilizations.paper.ManagedVillagerConversionGuard;
+import com.blueninjas24.civilizations.paper.ManagedVillagerLifecycle;
+import com.blueninjas24.civilizations.paper.PaperResidentProjector;
+import com.blueninjas24.civilizations.database.ResidentProjectionRepository;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -18,6 +22,8 @@ public final class Civilizations extends JavaPlugin {
 
     private PopulationSession population;
     private VillageObserver observer;
+    private PaperResidentProjector projector;
+    private ManagedVillagerLifecycle lifecycle;
 
     @Override
     public void onEnable() {
@@ -27,9 +33,14 @@ public final class Civilizations extends JavaPlugin {
             config.load(new File(getDataFolder(), "config.yml"));
             var settings = PopulationConfiguration.read(config);
             var observerSettings = PopulationConfiguration.readObserver(config);
+            var projectionSettings = PopulationConfiguration.readProjection(config);
             population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis);
+            getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
+                    population.projectionView().map(PopulationSession.ProjectionView::identities)
+                            .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);
             var debug = new PopulationDebugCommand(population,
-                    () -> observer == null ? "Village observer not started" : observer.diagnostic());
+                    () -> observer == null ? "Village observer not started" : observer.diagnostic()
+                            + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic());
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
             command.setExecutor(debug); command.setTabCompleter(debug);
             var startup = population.start();
@@ -41,6 +52,11 @@ public final class Civilizations extends JavaPlugin {
                     try {
                         var status = startup.join();
                         observer = new VillageObserver(Civilizations.this, population, observerSettings);
+                        lifecycle = new ManagedVillagerLifecycle(population, getLogger());
+                        getServer().getPluginManager().registerEvents(lifecycle, Civilizations.this);
+                        lifecycle.runTaskTimer(Civilizations.this, 1, 1);
+                        projector = new PaperResidentProjector(Civilizations.this, population, projectionSettings);
+                        projector.runTaskTimer(Civilizations.this, 1, 1);
                         observer.runTaskTimer(Civilizations.this, 1, 1);
                         getLogger().info("Civilizations population ready: " + status.livingPeople()
                                 + " saved living residents; completed " + status.completedMonths() + " months.");
@@ -53,6 +69,8 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (projector != null) projector.close();
+        if (lifecycle != null) lifecycle.flush();
         if (population != null) population.close();
         getLogger().info("Civilizations has been disabled.");
     }

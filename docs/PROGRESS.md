@@ -10,7 +10,7 @@ not a replacement for ROADMAP.md or its design requirements.
 
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
-| 1. Foundation & Population | Villages remember their people; families and population change over time | 9 / 10 | `█████████░` 90% — active |
+| 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 0 / 4 | `░░░░░░░░░░` 0% |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -20,22 +20,24 @@ not a replacement for ROADMAP.md or its design requirements.
 | 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
 | 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
 
-## Phase 1 — active
+## Phase 1 — prototype gate passed
 
 - [x] Reliable plugin build and automated testing.
 - [x] Settlement saving and safe database upgrade machinery.
 - [x] Repeatable simulation test runner, separate from Minecraft.
-- [x] Validate automatic online builds, disposable server setup and backup recovery. Hosted Windows/Linux CI passed on approved snapshot e85416e; Paper startup/restart and disposable source/world/config/SQLite recovery verified. Newer local work still needs runtime validation.
-- [x] Save named individual residents across restarts. Verified headlessly; in-game seeding/projection remains in the final milestone.
+- [x] Validate automatic online builds, disposable server setup and backup recovery. Hosted Windows/Linux CI passed on approved snapshot e85416e; later local work passed Wrapper and real Paper checks. Latest feature branch remains unpushed.
+- [x] Save named individual residents across restarts. Headless storage and actual Paper projection/restart verified.
 - [x] Households, basic family ties and the foundation for jobs. Saved households/relationships/skills and explainable age/skill qualification checks verified. Actual businesses/hiring belong to later phases.
-- [x] Aging, births and deaths. Headless rules, family/event saving and restart recovery verified; live gameplay connection remains in the final milestone.
-- [x] Immigration and emigration. Saved headless household moves/external arrivals verified; live projection remains in the final milestone.
-- [x] Civilization calendar and saved simulation/catch-up state. Configurable owner-thread timer wired into Paper; real calendar advance, restart and read-only status command verified on the disposable server. People still need live observation/projection integration.
-- [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Observer/import, outcome explanations and durable projection registry/planner verified. Native lifecycle and contextual world projections remain; zombie conversion/curing decision pending.
+- [x] Aging, births and deaths. Saved headless rules, visible babies/adulthood, native deaths and simulated death removal verified on Paper.
+- [x] Immigration and emigration. Saved external arrivals and whole-household moves verified; five migrants materialized near their destination with permanent person IDs.
+- [x] Civilization calendar and saved simulation/catch-up state. Owner-thread timer, elapsed months, restart, bounded offline catch-up and read-only diagnostics verified.
+- [x] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Safe nearby spawning, names/ages, pending/activation restart recovery, native breeding coordination, approved zombie-conversion prevention, migration and death reconciliation verified with real Paper entities.
 
-First playable target: a village whose named residents survive restarts and whose
-population changes over time. Live calendar, automatic resident import and debug commands
-are implemented; visible simulated aging/birth/death/migration projection remains pending.
+First playable prototype reached: named residents persist, families/population change,
+and nearby villagers reflect saved births, ages, deaths and moves. The real Paper
+probe uses synthetic observation positions; a human Minecraft client playtest is still
+needed. This is the Phase 1 foundation gate, not a balanced survival release. See
+PHASE1_PLAYTEST.md for setup and material limitations, including trade resets on moves.
 
 ## Phase 2 — planned
 

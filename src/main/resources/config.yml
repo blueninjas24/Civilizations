@@ -35,3 +35,9 @@ observer:
   block-reads-per-tick: 4096
   nanos-per-tick: 2000000
   refresh-ticks: 100
+projection:
+  nearby-radius: 64
+  maximum-per-world: 32
+  maximum-at-night: 8
+  chunks-per-tick: 2
+  residents-per-tick: 16

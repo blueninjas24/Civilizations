@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git and wrapper build on October 8, 2026.** Canonical docs agree on the nine-phase dependency order; roadmap dates are estimates, not completion claims. Phase 1 is in progress.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phases 2–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
 ## Initial audit
 Prototype contained six Java source files: `Civilizations`, `DatabaseManager`, `VillageDiscoveryListener`, `Settlement`, `SettlementNameGenerator`, `NeedsEngine`. Discovery via player chunk movement/HOME POIs, simple settlement persistence, population/bed census and binary housing shortage. No actual economy, business, roads, physical construction, history or simulation yet.
@@ -20,14 +20,39 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
-The projection registry/planner and read-only outcome explanations are now verified;
-see RESIDENT_PROJECTION.md. A zombie conversion/curing choice is pending before
-finishing native lifecycle wiring. Phase 1 remains 90%, not complete.
+1. Human client playtest of the completed population prototype in a disposable world.
+2. Preserve vanilla profession/trades/inventory when physical villagers are recreated,
+   and handle other native transformations before recommending established survival worlds.
+3. Next roadmap phase: needs, commodities and explainable economy decisions; no
+   construction or canonical roadmap changes. Latest feature work has not been pushed.
 
-1. Reconcile nearby villagers with saved residents: names, ages, births/deaths and moves.
-2. Coordinate vanilla breeding, aging and physical deaths with authoritative simulation.
-3. Verify full visible population gameplay on disposable Paper; retain documented
-   prototype rules and avoid construction work.
+## Live population and approved zombie rule — October 8, 2026
+- User chose to disable zombie conversion for managed villagers. Registered INFECTION
+  guard leaves unmanaged villagers, curing, lightning and unrelated transforms alone.
+  Verified lethal zombie attacks still kill people and save death/history; no general immunity.
+- Paper projector applies saved names/age locks; nearby births/arrivals materialize only
+  at loaded safe homes. Retired/moved/deceased incarnations reconcile incrementally.
+  One asynchronous claim/add/activation handshake at a time; persistent freeze marker
+  recovers shutdown between activation commit and main-thread acknowledgement.
+- Vanilla breeding for managed parents cannot bypass saved families/calendar. Actual
+  deaths retry on SQL owner, including deaths during asynchronous enrollment. Accepted
+  shutdown saves drain before DB close. Entity removal for simulated death does not
+  emit a second saved native death.
+- Editable projection limits: radius 64, day budget 32/world, night budget eight,
+  two inspected chunks/sixteen residents per tick. Night budget defers additional
+  spawns; existing villagers use vanilla behavior and are not culled at sunset.
+- Windows `.\mvnw.cmd clean verify -B -ntp`: 224 tests (222 unit/two integration),
+  no failures/errors/skips. Real Paper probe passed hazardous placement deferral,
+  babies/adulthood/names, restart/freeze/claim recovery, native breeding/infection/death,
+  five-person migration, simulated deaths and enrollment/death race. Probe never ships
+  in production JAR; guarded by disposable marker/no online players.
+- Normal plugin-only startup/commands/unloaded simulation checked separately; test
+  fixture stayed unloaded and no forced chunks remained. SQL integrity/FKs passed for
+  all scenario DBs. Owner batch observed 9.215 ms on three people: not a tick or scale
+  bound. Large-server profiling and human client/balance testing remain.
+- Schema remains 13; no reset, new migration or production/main/remote changes.
+  Vanilla trade/profession/inventory preservation on recreation is not implemented;
+  use disposable worlds for playtesting. Source/history/roadmap remain preserved.
 
 ## Resident projection preparation — October 8, 2026
 - Branch `codex/phase1-resident-projection`: schema 13 incarnation registry,
@@ -43,9 +68,8 @@ finishing native lifecycle wiring. Phase 1 remains 90%, not complete.
   unloaded simulation and clean restart verified with backup first. Original IDs,
   families/homes preserved; month-45 adult arrival explained without loading its area.
   SQLite integrity/FK checks passed; server stopped cleanly.
-- Pending zombie decision: preserve identity through infection/curing, or prevent
-  conversion for managed prototype villagers. No rule silently chosen. World
-  projections, native lifecycle and density tests remain. Main/remote/production unchanged.
+- At this preparation milestone the zombie decision was pending; subsequently approved
+  and implemented above. The following milestone history describes earlier snapshots.
 
 ## Transactional schema migration milestone
 - Work continues on `foundation/schema-migrations`, branched from the committed persistence/build foundation and canonical documents. Main remains unchanged; nothing pushed or merged.
@@ -268,6 +292,6 @@ finishing native lifecycle wiring. Phase 1 remains 90%, not complete.
   changed; no schema change, production data, merge or push. Phase 1 stays 90%.
 
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has nine of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

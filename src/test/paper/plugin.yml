@@ -1,0 +1,5 @@
+name: CivilizationsPopulationProbe
+version: '1'
+main: com.blueninjas24.civilizations.paper.ResidentProjectionPaperProbe
+api-version: '1.21'
+depend: [Civilizations]

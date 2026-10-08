@@ -62,6 +62,7 @@ public final class PopulationSession implements AutoCloseable {
     private final AtomicInteger queued = new AtomicInteger();
     private final AtomicReference<Thread> ownerThread = new AtomicReference<>();
     private volatile ScheduledFuture<?> timer;
+    private boolean readyForWork; // Owner-thread readiness survives graceful draining, not new submissions.
 
     public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now) {
         this.logger = logger; this.settings = settings; this.now = now;
@@ -102,6 +103,7 @@ public final class PopulationSession implements AutoCloseable {
                         Math.multiplyExact(settings.millisPerMonth(), settings.maximumOfflineMonths()));
                 if (accrued.discardedMillis() > 0) logger.info("Prototype offline calendar cap discarded " + accrued.discardedMillis() + " real milliseconds");
                 advance(accrued.anchor().targetSteps());
+                readyForWork = true;
                 if (scheduleAutomatically) timer = owner.scheduleWithFixedDelay(() -> {
                     if (!closing.get()) {
                         try { pulseOnOwner(); } catch (Exception failure) { reportFailure(failure); }
@@ -153,6 +155,16 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Boolean> recordPhysicalDeath(UUID world, UUID entity, long observedMillis, String reason) {
         return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
     }
+    public record DeathObservation(UUID world, UUID entity, long observedMillis, String reason) {}
+    public CompletableFuture<Boolean> flushPhysicalDeaths(List<DeathObservation> deaths) {
+        var observations = List.copyOf(deaths);
+        return projectionWork(() -> {
+            boolean changed = false;
+            for (var death : observations) changed |= database.getResidentProjectionRepository()
+                    .recordPhysicalDeath(death.world(), death.entity(), death.observedMillis(), death.reason());
+            return changed;
+        });
+    }
     private CompletableFuture<Boolean> projectionWork(Operation<Boolean> operation) {
         return submit(() -> {
             requireReady();
@@ -185,7 +197,7 @@ public final class PopulationSession implements AutoCloseable {
         status.set(new Status(!closing.get(), result.checkpoint().completedSteps(), target, state.livingCount(), System.nanoTime() - began, null));
     }
     private void requireReady() {
-        if (!status.get().ready()) throw new IllegalStateException("Population session is not ready");
+        if (!readyForWork) throw new IllegalStateException("Population session is not ready");
     }
     @FunctionalInterface private interface Operation<T> { T run() throws Exception; }
     private <T> CompletableFuture<T> submit(Operation<T> operation) {
@@ -197,7 +209,7 @@ public final class PopulationSession implements AutoCloseable {
         try {
             owner.execute(() -> {
                 try {
-                    if (closing.get()) throw new RejectedExecutionException("Population session is closing");
+                    // Accepted work drains before the queued close; new submissions are rejected above.
                     result.complete(operation.run());
                 } catch (Exception failure) {
                     if (failure instanceof SQLException) reportFailure(failure);

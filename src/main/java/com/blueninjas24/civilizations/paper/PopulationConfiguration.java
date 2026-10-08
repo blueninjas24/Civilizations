@@ -10,6 +10,13 @@ import org.bukkit.configuration.ConfigurationSection;
 public final class PopulationConfiguration {
     private PopulationConfiguration() {}
 
+    public static PaperResidentProjector.Settings readProjection(ConfigurationSection config) {
+        if (!config.contains("projection")) return PaperResidentProjector.Settings.prototype();
+        return new PaperResidentProjector.Settings(smallInteger(config, "projection.nearby-radius"),
+                smallInteger(config, "projection.maximum-per-world"), smallInteger(config, "projection.maximum-at-night"), smallInteger(config, "projection.chunks-per-tick"),
+                smallInteger(config, "projection.residents-per-tick"));
+    }
+
     public static VillageObserver.Settings readObserver(ConfigurationSection config) {
         // Older foundation configs did not have this adapter section; retain their saved rules.
         if (!config.contains("observer")) return VillageObserver.Settings.prototype();

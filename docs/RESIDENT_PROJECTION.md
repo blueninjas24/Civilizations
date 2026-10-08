@@ -1,4 +1,44 @@
-# Resident projection preparation — October 8, 2026
+# Resident projections — October 8, 2026
+
+## Current live integration
+
+PaperResidentProjector and ManagedVillagerLifecycle are wired into plugin startup.
+Saved names/age locks, visible newborns/adulthood, simulated death removal and
+whole-household migration now reconcile on Paper's main thread without loading chunks.
+Native breeding cannot bypass saved families. Actual deaths save on the SQL owner;
+short-lived unbound death evidence covers enrollment/publication races.
+
+The approved zombie rule cancels INFECTION transforms only for managed villagers.
+Lethal damage still kills; curing, lightning and unrelated transformations are unchanged.
+There is no general damage immunity. Non-infection identity transitions remain a
+compatibility limitation before use in established survival worlds.
+
+Spawn handshake: create unspawned entity; commit claim; recheck living/home/loaded
+safe placement/proximity; add frozen entity; commit activation; unfreeze on main thread.
+A persistent `civilizations:projection_pending` marker recovers activation committed
+before shutdown acknowledgement. Imported villagers without this marker retain their
+existing AI, gravity and invulnerability properties. Failed/canceled placement backs
+off five seconds. Shutdown releases unspawned references and drains accepted saves.
+
+Nearby radius 64 and budgets 32/day, eight/night per world are editable prototypes.
+The night cap blocks additional materialization, not existing villagers/trades.
+Generated villagers receive saved HOME memory and normal AI. Existing villagers are
+not removed just to enforce density or sunset. Up to two chunks and sixteen saved
+residents are inspected per tick; dense entity enumeration remains indivisible.
+
+Final Wrapper verification: 224 tests, all passing. Real Paper probe verified hazardous
+floor deferral, newborn/adult names/ages, pending/freeze restart windows, native
+breeding/infection/death, five-person migration, simulated removal and enrollment/death
+race. Normal plugin restart/diagnostics/unloaded simulation also passed. Schema remains
+13. Phase 1 prototype gate is complete; human play and broad compatibility remain.
+See PHASE1_PLAYTEST.md for setup and material limitations, especially vanilla trade
+state when entities are recreated.
+
+## Historical preparation snapshot
+
+The sections below describe the preceding registry/planner-only batch (215 tests).
+Statements about unwired adapters/pending decisions applied then, not to the live
+integration described above.
 
 ## Implemented and verified
 

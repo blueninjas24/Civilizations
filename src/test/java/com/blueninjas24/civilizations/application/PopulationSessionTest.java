@@ -33,6 +33,18 @@ class PopulationSessionTest {
                 new VillageObservation.Person(new UUID(0, 12), secondBed, true, "Second")));
     }
     private static <T> T await(CompletableFuture<T> result) throws Exception { return result.get(5, TimeUnit.SECONDS); }
+    @Test void acceptedShutdownDeathBatchDrainsBeforeDatabaseClose() throws Exception {
+        var observation = observed();
+        var session = session(settings(2, 12));
+        await(session.start(false)); await(session.observe(observation));
+        var saved = session.flushPhysicalDeaths(observation.villagers().stream().map(person ->
+                new PopulationSession.DeathObservation(observation.worldId(), person.entityId(), 1200, "FIRE")).toList());
+        session.close(); assertTrue(await(saved));
+        try (var reopened = session(settings(2, 12))) {
+            assertEquals(0, await(reopened.start(false)).livingPeople());
+            assertEquals(2, reopened.projectionView().orElseThrow().recentDeaths().size());
+        }
+    }
 
     @Test void projectionOperationsPublishConsistentImmutableViewsAndDeathSurvivesRestart() throws Exception {
         var observation = observed();

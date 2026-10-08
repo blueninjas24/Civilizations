@@ -2,7 +2,20 @@
 
 Civilizations is a PaperMC plugin that transforms vanilla Minecraft villages into persistent, evolving settlements.
 
-Villages can grow, construct buildings, develop economies, form relationships, trade with other settlements, and eventually create interconnected regional civilizations.
+The long-term goal is villages that grow, construct buildings, develop economies,
+trade and form interconnected regional civilizations. Construction and economy are
+planned; the implemented Phase 1 prototype provides persistent people and population.
+
+## Playable population prototype
+
+Villages join automatically when beds and villagers are recognized. Named people,
+households and families persist; the calendar drives births, aging, deaths and moves.
+Nearby villagers reflect saved residents. Managed villagers cannot convert to zombies,
+but still take damage. Administrative diagnostics explain saved population outcomes.
+
+Use a disposable play world: vanilla trades/professions/inventory are not preserved
+when a moving person's physical villager is recreated. This is a tested foundation,
+not a balanced survival release. See [Phase 1 playtest notes](docs/PHASE1_PLAYTEST.md).
 
 ## Core Philosophy
 
