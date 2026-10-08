@@ -10,6 +10,14 @@ import org.bukkit.configuration.ConfigurationSection;
 public final class PopulationConfiguration {
     private PopulationConfiguration() {}
 
+    public static VillageObserver.Settings readObserver(ConfigurationSection config) {
+        // Older foundation configs did not have this adapter section; retain their saved rules.
+        if (!config.contains("observer")) return VillageObserver.Settings.prototype();
+        return new VillageObserver.Settings(smallInteger(config, "observer.radius-chunks"),
+                smallInteger(config, "observer.block-reads-per-tick"), integer(config, "observer.nanos-per-tick"),
+                smallInteger(config, "observer.refresh-ticks"));
+    }
+
     public static PopulationSession.Settings read(ConfigurationSection config) {
         return new PopulationSession.Settings(integer(config, "population.seed"),
                 integer(config, "population.millis-per-month"),

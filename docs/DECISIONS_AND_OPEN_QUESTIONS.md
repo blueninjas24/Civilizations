@@ -46,6 +46,13 @@
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- October 8 adapter integration: strict editable YAML, owner-thread asynchronous
+  startup, read-only op/console debug commands. Loaded chunk snapshots seed automatic
+  village import; no POI/chunk tickets/entity writes. Configurable bounded windows
+  must have loaded coverage and a clear matching-radius border to certify housing;
+  otherwise evidence is partial. This is a prototype observation heuristic, not a
+  new locked village definition or permission to edit player blocks. See
+  PAPER_VILLAGE_OBSERVATION.md for budgets, snapshot limits and remaining projection work.
 - Calendar foundation: schema 10 saves elapsed-time anchor, fractional month and
   queued demographic target before bounded population catch-up. Backward clock
   changes freeze accrual; caller-supplied caps report discarded time. Cadence

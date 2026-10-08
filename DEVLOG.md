@@ -338,3 +338,20 @@ This will be the beginning of autonomous settlement development.
 - Disposable DB snapshot before deployment; pinned Paper startup, real month advance,
   commands, clean stop/restart at saved month 1, then month 3 verified. No player or
   projection test yet; no production/main/remote change. Phase 1 now 9/10 (90%).
+
+## October 8, 2026 — automatic loaded-world village import
+
+- Bounded main-thread bed snapshots and loaded-entity reads automatically feed the
+  existing identity/enrollment owner. Clear-border/loaded coverage checks distinguish
+  known housing from partial evidence; no chunk tickets or world/entity modifications.
+- Read-only observation diagnostics and configurable adapter budgets. Caught/fixed
+  pinned Paper negative-height section indexing during the first real smoke test;
+  added regression coverage. Nine new cases; clean verify passed 197 tests
+  (195 unit, two integration), no failures/errors/skips.
+- Disposable Paper fixture imported two people/one household/one settlement, capacity
+  four. Re-observation/restart retained IDs and links; saved ages advanced exactly
+  eight months while clock progressed 27 to 35. Unloaded area stayed unloaded while
+  simulation continued. Schema 12/integrity/FK checks passed; server stopped and
+  manually applied fixture tickets removed. No production/main/remote changes.
+- Phase 1 remains 90%; visible resident projection and vanilla lifecycle coordination
+  are the next batch. Large-server profiling and actual client play remain pending.

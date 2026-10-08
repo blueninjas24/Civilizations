@@ -58,5 +58,7 @@ Both read immutable snapshots, never JDBC/world state, and require
 
 The old player-movement census listener remains in source for reference but is no
 longer registered. Its loaded-villager counts cannot overwrite authoritative people.
-Automatic recognition/import and NPC reconciliation are still pending; this batch
-does not yet create a playable resident population.
+Automatic recognition/import is now wired through the bounded Paper observer; see
+PAPER_VILLAGE_OBSERVATION.md. NPC reconciliation and full playable population
+validation remain pending. `/civ debug observation` exposes observation quality and
+progress without SQL access.

@@ -28,8 +28,8 @@ discarded milliseconds are returned for diagnostics. No production offline cap
 or runtime cadence is locked by this implementation. Runtime integration will
 choose documented editable prototype settings under the user's authorization.
 The plugin now creates/schedules the calendar through PopulationSession and exposes
-read-only status commands. Automatic village observation/import is still pending;
-clock advancement alone does not validate the complete population experience.
+read-only status commands. Automatic loaded-world observation/import is also wired;
+clock advancement alone does not validate the complete visible population experience.
 
 Tests use temporary SQLite files: partial months/restart, bounded catch-up,
 duplicate requests, snapshot restore, cap/backward-clock persistence, queued work

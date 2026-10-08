@@ -22,6 +22,7 @@ class PopulationConfigurationTest {
 
     @Test void bundledYamlMatchesTheDocumentedPrototype() throws Exception {
         assertEquals(PopulationSession.Settings.prototype(), PopulationConfiguration.read(defaults()));
+        assertEquals(VillageObserver.Settings.prototype(), PopulationConfiguration.readObserver(defaults()));
     }
 
     @ParameterizedTest @ValueSource(strings = {"30000", "30.5", "true"})
@@ -60,5 +61,17 @@ class PopulationConfigurationTest {
         var actual = PopulationConfiguration.read(config);
         assertEquals(-44, actual.seed()); assertEquals(60_000, actual.millisPerMonth());
         assertEquals(0, actual.population().birthChance()); assertFalse(actual.enrollment().partnerships().enabled());
+    }
+    @Test void oldConfigRetainsObserverDefaultsButExplicitPartialSectionFails() throws Exception {
+        var config = defaults(); config.set("observer", null);
+        assertEquals(VillageObserver.Settings.prototype(), PopulationConfiguration.readObserver(config));
+        config.set("observer.radius-chunks", 4);
+        assertThrows(IllegalArgumentException.class, () -> PopulationConfiguration.readObserver(config));
+    }
+    @Test void observerBudgetsAreStrictAndBounded() throws Exception {
+        var config = defaults(); config.set("observer.nanos-per-tick", 10_000_001L);
+        assertThrows(IllegalArgumentException.class, () -> PopulationConfiguration.readObserver(config));
+        config.set("observer.nanos-per-tick", 2_000_000L); config.set("observer.radius-chunks", 2.5);
+        assertThrows(IllegalArgumentException.class, () -> PopulationConfiguration.readObserver(config));
     }
 }

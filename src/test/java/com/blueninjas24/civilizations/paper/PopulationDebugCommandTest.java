@@ -50,10 +50,17 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "settlement", "bad-id"});
             assertEquals(List.of("Settlement ID must be a UUID."), messages); messages.clear();
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "simulate", "1000"});
-            assertEquals(List.of("Usage: /civ debug status | /civ debug settlement <uuid>"), messages);
+            assertEquals(List.of("Usage: /civ debug status | observation | settlement <uuid>"), messages);
             assertEquals(0, session.status().targetMonths());
             assertEquals(List.of("status", "settlement"),
                     command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "s"}));
+        }
+    }
+    @Test void observationReportsItsMainThreadAdapterWithoutWorkerOrDatabaseAccess() {
+        try (var session = session()) {
+            new PopulationDebugCommand(session, () -> "Partial frame: housing unknown")
+                    .onCommand(sender(true), null, "civ", new String[]{"debug", "observation"});
+            assertEquals(List.of("Partial frame: housing unknown"), messages);
         }
     }
 }

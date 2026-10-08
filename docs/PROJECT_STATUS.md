@@ -20,10 +20,10 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
-1. Connect bounded loaded-world observation to the tested automatic village importer.
-2. Reconcile nearby villagers with saved residents and add explainable diagnostics.
-3. Verify real population gameplay/restarts and unloaded behavior on disposable Paper;
-   retain documented prototype rules and avoid construction work.
+1. Reconcile nearby villagers with saved residents: names, ages, births/deaths and moves.
+2. Coordinate vanilla breeding, aging and physical deaths with authoritative simulation.
+3. Verify full visible population gameplay on disposable Paper; retain documented
+   prototype rules and avoid construction work.
 
 ## Transactional schema migration milestone
 - Work continues on `foundation/schema-migrations`, branched from the committed persistence/build foundation and canonical documents. Main remains unchanged; nothing pushed or merged.
@@ -219,6 +219,31 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   and stopped cleanly. Only approved temporary dev files changed; schema now 12.
 - No populated village/player scenario, production change, merge, push or main
   modification. Phase 1 now 9/10 reporting milestones (90%).
+
+## Automatic Paper village observation
+- Branch `codex/paper-village-observer`: main-thread incremental chunk snapshots,
+  loaded-entity guards, bed-head deduplication and coverage/border completeness checks
+  now feed the existing SQL-owner importer automatically. No chunk tickets, POI
+  searches, block writes, entity mutations or loaded-census replacement.
+- Configurable budgets and read-only `/civ debug observation`; scan/import/cooldown
+  queues bounded. Partial windows invalidate housing confidence. Indivisible API calls
+  mean the time budget is a target, not a hard deadline; seed fairness needs profiling.
+- Windows wrapper clean verify passed 197 tests (195 unit, two integration), zero
+  failures/errors/skips. Nine new cases cover scan budgets, negative heights,
+  bed halves, boundary closure, observer config and command diagnostics.
+- Real Paper caught negative-height snapshot section indexing. Inspected pinned
+  implementation, added adapter/regression test and reran successfully. Rejected
+  initial frame performed no import.
+- Disposable fixture automatically imported two beds/two adult villagers as one
+  settlement/home with housing capacity four. Repeat loaded scans preserved people.
+  Removing console test tickets unloaded the area; calendar continued to month 27
+  with two saved residents and a partial-frame diagnostic, without loading it again.
+- Final JAR restart/reload/re-observation retained exact settlement, household,
+  resident and entity-link IDs. Read-only DB comparison: ages advanced exactly eight
+  months with clock 27 to 35; two residents, schema 12, integrity ok, no FK errors.
+- No actual client play, NPC projection or demographic balance claim. Test server
+  stopped and console loading tickets removed. Only approved disposable dev files
+  changed; no schema change, production data, merge or push. Phase 1 stays 90%.
 
 ## User workflow
 `docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has nine of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.

@@ -30,3 +30,8 @@ enrollment:
   initial-child-months: 0
   form-partnerships: true
   partnership-minimum-months: 216
+observer:
+  radius-chunks: 4
+  block-reads-per-tick: 4096
+  nanos-per-tick: 2000000
+  refresh-ticks: 100

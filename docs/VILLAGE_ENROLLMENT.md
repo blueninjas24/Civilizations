@@ -5,8 +5,8 @@ and population/history are preserved; no old home mapping is invented by migrati
 `VillageEnrollmentRepository.enroll` explicitly consumes a bounded recognized
 candidate and commits settlement/world evidence, home/bed links, imported residents,
 entity bindings, housing observations, prototype partnerships and saved headcount
-together. Failure rolls the whole import back. It does not access Bukkit or run
-automatically in the current plugin.
+together. Failure rolls the whole import back. It does not access Bukkit; the Paper
+observer now invokes it automatically through the dedicated PopulationSession owner.
 
 Repeat visits and world renames reuse saved identities. Entity bindings prevent
 double importing and retain deceased people without resurrecting them. Existing
@@ -27,8 +27,8 @@ Complete observations replace housing capacity with current positive evidence;
 homes not evidenced remain unknown. Partial observations invalidate this town's
 capacity rather than treating missing beds as zero or retaining stale fertility
 permission. Bed identity links remain intact even when capacity becomes unknown.
-The future Paper observer must accurately define completeness; an incomplete scan
-must not mark itself complete. People are never deleted due to absent observations.
+The Paper observer requires loaded window coverage and a clear matching-radius border
+before declaring completeness. People are never deleted due to absent observations.
 
 Multi-town matches and newly connected groups spanning multiple saved households
 fail with a diagnostic; there is no implicit town/home merge. New enrollment stops
@@ -43,7 +43,8 @@ ownership, saved calendar-driven births independent of visible census, protected
 home overlap, and schema-11 upgrade retry. Windows wrapper clean verify passed
 165 cases (163 unit, two integration), zero failures/errors/skips.
 
-Pending: runtime configuration, bounded main-thread observations, dedicated DB
-owner/scheduling, reconciliation/diagnostics, explicit legacy adoption and Paper
-population playtesting. Monthly partner formation remains unwired; current replay
-3 is unchanged. Existing listener is still registered until the replacement is ready.
+Runtime configuration, bounded main-thread observation, dedicated SQL owner and
+read-only diagnostics are wired. Pending: contextual NPC reconciliation, native
+villager lifecycle coordination, explicit legacy adoption and full population
+playtesting. Monthly partner formation remains unwired; replay 3 is unchanged.
+The old census listener remains in source but is not registered.

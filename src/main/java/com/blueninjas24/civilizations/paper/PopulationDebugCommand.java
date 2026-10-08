@@ -9,7 +9,11 @@ import java.util.UUID;
 /** Admin inspection only. Runs on the server thread and reads no JDBC connections. */
 public final class PopulationDebugCommand implements CommandExecutor, TabCompleter {
     private final PopulationSession session;
-    public PopulationDebugCommand(PopulationSession session) { this.session = session; }
+    private final java.util.function.Supplier<String> observation;
+    public PopulationDebugCommand(PopulationSession session) { this(session, () -> "Village observer not started"); }
+    public PopulationDebugCommand(PopulationSession session, java.util.function.Supplier<String> observation) {
+        this.session = session; this.observation = observation;
+    }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) {
@@ -19,6 +23,9 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             PopulationDiagnostics.status(session.status(), session.settings()).forEach(sender::sendMessage);
             return true;
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("observation")) {
+            sender.sendMessage(observation.get()); return true;
+        }
         if (args.length == 3 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("settlement")) {
             try {
                 UUID id = UUID.fromString(args[2]);
@@ -27,14 +34,14 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;
         }
-        sender.sendMessage("Usage: /civ debug status | /civ debug settlement <uuid>");
+        sender.sendMessage("Usage: /civ debug status | observation | settlement <uuid>");
         return true;
     }
 
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) return List.of();
         List<String> choices = args.length == 1 ? List.of("debug")
-                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "settlement") : List.of();
+                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "settlement") : List.of();
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(java.util.Locale.ROOT);
         return choices.stream().filter(value -> value.startsWith(prefix)).toList();
     }

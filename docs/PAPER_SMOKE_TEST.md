@@ -87,3 +87,24 @@ Startup/recovery checks do not complete the population gameplay gate or hosted C
 - No new forced chunks; server reported zero saved chunkholders in each dimension.
   Automatic village observer and contextual residents remain pending. Known OSHI
   counter warnings unchanged. No production world/database, merge or push.
+
+## Automatic village import — October 8
+
+- Final observer source on codex/paper-village-observer, wrapper clean verify 197
+  tests. Consistent marked dev DB snapshot before first deployment; schema stays 12.
+- Controlled fixture created using console-only test block/entity commands: two
+  beds and two invulnerable NoAI adults on a small stone platform. Console temporarily
+  loaded an 81-chunk window for coverage; plugin creates no tickets or forced loads.
+- Initial scan rejected Paper's negative-height section indexing before import.
+  Verified implementation, corrected adapter, added regression test, rebuilt and
+  reran. Automatic import yielded one settlement/home, two residents and capacity four.
+- Repeated scans and final-JAR restart/reloading reused exactly the same identities,
+  homes and entity links. Post-stop read-only comparison: completed month 27 to 35,
+  both original resident ages 246 to 254, no duplicate people/settlements, integrity ok,
+  foreign-key check empty and schema 12. These are synthetic test residents.
+- After removing console tickets, `execute unless loaded` confirmed the fixture
+  unloaded on both runs. Saved population/calendar continued; stop reported zero
+  chunkholders to save. Final observer diagnostic reported one village/no enrollment
+  failures; last population batch 0.561 ms, not a large-settlement performance claim.
+- Server stopped, test loading tickets removed. No client login or visible demographic
+  reconciliation test yet. Existing OSHI warnings unchanged; no production/main/push.

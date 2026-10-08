@@ -3,6 +3,7 @@ package com.blueninjas24.civilizations;
 import com.blueninjas24.civilizations.application.PopulationSession;
 import com.blueninjas24.civilizations.paper.PopulationConfiguration;
 import com.blueninjas24.civilizations.paper.PopulationDebugCommand;
+import com.blueninjas24.civilizations.paper.VillageObserver;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -16,6 +17,7 @@ import java.util.logging.Level;
 public final class Civilizations extends JavaPlugin {
 
     private PopulationSession population;
+    private VillageObserver observer;
 
     @Override
     public void onEnable() {
@@ -24,8 +26,10 @@ public final class Civilizations extends JavaPlugin {
             var config = new YamlConfiguration();
             config.load(new File(getDataFolder(), "config.yml"));
             var settings = PopulationConfiguration.read(config);
+            var observerSettings = PopulationConfiguration.readObserver(config);
             population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis);
-            var debug = new PopulationDebugCommand(population);
+            var debug = new PopulationDebugCommand(population,
+                    () -> observer == null ? "Village observer not started" : observer.diagnostic());
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
             command.setExecutor(debug); command.setTabCompleter(debug);
             var startup = population.start();
@@ -36,6 +40,8 @@ public final class Civilizations extends JavaPlugin {
                     cancel();
                     try {
                         var status = startup.join();
+                        observer = new VillageObserver(Civilizations.this, population, observerSettings);
+                        observer.runTaskTimer(Civilizations.this, 1, 1);
                         getLogger().info("Civilizations population ready: " + status.livingPeople()
                                 + " saved living residents; completed " + status.completedMonths() + " months.");
                     } catch (CompletionException failed) { failStartup(failed.getCause()); }
