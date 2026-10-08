@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs, saved planning priorities, explicit delivery accounting and player food-aid previews are implemented; treasury accounting is prepared, while funding, complete wellbeing and response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs, saved planning priorities, explicit delivery accounting and confirmed player food donations are implemented; treasury accounting is prepared, while funding, complete wellbeing and response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
 ## Initial audit
 Prototype contained six Java source files: `Civilizations`, `DatabaseManager`, `VillageDiscoveryListener`, `Settlement`, `SettlementNameGenerator`, `NeedsEngine`. Discovery via player chunk movement/HOME POIs, simple settlement persistence, population/bed census and binary housing shortage. No actual economy, business, roads, physical construction, history or simulation yet.
@@ -30,6 +30,34 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
    and handle other native transformations before recommending established survival worlds.
 3. Current roadmap phase: needs, commodities and explainable economy decisions; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
+
+## Confirmed player food donations — October 8, 2026
+
+- Branch `codex/phase2-player-food-donations`: sneak-right-click a saved living
+  villager with ordinary food, then explicitly confirm the whole held stack in Village
+  supplies. Ordinary right-click trading and read-only `/civ aid` remain available.
+- Recovery receipt and inventory debit share Minecraft player data. A bounded worker
+  verifies the full saved gzip/NBT receipt before the existing SQL owner credits food.
+  Failed void saves, repeat clicks, pending operations and stale saved markers cannot
+  create duplicate credit or a second debit. Offline/shutdown work resumes from markers.
+- Editable donation enable flag; new configs true, existing files without it false.
+  Pending recovery continues when new donations are disabled. Protected menu clicks/
+  drags and next-tick confirmation; player permissions separate from admin debugging.
+- Fourteen added automated cases; final Wrapper clean verify passed 337 (335 unit/two
+  packaged integration), no failures/errors/skips. Covers bounded/corrupt/truncated NBT,
+  receipt identity, failed saves, retries/shutdown, stale markers and consent guards.
+- Real Paper native menu/inventory/player-data checks passed with a synthetic offline
+  player facade: intentionally disabled save prevented credit, then saved debit/marker,
+  reload, one receipt, crisis relief and duplicate rejection passed. Actual 26.2 path
+  players/data verified after first attempt correctly withheld credit on the old path.
+- Schema remains 18. Confirmed-dev backup first; original identities/links and
+  integrity/FKs retained. Normal single-plugin startup, diagnostics, unloaded fixture
+  and shutdown passed. No actual player/production save edits.
+  Donation does not pay money/reputation or implement barter/autonomous purchasing.
+  Pinned-format upgrade compatibility, human client UX, inventory plugins, scale and
+  consistent cross-save backup recovery remain limits. See FOOD_DONATIONS.md.
+- Phase 2 still 1/4 full reporting groups; actual player aid is now a verified partial
+  feature. Next: household food allocation/wellbeing and broader economic responses.
 
 ## Player food-aid previews — October 8, 2026
 

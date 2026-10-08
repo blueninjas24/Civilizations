@@ -20,6 +20,21 @@ public final class FoodAidPreviewCommand implements CommandExecutor {
         if (stack.hasItemMeta()) throw new IllegalArgumentException("Use plain food without custom item data");
         return policy.units(stack.getType().name(), stack.getAmount());
     }
+    static FoodAidPreview.Recipient recipient(PopulationSession session, org.bukkit.Location location, FoodAidPreview.Policy policy, UUID requested) {
+        var projection = session.projectionView().orElse(null);
+        if (projection == null) return new FoodAidPreview.Recipient(FoodAidPreview.Match.NONE,null);
+        var economies = session.economyView();
+        var homes = new ArrayList<FoodAidPreview.Home>();
+        for (var person : projection.population().residents()) {
+            if (person.status() != Resident.Status.ALIVE || person.householdId() == null) continue;
+            var home = projection.identities().homes().get(person.householdId());
+            var economy = economies.get(person.settlementId());
+            if (home == null || economy == null || economy.farm() == null || !economy.farm().complete()) continue;
+            var position = home.position();
+            homes.add(new FoodAidPreview.Home(person.settlementId(), home.worldId(), position.x(), position.y(), position.z()));
+        }
+        return FoodAidPreview.recipient(location.getWorld().getUID(), location.getX(), location.getY(), location.getZ(), homes, policy.radius(), requested);
+    }
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("civilizations.aid.preview")) { sender.sendMessage("You do not have permission to preview food aid."); return true; }
         if (!(sender instanceof Player player)) { sender.sendMessage("Food aid preview requires a player holding food near a village."); return true; }
@@ -31,17 +46,7 @@ public final class FoodAidPreviewCommand implements CommandExecutor {
         var projection = session.projectionView().orElse(null);
         if (!session.status().ready() || projection == null) { player.sendMessage("Civilizations is still starting; try again shortly."); return true; }
         var economies = session.economyView();
-        var homes = new ArrayList<FoodAidPreview.Home>();
-        for (var person : projection.population().residents()) {
-            if (person.status() != Resident.Status.ALIVE || person.householdId() == null) continue;
-            var home = projection.identities().homes().get(person.householdId());
-            var economy = economies.get(person.settlementId());
-            if (home == null || economy == null || economy.farm() == null || !economy.farm().complete()) continue;
-            var position = home.position();
-            homes.add(new FoodAidPreview.Home(person.settlementId(), home.worldId(), position.x(), position.y(), position.z()));
-        }
-        var location = player.getLocation();
-        var recipient = FoodAidPreview.recipient(location.getWorld().getUID(), location.getX(), location.getY(), location.getZ(), homes, policy.radius(), requested);
+        var recipient = recipient(session, player.getLocation(), policy, requested);
         if (recipient.match() == FoodAidPreview.Match.NONE) { player.sendMessage("No ready village home within " + policy.radius() + " blocks. Food aid needs reliable village evidence."); return true; }
         if (recipient.match() == FoodAidPreview.Match.AMBIGUOUS) { player.sendMessage("Multiple villages are equally close. Use /civ aid <settlement UUID> to choose."); return true; }
         var stack = player.getInventory().getItemInMainHand();

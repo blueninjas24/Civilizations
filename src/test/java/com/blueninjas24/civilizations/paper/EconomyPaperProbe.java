@@ -31,7 +31,13 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private Result famine;
     private HouseholdNeeds.Assessment famineNeeds;
     private VillagePriorities.Decision faminePriority;
-    private final UUID reliefOperation=UUID.randomUUID();
+    private UUID reliefOperation;
+    private com.blueninjas24.civilizations.application.PendingFoodAid donation;
+    private FoodAidTransfers transfers;
+    private org.bukkit.entity.Player donor;
+    private java.lang.reflect.Field saveDisabled;
+    private boolean originalSaveDisabled;
+    private int donationWait;
     private final Set<Long> tickets = new HashSet<>();
     private int stage, ticks;
     private long deadline;
@@ -105,13 +111,26 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(famineNeeds.equals(session.economyView().get(town).needs()),"Household history changed on restart/retuning");
             require(faminePriority.equals(session.economyView().get(town).priority()),"Priority history changed on restart/retuning");
             var ids=new HashSet<UUID>();session.snapshot().orElseThrow().residents().forEach(p->ids.add(p.id()));require(ids.equals(residents),"Residents changed on restart");
-            future=session.recordDeliveredFood(reliefOperation,town,12,"Explicit disposable test fixture shipment");stage=20;}
-        case 20->{if(!ready())return;session.close();open();stage=21;}
+            startNativeDonation();stage=20;}
+        case 20->{
+            if(donation==null){
+                var marker=donor.getPersistentDataContainer().get(FoodAidTransfers.KEY,org.bukkit.persistence.PersistentDataType.STRING);
+                if(marker==null)return;donation=com.blueninjas24.civilizations.application.PendingFoodAid.decode(marker);reliefOperation=donation.operation();
+            }
+            transfers.poll(donor);
+            if(++donationWait<20){require(session.economyView().get(town).foodAid().pendingDeliveries()==0,"Unverified save credited food");return;}
+            try{saveDisabled.setBoolean(null,originalSaveDisabled);}catch(Exception failure){throw new IllegalStateException(failure);}
+            if(donor.getPersistentDataContainer().has(FoodAidTransfers.KEY))return;
+            require(donor.getInventory().getItemInMainHand().isEmpty(),"Native inventory debit lost");
+            donor.loadData();require(donor.getInventory().getItemInMainHand().isEmpty(),"Saved native inventory debit missing");
+            require(!donor.getPersistentDataContainer().has(FoodAidTransfers.KEY),"Committed marker not cleared in saved player file");
+            transfers.close();transfers=null;getLogger().info("NATIVE_DONATION_PASSED: unsuccessful save withheld credit, native inventory/PDC save proved debit, one receipt, saved clear and reload");
+            session.close();open();stage=21;}
         case 21->{if(!ready())return;require(session.economyView().get(town).foodAid().pendingDeliveries()==1,"Pending relief lost on restart");now.addAndGet(1000);future=session.pulse();stage=22;}
         case 22->{if(!ready())return;var view=session.economyView().get(town);var food=view.latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
             require(food.flow().production()==0&&food.flow().imports()==12&&food.after().units()==8,"Actual receipt relief failed");
             require(view.priority().selected()==VillagePriorities.Action.MONITOR,"Relief did not resolve crisis priority");
-            future=session.recordDeliveredFood(reliefOperation,town,12,"Explicit disposable test fixture shipment");stage=23;}
+            future=session.recordDeliveredFood(reliefOperation,town,12,donation.source());stage=23;}
         case 23->{if(!ready())return;require(Boolean.FALSE.equals(future.join()),"Duplicate relief accepted");require(session.economyView().get(town).foodAid().pendingDeliveries()==0,"Duplicate receipt changed pending goods");crops(true);scan();stage=7;}
         case 7->{if(session.economyView().get(town).farm().plantedCrops()!=64)return;now.addAndGet(1000);future=session.pulse();stage++;}
         case 8->{if(!ready())return;require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==20,"Feast recovery wrong");
@@ -122,6 +141,48 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==32,"Unloaded food accounting failed");stage=99;}
         default->throw new AssertionError("Unknown stage");
     }}
+    private void startNativeDonation() {
+        try {
+            var server=Bukkit.getServer().getClass().getMethod("getServer").invoke(Bukkit.getServer());
+            var level=world.getClass().getMethod("getHandle").invoke(world);
+            var profileType=Class.forName("com.mojang.authlib.GameProfile");
+            var profile=profileType.getConstructor(UUID.class,String.class).newInstance(UUID.randomUUID(),"CivAidFixture");
+            var infoType=Class.forName("net.minecraft.server.level.ClientInformation");
+            var info=infoType.getMethod("createDefault").invoke(null);
+            var nativeType=Class.forName("net.minecraft.server.level.ServerPlayer");
+            var nativePlayer=nativeType.getConstructor(Class.forName("net.minecraft.server.MinecraftServer"),Class.forName("net.minecraft.server.level.ServerLevel"),profileType,infoType).newInstance(server,level,profile,info);
+            var craft=(org.bukkit.entity.Player)nativeType.getMethod("getBukkitEntity").invoke(nativePlayer);
+            var menuInventory=new org.bukkit.inventory.Inventory[1];var menuView=new org.bukkit.inventory.InventoryView[1];
+            craft.getInventory().setItemInMainHand(new org.bukkit.inventory.ItemStack(Material.BREAD,4));
+            donor=(org.bukkit.entity.Player)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{org.bukkit.entity.Player.class},(p,m,a)->switch(m.getName()){
+                case "hasPermission" -> true;
+                case "getLocation" -> new Location(world,X,64,Z);
+                case "isSneaking", "isOnline" -> true;
+                case "openInventory" -> {menuInventory[0]=(org.bukkit.inventory.Inventory)a[0];yield null;}
+                case "getOpenInventory" -> menuView[0];
+                case "closeInventory" -> null;
+                case "sendMessage" -> {getLogger().info("Synthetic donor: "+a[0]);yield null;}
+                default -> {try{yield m.invoke(craft,a);}catch(java.lang.reflect.InvocationTargetException failure){throw failure.getCause();}}
+            });
+            saveDisabled=Class.forName("org.spigotmc.SpigotConfig").getField("disablePlayerDataSaving");originalSaveDisabled=saveDisabled.getBoolean(null);require(!originalSaveDisabled,"Player data saving already disabled");
+            transfers=new FoodAidTransfers(this,session,FoodAidPreview.Policy.prototype(),true,Bukkit.getServer().getLevelDirectory().resolve("players/data"));
+            // Marked, empty disposable server only. Restore on every success/failure cleanup path.
+            saveDisabled.setBoolean(null,true);
+            var listener=new FoodAidMenu(this,session,transfers,FoodAidPreview.Policy.prototype());
+            var entityId=session.projectionView().orElseThrow().identities().aliases().keySet().stream().filter(k->k.worldId().equals(world.getUID())).findFirst().orElseThrow().entityId();
+            var interact=new org.bukkit.event.player.PlayerInteractEntityEvent(donor,Objects.requireNonNull(world.getEntity(entityId)),org.bukkit.inventory.EquipmentSlot.HAND);
+            listener.interact(interact);require(interact.isCancelled()&&menuInventory[0]!=null,"Native village menu did not open");
+            require(menuInventory[0].getSize()==27&&menuInventory[0].getItem(13).getType()==Material.BREAD,"Donation button missing");
+            menuView[0]=(org.bukkit.inventory.InventoryView)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{org.bukkit.inventory.InventoryView.class},(p,m,a)->switch(m.getName()){
+                case "getTopInventory" -> menuInventory[0];case "getBottomInventory" -> craft.getInventory();case "getPlayer" -> donor;
+                case "getType" -> org.bukkit.event.inventory.InventoryType.CHEST;case "convertSlot" -> a[0];
+                default -> throw new AssertionError("Unexpected native menu view access: "+m.getName());
+            });
+            var click=new org.bukkit.event.inventory.InventoryClickEvent(menuView[0],org.bukkit.event.inventory.InventoryType.SlotType.CONTAINER,13,org.bukkit.event.inventory.ClickType.LEFT,org.bukkit.event.inventory.InventoryAction.PICKUP_ALL);
+            listener.click(click);listener.click(click);require(click.isCancelled(),"Menu click not protected");
+            getLogger().info("NATIVE_AID_MENU_PASSED: actual villager alias, native inventory/button, protected double click, next-tick confirmation");
+        }catch(Exception failure){throw new IllegalStateException("Native donation fixture failed",failure);}
+    }
     /** Synthetic read-only player facade; native Paper world/ItemStack and real saved economy underneath. */
     private void verifyAidPreview() {
         var messages=new ArrayList<String>();var food=new org.bukkit.inventory.ItemStack(Material.BREAD,4);
@@ -145,6 +206,6 @@ public final class EconomyPaperProbe extends JavaPlugin {
         require(rejected,"Custom food was treated as plain");
         getLogger().info("AID_PREVIEW_PASSED: native food, saved recipient, synthetic read-only player, custom rejection, no inventory or economy writes");
     }
-    private void cleanup(){if(observer!=null)observer.cancel();if(session!=null)session.close();if(world!=null)for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();}
+    private void cleanup(){if(saveDisabled!=null)try{saveDisabled.setBoolean(null,originalSaveDisabled);}catch(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"Cannot restore player-save flag",failure);}if(transfers!=null)transfers.close();if(observer!=null)observer.cancel();if(session!=null)session.close();if(world!=null)for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();}
     @Override public void onDisable(){cleanup();}
 }

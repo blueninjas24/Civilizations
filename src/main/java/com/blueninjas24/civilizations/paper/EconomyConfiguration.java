@@ -14,10 +14,12 @@ public final class EconomyConfiguration {
         if (config.contains("farms")) rootKeys.add("farms");
         if (config.contains("priorities")) rootKeys.add("priorities");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
+        if (config.contains("donations")) rootKeys.add("donations");
         exactKeys(config, rootKeys);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
+        readDonationsEnabled(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -59,6 +61,13 @@ public final class EconomyConfiguration {
         return new VillagePriorities.Policy(smallInteger(config,"priorities.review-after-periods"),smallInteger(config,"priorities.food-weight"),
                 smallInteger(config,"priorities.crisis-multiplier"),smallInteger(config,"priorities.housing-weight"),smallInteger(config,"priorities.monitor-weight"),
                 smallInteger(config,"priorities.minimum-relative-percent"));
+    }
+    /** Old owner files retain their read-only behavior until donations are explicitly enabled. */
+    public static boolean readDonationsEnabled(ConfigurationSection config) {
+        if(!config.contains("donations"))return false;
+        var section=section(config,"donations");exactKeys(section,Set.of("enabled"));
+        if(!(section.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("donations.enabled must be true or false");
+        return enabled;
     }
     public static FoodAidPreview.Policy readAidPreview(ConfigurationSection config) {
         if (!config.contains("aid-preview")) return FoodAidPreview.Policy.prototype();

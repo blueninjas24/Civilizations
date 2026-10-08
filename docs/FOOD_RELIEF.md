@@ -11,7 +11,8 @@ A trusted source adapter calls `PopulationSession.recordDeliveredFood` with a
 unique operation UUID, settlement UUID, positive food units and source reference.
 The adapter must first establish the actual goods and consent. The ledger does
 not itself verify inventory, remove items, invent a supplier or charge a treasury.
-No normal gameplay listener or public command currently calls this API.
+FoodAidTransfers now calls this API only after verifying a saved player donation
+receipt. See FOOD_DONATIONS.md; public `/civ aid` remains read-only.
 
 The village must already have a reliably initialized food economy. Unknown villages
 do not receive fabricated inventory. Each receipt records its source, amount,
@@ -60,9 +61,9 @@ The marked disposable Paper probe supplies an explicit **synthetic fixture shipm
 restarts with it pending, clears its real saved shortage with zero farm production,
 rejects duplicate aid, then verifies farm recovery and unloaded operation.
 
-These tests do not establish a player inventory transfer. The future player bridge
-needs a crash/disconnect-safe inventory handoff, item-to-food conversions and nearby
-settlement targeting before enabling delivery commands. No emerald payout, reputation,
+The later player bridge establishes a saved inventory handoff with recovery receipts,
+editable item-to-food conversion and nearby saved-identity targeting. Its native
+Paper validation and limits are documented in FOOD_DONATIONS.md. No emerald payout, reputation,
 barter, taxation, autonomous purchase or construction is implemented here. Overflow
 or other rejected effects surface as retryable diagnostics; do not bypass them by
 editing SQLite. Large-server profiling and human survival playtesting remain pending.

@@ -192,3 +192,16 @@ Read-only player permission is independent of protected admin debugging. No item
 transfer, payment, merchant, reputation or new starvation rule is approved/implemented
 by this preview. Real donation recovery needs reliable inventory-save evidence; the
 pinned saveData call alone cannot provide it. See PLAYER_FOOD_AID.md.
+
+
+## October 8, 2026 — confirmed donation handoff
+
+User preferred interaction through villagers and authorized further Phase 2 work.
+Prototype sneak-right-click preserves vanilla trading; the menu explicitly confirms
+one whole ordinary held stack. No money/reputation reward or autonomous purchase is
+invented. Existing owner files retain disabled donation behavior unless opted in;
+new default configs enable it with separate player donation permission. Conversions
+stay editable under approved prototype economy authority. An immutable player receipt
+plus independently verified saved NBT guards SQL credit and restart retries. This is
+pinned to tested Minecraft 26.2 players/data layout; formats/plugins/backups need
+compatibility validation, not silent receipt deletion or refund. See FOOD_DONATIONS.md.

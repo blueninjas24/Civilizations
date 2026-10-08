@@ -15,3 +15,6 @@ permissions:
   civilizations.aid.preview:
     description: Preview held food for a nearby village without transferring items.
     default: true
+  civilizations.aid.donate:
+    description: Confirm food donations through the Civilizations village menu.
+    default: true

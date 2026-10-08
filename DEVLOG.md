@@ -1,5 +1,34 @@
 # Civilizations Development Log
 
+### Confirmed player food donations — October 8, 2026
+
+- Branch `codex/phase2-player-food-donations`: sneak-right-click a saved living
+  villager with ordinary food, then explicitly confirm the whole held stack in Village
+  supplies. Ordinary right-click trading and read-only `/civ aid` remain available.
+- Recovery receipt and inventory debit share Minecraft player data. A bounded worker
+  verifies the full saved gzip/NBT receipt before the existing SQL owner credits food.
+  Failed void saves, repeat clicks, pending operations and stale saved markers cannot
+  create duplicate credit or a second debit. Offline/shutdown work resumes from markers.
+- Editable donation enable flag; new configs true, existing files without it false.
+  Pending recovery continues when new donations are disabled. Protected menu clicks/
+  drags and next-tick confirmation; player permissions separate from admin debugging.
+- Fourteen added automated cases; final Wrapper clean verify passed 337 (335 unit/two
+  packaged integration), no failures/errors/skips. Covers bounded/corrupt/truncated NBT,
+  receipt identity, failed saves, retries/shutdown, stale markers and consent guards.
+- Real Paper native menu/inventory/player-data checks passed with a synthetic offline
+  player facade: intentionally disabled save prevented credit, then saved debit/marker,
+  reload, one receipt, crisis relief and duplicate rejection passed. Actual 26.2 path
+  players/data verified after first attempt correctly withheld credit on the old path.
+- Schema remains 18. Confirmed-dev backup first; original identities/links and
+  integrity/FKs retained. Normal single-plugin startup, diagnostics, unloaded fixture
+  and shutdown passed. No actual player/production save edits.
+  Donation does not pay money/reputation or implement barter/autonomous purchasing.
+  Pinned-format upgrade compatibility, human client UX, inventory plugins, scale and
+  consistent cross-save backup recovery remain limits. See FOOD_DONATIONS.md.
+- Phase 2 still 1/4 full reporting groups; actual player aid is now a verified partial
+  feature. Next: household food allocation/wellbeing and broader economic responses.
+
+
 ### Player food-aid previews — October 8, 2026
 
 - Branch `codex/phase2-food-aid-preview`: `/civ aid` now previews an ordinary held

@@ -5,7 +5,7 @@ near a village home. The command names the saved village, converts the held stac
 into configured food units and shows its latest saved food situation.
 
 It **does not donate**, remove items, submit a delivery, pay emeralds/Trade Value or
-award reputation. There is no confirmation/transfer action yet. It is safe to repeat.
+award reputation. Confirmed transfers now use the separate village menu in FOOD_DONATIONS.md. It is safe to repeat.
 The separate FOOD_RELIEF.md ledger prepares eventual receipt accounting.
 
 ## Recipient and evidence
@@ -53,22 +53,13 @@ history, reserves or pending deliveries. Permission `civilizations.aid.preview`
 defaults to true; `civilizations.debug` remains operator-only. Removing the shared
 command's debug gate does not remove the debug handler's permission checks.
 
-## Why actual transfers remain pending
+## Actual transfers now use a separate menu
 
-Minecraft player inventory and SQLite are independent saves. Debiting inventory then
-crediting food can lose goods; crediting first can duplicate goods after a crash.
-A player PDC receipt plus `Player.saveData()` alone is not an established durable
-handoff: the pinned Paper 26.2-129 implementation can return with player saving disabled
-or after a logged save exception. Inspection of CraftPlayer.saveData and
-PlayerDataStorage.save confirmed that behavior; the public method returns void.
-The [Paper player API](https://jd.papermc.io/paper/26.2/org/bukkit/entity/Player.html)
-documents saving data but provides no atomic transaction with SQLite.
-
-Do not expose the current internal delivery API as a donation command until actual
-inventory ownership, durable recovery evidence, disconnect/shutdown and uncertain-save
-cases are implemented and verified. This technical limitation does not require a new
-gameplay decision or production-data reset. No actual player data files are edited by
-this batch. Human client interaction remains to be checked when available.
+The original preview was deliberately read-only while inventory/SQLite recovery
+was unresolved. Confirmed donations now verify the receipt in the saved Minecraft
+26.2 player file before crediting supplies. `saveData()` returning void alone still
+is not proof. See FOOD_DONATIONS.md for the menu, server opt-in and recovery limits.
+`/civ aid` remains read-only and does not become a mutation command.
 
 ## Verification
 

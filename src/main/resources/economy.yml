@@ -97,3 +97,9 @@ aid-preview:
     POTATO: 1
     BAKED_POTATO: 2
     BEETROOT: 1
+
+# Sneak-right-click a managed villager with plain food, then click Donate held food.
+# No payment or reputation reward. Recovery receipts are verified in saved player data.
+# Existing owner files without this section keep donations disabled until opted in.
+donations:
+  enabled: true

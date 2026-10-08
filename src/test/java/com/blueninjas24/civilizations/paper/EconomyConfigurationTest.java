@@ -13,6 +13,10 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void existingFilesDoNotSilentlyEnableDonationsAndInvalidEditsFail() throws Exception {
+        var config=defaults();assertTrue(EconomyConfiguration.readDonationsEnabled(config));config.set("donations",null);assertFalse(EconomyConfiguration.readDonationsEnabled(config));
+        config=defaults();config.set("donations.enabled","yes");var invalid=config;assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(invalid));
+    }
     @Test void oldFilesKeepAidPreviewDefaultsAndOwnerCanTuneOrDisableThem() throws Exception {
         var config=defaults();config.set("aid-preview",null);
         assertEquals(FoodAidPreview.Policy.prototype(),EconomyConfiguration.readAidPreview(config));EconomyConfiguration.read(config);

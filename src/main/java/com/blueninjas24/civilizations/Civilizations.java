@@ -27,6 +27,7 @@ public final class Civilizations extends JavaPlugin {
     private PaperResidentProjector projector;
     private ManagedVillagerLifecycle lifecycle;
     private PaperFarmObserver farms;
+    private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
 
     @Override
     public void onEnable() {
@@ -56,6 +57,11 @@ public final class Civilizations extends JavaPlugin {
             var router = new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
                     new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population, EconomyConfiguration.readAidPreview(economyConfig)));
             command.setExecutor(router); command.setTabCompleter(router);
+            var previewPolicy = EconomyConfiguration.readAidPreview(economyConfig);
+            aid = new com.blueninjas24.civilizations.paper.FoodAidTransfers(this,population,previewPolicy,
+                    EconomyConfiguration.readDonationsEnabled(economyConfig), getServer().getLevelDirectory().resolve("players/data"));
+            getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.FoodAidMenu(this,population,aid,previewPolicy),this);
+            aid.runTaskTimer(this,20,100);
             var startup = population.start();
             // Completion callbacks run on the DB owner. Poll from Paper's main thread instead.
             new BukkitRunnable() {
@@ -83,6 +89,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (aid != null) aid.close();
         if (projector != null) projector.close();
         if (lifecycle != null) lifecycle.flush();
         if (population != null) population.close();

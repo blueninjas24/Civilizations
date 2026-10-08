@@ -41,8 +41,14 @@ player inventory transfers and donation commands remain pending. See
 
 Players can now hold plain food near a village and use `/civ aid` to preview its
 food value and the village's latest food situation. This takes no items or money;
-actual donations remain pending a reliable inventory recovery handoff. Conversions
+donations use a separate confirmed village menu. Conversions
 and range are editable in `economy.yml`. See [player food-aid guide](docs/PLAYER_FOOD_AID.md).
+
+Sneak-right-click a managed villager while holding plain food, then click **Donate
+held food** to give that stack to the village. Normal vanilla trading stays available.
+A saved recovery receipt prevents credit before verified inventory saving. Existing
+owner configs must opt in with `donations.enabled: true`; new configs include it.
+See [food donations and recovery](docs/FOOD_DONATIONS.md). No payout/barter yet.
 
 ## Core Philosophy
 
