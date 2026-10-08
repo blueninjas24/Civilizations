@@ -1,0 +1,188 @@
+package com.blueninjas24.civilizations.application;
+
+import com.blueninjas24.civilizations.database.DatabaseManager;
+import com.blueninjas24.civilizations.database.VillageEnrollmentRepository;
+import com.blueninjas24.civilizations.population.*;
+import com.blueninjas24.civilizations.settlement.*;
+import com.blueninjas24.civilizations.simulation.CivilizationTime;
+import java.io.File;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+import java.util.function.LongSupplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/** One DB owner, queued immutable observations and bounded saved-time catch-up. No Bukkit calls. */
+public final class PopulationSession implements AutoCloseable {
+    public record Settings(long seed, long millisPerMonth, int maximumOfflineMonths, int monthsPerBatch,
+                           PopulationPolicy population, MigrationPolicy migration,
+                           VillageRecognition.Policy recognition, VillageEnrollmentRepository.Policy enrollment) {
+        public Settings {
+            if (millisPerMonth < 1 || maximumOfflineMonths < 0 || monthsPerBatch < 1 || monthsPerBatch > 120)
+                throw new IllegalArgumentException("Invalid population runtime settings");
+            Math.multiplyExact(millisPerMonth, maximumOfflineMonths);
+            java.util.Objects.requireNonNull(population); java.util.Objects.requireNonNull(migration);
+            java.util.Objects.requireNonNull(recognition); java.util.Objects.requireNonNull(enrollment);
+        }
+        public static Settings prototype() {
+            return new Settings(872613, 30_000, 12, 2, PopulationPolicy.prototype(), MigrationPolicy.prototype(),
+                    VillageRecognition.Policy.prototype(), VillageEnrollmentRepository.Policy.prototype());
+        }
+    }
+    public record Status(boolean ready, long completedMonths, long targetMonths, long livingPeople,
+                         long lastBatchNanos, String failure) {
+        public long remainingMonths() { return targetMonths - completedMonths; }
+    }
+    public record ObservationResult(List<VillageEnrollmentRepository.Result> villages, List<String> failures) {
+        public ObservationResult { villages = List.copyOf(villages); failures = List.copyOf(failures); }
+    }
+    private final DatabaseManager database;
+    private final Settings settings;
+    private final Logger logger;
+    private final LongSupplier now;
+    private final ScheduledThreadPoolExecutor owner;
+    private final AtomicReference<Status> status = new AtomicReference<>(new Status(false, 0, 0, 0, 0, null));
+    private final AtomicReference<PopulationState> snapshot = new AtomicReference<>();
+    private final AtomicBoolean started = new AtomicBoolean(), closing = new AtomicBoolean();
+    private final AtomicInteger queued = new AtomicInteger();
+    private final AtomicReference<Thread> ownerThread = new AtomicReference<>();
+    private volatile ScheduledFuture<?> timer;
+
+    public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now) {
+        this.logger = logger; this.settings = settings; this.now = now;
+        database = new DatabaseManager(dataFolder, logger);
+        owner = new ScheduledThreadPoolExecutor(1, runnable -> {
+            Thread thread = Thread.ofPlatform().daemon(true).name("Civilizations-population").unstarted(runnable);
+            ownerThread.set(thread); return thread;
+        });
+        owner.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+        owner.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
+        owner.setRemoveOnCancelPolicy(true);
+    }
+
+    public Status status() { return status.get(); }
+    public Optional<PopulationState> snapshot() { return Optional.ofNullable(snapshot.get()); }
+    public Settings settings() { return settings; }
+
+    public CompletableFuture<Status> start() {
+        return start(true);
+    }
+
+    /** Disable the real timer for accelerated tests; explicit pulses retain identical behavior. */
+    public CompletableFuture<Status> start(boolean scheduleAutomatically) {
+        if (!started.compareAndSet(false, true)) return CompletableFuture.failedFuture(new IllegalStateException("Session already started"));
+        return submit(() -> {
+            try {
+                database.initialize();
+                var demographic = database.getDemographicRepository();
+                var saved = demographic.load(settings.population(), settings.migration());
+                if (saved.isEmpty())
+                    demographic.initializeClock(settings.seed(), settings.population(), settings.migration());
+                else if (saved.get().seed() != settings.seed())
+                    throw new SQLException("Saved population seed differs; explicit transition required");
+                var clock = database.getCivilizationClockRepository();
+                if (clock.load(settings.millisPerMonth()).isEmpty()) clock.initialize(now.getAsLong(), settings.millisPerMonth());
+                var accrued = clock.accrue(now.getAsLong(), settings.millisPerMonth(),
+                        Math.multiplyExact(settings.millisPerMonth(), settings.maximumOfflineMonths()));
+                if (accrued.discardedMillis() > 0) logger.info("Prototype offline calendar cap discarded " + accrued.discardedMillis() + " real milliseconds");
+                advance(accrued.anchor().targetSteps());
+                if (scheduleAutomatically) timer = owner.scheduleWithFixedDelay(() -> {
+                    if (!closing.get()) {
+                        try { pulseOnOwner(); } catch (Exception failure) { reportFailure(failure); }
+                    }
+                }, 1, 1, TimeUnit.SECONDS);
+                return status.get();
+            } catch (Exception failure) {
+                reportFailure(failure); database.close(); throw failure;
+            }
+        });
+    }
+
+    /** Explicit accelerated-test/diagnostic pulse; scheduler uses the same owner-thread operation. */
+    public CompletableFuture<Status> pulse() {
+        return submit(() -> { requireReady(); pulseOnOwner(); return status.get(); });
+    }
+
+    public CompletableFuture<ObservationResult> observe(VillageObservation observation) {
+        return submit(() -> {
+            requireReady();
+            pulseOnOwner();
+            if (status.get().remainingMonths() > 0) throw new RejectedExecutionException("Population catch-up pending; retry village observation later");
+            var recognized = VillageRecognition.recognize(observation, settings.recognition());
+            var imported = new ArrayList<VillageEnrollmentRepository.Result>();
+            var failures = new ArrayList<String>();
+            for (var candidate : recognized.candidates()) {
+                try { imported.add(database.getVillageEnrollmentRepository().enroll(observation, candidate, settings.enrollment())); }
+                catch (SQLException failure) {
+                    failures.add(failure.getMessage()); logger.warning("Village enrollment rejected: " + failure.getMessage());
+                }
+            }
+            var saved = database.getDemographicRepository().load(settings.population(), settings.migration()).orElseThrow();
+            snapshot.set(saved.state());
+            var previous = status.get();
+            status.set(new Status(!closing.get(), saved.completedSteps(), previous.targetMonths(), saved.state().livingCount(), previous.lastBatchNanos(), null));
+            return new ObservationResult(imported, failures);
+        });
+    }
+
+    private void pulseOnOwner() throws SQLException {
+        var queuedTime = database.getCivilizationClockRepository().accrue(now.getAsLong(), settings.millisPerMonth(), Long.MAX_VALUE);
+        var previous = status.get();
+        status.set(new Status(previous.ready(), previous.completedMonths(), queuedTime.anchor().targetSteps(),
+                previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
+        advance(queuedTime.anchor().targetSteps());
+    }
+    private void advance(long target) throws SQLException {
+        long began = System.nanoTime();
+        var result = database.getDemographicRepository().advance(target, settings.monthsPerBatch(), settings.population(), settings.migration());
+        var state = result.checkpoint().state(); snapshot.set(state);
+        status.set(new Status(!closing.get(), result.checkpoint().completedSteps(), target, state.livingCount(), System.nanoTime() - began, null));
+    }
+    private void requireReady() {
+        if (!status.get().ready()) throw new IllegalStateException("Population session is not ready");
+    }
+    @FunctionalInterface private interface Operation<T> { T run() throws Exception; }
+    private <T> CompletableFuture<T> submit(Operation<T> operation) {
+        if (closing.get()) return CompletableFuture.failedFuture(new RejectedExecutionException("Population session is closing"));
+        if (queued.incrementAndGet() > 64) {
+            queued.decrementAndGet(); return CompletableFuture.failedFuture(new RejectedExecutionException("Population queue full; retry later"));
+        }
+        var result = new CompletableFuture<T>();
+        try {
+            owner.execute(() -> {
+                try {
+                    if (closing.get()) throw new RejectedExecutionException("Population session is closing");
+                    result.complete(operation.run());
+                } catch (Exception failure) {
+                    if (failure instanceof SQLException) reportFailure(failure);
+                    result.completeExceptionally(failure);
+                }
+                finally { queued.decrementAndGet(); }
+            });
+        } catch (RejectedExecutionException failure) { queued.decrementAndGet(); result.completeExceptionally(failure); }
+        return result;
+    }
+    private void reportFailure(Exception failure) {
+        var previous = status.get();
+        if (!java.util.Objects.equals(previous.failure(), failure.getMessage()))
+            logger.log(Level.SEVERE, "Civilizations population work failed; saved work remains retryable", failure);
+        status.set(new Status(previous.ready(), previous.completedMonths(), previous.targetMonths(), previous.livingPeople(), previous.lastBatchNanos(), failure.getMessage()));
+    }
+
+    @Override public void close() {
+        if (!closing.compareAndSet(false, true)) return;
+        var previous = status.get();
+        status.set(new Status(false, previous.completedMonths(), previous.targetMonths(), previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
+        var scheduled = timer; if (scheduled != null) scheduled.cancel(false);
+        owner.execute(database::close);
+        owner.shutdown();
+        if (Thread.currentThread() == ownerThread.get()) return;
+        try {
+            if (!owner.awaitTermination(5, TimeUnit.SECONDS)) logger.warning("Population shutdown still finishing on its owner thread");
+        } catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
+    }
+}

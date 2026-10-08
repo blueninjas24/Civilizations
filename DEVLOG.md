@@ -316,3 +316,13 @@ This will be the beginning of autonomous settlement development.
 - With explicit approval, pushed only e85416e on codex/phase1-foundation-ci. Hosted
   Windows/Linux both passed run 37725399200. Enrollment remains local; main unchanged.
 - CI/Paper/recovery milestone complete: Phase 1 8/10 (80%). No merge or production change.
+
+## October 8, 2026 — dedicated population owner and timer
+
+- One thread owns JDBC/imports and a real fixed-delay monthly catch-up timer.
+  Immutable snapshots, documented editable test pacing/offline cap, bounded request
+  queue and explicit failure/backlog diagnostics; no Bukkit calls.
+- Historical catch-up precedes new enrollment; lifecycle/callback shutdown avoids
+  waiting on itself. Ten new temporary-DB tests, including timer and write retry.
+- Wrapper clean verify passed 175 cases (173 unit, two integration). Plugin wiring
+  remains upcoming; Phase 1 stays 80%. No new server/real data/remote/main changes.

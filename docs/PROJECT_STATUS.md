@@ -190,6 +190,17 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   no merge. Phase 1 now 8/10 (80%), with the CI/Paper/recovery gate verified.
 - No actual DB/world/server change in this enrollment batch. See VILLAGE_ENROLLMENT.md.
 
+## Dedicated population owner and timer
+- Branch `codex/population-runtime-clock`: PopulationSession owns JDBC and imports
+  on one thread, queues immutable observations, publishes immutable snapshots and
+  runs bounded calendar catch-up on a real fixed-delay timer.
+- Editable documented test cadence/cap, protected saved settings, historical import
+  delay, explicit 64-operation overload rejection, failed-write retry and safe shutdown.
+- Ten new temporary-DB tests. Windows wrapper clean verify passed 173 unit and
+  two integration cases (175 total), zero failures/errors/skips.
+- Plugin wiring/config/commands/observer/projection still pending, so Phase 1 stays
+  80%. No new world/server/actual database changes, merge or push in this batch.
+
 ## User workflow
 `docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has eight of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 

@@ -23,7 +23,7 @@ public class DatabaseManager {
     }
 
     // Allows isolated persistence tests without starting a Paper server.
-    DatabaseManager(File dataFolder, Logger logger) {
+    public DatabaseManager(File dataFolder, Logger logger) {
         this.dataFolder = dataFolder;
         this.logger = logger;
     }
