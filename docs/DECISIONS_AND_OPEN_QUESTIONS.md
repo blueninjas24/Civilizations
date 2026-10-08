@@ -1,6 +1,9 @@
 # Civilizations — locked decisions and unresolved questions
 
 ## Locked / approved
+- October 7 authorization: create simple configurable prototype partner pairs among
+  unrelated adult residents sharing a home, enabling future births. Do not assign
+  invented parentage to already existing children.
 - October 7 clarification: recognize both naturally generated villages and
   player-built areas containing beds and villagers automatically. This does not
   authorize autonomous block changes or enroll a bed-only player base.

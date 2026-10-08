@@ -264,3 +264,14 @@ This will be the beginning of autonomous settlement development.
   two integration), zero failures/errors/skips. Temporary databases only.
 - User approved automatic participation for natural and player-built populated
   villages. No merge/push, production database or world modification.
+
+## October 7, 2026 — automatic village observation foundation
+
+- Added immutable world/bed/villager snapshots and pure bounded cluster recognition,
+  including deterministic nearest-bed assignment and partial-observation flags.
+- No fixed grid/player position identity, duplicate counting, bed-only enrollment
+  or silent oversized scan truncation. Existing runtime listener remains unchanged.
+- Seven new tests; Windows wrapper clean verify passed 138 cases (136 unit,
+  two integration). Phase 1 remains 70% pending Minecraft integration.
+- User approved configurable adult partner formation without invented child ancestry.
+  No new server/world/production DB changes, merge or push.

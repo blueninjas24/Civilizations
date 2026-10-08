@@ -132,6 +132,17 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   areas containing beds and villagers. No server/world/production DB changed in
   this calendar batch; no merge or push.
 
+## Automatic village observation foundation
+- Branch `codex/village-observation`: immutable UUID-tagged observations and bounded,
+  deterministic populated-bed cluster candidates. No Paper/chunk/SQL calls.
+- Editable detection inputs, duplicate/budget rejection, nearest-bed ties and partial
+  observation safety verified by seven new tests. Windows wrapper clean verify passed
+  136 unit and two integration tests (138 total), zero failures/errors/skips.
+- Runtime importer/identity matching, household observation and projections remain
+  pending. Existing listener unchanged; schema 10. Phase 1 stays 70%.
+- User approved configurable prototype adult partnerships; implementation upcoming.
+  No new world/server/production DB changes, merge or push in this batch.
+
 ## User workflow
 `docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has seven of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
