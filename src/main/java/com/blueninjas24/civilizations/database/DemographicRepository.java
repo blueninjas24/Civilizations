@@ -116,6 +116,7 @@ public final class DemographicRepository {
                     if (!originalTies.contains(tie)) people.insertFamilyTie(tie);
                 }
                 for (PopulationEvent event : batch.checkpoint().state().events()) insertEvent(event);
+                synchronizeSettlementCounts(connection);
                 try (var statement = connection.prepareStatement("""
                         UPDATE demographic_clock SET completed_steps = ?
                         WHERE id = 1 AND completed_steps = ? AND seed = ? AND replay_version = ? AND policy = ?
@@ -139,6 +140,28 @@ public final class DemographicRepository {
     }
 
     public record StoredEvent(long sequence, PopulationEvent event) {}
+
+    public List<StoredEvent> recentEvents(int limit) throws SQLException {
+        if (limit < 1 || limit > 1000) throw new IllegalArgumentException("Invalid event page");
+        long cursor = 0;
+        try (var statement = connection.prepareStatement("SELECT MIN(sequence) FROM (SELECT sequence FROM population_events ORDER BY sequence DESC LIMIT ?)")) {
+            statement.setInt(1, limit);
+            try (var result = statement.executeQuery()) { if (result.next()) cursor = Math.max(0, result.getLong(1) - 1); }
+        }
+        return findEvents(cursor, limit);
+    }
+
+    /** Preserve legacy census rows until actual persistent residents have been enrolled. */
+    static void synchronizeSettlementCounts(Connection connection) throws SQLException {
+        try (var statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                    UPDATE settlements SET population = (
+                        SELECT COUNT(*) FROM residents WHERE settlement_id = settlements.id AND status = 'ALIVE'
+                    ) WHERE EXISTS (SELECT 1 FROM residents WHERE settlement_id = settlements.id)
+                        OR EXISTS (SELECT 1 FROM settlement_worlds WHERE settlement_id = settlements.id)
+                    """);
+        }
+    }
 
     /** Sequence cursor avoids losing events when a page splits one monthly step. */
     public List<StoredEvent> findEvents(long afterSequence, int limit) throws SQLException {

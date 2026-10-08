@@ -20,10 +20,32 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
+The projection registry/planner and read-only outcome explanations are now verified;
+see RESIDENT_PROJECTION.md. A zombie conversion/curing choice is pending before
+finishing native lifecycle wiring. Phase 1 remains 90%, not complete.
+
 1. Reconcile nearby villagers with saved residents: names, ages, births/deaths and moves.
 2. Coordinate vanilla breeding, aging and physical deaths with authoritative simulation.
 3. Verify full visible population gameplay on disposable Paper; retain documented
    prototype rules and avoid construction work.
+
+## Resident projection preparation — October 8, 2026
+- Branch `codex/phase1-resident-projection`: schema 13 incarnation registry,
+  claim-before-spawn APIs, retained aliases, actual-death ledger and immutable owner
+  views. Pure planner covers unloaded/pending/moved/deceased identities. No entity
+  mutation adapter or death listeners are wired yet.
+- Fixed stale settlement counts after demographic outcomes, including a town emptied
+  by migration; unbound legacy census rows remain preserved.
+- Read-only `/civ debug explain <uuid>` shows cached saved reasons, migration origins
+  and identity conflicts; complete history remains in SQLite.
+- Wrapper clean verify: 215 tests (213 unit, two integration), no failures/errors/skips;
+  eighteen added cases. Real disposable Paper schema-12-to-13 upgrade, command,
+  unloaded simulation and clean restart verified with backup first. Original IDs,
+  families/homes preserved; month-45 adult arrival explained without loading its area.
+  SQLite integrity/FK checks passed; server stopped cleanly.
+- Pending zombie decision: preserve identity through infection/curing, or prevent
+  conversion for managed prototype villagers. No rule silently chosen. World
+  projections, native lifecycle and density tests remain. Main/remote/production unchanged.
 
 ## Transactional schema migration milestone
 - Work continues on `foundation/schema-migrations`, branched from the committed persistence/build foundation and canonical documents. Main remains unchanged; nothing pushed or merged.

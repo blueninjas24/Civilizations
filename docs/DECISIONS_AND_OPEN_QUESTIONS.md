@@ -27,6 +27,11 @@
 - Public Civilizations source is acceptable after auditing secrets/history; Chronicler source remains private. This repository must not contain hidden Chronicler mechanics.
 
 ## Open — do not silently lock numerical/behavioral rules
+Pending Phase 1 lifecycle decision (October 8): preserve the saved person through
+zombie infection and curing (recommended), or prevent conversion for managed
+prototype villagers? No choice is enabled. This blocks complete native lifecycle
+integration, not persistence work.
+
 1. Exact criteria for recognizing a settlement: POI cluster, villagers, vanilla village, player-founded location; distinction from player settlement.
 2. Center/border evolution and merging/splitting criteria. World UUID and saved
    bed/villager identity matching approved; multi-town overlap must be diagnosed.
@@ -46,6 +51,12 @@
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- October 8 projection preparation: schema 13 retains aliases and records one current
+  CLAIMED/ACTIVE/RETIRED incarnation per person. Claims commit before future Paper
+  spawns; active absence never implies death. Pending recovery requires a frozen entity
+  and fully loaded spawn location. Actual deaths retain family/age/name with a
+  month-zero-capable ledger. Planner/owner APIs implemented; Paper mutations/listeners
+  remain unwired. Outcome explanations use immutable caches, not server-thread SQL.
 - October 8 adapter integration: strict editable YAML, owner-thread asynchronous
   startup, read-only op/console debug commands. Loaded chunk snapshots seed automatic
   village import; no POI/chunk tickets/entity writes. Configurable bounded windows

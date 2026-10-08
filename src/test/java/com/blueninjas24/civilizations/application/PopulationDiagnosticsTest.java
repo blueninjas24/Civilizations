@@ -6,6 +6,22 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PopulationDiagnosticsTest {
+    @Test void explanationShowsSavedReasonsPhysicalDeathsAndBothSidesOfMigration() {
+        UUID town = UUID.randomUUID(), origin = UUID.randomUUID(), person = UUID.randomUUID(), home = UUID.randomUUID();
+        var resident = new Resident(person, "Alice", town, home, 300, Resident.Status.DECEASED);
+        var state = new PopulationState(List.of(resident), List.of(new Household(home, town, "Home"), new Household(UUID.randomUUID(), origin, "Origin")), List.of(), Map.of());
+        var event = new PopulationEvent(5, PopulationEvent.Type.MIGRATION, person, town, List.of(), "Housing pressure and space", origin);
+        var identity = new com.blueninjas24.civilizations.database.ResidentProjectionRepository.Snapshot(Map.of(),
+                Map.of(new com.blueninjas24.civilizations.database.ResidentProjectionRepository.EntityKey(UUID.randomUUID(), UUID.randomUUID()), person), Map.of());
+        var view = new PopulationSession.ProjectionView(state, identity,
+                List.of(new com.blueninjas24.civilizations.database.DemographicRepository.StoredEvent(1, event)),
+                List.of(new com.blueninjas24.civilizations.database.ResidentProjectionRepository.PhysicalDeath(1, person, 6, 1000, "FIRE")));
+        assertTrue(PopulationDiagnostics.explain(view, town).stream().anyMatch(line -> line.contains("Alice") && line.contains("Housing pressure")));
+        assertTrue(PopulationDiagnostics.explain(view, origin).stream().anyMatch(line -> line.contains("MIGRATION")));
+        assertTrue(PopulationDiagnostics.explain(view, town).stream().anyMatch(line -> line.contains("physical death of Alice") && line.contains("FIRE")));
+        assertTrue(PopulationDiagnostics.explain(view, town).contains("Unresolved physical identities: 1; these cannot spawn replacements automatically."));
+        assertEquals(Resident.Status.DECEASED, state.residents().getFirst().status());
+    }
     @Test void statusExplainsCalendarBacklogAndFailure() {
         var lines = PopulationDiagnostics.status(new PopulationSession.Status(true, 14, 17, 5, 2_500_000, "retryable SQL failure"),
                 PopulationSession.Settings.prototype());

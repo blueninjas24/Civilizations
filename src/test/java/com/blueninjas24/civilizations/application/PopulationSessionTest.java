@@ -34,6 +34,31 @@ class PopulationSessionTest {
     }
     private static <T> T await(CompletableFuture<T> result) throws Exception { return result.get(5, TimeUnit.SECONDS); }
 
+    @Test void projectionOperationsPublishConsistentImmutableViewsAndDeathSurvivesRestart() throws Exception {
+        var observation = observed();
+        var entity = observation.villagers().getFirst().entityId(); UUID person;
+        try (var session = session(settings(2, 12))) {
+            await(session.start(false));
+            person = await(session.observe(observation)).villages().getFirst().observedResidents().get(entity).id();
+            var before = session.projectionView().orElseThrow();
+            assertEquals(2, before.population().livingCount()); assertEquals(2, before.identities().projections().size());
+            assertTrue(await(session.recordPhysicalDeath(observation.worldId(), entity, 1100, "FIRE")));
+            var after = session.projectionView().orElseThrow();
+            assertEquals(1, after.population().livingCount()); assertEquals(1, session.status().livingPeople());
+            assertEquals(com.blueninjas24.civilizations.database.ResidentProjectionRepository.State.RETIRED,
+                    after.identities().projections().get(person).state());
+            assertEquals(2, before.population().livingCount());
+            assertFalse(await(session.recordPhysicalDeath(observation.worldId(), entity, 1200, "FIRE")));
+            assertEquals(0, await(session.observe(observation)).villages().getFirst().importedPeople());
+            assertEquals(1, session.snapshot().orElseThrow().livingCount());
+        }
+        try (var restarted = session(settings(2, 12))) {
+            assertEquals(1, await(restarted.start(false)).livingPeople());
+            assertEquals(Resident.Status.DECEASED, restarted.projectionView().orElseThrow().population().residents().stream()
+                    .filter(p -> p.id().equals(person)).findFirst().orElseThrow().status());
+        }
+    }
+
     @Test void workerImportsAndAgesWithoutGivingCallerDatabaseOrWorldObjects() throws Exception {
         try (var session = session(settings(2, 12))) {
             assertTrue(await(session.start(false)).ready());

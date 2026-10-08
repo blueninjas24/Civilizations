@@ -170,6 +170,10 @@ public class DatabaseManager {
         return new VillageEnrollmentRepository(this);
     }
 
+    public ResidentProjectionRepository getResidentProjectionRepository() {
+        return new ResidentProjectionRepository(connection);
+    }
+
     public void close() {
         if (connection == null) {
             return;

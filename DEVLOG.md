@@ -1,5 +1,19 @@
 # Civilizations Development Log
 
+### Resident projection preparation — October 8, 2026
+
+- Schema 13 current incarnations, retained aliases, durable spawn claims, actual-death
+  history and immutable owner views. Deterministic reconciliation handles unloaded,
+  pending, moved, deceased and ambiguous identities; actual Paper mutation remains pending.
+- Fixed stale settlement population after demographic changes, including emptied
+  source towns. Read-only debug explanations show saved reasons and migration paths.
+- Windows wrapper clean verify: 215 tests (213 unit, two integration), all passing;
+  eighteen added cases. Disposable Paper upgrade/restart preserved identities/families,
+  showed a month-45 saved arrival while its area stayed unloaded. Integrity/FKs passed,
+  backup taken first, server stopped. No production/main/remote changes.
+- Phase 1 remains 90%. Zombie conversion/curing choice pending before native lifecycle
+  integration; no consequential rule silently chosen. See docs/RESIDENT_PROJECTION.md.
+
 ### Work qualification foundation — October 7, 2026
 
 - Schema v9 stores resident skill totals across restarts, migration, death and backups.

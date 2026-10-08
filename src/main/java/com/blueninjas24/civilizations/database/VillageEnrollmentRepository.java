@@ -99,6 +99,7 @@ public final class VillageEnrollmentRepository {
                 }
                 bindings.put(observed.entityId(), person);
             }
+            database.getResidentProjectionRepository().adoptUnambiguousImports();
             var formation = PartnershipFormation.form(database.getDemographicRepository().readPopulationState(), policy.partnerships());
             int added = 0;
             for (var tie : formation.addedPartnerships()) {

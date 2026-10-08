@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 12;
+    static final int CURRENT_VERSION = 13;
 
     @FunctionalInterface
     interface Migration {
@@ -60,7 +60,8 @@ final class SchemaMigrator {
                         """),
                 SchemaMigrator::createVillageIdentity,
                 connection -> execute(connection,
-                        "ALTER TABLE village_beds ADD COLUMN household_id TEXT REFERENCES households(id)")
+                        "ALTER TABLE village_beds ADD COLUMN household_id TEXT REFERENCES households(id)"),
+                SchemaMigrator::createResidentProjection
         ));
     }
 
@@ -129,6 +130,10 @@ final class SchemaMigrator {
                 requireColumns(connection, "village_entities", Set.of("world_id", "entity_id", "resident_id"));
             }
             if (migrations.size() >= 12) requireColumns(connection, "village_beds", Set.of("household_id"));
+            if (migrations.size() >= 13) {
+                requireColumns(connection, "resident_projection", Set.of("resident_id", "world_id", "entity_id", "state", "household_id", "x", "y", "z"));
+                requireColumns(connection, "resident_lifecycle_events", Set.of("sequence", "resident_id", "completed_month", "observed_millis", "reason"));
+            }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {
@@ -359,6 +364,39 @@ final class SchemaMigrator {
                 """);
         execute(connection, "CREATE INDEX village_entities_by_resident ON village_entities(resident_id)");
         execute(connection, "CREATE INDEX settlement_beds ON village_beds(settlement_id)");
+    }
+
+    private static void createResidentProjection(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE resident_projection (
+                    resident_id TEXT PRIMARY KEY NOT NULL REFERENCES residents(id),
+                    world_id TEXT NOT NULL,
+                    entity_id TEXT NOT NULL,
+                    state TEXT NOT NULL CHECK(state IN ('CLAIMED', 'ACTIVE', 'RETIRED')),
+                    household_id TEXT REFERENCES households(id),
+                    x INTEGER, y INTEGER, z INTEGER,
+                    CHECK((x IS NULL AND y IS NULL AND z IS NULL AND state <> 'CLAIMED')
+                       OR (typeof(x) = 'integer' AND typeof(y) = 'integer' AND typeof(z) = 'integer')),
+                    UNIQUE(world_id, entity_id),
+                    FOREIGN KEY(world_id, entity_id) REFERENCES village_entities(world_id, entity_id)
+                )
+                """);
+        // Only unambiguous existing identities can become the current physical incarnation.
+        execute(connection, """
+                INSERT INTO resident_projection(resident_id, world_id, entity_id, state, household_id)
+                SELECT e.resident_id, e.world_id, e.entity_id, 'ACTIVE', r.household_id
+                FROM village_entities e JOIN residents r ON r.id = e.resident_id
+                WHERE (SELECT COUNT(*) FROM village_entities other WHERE other.resident_id = e.resident_id) = 1
+                """);
+        execute(connection, """
+                CREATE TABLE resident_lifecycle_events (
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    resident_id TEXT NOT NULL UNIQUE REFERENCES residents(id),
+                    completed_month INTEGER NOT NULL CHECK(typeof(completed_month) = 'integer' AND completed_month >= 0),
+                    observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis) = 'integer' AND observed_millis >= 0),
+                    reason TEXT NOT NULL CHECK(length(trim(reason)) > 0)
+                )
+                """);
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

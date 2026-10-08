@@ -34,14 +34,22 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;
         }
-        sender.sendMessage("Usage: /civ debug status | observation | settlement <uuid>");
+        if (args.length == 3 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("explain")) {
+            try {
+                UUID id = UUID.fromString(args[2]);
+                session.projectionView().ifPresentOrElse(view -> PopulationDiagnostics.explain(view, id).forEach(sender::sendMessage),
+                        () -> sender.sendMessage("Population is still starting; retry shortly."));
+            } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
+            return true;
+        }
+        sender.sendMessage("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid>");
         return true;
     }
 
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) return List.of();
         List<String> choices = args.length == 1 ? List.of("debug")
-                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "settlement") : List.of();
+                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "settlement", "explain") : List.of();
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(java.util.Locale.ROOT);
         return choices.stream().filter(value -> value.startsWith(prefix)).toList();
     }

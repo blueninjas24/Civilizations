@@ -50,7 +50,7 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "settlement", "bad-id"});
             assertEquals(List.of("Settlement ID must be a UUID."), messages); messages.clear();
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "simulate", "1000"});
-            assertEquals(List.of("Usage: /civ debug status | observation | settlement <uuid>"), messages);
+            assertEquals(List.of("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid>"), messages);
             assertEquals(0, session.status().targetMonths());
             assertEquals(List.of("status", "settlement"),
                     command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "s"}));
@@ -61,6 +61,19 @@ class PopulationDebugCommandTest {
             new PopulationDebugCommand(session, () -> "Partial frame: housing unknown")
                     .onCommand(sender(true), null, "civ", new String[]{"debug", "observation"});
             assertEquals(List.of("Partial frame: housing unknown"), messages);
+        }
+    }
+    @Test void explanationRespectsPermissionsAndDoesNotReadDatabaseOnServerThread() {
+        try (var session = session()) {
+            var command = new PopulationDebugCommand(session);
+            command.onCommand(sender(false), null, "civ", new String[]{"debug", "explain", "bad-id"});
+            assertEquals(List.of("You do not have permission to inspect Civilizations."), messages); messages.clear();
+            command.onCommand(sender(true), null, "civ", new String[]{"debug", "explain", "bad-id"});
+            assertEquals(List.of("Settlement ID must be a UUID."), messages); messages.clear();
+            command.onCommand(sender(true), null, "civ", new String[]{"debug", "explain", "00000000-0000-0000-0000-000000000001"});
+            assertEquals(List.of("Population is still starting; retry shortly."), messages);
+            assertFalse(directory.resolve("civilizations.db").toFile().exists());
+            assertEquals(List.of("explain"), command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "e"}));
         }
     }
 }

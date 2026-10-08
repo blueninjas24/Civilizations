@@ -31,7 +31,7 @@ not a replacement for ROADMAP.md or its design requirements.
 - [x] Aging, births and deaths. Headless rules, family/event saving and restart recovery verified; live gameplay connection remains in the final milestone.
 - [x] Immigration and emigration. Saved headless household moves/external arrivals verified; live projection remains in the final milestone.
 - [x] Civilization calendar and saved simulation/catch-up state. Configurable owner-thread timer wired into Paper; real calendar advance, restart and read-only status command verified on the disposable server. People still need live observation/projection integration.
-- [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Automatic loaded-world observer/import and read-only diagnostics now run on Paper; native lifecycle coordination and contextual birth/death/migration projections remain.
+- [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Observer/import, outcome explanations and durable projection registry/planner verified. Native lifecycle and contextual world projections remain; zombie conversion/curing decision pending.
 
 First playable target: a village whose named residents survive restarts and whose
 population changes over time. Live calendar, automatic resident import and debug commands

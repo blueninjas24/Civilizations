@@ -2,6 +2,8 @@ package com.blueninjas24.civilizations.application;
 
 import com.blueninjas24.civilizations.database.DatabaseManager;
 import com.blueninjas24.civilizations.database.VillageEnrollmentRepository;
+import com.blueninjas24.civilizations.database.ResidentProjectionRepository;
+import com.blueninjas24.civilizations.database.DemographicRepository;
 import com.blueninjas24.civilizations.population.*;
 import com.blueninjas24.civilizations.settlement.*;
 import com.blueninjas24.civilizations.simulation.CivilizationTime;
@@ -10,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.LongSupplier;
@@ -40,6 +43,13 @@ public final class PopulationSession implements AutoCloseable {
     public record ObservationResult(List<VillageEnrollmentRepository.Result> villages, List<String> failures) {
         public ObservationResult { villages = List.copyOf(villages); failures = List.copyOf(failures); }
     }
+    public record ProjectionView(PopulationState population, ResidentProjectionRepository.Snapshot identities,
+                                 List<DemographicRepository.StoredEvent> recentEvents, List<ResidentProjectionRepository.PhysicalDeath> recentDeaths) {
+        public ProjectionView { recentEvents = List.copyOf(recentEvents); recentDeaths = List.copyOf(recentDeaths); }
+        public ProjectionView(PopulationState population, ResidentProjectionRepository.Snapshot identities) {
+            this(population, identities, List.of(), List.of());
+        }
+    }
     private final DatabaseManager database;
     private final Settings settings;
     private final Logger logger;
@@ -47,6 +57,7 @@ public final class PopulationSession implements AutoCloseable {
     private final ScheduledThreadPoolExecutor owner;
     private final AtomicReference<Status> status = new AtomicReference<>(new Status(false, 0, 0, 0, 0, null));
     private final AtomicReference<PopulationState> snapshot = new AtomicReference<>();
+    private final AtomicReference<ProjectionView> projectionView = new AtomicReference<>();
     private final AtomicBoolean started = new AtomicBoolean(), closing = new AtomicBoolean();
     private final AtomicInteger queued = new AtomicInteger();
     private final AtomicReference<Thread> ownerThread = new AtomicReference<>();
@@ -66,6 +77,7 @@ public final class PopulationSession implements AutoCloseable {
 
     public Status status() { return status.get(); }
     public Optional<PopulationState> snapshot() { return Optional.ofNullable(snapshot.get()); }
+    public Optional<ProjectionView> projectionView() { return Optional.ofNullable(projectionView.get()); }
     public Settings settings() { return settings; }
 
     public CompletableFuture<Status> start() {
@@ -122,11 +134,41 @@ public final class PopulationSession implements AutoCloseable {
                 }
             }
             var saved = database.getDemographicRepository().load(settings.population(), settings.migration()).orElseThrow();
-            snapshot.set(saved.state());
+            publish(saved.state());
             var previous = status.get();
             status.set(new Status(!closing.get(), saved.completedSteps(), previous.targetMonths(), saved.state().livingCount(), previous.lastBatchNanos(), null));
             return new ObservationResult(imported, failures);
         });
+    }
+
+    public CompletableFuture<Boolean> claimProjection(UUID person, UUID world, UUID entity, UUID household, VillageObservation.Position position) {
+        return projectionWork(() -> database.getResidentProjectionRepository().claim(person, world, entity, household, position));
+    }
+    public CompletableFuture<Boolean> activateProjection(UUID person, UUID entity) {
+        return projectionWork(() -> database.getResidentProjectionRepository().activate(person, entity));
+    }
+    public CompletableFuture<Boolean> retireProjection(UUID person, UUID entity) {
+        return projectionWork(() -> database.getResidentProjectionRepository().retire(person, entity));
+    }
+    public CompletableFuture<Boolean> recordPhysicalDeath(UUID world, UUID entity, long observedMillis, String reason) {
+        return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
+    }
+    private CompletableFuture<Boolean> projectionWork(Operation<Boolean> operation) {
+        return submit(() -> {
+            requireReady();
+            boolean result = operation.run();
+            var saved = database.getDemographicRepository().load(settings.population(), settings.migration()).orElseThrow();
+            publish(saved.state());
+            var previous = status.get();
+            status.set(new Status(!closing.get(), saved.completedSteps(), previous.targetMonths(), saved.state().livingCount(), previous.lastBatchNanos(), null));
+            return result;
+        });
+    }
+    private void publish(PopulationState state) throws SQLException {
+        var identities = database.getResidentProjectionRepository().snapshot();
+        projectionView.set(new ProjectionView(state, identities, database.getDemographicRepository().recentEvents(100),
+                database.getResidentProjectionRepository().recentDeaths(100)));
+        snapshot.set(state);
     }
 
     private void pulseOnOwner() throws SQLException {
@@ -139,7 +181,7 @@ public final class PopulationSession implements AutoCloseable {
     private void advance(long target) throws SQLException {
         long began = System.nanoTime();
         var result = database.getDemographicRepository().advance(target, settings.monthsPerBatch(), settings.population(), settings.migration());
-        var state = result.checkpoint().state(); snapshot.set(state);
+        var state = result.checkpoint().state(); publish(state);
         status.set(new Status(!closing.get(), result.checkpoint().completedSteps(), target, state.livingCount(), System.nanoTime() - began, null));
     }
     private void requireReady() {
