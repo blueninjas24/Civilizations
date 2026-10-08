@@ -1,0 +1,32 @@
+# Editable Phase 1 prototype settings, not balanced survival defaults.
+# A year lasts six real minutes. Existing saves reject changes to the seed,
+# calendar cadence and population/migration rules; no silent replay transition.
+population:
+  seed: 872613
+  millis-per-month: 30000
+  maximum-offline-months: 12
+  months-per-batch: 2
+  months-per-year: 12
+  adulthood-months: 216
+  parent-minimum-months: 240
+  parent-maximum-months: 480
+  senior-months: 720
+  birth-chance: 0.015
+  background-death-chance: 0.0001
+  senior-death-increase-per-year: 0.0005
+  household-move-chance: 0.02
+  external-arrival-chance: 0.005
+recognition:
+  connection-radius: 32
+  resident-radius: 32
+  minimum-beds: 2
+  minimum-villagers: 2
+  maximum-beds: 512
+  maximum-villagers: 256
+enrollment:
+  home-bed-radius: 8
+  residents-per-bed: 2
+  initial-adult-months: 240
+  initial-child-months: 0
+  form-partnerships: true
+  partnership-minimum-months: 216

@@ -1,6 +1,7 @@
 package com.blueninjas24.civilizations.listener;
 
 import com.blueninjas24.civilizations.Civilizations;
+import com.blueninjas24.civilizations.database.DatabaseManager;
 import com.blueninjas24.civilizations.needs.NeedsEngine;
 import com.blueninjas24.civilizations.needs.NeedsEngine.HousingStatus;
 import com.blueninjas24.civilizations.settlement.Settlement;
@@ -18,14 +19,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/** Retained prototype; no longer registered. Visible census must not replace saved residents. */
+@Deprecated
 public class VillageDiscoveryListener implements Listener {
 
     private final Civilizations plugin;
+    private final DatabaseManager database;
     private final NeedsEngine needsEngine = new NeedsEngine();
     private final Set<String> discoveredVillages = new HashSet<>();
 
-    public VillageDiscoveryListener(Civilizations plugin) {
+    public VillageDiscoveryListener(Civilizations plugin, DatabaseManager database) {
         this.plugin = plugin;
+        this.database = database;
     }
 
     @EventHandler
@@ -60,7 +65,7 @@ public class VillageDiscoveryListener implements Listener {
 
             try {
                 Settlement existingSettlement =
-                        plugin.getDatabaseManager().findNearbySettlement(
+                        database.findNearbySettlement(
                                 location.getWorld().getName(),
                                 location.getBlockX(),
                                 location.getBlockZ(),
@@ -83,11 +88,11 @@ public class VillageDiscoveryListener implements Listener {
                     ).size();
 
                     existingSettlement.setPopulation(population);
-                    plugin.getDatabaseManager()
+                    database
                             .updatePopulation(existingSettlement);
 
                     existingSettlement.setBeds(beds);
-                    plugin.getDatabaseManager()
+                    database
                             .updateBeds(existingSettlement);
 
                     // Evaluate what the settlement currently needs.
@@ -138,7 +143,7 @@ public class VillageDiscoveryListener implements Listener {
             );
 
             try {
-                plugin.getDatabaseManager().saveSettlement(settlement);
+                database.saveSettlement(settlement);
             } catch (SQLException e) {
                 plugin.getLogger().severe(
                         "Failed to save settlement "

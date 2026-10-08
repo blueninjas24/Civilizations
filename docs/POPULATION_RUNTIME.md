@@ -37,6 +37,26 @@ Full Windows wrapper clean verify passed 175 cases (173 unit, two integration).
 Injected failures intentionally emit diagnostic logs; tests passed with no errors,
 failures or skipped cases.
 
-The plugin has not yet constructed this session or loaded runtime Settings from
-config.yml. Live Paper wiring, observers, read-only commands and NPC reconciliation
-are the next batch. This worker alone does not complete the calendar gameplay gate.
+## Paper lifecycle and editable settings
+
+The plugin now starts this session asynchronously on enable, polls its initialization
+future from Paper's main thread, and closes it on disable. SQL initialization and
+simulation do not run on the server thread. Startup errors disable the plugin and
+retain the database; no automatic reset or replay transition occurs.
+
+Bundled `config.yml` exposes all existing prototype Settings, including recognition,
+enrollment and partnership inputs for the upcoming observer. YAML is loaded strictly;
+missing keys, wrong types, fractional integer values, overflows and invalid policy
+bounds fail startup. Seed, cadence and population/migration policy changes remain
+protected by the saved replay checks. Restart is required; no reload/mutation command.
+
+`/civ debug status` reports readiness, completed date, queued months, saved living
+headcount, batch duration, pace and failure. `/civ debug settlement <uuid>` reports
+saved living/deceased residents, homes and known versus unknown housing capacity.
+Both read immutable snapshots, never JDBC/world state, and require
+`civilizations.debug` (operators/console by default). No simulate command exists yet.
+
+The old player-movement census listener remains in source for reference but is no
+longer registered. Its loaded-villager counts cannot overwrite authoritative people.
+Automatic recognition/import and NPC reconciliation are still pending; this batch
+does not yet create a playable resident population.

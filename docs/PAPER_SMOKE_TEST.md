@@ -73,3 +73,17 @@ Startup/recovery checks do not complete the population gameplay gate or hosted C
 - Reachable tracked Git history was checked for common GitHub/AWS credential and
   private-key signatures; no matches found. This bounded signature check is not
   a guarantee that every possible secret format is absent. Nothing pushed.
+
+## Paper calendar and command integration — October 8
+
+- Source on codex/paper-population-clock, wrapper clean verify 188 tests, deployed
+  only after a consistent schema-11 dev DB snapshot. Exact same approved Paper/Java
+  environment; schema upgraded to 12 without resetting saved tables.
+- Plugin asynchronously initialized its owner-thread session and generated config.
+  Console status reported running/month 0, then month 1 after real elapsed time;
+  invalid settlement UUID and unimplemented simulate command returned validation.
+- Clean stop/restart resumed at completed month 1, advanced to month 3 and stopped.
+  Last displayed empty-population batch 0.496 ms; this is not populated scale profiling.
+- No new forced chunks; server reported zero saved chunkholders in each dimension.
+  Automatic village observer and contextual residents remain pending. Known OSHI
+  counter warnings unchanged. No production world/database, merge or push.

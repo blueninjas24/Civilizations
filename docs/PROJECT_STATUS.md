@@ -20,9 +20,10 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
-1. Add job/skill eligibility foundation, calendar scheduling and automatic village import/projections; preserve open identity/safety rules.
-2. Complete a disposable Paper smoke test and recovery drill when an exact server JAR and approved local setup are available.
-3. Resolve settlement recognition/identity and census semantics before changing discovery or seeding authoritative residents.
+1. Connect bounded loaded-world observation to the tested automatic village importer.
+2. Reconcile nearby villagers with saved residents and add explainable diagnostics.
+3. Verify real population gameplay/restarts and unloaded behavior on disposable Paper;
+   retain documented prototype rules and avoid construction work.
 
 ## Transactional schema migration milestone
 - Work continues on `foundation/schema-migrations`, branched from the committed persistence/build foundation and canonical documents. Main remains unchanged; nothing pushed or merged.
@@ -201,7 +202,25 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - Plugin wiring/config/commands/observer/projection still pending, so Phase 1 stays
   80%. No new world/server/actual database changes, merge or push in this batch.
 
+## Paper calendar and read-only diagnostics
+- Branch `codex/paper-population-clock`: asynchronous owner-thread startup, strict
+  editable config, main-thread initialization polling and shutdown. No shared JDBC.
+- Read-only `/civ debug status` and `/civ debug settlement <uuid>` inspect immutable
+  snapshots with operator/console permission. No mutation or reload command.
+- Old census listener retained but unregistered to protect authoritative residents;
+  automatic observer/import/projections still pending.
+- Windows wrapper clean verify passed 188 tests (186 unit, two integration), zero
+  failures/errors/skips. Thirteen new config/permission/command/diagnostic cases.
+  Initial sandbox build failed to resolve OneDrive target with AccessDeniedException;
+  expanded-access build passed without build/OS/location changes.
+- Backed up marked disposable schema-11 DB before deployment. Pinned Paper 26.2-129
+  enabled the JAR, created config, advanced a real month, served status/validation
+  messages, stopped and restarted at saved month 1. Second run advanced to month 3
+  and stopped cleanly. Only approved temporary dev files changed; schema now 12.
+- No populated village/player scenario, production change, merge, push or main
+  modification. Phase 1 now 9/10 reporting milestones (90%).
+
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has eight of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has nine of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

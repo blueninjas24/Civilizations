@@ -10,7 +10,7 @@ not a replacement for ROADMAP.md or its design requirements.
 
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
-| 1. Foundation & Population | Villages remember their people; families and population change over time | 8 / 10 | `████████░░` 80% — active |
+| 1. Foundation & Population | Villages remember their people; families and population change over time | 9 / 10 | `█████████░` 90% — active |
 | 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 0 / 4 | `░░░░░░░░░░` 0% |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -30,11 +30,12 @@ not a replacement for ROADMAP.md or its design requirements.
 - [x] Households, basic family ties and the foundation for jobs. Saved households/relationships/skills and explainable age/skill qualification checks verified. Actual businesses/hiring belong to later phases.
 - [x] Aging, births and deaths. Headless rules, family/event saving and restart recovery verified; live gameplay connection remains in the final milestone.
 - [x] Immigration and emigration. Saved headless household moves/external arrivals verified; live projection remains in the final milestone.
-- [ ] Civilization calendar and saved simulation/catch-up state. Calendar dates, fractional elapsed time and queued catch-up survive restarts; runtime scheduling remains.
+- [x] Civilization calendar and saved simulation/catch-up state. Configurable owner-thread timer wired into Paper; real calendar advance, restart and read-only status command verified on the disposable server. People still need live observation/projection integration.
 - [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Recognition, saved identity and atomic village import tested headlessly; runtime observer/projection/diagnostics remain.
 
 First playable target: a village whose named residents survive restarts and whose
-population changes over time. No new population gameplay is implemented yet.
+population changes over time. Live calendar/debug commands are implemented; automatic
+resident import and visible population gameplay remain pending.
 
 ## Phase 2 — planned
 

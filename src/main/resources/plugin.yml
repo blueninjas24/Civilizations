@@ -4,3 +4,12 @@ main: com.blueninjas24.civilizations.Civilizations
 api-version: '1.21'
 author: Blueninjas24
 description: Evolving, autonomous civilizations for Minecraft.
+commands:
+  civ:
+    description: Read-only Civilizations population diagnostics.
+    usage: /civ debug status | /civ debug settlement <uuid>
+    permission: civilizations.debug
+permissions:
+  civilizations.debug:
+    description: Inspect saved Civilizations population and calendar state.
+    default: op

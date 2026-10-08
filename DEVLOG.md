@@ -326,3 +326,15 @@ This will be the beginning of autonomous settlement development.
   waiting on itself. Ten new temporary-DB tests, including timer and write retry.
 - Wrapper clean verify passed 175 cases (173 unit, two integration). Plugin wiring
   remains upcoming; Phase 1 stays 80%. No new server/real data/remote/main changes.
+
+## October 8, 2026 — Paper calendar and inspection
+
+- Wired asynchronous owner-thread startup/shutdown, strict configurable prototype
+  inputs and read-only admin status/settlement commands. Old census listener retained
+  but unregistered; observer/import/projections remain pending.
+- Thirteen new configuration/permission/diagnostic cases; wrapper clean verify passed
+  188 tests (186 unit, two integration), no failures/errors/skips. Initial sandbox
+  target resolution denied; expanded-access verification passed.
+- Disposable DB snapshot before deployment; pinned Paper startup, real month advance,
+  commands, clean stop/restart at saved month 1, then month 3 verified. No player or
+  projection test yet; no production/main/remote change. Phase 1 now 9/10 (90%).

@@ -27,8 +27,9 @@ The elapsed cap is a caller input, separate from per-batch step budgets. Any
 discarded milliseconds are returned for diagnostics. No production offline cap
 or runtime cadence is locked by this implementation. Runtime integration will
 choose documented editable prototype settings under the user's authorization.
-The plugin does not yet create a calendar, schedule this engine or import people.
-The calendar reporting milestone therefore remains partially complete.
+The plugin now creates/schedules the calendar through PopulationSession and exposes
+read-only status commands. Automatic village observation/import is still pending;
+clock advancement alone does not validate the complete population experience.
 
 Tests use temporary SQLite files: partial months/restart, bounded catch-up,
 duplicate requests, snapshot restore, cap/backward-clock persistence, queued work
