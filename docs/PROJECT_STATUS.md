@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phases 2–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live economy remains pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
 ## Initial audit
 Prototype contained six Java source files: `Civilizations`, `DatabaseManager`, `VillageDiscoveryListener`, `Settlement`, `SettlementNameGenerator`, `NeedsEngine`. Discovery via player chunk movement/HOME POIs, simple settlement persistence, population/bed census and binary housing shortage. No actual economy, business, roads, physical construction, history or simulation yet.
@@ -20,11 +20,34 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
-1. Human client playtest of the completed population prototype in a disposable world.
-2. Preserve vanilla profession/trades/inventory when physical villagers are recreated,
+1. Pending approval: choose documented configurable prototype economic quantities,
+   cadence and shortage/price thresholds, then evidence-backed labor/production,
+   treasury/wellbeing, economic scheduling and feasible explainable decisions.
+2. Human client playtest can follow later; user authorized Phase 2 without it.
+   Preserve vanilla profession/trades/inventory when physical villagers are recreated,
    and handle other native transformations before recommending established survival worlds.
-3. Next roadmap phase: needs, commodities and explainable economy decisions; no
+3. Current roadmap phase: needs, commodities and explainable economy decisions; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
+
+## Phase 2 commodity accounting — October 8, 2026
+- Branch `codex/phase2-commodity-accounting`: plain-Java commodity keys, exact stock
+  conservation, explicit incoming/demand categories, reserve use, per-commodity
+  shortage duration, protected caller policy and quantitative report explanations.
+- Schema 14 adds accounts/stocks/retained period inputs; no automatic inventory
+  seeding or live economy scheduling. No inferred production or starvation effects.
+  Initialization, advance, history and checkpoint operations are transactional.
+- Eighteen new tests; Windows Wrapper clean verify passed 242 cases (240 unit,
+  two packaged integration), no failures/errors/skips. Pure and saved 1,200-period
+  crisis/recovery fixtures, mid-crisis restart, conservation, write rollback/retry,
+  stale-period and tuning rejection, upgrades/malformed schema verified.
+- Backed up marked disposable schema-13 DB; real Paper schema-14 startup/commands,
+  unloaded fixture, no forced chunks and clean shutdown verified. Integrity/FKs OK;
+  original identities/families preserved; zero economy accounts as intended.
+- Phase 2 1/4 (25% of reporting milestones), not a running/balanced economy. Need
+  economic tuning approval before selecting live consumption/cadence/price rules.
+  Human client playtest deferred explicitly; known Phase 1 recreation limits remain.
+  No production reset, construction, main modification, remote push or merge.
+  See COMMODITY_ACCOUNTING.md for contract and remaining gates.
 
 ## Live population and approved zombie rule — October 8, 2026
 - User chose to disable zombie conversion for managed villagers. Registered INFECTION
@@ -292,6 +315,6 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   changed; no schema change, production data, merge or push. Phase 1 stays 90%.
 
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has one of four reporting milestones complete (accounting APIs, not live economy); Phases 3–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

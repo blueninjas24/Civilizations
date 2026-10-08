@@ -174,6 +174,10 @@ public class DatabaseManager {
         return new ResidentProjectionRepository(connection);
     }
 
+    public CommodityRepository getCommodityRepository() {
+        return new CommodityRepository(connection);
+    }
+
     public void close() {
         if (connection == null) {
             return;

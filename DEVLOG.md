@@ -1,5 +1,22 @@
 # Civilizations Development Log
 
+### Phase 2 commodity accounting — October 8, 2026
+
+- Built commodity reserves, explicit supply/demand flows, duration-sensitive shortage
+  reports and exact conservation without Minecraft dependencies or invented production.
+- Schema 14 adds explicit account initialization, saved stocks, retained period inputs
+  and atomic checkpoints. Rejects repeated/skipped periods and silent policy changes.
+- Eighteen added tests: Windows Wrapper clean verify passed 242 (240 unit/two packaged
+  integration), all passing. Two 1,200-period crisis/recovery scenarios include saved
+  mid-crisis restart; rollback/retry, overflow, immutable ordering and upgrade checks.
+- Backed up confirmed disposable DB, deployed on pinned Paper, verified schema-14
+  startup/diagnostics/unloaded fixture/clean stop. Original identities/families retained,
+  integrity/FKs OK, zero invented economy accounts. No production/world reset.
+- Phase 2 25% by one of four reporting milestones; live economy remains pending.
+  User deferred personal playtest. Stopping at economic tuning approval before choosing
+  consumption/cadence/price rules; no gameplay economy defaults silently selected.
+  Feature work local, no merge/push; canonical roadmap unchanged.
+
 ### Phase 1 live population gate — October 8, 2026
 
 - Implemented approved managed-villager zombie conversion prevention. Paper verified

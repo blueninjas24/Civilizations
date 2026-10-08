@@ -8,6 +8,11 @@ final class SchemaFixtures {
     private SchemaFixtures() {}
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if (version < 14) {
+                statement.execute("DROP TABLE economy_periods");
+                statement.execute("DROP TABLE economy_stocks");
+                statement.execute("DROP TABLE economy_accounts");
+            }
             if (version < 13) {
                 statement.execute("DROP TABLE resident_projection");
                 statement.execute("DROP TABLE resident_lifecycle_events");

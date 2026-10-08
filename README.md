@@ -17,6 +17,10 @@ Use a disposable play world: vanilla trades/professions/inventory are not preser
 when a moving person's physical villager is recreated. This is a tested foundation,
 not a balanced survival release. See [Phase 1 playtest notes](docs/PHASE1_PLAYTEST.md).
 
+Phase 2 now has tested, persistent commodity accounting: reserves, explicit supplies
+and demand, shortage duration and recovery. This is an internal foundation; automatic
+village economy and player trade are still pending. See [accounting scope](docs/COMMODITY_ACCOUNTING.md).
+
 ## Core Philosophy
 
 - Keep the experience recognizably vanilla Minecraft.

@@ -30,6 +30,14 @@
 - Public Civilizations source is acceptable after auditing secrets/history; Chronicler source remains private. This repository must not contain hidden Chronicler mechanics.
 
 ## Open — do not silently lock numerical/behavioral rules
+Pending Phase 2 tuning approval (October 8): may Codex choose editable experimental
+food consumption, starting reserves, economic cadence, shortage thresholds and price
+ranges? Recommend configurable documented prototype inputs, with protected saved
+settings and later balance testing. Alternative: select each rule with the user first.
+Question submitted; no answer assumed. Accounting APIs/tests proceed using explicit
+caller fixtures; no live economy rules enabled. Starting production must have plausible
+physical evidence; scarcity does not authorize invented farms or automatic deaths.
+
 1. Exact criteria for recognizing a settlement: POI cluster, villagers, vanilla village, player-founded location; distinction from player settlement.
 2. Center/border evolution and merging/splitting criteria. World UUID and saved
    bed/villager identity matching approved; multi-town overlap must be diagnosed.
@@ -49,6 +57,13 @@
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- October 8 Phase 2: schema 14 stores explicit commodity inventory, protected policy,
+  independent completed economic periods and retained flow inputs. Accounting replay 1
+  uses exact nonnegative integers and deterministic ordering; all initialized goods
+  need explicit period evidence. Scarcity labels are caller-tuned; absent accounts
+  stay unknown. No runtime defaults, economy scheduler or population effects chosen.
+- User authorized Phase 2 development while human client playtesting is deferred;
+  automated tests and relevant disposable Paper checks still required.
 - October 8 live projection: main-thread create/claim/add/activate handshake with a
   persistent temporary-freeze marker; loaded absence never infers death. Actual native
   deaths and late enrollment evidence save on SQL owner; accepted shutdown work drains.

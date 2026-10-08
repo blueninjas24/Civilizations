@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 13;
+    static final int CURRENT_VERSION = 14;
 
     @FunctionalInterface
     interface Migration {
@@ -61,7 +61,8 @@ final class SchemaMigrator {
                 SchemaMigrator::createVillageIdentity,
                 connection -> execute(connection,
                         "ALTER TABLE village_beds ADD COLUMN household_id TEXT REFERENCES households(id)"),
-                SchemaMigrator::createResidentProjection
+                SchemaMigrator::createResidentProjection,
+                SchemaMigrator::createCommodityAccounting
         ));
     }
 
@@ -133,6 +134,13 @@ final class SchemaMigrator {
             if (migrations.size() >= 13) {
                 requireColumns(connection, "resident_projection", Set.of("resident_id", "world_id", "entity_id", "state", "household_id", "x", "y", "z"));
                 requireColumns(connection, "resident_lifecycle_events", Set.of("sequence", "resident_id", "completed_month", "observed_millis", "reason"));
+            }
+            if (migrations.size() >= 14) {
+                requireColumns(connection, "economy_accounts", Set.of("settlement_id", "completed_periods", "replay_version",
+                        "severe_bps", "surplus_bps", "abundant_bps", "severe_after"));
+                requireColumns(connection, "economy_stocks", Set.of("settlement_id", "commodity", "units", "shortage_periods"));
+                requireColumns(connection, "economy_periods", Set.of("settlement_id", "commodity", "period", "opening", "prior_shortage",
+                        "production", "imports", "households", "industry", "construction", "exports", "events"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
@@ -395,6 +403,47 @@ final class SchemaMigrator {
                     completed_month INTEGER NOT NULL CHECK(typeof(completed_month) = 'integer' AND completed_month >= 0),
                     observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis) = 'integer' AND observed_millis >= 0),
                     reason TEXT NOT NULL CHECK(length(trim(reason)) > 0)
+                )
+                """);
+    }
+
+    private static void createCommodityAccounting(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE economy_accounts (
+                    settlement_id TEXT PRIMARY KEY NOT NULL REFERENCES settlements(id),
+                    completed_periods INTEGER NOT NULL CHECK(typeof(completed_periods) = 'integer' AND completed_periods >= 0),
+                    replay_version INTEGER NOT NULL CHECK(replay_version = 1),
+                    severe_bps INTEGER NOT NULL CHECK(typeof(severe_bps) = 'integer' AND severe_bps >= 0 AND severe_bps < 10000),
+                    surplus_bps INTEGER NOT NULL CHECK(typeof(surplus_bps) = 'integer' AND surplus_bps > 10000),
+                    abundant_bps INTEGER NOT NULL CHECK(typeof(abundant_bps) = 'integer' AND abundant_bps > surplus_bps),
+                    severe_after INTEGER NOT NULL CHECK(typeof(severe_after) = 'integer' AND severe_after > 0)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE economy_stocks (
+                    settlement_id TEXT NOT NULL REFERENCES economy_accounts(settlement_id),
+                    commodity TEXT NOT NULL CHECK(length(commodity) BETWEEN 1 AND 64),
+                    units INTEGER NOT NULL CHECK(typeof(units) = 'integer' AND units >= 0),
+                    shortage_periods INTEGER NOT NULL CHECK(typeof(shortage_periods) = 'integer' AND shortage_periods >= 0),
+                    PRIMARY KEY(settlement_id, commodity)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE economy_periods (
+                    settlement_id TEXT NOT NULL,
+                    commodity TEXT NOT NULL,
+                    period INTEGER NOT NULL CHECK(typeof(period) = 'integer' AND period > 0),
+                    opening INTEGER NOT NULL CHECK(typeof(opening) = 'integer' AND opening >= 0),
+                    prior_shortage INTEGER NOT NULL CHECK(typeof(prior_shortage) = 'integer' AND prior_shortage >= 0),
+                    production INTEGER NOT NULL CHECK(typeof(production) = 'integer' AND production >= 0),
+                    imports INTEGER NOT NULL CHECK(typeof(imports) = 'integer' AND imports >= 0),
+                    households INTEGER NOT NULL CHECK(typeof(households) = 'integer' AND households >= 0),
+                    industry INTEGER NOT NULL CHECK(typeof(industry) = 'integer' AND industry >= 0),
+                    construction INTEGER NOT NULL CHECK(typeof(construction) = 'integer' AND construction >= 0),
+                    exports INTEGER NOT NULL CHECK(typeof(exports) = 'integer' AND exports >= 0),
+                    events INTEGER NOT NULL CHECK(typeof(events) = 'integer' AND events >= 0),
+                    PRIMARY KEY(settlement_id, period, commodity),
+                    FOREIGN KEY(settlement_id, commodity) REFERENCES economy_stocks(settlement_id, commodity)
                 )
                 """);
     }
