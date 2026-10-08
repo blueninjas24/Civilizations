@@ -150,6 +150,10 @@ public class DatabaseManager {
         return new PopulationRepository(connection);
     }
 
+    public PopulationSimulationRepository getPopulationSimulationRepository() throws SQLException {
+        return new PopulationSimulationRepository(connection);
+    }
+
     public void close() {
         if (connection == null) {
             return;

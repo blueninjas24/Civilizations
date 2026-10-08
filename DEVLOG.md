@@ -1,5 +1,16 @@
 # Civilizations Development Log
 
+### Saved logical aging — October 7, 2026
+
+- Added pure immutable resident aging and opt-in schema v6 seed/progress clocks.
+  Ages/checkpoints commit together; completed targets never double-age, failures retry.
+- Windows wrapper clean verify passed 76 cases (74 unit, two integration), including
+  restart/snapshot, write/overflow rollback and a 500-person/1,000-step pure replay.
+- Phase 1 remains 40%; aging/catch-up groundwork advances, full demographic and
+  calendar/runtime milestones still pending. No server/world/actual DB operations.
+- User clarified automatic village participation and approved configurable,
+  documented experimental population tuning. No manual join step will be required.
+
 ### Family memory — October 7, 2026
 
 - Added saved parent/child and canonical partner relationships; shared parents

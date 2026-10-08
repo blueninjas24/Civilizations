@@ -144,6 +144,7 @@ class FamilyRepositoryTest {
         try (var statement = database.getConnection().createStatement()) {
             // Reconstruct the previous-version shape inside this temporary database only.
             statement.execute("DROP TABLE family_ties");
+            statement.execute("DROP TABLE population_clocks");
             statement.execute("PRAGMA user_version = 4");
             statement.execute("CREATE TABLE family_ties (first_id TEXT)");
         }

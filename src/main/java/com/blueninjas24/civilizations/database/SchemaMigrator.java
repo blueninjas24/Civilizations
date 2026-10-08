@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 5;
+    static final int CURRENT_VERSION = 6;
 
     @FunctionalInterface
     interface Migration {
@@ -37,7 +37,8 @@ final class SchemaMigrator {
                 connection -> addColumnIfMissing(connection, "population"),
                 connection -> addColumnIfMissing(connection, "beds"),
                 SchemaMigrator::createPopulationTables,
-                SchemaMigrator::createFamilyTable
+                SchemaMigrator::createFamilyTable,
+                SchemaMigrator::createPopulationClock
         ));
     }
 
@@ -78,6 +79,10 @@ final class SchemaMigrator {
             }
             if (migrations.size() >= 5) {
                 requireColumns(connection, "family_ties", Set.of("first_id", "second_id", "type"));
+            }
+            if (migrations.size() >= 6) {
+                requireColumns(connection, "population_clocks", Set.of("settlement_id", "seed",
+                        "completed_steps", "replay_version"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
@@ -187,6 +192,17 @@ final class SchemaMigrator {
                 BEGIN
                     SELECT RAISE(ABORT, 'Family ties cannot be overwritten');
                 END
+                """);
+    }
+
+    private static void createPopulationClock(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE population_clocks (
+                    settlement_id TEXT PRIMARY KEY NOT NULL REFERENCES settlements(id),
+                    seed INTEGER NOT NULL CHECK(typeof(seed) = 'integer'),
+                    completed_steps INTEGER NOT NULL CHECK(typeof(completed_steps) = 'integer' AND completed_steps >= 0),
+                    replay_version INTEGER NOT NULL CHECK(typeof(replay_version) = 'integer' AND replay_version > 0)
+                )
                 """);
     }
 
