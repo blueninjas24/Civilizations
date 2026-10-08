@@ -1,0 +1,40 @@
+name: Build and persistence tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: pom.xml
+      - name: Verify on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .\mvnw.cmd --batch-mode --no-transfer-progress clean verify
+      - name: Verify on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: sh ./mvnw --batch-mode --no-transfer-progress clean verify

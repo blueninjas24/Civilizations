@@ -53,4 +53,8 @@ Persistence tests create SQLite files exclusively in JUnit-managed temporary
 directories and close their connections before cleanup. They do not start Paper
 or access a Minecraft server's plugin data folder.
 
+Use `.\mvnw.cmd clean verify` for full verification, including the packaged-JAR
+backup integration test. See [development and recovery procedures](docs/DEVELOPMENT.md)
+for CI, a disposable local Paper setup, and consistent SQLite snapshots.
+
 Development began September 27, 2026.

@@ -37,4 +37,4 @@ Illustrative dependency direction: `Paper listener -> application service -> dom
 - Build for 20+ settlements and rare 500+ populations; optimize measured bottlenecks, not imaginary ones.
 
 ## Code evolution
-- Current repository is a six-class prototype (see PROJECT_STATUS); add cohesive services only as needs emerge. Preserve behavior with tests during refactors. Keep future Paper upgrades isolated near adapters.
+- Repository began as a six-class prototype (see PROJECT_STATUS for verified additions); add cohesive services only as needs emerge. Preserve behavior with tests during refactors. Keep future Paper upgrades isolated near adapters.

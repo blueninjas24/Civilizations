@@ -18,6 +18,11 @@ target/
 *.sqlite3-wal
 *.sqlite3-shm
 
+### Local server data and backups ###
+/dev-server/
+/backups/
+*.bundle
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
