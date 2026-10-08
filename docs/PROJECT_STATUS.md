@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food and household needs are implemented; treasury accounting is prepared, while funding, complete wellbeing and responses remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and saved planning priorities are implemented; treasury accounting is prepared, while funding, complete wellbeing and response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
 ## Initial audit
 Prototype contained six Java source files: `Civilizations`, `DatabaseManager`, `VillageDiscoveryListener`, `Settlement`, `SettlementNameGenerator`, `NeedsEngine`. Discovery via player chunk movement/HOME POIs, simple settlement persistence, population/bed census and binary housing shortage. No actual economy, business, roads, physical construction, history or simulation yet.
@@ -21,7 +21,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 
 ## Immediate next work
 1. Economy tuning approved and implemented in commented `economy.yml`. Next:
-   feasible explainable responses, actual treasury funding/spending integration and
+   execution of feasible responses, actual treasury funding/spending integration and
    household allocation/full wellbeing. Saved household needs and explicit treasury
    accounting are now implemented; no automatic taxation or personal wealth inferred.
 2. Human client playtest can follow later; user authorized Phase 2 without it.
@@ -29,6 +29,32 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
    and handle other native transformations before recommending established survival worlds.
 3. Current roadmap phase: needs, commodities and explainable economy decisions; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
+
+## Evidence-based village priorities — October 8, 2026
+- Branch `codex/phase2-village-priorities`: villages choose MONITOR, SEEK_FOOD or
+  INVESTIGATE_HOUSING from saved unmet food and observed household crowding. Unknown
+  housing cannot justify crowding; infeasible priorities are excluded under every seed.
+- Editable prototype priority weights/cadence in optional `economy.yml` section.
+  Minimum relative weight excludes irrelevant alternatives before a seeded weighted
+  draw. Five-period default reviews reconsider early on appearance/severity/recovery,
+  crowding appearance/recovery or priority-setting changes. No invented leader/jobs.
+- Schema 17 saves review inputs, policy, seed, replay version and chosen priority.
+  Historical candidate explanations reconstruct from original inputs. Food/needs/
+  reviews commit together; retries cannot duplicate effects. Policy tuning is forward
+  and does not discard food-clock time. Old periods get no fabricated decisions.
+- Twelve new cases; Windows Wrapper clean verify passed 300 cases (298 unit/two
+  packaged integration), no failures/errors/skips. Blocked choices over 1,000 seeds,
+  reasonable alternatives, crisis filtering, 1,200-period replay, rollback/retry,
+  schema-16 upgrade failure/recovery and existing treasury retention verified.
+- Guarded Paper probe passed actual food crisis selecting SEEK_FOOD, original choice
+  surviving restart/feast retuning and recovery returning to MONITOR, plus earlier
+  food/needs/unloaded scenarios. Marked dev schema-16 snapshot taken first; original
+  identities/families preserved and integrity/FKs checked. No production data reset.
+- Priority decisions are nonbinding planning intentions. No suppliers, purchases,
+  stock transfers, jobs or construction are fabricated. Execution, outcome feedback,
+  broader wellbeing and player trade remain. Phase 2 stays 1/4 full reporting groups;
+  PROGRESS now lists verified partial pieces rather than hiding them behind 25%.
+  See VILLAGE_PRIORITIES.md. No push, merge or main modification.
 
 ## Household needs and treasury accounting — October 8, 2026
 - Branch `codex/phase2-household-needs`: food periods now retain household adults,

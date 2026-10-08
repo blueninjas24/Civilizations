@@ -11,7 +11,7 @@ not a replacement for ROADMAP.md or its design requirements.
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
-| 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 1 / 4 | `██▌░░░░░░░` 25% — live food and household needs; second milestone partial |
+| 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 1 / 4 | `██▌░░░░░░░` 25% — food, household needs and priorities implemented; later groups partial |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -54,9 +54,24 @@ housing pressure and shared food conditions now save with each period. Treasury
 accounting is tested separately from wellbeing; actual funding/spending is not wired.
 These reports do not establish personal food rations or complete prosperity.
 
-The second reporting milestone remains partial. Full wellbeing, live treasury flows,
-autonomous responses and player trade remain. Phase 2 is 1/4 (25%) by finished groups,
-not a measure of hours or all partial gameplay work. See LIVE_FOOD_ECONOMY.md,
+Villages now choose and save an explainable priority: seek food, investigate
+observed crowding, or monitor. Seeded selection filters infeasible/irrelevant options,
+reviews on a bounded cadence and reconsiders when pressures appear or clear. These
+are planning intentions, not executed purchases or building permissions.
+
+### Phase 2 detail — see progress inside unfinished groups
+
+| Reporting group | Verified pieces | What still blocks completion |
+|---|---|---|
+| Supplies and shortages — complete | Commodity accounting, saved reserves/history, duration/recovery, long crisis fixtures | Complete as an accounting foundation |
+| Labor, treasury and wellbeing — partial | Field-backed adult production, food clock, household demand/housing snapshots, explicit treasury ledger | Actual funding/spending integration, fuller wellbeing/allocation and economic effects |
+| Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery | Executing feasible economic responses and learning weights from actual outcomes |
+| Player economy and stability — partial | Configurable scarcity prices and long shortage/recovery tests | Actual player trade/barter, budget/stock effects and integrated economy balance tests |
+
+Completed pieces in a partial group are real progress. The top bar counts whole
+reporting groups, so it remains 1/4 (25%); it does not measure coding hours or all
+partial work. It will advance when a full group and its acceptance gate are verified.
+See VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
 HOUSEHOLD_NEEDS_AND_TREASURY.md and ECONOMY_TUNING.md.
 
 ## Phase 3 — planned

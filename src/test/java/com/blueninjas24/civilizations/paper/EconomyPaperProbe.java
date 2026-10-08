@@ -30,6 +30,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private Set<UUID> residents;
     private Result famine;
     private HouseholdNeeds.Assessment famineNeeds;
+    private VillagePriorities.Decision faminePriority;
     private final Set<Long> tickets = new HashSet<>();
     private int stage, ticks;
     private long deadline;
@@ -96,12 +97,15 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 5->{if(!ready())return;var view=session.economyView().get(town);if(view.account().state().completedPeriods()<11){now.addAndGet(1000);future=session.pulse();return;}
             famine=view.latest();require(famine.reports().stream().anyMatch(r->r.commodity().equals(Commodity.FOOD)&&r.condition()==Condition.SEVERE_SHORTAGE),"Famine did not escalate");
             famineNeeds=view.needs();require(famineNeeds.sharedFood()==Condition.SEVERE_SHORTAGE,"Needs did not retain crisis evidence");
+            faminePriority=view.priority();require(faminePriority!=null&&faminePriority.selected()==VillagePriorities.Action.SEEK_FOOD,"Crisis priority wrong");
             observer.cancel();session.close();economy=tune(economy,200);now.addAndGet(10000);open();stage++;}
         case 6->{if(!ready())return;require(famine.equals(session.economyView().get(town).latest()),"Past famine report changed on retuning");
             require(famineNeeds.equals(session.economyView().get(town).needs()),"Household history changed on restart/retuning");
+            require(faminePriority.equals(session.economyView().get(town).priority()),"Priority history changed on restart/retuning");
             var ids=new HashSet<UUID>();session.snapshot().orElseThrow().residents().forEach(p->ids.add(p.id()));require(ids.equals(residents),"Residents changed on restart");crops(true);scan();stage++;}
         case 7->{if(session.economyView().get(town).farm().plantedCrops()!=64)return;now.addAndGet(1000);future=session.pulse();stage++;}
         case 8->{if(!ready())return;require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==12,"Feast recovery wrong");
+            require(session.economyView().get(town).priority().selected()==VillagePriorities.Action.MONITOR,"Recovered priority did not clear");
             for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();stage++;}
         case 9->{if(world.isChunkLoaded(Math.floorDiv(X,16),Math.floorDiv(Z,16)))return;now.addAndGet(1000);future=session.pulse();stage++;}
         case 10->{if(!ready())return;require(!world.isChunkLoaded(Math.floorDiv(X,16),Math.floorDiv(Z,16)),"Economy force loaded chunk");

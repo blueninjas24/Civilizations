@@ -461,3 +461,22 @@ This will be the beginning of autonomous settlement development.
 - Status/progress/docs updated. Phase 2 remains 25%: broader wellbeing and live budget
   flows, autonomous responses and player trade remain. No demographic penalties,
   production save reset, remote push/merge or main modification.
+
+## October 8, 2026 — explainable village priorities
+
+- Pure evidence-to-priority selection now chooses seek food, investigate observed
+  crowding or monitor. Feasibility is mandatory; seeded weighted draws choose among
+  reasonable alternatives. Editable cadence/weights live in an optional economy
+  section; old owner files remain untouched and compatible.
+- Schema 17 retains facts/settings/seed for exact explanation replay, transactionally
+  with food and needs. Changed pressures trigger early reviews; recovery clears crisis
+  focus. No real purchases, supplier invention, project permissions or block changes.
+- Twelve added cases; Wrapper clean verify passed 300 cases (298 unit/two integration),
+  zero failures/errors/skips. Seed sweeps, alternative selection, long replay, rollback,
+  upgrade failure/retry and original treasury balances/receipts tested.
+- Guarded disposable Paper probe passed crisis priority, saved restart identity/history
+  and feast recovery to monitoring, alongside actual food/household/unloaded checks.
+  Consistent schema-16 dev backup first; original identity/family data preserved.
+- Updated plain-English tracker with partial milestones for all four P2 groups. Phase
+  gate still partial: execution/outcome feedback, full wellbeing, actual budget flows
+  and player trade remain. No production reset, remote push, merge or main change.

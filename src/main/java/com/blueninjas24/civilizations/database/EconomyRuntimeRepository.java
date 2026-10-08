@@ -9,17 +9,24 @@ import java.util.*;
 /** Single SQL-owner food runtime. Saved clocks, evidence and period effects; no Bukkit access. */
 public final class EconomyRuntimeRepository {
     public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods,
-                       HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury) {}
+                       HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority) {}
     private record Clock(long cadence, CivilizationTime.Anchor anchor, String settings, long completed) {}
     private final Connection connection;
     private final CommodityRepository commodities;
     private final EconomySettings settings;
     private final FarmObservation.Policy farms;
     private final long adulthood;
+    private final VillagePriorities.Policy priorities;
+    private final long seed;
     private final String signature;
     private int cursor;
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood) {
+        this(connection,settings,farms,adulthood,VillagePriorities.Policy.prototype(),0);
+    }
+    public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood,
+                                    VillagePriorities.Policy priorities, long seed) {
         this.connection = connection; this.commodities = new CommodityRepository(connection);
+        this.priorities = Objects.requireNonNull(priorities); this.seed = seed;
         this.settings = settings; this.farms = farms; this.adulthood = adulthood;
         signature = "food-runtime-1|" + settings + "|" + farms + "|adult=" + adulthood;
         if (adulthood < 1) throw new IllegalArgumentException("Invalid adult threshold");
@@ -110,7 +117,9 @@ public final class EconomyRuntimeRepository {
         flows.put(Commodity.FOOD, new Flow(output, 0, settings.foodDemand(adults, children), 0, 0, 0, 0));
         var period = commodities.advanceRows(town, Math.incrementExact(clock.completed()), flows, settings.shortages());
         var needs = new HouseholdNeedsRepository(connection);
-        needs.save(HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings));
+        var assessment = HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings);
+        needs.save(assessment);
+        new VillagePriorityRepository(connection).consider(assessment,seed,priorities);
         return true;
     }
     public Map<UUID, View> views() throws SQLException {
@@ -120,7 +129,7 @@ public final class EconomyRuntimeRepository {
             var latest = account.state().completedPeriods() == 0 ? null : commodities.history(town, account.state().completedPeriods()).orElseThrow();
             result.put(town, new View(account, farm(town), latest, clock(town).anchor().targetSteps() - account.state().completedPeriods(),
                     new HouseholdNeedsRepository(connection).load(town, account.state().completedPeriods()).orElse(null),
-                    new TreasuryRepository(connection).load(town).orElse(null)));
+                    new TreasuryRepository(connection).load(town).orElse(null),new VillagePriorityRepository(connection).latest(town).orElse(null)));
         }
         return Collections.unmodifiableMap(result);
     }

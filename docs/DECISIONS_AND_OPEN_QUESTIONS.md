@@ -150,3 +150,17 @@ and retry-safe operation IDs. No live treasury is initialized or credited by gue
 Funding, rationing, food-linked population effects and full prosperity rules remain
 open implementation/design work; this accounting does not choose them. See
 HOUSEHOLD_NEEDS_AND_TREASURY.md. Existing configurable prototype authority is retained.
+
+
+## October 8, 2026 — prototype priority decisions
+
+Under approved configurable economy settings, nonbinding priorities use recorded
+unmet food and observed crowding. Defaults: review every five economic periods,
+food weight ten, severe multiplier three, housing weight six, monitor weight one,
+reasonable-choice threshold 25% of best feasible weight. Pressure appearance,
+escalation and recovery trigger earlier review. These are editable prototype planning
+weights, not locked government/leader rules or completed project execution.
+Seeking food/investigating housing require evidence but do not purchase goods,
+create suppliers/jobs or authorize construction. Actual action feasibility must later
+include real funds, counterparties, labor/materials and safe sites. Stored replay-one
+inputs preserve original explanations and apply tuning forward. See VILLAGE_PRIORITIES.md.

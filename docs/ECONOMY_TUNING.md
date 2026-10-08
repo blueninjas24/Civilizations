@@ -100,3 +100,14 @@ forward normal-to-feast restart tuning, unchanged residents/history and continue
 accounting without loaded chunks. Normal startup also preserves old owner files
 without the farms section. Schema 15 retains history and identities; no production
 save or world was reset. These are controlled fixtures, not survival balance claims.
+
+
+## Village planning priorities
+
+The optional `priorities` section configures seeded food/housing/monitor priority
+weights and review cadence. Old files lacking the entire section use documented
+prototype defaults without being overwritten. Partial/invalid sections fail before
+DB startup. Edits apply at the next economic-period review and preserve old choices;
+changing only priority settings does not discard elapsed food time. These priorities
+are not purchases, buildings, personal rations or population penalties. See
+VILLAGE_PRIORITIES.md for each key and remaining execution work.

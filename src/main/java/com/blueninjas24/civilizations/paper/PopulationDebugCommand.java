@@ -62,6 +62,11 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
                         session.economySettings().ifPresent(settings -> sender.sendMessage("Indicative Trade Value/unit: " + settings.price(report.commodity(), report.condition())));
                     }
                     sender.sendMessage("Last economy failure: " + (session.economyFailure() == null ? "none" : session.economyFailure()));
+                    if (view.priority() != null) {
+                        sender.sendMessage(view.priority().explanation());
+                        view.priority().candidates().forEach(candidate -> sender.sendMessage(candidate.action() + ": feasible " + candidate.feasible()
+                                + ", eligible " + candidate.eligible() + ", weight " + candidate.weight() + "; " + candidate.explanation()));
+                    }
                 }
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;

@@ -35,6 +35,29 @@ class EconomyRuntimeRepositoryTest {
     private EconomyRuntimeRepository runtime(EconomySettings settings) { return new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216); }
     private void observe(long time, boolean complete, long crops) throws SQLException { runtime.observe(new FarmObservation(town,world,time,complete,crops),time); }
     private void sql(String sql) throws SQLException { try (var s = db.getConnection().createStatement()) { s.execute(sql); } }
+    @Test void priorityFailureRollsBackNeedsAndFoodAndRetriesWithoutDuplicateChoice() throws SQLException {
+        observe(1000,true,32);sql("CREATE TRIGGER reject_priority BEFORE INSERT ON village_priorities BEGIN SELECT RAISE(ABORT,'injected'); END");
+        assertThrows(SQLException.class,()->runtime.pulse(2000,false));var before=runtime.views().get(town);
+        assertEquals(0,before.account().state().completedPeriods());assertNull(before.needs());assertNull(before.priority());assertEquals(1,before.queuedPeriods());
+        sql("DROP TRIGGER reject_priority");runtime.pulse(2000,false);var original=runtime.views().get(town).priority();
+        assertEquals(VillagePriorities.Action.MONITOR,original.selected());runtime.pulse(2000,false);assertEquals(original,runtime.views().get(town).priority());
+    }
+    @Test void priorityTuningAppliesForwardWithoutRewritingHistoryOrDiscardingFoodTime() throws SQLException {
+        observe(1000,true,0);runtime.pulse(2000,false);var original=runtime.views().get(town).priority();
+        var policy=new VillagePriorities.Policy(100,5,2,3,1,25);
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,policy,0);
+        assertEquals(original,runtime.views().get(town).priority());runtime.pulse(3000,false);
+        assertEquals(2,runtime.views().get(town).priority().period());assertEquals(policy,runtime.views().get(town).priority().policy());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM village_priorities")){assertEquals(2,r.getInt(1));}
+    }
+    @Test void schema16UpgradeDoesNotFabricatePastDecisionsAndRestartKeepsOriginalChoice() throws SQLException {
+        observe(1000,true,32);runtime.pulse(2000,false);var original=runtime.views().get(town).latest();
+        SchemaFixtures.rewind(db.getConnection(),16);new SchemaMigrator().migrate(db.getConnection());
+        assertEquals(original,runtime.views().get(town).latest());assertNull(runtime.views().get(town).priority());
+        runtime.pulse(3000,false);var decision=runtime.views().get(town).priority();
+        db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();runtime=runtime(settings);
+        assertEquals(decision,runtime.views().get(town).priority());
+    }
     @Test void householdSnapshotsRetainHousingAndDemandAcrossChangingEvidenceAndRestart() throws SQLException {
         var id = UUID.randomUUID(); db.getPopulationRepository().insertHousehold(new com.blueninjas24.civilizations.population.Household(id,town,"Family"));
         for (var person : db.getPopulationRepository().findResidents(town)) if (person.status() == Resident.Status.ALIVE)

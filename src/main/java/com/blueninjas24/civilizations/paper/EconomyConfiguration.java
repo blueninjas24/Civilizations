@@ -12,8 +12,10 @@ public final class EconomyConfiguration {
     public static EconomySettings read(ConfigurationSection config) {
         var rootKeys = new HashSet<>(Set.of("format-version", "pace", "food", "shortages", "starting-units-per-resident", "prices"));
         if (config.contains("farms")) rootKeys.add("farms");
+        if (config.contains("priorities")) rootKeys.add("priorities");
         exactKeys(config, rootKeys);
         readFarms(config);
+        readPriorities(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -48,6 +50,13 @@ public final class EconomyConfiguration {
         exactKeys(section(config, "farms"), Set.of("radius-blocks", "vertical-radius-blocks", "crops-per-worker"));
         return new FarmObservation.Policy(smallInteger(config, "farms.radius-blocks"), smallInteger(config, "farms.vertical-radius-blocks"),
                 smallInteger(config, "farms.crops-per-worker"));
+    }
+    public static VillagePriorities.Policy readPriorities(ConfigurationSection config) {
+        if (!config.contains("priorities")) return VillagePriorities.Policy.prototype();
+        exactKeys(section(config,"priorities"),Set.of("review-after-periods","food-weight","crisis-multiplier","housing-weight","monitor-weight","minimum-relative-percent"));
+        return new VillagePriorities.Policy(smallInteger(config,"priorities.review-after-periods"),smallInteger(config,"priorities.food-weight"),
+                smallInteger(config,"priorities.crisis-multiplier"),smallInteger(config,"priorities.housing-weight"),smallInteger(config,"priorities.monitor-weight"),
+                smallInteger(config,"priorities.minimum-relative-percent"));
     }
     private static ConfigurationSection section(ConfigurationSection config, String path) {
         var section = config.getConfigurationSection(path);

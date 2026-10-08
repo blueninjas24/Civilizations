@@ -6,6 +6,18 @@
 # and starvation effects are not enabled.
 format-version: 1
 
+# Nonbinding priorities: seek food, investigate crowded homes, or monitor.
+# Buying/building is not enabled. Review sooner if pressure appears, escalates or clears.
+# These weights bias seeded choices among feasible, reasonably competitive priorities.
+# Old files may omit this whole section. Edits apply to future reviews; history is retained.
+priorities:
+  review-after-periods: 5
+  food-weight: 10
+  crisis-multiplier: 3
+  housing-weight: 6
+  monitor-weight: 1
+  minimum-relative-percent: 25
+
 # Economic periods are separate from population months. Consumption below is PER PERIOD.
 # Changing only the speed makes BOTH consumption and production happen more often.
 pace:

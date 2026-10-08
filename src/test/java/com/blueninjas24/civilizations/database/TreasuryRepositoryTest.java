@@ -51,6 +51,15 @@ class TreasuryRepositoryTest {
         assertThrows(SQLException.class,()->treasury.post(id,town,-40,"Cost"));assertEquals(100,treasury.load(town).orElseThrow().hundredths());assertTrue(treasury.entry(id).isEmpty());
         sql("DROP TRIGGER reject_ledger");assertEquals(60,treasury.post(id,town,-40,"Cost").balanceAfter());
     }
+    @Test void schema16PriorityUpgradeFailureAndRetryPreserveBudgetAndReceipts() throws SQLException {
+        var opening=treasury.initialize(UUID.randomUUID(),town,100,"Test capital");
+        SchemaFixtures.rewind(db.getConnection(),16);sql("CREATE TABLE village_priorities(blocker INTEGER)");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(16,r.getInt(1));}
+        assertEquals(opening,treasury.entry(opening.operation()).orElseThrow());
+        sql("DROP TABLE village_priorities");new SchemaMigrator().migrate(db.getConnection());
+        assertEquals(100,treasury.load(town).orElseThrow().hundredths());assertEquals(opening,treasury.entry(opening.operation()).orElseThrow());
+    }
     @Test void schema15MigrationFailureRollsBackAndCanRetryWithoutResettingSettlement() throws SQLException {
         SchemaFixtures.rewind(db.getConnection(),15);sql("CREATE TABLE needs_periods(blocker INTEGER)");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));

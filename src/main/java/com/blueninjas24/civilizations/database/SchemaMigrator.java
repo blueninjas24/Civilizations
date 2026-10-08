@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 16;
+    static final int CURRENT_VERSION = 17;
 
     @FunctionalInterface
     interface Migration {
@@ -64,7 +64,27 @@ final class SchemaMigrator {
                 SchemaMigrator::createResidentProjection,
                 SchemaMigrator::createCommodityAccounting,
                 SchemaMigrator::createFoodRuntime,
-                SchemaMigrator::createHouseholdNeedsAndTreasury
+                SchemaMigrator::createHouseholdNeedsAndTreasury,
+                connection -> execute(connection, """
+                        CREATE TABLE village_priorities (
+                            settlement_id TEXT NOT NULL,
+                            period INTEGER NOT NULL,
+                            seed INTEGER NOT NULL CHECK(typeof(seed)='integer'),
+                            replay_version INTEGER NOT NULL CHECK(replay_version=1),
+                            food_condition TEXT NOT NULL CHECK(food_condition IN ('SEVERE_SHORTAGE','SHORTAGE','BALANCED','SURPLUS','ABUNDANT')),
+                            food_unmet INTEGER NOT NULL CHECK(typeof(food_unmet)='integer' AND food_unmet>=0),
+                            crowded_homes INTEGER NOT NULL CHECK(typeof(crowded_homes)='integer' AND crowded_homes>=0),
+                            selected TEXT NOT NULL CHECK(selected IN ('MONITOR','SEEK_FOOD','INVESTIGATE_HOUSING')),
+                            review_after INTEGER NOT NULL CHECK(review_after BETWEEN 1 AND 1000),
+                            food_weight INTEGER NOT NULL CHECK(food_weight BETWEEN 1 AND 1000),
+                            crisis_multiplier INTEGER NOT NULL CHECK(crisis_multiplier BETWEEN 1 AND 100),
+                            housing_weight INTEGER NOT NULL CHECK(housing_weight BETWEEN 1 AND 1000),
+                            monitor_weight INTEGER NOT NULL CHECK(monitor_weight BETWEEN 1 AND 1000),
+                            relative_percent INTEGER NOT NULL CHECK(relative_percent BETWEEN 0 AND 100),
+                            PRIMARY KEY(settlement_id,period),
+                            FOREIGN KEY(settlement_id,period) REFERENCES needs_periods(settlement_id,period)
+                        )
+                        """)
         ));
     }
 
@@ -156,6 +176,8 @@ final class SchemaMigrator {
                 requireColumns(connection, "treasuries", Set.of("settlement_id", "hundredths"));
                 requireColumns(connection, "treasury_entries", Set.of("sequence", "operation_id", "settlement_id", "kind", "amount", "balance_after", "reason"));
             }
+            if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
+                    "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

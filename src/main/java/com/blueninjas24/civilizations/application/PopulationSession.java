@@ -67,6 +67,7 @@ public final class PopulationSession implements AutoCloseable {
     private boolean readyForWork; // Owner-thread readiness survives graceful draining, not new submissions.
     private final EconomySettings economySettings;
     private final FarmObservation.Policy farmPolicy;
+    private final VillagePriorities.Policy priorityPolicy;
     private EconomyRuntimeRepository economy;
     private final AtomicReference<java.util.Map<UUID, EconomyRuntimeRepository.View>> economyView = new AtomicReference<>(java.util.Map.of());
     private volatile String economyFailure;
@@ -76,7 +77,12 @@ public final class PopulationSession implements AutoCloseable {
     }
     public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now,
                              EconomySettings economySettings, FarmObservation.Policy farmPolicy) {
+        this(dataFolder,logger,settings,now,economySettings,farmPolicy,VillagePriorities.Policy.prototype());
+    }
+    public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now,
+                             EconomySettings economySettings, FarmObservation.Policy farmPolicy, VillagePriorities.Policy priorityPolicy) {
         this.logger = logger; this.settings = settings; this.now = now;
+        this.priorityPolicy = java.util.Objects.requireNonNull(priorityPolicy);
         this.economySettings = economySettings; this.farmPolicy = java.util.Objects.requireNonNull(farmPolicy);
         database = new DatabaseManager(dataFolder, logger);
         owner = new ScheduledThreadPoolExecutor(1, runnable -> {
@@ -119,7 +125,7 @@ public final class PopulationSession implements AutoCloseable {
                 if (accrued.discardedMillis() > 0) logger.info("Prototype offline calendar cap discarded " + accrued.discardedMillis() + " real milliseconds");
                 advance(accrued.anchor().targetSteps());
                 if (economySettings != null) {
-                    economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps());
+                    economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed());
                     economy.start(now.getAsLong()); economyView.set(economy.views());
                 }
                 readyForWork = true;

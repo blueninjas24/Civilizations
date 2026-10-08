@@ -30,6 +30,10 @@ for each saved economic period. Explicit treasury accounting is separate; automa
 funding, full prosperity and player transactions remain pending. See
 [household needs and treasury scope](docs/HOUSEHOLD_NEEDS_AND_TREASURY.md).
 
+Villages now select saved planning priorities from food deficits and observed crowded
+homes, with seeded choices and readable explanations. Actual purchase/building execution
+remains pending. See [village priorities](docs/VILLAGE_PRIORITIES.md).
+
 ## Core Philosophy
 
 - Keep the experience recognizably vanilla Minecraft.

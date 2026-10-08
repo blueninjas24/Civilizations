@@ -13,6 +13,14 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void olderOwnerFilesKeepPriorityDefaultsWithoutReplacingTheirEdits() throws Exception {
+        var config=defaults();config.set("priorities",null);config.set("food.output-percent",25);
+        assertEquals(VillagePriorities.Policy.prototype(),EconomyConfiguration.readPriorities(config));assertEquals(25,EconomyConfiguration.read(config).foodOutputPercent());
+    }
+    @Test void partialOrUnsafePrioritySettingsFailClearly() throws Exception {
+        var config=defaults();config.set("priorities.food-weight",null);var missing=config;assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(missing));
+        config=defaults();config.set("priorities.minimum-relative-percent",101);var invalid=config;assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(invalid));
+    }
     @Test void existingOwnerFilesWithoutFarmSectionKeepApprovedDefaults() throws Exception {
         var config = defaults(); config.set("farms", null); config.set("food.output-percent", 25);
         assertEquals(FarmObservation.Policy.prototype(), EconomyConfiguration.readFarms(config));

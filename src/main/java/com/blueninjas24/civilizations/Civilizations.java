@@ -45,7 +45,7 @@ public final class Civilizations extends JavaPlugin {
             getLogger().info("Economy prototype settings validated: " + economySettings.secondsPerPeriod()
                     + " seconds/period, food output " + economySettings.foodOutputPercent()
                     + "%; food accounting waits for reliable field evidence.");
-            population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis, economySettings, farmSettings);
+            population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis, economySettings, farmSettings,EconomyConfiguration.readPriorities(economyConfig));
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)
                             .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);
