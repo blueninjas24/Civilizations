@@ -13,9 +13,11 @@ public final class EconomyConfiguration {
         var rootKeys = new HashSet<>(Set.of("format-version", "pace", "food", "shortages", "starting-units-per-resident", "prices"));
         if (config.contains("farms")) rootKeys.add("farms");
         if (config.contains("priorities")) rootKeys.add("priorities");
+        if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         exactKeys(config, rootKeys);
         readFarms(config);
         readPriorities(config);
+        readAidPreview(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -57,6 +59,20 @@ public final class EconomyConfiguration {
         return new VillagePriorities.Policy(smallInteger(config,"priorities.review-after-periods"),smallInteger(config,"priorities.food-weight"),
                 smallInteger(config,"priorities.crisis-multiplier"),smallInteger(config,"priorities.housing-weight"),smallInteger(config,"priorities.monitor-weight"),
                 smallInteger(config,"priorities.minimum-relative-percent"));
+    }
+    public static FoodAidPreview.Policy readAidPreview(ConfigurationSection config) {
+        if (!config.contains("aid-preview")) return FoodAidPreview.Policy.prototype();
+        var section = section(config, "aid-preview");
+        exactKeys(section, Set.of("enabled", "radius-blocks", "units-per-item"));
+        if (!(section.get("enabled") instanceof Boolean enabled)) throw new IllegalArgumentException("aid-preview.enabled must be true or false");
+        var items = section(section, "units-per-item");
+        var units = new TreeMap<String, Long>();
+        var allowed = Set.of("WHEAT", "BREAD", "CARROT", "POTATO", "BAKED_POTATO", "BEETROOT");
+        for (var id : items.getKeys(false)) {
+            if (!allowed.contains(id)) throw new IllegalArgumentException("Unsupported aid-preview food: " + id);
+            units.put(id, integer(items, id));
+        }
+        return new FoodAidPreview.Policy(enabled, smallInteger(section, "radius-blocks"), units);
     }
     private static ConfigurationSection section(ConfigurationSection config, String path) {
         var section = config.getConfigurationSection(path);

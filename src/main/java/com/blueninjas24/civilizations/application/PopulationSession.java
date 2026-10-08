@@ -58,6 +58,7 @@ public final class PopulationSession implements AutoCloseable {
     private final LongSupplier now;
     private final ScheduledThreadPoolExecutor owner;
     private final AtomicReference<Status> status = new AtomicReference<>(new Status(false, 0, 0, 0, 0, null));
+    private final AtomicReference<java.util.Map<UUID,String>> settlementNames = new AtomicReference<>(java.util.Map.of());
     private final AtomicReference<PopulationState> snapshot = new AtomicReference<>();
     private final AtomicReference<ProjectionView> projectionView = new AtomicReference<>();
     private final AtomicBoolean started = new AtomicBoolean(), closing = new AtomicBoolean();
@@ -95,6 +96,7 @@ public final class PopulationSession implements AutoCloseable {
     }
 
     public Status status() { return status.get(); }
+    public java.util.Map<UUID,String> settlementNames() { return settlementNames.get(); }
     public Optional<PopulationState> snapshot() { return Optional.ofNullable(snapshot.get()); }
     public Optional<ProjectionView> projectionView() { return Optional.ofNullable(projectionView.get()); }
     public Settings settings() { return settings; }
@@ -216,6 +218,7 @@ public final class PopulationSession implements AutoCloseable {
     }
     private void publish(PopulationState state) throws SQLException {
         var identities = database.getResidentProjectionRepository().snapshot();
+        settlementNames.set(database.getVillageIdentityRepository().settlementNames());
         projectionView.set(new ProjectionView(state, identities, database.getDemographicRepository().recentEvents(100),
                 database.getResidentProjectionRepository().recentDeaths(100)));
         snapshot.set(state);

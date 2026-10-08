@@ -1,5 +1,35 @@
 # Civilizations Development Log
 
+### Player food-aid previews — October 8, 2026
+
+- Branch `codex/phase2-food-aid-preview`: `/civ aid` now previews an ordinary held
+  food stack for the nearest ready village home, names the saved village and shows
+  its latest food report. It takes no items, creates no receipt and pays nothing.
+- Editable optional `aid-preview` economy.yml section: enabled, same-world 3D range
+  (default 32), six ordinary plant-food conversions. Custom items, partial evidence,
+  unsupported quantities and ambiguous town ties fail clearly. Explicit target IDs
+  still require nearby evidence. Old owner files retain edits and documented defaults.
+- Public preview permission defaults true; administrative debug permission remains
+  op-only inside its handler. Cached name/identity/food reads avoid main-thread SQL,
+  block scans, chunk loads or waits. Schema remains 18; no migration/reset.
+- Sixteen added automated cases; final Windows Wrapper clean verify passed 323
+  (321 unit/two packaged integration), zero failures/errors/skips. Earlier test fixture
+  used a live-registry-dependent ItemStack constructor; fixed the headless facade.
+- Real disposable Paper passed native item conversion/custom rejection with a
+  synthetic read-only player facade and unchanged goods/food, plus earlier food,
+  needs, relief, restart and unloaded scenarios. This is not a human client test. Confirmed-dev schema-18 backup taken first;
+  original IDs/family/entity links and integrity/FKs retained. Normal single-plugin
+  startup, console routing, unloaded fixture and clean shutdown also passed. Existing
+  economy.yml remains untouched. Production JAR excludes probes/JUnit.
+- Actual donation/merchant inventory handoff remains blocked on durable cross-save
+  recovery. Pinned Paper saveData returns void and PlayerDataStorage may return on
+  disabled saving or log a save exception; merely calling it cannot certify a durable
+  debit. No actual player data files edited. See PLAYER_FOOD_AID.md.
+- Phase 2 stays 1/4 full groups; player-facing preview is a verified partial piece,
+  not completed trade/barter. Next: a recoverable actual inventory transfer and
+  broader household/economic responses. No new gameplay decision needed here.
+
+
 ### Explicit food delivery accounting — October 8, 2026
 
 - Branch `codex/phase2-food-relief`: trusted internal adapters can record explicit

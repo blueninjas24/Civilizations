@@ -57,6 +57,8 @@ These reports do not establish personal food rations or complete prosperity.
 Explicit delivered-food receipts now survive restart and enter future periods once,
 with transactional shortage relief and no retroactive catch-up aid. This is internal
 accounting; players cannot yet donate items through a command or merchant.
+`/civ aid` now safely previews held food for a nearby named village and its latest
+food situation. The preview leaves items and supplies untouched.
 
 Villages now choose and save an explainable priority: seek food, investigate
 observed crowding, or monitor. Seeded selection filters infeasible/irrelevant options,
@@ -70,12 +72,12 @@ are planning intentions, not executed purchases or building permissions.
 | Supplies and shortages — complete | Commodity accounting, saved reserves/history, duration/recovery, long crisis fixtures | Complete as an accounting foundation |
 | Labor, treasury and wellbeing — partial | Field-backed adult production, food clock, household demand/housing snapshots, explicit treasury ledger | Actual funding/spending integration, fuller wellbeing/allocation and economic effects |
 | Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery | Executing feasible economic responses and learning weights from actual outcomes |
-| Player economy and stability — partial | Configurable scarcity prices, long shortage/recovery tests and explicit delivery accounting | Safe player inventory handoff, actual trade/barter, budget/stock effects and integrated economy balance tests |
+| Player economy and stability — partial | Configurable scarcity prices, long shortage/recovery tests and explicit delivery accounting plus `/civ aid` previews | Safe player inventory handoff, actual trade/barter, budget/stock effects and integrated economy balance tests |
 
 Completed pieces in a partial group are real progress. The top bar counts whole
 reporting groups, so it remains 1/4 (25%); it does not measure coding hours or all
 partial work. It will advance when a full group and its acceptance gate are verified.
-See FOOD_RELIEF.md, VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
+See PLAYER_FOOD_AID.md, FOOD_RELIEF.md, VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
 HOUSEHOLD_NEEDS_AND_TREASURY.md and ECONOMY_TUNING.md.
 
 ## Phase 3 — planned

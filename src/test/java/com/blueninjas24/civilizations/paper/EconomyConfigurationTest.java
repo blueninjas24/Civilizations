@@ -13,6 +13,22 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void oldFilesKeepAidPreviewDefaultsAndOwnerCanTuneOrDisableThem() throws Exception {
+        var config=defaults();config.set("aid-preview",null);
+        assertEquals(FoodAidPreview.Policy.prototype(),EconomyConfiguration.readAidPreview(config));EconomyConfiguration.read(config);
+        config=defaults();config.set("aid-preview.enabled",false);config.set("aid-preview.units-per-item.BREAD",9);
+        assertFalse(EconomyConfiguration.readAidPreview(config).enabled());assertEquals(18,EconomyConfiguration.readAidPreview(config).units("BREAD",2));
+    }
+    @ParameterizedTest @ValueSource(strings={"aid-preview.enabled", "aid-preview.radius-blocks", "aid-preview.units-per-item"})
+    void partialAidSectionsFailRatherThanGuessing(String key) throws Exception {
+        var config=defaults();config.set(key,null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
+    @Test void unsafeAidItemsAmountsOrTypographicalOptionsFail() throws Exception {
+        for (var entry : Map.of("aid-preview.units-per-item.DIAMOND",1,"aid-preview.units-per-item.BREAD",0,
+                "aid-preview.radius-blocks",129,"aid-preview.enable",true,"aid-preview.enabled","yes").entrySet()) {
+            var config=defaults();config.set(entry.getKey(),entry.getValue());assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+    }
     @Test void olderOwnerFilesKeepPriorityDefaultsWithoutReplacingTheirEdits() throws Exception {
         var config=defaults();config.set("priorities",null);config.set("food.output-percent",25);
         assertEquals(VillagePriorities.Policy.prototype(),EconomyConfiguration.readPriorities(config));assertEquals(25,EconomyConfiguration.read(config).foodOutputPercent());

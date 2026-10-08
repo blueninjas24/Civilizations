@@ -18,6 +18,15 @@ public final class VillageIdentityRepository {
         public Match { settlementIds = List.copyOf(settlementIds); }
     }
 
+    /** Owner-thread labels for immutable command caches; names never determine identity. */
+    public java.util.Map<UUID, String> settlementNames() throws SQLException {
+        var names = new java.util.HashMap<UUID, String>();
+        try (var statement = connection.createStatement(); var rows = statement.executeQuery("SELECT id,name FROM settlements")) {
+            while (rows.next()) names.put(UUID.fromString(rows.getString("id")), rows.getString("name"));
+        }
+        return java.util.Map.copyOf(names);
+    }
+
     public void observeWorld(UUID worldId, String currentName) throws SQLException {
         if (currentName == null || currentName.isBlank()) throw new IllegalArgumentException("World name required");
         try (var statement = connection.prepareStatement("""

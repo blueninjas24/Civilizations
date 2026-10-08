@@ -1,0 +1,25 @@
+package com.blueninjas24.civilizations.paper;
+
+import org.bukkit.command.*;
+import java.util.List;
+
+/** Route player previews separately from permission-protected administrative diagnostics. */
+public final class CivilizationsCommand implements CommandExecutor, TabCompleter {
+    private final PopulationDebugCommand debug;
+    private final FoodAidPreviewCommand aid;
+    public CivilizationsCommand(PopulationDebugCommand debug, FoodAidPreviewCommand aid) { this.debug = debug; this.aid = aid; }
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length == 0 && sender.hasPermission("civilizations.aid.preview") && !sender.hasPermission("civilizations.debug")) {
+            sender.sendMessage("Hold plain food near a village and use /civ aid to preview it."); return true;
+        }
+        return args.length > 0 && args[0].equalsIgnoreCase("aid") ? aid.onCommand(sender, command, label, args) : debug.onCommand(sender, command, label, args);
+    }
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            var options = new java.util.ArrayList<>(debug.onTabComplete(sender, command, alias, args));
+            if (sender.hasPermission("civilizations.aid.preview") && "aid".startsWith(args[0].toLowerCase(java.util.Locale.ROOT))) options.add("aid");
+            return List.copyOf(options);
+        }
+        return args.length > 0 && args[0].equalsIgnoreCase("aid") ? List.of() : debug.onTabComplete(sender, command, alias, args);
+    }
+}

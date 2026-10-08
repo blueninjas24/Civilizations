@@ -92,6 +92,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(report.flow().production()==8&&report.demand()==4&&report.after().units()==28,"Production/demand wrong");
             var needs=session.economyView().get(town).needs();require(needs!=null&&needs.homes().size()==1&&needs.homes().getFirst().foodDemand()==4,"Household needs wrong");
             require(session.economyView().get(town).treasury()==null,"Invented starting treasury");
+            verifyAidPreview();
             new PopulationDebugCommand(session,()->"Food test").onCommand(Bukkit.getConsoleSender(),Objects.requireNonNull(Bukkit.getPluginCommand("civ")),"civ",new String[]{"debug","economy",town.toString()});
             crops(false);observer.cancel();scan();stage++;}
         case 4->{if(session.economyView().get(town).farm().plantedCrops()!=0)return;require(session.economyView().get(town).farm().complete(),"Empty field was unknown");now.addAndGet(1000);future=session.pulse();stage++;}
@@ -121,6 +122,29 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==32,"Unloaded food accounting failed");stage=99;}
         default->throw new AssertionError("Unknown stage");
     }}
+    /** Synthetic read-only player facade; native Paper world/ItemStack and real saved economy underneath. */
+    private void verifyAidPreview() {
+        var messages=new ArrayList<String>();var food=new org.bukkit.inventory.ItemStack(Material.BREAD,4);
+        var inventory=(org.bukkit.inventory.PlayerInventory)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{org.bukkit.inventory.PlayerInventory.class},(p,m,a)->{
+            if(m.getName().equals("getItemInMainHand"))return food;throw new AssertionError("Aid mutated/accessed inventory: "+m.getName());
+        });
+        var player=(org.bukkit.entity.Player)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{org.bukkit.entity.Player.class},(p,m,a)->switch(m.getName()){
+            case "hasPermission" -> a[0].equals("civilizations.aid.preview");
+            case "getLocation" -> new Location(world,X,64,Z);
+            case "getInventory" -> inventory;
+            case "sendMessage" -> {messages.add((String)a[0]);yield null;}
+            default -> throw new AssertionError("Unexpected aid player access: "+m.getName());
+        });
+        var before=session.economyView();
+        new FoodAidPreviewCommand(session,com.blueninjas24.civilizations.economy.FoodAidPreview.Policy.prototype()).onCommand(player,Objects.requireNonNull(Bukkit.getPluginCommand("civ")),"civ",new String[]{"aid",town.toString()});
+        require(messages.stream().anyMatch(m->m.contains("= 12 food units")),"Native Paper aid preview missing conversion");
+        require(messages.stream().anyMatch(m->m.startsWith("Preview only")),"Aid scope missing");
+        require(before.equals(session.economyView())&&food.getAmount()==4,"Aid preview changed goods");
+        var custom=food.clone();var meta=custom.getItemMeta();meta.displayName(net.kyori.adventure.text.Component.text("Special food"));custom.setItemMeta(meta);
+        boolean rejected=false;try{FoodAidPreviewCommand.foodUnits(custom,com.blueninjas24.civilizations.economy.FoodAidPreview.Policy.prototype());}catch(IllegalArgumentException expected){rejected=true;}
+        require(rejected,"Custom food was treated as plain");
+        getLogger().info("AID_PREVIEW_PASSED: native food, saved recipient, synthetic read-only player, custom rejection, no inventory or economy writes");
+    }
     private void cleanup(){if(observer!=null)observer.cancel();if(session!=null)session.close();if(world!=null)for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();}
     @Override public void onDisable(){cleanup();}
 }

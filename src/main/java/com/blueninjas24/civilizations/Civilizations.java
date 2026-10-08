@@ -53,7 +53,9 @@ public final class Civilizations extends JavaPlugin {
                     () -> observer == null ? "Village observer not started" : observer.diagnostic()
                             + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic());
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
-            command.setExecutor(debug); command.setTabCompleter(debug);
+            var router = new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
+                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population, EconomyConfiguration.readAidPreview(economyConfig)));
+            command.setExecutor(router); command.setTabCompleter(router);
             var startup = population.start();
             // Completion callbacks run on the DB owner. Poll from Paper's main thread instead.
             new BukkitRunnable() {

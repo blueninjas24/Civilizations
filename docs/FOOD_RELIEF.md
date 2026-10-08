@@ -2,7 +2,8 @@
 
 This Phase 2 batch lets the SQL-owned economy account for explicit externally
 delivered food. It prepares the delivery side of player aid; it is **not yet a
-player donation command, merchant interface or inventory exchange**.
+player donation command, merchant interface or inventory exchange**. A read-only
+`/civ aid` preview is now available; see PLAYER_FOOD_AID.md.
 
 ## How supplies enter the economy
 

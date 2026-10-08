@@ -82,3 +82,18 @@ prices:
 # a multiplier cannot conjure farms. Whole food output rounds down each period.
 # Restart tuning records a forward transition, skips the offline interval at that
 # change, and preserves past explanations. Finish queued catch-up before retuning.
+
+# Read-only /civ aid preview. No items are removed or payments/reputation awarded.
+# Defaults apply to an existing format-1 file if this entire section is absent.
+# Only these six ordinary plant foods are currently supported; omit a key to disable it.
+# Whole food units per item, 1..1000000. Radius is 1..128 blocks in the same world.
+aid-preview:
+  enabled: true
+  radius-blocks: 32
+  units-per-item:
+    WHEAT: 1
+    BREAD: 3
+    CARROT: 1
+    POTATO: 1
+    BAKED_POTATO: 2
+    BEETROOT: 1

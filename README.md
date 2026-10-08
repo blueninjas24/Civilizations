@@ -39,6 +39,11 @@ relieve shortages in future periods. This prepares the backend for player aid;
 player inventory transfers and donation commands remain pending. See
 [food delivery scope](docs/FOOD_RELIEF.md).
 
+Players can now hold plain food near a village and use `/civ aid` to preview its
+food value and the village's latest food situation. This takes no items or money;
+actual donations remain pending a reliable inventory recovery handoff. Conversions
+and range are editable in `economy.yml`. See [player food-aid guide](docs/PLAYER_FOOD_AID.md).
+
 ## Core Philosophy
 
 - Keep the experience recognizably vanilla Minecraft.

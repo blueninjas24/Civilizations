@@ -177,3 +177,18 @@ No player-facing donation, item conversion, payout, transport or reputation rule
 chosen here. A future bridge must establish actual goods/consent and a recoverable
 inventory handoff before exposing commands. See FOOD_RELIEF.md. This preserves
 approved configurable economy authority and the canonical roadmap.
+
+
+## October 8, 2026 — read-only player aid preview
+
+Within approved configurable prototype economy authority: ordinary wheat/carrot/
+potato/beetroot each preview as one food unit; bread three, baked potato two.
+Radius defaults 32 blocks in three dimensions around a saved living household home
+in the same permanent world. Values/range/enabled are editable in optional economy.yml
+section; incomplete/invalid edits fail, absent old-file sections preserve defaults.
+Proximity selects an existing recipient, never establishes identity or player-build
+consent. Equidistant towns require explicit IDs. Custom item metadata is rejected.
+Read-only player permission is independent of protected admin debugging. No item
+transfer, payment, merchant, reputation or new starvation rule is approved/implemented
+by this preview. Real donation recovery needs reliable inventory-save evidence; the
+pinned saveData call alone cannot provide it. See PLAYER_FOOD_AID.md.

@@ -6,10 +6,12 @@ author: Blueninjas24
 description: Evolving, autonomous civilizations for Minecraft.
 commands:
   civ:
-    description: Read-only Civilizations population diagnostics.
-    usage: /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid>
-    permission: civilizations.debug
+    description: Civilizations food-aid previews and administrative diagnostics.
+    usage: /civ aid [settlement UUID] or /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid>
 permissions:
   civilizations.debug:
     description: Inspect saved Civilizations population and calendar state.
     default: op
+  civilizations.aid.preview:
+    description: Preview held food for a nearby village without transferring items.
+    default: true
