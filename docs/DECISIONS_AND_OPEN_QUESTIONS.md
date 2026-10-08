@@ -1,6 +1,9 @@
 # Civilizations — locked decisions and unresolved questions
 
 ## Locked / approved
+- October 7 clarification: recognize both naturally generated villages and
+  player-built areas containing beds and villagers automatically. This does not
+  authorize autonomous block changes or enroll a bed-only player base.
 - October 7 clarification: villages participate automatically by default; no manual
   registration/join step for normal villages. Recognition must still distinguish
   villages from arbitrary player positions/beds, and never grants block-edit consent.
@@ -36,6 +39,10 @@
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- Calendar foundation: schema 10 saves elapsed-time anchor, fractional month and
+  queued demographic target before bounded population catch-up. Backward clock
+  changes freeze accrual; caller-supplied caps report discarded time. Cadence
+  changes require explicit transitions. No runtime defaults or scheduler enabled.
 - Work foundation: schema v9 records resident skill experience totals; qualification
   requirements are immutable caller inputs and explain failures. No employment or
   fake businesses are created. Skill units/learning rates, actual hiring/prosperity

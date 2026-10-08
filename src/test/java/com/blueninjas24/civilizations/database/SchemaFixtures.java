@@ -8,6 +8,7 @@ final class SchemaFixtures {
     private SchemaFixtures() {}
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if (version < 10) statement.execute("DROP TABLE civilization_time");
             if (version < 9) statement.execute("DROP TABLE resident_skills");
             if (version < 7) {
                 statement.execute("DROP TRIGGER reject_mixed_aging_clock");

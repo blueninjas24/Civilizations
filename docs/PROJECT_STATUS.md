@@ -118,6 +118,20 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - See PAPER_SMOKE_TEST.md for download recovery and non-fatal Windows warnings.
   Hosted CI and integrated population playtesting remain pending. Phase 1 stays 70%.
 
+## Saved calendar foundation
+- Branch `codex/civilization-calendar`; schema 10 adds a saved elapsed-time anchor,
+  fractional month and queued demographic target. Existing identities/history retained.
+- Pure calendar conversion handles backward wall clocks, explicit elapsed caps and
+  overflow. Queued targets survive demographic failure and bounded restart catch-up.
+- Windows `.\mvnw.cmd clean verify -B -ntp`: 129 unit and two integration tests
+  (131 total), zero failures/errors/skips. Fourteen new clock cases cover restart,
+  snapshots, fractional time, rollback, caps, overflow and schema-9 upgrade retry.
+- Calendar APIs remain explicit opt-in; runtime scheduler/configuration and village
+  import/projection are pending. Phase 1 remains 70% until the whole calendar gate passes.
+- User approved automatic recognition of both natural villages and player-built
+  areas containing beds and villagers. No server/world/production DB changed in
+  this calendar batch; no merge or push.
+
 ## User workflow
 `docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has seven of ten reporting milestones complete; Phases 2–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 

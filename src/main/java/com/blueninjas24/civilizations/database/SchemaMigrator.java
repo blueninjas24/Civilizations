@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 9;
+    static final int CURRENT_VERSION = 10;
 
     @FunctionalInterface
     interface Migration {
@@ -47,6 +47,15 @@ final class SchemaMigrator {
                             skill TEXT NOT NULL CHECK(length(trim(skill)) > 0),
                             experience INTEGER NOT NULL CHECK(typeof(experience) = 'integer' AND experience >= 0),
                             PRIMARY KEY(resident_id, skill)
+                        )
+                        """),
+                connection -> execute(connection, """
+                        CREATE TABLE civilization_time (
+                            id INTEGER PRIMARY KEY CHECK(id = 1) REFERENCES demographic_clock(id),
+                            millis_per_step INTEGER NOT NULL CHECK(typeof(millis_per_step) = 'integer' AND millis_per_step > 0),
+                            last_observed_millis INTEGER NOT NULL CHECK(typeof(last_observed_millis) = 'integer' AND last_observed_millis >= 0),
+                            remainder_millis INTEGER NOT NULL CHECK(typeof(remainder_millis) = 'integer' AND remainder_millis >= 0 AND remainder_millis < millis_per_step),
+                            target_steps INTEGER NOT NULL CHECK(typeof(target_steps) = 'integer' AND target_steps >= 0)
                         )
                         """)
         ));
@@ -105,6 +114,10 @@ final class SchemaMigrator {
             }
             if (migrations.size() >= 9) {
                 requireColumns(connection, "resident_skills", Set.of("resident_id", "skill", "experience"));
+            }
+            if (migrations.size() >= 10) {
+                requireColumns(connection, "civilization_time", Set.of("id", "millis_per_step",
+                        "last_observed_millis", "remainder_millis", "target_steps"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {

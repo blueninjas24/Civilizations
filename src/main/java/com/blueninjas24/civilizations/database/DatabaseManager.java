@@ -158,6 +158,10 @@ public class DatabaseManager {
         return new DemographicRepository(connection);
     }
 
+    public CivilizationClockRepository getCivilizationClockRepository() {
+        return new CivilizationClockRepository(connection);
+    }
+
     public void close() {
         if (connection == null) {
             return;

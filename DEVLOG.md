@@ -253,3 +253,14 @@ This will be the beginning of autonomous settlement development.
 - Incomplete Minecraft download retried with exact required checksum; non-fatal
   Windows performance-counter error documented without OS changes.
 - Phase 1 remains 70%; hosted CI and real population integration remain pending.
+
+## October 7, 2026 — saved civilization calendar
+
+- Schema 10 adds elapsed-time anchor, partial month and durable queued target.
+  Population catch-up can fail/restart without losing elapsed time or double-aging.
+- Pure year/month conversion, backward-clock handling, explicit elapsed caps and
+  overflow failure; runtime scheduling remains pending, so progress stays 70%.
+- Fourteen new tests; Windows wrapper clean verify passed 131 cases (129 unit,
+  two integration), zero failures/errors/skips. Temporary databases only.
+- User approved automatic participation for natural and player-built populated
+  villages. No merge/push, production database or world modification.
