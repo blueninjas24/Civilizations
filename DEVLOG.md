@@ -122,3 +122,13 @@ Turn a housing shortage into action:
 `HOUSING_SHORTAGE → Construction Request → Site Selection → House Construction`
 
 This will be the beginning of autonomous settlement development.
+
+## 2026-10-07 — Reproducible persistence foundation
+
+- Fixed the settlement INSERT to persist all nine model fields, including beds.
+- Added the official Maven Wrapper pinned to Maven 3.9.11, JUnit 5 and pinned build plugins.
+- Six temporary-SQLite tests cover initialization, insertion, restart persistence, retrieval and isolated census updates.
+- Windows `.\mvnw.cmd clean verify -B -ntp` passed: six tests, zero failures/errors/skips.
+- Read and verified AGENTS.md and all six canonical design documents. The nine-phase roadmap supersedes the historical construction-next goal above: foundation and persistent population come first.
+- Verified both wrapper scripts exist and are not hidden in the OneDrive checkout. Recommend keeping active Git and live server databases outside cloud sync; no relocation or live database changes performed.
+- Next engineering milestone: explicit transactional schema migrations with fresh-install, legacy-upgrade and failure/recovery tests. Gameplay semantics remain open as documented.

@@ -1,0 +1,93 @@
+# Civilizations — canonical master design
+
+**Vision:** A persistent, autonomous Minecraft civilization simulation, not a village house-spawner. **We write the rules; the world writes the story.** The player participates in a world that would continue developing without them. *Truman Show principle:* simulate enough truth that the visible world plausibly supports everything abstracted behind it.
+
+## Locked design laws
+1. Simulate causes, not predetermined results; interacting systems produce unexpected but intelligible histories.
+2. Simulate globally; materialize locally. Offscreen settlements are data, not thousands of ticking villagers or loaded chunks.
+3. Physicalized abstraction: economic units, resources and trade may be abstract, but consequential industries, buildings and routes have visible evidence.
+4. Player is not god. Influence is earned per settlement through trade, aid, harm, construction and reputation.
+5. Player-built blocks are sovereign: no autonomous alteration of confidently player-built work without opt-in.
+6. Persistent UUID identity for settlements, individuals, businesses, sites and significant infrastructure; names/borders/governments can change, history remains.
+7. Specialization is an outcome of geography, investment, opportunity and history—not a fixed settlement class.
+8. Geography creates constraints and opportunities, not destiny. Terrain may be adapted but not ignored.
+9. Randomness chooses among reasonable alternatives, never impossible or nonsensical ones.
+10. Uneven outcomes are desirable: many modest villages, a few large cities, occasional collapse and resettlement; rare 500+ population hubs.
+11. Java + SQLite + Paper run everything without an LLM. Chronicler/T.O.D.D. may later narrate structured events but is optional.
+12. Gameplay believability outranks strict historical timescales. Distinguish civilization calendar from construction/economic pacing.
+13. Default diplomacy is uneventful; meaningful circumstances cause escalation, not arbitrary border contact.
+14. The system should allow outcomes the designers did not explicitly author.
+
+## Settlement identity and discovery
+- Each settlement has a permanent UUID, historical record, name(s), location/footprint, world identity, residents, businesses, resources, buildings, territory and relationships.
+- Vanilla village/POI discovery can seed a settlement, but discovery must not equate arbitrary player coordinates or a 128-block region to permanent identity.
+- Organic footprints and functional districts develop from roads, terrain, homes, commerce, farms, mines and public structures.
+- Settlements can rename, grow, split/merge (rarely), decline, abandon and resettle while preserving historical identity. Mergers preserve predecessor history.
+- Exact POI-clustering, center evolution, overlap and player-base recognition rules remain open implementation/design decisions.
+
+## Population, people and households
+- Every simulated resident is a persistent individual in data: name, age, family/household, home, occupation/skills, basic prosperity and notable events.
+- Simulated population is authoritative; physical villagers are a contextual subset of those real residents, never disposable invented strangers.
+- Population changes through births, deaths, immigration and emigration. Most migration connects real settlements; occasional external arrivals avoid a closed world.
+- Families track parent/child, spouse/partner, siblings; households track shared housing. No dating/divorce/emotional Sims simulation.
+- Housing demand is household-driven, not simply one bed per resident. Labor uses age, skills, opportunity and jobs at real businesses. Employment influences prosperity and production, not individual salary/payroll systems.
+- Visible activity scales with day/night, markets, events, population and performance: a 300-resident city should look meaningfully busier at noon than midnight.
+
+## Needs and economy
+- Population, industries, construction, trade and events create demand; production, imports and reserves create supply.
+- Track important commodities (e.g., timber, food/grain, iron, coal, stone, livestock products) separately; aggregate trivial subcomponents. Display Severe Shortage / Shortage / Balanced / Surplus / Abundant.
+- Shortages are resource-specific and duration-sensitive. Food crisis gradually affects prices, growth, migration and only eventually mortality; timber delays construction; iron constrains industry.
+- Production depends on labor, capacity, infrastructure and resource potential. Geological deposits are abstract but physically plausible; seams may be discovered or depleted.
+- **Treasury** = liquid settlement spending capacity; **prosperity** = broader economic health. Household prosperity is abstract, not bank accounts.
+- Trade uses abstract **Trade Value**, not emerald-only accounting. Emeralds are broadly accepted/default; barter is supported. Player-facing prices respond to local scarcity. Each merchant offers a contextual subset, not the entire commodity catalog.
+
+## Decision Engine
+- Systems generate pressures and opportunities: overcrowding, food shortage, surplus iron, unemployment, route traffic, mine discovery, infrastructure failure.
+- Generate feasible candidate responses; score urgency, expected benefit, cost, labor, materials, terrain, relationships, government/leader traits, past outcomes and bounded randomness.
+- Do not always choose the top score; sample among reasonable candidates. Expose explainability and repeatable seeded tests.
+- Decisions create projects and historical events; prior outcomes influence future weights without machine learning.
+
+## Industry and business
+- Chains: mining→ore→blacksmith/tools; farming→crops→milling/baking; logging→timber→carpentry/construction; livestock→food/leather; fishing→food/trade.
+- Businesses persist with name, founder/owner, industry, building/site, employees, capacity, health/prosperity and history.
+- Founding requires plausible working age, skill/experience, capital/resources and opportunity. Businesses can thrive, compete abstractly, expand, shrink, close, change owners, pass to family/employees, relocate or be repurposed.
+- Rare multi-settlement firms can emerge as significant historical exceptions. Closed buildings remain for reuse, preservation, decay or demolition.
+
+## Construction and physical development
+- Loop: need→proposed project→site evaluation→funding/materials/labor→visible staged construction→active use.
+- Use authored structure templates with rotation/mirroring, palette/style variants, terrain/foundation adaptation and entrance/road metadata; do not generate arbitrary architecture from Java.
+- Future in-game template toolkit: Creative-built structure, bounding selection, entrances, beds, storage, workstations, road connector and rotations, saved without recompiling Java.
+- Land suitability scores slope, biome, water, roads, nearby uses, existing sites, territory, protected player structures, historic significance and environmental cost. Organic soft districts emerge; no universal grid.
+- Roads generally precede buildings. Remote farms/mines/logging camps can create feeder paths. Grade small hills; terrace/detour/tunnel/bridge where justified; do not casually erase mountains, rivers or oceans.
+- Building lifecycle: planned→under construction→active→aging→renovated/repurposed/abandoned/demolished/historic. Age alone does not force destruction. Gradual physical decay is limited to Civ-owned structures.
+
+## Roads, transport and trade
+- Roads/bridges persist as infrastructure with endpoints, type, builder, usage, age, condition, importance and history. Trails improve to dirt/gravel/paved medieval-style streets as justified; never modern highways.
+- Bridge versus detour uses terrain, traffic, value, treasury, labor and engineering capability. Routes have reliability, safety and efficiency; disruption changes trade.
+- Long-distance caravans/trade resolve in data. Near players, occasional merchants, pack animals and route activity visibly corroborate the system. Player-built routes may change path preference.
+
+## Territory, diplomacy, government
+- Organic soft sovereignty grows from settlement core, homes, roads, outposts, farms and resources. Civilizations' rules constrain NPC decisions, not player block placement.
+- Relationships range hostile→unfriendly→neutral→friendly→allied with causal history; dependencies may be asymmetric. Aid, trade and infrastructure matter; treaties are exceptional and practical.
+- Lightweight government types (council, mayor/republic, monarchy, autocracy; merchant council possible later) mildly modify priorities/stability/decision pace, not detailed elections, taxes or ideologies.
+- Leaders are persistent residents with 2–3 modest traits and government-appropriate succession. Major changes become historical events. Player leadership requires exceptional earned standing.
+- Rare settlement incorporation/mergers preserve identities and histories.
+
+## History, growth, decline and events
+- Record structured events with timestamps and stable entity IDs, not only generated prose. Importance emerges from actual deeds, longevity, crises, founders, structures, businesses and routes.
+- Historical significance may progress Notable→Significant→Historic→Legendary, enabling archives, landmarks, preservation, monuments and museums when warranted.
+- Trajectory labels (booming, growing, stable, stagnating, declining, collapsing, abandoned) **describe** interacting conditions, not dictate them.
+- Maintenance burden matters: declining revenue/labor weakens roads, bridges and buildings, causing feedback loops. Abandoned settlements leave physical ruins, keep their history and can be resettled.
+- Rare context-eligible events: fire, flood, drought, crop failure, industrial collapse/discovery, leader death, migration, unrest, route disruption, disputes and war. Conflict escalates gradually; offscreen warfare resolves abstractly, with limited nearby physical combat.
+
+## Players and other plugins
+- Per-settlement reputation responds proportionally to trading, donations, infrastructure repairs, damage, violence and construction. High reputation unlocks influence rather than omnipotence.
+- Player settlements can join regional economy, accept residents/businesses and trade; autonomous block placement in player areas requires explicit opt-in development zones and styles.
+- Simulation needs may create real opportunities for players (timber delivery, bridge repair) without fake quest requirements.
+- Civilizations emits structured events for future optional Chronicler/T.O.D.D. integration; no hard dependency.
+
+## Performance and scale
+- Active nearby: contextual NPCs, schedules, building progress, merchants, visible events.
+- Loaded distant: minimal physical work.
+- Unloaded: data-only, no forced chunk loading.
+- Reconcile elapsed time upon return in bounded tick budgets. Target many settlements (20+), with rare very large cities, stress-tested rather than hard-coded population uniformity.
