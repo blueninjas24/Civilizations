@@ -205,7 +205,7 @@ public final class PopulationRepository {
         }
     }
 
-    private static Resident readResident(ResultSet result) throws SQLException {
+    static Resident readResident(ResultSet result) throws SQLException {
         String household = result.getString("household_id");
         return new Resident(UUID.fromString(result.getString("id")), result.getString("name"),
                 UUID.fromString(result.getString("settlement_id")),

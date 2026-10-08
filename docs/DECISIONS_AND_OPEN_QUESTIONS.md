@@ -36,6 +36,10 @@
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
 ### Engineering choices — October 7, 2026
+- Schema v7 adds a global monthly demographic clock (replay 2), observed housing
+  capacities and birth/death events. No silent transition from age-only clocks;
+  mixed engines/settings changes rejected. Runtime policy changes require an explicit
+  recorded transition. Snapshot/progress/events save atomically before live scheduling.
 - Experimental demographic prototype: 12 monthly steps/year, adulthood 18, parent
   ages 20–40, senior threshold 60; eligible-pair birth chance 0.015/month, baseline
   death chance 0.0001/month plus 0.0005 per year beyond 60. Editable policy inputs

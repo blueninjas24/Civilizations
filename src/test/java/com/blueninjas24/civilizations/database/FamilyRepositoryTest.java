@@ -143,6 +143,9 @@ class FamilyRepositoryTest {
         Resident person = person(settlement);
         try (var statement = database.getConnection().createStatement()) {
             // Reconstruct the previous-version shape inside this temporary database only.
+            statement.execute("DROP TABLE demographic_clock");
+            statement.execute("DROP TABLE population_events");
+            statement.execute("DROP TABLE household_capacity");
             statement.execute("DROP TABLE family_ties");
             statement.execute("DROP TABLE population_clocks");
             statement.execute("PRAGMA user_version = 4");

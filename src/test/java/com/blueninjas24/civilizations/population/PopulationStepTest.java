@@ -147,6 +147,20 @@ class PopulationStepTest {
         return PopulationStep.advance(state, new SimulationRunner.Context(1, new Random(42)), policy);
     }
 
+    @Test
+    void structuredEventsRejectMissingDuplicatedOrSelfParentIdentities() {
+        assertThrows(IllegalArgumentException.class, () -> new PopulationEvent(1, PopulationEvent.Type.BIRTH,
+                first.id(), settlement, List.of(second.id()), "Birth"));
+        assertThrows(IllegalArgumentException.class, () -> new PopulationEvent(1, PopulationEvent.Type.BIRTH,
+                first.id(), settlement, List.of(second.id(), second.id()), "Birth"));
+        assertThrows(IllegalArgumentException.class, () -> new PopulationEvent(1, PopulationEvent.Type.BIRTH,
+                first.id(), settlement, List.of(first.id(), second.id()), "Birth"));
+        assertThrows(IllegalArgumentException.class, () -> new PopulationEvent(1, PopulationEvent.Type.DEATH,
+                first.id(), settlement, List.of(second.id()), "Death"));
+        assertThrows(IllegalArgumentException.class, () -> new PopulationEvent(1, PopulationEvent.Type.DEATH,
+                first.id(), settlement, List.of(), " "));
+    }
+
     private PopulationPolicy policy(double birthChance, double deathChance) {
         return new PopulationPolicy(12, 216, 240, 480, 720, birthChance, deathChance, 0);
     }

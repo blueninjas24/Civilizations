@@ -154,6 +154,10 @@ public class DatabaseManager {
         return new PopulationSimulationRepository(connection);
     }
 
+    public DemographicRepository getDemographicRepository() throws SQLException {
+        return new DemographicRepository(connection);
+    }
+
     public void close() {
         if (connection == null) {
             return;

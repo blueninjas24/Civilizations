@@ -1,5 +1,18 @@
 # Civilizations Development Log
 
+### Atomic demographic persistence — October 7, 2026
+
+- Schema v7 saves monthly clock/settings, observed housing capacity and sequenced
+  birth/death explanations. People/links/events/progress commit together or roll back.
+- Settings and replay protection prevent silent changes; age-only/global engines
+  cannot activate together. Event paging retains every event within a shared month.
+- Windows wrapper clean verify passed 94 cases (92 unit, two integration), including
+  snapshot-restored century replay across batches and event-write rollback/retry.
+- Phase 1 advances to 5/10 (50%): saved headless aging/birth/death verified. Minecraft
+  import/projection, jobs, migration, calendar scheduling and server validation remain.
+- No actual server DB/world changes, merge or push. Global snapshot cost still needs
+  measurement before tick-loop integration.
+
 ### Headless births and deaths — October 7, 2026
 
 - Added immutable population snapshots, editable prototype monthly demographic

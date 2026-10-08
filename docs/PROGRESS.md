@@ -10,7 +10,7 @@ not a replacement for ROADMAP.md or its design requirements.
 
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
-| 1. Foundation & Population | Villages remember their people; families and population change over time | 4 / 10 | `████░░░░░░` 40% — active |
+| 1. Foundation & Population | Villages remember their people; families and population change over time | 5 / 10 | `█████░░░░░` 50% — active |
 | 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 0 / 4 | `░░░░░░░░░░` 0% |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -28,7 +28,7 @@ not a replacement for ROADMAP.md or its design requirements.
 - [ ] Validate automatic online builds, disposable server setup and backup recovery. Tools/procedures exist; hosted CI, Paper testing and recovery drill remain pending.
 - [x] Save named individual residents across restarts. Verified headlessly; in-game seeding/projection remains in the final milestone.
 - [ ] Households, basic family ties and the foundation for jobs. Household membership and parent/partner links are saved; siblings are recognized. Job foundation remains.
-- [ ] Aging, births and deaths. Saved aging and headless birth/death rules pass tests; demographic persistence/runtime integration remains.
+- [x] Aging, births and deaths. Headless rules, family/event saving and restart recovery verified; live gameplay connection remains in the final milestone.
 - [ ] Immigration and emigration.
 - [ ] Civilization calendar and saved simulation/catch-up state. Aging checkpoints survive restarts with bounded catch-up; calendar/scheduler integration remains.
 - [ ] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper.

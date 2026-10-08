@@ -28,6 +28,13 @@ public record PopulationPolicy(int stepsPerYear, long adulthoodSteps, long paren
         return Math.min(1, backgroundDeathChance + seniorYears * seniorDeathIncreasePerYear);
     }
 
+    /** Fixed encoding for persisted replay compatibility, independent of record display formatting. */
+    public String replayKey() {
+        return "monthly-v2:" + stepsPerYear + ":" + adulthoodSteps + ":" + parentMinimumSteps + ":"
+                + parentMaximumSteps + ":" + seniorSteps + ":" + Double.toHexString(birthChance) + ":"
+                + Double.toHexString(backgroundDeathChance) + ":" + Double.toHexString(seniorDeathIncreasePerYear);
+    }
+
     public boolean eligibleParent(Resident person) {
         return person.status() == Resident.Status.ALIVE && person.ageSteps() >= parentMinimumSteps
                 && person.ageSteps() <= parentMaximumSteps;

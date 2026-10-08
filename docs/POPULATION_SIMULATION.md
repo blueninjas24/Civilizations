@@ -55,3 +55,36 @@ Nine new tests cover birth/death accounting, eligibility/housing limits, relatio
 stable replay/batching, snapshot validation and accelerated 100-year scenarios
 (1,200 monthly steps). These scenarios test conservation/replay, not long-term
 population balance; a closed two-founder population can naturally die out.
+
+## Atomic demographic storage
+
+Schema v7 adds a global monthly demographic clock (replay version 2), observed
+household capacity, and sequenced birth/death event records. The earlier age-only
+clocks remain intact; triggers prohibit activating both modes in one database.
+No existing clock or age is silently reinterpreted. Explicit demographic startup
+assumes the caller has deliberately supplied monthly ages (future import adapter).
+
+`DemographicRepository` reads an immutable global population snapshot, advances a
+bounded number of months, and saves all changed/new people, parent links, event
+reasons and clock progress in one transaction. A failed event/clock/person write
+rolls everything back; retry produces the same identities/outcomes. Event reads
+use a sequence cursor with at most 1,000 rows/page, preserving multiple same-month
+events across page boundaries. Deceased people and their family records remain.
+
+The persisted settings key uses a fixed encoding of policy fields. Changed settings
+or unsupported replay versions fail explicitly; live tuning needs an explicit
+recorded transition API before any configuration reload may change a running clock.
+Prototype policies are configurable when constructing/initializing a run; there is
+not yet a Minecraft config file. Capacity updates are explicit observations; no
+beds-to-households formula is wired or inferred from incomplete loaded chunks.
+
+Eight storage tests cover births/restart, retained deaths/event paging, rollback and
+deterministic retry, snapshot-restored 100-year replay across batch sizes, clock-mode
+and setting protection, capacity changes, transaction ownership and v6 upgrade
+failure/recovery. All use temporary SQLite files. The current prototype listener
+does not call this engine. Scheduler, automatic seeding, NPC projections, migration,
+partner formation and actual Paper validation remain pending.
+
+This implementation loads global people/relationships into memory per batch and
+writes existing residents per processed batch. Step count bounds work, not wall-clock
+cost; profiling/optimization is required before connecting it to a server tick loop.

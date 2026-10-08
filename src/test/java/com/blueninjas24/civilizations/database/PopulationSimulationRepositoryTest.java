@@ -178,6 +178,9 @@ class PopulationSimulationRepositoryTest {
     void versionFiveMigrationFailurePreservesPopulationAndRetries() throws SQLException {
         Resident person = person(settlement, 5, Resident.Status.ALIVE);
         try (var statement = database.getConnection().createStatement()) {
+            statement.execute("DROP TABLE demographic_clock");
+            statement.execute("DROP TABLE population_events");
+            statement.execute("DROP TABLE household_capacity");
             statement.execute("DROP TABLE population_clocks");
             statement.execute("PRAGMA user_version = 5");
             statement.execute("CREATE TABLE population_clocks (settlement_id TEXT)");

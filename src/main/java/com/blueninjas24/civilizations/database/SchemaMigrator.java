@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 6;
+    static final int CURRENT_VERSION = 7;
 
     @FunctionalInterface
     interface Migration {
@@ -38,7 +38,8 @@ final class SchemaMigrator {
                 connection -> addColumnIfMissing(connection, "beds"),
                 SchemaMigrator::createPopulationTables,
                 SchemaMigrator::createFamilyTable,
-                SchemaMigrator::createPopulationClock
+                SchemaMigrator::createPopulationClock,
+                SchemaMigrator::createDemographicStorage
         ));
     }
 
@@ -83,6 +84,12 @@ final class SchemaMigrator {
             if (migrations.size() >= 6) {
                 requireColumns(connection, "population_clocks", Set.of("settlement_id", "seed",
                         "completed_steps", "replay_version"));
+            }
+            if (migrations.size() >= 7) {
+                requireColumns(connection, "demographic_clock", Set.of("id", "seed", "completed_steps", "replay_version", "policy"));
+                requireColumns(connection, "household_capacity", Set.of("household_id", "capacity"));
+                requireColumns(connection, "population_events", Set.of("sequence", "step", "type", "resident_id",
+                        "settlement_id", "first_relative", "second_relative", "reason"));
             }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
@@ -203,6 +210,50 @@ final class SchemaMigrator {
                     completed_steps INTEGER NOT NULL CHECK(typeof(completed_steps) = 'integer' AND completed_steps >= 0),
                     replay_version INTEGER NOT NULL CHECK(typeof(replay_version) = 'integer' AND replay_version > 0)
                 )
+                """);
+    }
+
+    private static void createDemographicStorage(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE demographic_clock (
+                    id INTEGER PRIMARY KEY CHECK(id = 1),
+                    seed INTEGER NOT NULL CHECK(typeof(seed) = 'integer'),
+                    completed_steps INTEGER NOT NULL CHECK(typeof(completed_steps) = 'integer' AND completed_steps >= 0),
+                    replay_version INTEGER NOT NULL CHECK(typeof(replay_version) = 'integer' AND replay_version > 0),
+                    policy TEXT NOT NULL
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE household_capacity (
+                    household_id TEXT PRIMARY KEY NOT NULL REFERENCES households(id),
+                    capacity INTEGER NOT NULL CHECK(typeof(capacity) = 'integer' AND capacity >= 0)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE population_events (
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    step INTEGER NOT NULL CHECK(typeof(step) = 'integer' AND step > 0),
+                    type TEXT NOT NULL CHECK(type IN ('BIRTH', 'DEATH')),
+                    resident_id TEXT NOT NULL REFERENCES residents(id),
+                    settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                    first_relative TEXT REFERENCES residents(id),
+                    second_relative TEXT REFERENCES residents(id),
+                    reason TEXT NOT NULL,
+                    UNIQUE(step, type, resident_id),
+                    CHECK((type = 'BIRTH' AND first_relative IS NOT NULL AND second_relative IS NOT NULL)
+                       OR (type = 'DEATH' AND first_relative IS NULL AND second_relative IS NULL))
+                )
+                """);
+        execute(connection, "CREATE INDEX events_by_resident ON population_events(resident_id, sequence)");
+        execute(connection, """
+                CREATE TRIGGER reject_mixed_demographic_clock BEFORE INSERT ON demographic_clock
+                WHEN EXISTS (SELECT 1 FROM population_clocks)
+                BEGIN SELECT RAISE(ABORT, 'Age-only clocks already exist'); END
+                """);
+        execute(connection, """
+                CREATE TRIGGER reject_mixed_aging_clock BEFORE INSERT ON population_clocks
+                WHEN EXISTS (SELECT 1 FROM demographic_clock)
+                BEGIN SELECT RAISE(ABORT, 'Demographic clock already exists'); END
                 """);
     }
 

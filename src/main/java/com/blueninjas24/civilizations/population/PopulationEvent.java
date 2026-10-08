@@ -16,5 +16,12 @@ public record PopulationEvent(long step, Type type, UUID residentId, UUID settle
         Objects.requireNonNull(settlementId);
         relatedResidents = List.copyOf(relatedResidents);
         Objects.requireNonNull(reason);
+        if (reason.isBlank()) throw new IllegalArgumentException("Event requires a reason");
+        if ((type == Type.DEATH && !relatedResidents.isEmpty())
+                || (type == Type.BIRTH && (relatedResidents.size() != 2
+                || relatedResidents.get(0).equals(relatedResidents.get(1))
+                || relatedResidents.contains(residentId)))) {
+            throw new IllegalArgumentException("Invalid demographic event participants");
+        }
     }
 }
