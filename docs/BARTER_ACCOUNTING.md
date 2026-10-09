@@ -1,10 +1,10 @@
 # Barter accounting foundation
 
-This batch implements tested internal food-for-material accounting. There is no
-live barter command/menu or physical barter payout yet. The new optional settings
-are disabled initially. Enabling them alone does not create a player interaction.
-The next step is the saved-player inventory adapter, using explicit confirmation
-and the same independent Minecraft save proof as emerald purchases.
+The foundation commit `8e20726` introduced internal food-for-material accounting
+without a player interface. The subsequent player adapter now exposes `/civ barter`
+with explicit confirmation and independent Minecraft save proof; see PLAYER_BARTER.md.
+This document describes its underlying stock/receipt accounting. New files now
+enable barter; older owner files are preserved and require explicit opt-in.
 
 ## Rules
 
@@ -30,14 +30,14 @@ twice. Cancellation must only follow durable proof that no exchange occurred: it
 restores the original units once, even after elapsed periods. Ambiguous physical
 exchange will need to hold the reservation for administrator review. Recovery uses
 immutable accepted terms despite new-offer disabling or conversion retuning.
-These proof requirements are adapter contracts, not proof that a live barter
-adapter already exists.
+The live adapter enforces these proof requirements; see PLAYER_BARTER.md for its
+inventory recovery stages and compatibility limits.
 
 ## Editable settings
 
 ```yaml
 barter:
-  enabled: false
+  enabled: true
   food-reserve-periods: 3
   maximum-items: 64
   goods:
@@ -65,14 +65,15 @@ Transactional schema 24 adds `food_barters` for immutable goods/receipt status a
 `barter_stock_moves` for ordered reserve/refund movements with before/after units
 and the completed economic period. These explicit movements explain changes between
 periods; they do not rewrite earlier period reports or pretend to be period exports.
-Current available stock can differ from the last period's closing stock. A future
-live interface must show current availability, held goods and historical reports
-distinctly. Completion transfers held goods; cancellation is a recorded return.
+Current available stock can differ from the last period's closing stock. Live
+offers use current availability; historical reports retain their earlier facts.
+Completion transfers held goods; cancellation is a recorded return.
 
 Tests use temporary SQLite exclusively. They cover valuation, protected floors,
 competing offers, shared food need, mutual payment reservations, changed terms,
 disabled-setting recovery, rollback of all legs, restart, migration failure and a
 seeded 240-period famine/finite-stock conservation scenario. Back up consistent
 SQLite/player/world data before upgrade. No world or production reset is required.
-Live physical exchange, bargaining over barter quantities, human client testing and
-inventory-plugin compatibility remain unfinished.
+Live physical exchange is now implemented and verified on disposable Paper.
+Bargaining over barter quantities, human client testing and inventory-plugin
+compatibility remain unfinished.

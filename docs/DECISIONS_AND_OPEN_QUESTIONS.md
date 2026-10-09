@@ -362,3 +362,19 @@ from unchanged period reports; it does not fabricate past exports. Config starts
 disabled; a live barter inventory adapter still needs implementation and validation.
 No extra treasury funding, reputation, personal wallets or gameplay penalties.
 See BARTER_ACCOUNTING.md. No new design answer blocks the next adapter work.
+
+## October 9, 2026 — player barter adapter and trade prototype gate
+
+The approved food-for-goods direction now uses `/civ barter timber|stone` to preview
+an actual finite-stock offer and `/civ barter accept` to confirm. New files enable
+the optional section; older files remain unchanged/disabled. Quotes expire using
+the existing configurable bargaining offer deadline (default 45 seconds); this
+does not require enabling emerald bargaining. Unaccepted quotes disappear on
+restart without goods moved. The backend still enforces saved village cooldowns,
+need/value and stock floors. Confirmation/recovery is independently saved-player
+proof gated; no treasury money, recurring production or reputation is fabricated.
+Quantity negotiation and industry-specific goods stay later work. Native exchange
+and mixed two-village long-run conservation verify the Phase 2 player-trade prototype
+gate, advancing reporting to 3/4 (75%). Remaining autonomous outcome learning needs
+actual attributable evidence; no causal success is inferred merely from recovery.
+Human client/plugin compatibility and survival balance remain release validation.

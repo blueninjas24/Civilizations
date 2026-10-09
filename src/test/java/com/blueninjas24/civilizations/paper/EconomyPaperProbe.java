@@ -38,6 +38,10 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private com.blueninjas24.civilizations.application.PendingFoodAid donation;
     private FoodAidTransfers transfers;
     private FoodPurchaseTransfers purchases;
+    private FoodBarterTransfers barters;
+    private FoodBarters.Terms barterTerms;
+    private int barterWait;
+    private long barterStock;
     private com.blueninjas24.civilizations.application.PendingFoodPurchase purchaseReceipt;
     private int purchasePayment, purchaseWait;
     private org.bukkit.entity.Player donor;
@@ -203,7 +207,33 @@ public final class EconomyPaperProbe extends JavaPlugin {
             var food=session.economyView().get(town).latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
             require(food.flow().imports()==8,"Purchased food not credited once");getLogger().info("NATIVE_PURCHASE_PASSED: saved counter/restart, explicit double acceptance protected, failed save withheld payment, saved emerald exchange, one debit/delivery, restart and duplicate completion");
             getLogger().info("NATIVE_BARGAINING_PASSED: current-value counter, no discussion debit, restart retained terms and confirmed native exchange once");
-            // Restore the earlier feast/unloaded test expectation after the added purchase scenario.
+            stage=45;}
+        case 45->{if(!ready())return;
+            var view=session.economyView().get(town);if(view.needs().demand()==view.needs().fulfilled()){now.addAndGet(1000);future=session.pulse();return;}
+            donor.getInventory().setItemInMainHand(new org.bukkit.inventory.ItemStack(Material.WHEAT,8));
+            barterStock=view.account().state().stocks().get(Commodity.TIMBER).units();
+            future=session.quoteFoodBarter(UUID.randomUUID(),donor.getUniqueId(),town,8,"WHEAT",8,Commodity.TIMBER,FoodBarters.Policy.prototype(),FoodAidPreview.Policy.prototype());stage=46;}
+        case 46->{if(!ready())return;barterTerms=(FoodBarters.Terms)future.join();
+            require(barterTerms.paymentCount()>0&&barterTerms.paymentUnits()<=barterStock-2,"Native barter ignored available supplies");
+            require(session.economyView().get(town).account().state().stocks().get(Commodity.TIMBER).units()==barterStock,"Quote changed stock");
+            try{saveDisabled.setBoolean(null,true);}catch(Exception failure){throw new IllegalStateException(failure);}
+            barters=new FoodBarterTransfers(this,session,FoodAidPreview.Policy.prototype(),FoodBarters.Policy.prototype(),Bukkit.getServer().getLevelDirectory().resolve("players/data"));
+            require(barters.confirm(donor,barterTerms),"Native barter did not prepare");require(!barters.confirm(donor,barterTerms),"Double barter acceptance entered twice");stage=47;}
+        case 47->{barters.poll(donor);
+            if(++barterWait<20){require(donor.getInventory().getItemInMainHand().getType()==Material.WHEAT,"Unverified barter paid goods");require(session.economyView().get(town).account().state().stocks().get(Commodity.TIMBER).units()==barterStock,"Unverified barter reserved stock");return;}
+            try{saveDisabled.setBoolean(null,originalSaveDisabled);}catch(Exception failure){throw new IllegalStateException(failure);}
+            if(donor.getPersistentDataContainer().has(FoodBarterTransfers.KEY))return;
+            require(donor.getInventory().getItemInMainHand().getType()==Material.OAK_LOG&&donor.getInventory().getItemInMainHand().getAmount()==barterTerms.paymentCount(),"Native barter payout wrong");
+            donor.loadData();require(donor.getInventory().getItemInMainHand().getType()==Material.OAK_LOG&&donor.getInventory().getItemInMainHand().getAmount()==barterTerms.paymentCount(),"Saved barter payout missing");
+            require(session.economyView().get(town).account().state().stocks().get(Commodity.TIMBER).units()==barterStock-barterTerms.paymentUnits(),"Barter stock debit wrong");
+            require(session.economyView().get(town).treasury().hundredths()==4800-purchasePayment*800L,"Barter spent treasury funds");
+            barters.close();barters=null;session.close();open();stage=48;}
+        case 48->{if(!ready())return;require(session.economyView().get(town).foodAid().pendingDeliveries()==1,"Barter food lost on restart");future=session.completeFoodBarter(barterTerms);stage=49;}
+        case 49->{if(!ready())return;require(Boolean.FALSE.equals(future.join()),"Duplicate barter completion accepted");now.addAndGet(1000);future=session.pulse();stage=50;}
+        case 50->{if(!ready())return;
+            require(session.economyView().get(town).latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().imports()==8,"Barter food not credited once");
+            getLogger().info("NATIVE_BARTER_PASSED: actual saved stock quote, failed save withheld goods, double acceptance protected, saved native oak-log exchange, one stock debit/food credit, unchanged treasury, restart and duplicate completion");
+            // Restore the earlier feast/unloaded test expectation after the extra barter scenario.
             observer=null;session.close();economy=tune(economy,200);open();stage=35;}
         case 35->{if(!ready())return;for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();stage=9;}
         case 9->{if(world.isChunkLoaded(Math.floorDiv(X,16),Math.floorDiv(Z,16)))return;now.addAndGet(1000);future=session.pulse();stage++;}
@@ -283,6 +313,6 @@ public final class EconomyPaperProbe extends JavaPlugin {
         require(rejected,"Custom food was treated as plain");
         getLogger().info("AID_PREVIEW_PASSED: native food, saved recipient, synthetic read-only player, custom rejection, no inventory or economy writes");
     }
-    private void cleanup(){if(saveDisabled!=null)try{saveDisabled.setBoolean(null,originalSaveDisabled);}catch(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"Cannot restore player-save flag",failure);}if(purchases!=null)purchases.close();if(transfers!=null)transfers.close();if(observer!=null)observer.cancel();if(session!=null)session.close();if(world!=null)for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();}
+    private void cleanup(){if(saveDisabled!=null)try{saveDisabled.setBoolean(null,originalSaveDisabled);}catch(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"Cannot restore player-save flag",failure);}if(barters!=null)barters.close();if(purchases!=null)purchases.close();if(transfers!=null)transfers.close();if(observer!=null)observer.cancel();if(session!=null)session.close();if(world!=null)for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();}
     @Override public void onDisable(){cleanup();}
 }

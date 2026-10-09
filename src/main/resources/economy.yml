@@ -3,18 +3,19 @@
 # Keep indentation: two spaces. Use numbers without quotes and % signs.
 # Edit while stopped, then restart. This file is never overwritten automatically.
 # Live food accounting uses planted fields and saved residents. Optional village
-# food purchases and bargaining pay emeralds. Barter and starvation effects are not enabled.
+# food purchases and bargaining pay emeralds; barter exchanges real saved supplies.
+# Starvation effects are not enabled.
 format-version: 1
 
-# Barter accounting foundation; no live barter menu/command yet.
-# Disabled pending the saved-player inventory adapter; enabling this alone adds no trades.
+# /civ barter timber (or stone) requests a quote for the whole held food stack.
+# /civ barter accept explicitly confirms it; saved inventory proof gates the exchange.
 # Prototype outgoing goods use real saved opening supplies, not new industry production.
 # Remove a goods entry to disallow it. Only timber/OAK_LOG and stone/COBBLESTONE supported.
 # Whole items floor to current Trade Value; keep-units protects that commodity's stock.
 # Food target 1..100 periods; maximum-items 1..64; units-per-item 1..1000000;
 # keep-units 0..1000000000. Edit while stopped and restart.
 barter:
-  enabled: false
+  enabled: true
   food-reserve-periods: 3
   maximum-items: 64
   goods:
@@ -135,7 +136,7 @@ starting-units-per-resident:
   coal: 1
   livestock_products: 0
 
-# Abstract Trade Value, not emerald counts. No merchant offers/payments are wired yet.
+# Abstract Trade Value, converted to whole emeralds or available barter goods in offers.
 # Prices can have up to two decimal places. Commodity keys must match stocks above.
 prices:
   base-trade-value:

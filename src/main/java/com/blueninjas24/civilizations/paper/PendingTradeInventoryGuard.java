@@ -1,6 +1,7 @@
 package com.blueninjas24.civilizations.paper;
 
 import com.blueninjas24.civilizations.application.PendingFoodPurchase;
+import com.blueninjas24.civilizations.application.PendingFoodBarter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.inventory.*;
@@ -10,6 +11,12 @@ import org.bukkit.persistence.PersistentDataType;
 /** Prevent spending/moving an unverified payout into a separately saved chest, dropped entity or vanilla trade. */
 public final class PendingTradeInventoryGuard implements Listener {
     static boolean locked(Player player) {
+        if(player.getPersistentDataContainer().has(FoodBarterTransfers.KEY)) {
+            try {
+                var receipt=PendingFoodBarter.decode(player.getPersistentDataContainer().get(FoodBarterTransfers.KEY,PersistentDataType.STRING));
+                if(receipt.stage()==PendingFoodBarter.Stage.EXCHANGED||receipt.stage()==PendingFoodBarter.Stage.REVIEW)return true;
+            }catch(RuntimeException malformed){return true;}
+        }
         if (!player.getPersistentDataContainer().has(FoodPurchaseTransfers.KEY)) return false;
         try {
             var receipt=PendingFoodPurchase.decode(player.getPersistentDataContainer().get(FoodPurchaseTransfers.KEY,PersistentDataType.STRING));

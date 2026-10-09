@@ -29,7 +29,7 @@ public final class FoodBargainingCommand extends BukkitRunnable implements Comma
         if(!session.status().ready()){player.sendMessage("Civilizations is still starting.");return true;}
         if(args.length<2||args.length>3){player.sendMessage("Usage: /civ bargain <emeralds|accept> [village UUID]");return true;}
         if(work.size()>=16||work.containsKey(player.getUniqueId())){player.sendMessage("A price check is still running; try shortly.");return true;}
-        if(player.getPersistentDataContainer().has(FoodPurchaseTransfers.KEY)||player.getPersistentDataContainer().has(FoodAidTransfers.KEY)) {
+        if(player.getPersistentDataContainer().has(FoodPurchaseTransfers.KEY)||player.getPersistentDataContainer().has(FoodAidTransfers.KEY)||player.getPersistentDataContainer().has(FoodBarterTransfers.KEY)) {
             player.sendMessage("Finish your pending transfer before bargaining.");return true;
         }
         try {

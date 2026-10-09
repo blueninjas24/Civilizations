@@ -1,5 +1,34 @@
 # Civilizations Development Log
 
+## Playable finite-stock player barter — October 9, 2026
+
+- Branch `codex/phase2-player-barter`: `/civ barter timber|stone` previews real
+  outgoing supplies for a whole held food stack; explicit `/civ barter accept`
+  confirms it. New commented files enable barter; old owner files stay unchanged.
+  Quotes expire using the editable existing offer deadline and move no items/funds.
+- Saved PREPARED proof precedes stock reservation; exact food -> material in the
+  same slot; verified EXCHANGED proof precedes one future food receipt. Changed goods
+  cancel/refund once, uncertain inventory failures retain supplies for review,
+  and disabled-new-trade recovery remains. Pending markers block other transfers;
+  unverified payouts lock item movement. No treasury charge or industry invention.
+- First focused adapter run refused the new receipt because it was not yet in the
+  proof reader's explicit allowlist. Added only the barter key; full bounded NBT,
+  root-marker/EOF/CRC verification remains. Rerun passed, retaining failure tests.
+- Ten new automated cases: nine player/command/recovery cases plus a mixed two-
+  village 240-period donation/paid/barter/cancel/duplicate/restart scenario. Final
+  Wrapper clean verify -B -ntp passed 460 cases (458 unit/two packaged integration),
+  zero failures/errors/skips. All imports, cash debits and materials conserved.
+- Native disposable Paper passed 8 wheat -> 6 saved oak logs, stock8->2 once,
+  unchanged treasury, withheld payout on failed save, protected double acceptance,
+  future food once, restart/duplicate completion and prior welfare/economy/unloaded
+  regressions. Normal final startup/command routing/diagnostics/shutdown passed;
+  SQLite integrity/FKs, stable IDs and histories retained; consistent dev snapshot
+  first, probe archived outside plugins. No production reset, merge, main or push.
+- Phase 2 advances to 3/4 (75%): player trade/prices/stability prototype group
+  passed. Broader autonomous executed responses and attributable outcome feedback
+  remain. Human client, inventory-plugin compatibility and survival balance remain
+  release limits. Next: explained feasible responses and outcome learning.
+
 ## Protected barter accounting — October 9, 2026
 
 - Branch `codex/phase2-barter-accounting`: real saved timber/stone can fund an

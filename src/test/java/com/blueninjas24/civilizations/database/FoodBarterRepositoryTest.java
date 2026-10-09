@@ -129,4 +129,47 @@ class FoodBarterRepositoryTest {
         imports+=runtime.views().get(town).latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().imports();
         assertEquals(delivered,imports);assertTrue(exported>0);assertEquals(0,new FoodBarterRepository(db.getConnection()).reservedFood(town));
     }
+    @Test void mixedTwoVillage240PeriodEconomyConservesCashMaterialsAndFoodAcrossAllTradeTypesAndRestart()throws SQLException {
+        var other=UUID.randomUUID();db.saveSettlement(new Settlement(other,"Second fixture","world",100,64,0,1,0,2));
+        db.getVillageIdentityRepository().bindSettlement(other,world);
+        for(int i=0;i<2;i++)db.getPopulationRepository().insertResident(new Resident(UUID.randomUUID(),"Fixture",other,null,300,Resident.Status.ALIVE));
+        runtime.observe(new FarmObservation(other,world,1000,true,0),1000);
+        var random=new Random(19017);var villages=List.of(town,other);
+        long paid=0,foodDelivered=0,foodImported=0,timberExported=0,stoneExported=0;
+        for(int period=1;period<=240;period++) {
+            long now=61000L+(period-1)*60000L;runtime.pulse(now,false);
+            for(var village:villages) {
+                var view=runtime.views().get(village);
+                assertEquals(period,view.account().state().completedPeriods());
+                foodImported+=view.latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().imports();
+                if(view.needs().demand()<=view.needs().fulfilled())continue;
+                switch(random.nextInt(3)) {
+                    case 0->{if(view.treasury().hundredths()<800)break;
+                        var terms=new FoodPurchases.Terms(UUID.randomUUID(),player,village,4,"WHEAT",4,1,800);
+                        runtime.reserveFoodPurchase(terms,FoodPurchases.Policy.prototype(),foods,now);
+                        if(random.nextInt(4)==0)runtime.cancelFoodPurchase(terms);
+                        else {runtime.completeFoodPurchase(terms,now);assertFalse(runtime.completeFoodPurchase(terms,now));paid+=800;foodDelivered+=4;}
+                    }
+                    case 1->{var commodity=view.account().state().stocks().get(Commodity.TIMBER).units()>2?Commodity.TIMBER:Commodity.STONE;
+                        if(view.account().state().stocks().get(commodity).units()<=2)break;
+                        var terms=runtime.quoteFoodBarter(UUID.randomUUID(),player,village,4,"WHEAT",4,commodity,policy,foods,now);
+                        runtime.reserveFoodBarter(terms,policy,foods,now);
+                        if(random.nextInt(4)==0)runtime.cancelFoodBarter(terms);
+                        else {runtime.completeFoodBarter(terms,now);assertFalse(runtime.completeFoodBarter(terms,now));foodDelivered+=4;
+                            if(commodity.equals(Commodity.TIMBER))timberExported+=terms.paymentUnits();else stoneExported+=terms.paymentUnits();}
+                    }
+                    default->{var operation=UUID.randomUUID();assertTrue(runtime.recordDeliveredFood(operation,village,4,"Fixture delivered donation",now));
+                        assertFalse(runtime.recordDeliveredFood(operation,village,4,"Fixture delivered donation",now));foodDelivered+=4;}
+                }
+            }
+            if(period%31==0){db.close();open();runtime.start(now);}
+            long money=0,timber=0,stone=0;
+            for(var view:runtime.views().values()){money+=view.treasury().hundredths();timber+=view.account().state().stocks().get(Commodity.TIMBER).units();stone+=view.account().state().stocks().get(Commodity.STONE).units();}
+            assertEquals(9600,money+paid);assertEquals(32,timber+timberExported);assertEquals(16,stone+stoneExported);
+        }
+        runtime.pulse(61000L+240*60000L,false);
+        for(var view:runtime.views().values())foodImported+=view.latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().imports();
+        assertEquals(foodDelivered,foodImported);assertTrue(paid>0);assertTrue(timberExported>0);assertTrue(stoneExported>0);
+        for(var village:villages)assertEquals(0,runtime.views().get(village).foodAid().pendingDeliveries());
+    }
 }

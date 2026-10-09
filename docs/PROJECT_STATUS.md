@@ -1,6 +1,41 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies and basic labor/treasury/wellbeing (2/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining and resident-linked food/housing welfare. Barter, broader response execution and integrated balance remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies, basic labor/treasury/wellbeing and player trade/stability prototype groups (3/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Broader autonomous response execution/outcome learning remains pending. Phases 3–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+
+## Playable finite-stock food barter — October 9, 2026
+
+- Branch `codex/phase2-player-barter`: `/civ barter timber|stone` previews a whole
+  held food stack for current available oak logs/cobblestone; `/civ barter accept`
+  explicitly confirms. Optional village UUID resolves overlap. Prices, conversion,
+  stock floor, item cap and food target are editable. No recurring industry supplies.
+- New files enable the optional barter section; old owner files stay disabled until
+  explicitly opted in. Unaccepted quotes are temporary/expire using the editable
+  bargaining offer deadline. Restart discards them without goods lost. Accepted
+  immutable receipts recover even if new barter is disabled. No new migration after
+  schema 24; no world/DB reset or owner-config rewrite.
+- Exact PREPARED save proof precedes reservation. Whole food becomes goods in the
+  same slot; EXCHANGED saved proof precedes one future food receipt. Changed goods
+  cancel/refund stock once. Ambiguous inventory failures retain supplies for review.
+  Pending trade markers block other donations/purchases/negotiations; unverified
+  payouts lock item movement. Treasury is unchanged by barter.
+- Nine added player/command/receipt cases plus one mixed two-village 240-period
+  scenario. The latter conserves every food import, emerald debit and timber/stone
+  unit across all payment types, cancellations, duplicate completions and restart.
+  First focused run exposed the new receipt missing from the saved-proof allowlist;
+  added only its explicit supported key, retaining bounded full-file proof rules.
+  Final Windows `.\mvnw.cmd clean verify -B -ntp` passed 460 cases (458 unit/two
+  packaged integration), zero failures/errors/skips. No test uses a real server DB.
+- Native pinned disposable Paper passed 8 wheat -> 6 saved oak logs, precisely one
+  six-unit stock debit, unchanged money, failed-save withholding, double acceptance,
+  future food once, restart and all prior economy/welfare/unloaded regressions.
+  Marked dev snapshot taken first; no production changes, merge or push.
+  Final normal startup/command routing/diagnostics/shutdown and read-only integrity/
+  FK/history checks passed; test-only probe archived outside active plugins.
+- Phase 2 advances to 3/4 groups (75%): the player trade/prices/long-run stability
+  prototype gate is verified. Autonomous executed responses and attributable outcome
+  learning remain; industry-specific merchants, barter quantity negotiation and
+  human client/inventory-plugin/release balance stay outside the verified prototype.
+  See PLAYER_BARTER.md. Next: feasible responses and explained outcome feedback.
 
 ## Protected barter accounting — October 9, 2026
 

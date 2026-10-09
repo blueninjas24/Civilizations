@@ -15,7 +15,7 @@ public final class SavedAidProof {
     }
     /** Full-file proof for a supported root BukkitValues receipt; no inventory mutation. */
     public static boolean contains(Path playerDirectory, UUID player, String key, String expected) throws IOException {
-        if (!key.equals(KEY) && !key.equals(PendingFoodPurchase.KEY)) throw new IllegalArgumentException("Unsupported player receipt key");
+        if (!key.equals(KEY) && !key.equals(PendingFoodPurchase.KEY) && !key.equals(PendingFoodBarter.KEY)) throw new IllegalArgumentException("Unsupported player receipt key");
         var directory=playerDirectory.toAbsolutePath().normalize();
         var file=directory.resolve(player+".dat").normalize();
         if (!file.getParent().equals(directory)) throw new IOException("Invalid player proof path");

@@ -30,6 +30,8 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
     private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
     private com.blueninjas24.civilizations.paper.FoodBargainingCommand bargaining;
+    private com.blueninjas24.civilizations.paper.FoodBarterTransfers barters;
+    private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
     @Override
     public void onEnable() {
@@ -68,9 +70,14 @@ public final class Civilizations extends JavaPlugin {
                     EconomyConfiguration.readPurchases(economyConfig),getServer().getLevelDirectory().resolve("players/data"),bargainingPolicy);
             bargaining=new com.blueninjas24.civilizations.paper.FoodBargainingCommand(this,population,purchases,previewPolicy,
                     EconomyConfiguration.readPurchases(economyConfig),bargainingPolicy);
+            barters=new com.blueninjas24.civilizations.paper.FoodBarterTransfers(this,population,previewPolicy,
+                    EconomyConfiguration.readBarter(economyConfig),getServer().getLevelDirectory().resolve("players/data"));
+            barterCommand=new com.blueninjas24.civilizations.paper.FoodBarterCommand(this,population,barters,previewPolicy,
+                    EconomyConfiguration.readBarter(economyConfig),bargainingPolicy.offerSeconds());
             var router=new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
-                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining);
+                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining,barterCommand);
             command.setExecutor(router);command.setTabCompleter(router);bargaining.runTaskTimer(this,1,1);
+            barterCommand.runTaskTimer(this,1,1);barters.runTaskTimer(this,20,100);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.FoodAidMenu(this,population,aid,previewPolicy,purchases),this);
             aid.runTaskTimer(this,20,100);
             purchases.runTaskTimer(this,20,100);
@@ -102,6 +109,8 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(barterCommand!=null)barterCommand.close();
+        if(barters!=null)barters.close();
         if(bargaining!=null)bargaining.close();
         if (purchases != null) purchases.close();
         if (aid != null) aid.close();

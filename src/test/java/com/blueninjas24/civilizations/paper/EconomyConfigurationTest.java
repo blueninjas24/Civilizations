@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
     @Test void barterSettingsAreEditableDisabledInitiallyAndOldFilesStayUntouched() throws Exception {
-        var config=defaults();assertEquals(FoodBarters.Policy.disabled(),EconomyConfiguration.readBarter(config));
+        var config=defaults();assertEquals(FoodBarters.Policy.prototype(),EconomyConfiguration.readBarter(config));
         config.set("barter.enabled",true);config.set("barter.goods.timber.units-per-item",2);config.set("barter.goods.timber.keep-units",10);
         config.set("barter.goods.stone",null);config.set("barter.maximum-items",12);
         assertEquals(new FoodBarters.Policy(true,3,12,Map.of(Commodity.TIMBER,new FoodBarters.Goods("OAK_LOG",2,10))),EconomyConfiguration.readBarter(config));

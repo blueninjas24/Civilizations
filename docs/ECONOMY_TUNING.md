@@ -179,3 +179,15 @@ with future observations, without rewriting old evidence or changing food time.
 Unknown housing cannot earn comfort recovery or automatically count as homelessness.
 These welfare settings do not control money, salaries, births, migration or deaths.
 See HOUSEHOLD_WELLBEING.md for exact rules, resident identity and validation limits.
+
+## Player barter
+
+The optional commented `barter` section now controls confirmed food-for-timber/stone
+exchanges. New files enable it; absent older sections remain disabled and files are
+never overwritten. Edit mappings/conversion, protected keep-stock floors, item cap
+and food-demand target while stopped; restart. Prototype outputs are OAK_LOG and
+COBBLESTONE, from real finite saved supplies, not invented industry. Prices reuse
+the commodity Trade Value table. Quote expiry reuses `bargaining.offer-seconds`
+even when emerald bargaining is disabled. Existing accepted transactions recover
+under original terms despite retuning/disable. No new money or stock refill.
+See PLAYER_BARTER.md and BARTER_ACCOUNTING.md for safety and validation limits.

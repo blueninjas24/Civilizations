@@ -11,7 +11,7 @@ not a replacement for ROADMAP.md or its design requirements.
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
-| 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 2 / 4 | `█████░░░░░` 50% — basic supplies, labor, budget and family wellbeing verified; decisions/trade groups partial |
+| 2. Needs & Economy | Villages need food, materials and housing, and choose responses | 3 / 4 | `███████▌░░` 75% — supplies, basic labor/welfare and player trade prototype verified; autonomous response group partial |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -39,21 +39,22 @@ probe uses synthetic observation positions; a human Minecraft client playtest is
 needed. This is the Phase 1 foundation gate, not a balanced survival release. See
 PHASE1_PLAYTEST.md for setup and material limitations, including trade resets on moves.
 
-## Phase 2 — supplies and basic labor/treasury/wellbeing complete
+## Phase 2 — supplies, basic labor/wellbeing and player trade prototype complete
 
 - [x] Commodity supplies, demand, reserves and shortages. Explicit headless inputs,
   saved reserves/history, shortage duration/recovery and transactional restart verified.
   Live food production/consumption now uses observed fields. No starvation deaths.
 - [x] Basic labor, food production, treasury/spending and household food/housing wellbeing. Verified saved worker capacity, finite funds/payments and family welfare; business employment belongs to Phase 3.
 - [ ] Feasible autonomous decisions with explanations.
-- [ ] Player trade/prices and long-running economy/shortage tests.
+- [x] Player trade/prices and long-running economy/shortage tests. Donations, emerald purchases/bargaining and finite-stock timber/stone barter verified in temporary SQLite, mixed two-village accelerated scenarios and real Paper. Human client/release balance remains pending.
 
 Live food runs on a saved independent clock with real planted-field evidence,
 shortage/recovery explanations and editable famine/feast tuning. Household demand,
 housing pressure and shared food conditions now save with each period. Treasury
 accounting is tested separately from wellbeing; configurable one-time opening funding
 is now wired. Confirmed food sales now spend actual village funds and pay emeralds;
-emerald bargaining now adds saved counters and cooldowns; barter and broader execution remain ahead.
+emerald bargaining adds saved counters/cooldowns; finite-stock barter is now playable.
+Broader autonomous response execution and attributable feedback remain ahead.
 New periods now divide fulfilled food between occupied families and unassigned
 residents, retaining each family's shortage streak. These simulated shares do not
 establish physical meals. Basic family welfare now follows actual food/housing
@@ -82,17 +83,17 @@ response execution/learning and building permissions remain ahead.
 | Supplies and shortages — complete | Commodity accounting, saved reserves/history, duration/recovery, long crisis fixtures | Complete as an accounting foundation |
 | Basic labor, treasury and wellbeing — complete | Field-backed adult production, household allocations, once-only opening funds, actual spending/payments, resident-linked welfare and crisis/recovery history; 419 automated cases and Paper | Complete for the Phase 2 food/housing prototype; employment/industry welfare belongs to Phase 3 |
 | Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery, player-readable food appeals and saved observed outcomes | Broader executed responses and learning weights from attributable outcomes |
-| Player economy and stability — partial | Configurable scarcity prices, exact budget-limited quotes, long shortage/recovery tests, donations, emerald purchases and saved price bargaining/cooldowns | Barter, protected outbound goods and wider integrated balance/compatibility tests |
+| Player economy and stability — prototype complete | Configurable prices, exact finite-budget payments, saved negotiation/cooldowns, protected finite-stock barter, donations, mixed two-village 240-period conservation and native inventory/restart | Human client/inventory-plugin compatibility and survival balance remain release limits |
 
 Finance direction is now approved: a moderate configurable opening financial
 position, emerald payments and optional barter from real production stocks. These
 choices resolve the earlier questions. One-time opening funds are implemented;
-emerald food payments, basic family welfare and emerald bargaining are now implemented; barter
-remains pending. The full milestone count remains 2/4. Actual business/workplace assignment
+emerald food payments, basic family welfare, emerald bargaining and timber/stone barter
+are implemented. The full milestone count advances to 3/4. Actual business/workplace assignment
 belongs to Phase 3.
 
 Completed pieces in a partial group are real progress. The top bar counts whole
-reporting groups, so it now shows 2/4 (50%); it does not measure coding hours or all
+reporting groups, so it now shows 3/4 (75%); it does not measure coding hours or all
 partial work. It will advance when a full group and its acceptance gate are verified.
 See FINANCE_FOUNDATION.md, FOOD_APPEALS.md, FOOD_DONATIONS.md, PLAYER_FOOD_AID.md, FOOD_RELIEF.md, VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
 HOUSEHOLD_NEEDS_AND_TREASURY.md and ECONOMY_TUNING.md.
@@ -111,11 +112,20 @@ Wrapper passed 435 automated cases; disposable Paper verified a saved counter
 surviving restart and one native 8-wheat/3-emerald exchange. Barter and the other
 unfinished gates keep the phase at 2/4 (50%). See FOOD_BARGAINING.md.
 
-Barter now has tested internal accounting: real timber/stone reservations, protected
+The accounting batch established real timber/stone reservations, protected
 stock floors and once-only cancellation/completion, including a 240-period finite-
 stock famine/restart scenario. The 450-case Wrapper build and existing Paper economy
-regressions passed. No live barter interface yet; this partial work does not complete
-the trade group. Next is saved player-inventory confirmation. See BARTER_ACCOUNTING.md.
+regressions passed. See BARTER_ACCOUNTING.md for stock semantics.
+
+The subsequent player barter batch implements `/civ barter timber|stone` and
+explicit acceptance, with saved inventory proof, stock reservation/refund and
+restart recovery. Actual Paper exchanged 8 wheat for 6 oak logs once without
+spending money. A mixed two-village 240-period scenario accounts for every food,
+currency and material unit across donations, paid sales, barter and restart. The
+final Wrapper build passed 460 cases, with zero failures/errors/skips. The
+trade prototype group is complete, advancing Phase 2 to 75%; broader autonomous
+responses/outcome learning still block 100%. Human survival/client/plugin testing
+remains required for release. See PLAYER_BARTER.md.
 
 ## Phase 3 — planned
 
