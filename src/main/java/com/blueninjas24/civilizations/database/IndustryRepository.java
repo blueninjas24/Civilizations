@@ -23,6 +23,15 @@ public final class IndustryRepository {
     public record Shipment(UUID id,UUID seller,UUID buyer,Commodity commodity,long units,long price,
                            long dispatchedPeriod,long duePeriod,Long deliveredPeriod) {}
     public enum Use { HOUSEHOLD_NEED, INDUSTRY_INPUT, MAINTENANCE }
+    public record RecipeRun(UUID operation,UUID business,long period,String recipe,long requested,long workers,
+                            long batchesPerWorker,long siteCapacity,Receipt receipt,
+                            Map<Commodity,Long> inputPerBatch,Map<Commodity,Long> outputPerBatch,
+                            Map<Commodity,Long> consumed,Map<Commodity,Long> produced) {
+        public RecipeRun {
+            inputPerBatch=Map.copyOf(inputPerBatch);outputPerBatch=Map.copyOf(outputPerBatch);
+            consumed=Map.copyOf(consumed);produced=Map.copyOf(produced);
+        }
+    }
     private final Connection connection;
     private final BusinessRepository businesses;
     public IndustryRepository(Connection connection) throws SQLException {
@@ -136,6 +145,69 @@ public final class IndustryRepository {
             }
             return saved;
         });
+    }
+
+    /** Complete processing batches atomically consume delivered inputs and add outputs; no new money. */
+    public RecipeRun process(UUID operation,UUID business,ProductionRecipe recipe,long requested,long period) throws SQLException {
+        Objects.requireNonNull(operation);Objects.requireNonNull(business);Objects.requireNonNull(recipe);
+        if(requested<0 || period<0)throw new IllegalArgumentException("Invalid recipe request");
+        String operationTerms=terms("recipe-v1",business,recipe.id(),recipe.industry(),catalog(recipe.inputs()),catalog(recipe.outputs()),
+                recipe.batchesPerWorker(),recipe.siteCapacity(),requested,period);
+        return transaction(()-> {
+            if(receipt(operation,operationTerms).isPresent())return recipeRun(operation).orElseThrow(()->new SQLException("Recipe receipt missing run"));
+            var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+            if(!b.industry().equals(recipe.industry()))throw new SQLException("Recipe does not match business industry");
+            try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
+                s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                    if(r.next()){long last=r.getLong(1);if(!r.wasNull() && period<=last)throw new SQLException("Production period is stale or already completed");}
+                }
+            }
+            var stock=store(business).orElseThrow(()->new SQLException("Missing business store"));
+            var goods=new HashSet<>(recipe.inputs().keySet());goods.addAll(recipe.outputs().keySet());
+            if(!stock.units().keySet().containsAll(goods))throw new SQLException("Store catalog does not support recipe; explicit store transition required");
+            int workers=businesses.currentWorkers(business).size();
+            var plan=RecipeProduction.calculate(recipe,requested,workers,stock.freeSpace(),stock.units(),stock.spacePerUnit());
+            for(var e:plan.consumed().entrySet())changeStock(business,e.getKey(),-e.getValue());
+            for(var e:plan.produced().entrySet())changeStock(business,e.getKey(),e.getValue());
+            save(operation,operationTerms,plan.batches(),plan.explanation());
+            try(var s=connection.prepareStatement("INSERT INTO industry_production(business_id,period,operation_id) VALUES(?,?,?)")) {
+                s.setString(1,business.toString());s.setLong(2,period);s.setString(3,operation.toString());s.executeUpdate();
+            }
+            try(var s=connection.prepareStatement("INSERT INTO recipe_runs VALUES(?,?,?,?,1,?,?,?,?)")) {
+                s.setString(1,operation.toString());s.setString(2,business.toString());s.setLong(3,period);s.setString(4,recipe.id());
+                s.setLong(5,requested);s.setLong(6,workers);s.setLong(7,recipe.batchesPerWorker());s.setLong(8,recipe.siteCapacity());s.executeUpdate();
+            }
+            saveRecipeFlows(operation,"INPUT",recipe.inputs(),plan.consumed());
+            saveRecipeFlows(operation,"OUTPUT",recipe.outputs(),plan.produced());
+            store(business).orElseThrow();return recipeRun(operation).orElseThrow();
+        });
+    }
+    private void saveRecipeFlows(UUID operation,String direction,Map<Commodity,Long> perBatch,Map<Commodity,Long> amounts) throws SQLException {
+        try(var s=connection.prepareStatement("INSERT INTO recipe_flows VALUES(?,?,?,?,?)")) {
+            for(var e:new TreeMap<>(perBatch).entrySet()) {
+                s.setString(1,operation.toString());s.setString(2,e.getKey().id());s.setString(3,direction);
+                s.setLong(4,e.getValue());s.setLong(5,amounts.get(e.getKey()));s.executeUpdate();
+            }
+        }
+    }
+    public Optional<RecipeRun> recipeRun(UUID operation) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT r.*,o.quantity,o.explanation FROM recipe_runs r JOIN industry_operations o ON o.id=r.operation_id WHERE r.operation_id=?")) {
+            s.setString(1,operation.toString());try(var r=s.executeQuery()) {
+                if(!r.next())return Optional.empty();
+                var input=new TreeMap<Commodity,Long>();var output=new TreeMap<Commodity,Long>();
+                var consumed=new TreeMap<Commodity,Long>();var produced=new TreeMap<Commodity,Long>();
+                try(var f=connection.prepareStatement("SELECT * FROM recipe_flows WHERE operation_id=? ORDER BY commodity,direction")) {
+                    f.setString(1,operation.toString());try(var row=f.executeQuery()){while(row.next()) {
+                        var good=new Commodity(row.getString("commodity"));boolean in=row.getString("direction").equals("INPUT");
+                        (in?input:output).put(good,row.getLong("per_batch"));(in?consumed:produced).put(good,row.getLong("units"));
+                    }}
+                }
+                if(input.isEmpty() || output.isEmpty())throw new SQLException("Recipe run missing material history");
+                return Optional.of(new RecipeRun(operation,UUID.fromString(r.getString("business_id")),r.getLong("period"),r.getString("recipe_id"),
+                        r.getLong("requested"),r.getLong("workers"),r.getLong("batches_per_worker"),r.getLong("site_capacity"),
+                        new Receipt(operation,r.getLong("quantity"),r.getString("explanation")),input,output,consumed,produced));
+            }
+        }
     }
 
     /** Buyer owns reserved cargo after payment. Actual money transfers once; destination storage is reserved in advance. */

@@ -1,5 +1,37 @@
 # Civilizations Development Log
 
+## Workshop recipes and paid connected production — October 9, 2026
+
+- Added deterministic complete-batch manufacturing from actual owned/delivered
+  stock. Request, saved local living employees, site, ingredients and net storage
+  growth constrain output. Input consumption frees real space; pending cargo neither
+  supplies inputs nor relinquishes reserved space. No block work or invented money.
+- Editable recipe catalog defaults: smith_tools, iron two + coal one -> tools one,
+  two batches/worker/site cap eight. Business/store compatibility required. This is
+  backend processing, not an automatic nonfood business/discovery/scheduler feature.
+- Schema 31 retains versioned request/workforce/recipe/material history atomically
+  with stocks, receipt and shared period-work marker. Duplicate/stale/changed requests,
+  zero work and failures cannot reuse labor, consume twice or reset old history.
+  Immutable bounded diagnostics show latest industrial explanation; fixed stale
+  empty-business text that wrongly said no automatic founding was active.
+- Added 18 cases: five domain, ten repository, three config. 10000 seeded domain
+  plans and paid 240-cycle mine/warehouse/blacksmith/test maintenance scenario prove
+  materials, geology, storage and money conservation across restart. Focused fixture
+  corrections used the existing resident migration API and updated stale text.
+  Required Windows Wrapper clean verify passed 571 (569 unit/two integration),
+  zero failures/errors/skips. No unrun test or full industry gate claimed.
+- Consistent marked-dev snapshot before schema 31; dedicated-owner test-only Paper
+  probe with separate DB passed paid chain, two tools from four iron/two coal,
+  conserved capital, replay, restart, dead-worker exclusion and diagnostic snapshot.
+  Main startup retained prior month/no failure; stop exited zero. Read-only previous
+  identities/industry/funds, integrity/FKs and isolated recipe flow checks passed.
+  Existing owner configuration hash unchanged; native probe excluded from production
+  JAR, archived outside plugins and server stopped. No world/entity changes.
+- Updated workshop guide, config text, runtime/mining/development notes, decisions,
+  progress/status/devlog. Phase 3 stays 1/4 (25%): chain group partial until reliable
+  nonfood discovery/founding/operation. No consequential user answer needed; next
+  scoped adapters precede turnover/specialization. Local feature commit, no push/merge.
+
 ## Automatic funded farms and assigned production — October 9, 2026
 
 - Connected real crop observations to one persistent village field enterprise,

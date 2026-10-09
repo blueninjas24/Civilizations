@@ -98,6 +98,16 @@ restoring server data has not been performed by this development batch.
 
 ## Manual automatic-farm native fixture
 
+WorkshopProductionProbe under the same test-only directory is a separate guarded
+plugin, main/name WorkshopProductionProbe/CivilizationsWorkshopProbe with the same
+API version and Civilizations dependency. Compile it against binary dependency JARs
+(exclude sources/javadoc JARs, set empty sourcepath). It uses its own randomly named
+database and dedicated SQL owner, explicit synthetic industries/sites/deposits and
+saved residents; no world blocks/entities or production DB are changed. It verifies
+the packaged paid chain, processing, capital conservation, duplicate/restart safety,
+dead-worker exclusion and immutable diagnostic output. Archive it outside plugins
+after normal stop. Neither probe belongs in a distributed plugin artifact.
+
 src/test/paper/FarmBusinessProbe.java is compiled separately against the packaged
 plugin and Paper API dependencies, then packaged with a test-only plugin.yml:
 name CivilizationsFarmProbe, main FarmBusinessProbe, version 1, api-version 1.21,

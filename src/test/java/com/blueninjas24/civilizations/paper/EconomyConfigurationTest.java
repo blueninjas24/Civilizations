@@ -227,6 +227,27 @@ class EconomyConfigurationTest {
         assertEquals(Condition.SEVERE_SHORTAGE, famineResult.reports().stream().filter(r -> r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().condition());
         assertEquals(Condition.ABUNDANT, feastResult.reports().stream().filter(r -> r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().condition());
     }
+    @Test void workshopRecipesHaveEditableDefaultsAndOldFilesDoNotRequireASection() throws Exception {
+        var config=defaults();
+        assertEquals(com.blueninjas24.civilizations.industry.ProductionRecipe.smithTools(),EconomyConfiguration.readRecipes(config).get("smith_tools"));
+        config.set("recipes.smith_tools.inputs.iron",3);config.set("recipes.smith_tools.batches-per-worker",4);
+        assertEquals(3,EconomyConfiguration.readRecipes(config).get("smith_tools").inputs().get(Commodity.IRON));
+        assertEquals(4,EconomyConfiguration.readRecipes(config).get("smith_tools").batchesPerWorker());
+        config.set("recipes",null);assertEquals(1,EconomyConfiguration.readRecipes(config).size());EconomyConfiguration.read(config);
+    }
+    @Test void incompleteMisspelledAndUnsafeRecipesFailBeforeDatabaseStartup() throws Exception {
+        for(var path:java.util.List.of("recipes.smith_tools.inputs.iron","recipes.smith_tools.outputs.tools","recipes.smith_tools.site-batch-capacity")) {
+            var config=defaults();config.set(path,0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var missing=defaults();missing.set("recipes.smith_tools.industry",null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(missing));
+        var typo=defaults();typo.set("recipes.smith_tools.batch-per-worker",2);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(typo));
+        var quoted=defaults();quoted.set("recipes.smith_tools.inputs.iron","2");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(quoted));
+    }
+    @Test void RecipeCatalogCanBeEmptyAndCannotBeModifiedAfterReading() throws Exception {
+        var config=defaults();var recipes=EconomyConfiguration.readRecipes(config);
+        assertThrows(UnsupportedOperationException.class,()->recipes.clear());
+        config.set("recipes",null);config.createSection("recipes");assertTrue(EconomyConfiguration.readRecipes(config).isEmpty());
+    }
     private Result scenario(EconomySettings settings) {
         var stocks = new TreeMap<Commodity, Stock>(); settings.startingReserves(4).forEach((commodity, units) -> stocks.put(commodity, new Stock(units, 0)));
         var state = new State(0, stocks); Result result = null;

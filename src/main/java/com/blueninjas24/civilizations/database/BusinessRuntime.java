@@ -8,7 +8,7 @@ public final class BusinessRuntime {
     public record View(UUID id, UUID settlement, UUID world, String name, String industry,
                        String founder, String owner, boolean ownerAvailable, int capacity,
                        int workers, int openAssignments, String lastSeparation, long foundedStep,
-                       int x, int y, int z, boolean paused) {
+                       int x, int y, int z, boolean paused, String lastProduction) {
         public int vacancies() { return capacity - workers; }
     }
     public record Snapshot(long total, Map<UUID,View> businesses) {
@@ -56,11 +56,16 @@ public final class BusinessRuntime {
                 }
             }
             var view=new View(id,b.settlementId(),site.worldId(),b.name(),b.industry(),founder,owner,available,b.workerCapacity(),
-                    businesses.currentWorkers(id).size(),open,separation,b.foundedStep(),site.x(),site.y(),site.z(),paused);
+                    businesses.currentWorkers(id).size(),open,separation,b.foundedStep(),site.x(),site.y(),site.z(),paused,lastProduction(id));
             cache.remove(id);cache.put(id,view);cursor=id.toString();
             while(cache.size()>cacheSize)cache.remove(cache.keySet().iterator().next());
         }
         return new Snapshot(total,cache);
+    }
+    private String lastProduction(UUID business) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT p.period,substr(o.explanation,1,768),length(o.explanation) FROM industry_production p JOIN industry_operations o ON o.id=p.operation_id WHERE p.business_id=? ORDER BY p.period DESC LIMIT 1")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()){return r.next()?"Period "+r.getLong(1)+": "+r.getString(2)+(r.getInt(3)>768?"...":""):null;}
+        }
     }
     private List<UUID> page() throws SQLException {
         var ids=new ArrayList<UUID>();
@@ -72,6 +77,6 @@ public final class BusinessRuntime {
     }
     private static View withPause(View v,Set<UUID> worlds) {
         return new View(v.id(),v.settlement(),v.world(),v.name(),v.industry(),v.founder(),v.owner(),v.ownerAvailable(),v.capacity(),
-                v.workers(),v.openAssignments(),v.lastSeparation(),v.foundedStep(),v.x(),v.y(),v.z(),worlds!=null && !worlds.contains(v.world()));
+                v.workers(),v.openAssignments(),v.lastSeparation(),v.foundedStep(),v.x(),v.y(),v.z(),worlds!=null && !worlds.contains(v.world()),v.lastProduction());
     }
 }

@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 9, 2026 — workshop recipe prototype accounting
+
+Approved editable economy authority supplies the first blacksmith recipe: two iron
+plus one coal yield one abstract tools unit; two batches per actual worker, site cap
+eight per requested economic period. These are text-editable prototypes, not item
+trade ratios, infinite inputs or guaranteed income. Stored goods must be owned and
+delivered; input consumption/output/storage/history share a transaction. This batch
+implements explicit owner processing, not automatic workshop discovery/scheduling,
+NPC shopping, physical block work or household payroll. Tools are business stock;
+village reserves and old owner files are unchanged. No new design answer is needed.
+See WORKSHOP_PRODUCTION.md for saved recipe history and deployment limitations.
+
 ## October 9, 2026 — automatic field enterprise prototype
 
 Under the user's approval to choose editable economy prototype settings, one

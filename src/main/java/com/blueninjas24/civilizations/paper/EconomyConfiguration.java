@@ -17,6 +17,7 @@ public final class EconomyConfiguration {
         if (config.contains("responses")) rootKeys.add("responses");
         if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
+        if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -37,6 +38,7 @@ public final class EconomyConfiguration {
         readResponses(config);
         readIndustry(config);
         readFarmBusinesses(config);
+        readRecipes(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -72,6 +74,24 @@ public final class EconomyConfiguration {
         if(!(settings.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-businesses.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.FarmBusinessPolicy(enabled,smallInteger(settings,"worker-capacity"),
                 integer(settings,"startup-trade-value-hundredths"),integer(settings,"minimum-age-months"),integer(settings,"minimum-farming-experience"));
+    }
+    /** Backend recipe catalog. Parsing does not establish a workshop, provide stock or run production. */
+    public static Map<String,com.blueninjas24.civilizations.industry.ProductionRecipe> readRecipes(ConfigurationSection config) {
+        if(!config.contains("recipes"))return Map.of("smith_tools",com.blueninjas24.civilizations.industry.ProductionRecipe.smithTools());
+        var catalog=section(config,"recipes");
+        if(catalog.getKeys(false).size()>32)throw new IllegalArgumentException("At most 32 prototype recipes supported");
+        var result=new TreeMap<String,com.blueninjas24.civilizations.industry.ProductionRecipe>();
+        for(var key:catalog.getKeys(false)) {
+            var entry=section(catalog,key);exactKeys(entry,Set.of("industry","inputs","outputs","batches-per-worker","site-batch-capacity"));
+            if(!(entry.get("industry") instanceof String industry))throw new IllegalArgumentException("Recipe industry must be text");
+            var inputs=new TreeMap<Commodity,Long>();var outputs=new TreeMap<Commodity,Long>();
+            var in=section(entry,"inputs");var out=section(entry,"outputs");
+            for(var good:in.getKeys(false))inputs.put(new Commodity(good),integer(in,good));
+            for(var good:out.getKeys(false))outputs.put(new Commodity(good),integer(out,good));
+            result.put(key,new com.blueninjas24.civilizations.industry.ProductionRecipe(key,industry,inputs,outputs,
+                    integer(entry,"batches-per-worker"),integer(entry,"site-batch-capacity")));
+        }
+        return Collections.unmodifiableMap(result);
     }
     /** Backend settings only until reliable discovery/founding/production adapters are implemented. */
     public static IndustryPolicy readIndustry(ConfigurationSection config) {

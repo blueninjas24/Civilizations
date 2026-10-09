@@ -2,6 +2,48 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Connected workshop recipe accounting — October 9, 2026
+
+- Branch `codex/phase3-workshop-production`: trusted SQL-owner processing consumes
+  delivered business inputs and adds complete-batch outputs, bounded by actual
+  workers, site/request limits, scarce inputs and net storage growth. Pending cargo
+  remains unavailable and reserves space. Ownership supplies no free labor; dead/
+  moved employees cease contributing. No money or village opening goods are minted.
+- Text-editable recipes catalog starts with smith_tools: two iron + one coal ->
+  one abstract tools unit, two batches/worker, site cap eight. Strict validation
+  rejects incomplete/unsafe settings before startup. Parsing does not activate a
+  scheduler or establish a workshop. Business stores must explicitly support every
+  ingredient/product; old owner files are unchanged. Tools are not player item trades.
+- Schema 31 adds versioned recipe_runs/recipe_flows. Inputs, outputs, exact saved
+  request/workforce/recipe flows, receipt and shared business-period production
+  marker commit together. Zero-work results, retries, changed-term rejection and
+  rollback protect labor/material accounting. Historical recipes survive retuning.
+  Cached admin business diagnostics now show the latest saved industrial explanation,
+  capped at 768 characters, and no longer incorrectly claim automatic farms are absent.
+- Eighteen new cases: five domain (including 10000 deterministic seeded plans),
+  ten temporary-SQLite repository scenarios and three config cases. Paid 240-cycle
+  mine -> warehouse -> blacksmith -> explicitly established test maintenance demand
+  conserves capital, finite deposit, stone and tool flows across midpoint restart.
+  Initial focused failures were test fixtures: an obsolete empty-cache assertion
+  and using ordinary update for a resident transfer; corrected to current diagnostic
+  and the existing explicit migration API. Final Windows `.\mvnw.cmd clean verify
+  -B -ntp` passed **571** (569 unit/two packaged integration), no failures/errors/skips.
+- Consistent marked-dev schema-30 backup preceded native schema-31 startup. Separate
+  test-only Paper probe used explicit synthetic firms/sites/deposit and a dedicated
+  SQL owner: paid deliveries, four iron/two coal -> two tools, capital conservation,
+  duplicate/restart safety, dead-worker exclusion and production diagnostics passed.
+  No world blocks/entities changed. Main plugin retained month 1661 after downtime,
+  then advanced normally online with no diagnostic failure; normal stop exited zero.
+  Read-only identities/industry/funds and integrity/FKs passed; no main-DB recipe
+  runs were fabricated, owner economy.yml hash unchanged. Probe archived outside
+  plugins and excluded from shipped JAR; test server stopped.
+- WORKSHOP_PRODUCTION.md documents backend API, admin recipe text and limitations.
+  This advances the connected-industry group but does not complete automatic
+  nonfood recognition/founding/operation, live NPC demand, competition, closure/
+  succession or emergent specialization. Phase 3 remains 1/4 (25%). Next: reliable
+  nonfood resource/workplace adapters and causal operation. No new design question,
+  production mutation, push/merge or main change.
+
 ## Automatic field enterprises — October 9, 2026
 
 - Branch `codex/phase3-automatic-farms`: complete actual Paper crop evidence can
@@ -38,7 +80,7 @@
   tickets/entities were released; only the marked disposable crop fixture remains.
 - AUTOMATIC_FARMS.md documents settings, scope and limitations. First Phase 3
   reporting group is complete for the farm prototype; the full canonical industry
-  gate is not passed. Nonfood industry, skills progression, wages, business revenue,
+  gate is not passed. Nonfood industry, skills progression, business revenue,
   expansion, closure/succession, chains and specialization remain next scoped work.
   No user decision blocks the next milestone; no merge/push or main change.
 

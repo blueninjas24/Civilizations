@@ -11,13 +11,14 @@ public final class BusinessDiagnostics {
         var views=snapshot.businesses().values().stream().filter(v->v.settlement().equals(town))
                 .sorted(Comparator.comparing(v->v.id().toString())).toList();
         lines.add("Business cache: "+snapshot.businesses().size()+" of "+snapshot.total()+" registered businesses; refreshed in bounded rotation.");
-        if(views.isEmpty())lines.add("No business cached for this settlement. Automatic founding and production are not active yet.");
+        if(views.isEmpty())lines.add("No business cached for this settlement. Farm founding requires enabled settings, reliable fields, available residents and capital.");
         for(var v:views.stream().limit(20).toList()) {
             lines.add(v.name()+" ["+v.industry()+"] "+v.id()+"; "+(v.paused()?"world absent: paused":"world available"));
             lines.add("Founder: "+v.founder()+"; owner: "+v.owner()+"; "+(v.ownerAvailable()?"owner available":"owner unavailable; succession not implemented"));
             lines.add("Workers: "+v.workers()+"/"+v.capacity()+"; vacancies: "+v.vacancies()+"; retained open assignments: "+v.openAssignments());
             lines.add("Site: "+v.x()+", "+v.y()+", "+v.z()+"; founded administrative month "+v.foundedStep()+". Registration grants no block rights.");
             if(v.lastSeparation()!=null)lines.add("Latest staffing separation: "+v.lastSeparation());
+            if(v.lastProduction()!=null)lines.add("Latest industrial production: "+v.lastProduction());
         }
         if(views.size()>20)lines.add("Showing 20 of "+views.size()+" cached businesses for this settlement.");
         return List.copyOf(lines);

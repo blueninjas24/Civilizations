@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 30;
+    static final int CURRENT_VERSION = 31;
 
     @FunctionalInterface
     interface Migration {
@@ -290,6 +290,32 @@ final class SchemaMigrator {
                 connection -> {
                     for(var coordinate:List.of("site_x","site_y","site_z"))
                         execute(connection,"ALTER TABLE farm_evidence ADD COLUMN "+coordinate+" INTEGER CHECK("+coordinate+" IS NULL OR typeof("+coordinate+")='integer')");
+                },
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE recipe_runs (
+                                operation_id TEXT PRIMARY KEY REFERENCES industry_operations(id),
+                                business_id TEXT NOT NULL REFERENCES businesses(id),
+                                period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=0),
+                                recipe_id TEXT NOT NULL CHECK(length(recipe_id) BETWEEN 1 AND 64),
+                                replay_version INTEGER NOT NULL CHECK(replay_version=1),
+                                requested INTEGER NOT NULL CHECK(typeof(requested)='integer' AND requested>=0),
+                                workers INTEGER NOT NULL CHECK(typeof(workers)='integer' AND workers>=0),
+                                batches_per_worker INTEGER NOT NULL CHECK(typeof(batches_per_worker)='integer' AND batches_per_worker>0),
+                                site_capacity INTEGER NOT NULL CHECK(typeof(site_capacity)='integer' AND site_capacity>0),
+                                UNIQUE(business_id,period)
+                            )
+                            """);
+                    execute(connection,"""
+                            CREATE TABLE recipe_flows (
+                                operation_id TEXT NOT NULL REFERENCES recipe_runs(operation_id),
+                                commodity TEXT NOT NULL CHECK(length(commodity) BETWEEN 1 AND 64),
+                                direction TEXT NOT NULL CHECK(direction IN ('INPUT','OUTPUT')),
+                                per_batch INTEGER NOT NULL CHECK(typeof(per_batch)='integer' AND per_batch>0),
+                                units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>=0),
+                                PRIMARY KEY(operation_id,commodity,direction)
+                            )
+                            """);
                 }
         ));
     }
@@ -408,6 +434,10 @@ final class SchemaMigrator {
                 requireColumns(connection,"population_active_worlds",Set.of("from_step","through_step","worlds"));
             }
             if(migrations.size()>=30)requireColumns(connection,"farm_evidence",Set.of("site_x","site_y","site_z"));
+            if(migrations.size()>=31) {
+                requireColumns(connection,"recipe_runs",Set.of("operation_id","business_id","period","recipe_id","replay_version","requested","workers","batches_per_worker","site_capacity"));
+                requireColumns(connection,"recipe_flows",Set.of("operation_id","commodity","direction","per_batch","units"));
+            }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

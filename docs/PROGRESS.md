@@ -4,13 +4,19 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 553 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 571 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest Phase 3 step: villages can automatically start a funded farm, hire real
 residents and produce food from their observed fields. Owners, workers and sites
 persist across restarts. The real Paper fixture verified founding, output, once-only
 spending and world pause. Old owner settings explicitly opt in. See AUTOMATIC_FARMS.md.
+
+Latest connected-industry work: a blacksmith recipe can turn actual delivered iron
+and coal into tool supplies, bounded by workers and storage. Paid mine/warehouse/
+workshop chains, restart and material/money conservation are tested. Automatic
+nonfood discovery/operation is still unfinished, so this is partial progress toward
+the next milestone, not another completed group. See WORKSHOP_PRODUCTION.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
@@ -148,6 +154,12 @@ shutdown and preserved history/config passed. Automatic mine recognition, busine
 operation, NPC shopping and production chains remain unwired, so the group stays
 unchecked. See FINITE_MINING_AND_WAREHOUSING.md. This is concrete backend progress,
 not a finished player-visible industry system.
+
+Connected workshop processing now adds editable recipes, transactional input/output
+history and actual worker/storage limits. A paid 240-cycle mine/warehouse/blacksmith
+fixture and native packaged Paper fixture passed; Wrapper total is 571. Ordinary
+villages do not automatically establish mines or blacksmiths yet; live demand,
+discovery/founding and operation remain required before checking this group.
 
 ## Phase 4 — planned
 

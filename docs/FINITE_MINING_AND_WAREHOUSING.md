@@ -1,5 +1,10 @@
 # Finite mining, business storage and local warehouse accounting
 
+The subsequent WORKSHOP_PRODUCTION.md batch adds transactional input/output recipes
+and a tested paid mine -> warehouse -> blacksmith chain. Automatic nonfood industry
+discovery/scheduling remains unwired; the original mining verification below is
+historical and is not a claim that mines now appear in ordinary gameplay.
+
 Approved October 9, 2026. This is a backend foundation, not automatic in-game mines,
 warehouses, shops, villagers shopping, physical transport or a completed Phase 3
 production milestone. Trusted owner callers and temporary tests exercise the chain;

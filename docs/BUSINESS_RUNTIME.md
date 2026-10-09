@@ -3,6 +3,11 @@
 Subsequent automatic farm integration uses this staffing bridge and diagnostics;
 see AUTOMATIC_FARMS.md. The original runtime batch below did not itself found firms.
 
+The workshop recipe batch additionally caches the latest saved industrial production
+summary (at most 768 characters per business). It preserves immutable old snapshots
+and the existing bounded rotation; it does not schedule workshop production.
+See WORKSHOP_PRODUCTION.md for recipe/flow history and current limitations.
+
 The plugin now visits saved businesses on its database owner thread after each
 population pulse. It finishes assignments whose saved resident died or moved out
 of the town, preserving the employment episode and an observed separation reason.

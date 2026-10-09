@@ -86,7 +86,7 @@ class BusinessRuntimeTest {
     }
     @Test void emptyAndNestedRefreshAreExplicitAndCreateNoBusinessOrInventory() throws Exception {
         var runtime=new BusinessRuntime(db.getConnection(),8,32);assertEquals(BusinessRuntime.Snapshot.empty(),runtime.refresh(0,Set.of(world)));
-        assertTrue(BusinessDiagnostics.describe(runtime.refresh(0,Set.of(world)),town).stream().anyMatch(s->s.contains("not active yet")));
+        assertTrue(BusinessDiagnostics.describe(runtime.refresh(0,Set.of(world)),town).stream().anyMatch(s->s.contains("Farm founding requires")));
         db.getConnection().setAutoCommit(false);assertThrows(java.sql.SQLException.class,()->runtime.refresh(0,Set.of(world)));
         db.getConnection().rollback();db.getConnection().setAutoCommit(true);
     }
