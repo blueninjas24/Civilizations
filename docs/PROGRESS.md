@@ -4,7 +4,7 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 571 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 586 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest Phase 3 step: villages can automatically start a funded farm, hire real
@@ -17,6 +17,11 @@ and coal into tool supplies, bounded by workers and storage. Paid mine/warehouse
 workshop chains, restart and material/money conservation are tested. Automatic
 nonfood discovery/operation is still unfinished, so this is partial progress toward
 the next milestone, not another completed group. See WORKSHOP_PRODUCTION.md.
+
+Latest mining safeguard: permanent ore coordinates stop alternate sites and repeat
+surveys from creating another reserve pool from the same resource. Depletion and
+identity survive restart and tuning. Automatic mining still awaits an ore-origin
+choice and real observation/founding/operation adapters. See MINERAL_IDENTITY.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
@@ -160,6 +165,12 @@ history and actual worker/storage limits. A paid 240-cycle mine/warehouse/blacks
 fixture and native packaged Paper fixture passed; Wrapper total is 571. Ordinary
 villages do not automatically establish mines or blacksmiths yet; live demand,
 discovery/founding and operation remain required before checking this group.
+
+Coordinate discovery now protects finite minerals across overlapping surveys, site
+conflicts, world renames and restarts, with transactional evidence and no refill.
+Wrapper passed 586 cases and the native synthetic coordinate fixture passed. Actual
+ore scans and automatic nonfood businesses are still unfinished; progress remains
+1/4 (25%) while that next reporting group is partly implemented.
 
 ## Phase 4 — planned
 

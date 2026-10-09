@@ -103,6 +103,10 @@ plugin, main/name WorkshopProductionProbe/CivilizationsWorkshopProbe with the sa
 API version and Civilizations dependency. Compile it against binary dependency JARs
 (exclude sources/javadoc JARs, set empty sourcepath). It uses its own randomly named
 database and dedicated SQL owner, explicit synthetic industries/sites/deposits and
+saved ore coordinates. The latest mineral identity extension checks overlapping
+evidence without adding reserves, including restart (see MINERAL_IDENTITY.md). The
+synthetic survey is not natural-origin or actual Minecraft ore-snapshot validation.
+The fixture also uses
 saved residents; no world blocks/entities or production DB are changed. It verifies
 the packaged paid chain, processing, capital conservation, duplicate/restart safety,
 dead-worker exclusion and immutable diagnostic output. Archive it outside plugins

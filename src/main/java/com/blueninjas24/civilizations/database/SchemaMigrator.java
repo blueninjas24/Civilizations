@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 31;
+    static final int CURRENT_VERSION = 32;
 
     @FunctionalInterface
     interface Migration {
@@ -313,9 +313,32 @@ final class SchemaMigrator {
                                 direction TEXT NOT NULL CHECK(direction IN ('INPUT','OUTPUT')),
                                 per_batch INTEGER NOT NULL CHECK(typeof(per_batch)='integer' AND per_batch>0),
                                 units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>=0),
-                                PRIMARY KEY(operation_id,commodity,direction)
+                            PRIMARY KEY(operation_id,commodity,direction)
                             )
                             """);
+                },
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE mineral_discovery (
+                                deposit_id TEXT PRIMARY KEY NOT NULL REFERENCES mineral_deposits(id),
+                                world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                                mineral TEXT NOT NULL CHECK(mineral IN ('coal','iron')),
+                                observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                                UNIQUE(deposit_id,world_id)
+                            )
+                            """);
+                    execute(connection,"""
+                            CREATE TABLE mineral_evidence (
+                                world_id TEXT NOT NULL, deposit_id TEXT NOT NULL,
+                                x INTEGER NOT NULL CHECK(typeof(x)='integer'),
+                                y INTEGER NOT NULL CHECK(typeof(y)='integer'),
+                                z INTEGER NOT NULL CHECK(typeof(z)='integer'),
+                                observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                                PRIMARY KEY(world_id,x,y,z),
+                                FOREIGN KEY(deposit_id,world_id) REFERENCES mineral_discovery(deposit_id,world_id)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX mineral_evidence_by_deposit ON mineral_evidence(deposit_id)");
                 }
         ));
     }
@@ -437,6 +460,10 @@ final class SchemaMigrator {
             if(migrations.size()>=31) {
                 requireColumns(connection,"recipe_runs",Set.of("operation_id","business_id","period","recipe_id","replay_version","requested","workers","batches_per_worker","site_capacity"));
                 requireColumns(connection,"recipe_flows",Set.of("operation_id","commodity","direction","per_batch","units"));
+            }
+            if(migrations.size()>=32) {
+                requireColumns(connection,"mineral_discovery",Set.of("deposit_id","world_id","mineral","observed_millis"));
+                requireColumns(connection,"mineral_evidence",Set.of("world_id","deposit_id","x","y","z","observed_millis"));
             }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));

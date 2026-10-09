@@ -29,7 +29,7 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             new BukkitRunnable() {
                 @Override public void run() {
                     if(!result.isDone())return;
-                    try {result.join();getLogger().info("NATIVE WORKSHOP PASS: paid mine/warehouse/workshop chain; actual inputs -> two tools; capital conserved; replay, dead-worker pause, restart and diagnostics passed");}
+                    try {result.join();getLogger().info("NATIVE MINERAL IDENTITY PASS: coordinate discovery, overlapping survey without refill, paid workshop chain, replay and restart passed");}
                     catch(CompletionException failure){getLogger().log(java.util.logging.Level.SEVERE,"NATIVE WORKSHOP FAIL",failure.getCause());}
                     cancel();getServer().getPluginManager().disablePlugin(WorkshopProductionProbe.this);
                 }
@@ -51,8 +51,16 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             db.getBusinessRepository().hire(UUID.randomUUID(),mine.id(),miner,0);db.getBusinessRepository().hire(UUID.randomUUID(),smith.id(),smithWorker,0);
             var industry=db.getIndustryRepository();industry.openStore(mine.id(),1024,space,0);
             industry.openStore(warehouse.id(),1024,space,3000);industry.openStore(smith.id(),1024,space,3000);
-            industry.discover(deposit,mine.siteId(),4,20,Map.of(Commodity.IRON,2L,Commodity.COAL,1L,Commodity.STONE,3L));
+            var minerals=new MineralDiscoveryRepository(db.getConnection());
+            var ore=java.util.stream.IntStream.range(2048,2052).mapToObj(x->new com.blueninjas24.civilizations.settlement.VillageObservation.Position(x,40,2048)).toList();
+            var sample=new MineralObservation(world,1,true,Commodity.IRON,ore);
+            var yields=Map.of(Commodity.IRON,2L,Commodity.COAL,1L,Commodity.STONE,3L);
+            deposit=minerals.discover(mine.siteId(),sample,5,yields).deposit().id();
             industry.mine(UUID.randomUUID(),mine.id(),deposit,4,0,8,8);
+            var linked=new MineralObservation(world,2,true,Commodity.IRON,List.of(ore.getLast(),new com.blueninjas24.civilizations.settlement.VillageObservation.Position(2052,40,2048)));
+            var revisit=minerals.discover(mine.siteId(),linked,500,yields);
+            if(revisit.created() || revisit.deposit().initialBatches()!=20 || revisit.deposit().remainingBatches()!=16 || minerals.claimedBlocks(deposit)!=5)
+                throw new IllegalStateException("Overlapping survey refilled/replaced deposit");
             for(var e:Map.of(Commodity.IRON,4L,Commodity.COAL,2L).entrySet()) {
                 var a=industry.purchase(UUID.randomUUID(),mine.id(),warehouse.id(),e.getKey(),e.getValue(),100*e.getValue(),0,1,128);industry.deliver(a.id(),1);
                 var b=industry.purchase(UUID.randomUUID(),warehouse.id(),smith.id(),e.getKey(),e.getValue(),200*e.getValue(),1,1,128);industry.deliver(b.id(),2);
@@ -75,6 +83,9 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             db.initialize();var industry=db.getIndustryRepository();
             if(!saved.equals(industry.recipeRun(operation).orElseThrow()) || industry.store(smithId).orElseThrow().units().get(tools)!=2)
                 throw new IllegalStateException("Restart lost recipe history or tools");
+            var minerals=new MineralDiscoveryRepository(db.getConnection());
+            if(minerals.claimedBlocks(deposit)!=5 || minerals.findAt(world,new com.blueninjas24.civilizations.settlement.VillageObservation.Position(2052,40,2048)).orElseThrow().remainingBatches()!=16)
+                throw new IllegalStateException("Restart lost coordinate identity or finite depletion");
         } finally {db.close();}
     }
     private Business found(DatabaseManager db,UUID town,UUID world,UUID person,String kind,int x) throws Exception {

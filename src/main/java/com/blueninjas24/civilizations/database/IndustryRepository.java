@@ -40,12 +40,16 @@ public final class IndustryRepository {
 
     /** Trusted adapter discovery only. New IDs cannot reopen the same saved site; depleted deposits remain depleted. */
     public Deposit discover(UUID id,UUID site,long observedOre,long initialBatches,Map<Commodity,Long> bundle) throws SQLException {
+        return transaction(()->discoverRows(id,site,observedOre,initialBatches,bundle));
+    }
+    /** Coordinate discovery composes these rows with its evidence in the same SQL-owner transaction. */
+    Deposit discoverRows(UUID id,UUID site,long observedOre,long initialBatches,Map<Commodity,Long> bundle) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Deposit rows require an owner transaction");
         Objects.requireNonNull(id); Objects.requireNonNull(site); bundle=Map.copyOf(bundle);
         if(observedOre<1 || initialBatches<1 || bundle.isEmpty() || bundle.size()>32 || bundle.values().stream().anyMatch(v->v<1))
             throw new IllegalArgumentException("Invalid finite mineral discovery");
         String terms=terms("deposit",id,site,observedOre,initialBatches,catalog(bundle));
         Map<Commodity,Long> yields=bundle;
-        return transaction(()-> {
             try(var s=connection.prepareStatement("SELECT terms FROM mineral_deposits WHERE id=?")) {
                 s.setString(1,id.toString());try(var r=s.executeQuery()) {
                     if(r.next()) { if(!terms.equals(r.getString(1)))throw new SQLException("Deposit identity reused with different discovery"); return deposit(id).orElseThrow(); }
@@ -58,7 +62,6 @@ public final class IndustryRepository {
                 s.setString(1,id.toString());s.setString(2,entry.getKey().id());s.setLong(3,entry.getValue());s.executeUpdate();
             }
             return deposit(id).orElseThrow();
-        });
     }
 
     public Optional<Deposit> deposit(UUID id) throws SQLException {

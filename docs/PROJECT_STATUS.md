@@ -2,6 +2,38 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Coordinate-backed finite mineral identity — October 9, 2026
+
+- Branch `codex/phase3-mineral-identity`: bounded canonical coal/iron observations
+  match deposits by permanent world/ore coordinates. Alternate sites cannot claim
+  the same evidence through this path. Multiple deposits report conflict without
+  merge/transfer/new reserves. Linked surveys add sticky identity evidence without
+  changing initial/remaining reserves or yields. Incomplete, disjoint, predating or
+  changed-mineral evidence fails explicitly; world renames preserve identity.
+- Schema 32 adds discovery metadata and unique coordinates transactionally with
+  deposit/yields. Failed extensions preserve old state. Legacy deposits keep their
+  history without invented coordinates and require future explicit adoption. The
+  old trusted API retains site-only protection; automatic observers must use the new
+  path. Internal discoverRows extraction preserves stored term encoding/replay.
+- Fifteen added cases (12 temporary-SQLite, three domain). Windows Wrapper
+  `.\mvnw.cmd clean verify -B -ntp` passed **586** (584 unit/two integration),
+  zero failures/errors/skips. Coverage includes depletion/restart/retuning, linked
+  surveys, competing sites/multiple pools, world independence/rename, invalid/legacy
+  evidence, timestamp/mineral identity, transaction rollback and schema-31 recovery.
+- Consistent marked-dev schema-31 backup preceded schema-32 startup. Separate native
+  Paper probe used synthetic ore coordinates: four positions fixed 20 bundles,
+  extraction left 16, linked fifth position and new rate did not refill reserves.
+  Paid workshop/replay/restart passed. No world/entity changes. Main startup retained
+  month 1662 after downtime; status/no failure and normal stop exited zero. Read-only
+  old IDs/industry/funds and both DB integrity/FKs/counts passed; owner config hash
+  unchanged, no main-DB coordinates invented. Probe archived, server stopped, test
+  code excluded from production JAR. This does not prove actual ore snapshots.
+- Updated MINERAL_IDENTITY.md, decisions/mining/development notes, status/progress/
+  devlog. No automatic ore scan, natural-origin certification or mine production
+  enabled here. User's ore-origin choice is pending before those adapters proceed.
+  Phase 3 remains 1/4 (25%), with discovery identity advancing a partial group.
+  No production mutation, merge/push or main change.
+
 ## Connected workshop recipe accounting — October 9, 2026
 
 - Branch `codex/phase3-workshop-production`: trusted SQL-owner processing consumes

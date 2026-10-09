@@ -1,5 +1,25 @@
 # Civilizations — locked decisions and unresolved questions
 
+## Pending — automatic ore origin policy
+
+Minecraft's current block data cannot prove whether pre-existing ore was naturally
+generated or player placed. Before enabling automatic mine opportunities, the user
+has been asked to choose: accept exposed existing ore as finite prototype evidence
+while excluding newly tracked player placements, or require admin approval for
+unknown origin. No answer is assumed. This affects player ore displays and therefore
+is a gameplay decision, not merely a scan-budget setting. Safe coordinate identity,
+duplicate/depletion protection and temporary tests proceed independently.
+
+## October 9, 2026 — coordinate identity engineering boundary
+
+Permanent world/ore coordinates now establish one finite saved deposit under a
+trusted registered site. Overlapping surveys link identity without extending
+reserves; different sites or multiple saved deposits report conflict instead of
+refilling, transferring or merging. Missing legacy coordinates are not fabricated.
+These are protective internal identity choices, not natural-origin certification,
+geological cluster criteria, mine expansion or block rights. Automatic discovery
+waits for the origin choice above. See MINERAL_IDENTITY.md.
+
 ## October 9, 2026 — workshop recipe prototype accounting
 
 Approved editable economy authority supplies the first blacksmith recipe: two iron

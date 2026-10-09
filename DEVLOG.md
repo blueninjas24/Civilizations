@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## Mineral coordinate identity and overlap protection — October 9, 2026
+
+- Closed a prerequisite gap: raw discovery protected a saved site but alternate
+  sites had no shared ore evidence. Added canonical bounded MineralObservation and
+  MineralDiscoveryRepository. Linked coordinates protect repeat approaches without
+  extending reserves; competing sites/multiple pools conflict rather than merge.
+- Schema 32 records permanent-world metadata and unique sticky ore coordinates
+  atomically with deposit/yields. Legacy deposits retain history/depletion without
+  fabricated evidence and need future explicit adoption. Extracted discoverRows
+  preserves old term encoding/replay. No natural certification, Paper scan, block
+  rights, automatic mine founding or production enabled by this batch.
+- Added 15 cases (12 temporary-SQLite, three domain): depletion/restart/tuning,
+  linked surveys, site/pool conflict, world independence/rename, incomplete/legacy
+  evidence, kind/timestamp identity and write/migration rollback. Windows Wrapper
+  clean verify passed 586 (584 unit/two integration), no failures/errors/skips.
+- Marked-dev consistent backup before schema 32. Separate SQL-owner native Paper
+  fixture established four synthetic ore coordinates/20 bundles, extracted four,
+  linked a fifth coordinate and retained 16 despite retuning. Paid workshop/replay/
+  restart passed. Main startup retained month 1662; status/no failure and normal stop
+  passed. Read-only old IDs/industry/funds and both DB integrity/FKs passed; owner
+  config hash unchanged, probe archived, server stopped, fixture outside shipped
+  JAR. No world/entity or production data changes. Actual resource snapshots untested.
+- Updated mineral guide, decisions/mining/development notes, status/progress/devlog.
+  Phase 3 stays 1/4 (25%). Pending genuine gameplay choice: allow existing exposed
+  ore of unknown origin as finite evidence (exclude newly tracked placements), or
+  require admin approval. No answer assumed; adapters can continue after that choice.
+  Coherent local feature commit only, no merge/push or main modification.
+
 ## Workshop recipes and paid connected production — October 9, 2026
 
 - Added deterministic complete-batch manufacturing from actual owned/delivered

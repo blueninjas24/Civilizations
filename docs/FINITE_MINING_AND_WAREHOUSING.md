@@ -5,6 +5,11 @@ and a tested paid mine -> warehouse -> blacksmith chain. Automatic nonfood indus
 discovery/scheduling remains unwired; the original mining verification below is
 historical and is not a claim that mines now appear in ordinary gameplay.
 
+MINERAL_IDENTITY.md adds coordinate-aware trusted discovery and overlap protection
+before automatic scanning. Legacy site-only deposits are preserved without invented
+coordinates; the new observer must use the coordinate path once provenance policy
+and actual resource scanning are implemented.
+
 Approved October 9, 2026. This is a backend foundation, not automatic in-game mines,
 warehouses, shops, villagers shopping, physical transport or a completed Phase 3
 production milestone. Trusted owner callers and temporary tests exercise the chain;
