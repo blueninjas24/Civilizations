@@ -58,6 +58,11 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
                         view.needs().homes().stream().limit(20).forEach(home -> sender.sendMessage(home.explanation()));
                         if (view.needs().homes().size() > 20) sender.sendMessage("Showing 20 of " + view.needs().homes().size() + " saved household assessments.");
                     }
+                    if (view.wellbeing().isEmpty()) sender.sendMessage("Household wellbeing: no observation for this period (disabled, historical or no occupied homes).");
+                    else {
+                        view.wellbeing().stream().limit(20).forEach(home -> sender.sendMessage(home.explanation()));
+                        if (view.wellbeing().size() > 20) sender.sendMessage("Showing 20 of " + view.wellbeing().size() + " wellbeing observations.");
+                    }
                     if (view.latest() != null) for (var report : view.latest().reports()) {
                         sender.sendMessage(report.explanation());
                         session.economySettings().ifPresent(settings -> sender.sendMessage("Indicative Trade Value/unit: " + settings.price(report.commodity(), report.condition())));

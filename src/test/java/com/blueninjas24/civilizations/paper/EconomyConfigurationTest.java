@@ -13,6 +13,20 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void wellbeingIsEditableAndOldOwnerFilesStayDisabled() throws Exception {
+        var config=defaults();assertEquals(HouseholdWellbeing.Policy.prototype(),EconomyConfiguration.readWellbeing(config));
+        config.set("wellbeing.starting-score",60);config.set("wellbeing.recovery-per-period",2);
+        assertEquals(new HouseholdWellbeing.Policy(true,60,2,3,5,1),EconomyConfiguration.readWellbeing(config));
+        config.set("wellbeing",null);EconomyConfiguration.read(config);assertEquals(HouseholdWellbeing.Policy.disabled(),EconomyConfiguration.readWellbeing(config));
+    }
+    @Test void incompleteUnsafeAndUnknownWellbeingSettingsFailBeforeDatabaseStartup() throws Exception {
+        for (var path : List.of("wellbeing.enabled","wellbeing.starting-score","wellbeing.food-crisis-penalty")) {
+            var config=defaults();config.set(path,null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var high=defaults();high.set("wellbeing.starting-score",101);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(high));
+        var lowCrisis=defaults();lowCrisis.set("wellbeing.food-crisis-penalty",2);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(lowCrisis));
+        var unknown=defaults();unknown.set("wellbeing.salary",100);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(unknown));
+    }
     @Test void adminsControlPurchasesAndOlderFilesStayDisabled() throws Exception {
         var config=defaults();assertEquals(FoodPurchases.Policy.prototype(),EconomyConfiguration.readPurchases(config));
         config.set("purchases.trade-value-per-emerald",2.25);config.set("purchases.food-reserve-periods",5);config.set("purchases.maximum-emeralds",16);

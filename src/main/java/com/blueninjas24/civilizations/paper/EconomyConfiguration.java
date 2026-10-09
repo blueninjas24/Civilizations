@@ -17,6 +17,7 @@ public final class EconomyConfiguration {
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
         if (config.contains("purchases")) rootKeys.add("purchases");
+        if (config.contains("wellbeing")) rootKeys.add("wellbeing");
         exactKeys(config, rootKeys);
         readFarms(config);
         readPriorities(config);
@@ -24,6 +25,7 @@ public final class EconomyConfiguration {
         readDonationsEnabled(config);
         readOpeningFunds(config);
         readPurchases(config);
+        readWellbeing(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -58,6 +60,14 @@ public final class EconomyConfiguration {
         exactKeys(section(config, "farms"), Set.of("radius-blocks", "vertical-radius-blocks", "crops-per-worker"));
         return new FarmObservation.Policy(smallInteger(config, "farms.radius-blocks"), smallInteger(config, "farms.vertical-radius-blocks"),
                 smallInteger(config, "farms.crops-per-worker"));
+    }
+    public static HouseholdWellbeing.Policy readWellbeing(ConfigurationSection config) {
+        if (!config.contains("wellbeing")) return HouseholdWellbeing.Policy.disabled();
+        var section = section(config, "wellbeing");
+        exactKeys(section, Set.of("enabled", "starting-score", "recovery-per-period", "food-shortage-penalty", "food-crisis-penalty", "crowding-penalty"));
+        if (!(section.get("enabled") instanceof Boolean enabled)) throw new IllegalArgumentException("wellbeing.enabled must be true or false");
+        return new HouseholdWellbeing.Policy(enabled, smallInteger(section,"starting-score"), smallInteger(section,"recovery-per-period"),
+                smallInteger(section,"food-shortage-penalty"), smallInteger(section,"food-crisis-penalty"), smallInteger(section,"crowding-penalty"));
     }
     public static VillagePriorities.Policy readPriorities(ConfigurationSection config) {
         if (!config.contains("priorities")) return VillagePriorities.Policy.prototype();

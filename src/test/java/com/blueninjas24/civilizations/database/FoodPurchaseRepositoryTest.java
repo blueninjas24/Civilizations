@@ -109,7 +109,7 @@ class FoodPurchaseRepositoryTest {
         var needs=runtime.views().get(town).needs();SchemaFixtures.rewind(db.getConnection(),20);
         sql("CREATE TABLE food_purchases(bad_column TEXT)");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(20,r.getInt(1));}
-        assertEquals(needs,runtime.views().get(town).needs());assertEquals(4800,balance());
+        assertEquals(needs,new HouseholdNeedsRepository(db.getConnection()).load(town,1).orElseThrow());assertEquals(4800,balance());
         sql("DROP TABLE food_purchases");new SchemaMigrator().migrate(db.getConnection());assertEquals("RESERVED",reserve(terms(4,1)));
     }
     @Test void exactEmeraldAmountsFloorAndClampWithoutFloatingMoney(){

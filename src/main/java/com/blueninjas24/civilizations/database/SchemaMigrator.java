@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 21;
+    static final int CURRENT_VERSION = 22;
 
     @FunctionalInterface
     interface Migration {
@@ -140,6 +140,40 @@ final class SchemaMigrator {
                             """);
                     execute(connection, "CREATE UNIQUE INDEX one_reserved_purchase_per_player ON food_purchases(player_id) WHERE status='RESERVED'");
                     execute(connection, "CREATE INDEX reserved_purchase_food ON food_purchases(settlement_id) WHERE status='RESERVED'");
+                },
+                connection -> {
+                    execute(connection, """
+                            CREATE TABLE household_wellbeing (
+                                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                                settlement_id TEXT NOT NULL,
+                                period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                                household_id TEXT NOT NULL REFERENCES households(id),
+                                before_score INTEGER NOT NULL CHECK(before_score BETWEEN 0 AND 100),
+                                after_score INTEGER NOT NULL CHECK(after_score BETWEEN 0 AND 100),
+                                condition TEXT NOT NULL CHECK(condition IN ('UNKNOWN','SECURE','PRESSURED','FOOD_CRISIS')),
+                                food TEXT NOT NULL CHECK(food IN ('UNKNOWN','SUPPLIED','UNDERSUPPLIED')),
+                                housing TEXT NOT NULL CHECK(housing IN ('UNKNOWN','SUFFICIENT','CROWDED')),
+                                starting_score INTEGER NOT NULL CHECK(starting_score BETWEEN 0 AND 100),
+                                recovery INTEGER NOT NULL CHECK(recovery BETWEEN 0 AND 100),
+                                food_penalty INTEGER NOT NULL CHECK(food_penalty BETWEEN 0 AND 100),
+                                crisis_penalty INTEGER NOT NULL CHECK(crisis_penalty BETWEEN food_penalty AND 100),
+                                crowding_penalty INTEGER NOT NULL CHECK(crowding_penalty BETWEEN 0 AND 100),
+                                crisis_after INTEGER NOT NULL CHECK(typeof(crisis_after)='integer' AND crisis_after>0),
+                                food_streak INTEGER NOT NULL CHECK(typeof(food_streak)='integer' AND food_streak>=0),
+                                UNIQUE(settlement_id,period,household_id),
+                                FOREIGN KEY(settlement_id,period) REFERENCES needs_periods(settlement_id,period)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX latest_household_wellbeing ON household_wellbeing(household_id,sequence DESC)");
+                    execute(connection,"""
+                            CREATE TABLE wellbeing_members (
+                                sequence INTEGER NOT NULL REFERENCES household_wellbeing(sequence),
+                                resident_id TEXT NOT NULL REFERENCES residents(id),
+                                food_streak INTEGER NOT NULL CHECK(typeof(food_streak)='integer' AND food_streak>=0),
+                                PRIMARY KEY(sequence,resident_id)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX latest_resident_wellbeing ON wellbeing_members(resident_id,sequence DESC)");
                 }
         ));
     }
@@ -241,6 +275,8 @@ final class SchemaMigrator {
             }
             if (migrations.size() >= 20) requireColumns(connection,"food_appeals",Set.of("settlement_id","period","priority_period","status","unmet","previous_unmet","imports","production","change"));
             if (migrations.size() >= 21) requireColumns(connection,"food_purchases",Set.of("operation_id","player_id","settlement_id","units","item","item_count","emeralds","rate","status","accepted_period"));
+            if (migrations.size() >= 22) requireColumns(connection,"household_wellbeing",Set.of("sequence","settlement_id","period","household_id","before_score","after_score","condition","food","housing","starting_score","recovery","food_penalty","crisis_penalty","crowding_penalty","crisis_after","food_streak"));
+            if (migrations.size() >= 22) requireColumns(connection,"wellbeing_members",Set.of("sequence","resident_id","food_streak"));
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

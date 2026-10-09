@@ -6,6 +6,22 @@
 # food purchases pay emeralds. Barter, bargaining and starvation effects are not enabled.
 format-version: 1
 
+# Basic family wellbeing, not money or a personal bank account. No population penalties.
+# New people start at 50/100; families share the mean of their saved welfare scores.
+# Their actual food/housing then changes that score. Moves retain the people's history.
+# Recovery requires supplied food AND known sufficient housing. Unknown is not zero.
+# Food crisis uses shortages.severe-after-periods; crowding adds its own penalty.
+# All values: 0..100; crisis penalty must be at least shortage penalty.
+# Existing residents' scores never reset on retuning, restart or migration.
+# Old files without this section keep the assessment disabled; add it to opt in.
+wellbeing:
+  enabled: true
+  starting-score: 50
+  recovery-per-period: 1
+  food-shortage-penalty: 3
+  food-crisis-penalty: 5
+  crowding-penalty: 1
+
 # Starting spending capacity, NOT emerald items or individual salaries.
 # New economies receive this amount per living resident ONCE. Enabling this on an
 # existing server also opens accounts for active economies that have NO treasury.

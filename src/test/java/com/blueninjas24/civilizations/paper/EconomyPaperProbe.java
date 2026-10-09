@@ -31,6 +31,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private Set<UUID> residents;
     private Result famine;
     private HouseholdNeeds.Assessment famineNeeds;
+    private List<HouseholdWellbeing.Snapshot> famineWellbeing;
     private VillagePriorities.Decision faminePriority;
     private FoodAppeals.Snapshot famineAppeal;
     private UUID reliefOperation;
@@ -76,7 +77,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private EconomySettings tune(EconomySettings base,int output){return new EconomySettings(1,0,2,base.adultFoodUnits(),base.childFoodUnits(),base.foodUnitsPerWorker(),
             output,base.shortages(),base.startingPerResident(),base.baseTradeValues(),base.pricePercent());}
     private void open(){session=new PopulationSession(scenario,getLogger(),population,now::get,economy,FarmObservation.Policy.prototype(),
-            VillagePriorities.Policy.prototype(),openingFunds);future=session.start(false);}
+            VillagePriorities.Policy.prototype(),openingFunds,HouseholdWellbeing.Policy.prototype());future=session.start(false);}
     private boolean ready(){if(!future.isDone())return false;future.join();return true;}
     private void scan(){observer=new PaperFarmObserver(session,FarmObservation.Policy.prototype());observer.runTaskTimer(this,1,1);}
     private void crops(boolean planted){for(int x=X+4;x<X+12;x++)for(int z=Z+4;z<Z+12;z++){
@@ -105,6 +106,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(report.flow().production()==8&&report.demand()==4&&report.after().units()==28,"Production/demand wrong");
             var needs=session.economyView().get(town).needs();require(needs!=null&&needs.homes().size()==1&&needs.homes().getFirst().foodDemand()==4,"Household needs wrong");
             require(needs.homes().getFirst().supplied()==4 && needs.homes().getFirst().unmetPeriods()==0 && needs.unassignedSupplied()==0,"Household supply allocation wrong");
+            require(session.economyView().get(town).wellbeing().getFirst().after()==51,"Supplied family wellbeing wrong");
             require(session.economyView().get(town).treasury().hundredths()==4800,"Configured opening capital wrong");
             verifyAidPreview();
             new PopulationDebugCommand(session,()->"Food test").onCommand(Bukkit.getConsoleSender(),Objects.requireNonNull(Bukkit.getPluginCommand("civ")),"civ",new String[]{"debug","economy",town.toString()});
@@ -113,6 +115,8 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 5->{if(!ready())return;var view=session.economyView().get(town);if(view.account().state().completedPeriods()<11){now.addAndGet(1000);future=session.pulse();return;}
             famine=view.latest();require(famine.reports().stream().anyMatch(r->r.commodity().equals(Commodity.FOOD)&&r.condition()==Condition.SEVERE_SHORTAGE),"Famine did not escalate");
             famineNeeds=view.needs();require(famineNeeds.homes().getFirst().supplied()==0 && famineNeeds.homes().getFirst().unmetPeriods()>0,"Family famine allocation missing");require(famineNeeds.sharedFood()==Condition.SEVERE_SHORTAGE,"Needs did not retain crisis evidence");
+            require(view.wellbeing().getFirst().condition()==HouseholdWellbeing.Condition.FOOD_CRISIS,"Family wellbeing crisis missing");
+            famineWellbeing=view.wellbeing();
             famineAppeal=view.appeal();require(famineAppeal!=null&&famineAppeal.status()==FoodAppeals.Status.OPEN&&famineAppeal.unmet()==4,"Food appeal did not open");
             faminePriority=view.priority();require(faminePriority!=null&&faminePriority.selected()==VillagePriorities.Action.SEEK_FOOD,"Crisis priority wrong");
             observer.cancel();session.close();economy=tune(economy,200);openingFunds=new OpeningFunds(true,9900);now.addAndGet(10000);open();stage++;}
@@ -120,6 +124,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(session.economyView().get(town).treasury().hundredths()==4800,"Restart or tuning refilled treasury");
             getLogger().info("OPENING_FUNDS_PASSED: configured population grant once, restart/retuning retained balance");
             require(famineNeeds.equals(session.economyView().get(town).needs()),"Household history changed on restart/retuning");
+            require(famineWellbeing.equals(session.economyView().get(town).wellbeing()),"Wellbeing history changed on restart/retuning");
             require(famineAppeal.equals(session.economyView().get(town).appeal()),"Appeal changed on restart");
             require(faminePriority.equals(session.economyView().get(town).priority()),"Priority history changed on restart/retuning");
             var ids=new HashSet<UUID>();session.snapshot().orElseThrow().residents().forEach(p->ids.add(p.id()));require(ids.equals(residents),"Residents changed on restart");
@@ -150,6 +155,9 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 23->{if(!ready())return;require(Boolean.FALSE.equals(future.join()),"Duplicate relief accepted");require(session.economyView().get(town).foodAid().pendingDeliveries()==0,"Duplicate receipt changed pending goods");crops(true);scan();stage=7;}
         case 7->{if(session.economyView().get(town).farm().plantedCrops()!=64)return;now.addAndGet(1000);future=session.pulse();stage++;}
         case 8->{if(!ready())return;require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==20,"Feast recovery wrong");
+            var welfare=session.economyView().get(town).wellbeing().getFirst();
+            require(welfare.condition()==HouseholdWellbeing.Condition.SECURE&&welfare.foodStreak()==0&&welfare.after()>famineWellbeing.getFirst().after(),"Wellbeing recovery wrong");
+            getLogger().info("HOUSEHOLD_WELLBEING_PASSED: supplied home, sustained famine, retained restart policy/history and gradual recovery");
             require(session.economyView().get(town).priority().selected()==VillagePriorities.Action.MONITOR,"Recovered priority did not clear");
             observer.cancel();session.close();economy=tune(economy,0);open();stage=30;}
         case 30->{if(!ready())return;

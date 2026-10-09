@@ -1,5 +1,40 @@
 # Civilizations Development Log
 
+## Basic household wellbeing — October 8, 2026
+
+- Branch `codex/phase2-household-wellbeing`: occupied families now have a saved,
+  explained basic food/housing welfare score and SECURE/PRESSURED/FOOD_CRISIS/UNKNOWN
+  condition. Treasury stays separate. No jobs/salaries, starvation deaths or changes
+  to existing birth/death/migration rules were introduced.
+- New commented optional wellbeing section: prototype neutral 50/100, recovery +1,
+  undersupply -3, sustained crisis -5 and crowding -1. Admins can edit each 0..100
+  value while stopped and restart. Old files without the section stay disabled;
+  existing people never reset from a starting-score edit. Unknown housing is not zero.
+- Schema 22 preserves welfare observations, their actual residents and each resident's
+  shortage streak in the food owner's transaction. Current household IDs describe
+  homes: movement follows resident IDs, not a guessed permanent family/home identity.
+  New occupants do not inherit the previous family's score or crisis. Mixed/new
+  residents use the floor mean of retained/initial scores. Disabled periods do not
+  fabricate unrecorded personal history; old observations/policy remain intact.
+- Eighteen added automated cases. Final Windows Wrapper clean verify -B -ntp passed
+  419 cases (417 unit/two packaged integration), zero failures/errors/skips. Tests
+  cover 10,000-period seeded famine/recovery per seed, actual migration adapter,
+  new occupants, membership/write rollback, restart, admin tuning, migration failure
+  and a 240-period integrated finite-budget purchase/cancel/famine/restart scenario.
+  Two early fixture errors (missing household name; invalid direct home move under
+  resident/home FK constraints) were corrected to use real migration behavior.
+- Pinned disposable Paper passed supplied-family score, sustained food crisis,
+  unchanged welfare across restart/retuning, gradual recovery, and all prior food,
+  donation/payment and unloaded checks. Normal plugin startup/diagnostics/shutdown
+  and schema-22 integrity/FKs verified; schema-21 dev snapshot taken first. Original
+  resident/home/family/projection identities and treasury history preserved; older
+  owner config stayed untouched, with assessment disabled.
+- Phase 2 advances to 2/4 reporting groups (50%): basic labor, food production,
+  treasury/spending and household food/housing wellbeing are verified. Broader
+  employment/business prosperity remains Phase 3 context; learning/response
+  execution, barter/bargaining and balance/compatibility gates remain unfinished.
+  No production data reset, main change, merge or push. See HOUSEHOLD_WELLBEING.md.
+
 ## Recoverable village food payments — October 8, 2026
 
 - Branch `codex/phase2-purchase-accounting`: sneak-right-click a managed villager,

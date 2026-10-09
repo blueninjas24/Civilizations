@@ -164,3 +164,18 @@ DB startup. Edits apply at the next economic-period review and preserve old choi
 changing only priority settings does not discard elapsed food time. These priorities
 are not purchases, buildings, personal rations or population penalties. See
 VILLAGE_PRIORITIES.md for each key and remaining execution work.
+
+
+## Basic family wellbeing
+
+The optional commented `wellbeing` section controls assessment enablement, a neutral
+starting score and per-period recovery/shortage/crisis/crowding adjustments. New-file
+prototype: enabled, starting 50, recovery 1, shortage penalty 3, crisis penalty 5,
+crowding penalty 1. All numbers allow 0..100; crisis penalty must be at least shortage
+penalty. Old files without the complete section retain disabled assessments. Partial
+or invalid keys fail startup. Stop, edit and restart; existing scores never reseed.
+Crisis duration uses `shortages.severe-after-periods`. Retuning records new policy
+with future observations, without rewriting old evidence or changing food time.
+Unknown housing cannot earn comfort recovery or automatically count as homelessness.
+These welfare settings do not control money, salaries, births, migration or deaths.
+See HOUSEHOLD_WELLBEING.md for exact rules, resident identity and validation limits.

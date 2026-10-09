@@ -317,3 +317,21 @@ Schema 21 and saved player proof protect once-only funds/items/food accounting.
 This is a verified emerald purchase prototype, not barter or bargaining, and does
 not attribute reputation. Full cross-save backup/native-death/plugin compatibility
 remain validation work. No personal wallets, industry income or salary rules added.
+
+
+## October 8, 2026 — basic wellbeing prototype under configurable economy authority
+
+The user authorized sensible editable economy prototypes. This batch adds food/
+housing welfare, separate from treasury and personal wealth: neutral initial 50,
++1 for food plus known adequate housing, -3 for undersupply, -5 for recorded sustained
+crisis, and -1 additional crowding, clamped 0..100. All rates are configurable;
+crisis duration reuses the editable shortage duration. Existing owner files opt in
+with the optional wellbeing section; no file rewrite or population penalties.
+Families share the floor mean of actual residents' retained scores; newly assessed
+people contribute the neutral initial score. At least one current resident's
+recorded sustained food shortage establishes family FOOD_CRISIS. Actual membership
+and personal shortage history are saved, because current household records describe
+homes. Moves retain people's history; replacement occupants do not inherit it.
+No industry/employment assumptions, individual wallets or payroll are introduced.
+These are prototype welfare rules, not finalized prosperity balance or starvation.
+See HOUSEHOLD_WELLBEING.md. No new user decision blocks further Phase 2 work.
