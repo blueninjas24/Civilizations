@@ -40,6 +40,8 @@ public final class MineralDiscoveryRepository {
         }
     }
     private Discovery discoverRows(UUID site,MineralObservation observation,long rate,Map<Commodity,Long> bundle) throws SQLException {
+        if(new OreTrackingRepository(connection).load().map(state->!state.trusted()).orElse(false))
+            throw new SQLException("Ore placement history incomplete; automatic discovery requires reviewed recovery");
         var placements=new OrePlacementRepository(connection);
         for(var position:observation.ore())if(placements.excludes(observation.world(),position))
             throw new SQLException("Survey includes tracked player-placed ore; refresh resource evidence before discovery");

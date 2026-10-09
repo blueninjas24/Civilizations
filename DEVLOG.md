@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## Live native ore capture and fail-closed recovery — October 9, 2026
+
+- Registered OrePlacementTracker for successful native/multi-place ore events;
+  immutable bounded owner saves, broad future ore provenance, no inventory/identity
+  storage, cancelled/non-buildable filtering, bounded failure reporting and discovery
+  pause. No block edits, force loading, main-thread SQL or player cancellation.
+- Schema 34 adds dirty-start/clean-stop fence. Accepted saves drain before closing;
+  unclean stops and capture gaps remain untrusted after restart, preserving people,
+  reserves and history. Coordinate SQL rejects persisted gaps; future automatic
+  adapters must also check immediate session readiness. Admin status explains state.
+- Fourteen added tests (five repository/five adapter/three session/one discovery).
+  Review fixed early-gap explanation overwrite and world-observation error fencing.
+  Final Windows Wrapper clean verify passed 619 (617 unit/two packaged integration),
+  zero failures/errors/skips, including rollback/migration/overload/restart cases.
+- Marked-dev consistent schema-33 backup before upgrade. Real event-dispatch fixture
+  reached production listener, saved one sticky placement and restored six original
+  blocks. Dummy player has no client/inventory data. Separate DB retained five claims,
+  20/16 reserve and two tools through paid-chain/replay/restart checks. Test chunk
+  ticket removed; probe archived/excluded from production JAR. Normal probe-free
+  restart retained month 1670 and trusted capture; no failure or forced chunks.
+  Both normal stops exited zero. Read-only identities/industry/funds, one actual
+  fixture event row, clean/trusted fence, integrity/FKs and owner config hash passed.
+- Updated live/provenance/scanner/mineral/development guides, TODO/status/progress.
+  Phase 3 stays 1/4 (25%); next piston/editor coverage, coherent opportunities and
+  automatic funded nonfood operations. Ownership succession preference pending;
+  no answer assumed. Local feature branch only, no merge/push/main or production
+  mutation; human playtest remains required. Nine phases unchanged, no Phase 4 works.
+
 ## Persistent resource provenance and Phase 3 checklist — October 9, 2026
 
 - Recorded approved industry direction across suitable resource areas, limited

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 33;
+    static final int CURRENT_VERSION = 34;
 
     @FunctionalInterface
     interface Migration {
@@ -351,7 +351,15 @@ final class SchemaMigrator {
                                 PRIMARY KEY(world_id,x,y,z)
                             )
                             """);
-                }
+                },
+                connection -> execute(connection,"""
+                        CREATE TABLE ore_tracking (
+                            id INTEGER PRIMARY KEY CHECK(id=1),
+                            clean_stop INTEGER NOT NULL CHECK(clean_stop IN (0,1)),
+                            trusted INTEGER NOT NULL CHECK(trusted IN (0,1)),
+                            observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0)
+                        )
+                        """)
         ));
     }
 
@@ -478,6 +486,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"mineral_evidence",Set.of("world_id","deposit_id","x","y","z","observed_millis"));
             }
             if(migrations.size()>=33)requireColumns(connection,"player_ore_placements",Set.of("world_id","x","y","z","observed_millis"));
+            if(migrations.size()>=34)requireColumns(connection,"ore_tracking",Set.of("id","clean_stop","trusted","observed_millis"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

@@ -27,6 +27,7 @@ public final class Civilizations extends JavaPlugin {
     private PaperResidentProjector projector;
     private ManagedVillagerLifecycle lifecycle;
     private PaperFarmObserver farms;
+    private com.blueninjas24.civilizations.paper.OrePlacementTracker orePlacements;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
     private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
     private com.blueninjas24.civilizations.paper.FoodBargainingCommand bargaining;
@@ -83,6 +84,9 @@ public final class Civilizations extends JavaPlugin {
             aid.runTaskTimer(this,20,100);
             purchases.runTaskTimer(this,20,100);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
+            population.configureOreTracking();
+            orePlacements=new com.blueninjas24.civilizations.paper.OrePlacementTracker(population,getLogger());
+            getServer().getPluginManager().registerEvents(orePlacements,this);
             var availability = new com.blueninjas24.civilizations.paper.WorldAvailability(population, () -> getServer().getWorlds(), getLogger());
             var startup = population.start(true, availability.snapshot());
             getServer().getPluginManager().registerEvents(availability, this);

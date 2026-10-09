@@ -18,7 +18,8 @@ Updated October 9, 2026. Reporting progress remains one of four complete groups
 - [x] Permanent ore-coordinate identity and no restart/revisit refill.
 - [x] Bounded exposed coal/iron scanner with supplied exclusion coordinates.
 - [x] Save player-placement exclusions and enforce them against stale discovery.
-- [ ] Capture actual placements/movements with crash-safe pending-write protection.
+- [x] Capture native placements with clean-stop/failure protection and verify on Paper.
+- [ ] Handle piston movement and bulk-edit integration before automatic mines activate.
 - [ ] Connect safe loaded-chunk observation and coherent resource opportunities.
 - [ ] Automatically fund/staff/operate nonfood industries under editable settings.
 - [ ] Connect real local customers and recipes; demand-based reserves, no fake buyers.

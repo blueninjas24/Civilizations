@@ -100,6 +100,12 @@ class MineralDiscoveryTest {
         assertEquals(4,discovery.claimedBlocks(saved.deposit().id()));assertEquals(saved.deposit(),db.getIndustryRepository().deposit(saved.deposit().id()).orElseThrow());
         sql("DROP TRIGGER fail_extension");assertEquals(1,discovery.discover(mine.siteId(),observation(20,3,4),2,BUNDLE).addedEvidence());
     }
+    @Test void knownCaptureGapBlocksDiscoveryWithoutChangingOldDeposits() throws Exception {
+        var saved=first();var tracking=new OreTrackingRepository(db.getConnection());tracking.begin(10);tracking.finish(20,false);
+        assertThrows(SQLException.class,()->discovery.discover(mine.siteId(),observation(30,3,4),2,BUNDLE));
+        assertEquals(saved.deposit(),db.getIndustryRepository().deposit(saved.deposit().id()).orElseThrow());
+        assertEquals(4,discovery.claimedBlocks(saved.deposit().id()));
+    }
     @Test void savedPlacementRejectsStaleOrBypassedScanWithoutMintingPartialReserves() throws Exception {
         new OrePlacementRepository(db.getConnection()).record(world,List.of(new VillageObservation.Position(2,40,0)),10);
         assertThrows(SQLException.class,()->first());

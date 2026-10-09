@@ -33,17 +33,24 @@ public final class WorkshopProductionProbe extends JavaPlugin {
                     || !getServer().getIp().equals("127.0.0.1") || getServer().getPort()!=25577 || !getServer().getOnlinePlayers().isEmpty())
                 throw new IllegalStateException("Probe requires marked localhost disposable server without players");
             var world=getServer().getWorlds().getFirst();var worldId=world.getUID();var worldName=world.getName();
-            ExposedOreProbeSupport.verify(world);
+            var evidence=ExposedOreProbeSupport.verify(world);
+            var main=getServer().getPluginManager().getPlugin("Civilizations");
+            var field=main.getClass().getDeclaredField("population");field.setAccessible(true);
+            var session=(com.blueninjas24.civilizations.application.PopulationSession)field.get(main);
+            if(!session.oreDiscoveryReady())throw new IllegalStateException("Main live ore capture is not healthy");
+            var captured=session.orePlacementsInChunk(worldId,evidence.chunkX(),evidence.chunkZ(),512).thenAccept(positions-> {
+                if(!positions.contains(evidence.placed()))throw new IllegalStateException("Registered native placement listener failed to save fixture ore");
+            });
             var folder=new java.io.File(getDataFolder(),"run-"+UUID.randomUUID());
             owner=Executors.newSingleThreadExecutor(r->{var thread=new Thread(r,"Civilizations-workshop-probe-SQL-owner");thread.setDaemon(true);return thread;});
-            var result=CompletableFuture.runAsync(()-> {
+            var result=CompletableFuture.allOf(captured,CompletableFuture.runAsync(()-> {
                 try { verify(folder,worldId,worldName); }
                 catch(Exception failure){throw new CompletionException(failure);}
-            },owner);
+            },owner));
             new BukkitRunnable() {
                 @Override public void run() {
                     if(!result.isDone())return;
-                    try {result.join();getLogger().info("NATIVE RESOURCE PROVENANCE PASS: restored real snapshot exposure/exclusion, saved placement rejection, no refill, paid workshop chain and restart passed");}
+                    try {result.join();getLogger().info("NATIVE LIVE ORE TRACKING PASS: registered placement capture, restored snapshot exposure/exclusion, saved rejection, no refill, paid chain and restart passed");}
                     catch(CompletionException failure){getLogger().log(java.util.logging.Level.SEVERE,"NATIVE WORKSHOP FAIL",failure.getCause());}
                     cancel();getServer().getPluginManager().disablePlugin(WorkshopProductionProbe.this);
                 }

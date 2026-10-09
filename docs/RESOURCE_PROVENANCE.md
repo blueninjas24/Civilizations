@@ -2,7 +2,8 @@
 
 The user-approved exposed-ore prototype accepts unknown old origin but excludes
 newly tracked player placements. This batch establishes durable exclusion storage
-and enforcement; it does not yet register a live placement listener or mine observer.
+and enforcement. The subsequent LIVE_ORE_TRACKING.md batch registers native
+placement capture with a clean-stop/failure fence; no automatic mine observer yet.
 
 ## Storage and owner boundary
 
@@ -41,11 +42,11 @@ history and finite extraction accounting stay intact. This is not block ownershi
 
 ## Remaining live bridge
 
-A production listener must capture successful placements, protect pending writes,
-handle queue/storage failures and restart recovery, and account for relevant block
-movement or integrations before automatic resource founding is enabled. In-memory
-pending positions alone are insufficient: a crash could lose them. Do not claim
-all new player placements are tracked merely because these APIs now exist.
+The production listener now captures successful native placements and uses a
+clean-stop/failure fence to protect missing pending writes across crashes. Relevant
+block movement and bulk-edit integrations still need coverage before automatic
+resource founding is enabled. In-memory pending positions alone are insufficient.
+Native place events do not certify all non-place mutations.
 
 Coherent resource grouping, automatic mine founding, ongoing exploration, extra
 mineral/stone/sand catalogs and automatic chain scheduling remain subsequent work.

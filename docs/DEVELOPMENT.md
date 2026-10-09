@@ -98,6 +98,16 @@ restoring server data has not been performed by this development batch.
 
 ## Manual automatic-farm native fixture
 
+The live-tracking extension dispatches a synthetic BlockPlaceEvent through the
+registered Civilizations listener and verifies the resulting sticky exclusion on
+the SQL owner. It uses a dummy Player with no online client/inventory; no player
+identity is saved. Reflection in the test-only probe locates the private session.
+Unlike the earlier snapshot-only fixture, this leaves one legitimate test-event
+placement record in the marked dev database, while restoring all world blocks.
+After archiving the probe, verify a normal restart reports healthy capture and
+no forced chunks, then stop normally. See LIVE_ORE_TRACKING.md for the clean-stop
+fence and incomplete piston/editor coverage. Never deploy this probe to a live server.
+
 The latest WorkshopProductionProbe also calls ExposedOreProbeSupport after its
 marked disposable-server guard. It waits for a loaded chunk; on the empty server,
 use console `execute in minecraft:overworld run forceload add 0 0` only in this
@@ -107,7 +117,9 @@ test source files together. Six temporary ore/air blocks are restored in finally
 and checked before the captured snapshot is scanned. Production scans do not force
 chunks or edit blocks. The separate probe DB tests persistent placement exclusions,
 stale-survey rejection and unchanged finite reserves/claims after restart. No live
-placement listener or automatic mine discovery is activated. See RESOURCE_PROVENANCE.md.
+placement listener was activated by the original provenance batch. The live capture
+extension above is now registered, but automatic mine discovery remains disabled.
+See RESOURCE_PROVENANCE.md and LIVE_ORE_TRACKING.md.
 
 WorkshopProductionProbe under the same test-only directory is a separate guarded
 plugin, main/name WorkshopProductionProbe/CivilizationsWorkshopProbe with the same

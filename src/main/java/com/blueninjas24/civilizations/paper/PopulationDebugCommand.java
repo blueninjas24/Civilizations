@@ -21,6 +21,7 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("status")) {
             PopulationDiagnostics.status(session.status(), session.settings()).forEach(sender::sendMessage);
+            sender.sendMessage(session.oreTrackingDiagnostic());
             if (session.onlineOnly()) sender.sendMessage("Time policy: server downtime and absent worlds pause; shared calendar is an administrative date, not every world's age.");
             return true;
         }

@@ -1,0 +1,71 @@
+# Live native ore placement capture
+
+OrePlacementTracker is registered by Civilizations for successful native Paper
+BlockPlaceEvent observations, including multi-place events. It records current ore
+positions rather than replaced air states, deduplicates positions and ignores
+cancelled/non-buildable/non-ore placements. All named ore materials and ancient
+debris are tracked for provenance; this does not add them to the coal/iron production
+catalog. No player identity, item inventory or Bukkit object crosses the SQL queue.
+
+Capture happens on Paper's main thread; saving uses PopulationSession's existing
+owner. Batches and pending futures are bounded. A synchronous capture error,
+rejected queue or failed asynchronous save marks a gap immediately and logs the
+failure once; player placement is not cancelled. No unbounded in-memory journal,
+main-thread SQLite work, world writes or chunk loading is introduced.
+
+## Recovery fence
+
+Schema 34 adds a singleton ore_tracking clean-stop/trust fence. Legacy coordinates,
+businesses, reserves, world identity and placement history remain unchanged. No
+initial tracking row is invented by migration; a live owner explicitly adopts the
+approved pre-existing unknown-origin baseline at its first begin.
+
+Before live capture starts, the owner commits a dirty fence. Normal shutdown drains
+accepted placement saves, then commits a clean fence. On the next begin, an unclean
+prior stop means placement history may have a gap; trust stays false. A clean stop
+cannot repair a previous capture failure or crash. Existing deposits/production and
+population are not erased. The fence protects new coordinate discovery, not the
+entire civilization calendar. Owner write failures also persist a gap where possible;
+the dirty startup fence covers crashes if a final save cannot complete.
+
+Session readiness gates new automatic discovery immediately. The coordinate
+repository also rejects persisted untrusted tracking state transactionally. Trusted
+test/legacy databases with no tracking adoption retain explicit caller APIs; this is
+not permission for live observers to skip the session's readiness gate.
+
+`/civ debug status` explains whether native placement capture is healthy or new ore
+discovery needs reviewed recovery. No reset/adoption command is implemented. Recovery
+must be an explicit reviewed future operation, not deletion of coordinates, reserve
+refill or automatic certification of an interval whose history is missing.
+
+## Scope limits
+
+Native placement capture is not comprehensive block provenance. Piston transport,
+bulk world-edit plugins, external editors and other non-place mutations still need
+appropriate integration/conservative handling before automatic mines are activated.
+The fence is verified for normal full server stops/restarts; plugin hot reload and
+world edits while the plugin is absent are not certified tracking intervals.
+Healthy capture does not certify natural origin of old blocks. The user approved
+that old-origin limitation. Automatic resource clustering, mine founding, scheduling
+and production are still separate unfinished work.
+
+## Verification design
+
+Temporary databases test dirty/clean restart, retained gaps, failed write rollback,
+schema-33 failure/recovery, preserved exclusions, queued shutdown saves, early capture
+failure and unchanged population/deposits. Adapter tests exercise placement event
+filters, multi-place deduplication, immutable data, async/sync failure and overload.
+
+The guarded native probe now dispatches a synthetic BlockPlaceEvent through the
+actual registered plugin listener while its disposable ore block fixture exists.
+Its dummy Player is not an online client; no player inventory is changed or saved.
+Original fixture blocks are restored, and the owner's read verifies the sticky
+placement remains recorded. Test-only reflection locates the private session;
+production code has no reflection or testing API. This validates live event dispatch,
+not a human client's placement, inventory or compatibility with world-edit plugins.
+Windows Wrapper clean verify passed 619 cases (617 unit/two packaged integration),
+including fourteen new cases, with no failures/errors/skips. Native event capture,
+restored snapshot fixture, schema upgrade, probe-free trusted restart and normal
+shutdown passed. Read-only old histories, one actual synthetic-event placement,
+clean/trusted fence and integrity/FKs passed; owner configuration unchanged. Test
+loading ticket removed, probe archived/excluded from production JAR, server stopped.

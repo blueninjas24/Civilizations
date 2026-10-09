@@ -33,6 +33,37 @@ class PopulationSessionTest {
                 new VillageObservation.Person(new UUID(0, 12), secondBed, true, "Second")));
     }
     private static <T> T await(CompletableFuture<T> result) throws Exception { return result.get(5, TimeUnit.SECONDS); }
+    @Test void captureGapBeforeStartupCannotBeOverwrittenBySuccessfulInitialization() throws Exception {
+        try(var session=session(settings(2,12))) {
+            session.configureOreTracking();session.invalidateOreTracking("early capture gap");await(session.start(false));
+            assertFalse(session.oreDiscoveryReady());
+            assertTrue(session.oreTrackingDiagnostic().contains("early capture gap"));
+        }
+        try(var reopened=session(settings(2,12))) {
+            reopened.configureOreTracking();await(reopened.start(false));assertFalse(reopened.oreDiscoveryReady());
+        }
+    }
+    @Test void configuredPlacementCaptureDrainsThenCleanRestartKeepsDiscoveryFenceHealthy() throws Exception {
+        var world=UUID.randomUUID();var position=new VillageObservation.Position(0,40,0);
+        var session=session(settings(2,12));session.configureOreTracking();await(session.start(false));
+        assertTrue(session.oreDiscoveryReady());var saved=session.recordOrePlacements(world,"Fixture",List.of(position),1000);
+        session.close();assertEquals(1,await(saved));
+        try(var reopened=session(settings(2,12))) {
+            reopened.configureOreTracking();await(reopened.start(false));assertTrue(reopened.oreDiscoveryReady());
+            assertEquals(java.util.Set.of(position),await(reopened.orePlacementsInChunk(world,0,0,512)));
+        }
+    }
+    @Test void captureFailurePersistsDiscoveryPauseButRetainsPopulationAndCanStillSaveExclusions() throws Exception {
+        var session=session(settings(2,12));session.configureOreTracking();await(session.start(false));await(session.observe(observed()));
+        var failed=session.recordOrePlacements(observed().worldId(),"Fixture",List.of(),1000);
+        assertThrows(ExecutionException.class,()->failed.get(5,TimeUnit.SECONDS));assertFalse(session.oreDiscoveryReady());session.close();
+        try(var reopened=session(settings(2,12))) {
+            reopened.configureOreTracking();await(reopened.start(false));assertFalse(reopened.oreDiscoveryReady());
+            assertEquals(2,reopened.snapshot().orElseThrow().livingCount());
+            assertEquals(1,await(reopened.recordOrePlacements(observed().worldId(),"Fixture",List.of(new VillageObservation.Position(0,40,0)),1000)));
+            assertTrue(reopened.oreTrackingDiagnostic().contains("recovery"));
+        }
+    }
     @Test void placementOwnerSavesBeforeTownEnrollmentAndDrainsAtShutdown() throws Exception {
         var world=UUID.randomUUID(); var position=new VillageObservation.Position(-1,-60,-1);
         var evidence=new java.util.ArrayList<>(List.of(position));

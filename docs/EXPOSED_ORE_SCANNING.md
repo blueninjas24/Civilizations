@@ -32,11 +32,11 @@ Cell budgets bound calls, not a hard CPU deadline or snapshot-capture time.
 
 ## Remaining runtime work
 
-This batch provides scanner components, not automatic mining. No observer, block
-placement listener or scheduler is registered. Exclusion sets are supported but
-durable player-placement records now exist (see RESOURCE_PROVENANCE.md). Their
-live placement capture and crash-safe pending-write protection are not yet
-connected, so automatic ore opportunities remain disabled.
+OreScan provides scanner components, not automatic mining. No ore observer or mine
+scheduler is registered. Durable placement records and native live capture with
+a clean-stop/failure fence now exist (see LIVE_ORE_TRACKING.md). Piston/bulk-editor
+coverage and the actual discovery/operation bridge remain unfinished, so automatic
+ore opportunities remain disabled.
 
 A chunk survey is not a geological deposit. The next adapter must form coherent
 bounded opportunities, resolve saved coordinates/sites first and reject conflicts.

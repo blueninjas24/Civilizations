@@ -2,6 +2,47 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Live native ore placement capture and recovery fence — October 9, 2026
+
+- Branch `codex/phase3-live-ore-tracking`: registered MONITOR listener captures
+  successful native ore placements/multi-place positions, ignoring cancelled,
+  forbidden and non-ore events. Includes named ore variants/ancient debris for
+  future provenance, without enabling their production catalog. Immutable UUID/XYZ
+  records only; no player inventory/identity or Paper object crosses the owner queue.
+  Bounded pending saves, synchronous/async error logging and immediate gap state;
+  no main-thread SQLite, player placement cancellation, world edits or forced chunks.
+- Schema 34 adds explicit singleton clean-stop/trust fence. Live start commits
+  dirty before capture; shutdown drains accepted saves before a clean fence. Crash,
+  save/capture failure and early-start gap cannot silently regain trust on restart.
+  Persisted gaps block coordinate discovery; immediate session readiness must gate
+  future live observers. Existing populations, finite deposits and histories remain.
+  `/civ debug status` explains healthy capture or reviewed-recovery pause. No recovery
+  reset/adoption command implemented; migration invents no old placement history.
+- Fourteen added cases (five fence repository, five adapter, three owner-session,
+  one discovery). Windows `.\mvnw.cmd clean verify -B -ntp` passed **619** (617 unit/
+  two packaged integration), zero failures/errors/skips. Final run includes the review
+  fix retaining an early failure explanation and fencing world-observation failures.
+  Tests cover overload, cancelled/multi-place data, clean/unclean restart, rollback,
+  schema-33 recovery, shutdown drain and preservation of people/deposits.
+- Consistent marked-dev schema-33 backup preceded additive upgrade. Positive native
+  fixture dispatched a synthetic event through the actual registered listener and
+  verified its queued saved exclusion after restoring all six blocks. Dummy player
+  is not an online client, no inventory/player data changed. Separate probe DB also
+  passed paid chain, saved rejection/replay/restart and five claims/20 initial/16
+  remaining/two tools. Main placement row represents this actual fixture event.
+- Test loading ticket removed and probe archived. Probe-free restart retained month
+  1670 and healthy capture; status showed no failure, console confirmed no forced
+  chunks, both normal stops exited zero. Read-only schema-34 clean/trusted fence,
+  exactly one new fixture placement, old identities/industry/funds, probe accounting,
+  integrity/FKs and unchanged owner economy.yml hash passed. Probe excluded from
+  production JAR; marked dev server stopped. No real player acceptance claim.
+- Updated LIVE_ORE_TRACKING/provenance/scanning/mineral/development guides, TODO,
+  status/progress/devlog. Piston/bulk-editor provenance, coherent opportunities and
+  funded automatic nonfood operation remain next; automatic mines still disabled.
+  Phase 3 stays 1/4 (25%) until a complete gameplay group passes. Succession preference
+  remains pending separately; no answer assumed. Local feature commits only, no
+  merge/push, main or production save changes. Physical development remains Phase 4.
+
 ## Resource provenance persistence and industry direction — October 9, 2026
 
 - Branch `codex/phase3-resource-provenance`: recorded user-approved common industry

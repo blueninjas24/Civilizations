@@ -26,6 +26,18 @@ and resource rules; Phase 4 supplies physical excavation/layouts/work points; re
 transport remains Phase 5 and physical deterioration/disasters follow later gates.
 The canonical nine-phase roadmap is unchanged. See PHASE3_TODO.md.
 
+Ownership succession was asked separately: pass a deceased owner's business first
+to an eligible adult family member, then an eligible existing employee, otherwise
+pause/close while retaining site, stock, funds and history; or defer ownership to
+admin choice. No answer is assumed. This consequential ownership rule blocks its
+own lifecycle implementation, not resource capture or other independent work.
+
+The live placement fence is a conservative engineering safeguard, not a new mineral
+regeneration rule: capture failures/unclean stops pause new automatic discovery
+pending reviewed recovery. Existing settlements, reserves and history remain.
+Native placement capture does not certify piston/bulk-editor provenance; those
+integrations remain prerequisites before automatic mine founding. See LIVE_ORE_TRACKING.md.
+
 ## October 9, 2026 — approved exposed existing ore prototype
 
 The user answered: "Allow exposed existing ore." Exposed pre-existing coal/iron
