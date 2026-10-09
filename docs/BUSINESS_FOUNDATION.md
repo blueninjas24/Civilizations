@@ -74,8 +74,9 @@ preservation passed; no businesses were auto-created. An initial noninteractive
 console launch closed stdin and required stopping that verified disposable process;
 the corrected persistent-console launch and normal shutdown passed afterward.
 
-Wire bounded immutable business views to the existing owner/diagnostics, observe
-reliable existing sites, configure prototype founding/hiring opportunities in the
+The subsequent BUSINESS_RUNTIME.md batch wires bounded immutable business views
+and automatic invalid-assignment reconciliation to the owner/diagnostics. Next,
+observe reliable existing sites, configure prototype founding/hiring opportunities in the
 admin economy file, and apply eligible saved assignments automatically. Then add
 resource-supported production and its integration with commodity accounting,
 without double-counting the existing field-backed food source.

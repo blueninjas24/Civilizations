@@ -4,8 +4,12 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Wrapper verification passed 534 tests; this does
+unloaded chunks still simulate. Latest Wrapper verification passed 541 tests; this does
 not complete another Phase 3 gameplay milestone. See ONLINE_WORLD_PAUSE.md.
+
+Latest Phase 3 step: the running plugin maintains saved staffing records when a
+worker dies or moves, and admins can inspect business owners, workers and vacancies.
+Automatic recognition, founding/hiring and production remain next. See BUSINESS_RUNTIME.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
@@ -125,8 +129,9 @@ remains required for release. See PLAYER_BARTER.md.
 First milestone is partially implemented: real business/site identity, founders,
 initial owners, qualified hiring, finite worker capacity, once-only startup spending
 and retained employment history now have tested backend APIs. Dead/migrated people
-cannot count as current workers. Automatic site recognition, founding/hiring and
-in-game business diagnostics remain the next gate; registration produces no goods
+cannot count as current workers. Live bounded staffing maintenance and admin
+business diagnostics now connect saved records to the running plugin. Automatic
+site recognition and founding/hiring remain the next gate; registration produces no goods
 yet. Phase 3 stays 0/4 completed gameplay milestones rather than counting backend
 work as a finished in-game feature. See BUSINESS_FOUNDATION.md.
 

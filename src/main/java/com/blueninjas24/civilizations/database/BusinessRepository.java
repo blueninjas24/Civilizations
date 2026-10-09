@@ -148,16 +148,25 @@ public final class BusinessRepository {
 
     /** Future owner must call before hiring/production. Saves observed separation, not an invented past date. */
     public List<Employment> reconcileEmployment(UUID town, long step) throws SQLException {
+        return reconcile("b.settlement_id", town, step);
+    }
+
+    /** Bounded owner runtime visits individual businesses; a town with many firms cannot monopolize a pulse. */
+    public List<Employment> reconcileBusiness(UUID business, long step) throws SQLException {
+        return reconcile("b.id", business, step);
+    }
+
+    private List<Employment> reconcile(String scope, UUID id, long step) throws SQLException {
         if (step < 0) throw new IllegalArgumentException("Negative reconciliation step");
         return transaction(() -> {
             Map<UUID,String> invalid = new LinkedHashMap<>();
             try (var s = connection.prepareStatement("""
                     SELECT e.id,r.status FROM business_employment e JOIN businesses b ON b.id=e.business_id
                     JOIN residents r ON r.id=e.resident_id
-                    WHERE b.settlement_id=? AND e.ended_step IS NULL AND (r.status<>'ALIVE' OR r.settlement_id<>b.settlement_id)
+                    WHERE %s=? AND e.ended_step IS NULL AND (r.status<>'ALIVE' OR r.settlement_id<>b.settlement_id)
                     ORDER BY e.id
-                    """)) {
-                s.setString(1,town.toString());
+                    """.formatted(scope))) {
+                s.setString(1,id.toString());
                 try (var r = s.executeQuery()) {
                     while (r.next()) invalid.put(UUID.fromString(r.getString(1)),r.getString(2).equals("DECEASED")
                             ? "Resident is deceased at staffing reconciliation" : "Resident left the business settlement at staffing reconciliation");

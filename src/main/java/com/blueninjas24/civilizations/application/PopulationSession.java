@@ -77,6 +77,9 @@ public final class PopulationSession implements AutoCloseable {
     private volatile String economyFailure;
     private java.util.Set<UUID> loadedWorlds; // Owner-thread snapshot; null only for legacy headless harnesses.
     private volatile boolean onlineOnly;
+    private com.blueninjas24.civilizations.database.BusinessRuntime businesses;
+    private final AtomicReference<com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot> businessView =
+            new AtomicReference<>(com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot.empty());
 
     public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now) {
         this(dataFolder, logger, settings, now, null, FarmObservation.Policy.prototype());
@@ -126,6 +129,7 @@ public final class PopulationSession implements AutoCloseable {
     public Optional<EconomySettings> economySettings() { return Optional.ofNullable(economySettings); }
     public String economyFailure() { return economyFailure; }
     public boolean onlineOnly() { return onlineOnly; }
+    public com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot businessView() { return businessView.get(); }
 
     public CompletableFuture<Status> start() {
         return start(true);
@@ -145,6 +149,7 @@ public final class PopulationSession implements AutoCloseable {
             try {
                 loadedWorlds = initial;
                 database.initialize();
+                businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
                 var demographic = database.getDemographicRepository();
                 var saved = demographic.load(settings.population(), settings.migration());
                 if (saved.isEmpty())
@@ -342,6 +347,7 @@ public final class PopulationSession implements AutoCloseable {
         var result = database.getDemographicRepository().advance(target, settings.monthsPerBatch(), settings.population(), settings.migration(),
                 loadedWorlds == null ? null : database.getCivilizationClockRepository().activeWorlds());
         var state = result.checkpoint().state(); publish(state);
+        businessView.set(businesses.refresh(result.checkpoint().completedSteps(),loadedWorlds));
         status.set(new Status(!closing.get(), result.checkpoint().completedSteps(), target, state.livingCount(), System.nanoTime() - began, null));
     }
     private void requireReady() {

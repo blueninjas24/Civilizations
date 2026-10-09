@@ -2,6 +2,37 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 has started with tested business/site/founding/staffing storage; automatic businesses/production remain unwired, with 0/4 gameplay groups complete. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Live business staffing bridge and diagnostics — October 9, 2026
+
+- Branch `codex/phase3-business-runtime`: existing businesses now receive owner-thread
+  invalid-job reconciliation after population pulses. Dead/moved residents' episodes
+  end transactionally with observed separation reasons, preserving employment history
+  and releasing assignments. Absent worlds skip staffing writes; return resumes them.
+  Owner death is reported, without inventing succession or closure.
+- Stable UUID rotation visits eight businesses per pulse, retains at most 1024 cached
+  details, and wraps so late firms are visited. `/civ debug businesses <town UUID>`
+  shows cached founder/owner, local living workers/capacity/vacancies, open assignments,
+  site/founding month, world availability and latest separation. Admin-only commands
+  read immutable views and show at most 20 businesses; they do not access SQL/worlds.
+  Cached worker/owner details may lag until the firm's next turn. Firm/result counts
+  are bounded; individual SQL latency/scan cost has no measured performance guarantee.
+- Seven added cases cover active vs paused reconciliation, owner death, immutable
+  snapshots, bounded rotation/eviction, rollback/retry, session startup/world return,
+  empty/nested operation and command permission/startup/ID safety. Final Windows
+  `.\mvnw.cmd clean verify -B -ntp` passed 541 (539 unit/two packaged integration),
+  zero failures/errors/skips. No schema migration; current schema remains 29.
+- Backed up the verified disposable schema-29 DB before actual pinned Paper startup.
+  Readiness retained month 1659 after downtime; new empty-business and malformed-ID
+  command paths passed; normal status/no failure and clean stop exited zero. Final
+  read-only schema/integrity/FK/previous identity and exact treasury checks passed.
+  No businesses auto-created. Positive staffing/diagnostics use temporary SQLite
+  fixtures; this native smoke is not automatic founding, industry or client gameplay.
+- Added BUSINESS_RUNTIME.md; updated command declaration, foundation notes, progress
+  and devlog. Existing food/labor/stock/funds behavior remains unchanged. Automatic
+  site recognition, founding/hiring and production integration are still next work,
+  including preventing double-counted food/labor. Phase 3 remains partial (0/4 full
+  gameplay groups); nine-phase roadmap unchanged. No design answer needed, no push/merge.
+
 ## Approved server/world pause policy — October 9, 2026
 
 - Branch `codex/online-world-pause`: live Paper earns no time during server downtime

@@ -50,7 +50,7 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "settlement", "bad-id"});
             assertEquals(List.of("Settlement ID must be a UUID."), messages); messages.clear();
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "simulate", "1000"});
-            assertEquals(List.of("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid>"), messages);
+            assertEquals(List.of("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>"), messages);
             assertEquals(0, session.status().targetMonths());
             assertEquals(List.of("status", "settlement"),
                     command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "s"}));
@@ -61,6 +61,19 @@ class PopulationDebugCommandTest {
             new PopulationDebugCommand(session, () -> "Partial frame: housing unknown")
                     .onCommand(sender(true), null, "civ", new String[]{"debug", "observation"});
             assertEquals(List.of("Partial frame: housing unknown"), messages);
+        }
+    }
+    @Test void businessDiagnosticsRespectPermissionsStartupAndMalformedIdsWithoutDatabaseAccess() {
+        try(var session=session()) {
+            var command=new PopulationDebugCommand(session);
+            command.onCommand(sender(false),null,"civ",new String[]{"debug","businesses","bad"});
+            assertEquals(List.of("You do not have permission to inspect Civilizations."),messages);messages.clear();
+            command.onCommand(sender(true),null,"civ",new String[]{"debug","businesses","bad"});
+            assertEquals(List.of("Settlement ID must be a UUID."),messages);messages.clear();
+            command.onCommand(sender(true),null,"civ",new String[]{"debug","businesses",java.util.UUID.randomUUID().toString()});
+            assertEquals(List.of("Population is still starting; retry shortly."),messages);
+            assertEquals(List.of("businesses"),command.onTabComplete(sender(true),null,"civ",new String[]{"debug","b"}));
+            assertFalse(directory.resolve("civilizations.db").toFile().exists());
         }
     }
     @Test void explanationRespectsPermissionsAndDoesNotReadDatabaseOnServerThread() {

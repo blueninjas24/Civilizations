@@ -43,6 +43,14 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;
         }
+        if (args.length == 3 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("businesses")) {
+            try {
+                var id=UUID.fromString(args[2]);
+                if(!session.status().ready())sender.sendMessage("Population is still starting; retry shortly.");
+                else com.blueninjas24.civilizations.application.BusinessDiagnostics.describe(session.businessView(),id).forEach(sender::sendMessage);
+            } catch(IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
+            return true;
+        }
         if (args.length == 3 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("economy")) {
             try {
                 var id = UUID.fromString(args[2]); var view = session.economyView().get(id);
@@ -81,14 +89,14 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;
         }
-        sender.sendMessage("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid>");
+        sender.sendMessage("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>");
         return true;
     }
 
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) return List.of();
         List<String> choices = args.length == 1 ? List.of("debug")
-                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "settlement", "explain", "economy") : List.of();
+                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "settlement", "explain", "economy", "businesses") : List.of();
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(java.util.Locale.ROOT);
         return choices.stream().filter(value -> value.startsWith(prefix)).toList();
     }

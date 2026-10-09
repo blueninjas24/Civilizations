@@ -1,5 +1,31 @@
 # Civilizations Development Log
 
+## Live staffing maintenance and business diagnostics — October 9, 2026
+
+- Connected saved businesses to the existing SQL-owner runtime: transactional
+  observed job separations for dead/moved workers, retaining history; absent worlds
+  skip maintenance. Owner death reports unavailable without automatic succession.
+- Bounded stable-UUID rotation (eight/pulse), immutable retained cache (1024 max)
+  and admin `/civ debug businesses <town UUID>` report founders/owners/workers/sites,
+  vacancies, pause state and latest separation. Commands show at most 20 businesses
+  and never query SQL or worlds. Cached details can lag until a firm's next turn;
+  larger-workload profiling and SQL latency remain future checks.
+- Seven added automated cases verify maintenance, pauses, owner death, old snapshot
+  immutability, page fairness/eviction, injected SQL rollback/retry, actual session
+  startup/world return and permission/ID/startup command safety. Required Windows
+  Wrapper clean verify passed 541 cases (539 unit/two packaged integration), zero
+  failures/errors/skips. No migration; schema 29 and old records preserved.
+- Consistent snapshot before verified marked disposable Paper startup. Readiness
+  stayed at month 1659 after downtime; empty-business/malformed-ID/status commands
+  passed, then clean shutdown exited zero. Read-only integrity/FKs/old identities
+  and exact treasury balance checks passed; no businesses were created automatically.
+  Positive business fixtures are temporary SQLite tests, not native industry gameplay.
+- Updated status/progress/foundation notes and BUSINESS_RUNTIME.md. No automatic
+  recognition/founding/hiring/output, world edits, salaries, spending or new economic
+  policy. P3 remains 0/4 completed gameplay groups, with concrete first-group progress.
+  Next: reliable sites and configurable opportunity/hiring/production integration.
+  No new design decision needed; local feature-branch commit only, no merge/push.
+
 ## Server downtime and absent-world pause — October 9, 2026
 
 - Implemented explicit user decision to pause absent worlds/server downtime without
