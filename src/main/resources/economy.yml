@@ -7,6 +7,33 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# Phase 3 backend prototype. Automatic discovery/business production is not active yet.
+# Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.
+# An observed ore block is deposit evidence, not one item. At discovery only:
+# initial extraction bundles = observed ore count * deposit-batches-per-observed-ore.
+# Saved deposits and stores never reset from a restart/config edit.
+# One bundle shares mining labor and produces ALL listed goods together.
+# Prototype coal seam: three miners produce up to 24 coal + 72 stone/period,
+# bounded by remaining deposit, site capacity and storage. These are tunable examples.
+# Customize rock types with commodity keys such as andesite/cobbled_deepslate and
+# give every output a storage-space-per-unit entry. Values are abstract units, not blocks.
+industry:
+  deposit-batches-per-observed-ore: 150
+  batches-per-worker: 8
+  site-batch-capacity: 32
+  storage-capacity: 1024
+  local-delivery-periods: 1
+  local-haul-units-per-period: 128
+  mining-bundle:
+    coal: 1
+    stone: 3
+  storage-space-per-unit:
+    coal: 1
+    stone: 1
+    iron: 1
+    timber: 2
+    food: 1
+
 # /civ barter timber (or stone) requests a quote for the whole held food stack.
 # /civ barter accept explicitly confirms it; saved inventory proof gates the exchange.
 # Prototype outgoing goods use real saved opening supplies, not new industry production.

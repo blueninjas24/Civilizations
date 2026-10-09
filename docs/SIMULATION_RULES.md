@@ -14,6 +14,12 @@ These are design contracts, **not finalized numeric tuning values**. Avoid hardc
 - Labels Severe Shortage / Shortage / Balanced / Surplus / Abundant derive from quantitative ratios and persistence; exact thresholds are tunable.
 - Shortage consequences are causal, commodity-specific and time-dependent. Food shortages initially raise prices/import pressure; prolonged crises depress growth and may lead to mortality. Timber shortages defer building; iron shortages reduce tool/industry throughput.
 - Resource deposits have plausible geological potential, exploration/discovery and gradual depletion. Physical mine/quarry/logging/farm must plausibly corroborate output.
+- Approved October 9: mineral reserves never regenerate. Mining consumes finite
+  extraction bundles whose ore/rock yields share labor, site and storage limits.
+  Business-owned inventories and warehouse purchases conserve goods and money;
+  pending cargo reserves destination space and is unavailable for resale before
+  actual recorded arrival. No fake shopper or unexplained stock deletion is a
+  substitute for household, industry or maintenance demand. Ratios remain editable.
 
 ## Decision Engine
 1. Gather observable pressures/opportunities and prerequisites.

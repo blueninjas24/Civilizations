@@ -48,6 +48,15 @@
 - Decisions create projects and historical events; prior outcomes influence future weights without machine learning.
 
 ## Industry and business
+- October 9 clarification: minerals are finite and non-renewable; discovery evidence
+  represents a plausible deposit, not a one-block/one-item conversion. Ore and local
+  rock byproducts share extraction work. Neither restart nor repeat discovery refills
+  a saved deposit. Trees/crops follow separate growth rules.
+- Abstract business inventories have finite storage. Local warehouses may buy/own
+  goods and resell to shops/industrial customers using real purchasing funds. Goods
+  in transit have one owner and cannot be sold at either endpoint before delivery.
+  Storage buildings are Phase 4; regional routes are Phase 5. The economy should
+  respond to resident/business demand as well as players, with recorded causal uses.
 - Chains: mining→ore→blacksmith/tools; farming→crops→milling/baking; logging→timber→carpentry/construction; livestock→food/leather; fishing→food/trade.
 - Businesses persist with name, founder/owner, industry, building/site, employees, capacity, health/prosperity and history.
 - Founding requires plausible working age, skill/experience, capital/resources and opportunity. Businesses can thrive, compete abstractly, expand, shrink, close, change owners, pass to family/employees, relocate or be repurposed.

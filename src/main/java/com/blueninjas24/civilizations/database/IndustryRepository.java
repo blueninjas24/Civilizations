@@ -1,0 +1,254 @@
+package com.blueninjas24.civilizations.database;
+
+import com.blueninjas24.civilizations.economy.Commodity;
+import com.blueninjas24.civilizations.industry.*;
+import java.nio.charset.StandardCharsets;
+import java.sql.*;
+import java.util.*;
+
+/** Owner-thread finite minerals, business-owned stock/capital and delayed same-town purchases. */
+public final class IndustryRepository {
+    public record Deposit(UUID id, UUID siteId, long initialBatches, long remainingBatches, long observedOre,
+                          Map<Commodity,Long> bundle) { public Deposit { bundle=Map.copyOf(bundle); } }
+    public record Store(UUID businessId,long capacity,long hundredths,Map<Commodity,Long> units,
+                        Map<Commodity,Long> spacePerUnit,long reservedIncomingSpace) {
+        public Store { units=Map.copyOf(units); spacePerUnit=Map.copyOf(spacePerUnit); }
+        public long usedSpace() {
+            long sum=0; for(var entry:units.entrySet())sum=Math.addExact(sum,Math.multiplyExact(entry.getValue(),spacePerUnit.get(entry.getKey())));
+            return sum;
+        }
+        public long freeSpace() { return Math.subtractExact(Math.subtractExact(capacity,usedSpace()),reservedIncomingSpace); }
+    }
+    public record Receipt(UUID id,long quantity,String explanation) {}
+    public record Shipment(UUID id,UUID seller,UUID buyer,Commodity commodity,long units,long price,
+                           long dispatchedPeriod,long duePeriod,Long deliveredPeriod) {}
+    public enum Use { HOUSEHOLD_NEED, INDUSTRY_INPUT, MAINTENANCE }
+    private final Connection connection;
+    private final BusinessRepository businesses;
+    public IndustryRepository(Connection connection) throws SQLException {
+        this.connection=Objects.requireNonNull(connection); businesses=new BusinessRepository(connection);
+    }
+
+    /** Trusted adapter discovery only. New IDs cannot reopen the same saved site; depleted deposits remain depleted. */
+    public Deposit discover(UUID id,UUID site,long observedOre,long initialBatches,Map<Commodity,Long> bundle) throws SQLException {
+        Objects.requireNonNull(id); Objects.requireNonNull(site); bundle=Map.copyOf(bundle);
+        if(observedOre<1 || initialBatches<1 || bundle.isEmpty() || bundle.size()>32 || bundle.values().stream().anyMatch(v->v<1))
+            throw new IllegalArgumentException("Invalid finite mineral discovery");
+        String terms=terms("deposit",id,site,observedOre,initialBatches,catalog(bundle));
+        Map<Commodity,Long> yields=bundle;
+        return transaction(()-> {
+            try(var s=connection.prepareStatement("SELECT terms FROM mineral_deposits WHERE id=?")) {
+                s.setString(1,id.toString());try(var r=s.executeQuery()) {
+                    if(r.next()) { if(!terms.equals(r.getString(1)))throw new SQLException("Deposit identity reused with different discovery"); return deposit(id).orElseThrow(); }
+                }
+            }
+            try(var s=connection.prepareStatement("INSERT INTO mineral_deposits(id,site_id,initial_batches,remaining_batches,observed_ore,terms) VALUES(?,?,?,?,?,?)")) {
+                s.setString(1,id.toString());s.setString(2,site.toString());s.setLong(3,initialBatches);s.setLong(4,initialBatches);s.setLong(5,observedOre);s.setString(6,terms);s.executeUpdate();
+            }
+            for(var entry:new TreeMap<>(yields).entrySet())try(var s=connection.prepareStatement("INSERT INTO mineral_yields(deposit_id,commodity,units) VALUES(?,?,?)")) {
+                s.setString(1,id.toString());s.setString(2,entry.getKey().id());s.setLong(3,entry.getValue());s.executeUpdate();
+            }
+            return deposit(id).orElseThrow();
+        });
+    }
+
+    public Optional<Deposit> deposit(UUID id) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT * FROM mineral_deposits WHERE id=?")) {
+            s.setString(1,id.toString());try(var r=s.executeQuery()) {
+                if(!r.next())return Optional.empty();
+                return Optional.of(new Deposit(id,UUID.fromString(r.getString("site_id")),r.getLong("initial_batches"),r.getLong("remaining_batches"),
+                        r.getLong("observed_ore"),readCatalog("SELECT commodity,units FROM mineral_yields WHERE deposit_id=?",id)));
+            }
+        }
+    }
+
+    /** Starts empty. Capital is transferred from real village funds, never minted from stock or profession. */
+    public Store openStore(UUID business,long capacity,Map<Commodity,Long> space,long capital) throws SQLException {
+        space=Map.copyOf(space);
+        if(capacity<1 || capital<0 || space.isEmpty() || space.size()>64 || space.values().stream().anyMatch(v->v<1))
+            throw new IllegalArgumentException("Invalid business store opening");
+        String terms=terms("store",business,capacity,catalog(space),capital);Map<Commodity,Long> sizes=space;
+        return transaction(()-> {
+            var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+            try(var s=connection.prepareStatement("SELECT terms FROM industry_stores WHERE business_id=?")) {
+                s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                    if(r.next()) { if(!terms.equals(r.getString(1)))throw new SQLException("Store opening terms changed; explicit capacity transition required"); return store(business).orElseThrow(); }
+                }
+            }
+            if(capital>0)new TreasuryRepository(connection).postRows(UUID.nameUUIDFromBytes(("civilizations:business-capital:"+business).getBytes(StandardCharsets.UTF_8)),
+                    b.settlementId(),-capital,"Business working capital allocation");
+            try(var s=connection.prepareStatement("INSERT INTO industry_stores(business_id,capacity,hundredths,terms) VALUES(?,?,?,?)")) {
+                s.setString(1,business.toString());s.setLong(2,capacity);s.setLong(3,capital);s.setString(4,terms);s.executeUpdate();
+            }
+            for(var entry:new TreeMap<>(sizes).entrySet())try(var s=connection.prepareStatement("INSERT INTO industry_stock(business_id,commodity,space_per_unit,units) VALUES(?,?,?,0)")) {
+                s.setString(1,business.toString());s.setString(2,entry.getKey().id());s.setLong(3,entry.getValue());s.executeUpdate();
+            }
+            return store(business).orElseThrow();
+        });
+    }
+
+    public Optional<Store> store(UUID business) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT capacity,hundredths FROM industry_stores WHERE business_id=?")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                if(!r.next())return Optional.empty();
+                long reserved=0;
+                try(var q=connection.prepareStatement("""
+                        SELECT t.units,k.space_per_unit FROM local_shipments t JOIN industry_stock k
+                        ON k.business_id=t.buyer_id AND k.commodity=t.commodity
+                        WHERE t.buyer_id=? AND t.delivered_period IS NULL
+                        """)) {
+                    q.setString(1,business.toString());try(var pending=q.executeQuery()) {
+                        while(pending.next())reserved=Math.addExact(reserved,Math.multiplyExact(pending.getLong(1),pending.getLong(2)));
+                    }
+                }
+                var result=new Store(business,r.getLong(1),r.getLong(2),readCatalog("SELECT commodity,units FROM industry_stock WHERE business_id=?",business),
+                        readCatalog("SELECT commodity,space_per_unit FROM industry_stock WHERE business_id=?",business),reserved);
+                if(result.freeSpace()<0)throw new SQLException("Business storage exceeds saved capacity");
+                return Optional.of(result);
+            }
+        }
+    }
+
+    /** Exactly one mining plan per business/economic period. Output, rock byproducts, depletion and receipt commit together. */
+    public Receipt mine(UUID operation,UUID business,UUID deposit,long requested,long period,long perWorker,long siteCapacity) throws SQLException {
+        if(requested<0 || period<0 || perWorker<1 || siteCapacity<1)throw new IllegalArgumentException("Invalid production request");
+        String terms=terms("mine",business,deposit,requested,period,perWorker,siteCapacity);
+        return transaction(()-> {
+            var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
+            try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
+                s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                    if(r.next()) { long last=r.getLong(1);if(!r.wasNull() && period<=last)throw new SQLException("Mining period is stale or already completed"); }
+                }
+            }
+            var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+            var d=deposit(deposit).orElseThrow(()->new SQLException("Unknown deposit"));
+            if(!b.industry().equals("mining") || !b.siteId().equals(d.siteId()))throw new SQLException("Mining business must occupy the actual deposit site");
+            var stock=store(business).orElseThrow(()->new SQLException("Missing business storage"));
+            var plan=MineProduction.calculate(d.remainingBatches(),requested,businesses.currentWorkers(business).size(),perWorker,siteCapacity,
+                    stock.freeSpace(),d.bundle(),stock.spacePerUnit());
+            for(var output:plan.outputs().entrySet())changeStock(business,output.getKey(),output.getValue());
+            try(var s=connection.prepareStatement("UPDATE mineral_deposits SET remaining_batches=? WHERE id=?")) {
+                s.setLong(1,d.remainingBatches()-plan.batches());s.setString(2,deposit.toString());s.executeUpdate();
+            }
+            var saved=save(operation,terms,plan.batches(),plan.explanation());
+            try(var s=connection.prepareStatement("INSERT INTO industry_production(business_id,period,operation_id) VALUES(?,?,?)")) {
+                s.setString(1,business.toString());s.setLong(2,period);s.setString(3,operation.toString());s.executeUpdate();
+            }
+            return saved;
+        });
+    }
+
+    /** Buyer owns reserved cargo after payment. Actual money transfers once; destination storage is reserved in advance. */
+    public Shipment purchase(UUID operation,UUID seller,UUID buyer,Commodity commodity,long units,long price,long period,long delay,long haulCapacity) throws SQLException {
+        if(seller.equals(buyer) || units<1 || price<0 || period<0 || delay<1 || haulCapacity<1)throw new IllegalArgumentException("Invalid local purchase");
+        long due=Math.addExact(period,delay);String terms=terms("purchase",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity);
+        return transaction(()-> {
+            if(receipt(operation,terms).isPresent())return shipment(operation).orElseThrow();
+            var origin=businesses.findFounding(seller).orElseThrow(()->new SQLException("Unknown seller")).business();
+            var destination=businesses.findFounding(buyer).orElseThrow(()->new SQLException("Unknown buyer")).business();
+            if(!origin.settlementId().equals(destination.settlementId()))throw new SQLException("Local transport cannot cross settlements; regional routes belong to Phase 5");
+            long dispatched=0;
+            try(var s=connection.prepareStatement("SELECT t.units FROM local_shipments t JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND t.dispatched_period=?")) {
+                s.setString(1,origin.settlementId().toString());s.setLong(2,period);
+                try(var r=s.executeQuery()) { while(r.next())dispatched=Math.addExact(dispatched,r.getLong(1)); }
+            }
+            if(Math.addExact(dispatched,units)>haulCapacity)throw new SQLException("Local haul capacity exhausted for this period");
+            var from=store(seller).orElseThrow(()->new SQLException("Seller store missing"));
+            var to=store(buyer).orElseThrow(()->new SQLException("Buyer store missing"));
+            Long size=to.spacePerUnit().get(commodity);
+            if(size==null || Math.multiplyExact(size,units)>to.freeSpace())throw new SQLException("Destination lacks supported free storage");
+            if(from.units().getOrDefault(commodity,0L)<units)throw new SQLException("Seller lacks actual goods");
+            if(to.hundredths()<price)throw new SQLException("Buyer lacks purchasing funds");
+            changeStock(seller,commodity,-units);setCapital(buyer,to.hundredths()-price);setCapital(seller,Math.addExact(from.hundredths(),price));
+            save(operation,terms,units,"Actual local goods purchase; paid "+price+" hundredths; cargo reserved until period "+due);
+            try(var s=connection.prepareStatement("INSERT INTO local_shipments(id,seller_id,buyer_id,commodity,units,price,dispatched_period,due_period) VALUES(?,?,?,?,?,?,?,?)")) {
+                s.setString(1,operation.toString());s.setString(2,seller.toString());s.setString(3,buyer.toString());s.setString(4,commodity.id());
+                s.setLong(5,units);s.setLong(6,price);s.setLong(7,period);s.setLong(8,due);s.executeUpdate();
+            }
+            return shipment(operation).orElseThrow();
+        });
+    }
+
+    /** No early/duplicate delivery. Pending space becomes real stock in the same transaction. */
+    public Shipment deliver(UUID operation,long period) throws SQLException {
+        if(period<0)throw new IllegalArgumentException("Negative delivery period");
+        return transaction(()-> {
+            var cargo=shipment(operation).orElseThrow(()->new SQLException("Unknown shipment"));
+            if(cargo.deliveredPeriod()!=null)return cargo;
+            if(period<cargo.duePeriod())throw new SQLException("Cargo has not arrived");
+            changeStock(cargo.buyer(),cargo.commodity(),cargo.units());
+            try(var s=connection.prepareStatement("UPDATE local_shipments SET delivered_period=? WHERE id=? AND delivered_period IS NULL")) {
+                s.setLong(1,period);s.setString(2,operation.toString());if(s.executeUpdate()!=1)throw new SQLException("Shipment changed during delivery");
+            }
+            store(cargo.buyer()).orElseThrow();return shipment(operation).orElseThrow();
+        });
+    }
+
+    /** Real abstract use, with caller-established demand/reason; no fake NPC shopper or unlimited spending. */
+    public Receipt consume(UUID operation,UUID business,Commodity commodity,long units,Use use,String reason) throws SQLException {
+        Objects.requireNonNull(use);Business.text(reason,2048);if(units<1)throw new IllegalArgumentException("Consumption must be positive");
+        String terms=terms("consume",business,commodity.id(),units,use,reason);
+        return transaction(()-> {
+            var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
+            changeStock(business,commodity,-units);return save(operation,terms,units,"Recorded "+use+": "+reason);
+        });
+    }
+
+    public Optional<Shipment> shipment(UUID id) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT * FROM local_shipments WHERE id=?")) {
+            s.setString(1,id.toString());try(var r=s.executeQuery()) {
+                if(!r.next())return Optional.empty();long value=r.getLong("delivered_period");Long delivered=r.wasNull()?null:value;
+                return Optional.of(new Shipment(id,UUID.fromString(r.getString("seller_id")),UUID.fromString(r.getString("buyer_id")),
+                        new Commodity(r.getString("commodity")),r.getLong("units"),r.getLong("price"),r.getLong("dispatched_period"),r.getLong("due_period"),delivered));
+            }
+        }
+    }
+
+    private void changeStock(UUID business,Commodity commodity,long delta) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT units FROM industry_stock WHERE business_id=? AND commodity=?")) {
+            s.setString(1,business.toString());s.setString(2,commodity.id());try(var r=s.executeQuery()) {
+                if(!r.next())throw new SQLException("Unsupported business commodity");long after=Math.addExact(r.getLong(1),delta);
+                if(after<0)throw new SQLException("Insufficient business stock");
+                try(var update=connection.prepareStatement("UPDATE industry_stock SET units=? WHERE business_id=? AND commodity=?")) {
+                    update.setLong(1,after);update.setString(2,business.toString());update.setString(3,commodity.id());update.executeUpdate();
+                }
+            }
+        }
+    }
+    private void setCapital(UUID business,long balance) throws SQLException {
+        try(var s=connection.prepareStatement("UPDATE industry_stores SET hundredths=? WHERE business_id=?")) {
+            s.setLong(1,balance);s.setString(2,business.toString());if(s.executeUpdate()!=1)throw new SQLException("Business capital account missing");
+        }
+    }
+    private Map<Commodity,Long> readCatalog(String query,UUID id) throws SQLException {
+        Map<Commodity,Long> result=new TreeMap<>();try(var s=connection.prepareStatement(query)) {
+            s.setString(1,id.toString());try(var r=s.executeQuery()) { while(r.next())result.put(new Commodity(r.getString(1)),r.getLong(2)); }
+        }return Map.copyOf(result);
+    }
+    private Optional<Receipt> receipt(UUID id,String terms) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT * FROM industry_operations WHERE id=?")) {
+            s.setString(1,id.toString());try(var r=s.executeQuery()) {
+                if(!r.next())return Optional.empty();if(!terms.equals(r.getString("terms")))throw new SQLException("Industry operation identity reused with different terms");
+                return Optional.of(new Receipt(id,r.getLong("quantity"),r.getString("explanation")));
+            }
+        }
+    }
+    private Receipt save(UUID id,String terms,long quantity,String explanation) throws SQLException {
+        try(var s=connection.prepareStatement("INSERT INTO industry_operations(id,terms,quantity,explanation) VALUES(?,?,?,?)")) {
+            s.setString(1,id.toString());s.setString(2,terms);s.setLong(3,quantity);s.setString(4,explanation);s.executeUpdate();
+        }return new Receipt(id,quantity,explanation);
+    }
+    private static String catalog(Map<Commodity,Long> map) {
+        StringBuilder result=new StringBuilder();new TreeMap<>(map).forEach((key,value)->result.append(terms(key.id(),value)));return result.toString();
+    }
+    private static String terms(Object... inputs) {
+        StringBuilder result=new StringBuilder();for(Object input:inputs) { String value=Objects.requireNonNull(input).toString();result.append(value.length()).append(':').append(value); }
+        return result.toString();
+    }
+    @FunctionalInterface private interface Work<T> { T run() throws SQLException; }
+    private <T> T transaction(Work<T> work) throws SQLException {
+        if(!connection.getAutoCommit())throw new SQLException("Industry operation requires no active transaction");connection.setAutoCommit(false);
+        try { T result=work.run();connection.commit();connection.setAutoCommit(true);return result; }
+        catch(SQLException|RuntimeException failure) { try { connection.rollback();connection.setAutoCommit(true); }catch(SQLException rollback) { failure.addSuppressed(rollback); }throw failure; }
+    }
+}

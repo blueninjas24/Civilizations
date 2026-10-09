@@ -18,6 +18,14 @@ the observed month. Succession/closure are not inferred from owner death.
 No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.md.
 
 ## Locked / approved
+- October 9 industry clarification: mineral deposits are finite and never regrow or
+  refill on restart/re-observation. Non-1:1 geology-based ore/rock byproducts share
+  work. Sizes/capacities/abundance/rates are admin-editable with complete defaults;
+  observed ore is evidence of a larger finite deposit, not an unlimited producer.
+- October 9 approval: abstract finite storage, warehouse buy/own/resell model and
+  local transport accounting. Purchasers require actual funds; goods have one owner
+  and in-transit goods are unavailable until arrival. Phase 4 physical storage and
+  Phase 5 regional routes remain in the unchanged nine-phase roadmap.
 - October 8 negotiation/admin clarification: user approved the proposed need-based
   bargaining direction: accept/counter/refuse, configurable failed-round limit and
   cooldown, protected essential supplies, reasons visible to players, no automatic
@@ -65,6 +73,10 @@ No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.m
 - Public Civilizations source is acceptable after auditing secrets/history; Chronicler source remains private. This repository must not contain hidden Chronicler mechanics.
 
 ## Open — do not silently lock numerical/behavioral rules
+0. World switching: current global demographic/economic simulation can continue for
+   saved towns even when their world is absent. Asked whether absent worlds should
+   pause until return or continue evolving. A reply is pending; no per-world pause
+   or reset is silently introduced. Preserve matching world UUID/data and plugin DB.
 1. Exact criteria for recognizing a settlement: POI cluster, villagers, vanilla village, player-founded location; distinction from player settlement.
 2. Center/border evolution and merging/splitting criteria. World UUID and saved
    bed/villager identity matching approved; multi-town overlap must be diagnosed.

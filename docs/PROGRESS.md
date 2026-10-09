@@ -123,6 +123,15 @@ in-game business diagnostics remain the next gate; registration produces no good
 yet. Phase 3 stays 0/4 completed gameplay milestones rather than counting backend
 work as a finished in-game feature. See BUSINESS_FOUNDATION.md.
 
+Resource/production group now also has verified partial work: finite mining with
+shared rock byproducts, bounded business storage and actual local warehouse buying/
+resale, reserved cargo and recorded causal-use APIs. Editable commented defaults
+are supplied. Final Wrapper passed 522 tests; disposable Paper schema-28 startup/
+shutdown and preserved history/config passed. Automatic mine recognition, business
+operation, NPC shopping and production chains remain unwired, so the group stays
+unchecked. See FINITE_MINING_AND_WAREHOUSING.md. This is concrete backend progress,
+not a finished player-visible industry system.
+
 ## Phase 4 — planned
 
 - [ ] Building templates and authoring foundation.

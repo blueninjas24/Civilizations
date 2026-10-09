@@ -2,6 +2,7 @@ package com.blueninjas24.civilizations.paper;
 
 import com.blueninjas24.civilizations.economy.*;
 import com.blueninjas24.civilizations.economy.CommodityAccounting.*;
+import com.blueninjas24.civilizations.industry.IndustryPolicy;
 import org.bukkit.configuration.ConfigurationSection;
 import java.math.BigDecimal;
 import java.util.*;
@@ -14,6 +15,7 @@ public final class EconomyConfiguration {
         if (config.contains("farms")) rootKeys.add("farms");
         if (config.contains("priorities")) rootKeys.add("priorities");
         if (config.contains("responses")) rootKeys.add("responses");
+        if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -32,6 +34,7 @@ public final class EconomyConfiguration {
         readBargaining(config);
         readBarter(config);
         readResponses(config);
+        readIndustry(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -60,6 +63,22 @@ public final class EconomyConfiguration {
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
     }
+    /** Backend settings only until reliable discovery/founding/production adapters are implemented. */
+    public static IndustryPolicy readIndustry(ConfigurationSection config) {
+        if(!config.contains("industry"))return IndustryPolicy.prototype();
+        var settings=section(config,"industry");
+        exactKeys(settings,Set.of("deposit-batches-per-observed-ore","batches-per-worker","site-batch-capacity","storage-capacity",
+                "local-delivery-periods","local-haul-units-per-period","mining-bundle","storage-space-per-unit"));
+        Map<Commodity,Long> bundle=new TreeMap<>(),space=new TreeMap<>();
+        var yields=section(settings,"mining-bundle");
+        for(var key:yields.getKeys(false))bundle.put(new Commodity(key),integer(yields,key));
+        var sizes=section(settings,"storage-space-per-unit");
+        for(var key:sizes.getKeys(false))space.put(new Commodity(key),integer(sizes,key));
+        return new IndustryPolicy(integer(settings,"deposit-batches-per-observed-ore"),integer(settings,"batches-per-worker"),
+                integer(settings,"site-batch-capacity"),integer(settings,"storage-capacity"),integer(settings,"local-delivery-periods"),
+                integer(settings,"local-haul-units-per-period"),bundle,space);
+    }
+
     /** Preserve existing commented format-1 files: an entirely absent new section gets documented defaults. */
     public static FarmObservation.Policy readFarms(ConfigurationSection config) {
         if (!config.contains("farms")) return FarmObservation.Policy.prototype();

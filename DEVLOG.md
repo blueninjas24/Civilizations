@@ -1,5 +1,40 @@
 # Civilizations Development Log
 
+## Finite minerals and local warehouse accounting — October 9, 2026
+
+- Recorded user approval: finite non-renewable deposits, shared abstract ore/rock
+  output, editable defaults, bounded abstract storage and warehouse purchase/resale.
+  Master/simulation rules and decisions reflect approval; ROADMAP unchanged.
+- Added plain-Java MineProduction/IndustryPolicy and owner-thread IndustryRepository:
+  stable once-only discoveries, actual-worker/site/storage-limited extraction,
+  per-period receipts, empty business stores, real treasury-funded working capital,
+  goods/money-conserving delayed local purchases, incoming-space reservations,
+  protected arrivals and explicit household/industry/maintenance-use receipts.
+- Schema 28 adds transactional finite-deposit/store/operation/shipment storage;
+  no refills, unlimited goods/money, fake consumers, personal wallets or salaries.
+  Existing live food/player economy remains unchanged. Backend operations only;
+  automatic discovery/business production and NPC shopping remain next scoped work.
+- Optional industry YAML exposes complete coal/rock, abundance, labor/site,
+  weighted storage and local haul/time defaults. Old owner files are untouched;
+  saved openings/discoveries retain terms through edits/restart. No mineral-regrowth
+  toggle. Store expansion/shared village accounting need explicit future integration.
+- Sixteen tests added: mining limits/10000 seeded calculations, depletion/restart,
+  full/pending storage, actual warehouse resale profit/money conservation, causal
+  use, write rollback/retry, capital opening, stale/impossible work, schema-27 failure,
+  independent snapshot cargo recovery and 240-period exact goods-flow scenario.
+  Corrected a test-only lambda capture compile error. Focused 27 cases then passed;
+  final Windows Wrapper `clean verify -B -ntp` passed 522 cases (520 unit/two packaged
+  integration), zero failures/errors/skips. Test writes use temporary owned DBs.
+- Consistent marked dev backup preceded Paper schema-27-to-28 startup. Protected
+  normal diagnostics and clean shutdown passed. Read-only integrity/FKs, checked
+  prior identities/history and unchanged owner YAML hash passed; zero auto-created
+  industry records. No production world/DB, main, merge or push changes.
+- Guide/status/progress updated; Phase 3 first two groups partial, still 0/4 completed
+  gameplay milestones. Next: sites/owner views/founding/hiring and actual demand/
+  production integration. Product ranges should respond to capacity/skills/supplies.
+  Asked absent-world pause versus continued evolution; no answer or per-world pause
+  assumed. Preserve matching world UUID/data plus plugin DB to return to old towns.
+
 ## Phase 3 business persistence and staffing foundation — October 9, 2026
 
 - Added plain-Java business, site, immutable founding terms and employment records;

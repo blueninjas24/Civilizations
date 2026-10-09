@@ -2,6 +2,56 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 has started with tested business/site/founding/staffing storage; automatic businesses/production remain unwired, with 0/4 gameplay groups complete. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Finite mining and local warehouse accounting — October 9, 2026
+
+- Branch `codex/phase3-deposits-storage`: finite site/deposit identity retains
+  discovery terms and a geological ore/rock bundle. Explicit actual mining workers,
+  one plan per business/period, site/work/storage limits constrain extraction.
+  Byproducts share the same budget; depleted deposits do not regrow, restart-refill
+  or reinitialize under changed IDs/terms. Actual world discovery remains unwired.
+- Business-owned stores start empty, with finite weighted capacity and retained
+  catalogs. Explicit working capital transfers actual village funds once; no new
+  grants/salaries/personal wallets. Warehouse purchases transfer real capital and
+  stock, reserve buyer storage and retain buyer-owned in-transit goods. Same-town
+  haul limits/delivery delay apply. Arrival is once-only; pending cargo cannot resell.
+  Regional routes and physical buildings remain their original later phases.
+- Explicit causal consumption primitive supports household/industry/maintenance
+  input use with source/reason and protected retries. It is not automatic NPC shopping
+  or invented demand to empty stock. Current live field food/player transactions
+  remain unchanged; transfers to village reserves must be integrated conservatively.
+- Commented optional `industry` YAML provides complete editable abundance, labor,
+  site/storage/haul/delay and coal/rock bundle inputs. Default discovery: observed
+  ore * 150 finite bundles; three workers at eight each yield up to 24 coal + 72
+  stone, bounded by actual conditions. Admins may add rock keys/space costs. No
+  renewable/infinite mineral setting. Old owner configs remain untouched; settings
+  validate now but do not enable automatic business production. Stored openings
+  preserve original terms; capacity expansion requires a future explicit transition.
+- Transactional schema 28 appends mineral/store/receipt/production/shipment tables
+  and indexes without resetting earlier history. Tests cover depletion, bundles,
+  storage/reservations, paid resale profits/total money, consumption, retry/rollback,
+  impossible/stale actions, store funding, migration failure and independent snapshot
+  cargo recovery. A 240-period chain conserves every coal/rock unit through
+  mine→warehouse→shop→explicit input use; 10000 seeded calculations enforce limits.
+- Sixteen added cases; final Windows `.\mvnw.cmd clean verify -B -ntp` passed 522
+  (520 unit/two packaged integration), zero failures/errors/skips. Initial focused
+  compile found a test-only reused lambda variable, corrected before successful
+  focused 27-case verification and final complete run. All automated DB writes
+  target test-owned temporary files; no production database/world mutation.
+- Backed up marked disposable schema-27 dev DB before pinned Paper startup at 28.
+  Normal owner/observation diagnostics reported no failure, then normal shutdown
+  exited zero. Read-only integrity/FKs, checked old identities/history and empty
+  new industry tables passed. Existing server economy.yml hash stayed identical.
+  Baseline OSHI/native-access/manifest warnings remain. No automatic industry or
+  native mine/warehouse gameplay is claimed by this startup-only smoke test.
+- Approved finite minerals/byproducts/storage/warehouse purchase direction recorded
+  in master/simulation rules and decisions; nine-phase ROADMAP unchanged. Business
+  and production reporting groups remain partial (0/4 completed gameplay groups).
+  Next: reliable sites, bounded owner views, automatic founding/staffing and causal
+  production/demand integration. Wider shop product eligibility remains future work.
+  World memory uses plugin DB + permanent world IDs; absent-world pause versus
+  continued global evolution is a pending user choice, with no implicit behavior
+  change. Local commit only, no merge/push. See FINITE_MINING_AND_WAREHOUSING.md.
+
 ## Phase 3 business and staffing foundation — October 9, 2026
 
 - Branch `codex/phase3-business-foundation`: immutable business/site/founding and

@@ -182,6 +182,10 @@ public class DatabaseManager {
         return new BusinessRepository(connection);
     }
 
+    public IndustryRepository getIndustryRepository() throws SQLException {
+        return new IndustryRepository(connection);
+    }
+
     public void close() {
         if (connection == null) {
             return;

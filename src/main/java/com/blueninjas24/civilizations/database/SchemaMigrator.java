@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 27;
+    static final int CURRENT_VERSION = 28;
 
     @FunctionalInterface
     interface Migration {
@@ -268,7 +268,8 @@ final class SchemaMigrator {
                             )
                             """);
                 },
-                SchemaMigrator::createBusinesses
+                SchemaMigrator::createBusinesses,
+                SchemaMigrator::createIndustryStores
         ));
     }
 
@@ -372,6 +373,15 @@ final class SchemaMigrator {
                 requireColumns(connection,"business_skill_requirements",Set.of("business_id","role","skill","experience"));
                 requireColumns(connection,"business_employment",Set.of("id","business_id","resident_id","started_step","ended_step","end_reason"));
             }
+            if(migrations.size()>=28) {
+                requireColumns(connection,"mineral_deposits",Set.of("id","site_id","initial_batches","remaining_batches","observed_ore","terms"));
+                requireColumns(connection,"mineral_yields",Set.of("deposit_id","commodity","units"));
+                requireColumns(connection,"industry_stores",Set.of("business_id","capacity","hundredths","terms"));
+                requireColumns(connection,"industry_stock",Set.of("business_id","commodity","space_per_unit","units"));
+                requireColumns(connection,"industry_operations",Set.of("id","terms","quantity","explanation"));
+                requireColumns(connection,"industry_production",Set.of("business_id","period","operation_id"));
+                requireColumns(connection,"local_shipments",Set.of("id","seller_id","buyer_id","commodity","units","price","dispatched_period","due_period","delivered_period"));
+            }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));
@@ -456,6 +466,67 @@ final class SchemaMigrator {
         execute(connection, "CREATE INDEX households_by_settlement ON households(settlement_id, id)");
         execute(connection, "CREATE INDEX residents_by_settlement ON residents(settlement_id, id)");
         execute(connection, "CREATE INDEX residents_by_household ON residents(household_id, settlement_id)");
+    }
+
+    private static void createIndustryStores(Connection connection) throws SQLException {
+        execute(connection,"""
+                CREATE TABLE mineral_deposits (
+                    id TEXT PRIMARY KEY NOT NULL, site_id TEXT NOT NULL UNIQUE REFERENCES business_sites(id),
+                    initial_batches INTEGER NOT NULL CHECK(typeof(initial_batches)='integer' AND initial_batches>0),
+                    remaining_batches INTEGER NOT NULL CHECK(typeof(remaining_batches)='integer' AND remaining_batches BETWEEN 0 AND initial_batches),
+                    observed_ore INTEGER NOT NULL CHECK(typeof(observed_ore)='integer' AND observed_ore>0),
+                    terms TEXT NOT NULL
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE mineral_yields (
+                    deposit_id TEXT NOT NULL REFERENCES mineral_deposits(id), commodity TEXT NOT NULL,
+                    units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>0), PRIMARY KEY(deposit_id,commodity)
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE industry_stores (
+                    business_id TEXT PRIMARY KEY NOT NULL REFERENCES businesses(id),
+                    capacity INTEGER NOT NULL CHECK(typeof(capacity)='integer' AND capacity>0),
+                    hundredths INTEGER NOT NULL CHECK(typeof(hundredths)='integer' AND hundredths>=0), terms TEXT NOT NULL
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE industry_stock (
+                    business_id TEXT NOT NULL REFERENCES industry_stores(business_id),commodity TEXT NOT NULL,
+                    space_per_unit INTEGER NOT NULL CHECK(typeof(space_per_unit)='integer' AND space_per_unit>0),
+                    units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>=0), PRIMARY KEY(business_id,commodity)
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE industry_operations (
+                    id TEXT PRIMARY KEY NOT NULL,terms TEXT NOT NULL,
+                    quantity INTEGER NOT NULL CHECK(typeof(quantity)='integer' AND quantity>=0),explanation TEXT NOT NULL
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE industry_production (
+                    business_id TEXT NOT NULL REFERENCES businesses(id),
+                    period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=0),
+                    operation_id TEXT NOT NULL UNIQUE REFERENCES industry_operations(id),
+                    PRIMARY KEY(business_id,period)
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE local_shipments (
+                    id TEXT PRIMARY KEY NOT NULL REFERENCES industry_operations(id),
+                    seller_id TEXT NOT NULL REFERENCES industry_stores(business_id), buyer_id TEXT NOT NULL REFERENCES industry_stores(business_id),
+                    commodity TEXT NOT NULL,units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>0),
+                    price INTEGER NOT NULL CHECK(typeof(price)='integer' AND price>=0),
+                    dispatched_period INTEGER NOT NULL CHECK(typeof(dispatched_period)='integer' AND dispatched_period>=0),
+                    due_period INTEGER NOT NULL CHECK(typeof(due_period)='integer' AND due_period>dispatched_period),
+                    delivered_period INTEGER CHECK(delivered_period IS NULL OR (typeof(delivered_period)='integer' AND delivered_period>=due_period)),
+                    CHECK(seller_id<>buyer_id),
+                    FOREIGN KEY(seller_id,commodity) REFERENCES industry_stock(business_id,commodity),
+                    FOREIGN KEY(buyer_id,commodity) REFERENCES industry_stock(business_id,commodity)
+                )
+                """);
+        execute(connection,"CREATE INDEX local_shipments_waiting ON local_shipments(buyer_id,due_period,id) WHERE delivered_period IS NULL");
     }
 
     private static void createBusinesses(Connection connection) throws SQLException {
