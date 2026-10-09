@@ -3,7 +3,9 @@
 Village budgets and prices use exact hundredths of abstract Trade Value. Treasury
 is spending capacity; it is not personal wealth or a prosperity score. This batch
 prepares finance mechanics, without enabling payments or giving live villages money.
-The initial funding source and player payment method remain awaiting user decisions.
+The user has now approved a moderate configurable initial financial position and
+both emerald payments and contextual barter. The funding and payment adapters
+remain to be implemented; no live account is seeded by the current code.
 
 ## Exact quotes
 
@@ -50,3 +52,23 @@ inventory is changed by this batch. Tests cover exact/partial/unknown budgets, 1
 seeded affordability cases, integer boundaries, existing scarcity price integration,
 shared rollback, retry, restart and unchanged standalone transaction contracts.
 Paper/client payout and funding tests are required when those adapters are built.
+
+
+## Approved next finance direction
+
+Residents may begin financially neutral/moderate. A configurable one-time village
+opening budget will represent initial spendable capital; its numeric scale is a
+prototype, independent of qualitative household prosperity. Subsequent spending
+and actual revenue will change the account. Reloading or recreating visible
+villagers must never reset or replenish it. This is initial-condition seeding, not
+a recurring income claim or detailed salary/tax system.
+
+Players should be offered emerald payment or relevant barter goods from actual
+available production stock. Timber for a logger and mining goods or fish for their
+respective producers are intended future contexts, not currently assigned businesses.
+Trade Value remains the common internal valuation; emerald exchange rates and item
+prices will be configurable. Example stack quantities are not guaranteed exchange
+rates. A merchant's profession alone cannot create goods or a source of income.
+
+See DECISIONS_AND_OPEN_QUESTIONS.md for the user clarification and implementation
+boundaries. These approved directions have not yet passed implementation gates.

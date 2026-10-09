@@ -1,5 +1,20 @@
 # Civilizations Development Log
 
+## Initial finances and contextual payment direction — October 8, 2026
+
+- User resolved the finance questions: moderate initial finances, then causal gains/
+  losses; emerald payments or optional barter from the village/merchant's actual
+  production. Example quantities are illustrative; keep prototype tuning editable.
+- Clarified current housing/farm labor versus Phase 3 employers/workplaces. No
+  invented business, profession-based stock, salary or recurring income added.
+- Recorded one-time opening capital direction; visible entity loads/recreation do
+  not reset wealth or create new funds. Treasury remains separate from wellbeing.
+- Updated canonical decisions, finance guide, status and plain-English tracker.
+  Documentation-only batch; no implementation, schema/world/DB/config change or
+  new build/test run. Last verified code remains 369 passing tests. Phase 2 count
+  stays 1/4; next implementation is initial funding and recoverable payment/stock
+  exchange. No new decision is required before that scoped work.
+
 ## Exact finance quotes and shared treasury transactions — October 8, 2026
 
 - Branch `codex/phase2-finance-transaction-foundation`: pure TradeQuotes provides

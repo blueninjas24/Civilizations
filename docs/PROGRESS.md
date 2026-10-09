@@ -79,6 +79,12 @@ and resolution evidence. Purchases and building permissions remain unimplemented
 | Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery, player-readable food appeals and saved observed outcomes | Purchases/other feasible responses and learning weights from attributable outcomes |
 | Player economy and stability — partial | Configurable scarcity prices, exact budget-limited quotes, long shortage/recovery tests and explicit delivery accounting plus `/civ aid` previews and confirmed menu donations with saved recovery | Paid trade/barter, budget/stock effects and integrated economy balance tests |
 
+Finance direction is now approved: a moderate configurable opening financial
+position, emerald payments and optional barter from real production stocks. These
+choices resolve the earlier questions; their implementation and verification remain
+pending and do not increase the milestone count. Actual business/workplace assignment
+belongs to Phase 3.
+
 Completed pieces in a partial group are real progress. The top bar counts whole
 reporting groups, so it remains 1/4 (25%); it does not measure coding hours or all
 partial work. It will advance when a full group and its acceptance gate are verified.

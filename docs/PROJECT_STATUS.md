@@ -2,6 +2,16 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and conserved food allocation, saved planning priorities, explicit delivery accounting, confirmed player food donations and voluntary food appeals are implemented; treasury accounting, shared transaction support and exact affordability quotes are prepared, while funding, complete wellbeing and broader response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
+## Finance direction clarified — October 8, 2026
+
+The user approved moderate initial finances as the starting basis, configurable
+opening capital, emerald payments and optional barter using contextual real stocks.
+The prior funding/currency questions are resolved. These are approved plans, not
+implemented payments or starting budgets. Persistent workplace/business assignments
+remain Phase 3; current housing and observed farm labor do not imply an employer.
+Repeated entity loads/spawns must preserve finances rather than seed more capital.
+No numeric grant, exchange rate or guaranteed stack-for-stack ratio is locked.
+
 ## Exact finance quotes and shared treasury transactions — October 8, 2026
 
 - Branch `codex/phase2-finance-transaction-foundation`: pure TradeQuotes provides

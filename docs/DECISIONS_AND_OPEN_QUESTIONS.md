@@ -1,6 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
 ## Locked / approved
+- October 8 finance clarification: initial residents may begin at a moderate,
+  neutral financial position rather than requiring player contributions to bootstrap
+  every village. Use documented configurable prototype opening capital as its
+  spendable basis; future economic choices/conditions change finances. This does
+  not claim existing workplace assignments or introduce personal salary accounts.
+- October 8 player payment clarification: support emerald payments AND optional
+  barter for goods the village/merchant actually produces and has available.
+  Production context determines relevant goods (e.g. timber, mining products, fish),
+  with abstract Trade Value as the common valuation basis. Example quantities such
+  as five emeralds for 64 wheat are illustrative, not locked prices.
 - October 8 economy authorization: Codex may choose documented configurable prototype
   economy settings. Keep tuning in an easy-to-edit server file, including support for
   different famine/feast scenarios; these defaults are experimental, not final canon.
@@ -244,3 +254,29 @@ quotes and internal treasury operations that share an owner's receipt transactio
 No live budget, income rule, exchange rate, payout or merchant acceptance is created.
 Existing scarcity pricing and standalone treasury behavior remain unchanged.
 See FINANCE_FOUNDATION.md. These calculations do not reserve or promise payment.
+
+## October 8, 2026 — finance questions resolved by user
+
+The user approved a moderate initial financial position as the basis for village
+spending, followed by causal gains/losses, and both emerald payment and contextual
+barter. This supersedes the pending funding/currency questions above. Opening
+capital, exchange rates and barter prices should remain easy to tune in economy.yml;
+no numerical default or permanent stack-for-stack exchange was specified by the user.
+
+Implementation interpretation: initialize the village's spending account once at
+its actual entry into economic simulation, with a documented configurable opening
+amount. Entity spawning, projection recreation, reloading and repeated observations
+must not mint more money or reset financial history. Detailed immigration capital
+and new-household wealth rules remain later work; a newborn is not a fresh grant.
+Starting household wellbeing/prosperity and spendable treasury stay separate.
+
+Current code tracks housing where observed and has age/skill qualification machinery,
+not persistent employers or workplaces. Food production uses evidenced farm capacity
+and adults. Actual industry/workplace assignment and ownership belong to Phase 3.
+A profession/name alone cannot establish goods stock or ongoing business income.
+Barter must debit real saved, available supplies and respect village needs; it does
+not spawn unlimited wood, gems, iron, coal or fish based on a claimed profession.
+Purchases must debit available funds and preserve both goods and payment receipts.
+
+This entry records product direction, not an implemented funding or payment feature.
+Prototype values and payment/stock safety still require implementation and tests.
