@@ -2,6 +2,34 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Approved exposed ore and bounded scanner — October 9, 2026
+
+- Branch `codex/phase3-exposed-ore-scan`: user approved exposed existing ore as
+  finite prototype evidence, excluding newly tracked player placements. Unknown
+  old origin is accepted; ownership, block excavation and refill remain prohibited.
+- Plain-Java OreScan visits bounded cells (at most seven source reads each), accepts
+  negative coordinates/heights, copies exclusion positions and detects six-face
+  known-air exposure. Buried ore is ignored. Unknown/uncertain or over-512 evidence
+  is incomplete, preventing truncated discovery. Results are immutable and stable
+  across batch sizes; publication before traversal completes fails explicitly.
+- PaperOreSource reads snapshot block types with absolute Y; normal/deepslate coal
+  and iron, all air variants, fluids and unsupported minerals are handled explicitly.
+  Unavailable coordinates never read the snapshot. No world writes/forced loading.
+  Initial focused run caught Material.isAir requiring live Paper registries; explicit
+  air classification removed that dependency before final verification.
+- Eleven new tests (nine domain, two snapshot adapter). Windows
+  `.\mvnw.cmd clean verify -B -ntp` passed **597** (595 unit/two packaged integration),
+  zero failures/errors/skips. Diff reviewed; no schema change (still 32), real DB,
+  world, server or owner configuration modifications. No live Paper ore scan was
+  run this batch; component tests do not certify natural origin/live discovery.
+- Updated decision/mineral/scanning guides, progress/status/devlog. Runtime observer,
+  durable player-placement tracking, coherent deposit grouping and automatic mine
+  founding/operation remain unfinished. Automatic mining stays disabled until those
+  protections are connected. Phase 3 remains 1/4 (25%), advancing a partial group.
+  Next: permanent placement exclusions and bounded live opportunity observation.
+  Local feature commit only; no merge/push or main modification. No user decision
+  currently blocks that scoped work.
+
 ## Coordinate-backed finite mineral identity — October 9, 2026
 
 - Branch `codex/phase3-mineral-identity`: bounded canonical coal/iron observations
@@ -30,7 +58,7 @@
   code excluded from production JAR. This does not prove actual ore snapshots.
 - Updated MINERAL_IDENTITY.md, decisions/mining/development notes, status/progress/
   devlog. No automatic ore scan, natural-origin certification or mine production
-  enabled here. User's ore-origin choice is pending before those adapters proceed.
+  enabled here. Ore origin was pending at this milestone, subsequently approved above.
   Phase 3 remains 1/4 (25%), with discovery identity advancing a partial group.
   No production mutation, merge/push or main change.
 

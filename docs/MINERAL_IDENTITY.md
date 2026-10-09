@@ -58,15 +58,17 @@ UUID replay and finite mining semantics are preserved. New rates/yields apply to
 new observed deposits; revisits retain the original geological terms. A lower
 binary rejects newer schema versions; downgrade requires a consistent backup.
 
-## Pending origin policy
+## Approved origin policy
 
-The user has been asked whether exposed pre-existing ore may count as finite
-prototype evidence (excluding newly tracked player placements), or whether unknown
-origin must require admin approval. Minecraft's current blocks alone do not prove
-natural generation. No answer is assumed and no automatic ore-production behavior
-is enabled by this batch. Tracking newly placed blocks, actual Paper scans, exposed
-surface detection, per-mineral tuning and automatic mine founding/operation remain
-subsequent work after that policy is settled. See DECISIONS_AND_OPEN_QUESTIONS.md.
+On October 9 the user approved exposed existing ore as finite prototype evidence,
+excluding newly tracked player placements. Old natural/player origin remains
+unknown; the approval accepts this limitation without granting block rights.
+OreScan and PaperOreSource now implement bounded snapshot classification and
+six-face air exposure, with supplied exclusion coordinates and conservative partial
+survey handling. They are not registered runtime observers. Durable placement
+tracking, coherent deposit grouping, live scheduling, per-mineral tuning and
+automatic mine founding/operation remain subsequent work. See
+EXPOSED_ORE_SCANNING.md and DECISIONS_AND_OPEN_QUESTIONS.md.
 
 ## Verification scope
 

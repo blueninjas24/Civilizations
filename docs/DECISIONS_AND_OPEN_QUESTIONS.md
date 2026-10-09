@@ -1,14 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
-## Pending — automatic ore origin policy
+## October 9, 2026 — approved exposed existing ore prototype
 
-Minecraft's current block data cannot prove whether pre-existing ore was naturally
-generated or player placed. Before enabling automatic mine opportunities, the user
-has been asked to choose: accept exposed existing ore as finite prototype evidence
-while excluding newly tracked player placements, or require admin approval for
-unknown origin. No answer is assumed. This affects player ore displays and therefore
-is a gameplay decision, not merely a scan-budget setting. Safe coordinate identity,
-duplicate/depletion protection and temporary tests proceed independently.
+The user answered: "Allow exposed existing ore." Exposed pre-existing coal/iron
+may count as finite prototype resource evidence even when its old natural/player
+origin is unknown. Newly tracked player ore placements are excluded. Minecraft's
+current blocks cannot certify old natural origin; this approval accepts that limit.
+It does not grant block ownership, allow physical excavation, refill deposits or
+permit forced chunk loading. Durable placement tracking and a bounded live observer
+are prerequisites before enabling automatic mine opportunities. See
+EXPOSED_ORE_SCANNING.md for conservative exposure and completeness rules.
 
 ## October 9, 2026 — coordinate identity engineering boundary
 
@@ -18,7 +19,8 @@ reserves; different sites or multiple saved deposits report conflict instead of
 refilling, transferring or merging. Missing legacy coordinates are not fabricated.
 These are protective internal identity choices, not natural-origin certification,
 geological cluster criteria, mine expansion or block rights. Automatic discovery
-waits for the origin choice above. See MINERAL_IDENTITY.md.
+still requires live observation and placement tracking; the origin choice above is
+now approved. See MINERAL_IDENTITY.md.
 
 ## October 9, 2026 — workshop recipe prototype accounting
 

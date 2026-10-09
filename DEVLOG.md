@@ -1,5 +1,24 @@
 # Civilizations Development Log
 
+## Approved exposure policy and bounded ore scans — October 9, 2026
+
+- Recorded user answer "Allow exposed existing ore": accept unknown old origin as
+  finite prototype evidence, exclude newly tracked placements, preserve block
+  sovereignty and no-refill/no-forced-load rules.
+- Added OreScan domain traversal and PaperOreSource snapshot adapter. Known-air
+  face exposure, normal/deepslate coal/iron, copied absolute exclusions, negative
+  heights, bounded reads, immutable deterministic output and conservative partial/
+  overflow handling implemented. Chunk-wide evidence does not define one deposit.
+- Eleven new cases (nine domain/two adapter). Initial focused run caught a live
+  registry dependency in Paper Material.isAir; explicit air variants resolved it.
+  Final Windows Wrapper clean verify passed 597 (595 unit/two packaged integration),
+  zero failures/errors/skips. Diff reviewed. No migration, actual database/world,
+  owner configuration or server change; live Paper ore scan not run this batch.
+- Updated decision/scanning/mineral guides, status and progress. Durable placement
+  tracking and real observation/founding/operation remain next; automatic mines stay
+  disabled. Phase 3 stays 1/4 (25%) until its complete gameplay group is verified.
+  Local feature branch only, no merge/push or main change; no blocking design question.
+
 ## Mineral coordinate identity and overlap protection — October 9, 2026
 
 - Closed a prerequisite gap: raw discovery protected a saved site but alternate
@@ -23,9 +42,9 @@
   config hash unchanged, probe archived, server stopped, fixture outside shipped
   JAR. No world/entity or production data changes. Actual resource snapshots untested.
 - Updated mineral guide, decisions/mining/development notes, status/progress/devlog.
-  Phase 3 stays 1/4 (25%). Pending genuine gameplay choice: allow existing exposed
+  Phase 3 stays 1/4 (25%). At that milestone, pending gameplay choice: allow existing exposed
   ore of unknown origin as finite evidence (exclude newly tracked placements), or
-  require admin approval. No answer assumed; adapters can continue after that choice.
+  require admin approval. Subsequently approved; see the exposure batch above.
   Coherent local feature commit only, no merge/push or main modification.
 
 ## Workshop recipes and paid connected production — October 9, 2026
