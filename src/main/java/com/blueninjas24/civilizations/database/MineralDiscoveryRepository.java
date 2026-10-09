@@ -39,7 +39,12 @@ public final class MineralDiscoveryRepository {
             try {connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;
         }
     }
-    private Discovery discoverRows(UUID site,MineralObservation observation,long rate,Map<Commodity,Long> bundle) throws SQLException {
+    Discovery discoverRows(UUID site,MineralObservation observation,long rate,Map<Commodity,Long> bundle) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Discovery rows require an owner transaction");
+        Objects.requireNonNull(site);Objects.requireNonNull(observation);bundle=Map.copyOf(bundle);
+        if(!observation.complete() || observation.ore().isEmpty())throw new SQLException("Complete positive ore evidence required");
+        if(rate<1 || rate>1_000_000_000 || bundle.isEmpty() || bundle.size()>32 || !bundle.containsKey(observation.mineral())
+                || bundle.values().stream().anyMatch(v->v<1 || v>1_000_000))throw new IllegalArgumentException("Invalid finite discovery terms");
         if(new OreTrackingRepository(connection).load().map(state->!state.trusted()).orElse(false))
             throw new SQLException("Ore placement history incomplete; automatic discovery requires reviewed recovery");
         var placements=new OrePlacementRepository(connection);

@@ -19,37 +19,42 @@ public final class BusinessRepository {
     /** Registration, qualification requirements and real startup debit commit together. ID is retry-safe. */
     public BusinessFounding found(BusinessFounding request) throws SQLException {
         Objects.requireNonNull(request);
-        return transaction(() -> {
-            var saved = findFounding(request.business().id());
-            if (saved.isPresent()) {
-                if (!saved.orElseThrow().equals(request)) throw new SQLException("Business identity reused with different founding terms");
-                return saved.orElseThrow();
-            }
-            var business = request.business();
-            requireQualified(business.founderId(), business.settlementId(), request.founderRequirements());
-            requireWorld(request.site());
-            insertSite(request.site());
-            try (var s = connection.prepareStatement("""
-                    INSERT INTO businesses(id,settlement_id,name,founder_id,owner_id,industry,site_id,
-                        worker_capacity,founded_step,startup_hundredths,reason,founder_min_age,worker_min_age)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
-                    """)) {
-                s.setString(1,business.id().toString()); s.setString(2,business.settlementId().toString());
-                s.setString(3,business.name()); s.setString(4,business.founderId().toString());
-                s.setString(5,business.ownerId().toString()); s.setString(6,business.industry());
-                s.setString(7,business.siteId().toString()); s.setInt(8,business.workerCapacity());
-                s.setLong(9,business.foundedStep()); s.setLong(10,request.startupHundredths());
-                s.setString(11,request.reason()); s.setLong(12,request.founderRequirements().minimumAgeSteps());
-                s.setLong(13,request.workerRequirements().minimumAgeSteps()); s.executeUpdate();
-            }
-            saveRequirements(business.id(),"FOUNDER",request.founderRequirements());
-            saveRequirements(business.id(),"WORKER",request.workerRequirements());
-            if (request.startupHundredths()>0) {
-                UUID operation = UUID.nameUUIDFromBytes(("civilizations:business-founding:"+business.id()).getBytes(StandardCharsets.UTF_8));
-                new TreasuryRepository(connection).postRows(operation,business.settlementId(),-request.startupHundredths(),request.reason());
-            }
-            return request;
-        });
+        return transaction(() -> foundRows(request));
+    }
+
+    /** Package-local composition only; caller owns the complete startup transaction. */
+    BusinessFounding foundRows(BusinessFounding request) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Founding rows require an owner transaction");
+        Objects.requireNonNull(request);
+        var saved = findFounding(request.business().id());
+        if (saved.isPresent()) {
+            if (!saved.orElseThrow().equals(request)) throw new SQLException("Business identity reused with different founding terms");
+            return saved.orElseThrow();
+        }
+        var business = request.business();
+        requireQualified(business.founderId(), business.settlementId(), request.founderRequirements());
+        requireWorld(request.site());
+        insertSite(request.site());
+        try (var s = connection.prepareStatement("""
+                INSERT INTO businesses(id,settlement_id,name,founder_id,owner_id,industry,site_id,
+                    worker_capacity,founded_step,startup_hundredths,reason,founder_min_age,worker_min_age)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """)) {
+            s.setString(1,business.id().toString()); s.setString(2,business.settlementId().toString());
+            s.setString(3,business.name()); s.setString(4,business.founderId().toString());
+            s.setString(5,business.ownerId().toString()); s.setString(6,business.industry());
+            s.setString(7,business.siteId().toString()); s.setInt(8,business.workerCapacity());
+            s.setLong(9,business.foundedStep()); s.setLong(10,request.startupHundredths());
+            s.setString(11,request.reason()); s.setLong(12,request.founderRequirements().minimumAgeSteps());
+            s.setLong(13,request.workerRequirements().minimumAgeSteps()); s.executeUpdate();
+        }
+        saveRequirements(business.id(),"FOUNDER",request.founderRequirements());
+        saveRequirements(business.id(),"WORKER",request.workerRequirements());
+        if (request.startupHundredths()>0) {
+            UUID operation = UUID.nameUUIDFromBytes(("civilizations:business-founding:"+business.id()).getBytes(StandardCharsets.UTF_8));
+            new TreasuryRepository(connection).postRows(operation,business.settlementId(),-request.startupHundredths(),request.reason());
+        }
+        return request;
     }
 
     /** Terms remain historical inputs even after a resident moves, dies or improves their skills. */
@@ -86,30 +91,33 @@ public final class BusinessRepository {
 
     /** One primary current job per resident, finite capacity, actual saved age/skills and local living labor. */
     public Employment hire(UUID operation, UUID businessId, UUID residentId, long step) throws SQLException {
+        var proposed=new Employment(operation,businessId,residentId,step,null,null);
+        return transaction(() -> hireRows(proposed.id(),proposed.businessId(),proposed.residentId(),proposed.startedStep()));
+    }
+    Employment hireRows(UUID operation, UUID businessId, UUID residentId, long step) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Employment rows require an owner transaction");
         var proposed = new Employment(operation,businessId,residentId,step,null,null);
-        return transaction(() -> {
-            var old = findEmployment(operation);
-            if (old.isPresent()) {
-                var saved = old.orElseThrow();
-                if (!saved.businessId().equals(businessId) || !saved.residentId().equals(residentId) || saved.startedStep()!=step)
-                    throw new SQLException("Employment identity reused with different inputs");
-                return saved; // Replaying an ended episode never resurrects it.
+        var old = findEmployment(operation);
+        if (old.isPresent()) {
+            var saved = old.orElseThrow();
+            if (!saved.businessId().equals(businessId) || !saved.residentId().equals(residentId) || saved.startedStep()!=step)
+                throw new SQLException("Employment identity reused with different inputs");
+            return saved; // Replaying an ended episode never resurrects it.
+        }
+        var founding = findFounding(businessId).orElseThrow(() -> new SQLException("Unknown business"));
+        if (step < founding.business().foundedStep()) throw new SQLException("Employment predates business");
+        requireQualified(residentId,founding.business().settlementId(),founding.workerRequirements());
+        try (var s = connection.prepareStatement("SELECT COUNT(*) FROM business_employment WHERE business_id=? AND ended_step IS NULL")) {
+            s.setString(1,businessId.toString());
+            try (var r = s.executeQuery()) {
+                if (!r.next() || r.getInt(1)>=founding.business().workerCapacity()) throw new SQLException("Business has no vacant worker capacity");
             }
-            var founding = findFounding(businessId).orElseThrow(() -> new SQLException("Unknown business"));
-            if (step < founding.business().foundedStep()) throw new SQLException("Employment predates business");
-            requireQualified(residentId,founding.business().settlementId(),founding.workerRequirements());
-            try (var s = connection.prepareStatement("SELECT COUNT(*) FROM business_employment WHERE business_id=? AND ended_step IS NULL")) {
-                s.setString(1,businessId.toString());
-                try (var r = s.executeQuery()) {
-                    if (!r.next() || r.getInt(1)>=founding.business().workerCapacity()) throw new SQLException("Business has no vacant worker capacity");
-                }
-            }
-            try (var s = connection.prepareStatement("INSERT INTO business_employment(id,business_id,resident_id,started_step) VALUES(?,?,?,?)")) {
-                s.setString(1,operation.toString()); s.setString(2,businessId.toString());
-                s.setString(3,residentId.toString()); s.setLong(4,step); s.executeUpdate();
-            }
-            return proposed;
-        });
+        }
+        try (var s = connection.prepareStatement("INSERT INTO business_employment(id,business_id,resident_id,started_step) VALUES(?,?,?,?)")) {
+            s.setString(1,operation.toString()); s.setString(2,businessId.toString());
+            s.setString(3,residentId.toString()); s.setLong(4,step); s.executeUpdate();
+        }
+        return proposed;
     }
 
     public Optional<Employment> findEmployment(UUID id) throws SQLException {

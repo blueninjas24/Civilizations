@@ -4,7 +4,7 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 640 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 649 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest Phase 3 step: villages can automatically start a funded farm, hire real
@@ -41,6 +41,12 @@ checking placed/moved ore exclusions and old deposits. The actual scheduled Pape
 pipeline passed with fixture blocks restored. Existing owner files explicitly opt
 in through economy.yml. Automatic nonfood funding/operation remains unfinished.
 See LIVE_RESOURCE_SURVEYS.md; this still advances part of the second reporting group.
+
+Mine startup now saves the business, finite reserves, storage, funding and first
+worker together. Failed startup leaves no partial business or missing money;
+retries preserve depleted ore and existing stock. Automated and packaged Paper
+checks passed. Automatic mine selection and production are still unfinished.
+See ATOMIC_MINE_STARTUP.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project

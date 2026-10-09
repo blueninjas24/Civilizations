@@ -79,24 +79,30 @@ public final class IndustryRepository {
         space=Map.copyOf(space);
         if(capacity<1 || capital<0 || space.isEmpty() || space.size()>64 || space.values().stream().anyMatch(v->v<1))
             throw new IllegalArgumentException("Invalid business store opening");
+        Map<Commodity,Long> sizes=space;
+        return transaction(()->openStoreRows(business,capacity,sizes,capital));
+    }
+    Store openStoreRows(UUID business,long capacity,Map<Commodity,Long> space,long capital) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Store rows require an owner transaction");
+        space=Map.copyOf(space);
+        if(capacity<1 || capital<0 || space.isEmpty() || space.size()>64 || space.values().stream().anyMatch(v->v<1))
+            throw new IllegalArgumentException("Invalid business store opening");
         String terms=terms("store",business,capacity,catalog(space),capital);Map<Commodity,Long> sizes=space;
-        return transaction(()-> {
-            var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
-            try(var s=connection.prepareStatement("SELECT terms FROM industry_stores WHERE business_id=?")) {
-                s.setString(1,business.toString());try(var r=s.executeQuery()) {
-                    if(r.next()) { if(!terms.equals(r.getString(1)))throw new SQLException("Store opening terms changed; explicit capacity transition required"); return store(business).orElseThrow(); }
-                }
+        var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+        try(var s=connection.prepareStatement("SELECT terms FROM industry_stores WHERE business_id=?")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                if(r.next()) { if(!terms.equals(r.getString(1)))throw new SQLException("Store opening terms changed; explicit capacity transition required"); return store(business).orElseThrow(); }
             }
-            if(capital>0)new TreasuryRepository(connection).postRows(UUID.nameUUIDFromBytes(("civilizations:business-capital:"+business).getBytes(StandardCharsets.UTF_8)),
-                    b.settlementId(),-capital,"Business working capital allocation");
-            try(var s=connection.prepareStatement("INSERT INTO industry_stores(business_id,capacity,hundredths,terms) VALUES(?,?,?,?)")) {
-                s.setString(1,business.toString());s.setLong(2,capacity);s.setLong(3,capital);s.setString(4,terms);s.executeUpdate();
-            }
-            for(var entry:new TreeMap<>(sizes).entrySet())try(var s=connection.prepareStatement("INSERT INTO industry_stock(business_id,commodity,space_per_unit,units) VALUES(?,?,?,0)")) {
-                s.setString(1,business.toString());s.setString(2,entry.getKey().id());s.setLong(3,entry.getValue());s.executeUpdate();
-            }
-            return store(business).orElseThrow();
-        });
+        }
+        if(capital>0)new TreasuryRepository(connection).postRows(UUID.nameUUIDFromBytes(("civilizations:business-capital:"+business).getBytes(StandardCharsets.UTF_8)),
+                b.settlementId(),-capital,"Business working capital allocation");
+        try(var s=connection.prepareStatement("INSERT INTO industry_stores(business_id,capacity,hundredths,terms) VALUES(?,?,?,?)")) {
+            s.setString(1,business.toString());s.setLong(2,capacity);s.setLong(3,capital);s.setString(4,terms);s.executeUpdate();
+        }
+        for(var entry:new TreeMap<>(sizes).entrySet())try(var s=connection.prepareStatement("INSERT INTO industry_stock(business_id,commodity,space_per_unit,units) VALUES(?,?,?,0)")) {
+            s.setString(1,business.toString());s.setString(2,entry.getKey().id());s.setLong(3,entry.getValue());s.executeUpdate();
+        }
+        return store(business).orElseThrow();
     }
 
     public Optional<Store> store(UUID business) throws SQLException {

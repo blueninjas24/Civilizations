@@ -50,7 +50,7 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             new BukkitRunnable() {
                 @Override public void run() {
                     if(!result.isDone())return;
-                    try {result.join();getLogger().info("NATIVE PISTON ORE TRACKING PASS: registered placement/extend/retract capture, restored snapshot exposure/exclusion, saved rejection, no refill, paid chain and restart passed");}
+                    try {result.join();getLogger().info("NATIVE ATOMIC MINE STARTUP PASS: funded startup/replay, registered mutation capture, restored fixture, finite reserves, paid chain and restart passed");}
                     catch(CompletionException failure){getLogger().log(java.util.logging.Level.SEVERE,"NATIVE WORKSHOP FAIL",failure.getCause());}
                     cancel();getServer().getPluginManager().disablePlugin(WorkshopProductionProbe.this);
                 }
@@ -67,17 +67,24 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             db.getVillageIdentityRepository().observeWorld(world,name);db.getVillageIdentityRepository().bindSettlement(town,world);
             for(var person:List.of(founder,miner,smithWorker))db.getPopulationRepository().insertResident(new Resident(person,"Fixture",town,null,300,Resident.Status.ALIVE));
             new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,10000,"Test-only industry capital");
-            var mine=found(db,town,world,founder,"mining",2048);var warehouse=found(db,town,world,founder,"warehouse",2058);
-            var smith=found(db,town,world,founder,"blacksmith",2068);smithId=smith.id();
-            db.getBusinessRepository().hire(UUID.randomUUID(),mine.id(),miner,0);db.getBusinessRepository().hire(UUID.randomUUID(),smith.id(),smithWorker,0);
-            var industry=db.getIndustryRepository();industry.openStore(mine.id(),1024,space,0);
-            industry.openStore(warehouse.id(),1024,space,3000);industry.openStore(smith.id(),1024,space,3000);
-            var minerals=new MineralDiscoveryRepository(db.getConnection());
             var ore=java.util.stream.IntStream.range(2048,2052).mapToObj(x->new com.blueninjas24.civilizations.settlement.VillageObservation.Position(x,40,2048)).toList();
             var sample=new MineralObservation(world,1,true,Commodity.IRON,ore);
             var yields=Map.of(Commodity.IRON,2L,Commodity.COAL,1L,Commodity.STONE,3L);
-            deposit=minerals.discover(mine.siteId(),sample,5,yields).deposit().id();
+            var startRequest=new MiningStartupRepository.Request(founding(town,world,founder,"mining",2048,500),sample,5,yields,1024,space,500,miner);
+            var startup=new MiningStartupRepository(db.getConnection());var started=startup.start(startRequest);
+            if(!started.discovery().created() || started.store().hundredths()!=500 || !started.firstEmployment().residentId().equals(miner))
+                throw new IllegalStateException("Atomic startup omitted funded store/deposit/worker");
+            var mine=started.founding().business();deposit=started.discovery().deposit().id();
+            var warehouse=found(db,town,world,founder,"warehouse",2058);
+            var smith=found(db,town,world,founder,"blacksmith",2068);smithId=smith.id();
+            db.getBusinessRepository().hire(UUID.randomUUID(),smith.id(),smithWorker,0);
+            var industry=db.getIndustryRepository();
+            industry.openStore(warehouse.id(),1024,space,3000);industry.openStore(smith.id(),1024,space,3000);
+            var minerals=new MineralDiscoveryRepository(db.getConnection());
             industry.mine(UUID.randomUUID(),mine.id(),deposit,4,0,8,8);
+            var startupReplay=startup.start(startRequest);
+            if(startupReplay.discovery().created() || startupReplay.discovery().deposit().remainingBatches()!=16 || startupReplay.store().hundredths()!=500)
+                throw new IllegalStateException("Startup replay refilled or recharged mine");
             var linked=new MineralObservation(world,2,true,Commodity.IRON,List.of(ore.getLast(),new com.blueninjas24.civilizations.settlement.VillageObservation.Position(2052,40,2048)));
             var revisit=minerals.discover(mine.siteId(),linked,500,yields);
             if(revisit.created() || revisit.deposit().initialBatches()!=20 || revisit.deposit().remainingBatches()!=16 || minerals.claimedBlocks(deposit)!=5)
@@ -103,7 +110,7 @@ public final class WorkshopProductionProbe extends JavaPlugin {
                     || !saved.equals(industry.process(operation,smith.id(),ProductionRecipe.smithTools(),8,2)))throw new IllegalStateException("Recipe/replay mismatch");
             long money=new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths();
             for(var business:List.of(mine,warehouse,smith))money+=industry.store(business.id()).orElseThrow().hundredths();
-            if(money!=10000 || industry.deposit(deposit).orElseThrow().remainingBatches()!=16)throw new IllegalStateException("Capital or deposit not conserved");
+            if(money!=9500 || industry.deposit(deposit).orElseThrow().remainingBatches()!=16)throw new IllegalStateException("Capital minus explicit 500 startup expense or deposit not conserved");
             var snapshot=new BusinessRuntime(db.getConnection(),8,16).refresh(0,Set.of(world));
             if(BusinessDiagnostics.describe(snapshot,town).stream().noneMatch(line->line.contains("Latest industrial production") && line.contains("produced={tools=2}")))
                 throw new IllegalStateException("Actual recipe diagnostic missing");
@@ -124,10 +131,13 @@ public final class WorkshopProductionProbe extends JavaPlugin {
         } finally {db.close();}
     }
     private Business found(DatabaseManager db,UUID town,UUID world,UUID person,String kind,int x) throws Exception {
+        var request=founding(town,world,person,kind,x,0);db.getBusinessRepository().found(request);return request.business();
+    }
+    private BusinessFounding founding(UUID town,UUID world,UUID person,String kind,int x,long startup) {
         var site=new BusinessSite(UUID.randomUUID(),town,world,x,64,2048,1,"Synthetic native test fixture; no automatic discovery or block rights");
         var business=new Business(UUID.randomUUID(),town,kind,person,person,kind,site.id(),4,0);
         var requirements=new JobRequirements(216,Map.of());
-        db.getBusinessRepository().found(new BusinessFounding(business,site,requirements,requirements,0,"Explicit test opportunity"));return business;
+        return new BusinessFounding(business,site,requirements,requirements,startup,"Explicit test opportunity");
     }
     @Override public void onDisable(){if(owner!=null)owner.shutdown();}
 }

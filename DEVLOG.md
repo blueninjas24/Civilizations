@@ -1,5 +1,32 @@
 # Civilizations Development Log
 
+## October 9, 2026 — atomic funded mine startup
+
+Branch `codex/phase3-atomic-mine-startup`. MiningStartupRepository now joins
+business/site founding, finite coordinate discovery, empty storage, actual working
+capital and one qualified first employee in one owner transaction. Failure rolls
+back every component and debit; replay preserves depleted reserves and owned stock.
+A changed first employee is rejected. Existing public operations keep their idle
+transaction contracts; package-local row helpers require an active transaction.
+No automatic mine policy, physical mining or new schema is enabled (schema 34).
+
+Nine temporary SQLite cases cover success/restart, injected storage/hiring failure,
+combined affordability, invalid evidence, transaction contracts, storage/qualification,
+changed first worker and occupied primary jobs. Windows Wrapper clean verify passed
+649 (647 unit/two packaged integration), zero failures/errors/skips. The packaged
+Paper paid-chain fixture passed atomic startup/replay, depletion, delivery, recipes
+and restart with capital conserved minus its explicit startup expenditure. Six
+fixture blocks restored; normal shutdown exited 0, no force-loaded chunks remained,
+probe archived. Main industry/funds/history retained; integrity/FKs, clean/trusted
+fence and unchanged owner economy file checked. Startup month 1677 retained; online
+1684. No human playtest claim or production world/database changes.
+
+ATOMIC_MINE_STARTUP, Phase 3 checklist, status/progress/devlog updated. Phase 3
+remains 1/4 reporting groups (25%): this makes safe startup possible but does not
+complete automatic nonfood operation. Next: mutation compatibility safeguards and
+actual suitable, demand-backed opportunities. Ownership succession remains pending.
+Local feature commit only; no main merge/push.
+
 ## October 9, 2026 — registered live resource surveys
 
 Branch `codex/phase3-live-resource-surveys`. Read-only PaperOreObserver now captures
