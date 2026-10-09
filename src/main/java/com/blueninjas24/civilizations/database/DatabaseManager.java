@@ -178,6 +178,10 @@ public class DatabaseManager {
         return new CommodityRepository(connection);
     }
 
+    public BusinessRepository getBusinessRepository() throws SQLException {
+        return new BusinessRepository(connection);
+    }
+
     public void close() {
         if (connection == null) {
             return;

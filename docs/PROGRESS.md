@@ -108,12 +108,20 @@ trade prototype group is complete, advancing Phase 2 to 75%; broader autonomous
 responses/outcome learning still block 100%. Human survival/client/plugin testing
 remains required for release. See PLAYER_BARTER.md.
 
-## Phase 3 — planned
+## Phase 3 — started: business storage and staffing foundation
 
 - [ ] Persistent businesses, owners, workers and sites.
 - [ ] Resources and connected production chains.
 - [ ] Business founding, competition, closure and succession.
 - [ ] Emergent specialization and tested business turnover.
+
+First milestone is partially implemented: real business/site identity, founders,
+initial owners, qualified hiring, finite worker capacity, once-only startup spending
+and retained employment history now have tested backend APIs. Dead/migrated people
+cannot count as current workers. Automatic site recognition, founding/hiring and
+in-game business diagnostics remain the next gate; registration produces no goods
+yet. Phase 3 stays 0/4 completed gameplay milestones rather than counting backend
+work as a finished in-game feature. See BUSINESS_FOUNDATION.md.
 
 ## Phase 4 — planned
 

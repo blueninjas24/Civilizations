@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 26;
+    static final int CURRENT_VERSION = 27;
 
     @FunctionalInterface
     interface Migration {
@@ -267,7 +267,8 @@ final class SchemaMigrator {
                                 PRIMARY KEY(settlement_id,period,action),FOREIGN KEY(settlement_id,period) REFERENCES food_responses(settlement_id,period)
                             )
                             """);
-                }
+                },
+                SchemaMigrator::createBusinesses
         ));
     }
 
@@ -365,6 +366,12 @@ final class SchemaMigrator {
                 requireColumns(connection,"food_responses",Set.of("settlement_id","period","seed","replay_version","relative_percent","selected"));
                 requireColumns(connection,"food_response_candidates",Set.of("settlement_id","period","action","feasible","weight","reason"));
             }
+            if (migrations.size() >= 27) {
+                requireColumns(connection,"business_sites",Set.of("id","settlement_id","world_id","x","y","z","observed_millis","evidence"));
+                requireColumns(connection,"businesses",Set.of("id","settlement_id","name","founder_id","owner_id","industry","site_id","worker_capacity","founded_step","startup_hundredths","reason","founder_min_age","worker_min_age"));
+                requireColumns(connection,"business_skill_requirements",Set.of("business_id","role","skill","experience"));
+                requireColumns(connection,"business_employment",Set.of("id","business_id","resident_id","started_step","ended_step","end_reason"));
+            }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));
@@ -449,6 +456,63 @@ final class SchemaMigrator {
         execute(connection, "CREATE INDEX households_by_settlement ON households(settlement_id, id)");
         execute(connection, "CREATE INDEX residents_by_settlement ON residents(settlement_id, id)");
         execute(connection, "CREATE INDEX residents_by_household ON residents(household_id, settlement_id)");
+    }
+
+    private static void createBusinesses(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE business_sites (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                    world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                    x INTEGER NOT NULL, y INTEGER NOT NULL, z INTEGER NOT NULL,
+                    observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                    evidence TEXT NOT NULL CHECK(length(trim(evidence)) BETWEEN 1 AND 2048),
+                    UNIQUE(id,settlement_id),
+                    UNIQUE(world_id,x,y,z)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE businesses (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                    name TEXT NOT NULL CHECK(length(trim(name)) BETWEEN 1 AND 128),
+                    founder_id TEXT NOT NULL REFERENCES residents(id),
+                    owner_id TEXT NOT NULL REFERENCES residents(id),
+                    industry TEXT NOT NULL CHECK(length(trim(industry)) BETWEEN 1 AND 64),
+                    site_id TEXT NOT NULL UNIQUE,
+                    worker_capacity INTEGER NOT NULL CHECK(typeof(worker_capacity)='integer' AND worker_capacity BETWEEN 1 AND 1000),
+                    founded_step INTEGER NOT NULL CHECK(typeof(founded_step)='integer' AND founded_step>=0),
+                    startup_hundredths INTEGER NOT NULL CHECK(typeof(startup_hundredths)='integer' AND startup_hundredths>=0),
+                    reason TEXT NOT NULL CHECK(length(trim(reason)) BETWEEN 1 AND 2048),
+                    founder_min_age INTEGER NOT NULL CHECK(typeof(founder_min_age)='integer' AND founder_min_age>=0),
+                    worker_min_age INTEGER NOT NULL CHECK(typeof(worker_min_age)='integer' AND worker_min_age>=0),
+                    FOREIGN KEY(site_id,settlement_id) REFERENCES business_sites(id,settlement_id)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE business_skill_requirements (
+                    business_id TEXT NOT NULL REFERENCES businesses(id),
+                    role TEXT NOT NULL CHECK(role IN ('FOUNDER','WORKER')),
+                    skill TEXT NOT NULL CHECK(length(trim(skill)) BETWEEN 1 AND 64),
+                    experience INTEGER NOT NULL CHECK(typeof(experience)='integer' AND experience>=0),
+                    PRIMARY KEY(business_id,role,skill)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE business_employment (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    business_id TEXT NOT NULL REFERENCES businesses(id),
+                    resident_id TEXT NOT NULL REFERENCES residents(id),
+                    started_step INTEGER NOT NULL CHECK(typeof(started_step)='integer' AND started_step>=0),
+                    ended_step INTEGER CHECK(ended_step IS NULL OR (typeof(ended_step)='integer' AND ended_step>=started_step)),
+                    end_reason TEXT,
+                    CHECK((ended_step IS NULL AND end_reason IS NULL) OR
+                          (ended_step IS NOT NULL AND end_reason IS NOT NULL AND length(trim(end_reason)) BETWEEN 1 AND 2048))
+                )
+                """);
+        execute(connection,"CREATE UNIQUE INDEX one_current_business_job ON business_employment(resident_id) WHERE ended_step IS NULL");
+        execute(connection,"CREATE INDEX business_jobs_by_business ON business_employment(business_id,started_step,id)");
+        execute(connection,"CREATE INDEX businesses_by_settlement ON businesses(settlement_id,id)");
     }
 
     private static void createFamilyTable(Connection connection) throws SQLException {

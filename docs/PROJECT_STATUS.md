@@ -1,6 +1,48 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phases 3–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 has started with tested business/site/founding/staffing storage; automatic businesses/production remain unwired, with 0/4 gameplay groups complete. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+
+## Phase 3 business and staffing foundation — October 9, 2026
+
+- Branch `codex/phase3-business-foundation`: immutable business/site/founding and
+  employment records retain real founder/initial owner/resident/site UUIDs. Explicit
+  trusted-owner APIs qualify actual saved age/skills, require permanent same-world
+  sites, enforce finite capacity and one current primary job per person. Ownership
+  alone is not employment; site registration grants no autonomous block permission.
+- Startup investment is an explicit actual treasury debit in the registration
+  transaction; absent/insufficient funds or failed ledger writes leave no partial
+  business/site/requirements/spend. Exact identity retries never charge/hire twice
+  or resurrect old jobs. Caller inputs choose requirements/cost; no automatic policy,
+  additional opening grants, salaries, personal wallets or production implemented.
+- Retained job separations permit rehiring. Current workers exclude dead/emigrated
+  people immediately; explicit owner reconciliation ends stale episodes without
+  deleting their history or inventing an exact historical departure month. Automatic
+  runtime integration, closure and succession remain next/later scoped work.
+- Additive transactional schema 27 adds business sites, businesses, qualification
+  requirements and employment, plus indexes. No existing history rewrite, seed/reset,
+  production change or owner-config edit. Older binaries reject 27; downgrade needs
+  the consistent pre-upgrade snapshot rather than dropping business history.
+- Twelve added cases test full restart/snapshot preservation, qualifications,
+  capital/rollback, duplicate site/job rejection, capacity, separation/rehiring,
+  death/migration and failed reconciliation, nested calls, schema-26 failure recovery
+  and a seeded 240-month staffing turnover fixture. Final Windows
+  `.\mvnw.cmd clean verify -B -ntp` passed 506 cases (504 unit/two packaged integration),
+  zero failures/errors/skips. These are staffing scenarios, not simulated industry
+  turnover/production or a scale-performance bound.
+- Marked disposable pinned Paper was backed up at schema 26, upgraded to 27 and
+  restarted successfully. Status/observation diagnostics reported no plugin failure;
+  final stop saved worlds and exited zero. Read-only integrity/FKs, retained IDs and
+  checked family/skill/economy/choice/learning/treasury histories passed; new business
+  tables remain empty as intended. An initial launch omitted a persistent console
+  and closed its stdin, requiring termination of the verified disposable process;
+  subsequent console restart and clean shutdown passed. No production server/world
+  was touched. Baseline OSHI Windows-counter warning remains unrelated.
+- Phase 3's first gameplay milestone is partial; it remains 0/4 completed groups,
+  with concrete backend progress described in PROGRESS.md. Next: owner/cache business
+  diagnostics, reliable existing sites and admin-editable automatic opportunity and
+  staffing rules, then resource-supported output without double-counting field food.
+  No new consequential answer is needed for this batch. Source roadmap unchanged;
+  local feature-branch commit only, no merge/push. See BUSINESS_FOUNDATION.md.
 
 ## Phase 2 prototype gate passed — October 9, 2026
 
@@ -400,15 +442,14 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - No Paper server smoke test has been run for this foundation; headless persistence tests are verified.
 
 ## Immediate next work
-1. Economy tuning approved and implemented in commented `economy.yml`. Next:
-   recoverable budget-backed emerald purchases, protected barter and negotiation,
-   execution of feasible responses, fuller wellbeing and attributable outcomes.
-   Confirmed food donations, family food allocation and configurable opening capital
-   are implemented. No automatic taxation or personal wealth inferred.
+1. Phase 3 business storage/staffing is implemented. Next: bounded owner/cache views,
+   reliable existing-site observation and editable automatic founding/hiring, then
+   resource-backed production. Preserve the completed Phase 2 economy accounting;
+   do not infer taxation, wages, unlimited goods or income from a profession label.
 2. Human client playtest can follow later; user authorized Phase 2 without it.
    Preserve vanilla profession/trades/inventory when physical villagers are recreated,
    and handle other native transformations before recommending established survival worlds.
-3. Current roadmap phase: needs, commodities and explainable economy decisions; no
+3. Current roadmap phase: businesses and industry; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
 
 ## Confirmed player food donations — October 8, 2026
@@ -874,6 +915,6 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   changed; no schema change, production data, merge or push. Phase 1 stays 90%.
 
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has one of four reporting milestones complete (accounting complete; live food and household needs added, later groups partial); Phases 3–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has four of four prototype reporting groups complete; Phase 3 has a tested business-storage/staffing foundation but zero of four completed gameplay groups. Phases 4–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

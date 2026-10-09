@@ -1,5 +1,34 @@
 # Civilizations Development Log
 
+## Phase 3 business persistence and staffing foundation — October 9, 2026
+
+- Added plain-Java business, site, immutable founding terms and employment records;
+  owner-thread BusinessRepository supports qualified registration/hiring, finite
+  capacity, retained separations and explicit dead/migrated-worker reconciliation.
+- Business/site/requirements and actual explicit startup treasury spending commit
+  together. Exact retries preserve original terms and never spend/hire twice or
+  resurrect ended episodes. No automatic business creation, production, salaries,
+  grants, site/block rights or changes to existing food/player trades.
+- Transactional additive schema 27 preserves existing population/economy histories;
+  test schema fixtures rewind only temporary databases. Older binaries require a
+  consistent pre-upgrade backup to downgrade. Added DatabaseManager repository access.
+- Twelve new cases cover full fields/restart/snapshot, funding/ledger rollback,
+  qualifications/worlds/sites, double jobs, capacity/rehiring, death/migration,
+  failed reconciliation, nested transactions, schema-26 rollback/retry and seeded
+  240-month staffing turnover. Focused 24 cases passed; final Windows Wrapper
+  `clean verify -B -ntp` passed 506 (504 unit/two packaged integration), zero failures,
+  errors/skips. All automated writes use test-owned temporary SQLite databases.
+- Backed up confirmed disposable Paper DB before schema-26-to-27 upgrade. Initial
+  launch omitted tty, closed console input and required terminating the explicitly
+  verified dev process. Corrected persistent-console restart, status/observation and
+  final normal shutdown passed; read-only integrity/FKs, original IDs and checked
+  history retention passed, with zero automatic businesses. Baseline OSHI warning
+  unchanged. No production files/worlds/database, owner config, main, merge or push.
+- BUSINESS_FOUNDATION guide, status, progress and decisions updated. Phase 3 started,
+  first milestone partial; 0/4 gameplay groups remain complete pending runtime sites,
+  founding/hiring/diagnostics. No new answer needed. Next: bounded cached business
+  views and reliable-site integration, then editable opportunities and production.
+
 ## Phase 2 response gate and prototype completion — October 9, 2026
 
 - Branch `codex/phase2-response-gate`: plain-Java comparison of actual donation,

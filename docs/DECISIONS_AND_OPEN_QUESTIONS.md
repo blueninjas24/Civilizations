@@ -1,5 +1,22 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 9, 2026 — Phase 3 business persistence boundary
+
+First backend batch uses explicit caller-supplied site/opportunity, age/skill
+requirements, capacity and startup cost. Positive investment debits actual village
+treasury atomically; no new grants, income, salaries or personal wallets. No defaults
+or automatic founding policy chosen. The canonical real-business/labor direction
+supplies this scope. Existing configurable economy authority remains available for
+the later admin-editable opportunity policy.
+
+One current primary job per resident and one business per site initially prevent
+double-counted labor/sites. These are provisional engineering boundaries, not locked
+part-time employment/shared-premises laws. Ownership is separate from employment.
+Sites grant no block rights. Dead/emigrated people immediately cease counting as
+productive workers; owner reconciliation later dates a retained job separation at
+the observed month. Succession/closure are not inferred from owner death.
+No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.md.
+
 ## Locked / approved
 - October 8 negotiation/admin clarification: user approved the proposed need-based
   bargaining direction: accept/counter/refuse, configurable failed-round limit and
