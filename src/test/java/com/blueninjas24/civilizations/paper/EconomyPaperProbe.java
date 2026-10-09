@@ -152,6 +152,12 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(food.flow().production()==0&&food.flow().imports()==12&&food.after().units()==8,"Actual receipt relief failed");
             require(view.needs().homes().getFirst().supplied()==4 && view.needs().homes().getFirst().unmetPeriods()==0,"Family did not recover after relief");
             require(view.appeal().status()==FoodAppeals.Status.RESOLVED&&view.appeal().imports()==12,"Food appeal did not resolve with saved receipt evidence");
+            var impact=view.foodImportImpact().orElseThrow();
+            require(impact.imported()==12&&impact.avoidedUnmet()==4&&impact.additionalReserve()==8
+                    &&impact.unmetWithoutImports()==4&&impact.actualUnmet()==0,"Import impact misattributed native relief");
+            getLogger().info("FOOD_IMPORT_IMPACT_PASSED: twelve saved delivered units prevented four unmet units and added eight reserve units");
+            new PopulationDebugCommand(session).onCommand(Bukkit.getConsoleSender(), null, "civ",
+                    new String[]{"debug", "economy", town.toString()});
             getLogger().info("FOOD_APPEAL_RECOVERY_PASSED");
             getLogger().info("HOUSEHOLD_ALLOCATION_PASSED");
             require(view.priority().selected()==VillagePriorities.Action.MONITOR,"Relief did not resolve crisis priority");

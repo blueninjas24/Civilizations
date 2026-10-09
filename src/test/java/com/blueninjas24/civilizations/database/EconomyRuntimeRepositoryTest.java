@@ -41,11 +41,14 @@ class EconomyRuntimeRepositoryTest {
         var operation=UUID.randomUUID();assertTrue(runtime.recordDeliveredFood(operation,town,20,"Test relief shipment",11000));
         assertFalse(runtime.recordDeliveredFood(operation,town,20,"Test relief shipment",11000));
         assertEquals(1,runtime.views().get(town).foodAid().pendingDeliveries());
+        assertEquals(new FoodImportImpact.Outcome(0,5,5,0,0),runtime.views().get(town).foodImportImpact().orElseThrow());
         runtime.pulse(12000,false);var view=runtime.views().get(town);var food=view.latest().reports().getFirst();
         assertEquals(0,food.flow().production());assertEquals(20,food.flow().imports());assertEquals(15,food.after().units());assertEquals(0,view.needs().shortagePeriods());
         assertEquals(VillagePriorities.Action.MONITOR,view.priority().selected());assertEquals(0,view.foodAid().pendingDeliveries());
         assertEquals(11,new FoodDeliveryRepository(db.getConnection()).find(operation).orElseThrow().appliedPeriod());
+        assertEquals(new FoodImportImpact.Outcome(20,5,0,5,15),view.foodImportImpact().orElseThrow());
         runtime.pulse(13000,false);assertEquals(0,runtime.views().get(town).latest().reports().getFirst().flow().imports());
+        assertEquals(new FoodImportImpact.Outcome(0,0,0,0,0),runtime.views().get(town).foodImportImpact().orElseThrow());
     }
     @Test void NewDeliveryCannotRewriteQueuedPastPeriods() throws SQLException {
         observe(1000,true,0);var operation=UUID.randomUUID();runtime.recordDeliveredFood(operation,town,20,"Late relief",11000);

@@ -106,4 +106,21 @@ class CommodityRepositoryTest {
         assertEquals(1200, repo.load(town).orElseThrow().state().completedPeriods());
         try (var s = db.getConnection().createStatement(); var r = s.executeQuery("PRAGMA foreign_key_check")) { assertFalse(r.next()); }
     }
+
+    @Test void importImpactReplaysOriginalInputsAcrossRestartAndLaterConsumption() throws SQLException {
+        var repo = db.getCommodityRepository(); repo.initialize(town, Map.of(FOOD, 0L), policy);
+        var delivered = repo.advance(town, 1, Map.of(FOOD, new Flow(0, 12, 4, 0, 0, 0, 0)), policy);
+        var original = com.blueninjas24.civilizations.economy.FoodImportImpact.assess(delivered.reports().getFirst());
+        repo.advance(town, 2, Map.of(FOOD, new Flow(0, 0, 4, 0, 0, 0, 0)), policy);
+        db.close(); db = new DatabaseManager(directory.toFile(), Logger.getLogger("CommodityTest")); db.initialize();
+        repo = db.getCommodityRepository();
+        assertEquals(original, com.blueninjas24.civilizations.economy.FoodImportImpact.assess(repo.history(town, 1).orElseThrow().reports().getFirst()));
+        assertEquals(4, original.avoidedUnmet()); assertEquals(8, original.additionalReserve());
+        assertEquals(0, com.blueninjas24.civilizations.economy.FoodImportImpact.assess(repo.history(town, 2).orElseThrow().reports().getFirst()).avoidedUnmet());
+        assertEquals(4, repo.load(town).orElseThrow().state().stocks().get(FOOD).units());
+        assertEquals(SchemaMigrator.CURRENT_VERSION, schemaVersion());
+    }
+    private int schemaVersion() throws SQLException {
+        try (var s = db.getConnection().createStatement(); var r = s.executeQuery("PRAGMA user_version")) { return r.getInt(1); }
+    }
 }

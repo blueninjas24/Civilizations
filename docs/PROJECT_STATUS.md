@@ -2,6 +2,34 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies, basic labor/treasury/wellbeing and player trade/stability prototype groups (3/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Broader autonomous response execution/outcome learning remains pending. Phases 3–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Exact food import outcome evidence — October 9, 2026
+
+- Branch `codex/phase2-import-outcomes`: new plain-Java FoodImportImpact derives
+  actual imports' marginal shortage relief and extra closing reserves from saved
+  period inputs. A twelve-unit delivery against four unmet units reports four
+  prevented units and eight added reserves. Independent farm recovery receives no
+  import credit; later reserve consumption does not credit the import again.
+- The cached economy view and `/civ debug economy` expose the comparison without
+  SQL on the Paper thread. It holds opening reserves, production and demand fixed;
+  it does not prove an appeal caused delivery, assign individual player benefit,
+  invent alternate histories or award learning/reputation bonuses.
+- Nine domain tests include exact maximum quantities, invalid evidence and 2,400
+  seeded periods. One new temporary-SQLite case reconstructs the original outcome
+  across restart and later consumption; existing delivery tests now assert pending
+  receipts receive no credit and actual relief gets exactly one period's credit.
+- Final Windows `.\mvnw.cmd clean verify -B -ntp` passed 470 cases (468 unit/two
+  packaged integration), zero failures/errors/skips. Disposable pinned Paper also
+  verified the native twelve-unit saved donation's exact four/eight impact and
+  printed the new admin explanation. See FOOD_IMPORT_OUTCOMES.md.
+  All prior native purchase/bargaining/barter/welfare/unloaded regressions passed;
+  the probe was archived, then normal startup/diagnostics/shutdown passed. Read-only
+  integrity/FK checks and pre-existing identity/economy history comparisons passed.
+- Schema stays 24; no migrations, config rewrite, world reset or production changes.
+  Existing reports and priority replay version 1 remain intact. A consistent marked
+  dev snapshot preceded the server check. Phase 2 stays 3/4 (75%): trustworthy
+  aggregate outcome evidence is now implemented; broader executed responses and
+  bounded configurable learning from attributable action outcomes remain.
+
 ## Playable finite-stock food barter — October 9, 2026
 
 - Branch `codex/phase2-player-barter`: `/civ barter timber|stone` previews a whole

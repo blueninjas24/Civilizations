@@ -69,6 +69,7 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
                     }
                     sender.sendMessage("Last economy failure: " + (session.economyFailure() == null ? "none" : session.economyFailure()));
                     sender.sendMessage(view.appeal()==null ? "Food appeal: no observation saved for this period yet." : view.appeal().explanation());
+                    view.foodImportImpact().ifPresent(impact -> sender.sendMessage(impact.explanation()));
                     if (view.priority() != null) {
                         sender.sendMessage(view.priority().explanation());
                         view.priority().candidates().forEach(candidate -> sender.sendMessage(candidate.action() + ": feasible " + candidate.feasible()

@@ -16,6 +16,11 @@ public final class EconomyRuntimeRepository {
                        HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority, FoodAid foodAid,
                        FoodAppeals.Snapshot appeal, List<HouseholdWellbeing.Snapshot> wellbeing) {
         public View { wellbeing = List.copyOf(wellbeing); }
+        /** Derived from immutable retained period inputs; never from mutable current reserves. */
+        public Optional<FoodImportImpact.Outcome> foodImportImpact() {
+            return latest == null ? Optional.empty() : latest.reports().stream()
+                    .filter(report -> report.commodity().equals(Commodity.FOOD)).findFirst().map(FoodImportImpact::assess);
+        }
     }
     public record FoodAid(long pendingDeliveries, long nextPeriodUnits) {}
     private record Clock(long cadence, CivilizationTime.Anchor anchor, String settings, long completed) {}

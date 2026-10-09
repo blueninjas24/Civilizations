@@ -55,6 +55,14 @@ accounting is tested separately from wellbeing; configurable one-time opening fu
 is now wired. Confirmed food sales now spend actual village funds and pay emeralds;
 emerald bargaining adds saved counters/cooldowns; finite-stock barter is now playable.
 Broader autonomous response execution and attributable feedback remain ahead.
+Food deliveries now also have an exact saved-accounting explanation: how much
+unmet need they prevented this period versus how much they added to reserves.
+Restart and later consumption preserve that evidence; pending food and independent
+farm recovery receive no false credit. This is another verified piece of the final
+group, not yet learning that changes a village's later choices. Full Wrapper
+verification passed 470 cases; native Paper checked the actual saved donation's
+four units of immediate relief and eight units of extra reserves. See
+FOOD_IMPORT_OUTCOMES.md. The reporting bar stays 75% until that whole group passes.
 New periods now divide fulfilled food between occupied families and unassigned
 residents, retaining each family's shortage streak. These simulated shares do not
 establish physical meals. Basic family welfare now follows actual food/housing

@@ -1,5 +1,30 @@
 # Civilizations Development Log
 
+## Exact food import outcome evidence — October 9, 2026
+
+- Branch `codex/phase2-import-outcomes`: FoodImportImpact compares each retained
+  food period with identical opening stock, production and demand but no imports.
+  It explains prevented unmet demand and additional closing reserves. Their sum
+  equals imported units; farm recovery and later reserve consumption get no false
+  import credit. The cached view and admin economy diagnostics expose the result.
+- Nine new domain cases (including 2,400 seeded periods) and one temporary-SQLite
+  restart/history case; strengthened existing applied/pending delivery assertions.
+  Final Windows `.\mvnw.cmd clean verify -B -ntp` passed 470 cases (468 unit/two
+  packaged integration), zero failures/errors/skips. Initial full verification
+  passed; reran after strengthening the native diagnostic and runtime assertions.
+- Pinned disposable Paper's verified twelve-unit native donation reported exactly
+  four prevented unmet units and eight extra reserves, and printed the admin
+  explanation. Consistent marked dev snapshot taken before server work.
+  Full native purchase/bargaining/barter/welfare/unloaded regression probe passed.
+  Archived the test-only probe; normal plugin startup/diagnostics/shutdown passed.
+  Read-only schema/integrity/FK and saved identity/economy history checks passed.
+- No schema change (24), saved priority replay change, owner-config rewrite, player
+  reputation, world reset or production DB modification. Existing saved inputs
+  already support deterministic reconstruction. No merge or push.
+- Phase 2 stays 3/4 (75%). This is outcome evidence, not adaptive action selection;
+  broader executed responses and bounded configurable learning still need their
+  acceptance gate. Status/progress/decisions and FOOD_IMPORT_OUTCOMES.md updated.
+
 ## Playable finite-stock player barter — October 9, 2026
 
 - Branch `codex/phase2-player-barter`: `/civ barter timber|stone` previews real

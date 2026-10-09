@@ -378,3 +378,16 @@ and mixed two-village long-run conservation verify the Phase 2 player-trade prot
 gate, advancing reporting to 3/4 (75%). Remaining autonomous outcome learning needs
 actual attributable evidence; no causal success is inferred merely from recovery.
 Human client/plugin compatibility and survival balance remain release validation.
+
+## October 9, 2026 — attributable aggregate import outcome evidence
+
+An exact period-local comparison now measures imported food's marginal contribution
+to prevented unmet demand and closing reserves, holding the saved opening inventory,
+production and demand fixed. Existing transactional history supplies the inputs;
+schema and priority replay version stay unchanged. No new rates or rules are needed.
+This evidence is aggregate across all receipts, not proof the selected appeal caused
+delivery or a basis for individual player rewards. Reserve-only arrivals are not
+failed transactions; future reserve consumption is not credited as another import.
+Bounded configurable action learning still needs explicit implemented feasibility,
+response attribution and saved replay inputs before the final reporting gate passes.
+No new user decision blocks the next scoped Phase 2 work. See FOOD_IMPORT_OUTCOMES.md.
