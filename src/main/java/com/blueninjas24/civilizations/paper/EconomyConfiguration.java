@@ -13,6 +13,7 @@ public final class EconomyConfiguration {
         var rootKeys = new HashSet<>(Set.of("format-version", "pace", "food", "shortages", "starting-units-per-resident", "prices"));
         if (config.contains("farms")) rootKeys.add("farms");
         if (config.contains("priorities")) rootKeys.add("priorities");
+        if (config.contains("responses")) rootKeys.add("responses");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -30,6 +31,7 @@ public final class EconomyConfiguration {
         readWellbeing(config);
         readBargaining(config);
         readBarter(config);
+        readResponses(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -102,6 +104,15 @@ public final class EconomyConfiguration {
         if(!config.contains("priorities.learning"))return policy;
         exactKeys(section(config,"priorities.learning"),Set.of("window-periods","maximum-food-bonus-percent"));
         return policy.withLearning(smallInteger(config,"priorities.learning.window-periods"),smallInteger(config,"priorities.learning.maximum-food-bonus-percent"));
+    }
+    public static FoodResponses.Settings readResponses(ConfigurationSection config) {
+        var policy=FoodResponses.Policy.disabled();
+        if(config.contains("responses")) {
+            var section=section(config,"responses");exactKeys(section,Set.of("enabled","donation-weight","emerald-weight","barter-weight","wait-weight","minimum-relative-percent"));
+            if(!(section.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("responses.enabled must be true or false");
+            policy=new FoodResponses.Policy(enabled,smallInteger(section,"donation-weight"),smallInteger(section,"emerald-weight"),smallInteger(section,"barter-weight"),smallInteger(section,"wait-weight"),smallInteger(section,"minimum-relative-percent"));
+        }
+        return new FoodResponses.Settings(policy,readDonationsEnabled(config),readPurchases(config),readBarter(config),readAidPreview(config));
     }
     /** Old owner files retain their read-only behavior until donations are explicitly enabled. */
     public static boolean readDonationsEnabled(ConfigurationSection config) {

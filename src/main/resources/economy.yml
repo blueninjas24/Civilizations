@@ -84,7 +84,7 @@ purchases:
   maximum-emeralds: 64          # Per whole-stack deal (1..64).
 
 # Nonbinding priorities: seek food, investigate crowded homes, or monitor.
-# Buying/building is not enabled. Review sooner if pressure appears, escalates or clears.
+# Buying settings are separate; building remains in Phase 4. Review when pressure changes.
 # These weights bias seeded choices among feasible, reasonably competitive priorities.
 # Old files may omit this whole section. Edits apply to future reviews; history is retained.
 priorities:
@@ -94,11 +94,23 @@ priorities:
   learning:
     window-periods: 12
     maximum-food-bonus-percent: 25
+
   review-after-periods: 5
   food-weight: 10
   crisis-multiplier: 3
   housing-weight: 6
   monitor-weight: 1
+  minimum-relative-percent: 25
+
+# Published preference among feasible food responses. Players may choose alternatives.
+# Existing files without this section keep it disabled. Weights 1..1000; threshold 0..100.
+# Actual donations/purchases/barter still require their separate settings and consent.
+responses:
+  enabled: true
+  donation-weight: 6
+  emerald-weight: 4
+  barter-weight: 4
+  wait-weight: 1
   minimum-relative-percent: 25
 
 # Economic periods are separate from population months. Consumption below is PER PERIOD.

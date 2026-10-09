@@ -276,6 +276,73 @@ class EconomyRuntimeRepositoryTest {
                 VillagePriorities.Policy.prototype().withLearning(12,25),0);
         observe(1000,true,0);for(int period=1;period<=10;period++)runtime.pulse(1000L+1000L*period,false);
     }
+    private void responseFamine() throws SQLException {
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,
+                VillagePriorities.Policy.prototype().withLearning(12,25),42,OpeningFunds.prototype(),HouseholdWellbeing.Policy.disabled(),FoodResponses.Settings.prototype());
+        observe(1000,true,0);for(int period=1;period<=10;period++)runtime.pulse(1000L+1000L*period,false);
+    }
+    @Test void responseComparesActualFundsAndUnknownGoodsAndKeepsHistoryAcrossTradeAndRestart() throws SQLException {
+        responseFamine();var before=runtime.views().get(town).response();assertNotNull(before);
+        assertTrue(before.candidates().stream().filter(c->c.action()==FoodResponses.Action.OFFER_EMERALDS).findFirst().orElseThrow().feasible());
+        assertFalse(before.candidates().stream().filter(c->c.action()==FoodResponses.Action.OFFER_TIMBER).findFirst().orElseThrow().feasible());
+        var terms=new FoodPurchases.Terms(UUID.randomUUID(),UUID.randomUUID(),town,4,"WHEAT",4,1,800);
+        runtime.reserveFoodPurchase(terms,FoodPurchases.Policy.prototype(),FoodAidPreview.Policy.prototype(),11000);
+        runtime.completeFoodPurchase(terms,11000);runtime.pulse(12000,false);
+        assertEquals(4,runtime.views().get(town).latest().reports().getFirst().flow().imports());
+        assertEquals(before,new FoodResponseRepository(db.getConnection()).load(town,10).orElseThrow());
+        db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();
+        assertEquals(before,new FoodResponseRepository(db.getConnection()).load(town,10).orElseThrow());
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,VillagePriorities.Policy.prototype(),42,OpeningFunds.disabled());runtime.start(12000);runtime.pulse(13000,false);
+        assertNull(runtime.views().get(town).response());assertEquals(before,new FoodResponseRepository(db.getConnection()).load(town,10).orElseThrow());
+    }
+    @Test void responseFailureRollsBackWholePeriodAndDoesNotLoseIncomingFood() throws SQLException {
+        responseFamine();var before=runtime.views().get(town).account().state();var id=UUID.randomUUID();
+        runtime.recordDeliveredFood(id,town,5,"Known donation",11000);
+        sql("CREATE TRIGGER reject_response BEFORE INSERT ON food_response_candidates BEGIN SELECT RAISE(ABORT,'injected'); END");
+        assertThrows(SQLException.class,()->runtime.pulse(12000,false));assertEquals(before,runtime.views().get(town).account().state());
+        assertTrue(new FoodResponseRepository(db.getConnection()).load(town,11).isEmpty());assertNull(new FoodDeliveryRepository(db.getConnection()).find(id).orElseThrow().appliedPeriod());
+        sql("DROP TRIGGER reject_response");runtime.pulse(12000,false);assertEquals(FoodResponses.Action.WAIT,runtime.views().get(town).response().selected());
+        assertEquals(11,new FoodDeliveryRepository(db.getConnection()).find(id).orElseThrow().appliedPeriod());
+    }
+    @Test void responseMigrationFailureRollsBackNewTablesAndRetainsOlderChoices() throws SQLException {
+        learningFamine();var before=runtime.views().get(town).priority();SchemaFixtures.rewind(db.getConnection(),25);
+        sql("CREATE TABLE food_response_candidates (collision INTEGER)");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(25,r.getInt(1));}
+        assertEquals(before,new VillagePriorityRepository(db.getConnection()).latest(town).orElseThrow());
+        assertTrue(new FoodResponseRepository(db.getConnection()).load(town,10).isEmpty());
+        sql("DROP TABLE food_response_candidates");new SchemaMigrator().migrate(db.getConnection());
+        assertTrue(new FoodResponseRepository(db.getConnection()).load(town,10).isEmpty());
+    }
+    @Test void missingSavedResponseCandidateFailsRatherThanInventingAnAlternative() throws SQLException {
+        responseFamine();sql("DELETE FROM food_response_candidates WHERE period=10 AND action='WAIT'");
+        assertThrows(SQLException.class,()->new FoodResponseRepository(db.getConnection()).load(town,10));
+    }
+    @Test void cashlessAndCoveredPendingSupplyBlockOffersWithoutInventingFunds() throws SQLException {
+        responseFamine();new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,-runtime.views().get(town).treasury().hundredths(),"Cash exhaustion scenario");
+        runtime.pulse(12000,false);var plan=runtime.views().get(town).response();
+        assertEquals(FoodResponses.Action.REQUEST_DONATION,plan.selected());assertFalse(plan.candidates().get(2).feasible());
+        runtime.recordDeliveredFood(UUID.randomUUID(),town,100,"Known future delivery",12000);
+        // Accrue a backlog: payment options are blocked while catching up; pending supplies cover the target.
+        runtime.recordDeliveredFood(UUID.randomUUID(),town,100,"Later delivery",14000);
+        runtime.pulse(14000,false);plan=runtime.views().get(town).response();assertEquals(FoodResponses.Action.WAIT,plan.selected());
+    }
+    @Test void response240PeriodScenarioPreservesPublishedChoicesAndExactDeliveryUseAcrossRestart() throws SQLException {
+        var priority=VillagePriorities.Policy.prototype().withLearning(12,25);
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,priority,42,
+                OpeningFunds.prototype(),HouseholdWellbeing.Policy.disabled(),FoodResponses.Settings.prototype());observe(1000,true,0);
+        com.blueninjas24.civilizations.economy.FoodResponses.Plan first=null;long imported=0;
+        for(long period=1;period<=240;period++) {
+            if(period%17==0)runtime.recordDeliveredFood(UUID.randomUUID(),town,5,"Scenario delivery",period*1000);
+            runtime.pulse(1000+period*1000,false);var view=runtime.views().get(town);assertNotNull(view.response());
+            assertTrue(view.response().candidates().stream().anyMatch(c->c.action()==view.response().selected()&&c.feasible()&&c.eligible()));
+            imported+=view.foodImportImpact().orElseThrow().imported();if(period==10)first=view.response();
+            if(period==120){db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();
+                runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,priority,42,
+                        OpeningFunds.prototype(),HouseholdWellbeing.Policy.disabled(),FoodResponses.Settings.prototype());runtime.start(121000);}
+        }
+        assertEquals(70,imported);assertEquals(first,new FoodResponseRepository(db.getConnection()).load(town,10).orElseThrow());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM food_response_candidates")){assertEquals(240*5,r.getInt(1));}
+    }
     @Test void verifiedEarlierImportsChangeWeightsAndReplayExactlyAcrossRestart() throws SQLException {
         learningFamine();var id=UUID.randomUUID();runtime.recordDeliveredFood(id,town,5,"Known delivery",11000);
         runtime.pulse(12000,false);assertEquals(VillagePriorities.Evidence.none(),runtime.views().get(town).priority().evidence());

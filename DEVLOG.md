@@ -1,5 +1,36 @@
 # Civilizations Development Log
 
+## Phase 2 response gate and prototype completion — October 9, 2026
+
+- Branch `codex/phase2-response-gate`: plain-Java comparison of actual donation,
+  finite-budget emerald, idle-stock timber/stone and wait capabilities. Explicit
+  blocked reasons, supported minimum stack value, pending/reserved food, catch-up,
+  governing priority, funds and keep floors constrain seeded optional preferences.
+  Players retain choice; existing exact quote/consent/proof safeguards remain.
+- Strict commented response weights/settings; new files enable, old files unchanged/
+  disabled. Session/runtime policy wiring, cached admin explanations and visible
+  village menu preferences. No Paper access from domain/SQL owner or forced chunks.
+- Transactional schema 26 appends replayable period comparison/candidate tables.
+  Old histories stay intact; failed publication rolls food/needs/learning/receipt
+  use back. Missing/corrupt candidate evidence fails; policy changes apply forward.
+- Ten new cases cover seeded feasible alternatives, settings, actual paid execution,
+  finite funds/pending supply, missing evidence, migration rollback and 240-period
+  delivery/publication/restart history. Test-only ambiguous import/treasury naming
+  were corrected; a restart test's changed seed was caught and corrected while
+  retaining the application seed guard. Final Wrapper clean verify passed 494 cases
+  (492 unit/two packaged integration), zero failures/errors/skips.
+- Marked dev schema-25 consistent snapshot preceded upgrade. Pinned real Paper
+  passed published donation/cash/timber options, actual one cash/log exchange each,
+  saved proof/failure/duplicates, bargaining, learned outcomes, welfare, restart and
+  unloaded checks. Probe archived; regular plugin startup/diagnostics/shutdown passed.
+  Read-only schema/integrity/FK, old identity/economy/learning history and native
+  candidate completeness/selected feasibility/completion checks passed.
+- Phase 2 prototype gate advances to 4/4 (100%). Status/progress, acceptance and
+  response guide updated. Human client/compatibility, cross-save restoration,
+  profiling/history growth and survival balance remain release work; industry,
+  construction, regional suppliers/reputation remain later phases. No production
+  reset, owner-config rewrite, merge/push or canonical roadmap change. Next: Phase 3.
+
 ## Configurable saved food-priority learning — October 9, 2026
 
 - Branch `codex/phase2-priority-learning`: configurable earlier verified import

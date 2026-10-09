@@ -54,7 +54,7 @@ public final class Civilizations extends JavaPlugin {
             getLogger().info("Opening village funds: " + (openingFunds.enabled() ? "enabled; grants apply once to economies without a treasury" : "disabled")
                     + "; edit economy.yml while stopped and restart to change settings.");
             population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis, economySettings, farmSettings,
-                    EconomyConfiguration.readPriorities(economyConfig), openingFunds, EconomyConfiguration.readWellbeing(economyConfig));
+                    EconomyConfiguration.readPriorities(economyConfig), openingFunds, EconomyConfiguration.readWellbeing(economyConfig),EconomyConfiguration.readResponses(economyConfig));
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)
                             .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);

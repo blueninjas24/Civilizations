@@ -129,6 +129,17 @@ class EconomyConfigurationTest {
         config.set("priorities.learning.window-periods",0);config.set("priorities.learning.maximum-food-bonus-percent",0);
         assertEquals(0,EconomyConfiguration.readPriorities(config).learningPeriods());
     }
+    @Test void responseWeightsAreEditableAndOldFilesStayDisabled() throws Exception {
+        var config=defaults();assertTrue(EconomyConfiguration.readResponses(config).policy().enabled());
+        config.set("responses.emerald-weight",12);assertEquals(12,EconomyConfiguration.readResponses(config).policy().emeraldWeight());
+        config.set("responses",null);assertFalse(EconomyConfiguration.readResponses(config).policy().enabled());
+    }
+    @Test void unsafePartialAndUnknownResponseSettingsFail() throws Exception {
+        for(var entry:java.util.Map.of("responses.enabled","yes","responses.barter-weight",0,"responses.minimum-relative-percent",101,"responses.typo",1).entrySet()) {
+            var config=defaults();config.set(entry.getKey(),entry.getValue());assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("responses.donation-weight",null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     @Test void partialUnknownAndUnsafeLearningSettingsFail() throws Exception {
         var config=defaults();config.set("priorities.learning.window-periods",null);
         assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));

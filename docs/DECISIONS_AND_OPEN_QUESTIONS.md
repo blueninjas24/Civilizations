@@ -407,3 +407,19 @@ No consequential locked rule is changed. Broader explicit response comparison is
 the remaining Phase 2 reporting scope; industries/construction/regional suppliers
 stay in their canonical later phases. No new user answer required. See
 PRIORITY_LEARNING.md for prototype settings and limits.
+
+## October 9, 2026 — Phase 2 feasible response prototype gate
+
+Approved configurable economy prototypes now include optional response weights:
+donation 6, emerald 4, barter 4, wait 1, relative threshold 25%. Only actual feasible
+capabilities enter the seeded draw. Preference publication does not compel player
+donations or currency, reserve anything or guarantee a supplier. Every accepted
+exchange retains its separate actual terms/receipt/proof and is checked again.
+Pending food, finite funds, idle non-shortage materials, stock floors and supported
+stack values explain exclusions. Unknown goods/treasury are not fabricated.
+Schema 26 retains immutable comparison/replay and old history without backfill.
+Tests and native acceptance close the Phase 2 prototype gate, 4/4 (100%). Later
+industry/construction/regional supplier work stays in its canonical phases. Human
+client/compatibility, cross-save recovery, profiling/history retention and balance
+remain release work; no consequential mortality/reputation rule added. No new
+answer blocks the next scoped development work. See PHASE2_ACCEPTANCE.md.

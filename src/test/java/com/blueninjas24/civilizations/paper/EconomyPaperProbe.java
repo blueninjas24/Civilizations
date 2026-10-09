@@ -81,7 +81,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private EconomySettings tune(EconomySettings base,int output){return new EconomySettings(1,0,2,base.adultFoodUnits(),base.childFoodUnits(),base.foodUnitsPerWorker(),
             output,base.shortages(),base.startingPerResident(),base.baseTradeValues(),base.pricePercent());}
     private void open(){session=new PopulationSession(scenario,getLogger(),population,now::get,economy,FarmObservation.Policy.prototype(),
-            VillagePriorities.Policy.prototype().withLearning(12,25),openingFunds,HouseholdWellbeing.Policy.prototype());future=session.start(false);}
+            VillagePriorities.Policy.prototype().withLearning(12,25),openingFunds,HouseholdWellbeing.Policy.prototype(),FoodResponses.Settings.prototype());future=session.start(false);}
     private boolean ready(){if(!future.isDone())return false;future.join();return true;}
     private void scan(){observer=new PaperFarmObserver(session,FarmObservation.Policy.prototype());observer.runTaskTimer(this,1,1);}
     private void crops(boolean planted){for(int x=X+4;x<X+12;x++)for(int z=Z+4;z<Z+12;z++){
@@ -177,6 +177,11 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(learned.evidence().imported()==12&&learned.evidence().avoidedUnmet()==4,"Native saved delivery learning missing");
             require(learned.evidence().bonus(learned.policy())==8,"Native learning bonus wrong");
             getLogger().info("PRIORITY_LEARNING_PASSED: prior saved delivery raised food weight by bounded eight percent, retained across restarts");
+            var response=session.economyView().get(town).response();require(response!=null&&response.selected()!=FoodResponses.Action.WAIT,"Native feasible response not published");
+            require(response.candidates().stream().filter(c->c.action()==FoodResponses.Action.OFFER_EMERALDS).findFirst().orElseThrow().feasible(),"Native finite-budget cash response blocked incorrectly");
+            require(response.candidates().stream().filter(c->c.action()==FoodResponses.Action.OFFER_TIMBER).findFirst().orElseThrow().feasible(),"Native available timber response missing");
+            new PopulationDebugCommand(session).onCommand(Bukkit.getConsoleSender(),null,"civ",new String[]{"debug","economy",town.toString()});
+            getLogger().info("FOOD_RESPONSES_PASSED: saved feasible donation/cash/timber comparison published before real confirmed exchanges");
             purchases=new FoodPurchaseTransfers(this,session,FoodAidPreview.Policy.prototype(),FoodPurchases.Policy.prototype(),Bukkit.getServer().getLevelDirectory().resolve("players/data"),FoodBargaining.Policy.prototype());
             donor.getInventory().setItemInMainHand(new org.bukkit.inventory.ItemStack(Material.WHEAT,8));
             purchasePayment=purchases.quote(town,donor.getInventory().getItemInMainHand());require(purchasePayment>0,"No native purchase quote");

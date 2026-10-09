@@ -96,3 +96,13 @@ verified deliveries' exact unmet-demand prevention. No observed appeal recovery 
 treated as proof an appeal attracted a supplier. Old reviews retain their original
 replay; new reviews save their learning policy/evidence and fail on missing metadata.
 See PRIORITY_LEARNING.md for tuning, seeded behavior, validation and remaining scope.
+
+## Published responses and Phase 2 gate — October 9 follow-up
+
+Schema 26 now retains a separate feasible donation/cash/timber/stone/wait comparison
+for each enabled food period. Actual funds, pending supplies, idle stock, keep floors
+and supported stack value constrain the optional published preference. Player choice
+and fresh exact confirmation remain. Real executed receipts are distinct from the
+published intention; no supplier success is inferred. Combined native/automated
+acceptance closes Phase 2's prototype gate, 4/4 (100%). See FOOD_RESPONSES.md and
+PHASE2_ACCEPTANCE.md; construction/industry/regional suppliers remain later work.

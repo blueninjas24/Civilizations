@@ -84,7 +84,7 @@ missing evidence, receipt mismatch, expiration, restart, forward disabling and a
 240-period verified-delivery scenario. The native Paper fixture checks saved
 delivery evidence affecting a later shortage review across restarts.
 
-This completes bounded food-priority learning. Phase 2's final reporting group
-still needs broader explicit feasible-response comparison/execution explanations;
-it remains 3/4 (75%). Industry, construction and regional suppliers remain in their
-canonical later phases.
+This completes bounded food-priority learning. The follow-up FOOD_RESPONSES.md
+implements and verifies the broader feasible-response comparison. Phase 2's
+prototype gate is now 4/4 (100%); see PHASE2_ACCEPTANCE.md. Industry, construction
+and regional suppliers remain in their canonical later phases.

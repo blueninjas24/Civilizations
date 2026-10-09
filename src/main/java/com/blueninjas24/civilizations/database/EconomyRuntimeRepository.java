@@ -14,7 +14,7 @@ public final class EconomyRuntimeRepository {
     }
     public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods,
                        HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority, FoodAid foodAid,
-                       FoodAppeals.Snapshot appeal, List<HouseholdWellbeing.Snapshot> wellbeing) {
+                       FoodAppeals.Snapshot appeal, List<HouseholdWellbeing.Snapshot> wellbeing, FoodResponses.Plan response) {
         public View { wellbeing = List.copyOf(wellbeing); }
         /** Derived from immutable retained period inputs; never from mutable current reserves. */
         public Optional<FoodImportImpact.Outcome> foodImportImpact() {
@@ -34,6 +34,7 @@ public final class EconomyRuntimeRepository {
     private final String signature;
     private final OpeningFunds openingFunds;
     private final HouseholdWellbeing.Policy wellbeing;
+    private final FoodResponses.Settings responses;
     private int cursor;
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood) {
         this(connection,settings,farms,adulthood,VillagePriorities.Policy.prototype(),0);
@@ -48,6 +49,11 @@ public final class EconomyRuntimeRepository {
     }
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood,
                                     VillagePriorities.Policy priorities, long seed, OpeningFunds openingFunds, HouseholdWellbeing.Policy wellbeing) {
+        this(connection,settings,farms,adulthood,priorities,seed,openingFunds,wellbeing,FoodResponses.Settings.disabled());
+    }
+    public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood,
+                                    VillagePriorities.Policy priorities,long seed,OpeningFunds openingFunds,HouseholdWellbeing.Policy wellbeing,FoodResponses.Settings responses) {
+        this.responses=Objects.requireNonNull(responses);
         this.connection = connection; this.commodities = new CommodityRepository(connection);
         this.wellbeing = Objects.requireNonNull(wellbeing);
         this.openingFunds = Objects.requireNonNull(openingFunds);
@@ -340,6 +346,12 @@ public final class EconomyRuntimeRepository {
         var food=period.reports().stream().filter(report->report.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
         appeals.save(FoodAppeals.observe(assessment,decisions.latest(town).orElseThrow(),food,appeals.load(town,nextPeriod-1).orElse(null)));
         deliveries.apply(incoming,nextPeriod);
+        if(responses.policy().enabled()) {
+            long pending=Math.addExact(deliveries.pendingUnits(town),Math.addExact(new FoodPurchaseRepository(connection).reservedUnits(town),new FoodBarterRepository(connection).reservedFood(town)));
+            var budget=new TreasuryRepository(connection).load(town).orElse(null);
+            new FoodResponseRepository(connection).save(FoodResponses.assess(town,nextPeriod,seed,decisions.latest(town).orElseThrow(),assessment,
+                    nextPeriod==clock.anchor().targetSteps(),pending,budget==null?null:budget.hundredths(),period,settings,responses));
+        }
         return true;
     }
     public Map<UUID, View> views() throws SQLException {
@@ -353,7 +365,8 @@ public final class EconomyRuntimeRepository {
                     new TreasuryRepository(connection).load(town).orElse(null),new VillagePriorityRepository(connection).latest(town).orElse(null),
                     new FoodAid(pending.deliveries(),pending.eligibleNextPeriodUnits()),
                       new FoodAppealRepository(connection).load(town, account.state().completedPeriods()).orElse(null),
-                      new HouseholdWellbeingRepository(connection).load(town,account.state().completedPeriods())));
+                      new HouseholdWellbeingRepository(connection).load(town,account.state().completedPeriods()),
+                      new FoodResponseRepository(connection).load(town,account.state().completedPeriods()).orElse(null)));
         }
         return Collections.unmodifiableMap(result);
     }

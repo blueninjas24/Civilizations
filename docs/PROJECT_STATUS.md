@@ -1,6 +1,43 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies, basic labor/treasury/wellbeing and player trade/stability prototype groups (3/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded configurable food-priority learning is now implemented; broader explicit feasible-response comparison/execution explanations remain pending. Phases 3–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phases 3–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+
+## Phase 2 prototype gate passed — October 9, 2026
+
+- Branch `codex/phase2-response-gate`: villages now save a seeded weighted preference
+  among feasible donation requests, emerald offers, real timber/stone barter or wait.
+  Actual treasury, stock floors, idle/non-shortage evidence, supported stack value,
+  pending/reserved food, selected priority, settings and catch-up constrain options.
+  No imaginary supplies, automatic player debit or promise of a supplier.
+- Strict commented `responses` settings expose weights/eligibility and enable/disable;
+  new files enable the prototype, old owner files remain unchanged/disabled. Players
+  see the preference in supplies menus and may choose other available options.
+  Existing confirmations/cooldowns/permissions/saved inventory proof recheck reality.
+- Schema 26 appends parent/candidate comparison history tied to food periods.
+  Versioned seeds/raw weights/feasibility/reasons reproduce old choices independently
+  of later tuning/funds. Period effects and publication commit together; failed writes
+  leave receipts retryable. Existing identities/history/replay stay intact. Old plugin
+  downgrade requires a consistent pre-upgrade backup; no database/world reset.
+- Ten added cases cover seeded alternatives/blocked choices, strict admin settings,
+  actual paid execution, pending food/cash exhaustion, corruption, migration rollback,
+  disabled forward settings and a seeded 240-period response/receipt/restart scenario.
+  Initial test-only import ambiguity and restart seed error were corrected; the seed
+  protection remained intact. Final Windows `.\mvnw.cmd clean verify -B -ntp` passed
+  494 cases (492 unit/two packaged integration), zero failures/errors/skips.
+- Disposable pinned Paper verified saved donation/cash/timber candidates published
+  before explicit actual food-for-emerald/log exchanges, plus prior donation, failed
+  save, duplicate, bargaining, learning, welfare, restart and unloaded regressions.
+  Consistent marked schema-25 dev snapshot preceded upgrade. Probe archived; normal
+  plugin-only startup/diagnostics/shutdown passed. Read-only integrity/FK and checked
+  old identity/economy/learning history comparisons passed. No production changes,
+  owner-config rewrite, merge or push. Native saved candidate completeness/feasibility
+  and one cash/barter completion were independently checked.
+- Phase 2 advances to 4/4 (100%) of its prototype reporting milestones. See
+  PHASE2_ACCEPTANCE.md and FOOD_RESPONSES.md for actual gates/limits. Human client,
+  inventory-plugin/native-death/cross-save compatibility, profiling and survival
+  balance remain release work. No industries/jobs, construction, regional suppliers,
+  reputation or starvation deaths are invented. Next is Phase 3 businesses/industry;
+  Phases 3–9 remain planned. Earlier entries below are chronological batch snapshots.
 
 ## Configurable saved food-priority learning — October 9, 2026
 

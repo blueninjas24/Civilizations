@@ -76,6 +76,7 @@ public final class FoodAidMenu implements Listener {
             if(asking)lines.add(Component.text("Voluntary help; no payment promised."));
         }
         lines.add(Component.text("Pending deliveries: "+economy.foodAid().pendingDeliveries()+"."));
+        if(economy.response()!=null){lines.add(Component.text("Village preference: "+economy.response().selected().name().toLowerCase(Locale.ROOT).replace('_',' ')+"."));lines.add(Component.text("You may choose another available option."));lines.add(Component.text("Goods offers: /civ barter timber or stone."));}
         if(economy.queuedPeriods()>0)lines.add(Component.text("Village is catching up; conditions may change."));
         noticeMeta.lore(lines);notice.setItemMeta(noticeMeta);menu.inventory.setItem(11,notice);player.openInventory(menu.inventory);
     }

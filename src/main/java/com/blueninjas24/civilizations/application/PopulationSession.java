@@ -71,6 +71,7 @@ public final class PopulationSession implements AutoCloseable {
     private final VillagePriorities.Policy priorityPolicy;
     private final OpeningFunds openingFunds;
     private final HouseholdWellbeing.Policy wellbeing;
+    private final FoodResponses.Settings responses;
     private EconomyRuntimeRepository economy;
     private final AtomicReference<java.util.Map<UUID, EconomyRuntimeRepository.View>> economyView = new AtomicReference<>(java.util.Map.of());
     private volatile String economyFailure;
@@ -94,6 +95,11 @@ public final class PopulationSession implements AutoCloseable {
     public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now,
                              EconomySettings economySettings, FarmObservation.Policy farmPolicy, VillagePriorities.Policy priorityPolicy,
                              OpeningFunds openingFunds, HouseholdWellbeing.Policy wellbeing) {
+        this(dataFolder,logger,settings,now,economySettings,farmPolicy,priorityPolicy,openingFunds,wellbeing,FoodResponses.Settings.disabled());
+    }
+    public PopulationSession(File dataFolder,Logger logger,Settings settings,LongSupplier now,EconomySettings economySettings,FarmObservation.Policy farmPolicy,
+                             VillagePriorities.Policy priorityPolicy,OpeningFunds openingFunds,HouseholdWellbeing.Policy wellbeing,FoodResponses.Settings responses) {
+        this.responses=java.util.Objects.requireNonNull(responses);
         this.logger = logger; this.settings = settings; this.now = now;
         this.wellbeing = java.util.Objects.requireNonNull(wellbeing);
         this.openingFunds = java.util.Objects.requireNonNull(openingFunds);
@@ -141,7 +147,7 @@ public final class PopulationSession implements AutoCloseable {
                 if (accrued.discardedMillis() > 0) logger.info("Prototype offline calendar cap discarded " + accrued.discardedMillis() + " real milliseconds");
                 advance(accrued.anchor().targetSteps());
                 if (economySettings != null) {
-                    economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing);
+                    economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
                     economy.start(now.getAsLong()); economyView.set(economy.views());
                 }
                 readyForWork = true;

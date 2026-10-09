@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 25;
+    static final int CURRENT_VERSION = 26;
 
     @FunctionalInterface
     interface Migration {
@@ -246,6 +246,27 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX applied_food_learning ON food_deliveries(settlement_id,applied_period)");
+                },
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE food_responses (
+                                settlement_id TEXT NOT NULL,period INTEGER NOT NULL,seed INTEGER NOT NULL CHECK(typeof(seed)='integer'),
+                                replay_version INTEGER NOT NULL CHECK(replay_version=1),
+                                relative_percent INTEGER NOT NULL CHECK(relative_percent BETWEEN 0 AND 100),
+                                selected TEXT NOT NULL CHECK(selected IN ('WAIT','REQUEST_DONATION','OFFER_EMERALDS','OFFER_TIMBER','OFFER_STONE')),
+                                PRIMARY KEY(settlement_id,period),FOREIGN KEY(settlement_id,period) REFERENCES needs_periods(settlement_id,period)
+                            )
+                            """);
+                    execute(connection,"""
+                            CREATE TABLE food_response_candidates (
+                                settlement_id TEXT NOT NULL,period INTEGER NOT NULL,
+                                action TEXT NOT NULL CHECK(action IN ('WAIT','REQUEST_DONATION','OFFER_EMERALDS','OFFER_TIMBER','OFFER_STONE')),
+                                feasible INTEGER NOT NULL CHECK(feasible IN (0,1)),
+                                weight INTEGER NOT NULL CHECK(typeof(weight)='integer' AND weight BETWEEN 1 AND 1000),
+                                reason TEXT NOT NULL CHECK(length(reason) BETWEEN 1 AND 2048),
+                                PRIMARY KEY(settlement_id,period,action),FOREIGN KEY(settlement_id,period) REFERENCES food_responses(settlement_id,period)
+                            )
+                            """);
                 }
         ));
     }
@@ -340,6 +361,10 @@ final class SchemaMigrator {
             }
             if (migrations.size() >= 25) requireColumns(connection, "priority_learning", Set.of("settlement_id","period","replay_version","window_periods","maximum_bonus","imported","avoided_unmet"));
             if (migrations.size() >= 25) requireColumns(connection, "village_priorities", Set.of("learning_replay"));
+            if (migrations.size() >= 26) {
+                requireColumns(connection,"food_responses",Set.of("settlement_id","period","seed","replay_version","relative_percent","selected"));
+                requireColumns(connection,"food_response_candidates",Set.of("settlement_id","period","action","feasible","weight","reason"));
+            }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

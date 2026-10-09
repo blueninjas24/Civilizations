@@ -47,7 +47,7 @@ seeded periods. A temporary SQLite restart fixture preserves old outcomes after
 later consumption. The disposable Paper regression fixture asserts the exact impact
 of the verified twelve-unit native donation and exercises the admin diagnostic.
 
-Phase 2 remains 3/4 complete. This supplies trustworthy aggregate outcome evidence;
-bounded configurable food-priority learning is now implemented separately. Broader
-explicit feasible-response comparison/execution explanations still need validation before
-the autonomous-decision reporting group can be checked off.
+This supplies trustworthy aggregate outcome evidence. Bounded food-priority
+learning and explicit feasible-response comparison have since been implemented
+and verified separately. Phase 2's prototype gate is now 4/4 (100%); see
+PRIORITY_LEARNING.md, FOOD_RESPONSES.md and PHASE2_ACCEPTANCE.md.
