@@ -183,3 +183,13 @@ checks the actual enable event plus clean reopen using a separate empty temporar
 SQLite owner. It changes no world blocks, tickets or main settings. Stop normally,
 verify both fences/integrity read-only, archive the probe outside plugins. Never ship
 it with the distributed plugin. See ORE_EDITOR_GUARD.md.
+
+IndustryRuntimeProbe.java is a separate test-only plugin (name
+CivilizationsIndustryRuntimeProbe, main IndustryRuntimeProbe, version 1, API 1.21,
+depend Civilizations). Compile/package separately as above. It requires the marked
+localhost no-player server and an unloaded abstract site chunk. A separate SQL
+fixture owner seeds explicit funded industry, then real PopulationSession owners
+run accelerated deterministic clocks/pulses and world masks. Check finite output,
+absence, downtime/restart and preserved capital. No world edits/tickets/main save
+changes. Stop normally, inspect both DBs read-only, archive the probe. Never ship it
+with the plugin. See TIMED_INDUSTRY.md; TONIGHT_PLAYTEST.md is the player checklist.

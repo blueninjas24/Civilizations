@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 34;
+    static final int CURRENT_VERSION = 35;
 
     @FunctionalInterface
     interface Migration {
@@ -359,7 +359,38 @@ final class SchemaMigrator {
                             trusted INTEGER NOT NULL CHECK(trusted IN (0,1)),
                             observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0)
                         )
-                        """)
+                        """),
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE industry_runtime (
+                                business_id TEXT PRIMARY KEY NOT NULL REFERENCES industry_stores(business_id),
+                                cadence INTEGER NOT NULL CHECK(typeof(cadence)='integer' AND cadence BETWEEN 1000 AND 86400000),
+                                last_ms INTEGER NOT NULL CHECK(typeof(last_ms)='integer' AND last_ms>=0),
+                                remainder INTEGER NOT NULL CHECK(typeof(remainder)='integer' AND remainder>=0 AND remainder<cadence),
+                                target INTEGER NOT NULL CHECK(typeof(target)='integer' AND target>=0),
+                                completed INTEGER NOT NULL CHECK(typeof(completed)='integer' AND completed>=0 AND completed<=target)
+                            )
+                            """);
+                    execute(connection,"""
+                            CREATE TABLE industry_runtime_history (
+                                business_id TEXT NOT NULL REFERENCES industry_runtime(business_id),
+                                period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                                explanation TEXT NOT NULL CHECK(length(explanation) BETWEEN 1 AND 1024),
+                                PRIMARY KEY(business_id,period)
+                            )
+                            """);
+                    execute(connection,"""
+                            CREATE TABLE industry_runtime_tuning (
+                                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                                business_id TEXT NOT NULL REFERENCES industry_runtime(business_id),
+                                after_period INTEGER NOT NULL CHECK(typeof(after_period)='integer' AND after_period>=0),
+                                old_cadence INTEGER NOT NULL CHECK(typeof(old_cadence)='integer' AND old_cadence BETWEEN 1000 AND 86400000),
+                                new_cadence INTEGER NOT NULL CHECK(typeof(new_cadence)='integer' AND new_cadence BETWEEN 1000 AND 86400000),
+                                discarded_remainder INTEGER NOT NULL CHECK(typeof(discarded_remainder)='integer' AND discarded_remainder>=0 AND discarded_remainder<old_cadence),
+                                observed_ms INTEGER NOT NULL CHECK(typeof(observed_ms)='integer' AND observed_ms>=0)
+                            )
+                            """);
+                }
         ));
     }
 
@@ -487,6 +518,11 @@ final class SchemaMigrator {
             }
             if(migrations.size()>=33)requireColumns(connection,"player_ore_placements",Set.of("world_id","x","y","z","observed_millis"));
             if(migrations.size()>=34)requireColumns(connection,"ore_tracking",Set.of("id","clean_stop","trusted","observed_millis"));
+            if(migrations.size()>=35) {
+                requireColumns(connection,"industry_runtime",Set.of("business_id","cadence","last_ms","remainder","target","completed"));
+                requireColumns(connection,"industry_runtime_history",Set.of("business_id","period","explanation"));
+                requireColumns(connection,"industry_runtime_tuning",Set.of("sequence","business_id","after_period","old_cadence","new_cadence","discarded_remainder","observed_ms"));
+            }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

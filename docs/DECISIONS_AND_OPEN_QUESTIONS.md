@@ -39,6 +39,18 @@ Native placements and conservative piston exclusions are verified. Recognized
 unsupported bulk-editor presence now fences discovery (ORE_EDITOR_GUARD.md); unknown
 editors/offline edits remain uncertified and supported operation integration is pending. See LIVE_ORE_TRACKING.md.
 
+## October 9, 2026 — timed existing industry prototype
+
+Approved configurable economy authority supplies a 30-real-second work period and
+eight existing firms per pulse for new files. Old files explicitly opt in. Timed
+work consumes real saved reserves/ingredients with actual employees/storage; no
+new funding grants or invented consumers. World/server absence pauses. Existing
+clocks/history survive restart; cadence changes require an empty queue and retain
+a transition record. Work/input changes, receipt/history/checkpoint are atomic.
+Owner unavailability defers operation without selecting an heir. Succession remains
+unanswered. Automatic opportunities/founding, purchasing/customer demand and wider
+industry coverage still need scoped work. See TIMED_INDUSTRY.md.
+
 ## October 9, 2026 — approved exposed existing ore prototype
 
 The user answered: "Allow exposed existing ore." Exposed pre-existing coal/iron

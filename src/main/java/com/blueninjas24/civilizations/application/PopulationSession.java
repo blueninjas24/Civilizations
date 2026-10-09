@@ -83,6 +83,10 @@ public final class PopulationSession implements AutoCloseable {
     private volatile boolean onlineOnly;
     private com.blueninjas24.civilizations.industry.FarmBusinessPolicy farmBusinessPolicy=com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
     private com.blueninjas24.civilizations.database.BusinessRuntime businesses;
+    private com.blueninjas24.civilizations.industry.IndustryRuntimePolicy industryPolicy=com.blueninjas24.civilizations.industry.IndustryRuntimePolicy.disabled();
+    private com.blueninjas24.civilizations.database.IndustryRuntime industries;
+    private volatile String industryFailure;
+    private boolean industrySuspended; // Failed boundary cannot safely reconstruct a live interval; restart skips it.
     private final AtomicReference<com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot> businessView =
             new AtomicReference<>(com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot.empty());
 
@@ -143,6 +147,14 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure ore tracking before session starts");
         trackOres=true;
     }
+    public void configureIndustryRuntime(com.blueninjas24.civilizations.industry.IndustryRuntimePolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure industry runtime before session starts");
+        industryPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public String industryRuntimeDiagnostic() {
+        return !industryPolicy.enabled()?"Timed industry disabled in economy.yml":industryFailure!=null
+                ?"Timed industry deferred: "+industryFailure:"Timed industry active for saved firms; automatic founding remains unfinished";
+    }
     public boolean oreDiscoveryReady() { return trackOres && oreHistoryHealthy.get() && status().ready(); }
     public String oreTrackingDiagnostic() {
         return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
@@ -179,6 +191,8 @@ public final class PopulationSession implements AutoCloseable {
                     if(!fence.trusted())oreHistoryIssue.set("unclean stop or prior capture gap; reviewed recovery required");
                 }
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
+                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy);
+                industries.start(now.getAsLong());
                 var demographic = database.getDemographicRepository();
                 var saved = demographic.load(settings.population(), settings.migration());
                 if (saved.isEmpty())
@@ -222,6 +236,11 @@ public final class PopulationSession implements AutoCloseable {
             var clock = database.getCivilizationClockRepository();
             var accrued = clock.accrueOnline(observed, settings.millisPerMonth(), loadedWorlds);
             if (economy != null) economy.updateLoadedWorlds(observed, next);
+            if(!industrySuspended)try {industries.observeAvailability(observed,loadedWorlds);}
+            catch(SQLException|RuntimeException failure) {
+                industrySuspended=true;industryFailure="failed world boundary; fix cause and restart before industry resumes: "+failure.getMessage();
+                logger.log(Level.SEVERE,"Industry clock boundary failed; industry suspended without blocking population world availability",failure);
+            }
             loadedWorlds = next;
             advance(accrued.anchor().targetSteps());
             if (economy != null) economyView.set(economy.views());
@@ -406,6 +425,12 @@ public final class PopulationSession implements AutoCloseable {
         status.set(new Status(previous.ready(), previous.completedMonths(), queuedTime.anchor().targetSteps(),
                 previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
         advance(queuedTime.anchor().targetSteps());
+        if(!industrySuspended)try {industries.pulse(now.getAsLong(),loadedWorlds);industryFailure=null;}
+        catch(SQLException|RuntimeException failure) {
+            if(!java.util.Objects.equals(industryFailure,failure.getMessage()))logger.log(Level.SEVERE,"Industry update deferred; saved work remains retryable",failure);
+            industryFailure=failure.getMessage();
+        }
+        if(industryPolicy.enabled())businessView.set(businesses.refresh(status.get().completedMonths(),loadedWorlds));
         if (economy != null && status.get().remainingMonths() == 0) {
             try { economy.pulse(now.getAsLong(), false); economyView.set(economy.views()); economyFailure = null; }
             catch (SQLException | RuntimeException failure) {

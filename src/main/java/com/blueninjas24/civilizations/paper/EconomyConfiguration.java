@@ -20,6 +20,7 @@ public final class EconomyConfiguration {
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
+        if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -29,6 +30,7 @@ public final class EconomyConfiguration {
         if (config.contains("barter")) rootKeys.add("barter");
         exactKeys(config, rootKeys);
         readAdditionalOreEditors(config);
+        readIndustryRuntime(config);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
@@ -227,6 +229,14 @@ public final class EconomyConfiguration {
         } catch (NumberFormatException | ArithmeticException invalid) {
             throw new IllegalArgumentException("purchases.trade-value-per-emerald must be finite with at most two decimal places", invalid);
         }
+    }
+    public static com.blueninjas24.civilizations.industry.IndustryRuntimePolicy readIndustryRuntime(ConfigurationSection config) {
+        if(!config.contains("industry-runtime"))return com.blueninjas24.civilizations.industry.IndustryRuntimePolicy.disabled();
+        var runtime=section(config,"industry-runtime");
+        exactKeys(runtime,Set.of("enabled","real-millis-per-period","businesses-per-pulse"));
+        if(!(runtime.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("industry-runtime.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.IndustryRuntimePolicy(enabled,integer(runtime,"real-millis-per-period"),
+                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config));
     }
     public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
         if (!config.contains("ore-provenance")) return List.of();

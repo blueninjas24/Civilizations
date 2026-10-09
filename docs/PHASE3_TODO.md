@@ -33,7 +33,10 @@ Updated October 9, 2026. Reporting progress remains one of four complete groups
 - [x] Atomic trusted mine startup joins founding, finite discovery, empty storage,
       actual capital and first worker; verify rollback/replay and packaged paid chain.
       Automatic opportunity selection and operation remain unfinished.
-- [ ] Automatically fund/staff/operate nonfood industries under editable settings.
+- [x] Timed operation of existing funded/staffed mines/workshops through the live
+      SQL owner, with atomic receipts/checkpoints, absent-world/downtime pause and
+      unloaded data-only work; verify failure isolation and actual session on Paper.
+- [ ] Automatically select/fund/staff nonfood industries under editable settings.
 - [ ] Connect real local customers and recipes; demand-based reserves, no fake buyers.
 - [ ] Add suitable renewable forestry/fishing opportunities and finite stone/sand
       production as scoped catalog/observation work; do not infer resources from a

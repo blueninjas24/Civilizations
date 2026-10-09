@@ -1,6 +1,50 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Automatic nonfood founding, local purchasing/customer connections, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+
+## October 9, 2026 — timed existing industry operation
+
+Branch `codex/phase3-timed-industry-runtime`. Existing funded/staffed mines and
+workshops now execute bounded online work through PopulationSession's SQL owner.
+New-file defaults: 30 real seconds/period, eight firms/owner pulse; old files without
+industry-runtime remain disabled. Saved clocks retain fractions/earned queues,
+world absence and downtime add no production, unloaded sites need no chunks. Firms
+begin above legacy production history, without pre-enrollment backfill. Finite
+reserves, byproducts, actual workers, delivered inputs and storage bound output.
+Owner absence pauses without assuming inheritance. No automatic founding, buyers,
+new money, blocks, worker entities, forced chunks or regional routes.
+
+Schema 35 adds constrained industry clocks/history/tuning transactionally; existing
+identities, stock, funds, reserves and provenance remain. Work/input/output/depletion,
+receipt, history and checkpoint commit together. Final-save failure retries intact.
+Cadence tuning requires an empty queue and records the discarded fraction. Bounded
+round-robin production and a 4096-row clock cap; no large-server performance claim.
+Production errors remain diagnosed/retryable without blocking food/population. A
+failed world boundary suspends industry until corrected/restarted while population
+still receives the new world mask; uncertain elapsed time is not invented.
+
+Eleven temporary SQLite runtime/application cases and two config/policy cases added.
+Focused final 37 passed; final Windows Wrapper clean verify passed 666 (664 unit,
+two packaged integration), zero failures/errors/skips. Actual Paper accelerated
+PopulationSession probe passed: three coal, seven remaining batches, three history
+checkpoints, preserved 8500 treasury/1000 working capital, world absence and restart.
+Site chunk was explicitly unloaded; no world writes/tickets. Main schema 34->35
+retained industry/funds/history and unchanged owner settings, with zero automatic
+clock enrollments and clean/trusted provenance. Integrity/FKs passed. Startup month
+1685 retained; online 1686. Normal stop exited 0 and probe archived.
+
+Fresh separate localhost player server prepared outside OneDrive using verified
+Paper 26.2 build 129, Java 25 and existing accepted EULA. Only cached runtime assets
+copied, no existing worlds/databases. Fresh defaults/schema 35 startup and normal
+stop passed with zero people/towns/businesses, no force-loading/probes and healthy
+provenance. Verified plugin installed; stopped, with a double-click starter. Player
+checklist in TONIGHT_PLAYTEST.md; human client validation still pending.
+
+TIMED_INDUSTRY, playtest/development notes, status/progress/checklist/devlog updated.
+Phase 3 remains 1/4 reporting groups (25%). Automatic nonfood opportunities/funding,
+local purchasing/customers, renewable/stone/sand coverage, lifecycle and specialization
+remain. Inheritance recipient choice remains pending. Local feature commit only;
+main unchanged, no merge/push.
 
 ## October 9, 2026 — unsupported bulk-editor safeguard
 

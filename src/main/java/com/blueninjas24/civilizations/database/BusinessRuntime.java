@@ -63,6 +63,11 @@ public final class BusinessRuntime {
         return new Snapshot(total,cache);
     }
     private String lastProduction(UUID business) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT period,explanation FROM industry_runtime_history WHERE business_id=? ORDER BY period DESC LIMIT 1")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                if(r.next())return "Period "+r.getLong(1)+": "+r.getString(2);
+            }
+        }
         try(var s=connection.prepareStatement("SELECT p.period,substr(o.explanation,1,768),length(o.explanation) FROM industry_production p JOIN industry_operations o ON o.id=p.operation_id WHERE p.business_id=? ORDER BY p.period DESC LIMIT 1")) {
             s.setString(1,business.toString());try(var r=s.executeQuery()){return r.next()?"Period "+r.getLong(1)+": "+r.getString(2)+(r.getInt(3)>768?"...":""):null;}
         }

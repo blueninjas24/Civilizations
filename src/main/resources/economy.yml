@@ -273,3 +273,12 @@ donations:
 # Removing/disabling an editor does not repair missing provenance automatically.
 ore-provenance:
   additional-bulk-editor-plugins: []
+
+# Timed operation of existing funded/staffed mines and workshops. This does not
+# found firms or supply inputs. Missing old sections remain disabled until opted in.
+# Online worlds earn time even with unloaded chunks; server/world absence pauses.
+# At most this many firms complete one earned period each per SQL-owner pulse.
+industry-runtime:
+  enabled: true
+  real-millis-per-period: 30000
+  businesses-per-pulse: 8

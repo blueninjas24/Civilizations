@@ -130,67 +130,75 @@ public final class IndustryRepository {
     /** Exactly one mining plan per business/economic period. Output, rock byproducts, depletion and receipt commit together. */
     public Receipt mine(UUID operation,UUID business,UUID deposit,long requested,long period,long perWorker,long siteCapacity) throws SQLException {
         if(requested<0 || period<0 || perWorker<1 || siteCapacity<1)throw new IllegalArgumentException("Invalid production request");
+        return transaction(()->mineRows(operation,business,deposit,requested,period,perWorker,siteCapacity));
+    }
+    Receipt mineRows(UUID operation,UUID business,UUID deposit,long requested,long period,long perWorker,long siteCapacity) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Production rows require active SQL owner transaction");
+        if(requested<0 || period<0 || perWorker<1 || siteCapacity<1)throw new IllegalArgumentException("Invalid production request");
         String terms=terms("mine",business,deposit,requested,period,perWorker,siteCapacity);
-        return transaction(()-> {
-            var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
-            try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
-                s.setString(1,business.toString());try(var r=s.executeQuery()) {
-                    if(r.next()) { long last=r.getLong(1);if(!r.wasNull() && period<=last)throw new SQLException("Mining period is stale or already completed"); }
-                }
+        var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
+        try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                if(r.next()) { long last=r.getLong(1);if(!r.wasNull() && period<=last)throw new SQLException("Mining period is stale or already completed"); }
             }
-            var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
-            var d=deposit(deposit).orElseThrow(()->new SQLException("Unknown deposit"));
-            if(!b.industry().equals("mining") || !b.siteId().equals(d.siteId()))throw new SQLException("Mining business must occupy the actual deposit site");
-            var stock=store(business).orElseThrow(()->new SQLException("Missing business storage"));
-            var plan=MineProduction.calculate(d.remainingBatches(),requested,businesses.currentWorkers(business).size(),perWorker,siteCapacity,
-                    stock.freeSpace(),d.bundle(),stock.spacePerUnit());
-            for(var output:plan.outputs().entrySet())changeStock(business,output.getKey(),output.getValue());
-            try(var s=connection.prepareStatement("UPDATE mineral_deposits SET remaining_batches=? WHERE id=?")) {
-                s.setLong(1,d.remainingBatches()-plan.batches());s.setString(2,deposit.toString());s.executeUpdate();
-            }
-            var saved=save(operation,terms,plan.batches(),plan.explanation());
-            try(var s=connection.prepareStatement("INSERT INTO industry_production(business_id,period,operation_id) VALUES(?,?,?)")) {
-                s.setString(1,business.toString());s.setLong(2,period);s.setString(3,operation.toString());s.executeUpdate();
-            }
-            return saved;
-        });
+        }
+        var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+        var d=deposit(deposit).orElseThrow(()->new SQLException("Unknown deposit"));
+        if(!b.industry().equals("mining") || !b.siteId().equals(d.siteId()))throw new SQLException("Mining business must occupy the actual deposit site");
+        var stock=store(business).orElseThrow(()->new SQLException("Missing business storage"));
+        var plan=MineProduction.calculate(d.remainingBatches(),requested,businesses.currentWorkers(business).size(),perWorker,siteCapacity,
+                stock.freeSpace(),d.bundle(),stock.spacePerUnit());
+        for(var output:plan.outputs().entrySet())changeStock(business,output.getKey(),output.getValue());
+        try(var s=connection.prepareStatement("UPDATE mineral_deposits SET remaining_batches=? WHERE id=?")) {
+            s.setLong(1,d.remainingBatches()-plan.batches());s.setString(2,deposit.toString());s.executeUpdate();
+        }
+        var saved=save(operation,terms,plan.batches(),plan.explanation());
+        try(var s=connection.prepareStatement("INSERT INTO industry_production(business_id,period,operation_id) VALUES(?,?,?)")) {
+            s.setString(1,business.toString());s.setLong(2,period);s.setString(3,operation.toString());s.executeUpdate();
+        }
+        return saved;
     }
 
     /** Complete processing batches atomically consume delivered inputs and add outputs; no new money. */
     public RecipeRun process(UUID operation,UUID business,ProductionRecipe recipe,long requested,long period) throws SQLException {
         Objects.requireNonNull(operation);Objects.requireNonNull(business);Objects.requireNonNull(recipe);
         if(requested<0 || period<0)throw new IllegalArgumentException("Invalid recipe request");
+        return transaction(()->processRows(operation,business,recipe,requested,period));
+    }
+    RecipeRun processRows(UUID operation,UUID business,ProductionRecipe recipe,long requested,long period) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Production rows require active SQL owner transaction");
+        Objects.requireNonNull(operation);Objects.requireNonNull(business);Objects.requireNonNull(recipe);
+        if(requested<0 || period<0)throw new IllegalArgumentException("Invalid recipe request");
         String operationTerms=terms("recipe-v1",business,recipe.id(),recipe.industry(),catalog(recipe.inputs()),catalog(recipe.outputs()),
                 recipe.batchesPerWorker(),recipe.siteCapacity(),requested,period);
-        return transaction(()-> {
-            if(receipt(operation,operationTerms).isPresent())return recipeRun(operation).orElseThrow(()->new SQLException("Recipe receipt missing run"));
-            var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
-            if(!b.industry().equals(recipe.industry()))throw new SQLException("Recipe does not match business industry");
-            try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
-                s.setString(1,business.toString());try(var r=s.executeQuery()) {
-                    if(r.next()){long last=r.getLong(1);if(!r.wasNull() && period<=last)throw new SQLException("Production period is stale or already completed");}
-                }
+        if(receipt(operation,operationTerms).isPresent())return recipeRun(operation).orElseThrow(()->new SQLException("Recipe receipt missing run"));
+        var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+        if(!b.industry().equals(recipe.industry()))throw new SQLException("Recipe does not match business industry");
+        try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                if(r.next()){long last=r.getLong(1);if(!r.wasNull() && period<=last)throw new SQLException("Production period is stale or already completed");}
             }
-            var stock=store(business).orElseThrow(()->new SQLException("Missing business store"));
-            var goods=new HashSet<>(recipe.inputs().keySet());goods.addAll(recipe.outputs().keySet());
-            if(!stock.units().keySet().containsAll(goods))throw new SQLException("Store catalog does not support recipe; explicit store transition required");
-            int workers=businesses.currentWorkers(business).size();
-            var plan=RecipeProduction.calculate(recipe,requested,workers,stock.freeSpace(),stock.units(),stock.spacePerUnit());
-            for(var e:plan.consumed().entrySet())changeStock(business,e.getKey(),-e.getValue());
-            for(var e:plan.produced().entrySet())changeStock(business,e.getKey(),e.getValue());
-            save(operation,operationTerms,plan.batches(),plan.explanation());
-            try(var s=connection.prepareStatement("INSERT INTO industry_production(business_id,period,operation_id) VALUES(?,?,?)")) {
-                s.setString(1,business.toString());s.setLong(2,period);s.setString(3,operation.toString());s.executeUpdate();
-            }
-            try(var s=connection.prepareStatement("INSERT INTO recipe_runs VALUES(?,?,?,?,1,?,?,?,?)")) {
-                s.setString(1,operation.toString());s.setString(2,business.toString());s.setLong(3,period);s.setString(4,recipe.id());
-                s.setLong(5,requested);s.setLong(6,workers);s.setLong(7,recipe.batchesPerWorker());s.setLong(8,recipe.siteCapacity());s.executeUpdate();
-            }
-            saveRecipeFlows(operation,"INPUT",recipe.inputs(),plan.consumed());
-            saveRecipeFlows(operation,"OUTPUT",recipe.outputs(),plan.produced());
-            store(business).orElseThrow();return recipeRun(operation).orElseThrow();
-        });
+        }
+        var stock=store(business).orElseThrow(()->new SQLException("Missing business store"));
+        var goods=new HashSet<>(recipe.inputs().keySet());goods.addAll(recipe.outputs().keySet());
+        if(!stock.units().keySet().containsAll(goods))throw new SQLException("Store catalog does not support recipe; explicit store transition required");
+        int workers=businesses.currentWorkers(business).size();
+        var plan=RecipeProduction.calculate(recipe,requested,workers,stock.freeSpace(),stock.units(),stock.spacePerUnit());
+        for(var e:plan.consumed().entrySet())changeStock(business,e.getKey(),-e.getValue());
+        for(var e:plan.produced().entrySet())changeStock(business,e.getKey(),e.getValue());
+        save(operation,operationTerms,plan.batches(),plan.explanation());
+        try(var s=connection.prepareStatement("INSERT INTO industry_production(business_id,period,operation_id) VALUES(?,?,?)")) {
+            s.setString(1,business.toString());s.setLong(2,period);s.setString(3,operation.toString());s.executeUpdate();
+        }
+        try(var s=connection.prepareStatement("INSERT INTO recipe_runs VALUES(?,?,?,?,1,?,?,?,?)")) {
+            s.setString(1,operation.toString());s.setString(2,business.toString());s.setLong(3,period);s.setString(4,recipe.id());
+            s.setLong(5,requested);s.setLong(6,workers);s.setLong(7,recipe.batchesPerWorker());s.setLong(8,recipe.siteCapacity());s.executeUpdate();
+        }
+        saveRecipeFlows(operation,"INPUT",recipe.inputs(),plan.consumed());
+        saveRecipeFlows(operation,"OUTPUT",recipe.outputs(),plan.produced());
+        store(business).orElseThrow();return recipeRun(operation).orElseThrow();
     }
+
     private void saveRecipeFlows(UUID operation,String direction,Map<Commodity,Long> perBatch,Map<Commodity,Long> amounts) throws SQLException {
         try(var s=connection.prepareStatement("INSERT INTO recipe_flows VALUES(?,?,?,?,?)")) {
             for(var e:new TreeMap<>(perBatch).entrySet()) {
