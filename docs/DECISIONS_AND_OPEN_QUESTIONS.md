@@ -1,5 +1,31 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 9, 2026 — approved industry development direction
+
+User approved bounded, paid exploration that can fail and stops for reassessment;
+structured mine networks (main haul tunnels/shafts/branches), terrain/hazard/player
+protection constraints; finite newly discovered reserves distinct from no-refill
+revisits; timed extraction with editable material resistance and abundance separate
+from trade value. Apply suitable locations, non-1:1 output and bounded development
+to all industries, preserving crop/tree renewal rather than mineral regeneration.
+
+Business closure retains sites, workings and history. Later physical damage can
+alter structures without deleting identity; no autonomous disaster behavior is
+enabled now. No guaranteed or uniformly distributed industries: feasible geography,
+demand, skills, capital and limited labor create specialization and later diversity.
+
+Stone quarries and sand pits are primary resource industries. Reserves should grow
+with actual expected demand, funded projects and an editable safety margin. Surplus
+disposal is a proposed explicit capacity/labor-limited cost, never paid demand;
+protect essentials/player goods and prefer actual use, trade and storage. Lava
+incinerators remain a physical proposal, not an implemented industry or final recipe.
+
+Nearby workplaces should show actual saved employed residents with schedules and
+configurable visibility, not duplicate decorative workers. Phase 3 supplies business
+and resource rules; Phase 4 supplies physical excavation/layouts/work points; regional
+transport remains Phase 5 and physical deterioration/disasters follow later gates.
+The canonical nine-phase roadmap is unchanged. See PHASE3_TODO.md.
+
 ## October 9, 2026 — approved exposed existing ore prototype
 
 The user answered: "Allow exposed existing ore." Exposed pre-existing coal/iron

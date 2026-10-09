@@ -98,6 +98,17 @@ restoring server data has not been performed by this development batch.
 
 ## Manual automatic-farm native fixture
 
+The latest WorkshopProductionProbe also calls ExposedOreProbeSupport after its
+marked disposable-server guard. It waits for a loaded chunk; on the empty server,
+use console `execute in minecraft:overworld run forceload add 0 0` only in this
+verified disposable environment, and remove that ticket immediately after the
+check with `execute in minecraft:overworld run forceload remove 0 0`. Compile both
+test source files together. Six temporary ore/air blocks are restored in finally
+and checked before the captured snapshot is scanned. Production scans do not force
+chunks or edit blocks. The separate probe DB tests persistent placement exclusions,
+stale-survey rejection and unchanged finite reserves/claims after restart. No live
+placement listener or automatic mine discovery is activated. See RESOURCE_PROVENANCE.md.
+
 WorkshopProductionProbe under the same test-only directory is a separate guarded
 plugin, main/name WorkshopProductionProbe/CivilizationsWorkshopProbe with the same
 API version and Civilizations dependency. Compile it against binary dependency JARs

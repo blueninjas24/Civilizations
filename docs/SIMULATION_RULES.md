@@ -26,6 +26,16 @@ These are design contracts, **not finalized numeric tuning values**. Avoid hardc
   actual recorded arrival. No fake shopper or unexplained stock deletion is a
   substitute for household, industry or maintenance demand. Ratios remain editable.
 
+October 9 approved industry direction: timed work, suitable evidence-backed sites
+and editable abstract yields apply across industries. Crop/tree renewal is distinct
+from finite minerals/stone/sand. Exploration spends limited work and can fail; hidden
+geology is revealed only through actual exploration, not omniscient planning.
+Expected real demand/funded projects plus an editable margin drive useful reserves;
+disposal cannot invent income or customers. Closed businesses retain site/history.
+Material resistance changes work cost, deposit yield changes finite abundance and
+base value changes price; none silently changes saved old deposits. Physical mine
+layouts, excavation, hazards and nearby work-point activity require later adapters.
+
 ## Decision Engine
 1. Gather observable pressures/opportunities and prerequisites.
 2. Generate feasible candidate actions (build housing, import grain, expand mine, repair bridge, do nothing, etc.).

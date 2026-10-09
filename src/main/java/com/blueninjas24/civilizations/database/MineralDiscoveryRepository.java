@@ -40,6 +40,9 @@ public final class MineralDiscoveryRepository {
         }
     }
     private Discovery discoverRows(UUID site,MineralObservation observation,long rate,Map<Commodity,Long> bundle) throws SQLException {
+        var placements=new OrePlacementRepository(connection);
+        for(var position:observation.ore())if(placements.excludes(observation.world(),position))
+            throw new SQLException("Survey includes tracked player-placed ore; refresh resource evidence before discovery");
         try(var s=connection.prepareStatement("SELECT world_id FROM business_sites WHERE id=?")) {
             s.setString(1,site.toString());try(var r=s.executeQuery()) {
                 if(!r.next() || !r.getString(1).equals(observation.world().toString()))throw new SQLException("Discovery world must match registered site");

@@ -33,6 +33,18 @@ class PopulationSessionTest {
                 new VillageObservation.Person(new UUID(0, 12), secondBed, true, "Second")));
     }
     private static <T> T await(CompletableFuture<T> result) throws Exception { return result.get(5, TimeUnit.SECONDS); }
+    @Test void placementOwnerSavesBeforeTownEnrollmentAndDrainsAtShutdown() throws Exception {
+        var world=UUID.randomUUID(); var position=new VillageObservation.Position(-1,-60,-1);
+        var evidence=new java.util.ArrayList<>(List.of(position));
+        var session=session(settings(2,12));await(session.start(false));
+        var saved=session.recordOrePlacements(world,"Unenrolled world",evidence,1000);
+        evidence.clear();session.close();assertEquals(1,await(saved));
+        try(var reopened=session(settings(2,12))) {
+            await(reopened.start(false));
+            assertEquals(java.util.Set.of(position),await(reopened.orePlacementsInChunk(world,-1,-1,512)));
+            assertTrue(reopened.settlementNames().isEmpty());
+        }
+    }
     @Test void acceptedShutdownDeathBatchDrainsBeforeDatabaseClose() throws Exception {
         var observation = observed();
         var session = session(settings(2, 12));

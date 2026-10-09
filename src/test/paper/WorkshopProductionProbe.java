@@ -14,12 +14,26 @@ import java.util.concurrent.*;
 public final class WorkshopProductionProbe extends JavaPlugin {
     private ExecutorService owner;
     @Override public void onEnable() {
+        new BukkitRunnable() {
+            private int attempts;
+            @Override public void run() {
+                if(getServer().getWorlds().isEmpty() || getServer().getWorlds().getFirst().getLoadedChunks().length==0) {
+                    if(++attempts<60)return;
+                    getLogger().severe("Native fixture needs a console-loaded disposable test chunk; no chunk forced by probe");
+                    cancel();getServer().getPluginManager().disablePlugin(WorkshopProductionProbe.this);return;
+                }
+                cancel();beginProbe();
+            }
+        }.runTaskTimer(this,20,20);
+    }
+    private void beginProbe() {
         try {
             var root=getServer().getWorldContainer().toPath().toRealPath();
             if(!Files.readString(root.resolve("civilizations-dev-marker.txt")).trim().equals("Disposable Civilizations Phase 1 test environment")
                     || !getServer().getIp().equals("127.0.0.1") || getServer().getPort()!=25577 || !getServer().getOnlinePlayers().isEmpty())
                 throw new IllegalStateException("Probe requires marked localhost disposable server without players");
             var world=getServer().getWorlds().getFirst();var worldId=world.getUID();var worldName=world.getName();
+            ExposedOreProbeSupport.verify(world);
             var folder=new java.io.File(getDataFolder(),"run-"+UUID.randomUUID());
             owner=Executors.newSingleThreadExecutor(r->{var thread=new Thread(r,"Civilizations-workshop-probe-SQL-owner");thread.setDaemon(true);return thread;});
             var result=CompletableFuture.runAsync(()-> {
@@ -29,7 +43,7 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             new BukkitRunnable() {
                 @Override public void run() {
                     if(!result.isDone())return;
-                    try {result.join();getLogger().info("NATIVE MINERAL IDENTITY PASS: coordinate discovery, overlapping survey without refill, paid workshop chain, replay and restart passed");}
+                    try {result.join();getLogger().info("NATIVE RESOURCE PROVENANCE PASS: restored real snapshot exposure/exclusion, saved placement rejection, no refill, paid workshop chain and restart passed");}
                     catch(CompletionException failure){getLogger().log(java.util.logging.Level.SEVERE,"NATIVE WORKSHOP FAIL",failure.getCause());}
                     cancel();getServer().getPluginManager().disablePlugin(WorkshopProductionProbe.this);
                 }
@@ -61,6 +75,18 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             var revisit=minerals.discover(mine.siteId(),linked,500,yields);
             if(revisit.created() || revisit.deposit().initialBatches()!=20 || revisit.deposit().remainingBatches()!=16 || minerals.claimedBlocks(deposit)!=5)
                 throw new IllegalStateException("Overlapping survey refilled/replaced deposit");
+            var placed=new com.blueninjas24.civilizations.settlement.VillageObservation.Position(2053,40,2048);
+            var placements=new OrePlacementRepository(db.getConnection());
+            if(placements.record(world,List.of(placed),3)!=1 || placements.record(world,List.of(placed),4)!=0)
+                throw new IllegalStateException("Placement replay mismatch");
+            try {
+                minerals.discover(mine.siteId(),new MineralObservation(world,5,true,Commodity.IRON,List.of(ore.getLast(),placed)),5,yields);
+                throw new IllegalStateException("Saved placed ore was accepted as geological evidence");
+            } catch(java.sql.SQLException expected) {
+                if(!expected.getMessage().contains("player-placed"))throw expected;
+            }
+            if(minerals.claimedBlocks(deposit)!=5 || industry.deposit(deposit).orElseThrow().remainingBatches()!=16)
+                throw new IllegalStateException("Rejected placement changed claims/depletion");
             for(var e:Map.of(Commodity.IRON,4L,Commodity.COAL,2L).entrySet()) {
                 var a=industry.purchase(UUID.randomUUID(),mine.id(),warehouse.id(),e.getKey(),e.getValue(),100*e.getValue(),0,1,128);industry.deliver(a.id(),1);
                 var b=industry.purchase(UUID.randomUUID(),warehouse.id(),smith.id(),e.getKey(),e.getValue(),200*e.getValue(),1,1,128);industry.deliver(b.id(),2);
@@ -84,6 +110,8 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             if(!saved.equals(industry.recipeRun(operation).orElseThrow()) || industry.store(smithId).orElseThrow().units().get(tools)!=2)
                 throw new IllegalStateException("Restart lost recipe history or tools");
             var minerals=new MineralDiscoveryRepository(db.getConnection());
+            if(!new OrePlacementRepository(db.getConnection()).excludes(world,new com.blueninjas24.civilizations.settlement.VillageObservation.Position(2053,40,2048)))
+                throw new IllegalStateException("Restart lost placed-ore exclusion");
             if(minerals.claimedBlocks(deposit)!=5 || minerals.findAt(world,new com.blueninjas24.civilizations.settlement.VillageObservation.Position(2052,40,2048)).orElseThrow().remainingBatches()!=16)
                 throw new IllegalStateException("Restart lost coordinate identity or finite depletion");
         } finally {db.close();}

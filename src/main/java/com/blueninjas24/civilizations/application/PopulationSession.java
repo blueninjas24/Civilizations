@@ -235,6 +235,28 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Boolean> claimProjection(UUID person, UUID world, UUID entity, UUID household, VillageObservation.Position position) {
         return projectionWork(() -> database.getResidentProjectionRepository().claim(person, world, entity, household, position));
     }
+    /** Immutable placement evidence is saved on the same owner as discovery, including worlds without towns. */
+    public CompletableFuture<Integer> recordOrePlacements(UUID world, String worldName,
+            java.util.Collection<VillageObservation.Position> positions, long observedMillis) {
+        var frozen = List.copyOf(positions);
+        java.util.Objects.requireNonNull(world); java.util.Objects.requireNonNull(worldName);
+        return submit(() -> {
+            requireReady();
+            database.getVillageIdentityRepository().observeWorld(world,worldName);
+            return new com.blueninjas24.civilizations.database.OrePlacementRepository(database.getConnection())
+                    .record(world,frozen,observedMillis);
+        });
+    }
+
+    public CompletableFuture<java.util.Set<VillageObservation.Position>> orePlacementsInChunk(UUID world,
+            int chunkX, int chunkZ, int maximumPositions) {
+        return submit(() -> {
+            requireReady();
+            return new com.blueninjas24.civilizations.database.OrePlacementRepository(database.getConnection())
+                    .inChunk(world,chunkX,chunkZ,maximumPositions);
+        });
+    }
+
     public CompletableFuture<Void> observeFarms(FarmObservation observation) {
         return submit(() -> {
             requireReady(); if (economy == null) throw new IllegalStateException("Economy not enabled in this session");

@@ -5,11 +5,11 @@ import java.util.Objects;
 import org.bukkit.ChunkSnapshot;
 
 /** Read-only snapshot adapter. Caller captures already-loaded chunks on Paper's main thread. */
-final class PaperOreSource implements OreScan.Source {
+public final class PaperOreSource implements OreScan.Source {
     private final ChunkSnapshot snapshot;
     private final int minimumY, maximumY;
 
-    PaperOreSource(ChunkSnapshot snapshot, int minimumY, int maximumY) {
+    public PaperOreSource(ChunkSnapshot snapshot, int minimumY, int maximumY) {
         if (minimumY >= maximumY) throw new IllegalArgumentException("Invalid world height");
         this.snapshot = Objects.requireNonNull(snapshot);
         this.minimumY = minimumY; this.maximumY = maximumY;

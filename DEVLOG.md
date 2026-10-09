@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## Persistent resource provenance and Phase 3 checklist — October 9, 2026
+
+- Recorded approved industry direction across suitable resource areas, limited
+  exploration, timed extraction/yields, demand-based reserves, stone/sand industries,
+  retained closed sites and actual nearby employees. Canonical nine phases unchanged;
+  physical workings/scenery still later. Added PHASE3_TODO.md with honest live gates.
+- Schema 33 adds sticky player placement coordinates. OrePlacementRepository saves
+  bounded batches atomically, preserves first timestamps and refuses truncated chunk
+  reads. Owner-session APIs copy/queue evidence and drain accepted shutdown work.
+  Discovery rejects saved placements inside the same transaction as resource claims.
+- Eight new temporary-DB/session cases plus stronger unknown-neighbor scan coverage.
+  Focused test accessor compile error corrected. Final Windows Wrapper clean verify
+  passed 605 (603 unit/two packaged integration), zero failures/errors/skips.
+- Consistent marked-dev backup before schema 33. Empty server initially had no loaded
+  chunk; fixture refused safely. Revised test-only probe waits for explicit console
+  chunk loading. Real positive snapshot/exclusion passed with six original blocks
+  restored/checked; separate DB passed saved placement rejection/restart, five claims,
+  20/16 finite reserve, paid processing and two tools. Production source remains
+  read-only; no automatic observer/placement listener/mine behavior enabled.
+- Removed test loading ticket; normal stop exit zero, no diagnostic failure, absent
+  interval retained month 1667 and online advanced 1668. Read-only old IDs/industry/
+  funds, empty main exclusions, integrity/FKs and owner-config hash passed. Corrected
+  audit to total tools across stores. Probe archived and excluded from production JAR.
+- Guides/status/progress updated; Phase 3 stays 1/4 (25%). Next: crash-safe live capture
+  and actual industry opportunity/operation bridge. Asked consequential ownership
+  succession preference independently; no answer assumed. Local feature commit only,
+  no push/merge/main or production mutation. Human playtesting remains pending.
+
 ## Approved exposure policy and bounded ore scans — October 9, 2026
 
 - Recorded user answer "Allow exposed existing ore": accept unknown old origin as

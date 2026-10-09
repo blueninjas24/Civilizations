@@ -66,7 +66,8 @@ unknown; the approval accepts this limitation without granting block rights.
 OreScan and PaperOreSource now implement bounded snapshot classification and
 six-face air exposure, with supplied exclusion coordinates and conservative partial
 survey handling. They are not registered runtime observers. Durable placement
-tracking, coherent deposit grouping, live scheduling, per-mineral tuning and
+exclusion storage and transactional discovery rejection now exist; live capture,
+coherent deposit grouping, live scheduling, per-mineral tuning and
 automatic mine founding/operation remain subsequent work. See
 EXPOSED_ORE_SCANNING.md and DECISIONS_AND_OPEN_QUESTIONS.md.
 

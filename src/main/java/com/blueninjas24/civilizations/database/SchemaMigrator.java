@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 32;
+    static final int CURRENT_VERSION = 33;
 
     @FunctionalInterface
     interface Migration {
@@ -339,6 +339,18 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX mineral_evidence_by_deposit ON mineral_evidence(deposit_id)");
+                },
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE player_ore_placements (
+                                world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                                x INTEGER NOT NULL CHECK(typeof(x)='integer'),
+                                y INTEGER NOT NULL CHECK(typeof(y)='integer'),
+                                z INTEGER NOT NULL CHECK(typeof(z)='integer'),
+                                observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                                PRIMARY KEY(world_id,x,y,z)
+                            )
+                            """);
                 }
         ));
     }
@@ -465,6 +477,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"mineral_discovery",Set.of("deposit_id","world_id","mineral","observed_millis"));
                 requireColumns(connection,"mineral_evidence",Set.of("world_id","deposit_id","x","y","z","observed_millis"));
             }
+            if(migrations.size()>=33)requireColumns(connection,"player_ore_placements",Set.of("world_id","x","y","z","observed_millis"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

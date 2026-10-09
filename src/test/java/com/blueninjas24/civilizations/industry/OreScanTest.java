@@ -60,7 +60,7 @@ class OreScanTest {
         for (boolean unknownCell : List.of(true,false)) {
             OreScan.Source source = (x,y,z) -> {
                 if (x == 4 && y == 0 && z == 4) return unknownCell ? UNKNOWN : COAL;
-                if (!unknownCell && x == 5 && y == 0 && z == 4) return UNKNOWN;
+                if (!unknownCell && x == 4 && y == -1 && z == 4) return UNKNOWN;
                 return SOLID;
             };
             var result = finish(new OreScan(source,0,0,0,1,Set.of()),256);

@@ -34,8 +34,9 @@ Cell budgets bound calls, not a hard CPU deadline or snapshot-capture time.
 
 This batch provides scanner components, not automatic mining. No observer, block
 placement listener or scheduler is registered. Exclusion sets are supported but
-durable player-placement records are not yet implemented. Until that protection
-is connected, automatic ore opportunities remain disabled.
+durable player-placement records now exist (see RESOURCE_PROVENANCE.md). Their
+live placement capture and crash-safe pending-write protection are not yet
+connected, so automatic ore opportunities remain disabled.
 
 A chunk survey is not a geological deposit. The next adapter must form coherent
 bounded opportunities, resolve saved coordinates/sites first and reject conflicts.
@@ -55,6 +56,8 @@ border exposure, mixed-mineral overflow, the exact 512 boundary, empty evidence,
 retry after read failure and invalid/unfinished requests. Snapshot-adapter tests
 cover both ore variants, all air variants, fluids/unsupported ores, absolute
 negative Y and unavailable-boundary reads. These are automated component checks;
-an actual live Paper ore scan has not yet been verified. Windows Wrapper
+the initial component batch did not run a native Paper scan. The subsequent
+RESOURCE_PROVENANCE.md fixture verified real snapshot exposure/exclusion after
+restoring all test blocks; live automatic discovery remains unfinished. Windows Wrapper
 `.\mvnw.cmd clean verify -B -ntp` passed 597 tests (595 unit/two packaged integration),
 zero failures/errors/skips, including eleven new scanner/adapter cases.

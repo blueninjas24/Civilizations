@@ -62,6 +62,21 @@
 - Founding requires plausible working age, skill/experience, capital/resources and opportunity. Businesses can thrive, compete abstractly, expand, shrink, close, change owners, pass to family/employees, relocate or be repurposed.
 - Rare multi-settlement firms can emerge as significant historical exceptions. Closed buildings remain for reuse, preservation, decay or demolition.
 
+### October 9 industry development clarification
+
+Resource development is bounded and suitable to its location across industries,
+with editable non-1:1 yields and timed work. Exploration can fail and must reassess
+within labor/material/distance budgets; miners do not know hidden ore locations.
+Newly discovered finite reserves differ from refilling old deposits. Material
+resistance, geological yield and price are separate settings. Stone quarries and
+sand pits can be primary industries. Useful reserves grow with real expected demand
+and funded work, within finite storage. Industry mixes emerge from opportunity,
+history and competition for capital/labor, not rigid biome classes or a guaranteed
+checklist. Nearby workplace activity uses actual saved employees. Mine layouts,
+entrances/supports and work points are Phase 4; regional transport is Phase 5;
+retained business/site history survives closure and later physical deterioration.
+These clarify planned behavior, not features already implemented by the scanner.
+
 ## Construction and physical development
 - Loop: need→proposed project→site evaluation→funding/materials/labor→visible staged construction→active use.
 - Use authored structure templates with rotation/mirroring, palette/style variants, terrain/foundation adaptation and entrance/road metadata; do not generate arbitrary architecture from Java.

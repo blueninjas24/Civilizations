@@ -2,6 +2,46 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Resource provenance persistence and industry direction — October 9, 2026
+
+- Branch `codex/phase3-resource-provenance`: recorded user-approved common industry
+  direction: suitable sites, paid bounded exploration, timed non-1:1 output,
+  resistance/yield/value separation, finite stone/sand industries, useful demand-based
+  reserves, retained closed sites/history and nearby real employees. MASTER_DESIGN,
+  SIMULATION_RULES and decisions clarify planned behavior without changing ROADMAP.
+  PHASE3_TODO.md separates verified components from missing live gameplay gates.
+- Schema 33 adds permanent-world/XYZ player_ore_placements. Bounded transactional
+  batches are sticky and idempotent; first timestamps survive replay/restart/rename.
+  Immutable chunk reads fail on budget overflow instead of admitting missing
+  exclusions. PopulationSession queues copied evidence on its SQL owner even before
+  a town exists; accepted writes drain at normal shutdown. No player identity stored.
+- Coordinate discovery checks exclusions inside its transaction, rejecting stale
+  or bypassed surveys entirely without partial reserves, altered claims or erased
+  history. Legacy site-only API is still trusted, not suitable for automatic scans.
+- Eight new cases (five temporary repository, two discovery, one owner-session),
+  plus stronger uncertain-neighbor coverage. Windows `.\mvnw.cmd clean verify -B
+  -ntp` passed **605** (603 unit/two packaged integration), zero failures/errors/skips.
+  Initial focused compilation used a nonexistent snapshot accessor in a new test;
+  corrected to the existing settlementNames API. Final full run followed the public
+  read-only PaperOreSource adapter change for the separate native fixture.
+- Consistent marked-dev schema-32 backup preceded schema-33 startup. Initial native
+  probe correctly refused when no chunks were loaded; test-only probe now waits for
+  a console-loaded fixture chunk. Positive real snapshot scan/exclusion passed after
+  six original blocks were restored and checked. Its separate SQL-owner DB passed
+  sticky placement/rejection/restart, unchanged five claims/20 initial/16 remaining
+  reserves, paid chain and two tools. No production listener/automatic mine enabled.
+- Test loading ticket removed, probe archived outside plugins, server stopped with
+  exit zero. Main diagnostics showed no failure and offline restart retained month
+  1667; online progress reached 1668. Read-only old identities/industry/funds retained,
+  no main placements invented, integrity/FKs valid and owner config hash unchanged.
+  Read-only tool audit corrected arbitrary-first-store selection to total stock.
+  The synthetic fixture is not natural discovery or a human-client gameplay check.
+- Updated RESOURCE_PROVENANCE/scanning/mineral/development guides, TODO, status,
+  progress and devlog. Phase 3 remains 1/4 (25%). Next: crash-safe live placement
+  capture, coherent resource opportunities, automatic funded staffing/production.
+  Ownership succession preference was asked separately; no answer assumed. Physical
+  works remain Phase 4; no merge/push, main or production save changes.
+
 ## Approved exposed ore and bounded scanner — October 9, 2026
 
 - Branch `codex/phase3-exposed-ore-scan`: user approved exposed existing ore as

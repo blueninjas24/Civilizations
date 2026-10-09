@@ -100,6 +100,22 @@ class MineralDiscoveryTest {
         assertEquals(4,discovery.claimedBlocks(saved.deposit().id()));assertEquals(saved.deposit(),db.getIndustryRepository().deposit(saved.deposit().id()).orElseThrow());
         sql("DROP TRIGGER fail_extension");assertEquals(1,discovery.discover(mine.siteId(),observation(20,3,4),2,BUNDLE).addedEvidence());
     }
+    @Test void savedPlacementRejectsStaleOrBypassedScanWithoutMintingPartialReserves() throws Exception {
+        new OrePlacementRepository(db.getConnection()).record(world,List.of(new VillageObservation.Position(2,40,0)),10);
+        assertThrows(SQLException.class,()->first());
+        assertEquals(0,count("mineral_deposits"));assertEquals(0,count("mineral_evidence"));
+        assertTrue(db.getConnection().getAutoCommit());
+        var clean=discovery.discover(mine.siteId(),observation(20,0,1,3),2,BUNDLE);
+        assertEquals(6,clean.deposit().initialBatches());assertEquals(3,clean.addedEvidence());
+    }
+    @Test void placementAfterDiscoveryDoesNotEraseHistoryOrRefillAndBlocksLaterClaimExtension() throws Exception {
+        var saved=first();db.getIndustryRepository().mine(UUID.randomUUID(),mine.id(),saved.deposit().id(),4,0,8,8);
+        var remaining=db.getIndustryRepository().deposit(saved.deposit().id()).orElseThrow();
+        new OrePlacementRepository(db.getConnection()).record(world,List.of(new VillageObservation.Position(4,40,0)),15);
+        assertThrows(SQLException.class,()->discovery.discover(mine.siteId(),observation(20,3,4),2,BUNDLE));
+        assertEquals(remaining,db.getIndustryRepository().deposit(saved.deposit().id()).orElseThrow());
+        assertEquals(4,discovery.claimedBlocks(saved.deposit().id()));assertEquals(saved.deposit().id(),discovery.findAt(world,new VillageObservation.Position(3,40,0)).orElseThrow().id());
+    }
     @Test void schema31UpgradeFailureRollsBackAndDoesNotBackfillLegacyClaims() throws Exception {
         first();SchemaFixtures.rewind(db.getConnection(),31);sql("CREATE TABLE mineral_evidence(bad TEXT)");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
