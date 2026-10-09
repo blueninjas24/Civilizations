@@ -69,3 +69,9 @@ barter, transportation, food-driven mortality, reputation or autonomous purchase
 implemented by this feature. Human-client UX, broad compatibility and scale profiling
 remain separate checks. SQLite schema stays 18: existing people, histories, reserves
 and receipt ledgers remain intact.
+
+
+Food appeals now appear in the supplies menu when a village selects SEEK_FOOD.
+You can read the report with an empty hand; reopen holding plain supported food
+for the donation button. Reading/clicking report cards never transfers inventory.
+See FOOD_APPEALS.md for saved-period, pending-delivery and outcome limits.

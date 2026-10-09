@@ -35,8 +35,8 @@ homes, with seeded choices and readable explanations. Actual purchase/building e
 remains pending. See [village priorities](docs/VILLAGE_PRIORITIES.md).
 
 Explicit food delivery accounting now supports saved, retry-safe supplies that
-relieve shortages in future periods. This prepares the backend for player aid;
-player inventory transfers and donation commands remain pending. See
+relieve shortages in future periods. Confirmed player menu donations now feed this
+accounting; `/civ aid` remains a read-only preview. See
 [food delivery scope](docs/FOOD_RELIEF.md).
 
 Players can now hold plain food near a village and use `/civ aid` to preview its
@@ -49,6 +49,11 @@ held food** to give that stack to the village. Normal vanilla trading stays avai
 A saved recovery receipt prevents credit before verified inventory saving. Existing
 owner configs must opt in with `donations.enabled: true`; new configs include it.
 See [food donations and recovery](docs/FOOD_DONATIONS.md). No payout/barter yet.
+
+Villages that choose to seek food now display a voluntary appeal with their latest
+shortage. Sneak-right-click even with an empty hand to read it; reopen holding plain
+food to donate. Appeals remember changing conditions and close after recovery.
+See [village food appeals](docs/FOOD_APPEALS.md).
 
 ## Core Philosophy
 

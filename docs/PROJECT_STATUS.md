@@ -1,6 +1,34 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and conserved food allocation, saved planning priorities, explicit delivery accounting and confirmed player food donations are implemented; treasury accounting is prepared, while funding, complete wellbeing and response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and conserved food allocation, saved planning priorities, explicit delivery accounting, confirmed player food donations and voluntary food appeals are implemented; treasury accounting is prepared, while funding, complete wellbeing and broader response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+
+## Voluntary village food appeals — October 8, 2026
+
+- Branch `codex/phase2-village-food-appeals`: a selected SEEK_FOOD priority now
+  publishes the actual latest-period deficit in Village supplies. Empty-hand or
+  unsupported/custom-item viewing is read-only; reopen with plain food for the
+  existing confirmation. Disabled transfers/permissions retain a protected button.
+- New period snapshots retain OPEN/NONE/RESOLVED/WITHDRAWN status, observed pressure
+  improvement/worsening, actual production/imports and the governing priority review.
+  Pending deliveries are separate; queued catch-up is disclosed. No invented quest
+  target, payout, stock creation, supplier or building consent. Recovery observations
+  do not prove the appeal caused it and do not train weights without attribution.
+- Schema 20 transactionally adds food_appeals without backfilling past observations.
+  Appeal save failure rolls back stocks, needs, priority and receipt use together;
+  restart preserves exact history. No production reset or owner config rewrite.
+- Twelve added cases; final Windows Wrapper `clean verify -B -ntp` passed 357 tests
+  (355 unit/two packaged integration), zero failures/errors/skips. Includes all appeal
+  states, mixed/conflicting evidence, non-causal local-production recovery, a repeated
+  1,200-period scenario, temporary-SQLite restart, upgrade and write rollback/retry.
+- Disposable native Paper checks passed empty-hand report/card and protected click,
+  actual confirmed player-file debit, famine appeal across restart, recovery with
+  twelve real imported food units and no duplicate receipt. Farm/unloaded checks
+  still passed. Normal single-plugin startup/status/shutdown passed; no forced chunks.
+- Consistent confirmed-dev schema-19 backup first; schema 20 integrity/FKs verified.
+  All original settlement/resident/household IDs and family/entity links retained.
+  Production JAR excludes probes/JUnit. Human client UX and scale profiling remain
+  pending. Treasury funding/spending, paid trade/barter, broader action feasibility
+  and attributable outcome feedback remain ahead. Phase 2 stays 1/4 full groups.
 
 ## Household food allocation — October 8, 2026
 

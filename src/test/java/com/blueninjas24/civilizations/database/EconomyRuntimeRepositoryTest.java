@@ -244,4 +244,36 @@ class EconomyRuntimeRepositoryTest {
         sql("SELECT unassigned_demand FROM needs_periods");
     }
 
+    @Test void foodAppealSurvivesRestartAndDeliveryClosesItWithObservedInputs() throws SQLException {
+        observe(1000,true,0);for(int period=1;period<=10;period++)runtime.pulse(1000L+1000L*period,false);
+        var appeal=runtime.views().get(town).appeal();assertEquals(FoodAppeals.Status.OPEN,appeal.status());assertEquals(5,appeal.unmet());
+        db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();runtime=runtime(settings);
+        assertEquals(appeal,runtime.views().get(town).appeal());
+        runtime.recordDeliveredFood(UUID.randomUUID(),town,20,"Appeal relief",11000);runtime.pulse(12000,false);
+        var closed=runtime.views().get(town).appeal();assertEquals(FoodAppeals.Status.RESOLVED,closed.status());assertEquals(20,closed.imports());assertEquals(0,closed.production());
+        assertEquals(appeal,new FoodAppealRepository(db.getConnection()).load(town,10).orElseThrow());
+    }
+    @Test void appealWriteFailureRollsBackFoodNeedsPrioritiesAndDeliveryUse() throws SQLException {
+        observe(1000,true,0);var operation=UUID.randomUUID();runtime.recordDeliveredFood(operation,town,20,"Appeal rollback",1000);
+        sql("CREATE TRIGGER reject_appeal BEFORE INSERT ON food_appeals BEGIN SELECT RAISE(ABORT,'injected'); END");
+        assertThrows(SQLException.class,()->runtime.pulse(2000,false));var view=runtime.views().get(town);
+        assertEquals(0,view.account().state().completedPeriods());assertNull(view.needs());assertNull(view.priority());assertNull(view.appeal());
+        assertNull(new FoodDeliveryRepository(db.getConnection()).find(operation).orElseThrow().appliedPeriod());
+        sql("DROP TRIGGER reject_appeal");runtime.pulse(2000,false);assertEquals(1,runtime.views().get(town).appeal().period());
+        assertEquals(51,runtime.views().get(town).account().state().stocks().get(Commodity.FOOD).units());
+    }
+    @Test void schema19UpgradeDoesNotInventAppealHistory() throws SQLException {
+        observe(1000,true,0);runtime.pulse(2000,false);var old=runtime.views().get(town).needs();
+        SchemaFixtures.rewind(db.getConnection(),19);new SchemaMigrator().migrate(db.getConnection());
+        assertNull(runtime.views().get(town).appeal());assertEquals(old,runtime.views().get(town).needs());
+        runtime.pulse(3000,false);assertEquals(2,runtime.views().get(town).appeal().period());
+    }
+    @Test void failedAppealMigrationPreservesVersionAndRetriesAfterRepair() throws SQLException {
+        SchemaFixtures.rewind(db.getConnection(),19);sql("CREATE TABLE food_appeals (bad_column TEXT)");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertTrue(r.next());assertEquals(19,r.getInt(1));}
+        sql("DROP TABLE food_appeals");new SchemaMigrator().migrate(db.getConnection());
+        sql("SELECT priority_period FROM food_appeals");
+    }
+
 }

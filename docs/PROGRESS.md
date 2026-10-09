@@ -67,7 +67,8 @@ aside, and only a verified saved debit credits future supplies.
 Villages now choose and save an explainable priority: seek food, investigate
 observed crowding, or monitor. Seeded selection filters infeasible/irrelevant options,
 reviews on a bounded cadence and reconsiders when pressures appear or clear. These
-are planning intentions, not executed purchases or building permissions.
+now include voluntary food appeals in the village menu, with saved shortage-change
+and resolution evidence. Purchases and building permissions remain unimplemented.
 
 ### Phase 2 detail — see progress inside unfinished groups
 
@@ -75,13 +76,13 @@ are planning intentions, not executed purchases or building permissions.
 |---|---|---|
 | Supplies and shortages — complete | Commodity accounting, saved reserves/history, duration/recovery, long crisis fixtures | Complete as an accounting foundation |
 | Labor, treasury and wellbeing — partial | Field-backed adult production, food clock, household demand/housing snapshots, conserved family food shares and recovery streaks, explicit treasury ledger | Actual funding/spending integration, fuller wellbeing and economic effects |
-| Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery | Executing feasible economic responses and learning weights from actual outcomes |
+| Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery, player-readable food appeals and saved observed outcomes | Purchases/other feasible responses and learning weights from attributable outcomes |
 | Player economy and stability — partial | Configurable scarcity prices, long shortage/recovery tests and explicit delivery accounting plus `/civ aid` previews and confirmed menu donations with saved recovery | Paid trade/barter, budget/stock effects and integrated economy balance tests |
 
 Completed pieces in a partial group are real progress. The top bar counts whole
 reporting groups, so it remains 1/4 (25%); it does not measure coding hours or all
 partial work. It will advance when a full group and its acceptance gate are verified.
-See FOOD_DONATIONS.md, PLAYER_FOOD_AID.md, FOOD_RELIEF.md, VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
+See FOOD_APPEALS.md, FOOD_DONATIONS.md, PLAYER_FOOD_AID.md, FOOD_RELIEF.md, VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
 HOUSEHOLD_NEEDS_AND_TREASURY.md and ECONOMY_TUNING.md.
 
 ## Phase 3 — planned

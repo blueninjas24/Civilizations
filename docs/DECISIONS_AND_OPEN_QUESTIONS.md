@@ -218,3 +218,15 @@ alternative rationing strategy and any demographic or prosperity consequences re
 future decisions. Current allocation is diagnostic and never claims physical meals.
 Schema 19 preserves earlier allocation as unknown and records forward unmet streaks.
 See HOUSEHOLD_NEEDS_AND_TREASURY.md for tie bias and other limits.
+
+## October 8, 2026 — voluntary village food appeals
+
+A selected SEEK_FOOD priority now exposes the actual unmet units from its latest
+completed period in the existing village supplies menu. This scoped response uses
+approved prototype food needs, priority weights and donation behavior; it chooses
+no new payment, supplier, reserve target or demographic rule. Empty-hand viewing
+is informational and cannot debit items. Schema 20 retains each new period's appeal
+and observed pressure change, imports and production. Resolved pressure is not
+claimed as causal success, and does not silently train decision weights. Paid trade,
+actual village funding and adaptive outcome scoring remain separate future work.
+See FOOD_APPEALS.md for observation/history and paused/catch-up limits.

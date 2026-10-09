@@ -9,7 +9,7 @@ import java.util.*;
 /** Single SQL-owner food runtime. Saved clocks, evidence and period effects; no Bukkit access. */
 public final class EconomyRuntimeRepository {
     public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods,
-                       HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority, FoodAid foodAid) {}
+                       HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority, FoodAid foodAid, FoodAppeals.Snapshot appeal) {}
     public record FoodAid(long pendingDeliveries, long nextPeriodUnits) {}
     private record Clock(long cadence, CivilizationTime.Anchor anchor, String settings, long completed) {}
     private final Connection connection;
@@ -140,7 +140,10 @@ public final class EconomyRuntimeRepository {
         var needs = new HouseholdNeedsRepository(connection);
         var assessment = HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings, needs.load(town, nextPeriod - 1).orElse(null));
         needs.save(assessment);
-        new VillagePriorityRepository(connection).consider(assessment,seed,priorities);
+        var decisions=new VillagePriorityRepository(connection);decisions.consider(assessment,seed,priorities);
+        var appeals=new FoodAppealRepository(connection);
+        var food=period.reports().stream().filter(report->report.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
+        appeals.save(FoodAppeals.observe(assessment,decisions.latest(town).orElseThrow(),food,appeals.load(town,nextPeriod-1).orElse(null)));
         deliveries.apply(incoming,nextPeriod);
         return true;
     }
@@ -153,7 +156,8 @@ public final class EconomyRuntimeRepository {
             result.put(town, new View(account, farm(town), latest, clock(town).anchor().targetSteps() - account.state().completedPeriods(),
                     new HouseholdNeedsRepository(connection).load(town, account.state().completedPeriods()).orElse(null),
                     new TreasuryRepository(connection).load(town).orElse(null),new VillagePriorityRepository(connection).latest(town).orElse(null),
-                    new FoodAid(pending.deliveries(),pending.eligibleNextPeriodUnits())));
+                    new FoodAid(pending.deliveries(),pending.eligibleNextPeriodUnits()),
+                    new FoodAppealRepository(connection).load(town, account.state().completedPeriods()).orElse(null)));
         }
         return Collections.unmodifiableMap(result);
     }

@@ -31,6 +31,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private Result famine;
     private HouseholdNeeds.Assessment famineNeeds;
     private VillagePriorities.Decision faminePriority;
+    private FoodAppeals.Snapshot famineAppeal;
     private UUID reliefOperation;
     private com.blueninjas24.civilizations.application.PendingFoodAid donation;
     private FoodAidTransfers transfers;
@@ -106,10 +107,12 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 5->{if(!ready())return;var view=session.economyView().get(town);if(view.account().state().completedPeriods()<11){now.addAndGet(1000);future=session.pulse();return;}
             famine=view.latest();require(famine.reports().stream().anyMatch(r->r.commodity().equals(Commodity.FOOD)&&r.condition()==Condition.SEVERE_SHORTAGE),"Famine did not escalate");
             famineNeeds=view.needs();require(famineNeeds.homes().getFirst().supplied()==0 && famineNeeds.homes().getFirst().unmetPeriods()>0,"Family famine allocation missing");require(famineNeeds.sharedFood()==Condition.SEVERE_SHORTAGE,"Needs did not retain crisis evidence");
+            famineAppeal=view.appeal();require(famineAppeal!=null&&famineAppeal.status()==FoodAppeals.Status.OPEN&&famineAppeal.unmet()==4,"Food appeal did not open");
             faminePriority=view.priority();require(faminePriority!=null&&faminePriority.selected()==VillagePriorities.Action.SEEK_FOOD,"Crisis priority wrong");
             observer.cancel();session.close();economy=tune(economy,200);now.addAndGet(10000);open();stage++;}
         case 6->{if(!ready())return;require(famine.equals(session.economyView().get(town).latest()),"Past famine report changed on retuning");
             require(famineNeeds.equals(session.economyView().get(town).needs()),"Household history changed on restart/retuning");
+            require(famineAppeal.equals(session.economyView().get(town).appeal()),"Appeal changed on restart");
             require(faminePriority.equals(session.economyView().get(town).priority()),"Priority history changed on restart/retuning");
             var ids=new HashSet<UUID>();session.snapshot().orElseThrow().residents().forEach(p->ids.add(p.id()));require(ids.equals(residents),"Residents changed on restart");
             startNativeDonation();stage=20;}
@@ -131,6 +134,8 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 22->{if(!ready())return;var view=session.economyView().get(town);var food=view.latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
             require(food.flow().production()==0&&food.flow().imports()==12&&food.after().units()==8,"Actual receipt relief failed");
             require(view.needs().homes().getFirst().supplied()==4 && view.needs().homes().getFirst().unmetPeriods()==0,"Family did not recover after relief");
+            require(view.appeal().status()==FoodAppeals.Status.RESOLVED&&view.appeal().imports()==12,"Food appeal did not resolve with saved receipt evidence");
+            getLogger().info("FOOD_APPEAL_RECOVERY_PASSED");
             getLogger().info("HOUSEHOLD_ALLOCATION_PASSED");
             require(view.priority().selected()==VillagePriorities.Action.MONITOR,"Relief did not resolve crisis priority");
             future=session.recordDeliveredFood(reliefOperation,town,12,donation.source());stage=23;}
@@ -156,7 +161,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
             var nativePlayer=nativeType.getConstructor(Class.forName("net.minecraft.server.MinecraftServer"),Class.forName("net.minecraft.server.level.ServerLevel"),profileType,infoType).newInstance(server,level,profile,info);
             var craft=(org.bukkit.entity.Player)nativeType.getMethod("getBukkitEntity").invoke(nativePlayer);
             var menuInventory=new org.bukkit.inventory.Inventory[1];var menuView=new org.bukkit.inventory.InventoryView[1];
-            craft.getInventory().setItemInMainHand(new org.bukkit.inventory.ItemStack(Material.BREAD,4));
+            craft.getInventory().setItemInMainHand(new org.bukkit.inventory.ItemStack(Material.AIR));
             donor=(org.bukkit.entity.Player)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{org.bukkit.entity.Player.class},(p,m,a)->switch(m.getName()){
                 case "hasPermission" -> true;
                 case "getLocation" -> new Location(world,X,64,Z);
@@ -175,13 +180,20 @@ public final class EconomyPaperProbe extends JavaPlugin {
             var entityId=session.projectionView().orElseThrow().identities().aliases().keySet().stream().filter(k->k.worldId().equals(world.getUID())).findFirst().orElseThrow().entityId();
             var interact=new org.bukkit.event.player.PlayerInteractEntityEvent(donor,Objects.requireNonNull(world.getEntity(entityId)),org.bukkit.inventory.EquipmentSlot.HAND);
             listener.interact(interact);require(interact.isCancelled()&&menuInventory[0]!=null,"Native village menu did not open");
-            require(menuInventory[0].getSize()==27&&menuInventory[0].getItem(13).getType()==Material.BREAD,"Donation button missing");
+            require(menuInventory[0].getSize()==27&&menuInventory[0].getItem(13).getType()==Material.BARRIER,"Empty-hand menu offered a donation");
             menuView[0]=(org.bukkit.inventory.InventoryView)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{org.bukkit.inventory.InventoryView.class},(p,m,a)->switch(m.getName()){
                 case "getTopInventory" -> menuInventory[0];case "getBottomInventory" -> craft.getInventory();case "getPlayer" -> donor;
                 case "getType" -> org.bukkit.event.inventory.InventoryType.CHEST;case "convertSlot" -> a[0];
                 default -> throw new AssertionError("Unexpected native menu view access: "+m.getName());
             });
             var click=new org.bukkit.event.inventory.InventoryClickEvent(menuView[0],org.bukkit.event.inventory.InventoryType.SlotType.CONTAINER,13,org.bukkit.event.inventory.ClickType.LEFT,org.bukkit.event.inventory.InventoryAction.PICKUP_ALL);
+            listener.click(click);require(click.isCancelled(),"Empty-hand menu click not protected");
+            require(craft.getInventory().getItemInMainHand().isEmpty()&&!craft.getPersistentDataContainer().has(FoodAidTransfers.KEY),"Empty-hand report changed player goods");
+            require(menuInventory[0].getItem(11).getItemMeta().displayName().equals(net.kyori.adventure.text.Component.text("Village asks for food")),"Native appeal card missing");
+            require(session.economyView().get(town).foodAid().pendingDeliveries()==0,"Reading appeal credited food");
+            getLogger().info("EMPTY_HAND_FOOD_APPEAL_PASSED");
+            craft.getInventory().setItemInMainHand(new org.bukkit.inventory.ItemStack(Material.BREAD,4));listener.interact(interact);
+            require(menuInventory[0].getItem(13).getType()==Material.BREAD,"Donation button missing");
             listener.click(click);listener.click(click);require(click.isCancelled(),"Menu click not protected");
             getLogger().info("NATIVE_AID_MENU_PASSED: actual villager alias, native inventory/button, protected double click, next-tick confirmation");
         }catch(Exception failure){throw new IllegalStateException("Native donation fixture failed",failure);}

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 19;
+    static final int CURRENT_VERSION = 20;
 
     @FunctionalInterface
     interface Migration {
@@ -105,7 +105,24 @@ final class SchemaMigrator {
                         execute(connection, "ALTER TABLE needs_periods ADD COLUMN " + column + " INTEGER CHECK(" + column + " IS NULL OR (typeof(" + column + ")='integer' AND " + column + ">=0))");
                     for (var column : List.of("supplied", "unmet_periods"))
                         execute(connection, "ALTER TABLE household_needs ADD COLUMN " + column + " INTEGER CHECK(" + column + " IS NULL OR (typeof(" + column + ")='integer' AND " + column + ">=0))");
-                }
+                },
+                connection -> execute(connection, """
+                        CREATE TABLE food_appeals (
+                            settlement_id TEXT NOT NULL,
+                            period INTEGER NOT NULL,
+                            priority_period INTEGER NOT NULL CHECK(priority_period>0 AND priority_period<=period),
+                            status TEXT NOT NULL CHECK(status IN ('NONE','OPEN','RESOLVED','WITHDRAWN')),
+                            unmet INTEGER NOT NULL CHECK(typeof(unmet)='integer' AND unmet>=0),
+                            previous_unmet INTEGER CHECK(previous_unmet IS NULL OR (typeof(previous_unmet)='integer' AND previous_unmet>=0)),
+                            imports INTEGER NOT NULL CHECK(typeof(imports)='integer' AND imports>=0),
+                            production INTEGER NOT NULL CHECK(typeof(production)='integer' AND production>=0),
+                            change TEXT NOT NULL CHECK(change IN ('NONE','OPENED','IMPROVED','UNCHANGED','WORSENED','RESOLVED','WITHDRAWN')),
+                            PRIMARY KEY(settlement_id,period),
+                            FOREIGN KEY(settlement_id,period) REFERENCES needs_periods(settlement_id,period),
+                            FOREIGN KEY(settlement_id,priority_period) REFERENCES village_priorities(settlement_id,period),
+                            CHECK(status<>'OPEN' OR unmet>0), CHECK(status<>'RESOLVED' OR unmet=0)
+                        )
+                        """)
         ));
     }
 
@@ -204,6 +221,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"needs_periods",Set.of("unassigned_demand","unassigned_supplied"));
                 requireColumns(connection,"household_needs",Set.of("supplied","unmet_periods"));
             }
+            if (migrations.size() >= 20) requireColumns(connection,"food_appeals",Set.of("settlement_id","period","priority_period","status","unmet","previous_unmet","imports","production","change"));
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

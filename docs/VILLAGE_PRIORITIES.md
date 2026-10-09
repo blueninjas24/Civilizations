@@ -77,3 +77,13 @@ Tests cover blocked choices over 1,000 seeds, reproducibility and alternative re
 choices, crisis filtering, early review/cadence, 1,200-period crisis/recovery histories,
 transaction rollback/retry, migration and history-preserving tuning. Real Paper checks
 cover food-crisis selection, restart preservation, recovery and unloaded operation.
+
+
+## Food appeal response — October 8 follow-up
+
+SEEK_FOOD now publishes a voluntary appeal in the existing supplies menu when the
+latest saved need is unmet. Schema 20 records the governing review, changing deficit
+and observed recovery with actual production/import inputs. This response neither
+buys goods nor grants construction permissions, and observed recovery is not proof
+of causal success. See FOOD_APPEALS.md. Paid responses and adaptive weights remain
+future work requiring real feasibility and attributable outcomes.
