@@ -98,6 +98,14 @@ restoring server data has not been performed by this development batch.
 
 ## Manual automatic-farm native fixture
 
+The piston extension also dispatches synthetic BlockPistonExtendEvent and
+BlockPistonRetractEvent through the registered listener. It verifies all seven
+fixture exclusions (placement, horizontal movement and vertical movement) on the
+SQL owner after restoring blocks. These synthetic events do not drive actual piston
+physics or validate another plugin's event ordering. No piston or neighboring block
+is changed by these events; the ore/air fixture remains the only temporary edits.
+Native acceptance and the unchanged-schema restart must be recorded after the run.
+
 The live-tracking extension dispatches a synthetic BlockPlaceEvent through the
 registered Civilizations listener and verifies the resulting sticky exclusion on
 the SQL owner. It uses a dummy Player with no online client/inventory; no player

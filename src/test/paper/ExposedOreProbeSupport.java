@@ -4,20 +4,24 @@ import com.blueninjas24.civilizations.settlement.VillageObservation.Position;
 import java.util.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 /** Called only after WorkshopProductionProbe's marked disposable-server guard, on the main thread. */
 final class ExposedOreProbeSupport {
-    record Evidence(int chunkX,int chunkZ,Position placed) {}
+    record Evidence(int chunkX,int chunkZ,Set<Position> excluded) {}
     static Evidence verify(World world) {
         if (!Bukkit.isPrimaryThread()) throw new IllegalStateException("Snapshot fixture requires main thread");
         var loaded = world.getLoadedChunks();
         if (loaded.length == 0) throw new IllegalStateException("No loaded chunk; fixture will not force one");
         var chunk = loaded[0]; int y = world.getMaxHeight()-8;
         var originals = new LinkedHashMap<Block,BlockData>();
+        var expected=new LinkedHashSet<Position>();
         ChunkSnapshot snapshot;
         try {
             var kinds = List.of(Material.COAL_ORE,Material.DEEPSLATE_COAL_ORE,Material.DEEPSLATE_IRON_ORE);
@@ -33,6 +37,12 @@ final class ExposedOreProbeSupport {
                     });
                     // Synthetic event through the actual registered listener; no client/player inventory is involved.
                     Bukkit.getPluginManager().callEvent(new BlockPlaceEvent(ore,replaced,air,null,player,true,EquipmentSlot.HAND));
+                    expected.add(new Position(ore.getX(),y,ore.getZ()));
+                } else {
+                    var face=i==1?BlockFace.EAST:BlockFace.UP;
+                    if(i==1)Bukkit.getPluginManager().callEvent(new BlockPistonExtendEvent(air,List.of(ore),face));
+                    else Bukkit.getPluginManager().callEvent(new BlockPistonRetractEvent(air,List.of(ore),face));
+                    for(int offset=-1;offset<=1;offset++)expected.add(new Position(ore.getX()+offset*face.getModX(),y+offset*face.getModY(),ore.getZ()+offset*face.getModZ()));
                 }
             }
             snapshot=chunk.getChunkSnapshot(false,false,false,false);
@@ -50,6 +60,6 @@ final class ExposedOreProbeSupport {
         if(observations.stream().anyMatch(o->!o.complete()) || observations.get(0).ore().size()!=1
                 || observations.get(1).ore().size()!=1 || observations.stream().anyMatch(o->o.ore().contains(excluded)))
             throw new IllegalStateException("Real snapshot exposure/exclusion did not match restored fixture");
-        return new Evidence(chunk.getX(),chunk.getZ(),new Position(chunk.getX()*16+4,y,chunk.getZ()*16+4));
+        return new Evidence(chunk.getX(),chunk.getZ(),Set.copyOf(expected));
     }
 }

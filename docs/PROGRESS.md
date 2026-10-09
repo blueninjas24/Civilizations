@@ -4,7 +4,7 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 619 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 624 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest Phase 3 step: villages can automatically start a funded farm, hire real
@@ -25,7 +25,8 @@ scanner now detects exposed coal/iron with bounded work and supplied exclusions.
 Placement exclusions now save across restarts and reject stale discovery evidence;
 real Paper snapshot/exclusion checks passed with all fixture blocks restored.
 Native player placements now save automatically, with crash/failure discovery
-pauses and a verified clean restart. Piston/editor coverage and connecting real
+pauses and a verified clean restart. Piston movement now retains conservative
+exclusions without cancelling movement or loading chunks. Bulk-editor coverage and connecting real
 observation/founding/operation are next. Automatic mining is still unfinished.
 See MINERAL_IDENTITY.md, LIVE_ORE_TRACKING.md and PHASE3_TODO.md. This advances a partial milestone;
 Phase 3 stays 25% until the complete gameplay group is verified.

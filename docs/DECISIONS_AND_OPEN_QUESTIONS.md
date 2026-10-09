@@ -104,6 +104,12 @@ the observed month. Succession/closure are not inferred from owner death.
 No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.md.
 
 ## Locked / approved
+- October 9 piston provenance engineering boundary: exclude moved ore at its source
+  and both adjacent axis coordinates. This accepts one conservative extra exclusion
+  rather than guessing destination direction or querying/loading neighboring chunks.
+  It never certifies natural origin, transfers deposit identity, refills reserves,
+  cancels movement or changes saved extraction terms. Bulk editors/offline world
+  changes are still outside verified capture. No new gameplay approval is inferred.
 - October 9 world/time clarification: pause absent worlds and server downtime.
   Returning to an original world resumes saved population/economy without crediting
   years of absence. Unloaded chunks in a loaded world still simulate; retain the

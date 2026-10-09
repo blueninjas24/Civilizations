@@ -2,6 +2,30 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Conservative piston resource provenance — October 9, 2026
+
+- Branch `codex/phase3-piston-provenance`: successful extension/retraction saves
+  moved ore sources and both possible adjacent axis destinations. Immutable bounded
+  evidence only; no destination block reads, forced chunks, event cancellation,
+  reserve refill or changed extraction terms. Cancelled/non-ore events ignored.
+  Existing queue/failure fence reused; malformed multi-place capture also fenced.
+- Five new adapter cases; Windows `.\mvnw.cmd clean verify -B -ntp` passed 624
+  (622 unit/two packaged integration), zero failures/errors/skips. Schema stays 34.
+  Native synthetic place/extend/retract dispatch saved seven fixture exclusions,
+  restored every ore/air block, and retained paid-chain/restart accounting checks.
+  Six new piston exclusions persisted. Read-only old industry/funds/exclusions,
+  clean/trusted fence, integrity/FKs and unchanged economy settings passed.
+- First launch omitted an interactive console; exact disposable JVM termination
+  exercised a genuine dirty restart. Discovery paused, including after normal stop.
+  Known empty test interval was reviewed against backup; untrusted state backed up
+  and only marked-dev trust rearmed. No automatic recovery feature added. Corrected
+  probe and probe-free restarts stopped normally; no loading tickets, month 1675
+  retained at startup (online reached 1676). Probe archived, server stopped.
+- Actual piston physics/bulk-editor compatibility remain unverified. Automatic
+  resource opportunities/founding/production remain unfinished; Phase 3 stays 25%.
+  Next: coherent observation grouping, then safe observation and funded operation.
+  Local feature commit only; no merge/push, main or production changes.
+
 ## Live native ore placement capture and recovery fence — October 9, 2026
 
 - Branch `codex/phase3-live-ore-tracking`: registered MONITOR listener captures

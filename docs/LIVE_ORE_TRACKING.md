@@ -40,9 +40,21 @@ refill or automatic certification of an interval whose history is missing.
 
 ## Scope limits
 
-Native placement capture is not comprehensive block provenance. Piston transport,
-bulk world-edit plugins, external editors and other non-place mutations still need
-appropriate integration/conservative handling before automatic mines are activated.
+Native placement capture is not comprehensive block provenance. Piston extension
+and retraction now conservatively exclude each moved ore's source and both adjacent
+coordinates on the operation axis. This deliberately avoids relying on ambiguous
+retraction direction semantics: one neighboring coordinate may be excluded even
+though ore did not land there. The adapter reads no destination block, loads no
+chunk, and does not cancel movement. All moved ore is excluded, including ore whose
+old origin is unknown; movement is not evidence of a new deposit. Cancelled events
+and movements without ore add no exclusions. Sticky/slime/honey collateral blocks
+are taken from the API's moved-block list, not guessed from the piston head.
+
+Coordinate exclusions remain sticky after movement or breaking. Existing claims,
+reserve depletion and history are retained. Oversized/invalid evidence or failed
+saves uses the same gap fence as placements. Bulk world-edit plugins, external
+editors and other non-place mutations still need integration/conservative handling
+before automatic mines are activated. No world-edit plugin compatibility is claimed.
 The fence is verified for normal full server stops/restarts; plugin hot reload and
 world edits while the plugin is absent are not certified tracking intervals.
 Healthy capture does not certify natural origin of old blocks. The user approved
@@ -69,3 +81,22 @@ restored snapshot fixture, schema upgrade, probe-free trusted restart and normal
 shutdown passed. Read-only old histories, one actual synthetic-event placement,
 clean/trusted fence and integrity/FKs passed; owner configuration unchanged. Test
 loading ticket removed, probe archived/excluded from production JAR, server stopped.
+
+Piston extension verification: five new adapter tests cover all six axes,
+extend/retract, cancelled/non-ore events, overlapping positions, invalid/oversized
+evidence and async failures. Wrapper clean verify passed 624 cases (622 unit/two
+packaged integration), zero failures/errors/skips. Guarded Paper synthetic event
+dispatch saved seven fixture exclusions, with every block restored; paid-chain
+checks still passed. Six new piston exclusions persisted across probe-free restart.
+Read-only original industry/funds, schema 34, clean/trusted fence, integrity/FKs
+and owner settings passed. Ticket removed, probe archived and server stopped zero.
+
+The first launch mistakenly omitted an interactive console. Only its exact verified
+disposable JVM was terminated. Its unclean restart correctly paused discovery;
+normal stop did not restore trust. After comparing all industry/funds/exclusion
+rows with the consistent baseline, verifying no players/chunks/probe activity,
+and backing up the untrusted state, a reviewed dev-only SQL fence rearm allowed
+the positive run. Calendar/history were retained. This is not an automatic recovery
+feature or permission to rearm an unknown production interval. Subsequent launches
+used interactive consoles and normal stop. Actual piston physics, external plugin
+ordering and bulk-editor mutations are not certified by synthetic events.

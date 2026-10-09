@@ -1197,3 +1197,30 @@ This will be the beginning of autonomous settlement development.
 - Updated plain-English tracker with partial milestones for all four P2 groups. Phase
   gate still partial: execution/outcome feedback, full wellbeing, actual budget flows
   and player trade remain. No production reset, remote push, merge or main change.
+## October 9, 2026 — conservative piston provenance
+
+Branch `codex/phase3-piston-provenance`. Extension/retraction MONITOR listeners
+exclude moved ore sources and both possible adjacent axis destinations, preventing
+movement from presenting tracked ore as fresh evidence. All ore movement is
+conservatively excluded; cancelled/non-ore events ignored. Bounds, immutable owner
+queue, overflow/error pause and sticky persistence reused. No destination reads,
+force loading, event cancellation, migration, reserve refill or world rights.
+
+Added five adapter tests. Wrapper clean verify passed 624 (622 unit/two packaged
+integration), zero failures/errors/skips. Guarded Paper synthetic place/extend/
+retract fixture passed and restored every block; seven saved exclusions, six new.
+Paid-chain/restart checks retained. First launch omitted interactive stdin;
+terminated only verified disposable JVM, confirmed dirty restart pauses discovery
+and clean stop cannot repair it. Backed up untrusted state after verifying known
+empty interval and unchanged industry/funds/exclusions; reviewed marked-dev trust
+rearm only. No production reset or automatic recovery capability. Corrected probe
+and probe-free runs stopped zero; test ticket removed and probe archived. Read-only
+schema34, clean/trusted fence, unchanged industry/funds/settings, retained exclusions
+and integrity/FKs passed. Startup1675 retained; online1676. Build/probe packaging
+needed elevation after sandbox temp-JAR rename denial; completed successfully.
+
+Updated status/progress/TODO/live tracking/development/decisions. Phase 3 remains
+1/4 (25%); bulk editors, resource grouping, automatic funded chains and lifecycle
+remain. Actual piston physics/external plugin ordering are not certified. Local
+feature commit only; no push/merge/main changes. Physical construction stays Phase4.
+

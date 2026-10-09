@@ -39,7 +39,7 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             var session=(com.blueninjas24.civilizations.application.PopulationSession)field.get(main);
             if(!session.oreDiscoveryReady())throw new IllegalStateException("Main live ore capture is not healthy");
             var captured=session.orePlacementsInChunk(worldId,evidence.chunkX(),evidence.chunkZ(),512).thenAccept(positions-> {
-                if(!positions.contains(evidence.placed()))throw new IllegalStateException("Registered native placement listener failed to save fixture ore");
+                if(!positions.containsAll(evidence.excluded()))throw new IllegalStateException("Registered native mutation listeners failed to save fixture exclusions");
             });
             var folder=new java.io.File(getDataFolder(),"run-"+UUID.randomUUID());
             owner=Executors.newSingleThreadExecutor(r->{var thread=new Thread(r,"Civilizations-workshop-probe-SQL-owner");thread.setDaemon(true);return thread;});
@@ -50,7 +50,7 @@ public final class WorkshopProductionProbe extends JavaPlugin {
             new BukkitRunnable() {
                 @Override public void run() {
                     if(!result.isDone())return;
-                    try {result.join();getLogger().info("NATIVE LIVE ORE TRACKING PASS: registered placement capture, restored snapshot exposure/exclusion, saved rejection, no refill, paid chain and restart passed");}
+                    try {result.join();getLogger().info("NATIVE PISTON ORE TRACKING PASS: registered placement/extend/retract capture, restored snapshot exposure/exclusion, saved rejection, no refill, paid chain and restart passed");}
                     catch(CompletionException failure){getLogger().log(java.util.logging.Level.SEVERE,"NATIVE WORKSHOP FAIL",failure.getCause());}
                     cancel();getServer().getPluginManager().disablePlugin(WorkshopProductionProbe.this);
                 }

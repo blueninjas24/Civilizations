@@ -12,7 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
 
-/** Successful native placements only; immutable coordinates cross the owner queue, never Paper objects. */
+/** Native ore mutations; immutable coordinates cross the owner queue, never Paper objects. */
 public final class OrePlacementTracker implements Listener {
     @FunctionalInterface interface Recorder {
         CompletableFuture<Integer> save(UUID world,String name,Collection<Position> positions,long millis);
@@ -32,18 +32,48 @@ public final class OrePlacementTracker implements Listener {
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
     public void onPlace(BlockPlaceEvent event) {
         if(event.isCancelled() || !event.canBuild())return;
-        if(event instanceof BlockMultiPlaceEvent multiple)capture(multiple.getReplacedBlockStates().stream().map(s->s.getBlock()).toList());
-        else capture(List.of(event.getBlockPlaced()));
+        try {
+            if(event instanceof BlockMultiPlaceEvent multiple)capture(multiple.getReplacedBlockStates().stream().map(s->s.getBlock()).toList());
+            else capture(List.of(event.getBlockPlaced()));
+        } catch(RuntimeException failure) {fail(failure);}
+    }
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
+    public void onExtend(BlockPistonExtendEvent event) {
+        if(event.isCancelled())return;
+        try { moved(event.getBlocks(),event.getDirection()); }
+        catch(RuntimeException failure) {fail(failure);}
+    }
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
+    public void onRetract(BlockPistonRetractEvent event) {
+        if(event.isCancelled())return;
+        try { moved(event.getBlocks(),event.getDirection()); }
+        catch(RuntimeException failure) {fail(failure);}
+    }
+    private void moved(List<Block> blocks,org.bukkit.block.BlockFace direction) {
+        int dx=direction.getModX(),dy=direction.getModY(),dz=direction.getModZ();
+        if(Math.abs(dx)+Math.abs(dy)+Math.abs(dz)!=1)
+            throw new IllegalArgumentException("Piston direction is not an axial face");
+        capture(blocks,dx,dy,dz,true);
     }
     /** Main-thread capture, also used by controlled integration adapters for known placements. */
     void capture(List<Block> blocks) {
+        capture(blocks,0,0,0,false);
+    }
+    private void capture(List<Block> blocks,int dx,int dy,int dz,boolean movement) {
         try {
+            if(blocks.size()>512)throw new IllegalArgumentException("Native mutation exceeds block budget");
             var ores=blocks.stream().filter(block->ore(block.getType())).toList();
             if(ores.isEmpty())return;
             var world=ores.getFirst().getWorld();var id=world.getUID();var positions=new LinkedHashSet<Position>();
             for(var block:ores) {
                 if(!block.getWorld().getUID().equals(id))throw new IllegalArgumentException("Placement spans worlds");
                 positions.add(new Position(block.getX(),block.getY(),block.getZ()));
+                if(movement) {
+                    // The API's operation direction is not a natural-origin certificate.
+                    // Exclude both possible destinations without querying/loading either block.
+                    positions.add(new Position(Math.addExact(block.getX(),dx),Math.addExact(block.getY(),dy),Math.addExact(block.getZ(),dz)));
+                    positions.add(new Position(Math.subtractExact(block.getX(),dx),Math.subtractExact(block.getY(),dy),Math.subtractExact(block.getZ(),dz)));
+                }
             }
             if(positions.size()>512) { fail(new IllegalStateException("Placement evidence exceeds batch budget"));return; }
             if(pending.incrementAndGet()>256) { pending.decrementAndGet();fail(new IllegalStateException("Placement capture queue full"));return; }
@@ -57,9 +87,9 @@ public final class OrePlacementTracker implements Listener {
     }
     private void fail(Throwable failure) {
         if(reported.compareAndSet(false,true)) {
-            gap.accept("placement capture/save incomplete; reviewed recovery required");
+            gap.accept("ore mutation capture/save incomplete; reviewed recovery required");
             logger.log(java.util.logging.Level.SEVERE,
-                    "Ore placement capture incomplete; automatic resource discovery paused. Saved settlements and reserves are retained.",failure);
+                    "Ore mutation capture incomplete; automatic resource discovery paused. Saved settlements and reserves are retained.",failure);
         }
     }
     public String diagnostic() {return "Ore placement saves pending: "+pending.get()+(reported.get()?"; capture gap":"");}

@@ -71,4 +71,50 @@ class OrePlacementTrackerTest {
         assertNotNull(issue.get());assertTrue(tracker.diagnostic().contains("pending: 256"));
         pending.complete(1);assertTrue(tracker.diagnostic().contains("pending: 0"));
     }
+    @Test void extensionAndRetractionExcludeSourceAndBothAxisDestinationsWithoutReadingNeighbors() {
+        var saved=new AtomicReference<Collection<Position>>();
+        var tracker=new OrePlacementTracker((w,n,p,t)-> {saved.set(p);return CompletableFuture.completedFuture(p.size());},r->fail(r),Logger.getLogger("PistonTrackerTest"));
+        var piston=block(Material.STICKY_PISTON,0);var ore=block(Material.IRON_ORE,-16);
+        for(var face:List.of(BlockFace.EAST,BlockFace.WEST,BlockFace.UP,BlockFace.DOWN,BlockFace.NORTH,BlockFace.SOUTH)) {
+            var expected=Set.of(new Position(-16,-60,-1),
+                    new Position(-16+face.getModX(),-60+face.getModY(),-1+face.getModZ()),
+                    new Position(-16-face.getModX(),-60-face.getModY(),-1-face.getModZ()));
+            tracker.onExtend(new BlockPistonExtendEvent(piston,List.of(ore),face));
+            assertEquals(expected,new HashSet<>(saved.get()));
+            tracker.onRetract(new BlockPistonRetractEvent(piston,List.of(ore),face));
+            assertEquals(expected,new HashSet<>(saved.get()));
+        }
+        assertThrows(UnsupportedOperationException.class,()->saved.get().clear());
+    }
+    @Test void cancelledPistonsAndMovementsWithoutOreDoNotSave() {
+        var tracker=new OrePlacementTracker((w,n,p,t)-> {throw new AssertionError("Unexpected write");},r->fail(r),Logger.getLogger("PistonTrackerTest"));
+        var piston=block(Material.PISTON,0);var ore=block(Material.COAL_ORE,1);
+        var extend=new BlockPistonExtendEvent(piston,List.of(ore),BlockFace.EAST);extend.setCancelled(true);tracker.onExtend(extend);
+        var retract=new BlockPistonRetractEvent(piston,List.of(ore),BlockFace.EAST);retract.setCancelled(true);tracker.onRetract(retract);
+        tracker.onExtend(new BlockPistonExtendEvent(piston,List.of(block(Material.STONE,1)),BlockFace.UP));
+        tracker.onRetract(new BlockPistonRetractEvent(piston,List.of(),BlockFace.WEST));
+    }
+    @Test void overlappingMovedOresDeduplicateAndKeepBounds() {
+        var saved=new AtomicReference<Collection<Position>>();
+        var tracker=new OrePlacementTracker((w,n,p,t)-> {saved.set(p);return CompletableFuture.completedFuture(p.size());},r->fail(r),Logger.getLogger("PistonTrackerTest"));
+        tracker.onExtend(new BlockPistonExtendEvent(block(Material.PISTON,0),List.of(block(Material.COAL_ORE,15),block(Material.IRON_ORE,16),block(Material.COAL_ORE,15)),BlockFace.EAST));
+        assertEquals(Set.of(new Position(14,-60,-1),new Position(15,-60,-1),new Position(16,-60,-1),new Position(17,-60,-1)),new HashSet<>(saved.get()));
+    }
+    @Test void invalidDirectionAndOversizedMutationPauseDiscoveryWithoutCancellingPiston() {
+        var issue=new AtomicReference<String>();
+        var tracker=new OrePlacementTracker((w,n,p,t)-> {throw new AssertionError("Unexpected write");},issue::set,Logger.getLogger("PistonTrackerTest"));
+        var invalid=new BlockPistonExtendEvent(block(Material.PISTON,0),List.of(block(Material.IRON_ORE,1)),BlockFace.NORTH_EAST);
+        tracker.onExtend(invalid);assertNotNull(issue.get());assertFalse(invalid.isCancelled());
+        issue.set(null);var bounded=new OrePlacementTracker((w,n,p,t)-> {throw new AssertionError("Unexpected write");},issue::set,Logger.getLogger("PistonTrackerTest"));
+        var oversized=new BlockPistonRetractEvent(block(Material.PISTON,0),Collections.nCopies(513,block(Material.COAL_ORE,1)),BlockFace.WEST);
+        bounded.onRetract(oversized);assertNotNull(issue.get());assertFalse(oversized.isCancelled());
+    }
+    @Test void pistonSaveFailureUsesExistingGapAndPendingAccounting() {
+        var issue=new AtomicReference<String>();var future=new CompletableFuture<Integer>();
+        var tracker=new OrePlacementTracker((w,n,p,t)->future,issue::set,Logger.getLogger("PistonTrackerTest"));
+        var event=new BlockPistonRetractEvent(block(Material.PISTON,0),List.of(block(Material.ANCIENT_DEBRIS,1)),BlockFace.EAST);
+        tracker.onRetract(event);assertTrue(tracker.diagnostic().contains("pending: 1"));
+        future.completeExceptionally(new IllegalStateException("injected"));
+        assertNotNull(issue.get());assertFalse(event.isCancelled());assertTrue(tracker.diagnostic().contains("pending: 0"));
+    }
 }
