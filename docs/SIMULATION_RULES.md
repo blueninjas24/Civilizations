@@ -8,6 +8,11 @@ These are design contracts, **not finalized numeric tuning values**. Avoid hardc
 - Household availability drives housing pressure. Beds are evidence of housing capacity but do not necessarily imply one household per bed. Exact occupancy and equality threshold remain open.
 - Jobs correspond to actual businesses/industries; age/skill and labor availability constrain hires/founders. Skills can change gradually with experience/training.
 - Offscreen individuals age/change jobs/migrate through headless simulation. Nearby residents materialize with context-sensitive density; night should be quieter than markets at noon.
+- Approved October 9: no civilization time is earned while the server is stopped
+  or a saved world's UUID is absent. Population and economic state resume without
+  absence catch-up. Unloaded chunks in a loaded world continue data-only simulation.
+  Preserve identities/history and already earned pending work; never reset an old
+  world merely because a different world is loaded.
 
 ## Resources and production
 - Use abstract units of significant commodities, reserves and capacity. Supply = local output + imports + reserves released; demand = households + business inputs + construction + trade + events.
@@ -53,5 +58,7 @@ Explain output should show candidate feasibility, top contributing factors, sele
 - **Food crisis:** reserve drawdown/import search precedes population collapse; nearby supplier can help.
 - **Mine exhaustion:** reduced production, employment loss and potential long decline; no instant forced collapse.
 - **Player restoration:** repair a burned civic structure→reputation improves; town can recover if economic prerequisites exist.
-- **Unloaded centuries:** simulation produces deterministic events without spawning mobs or force-loading chunks; return reconciliation stays within tick budget.
+- **Unloaded centuries:** loaded-world data-only simulation and accelerated tests
+  produce deterministic events without force-loading chunks. Server downtime and
+  absent worlds earn no centuries of progress; return reconciliation stays bounded.
 - **Multiple seeds:** some towns prosper, some stagnate, some decline; no uniform mega-city outcome.

@@ -21,14 +21,20 @@ public final class PopulationStep {
 
     public static Outcome advance(PopulationState state, SimulationRunner.Context context,
                                   PopulationPolicy policy) {
+        return advance(state,context,policy,state.residents().stream().map(Resident::settlementId).collect(java.util.stream.Collectors.toSet()));
+    }
+
+    public static Outcome advance(PopulationState state, SimulationRunner.Context context,
+                                  PopulationPolicy policy, Set<UUID> activeSettlements) {
         if (context.stepNumber() <= 0) throw new IllegalArgumentException("Step must be positive");
-        List<Resident> aged = PopulationAging.step(state.residents());
+        List<Resident> aged = state.residents().stream().map(person -> activeSettlements.contains(person.settlementId())
+                ? PopulationAging.step(List.of(person)).getFirst() : person).toList();
         List<Resident> people = new ArrayList<>();
         List<PopulationEvent> events = new ArrayList<>();
         Map<UUID, Resident> byId = new HashMap<>();
         Map<UUID, Integer> occupants = new HashMap<>();
         for (Resident person : aged) {
-            if (person.status() == Resident.Status.ALIVE
+            if (activeSettlements.contains(person.settlementId()) && person.status() == Resident.Status.ALIVE
                     && context.random().nextDouble() < policy.deathChance(person.ageSteps())) {
                 person = new Resident(person.id(), person.name(), person.settlementId(), person.householdId(),
                         person.ageSteps(), Resident.Status.DECEASED);
@@ -49,7 +55,8 @@ public final class PopulationStep {
             Resident second = byId.get(tie.second());
             UUID home = first.householdId();
             Integer capacity = home == null ? null : state.householdCapacity().get(home);
-            if (!policy.eligibleParent(first) || !policy.eligibleParent(second) || home == null
+            if (!activeSettlements.contains(first.settlementId()) || !activeSettlements.contains(second.settlementId())
+                    || !policy.eligibleParent(first) || !policy.eligibleParent(second) || home == null
                     || !home.equals(second.householdId()) || capacity == null
                     || occupants.getOrDefault(home, 0) >= capacity
                     || parentsThisStep.contains(first.id()) || parentsThisStep.contains(second.id())

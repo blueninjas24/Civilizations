@@ -4,6 +4,7 @@
 population:
   seed: 872613
   millis-per-month: 30000
+  # Legacy headless harness cap only. Live Paper ALWAYS pauses during downtime.
   maximum-offline-months: 12
   months-per-batch: 2
   months-per-year: 12

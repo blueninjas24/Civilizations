@@ -99,4 +99,7 @@
 - Active nearby: contextual NPCs, schedules, building progress, merchants, visible events.
 - Loaded distant: minimal physical work.
 - Unloaded: data-only, no forced chunk loading.
-- Reconcile elapsed time upon return in bounded tick budgets. Target many settlements (20+), with rare very large cities, stress-tested rather than hard-coded population uniformity.
+- October 9 approval: civilization pauses while the server is stopped or its world
+  is absent. Unloaded chunks inside a loaded world continue the abstract simulation.
+  Returning to an old world resumes its saved state without absence catch-up.
+- Reconcile already earned work upon return in bounded tick budgets. Target many settlements (20+), with rare very large cities, stress-tested rather than hard-coded population uniformity.

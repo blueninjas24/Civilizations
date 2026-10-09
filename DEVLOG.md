@@ -1,5 +1,35 @@
 # Civilizations Development Log
 
+## Server downtime and absent-world pause — October 9, 2026
+
+- Implemented explicit user decision to pause absent worlds/server downtime without
+  resetting identity/history. Main-thread Paper world IDs feed the DB owner; no
+  chunk loading or async world access. Canceled world unloads leave eligibility intact.
+- Transactional schema 29 stores adoption audit and compressed active-world month
+  masks. Live startup rebases anchors; population replay retains earned masks while
+  paused towns skip demographic effects. Food/needs accounts retain inventory,
+  funds, fractions and earned queues while absent; economic execution resumes when
+  the world returns. Missing masks and legacy unrestricted demographic replay fail.
+- Twelve added tests: active vs absent worlds, centuries of controlled downtime,
+  population/family/life/arrival preservation, partial months, queued replay across
+  restart, food stock/queued period freeze, rollback and migration retry, immutable
+  Paper snapshots and canceled unload. Fixed initial test expectation about earned
+  pending food work, then full final Wrapper verify passed 534 cases, no failures,
+  errors or skips (532 unit/two packaged integration).
+- Backed up the marked disposable schema-28 server DB before actual Paper upgrade.
+  Native first readiness stayed at month 1658 instead of adding offline months;
+  normal online activity advanced to 1659. Diagnostics/no failure, clean stop and
+  read-only integrity/FKs/old identity retention verified. No production DB/worlds
+  touched. Baseline Windows OSHI/native access/manifest warnings remain.
+- A second native restart after more than a minute stopped stayed at month 1659,
+  zero queued months/no failure, with clean shutdown. Final read-only history/
+  family/finance retention and unchanged treasury balances passed. World-absence
+  transitions are automated tests; no native multi-world/client playtest claimed.
+- Recorded approved rule in master/architecture/simulation/decisions; updated status,
+  progress and ONLINE_WORLD_PAUSE.md. Shared calendar is administrative; population
+  fractional boundaries remain shared, unlike independent economic clocks. Later
+  automatic industry must use eligible town periods. Roadmap/P3 counts unchanged.
+
 ## Finite minerals and local warehouse accounting — October 9, 2026
 
 - Recorded user approval: finite non-renewable deposits, shared abstract ore/rock

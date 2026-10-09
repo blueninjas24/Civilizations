@@ -35,6 +35,44 @@ class CivilizationClockRepositoryTest {
         assertThrows(SQLException.class, () -> clock.load(60));
     }
 
+    @Test void onlineAdoptionAuditsLegacyBacklogAndNeverAddsDowntime() throws SQLException {
+        database.getDemographicRepository().initializeClock(42,policy);
+        clock.initialize(1000,30); clock.accrue(1100,30,Long.MAX_VALUE);
+        assertEquals(new CivilizationTime.Anchor(1_000_000,10,0),clock.resumeOnline(1_000_000,30));
+        try(var s=database.getConnection().createStatement();var r=s.executeQuery("SELECT legacy_target,adopted_completed FROM online_calendar")) {
+            assertEquals(3,r.getLong(1));assertEquals(0,r.getLong(2));
+        }
+        assertThrows(SQLException.class,()->clock.accrue(1_000_030,30,Long.MAX_VALUE));
+        assertThrows(SQLException.class,()->database.getDemographicRepository().advance(1,1,policy));
+        var world=java.util.UUID.randomUUID();
+        clock.accrueOnline(1_000_020,30,java.util.Set.of(world));
+        assertEquals(1,clock.resumeOnline(2_000_000,30).targetSteps());
+        assertEquals(java.util.Set.of(world),clock.activeWorlds().apply(1));
+    }
+
+    @Test void failedOnlineAccrualRollsBackWorldMaskAndTimeTogether() throws SQLException {
+        database.getDemographicRepository().initializeClock(42,policy);clock.initialize(1000,30);clock.resumeOnline(1000,30);
+        try(var s=database.getConnection().createStatement()) { s.execute("CREATE TRIGGER fail_online BEFORE UPDATE ON civilization_time BEGIN SELECT RAISE(ABORT,'injected'); END"); }
+        assertThrows(SQLException.class,()->clock.accrueOnline(1090,30,java.util.Set.of(java.util.UUID.randomUUID())));
+        assertEquals(0,clock.load(30).orElseThrow().targetSteps());
+        assertThrows(IllegalStateException.class,()->clock.activeWorlds().apply(1));
+        assertTrue(database.getConnection().getAutoCommit());
+    }
+
+    @Test void missingMaskCannotSilentlyAgeAllWorldsAndMigrationFailureKeepsVersion28() throws SQLException {
+        database.getDemographicRepository().initializeClock(42,policy);clock.initialize(1000,30);
+        SchemaFixtures.rewind(database.getConnection(),28);
+        try(var s=database.getConnection().createStatement()) { s.execute("CREATE TABLE population_active_worlds(conflict TEXT)"); }
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(database.getConnection()));
+        try(var s=database.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")) { assertEquals(28,r.getInt(1)); }
+        try(var s=database.getConnection().createStatement()) { s.execute("DROP TABLE population_active_worlds"); }
+        new SchemaMigrator().migrate(database.getConnection());clock.resumeOnline(1000,30);
+        try(var s=database.getConnection().createStatement()) { s.execute("UPDATE civilization_time SET target_steps=1"); }
+        assertThrows(IllegalStateException.class,()->database.getDemographicRepository().advance(1,1,policy,
+                com.blueninjas24.civilizations.population.MigrationPolicy.disabled(),clock.activeWorlds()));
+        assertEquals(0,database.getDemographicRepository().load(policy).orElseThrow().completedSteps());
+    }
+
     @Test void fractionalTimeAndQueuedCatchUpSurviveRestartsWithoutRepeating() throws SQLException {
         database.getDemographicRepository().initializeClock(42, policy);
         clock.initialize(1000, 30);

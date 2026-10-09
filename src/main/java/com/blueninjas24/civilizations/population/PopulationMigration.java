@@ -16,6 +16,12 @@ public final class PopulationMigration {
     public static PopulationStep.Outcome advance(PopulationState state, SimulationRunner.Context context,
                                                 long adulthoodSteps, MigrationPolicy policy,
                                                 Map<UUID, String> settlementWorlds) {
+        return advance(state,context,adulthoodSteps,policy,settlementWorlds,settlementWorlds.keySet());
+    }
+
+    public static PopulationStep.Outcome advance(PopulationState state, SimulationRunner.Context context,
+                                                long adulthoodSteps, MigrationPolicy policy, Map<UUID,String> settlementWorlds,
+                                                java.util.Set<UUID> activeSettlements) {
         if (context.stepNumber() <= 0 || adulthoodSteps < 0) throw new IllegalArgumentException("Invalid migration step/age");
         var people = new HashMap<UUID, Resident>();
         var occupants = new HashMap<UUID, Integer>();
@@ -28,7 +34,7 @@ public final class PopulationMigration {
         }
         if (policy.moveChance() > 0) for (Resident original : state.residents()) {
             Resident person = people.get(original.id());
-            if (processed.contains(person.id()) || person.status() != Resident.Status.ALIVE || person.ageSteps() < adulthoodSteps) continue;
+            if (!activeSettlements.contains(person.settlementId()) || processed.contains(person.id()) || person.status() != Resident.Status.ALIVE || person.ageSteps() < adulthoodSteps) continue;
             UUID oldHome = person.householdId();
             Integer capacity = oldHome == null ? null : state.householdCapacity().get(oldHome);
             if (oldHome != null && (capacity == null || occupants.getOrDefault(oldHome, 0) <= capacity)) continue;
@@ -39,7 +45,7 @@ public final class PopulationMigration {
             String world = settlementWorlds.get(person.settlementId());
             if (world == null || world.isBlank()) continue;
             var destinations = state.households().stream().filter(h -> !h.settlementId().equals(person.settlementId())
-                    && world.equals(settlementWorlds.get(h.settlementId()))
+                    && activeSettlements.contains(h.settlementId()) && world.equals(settlementWorlds.get(h.settlementId()))
                     && occupants.getOrDefault(h.id(), 0) == 0
                     && state.householdCapacity().getOrDefault(h.id(), 0) >= group.size()).toList();
             if (destinations.isEmpty() || context.random().nextDouble() >= policy.moveChance()) continue;
@@ -59,6 +65,7 @@ public final class PopulationMigration {
             var settlements = state.households().stream().map(Household::settlementId).distinct()
                     .sorted(java.util.Comparator.comparing(UUID::toString)).toList();
             for (UUID settlement : settlements) {
+                if(!activeSettlements.contains(settlement))continue;
                 String world = settlementWorlds.get(settlement);
                 if (world == null || world.isBlank()) continue;
                 var available = state.households().stream().filter(h -> h.settlementId().equals(settlement)

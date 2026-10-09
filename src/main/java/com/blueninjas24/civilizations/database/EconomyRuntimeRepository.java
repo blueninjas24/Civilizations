@@ -36,6 +36,7 @@ public final class EconomyRuntimeRepository {
     private final HouseholdWellbeing.Policy wellbeing;
     private final FoodResponses.Settings responses;
     private int cursor;
+    private Set<UUID> loadedWorlds;
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood) {
         this(connection,settings,farms,adulthood,VillagePriorities.Policy.prototype(),0);
     }
@@ -87,6 +88,27 @@ public final class EconomyRuntimeRepository {
             return null;
         });
         pulse(now, true);
+    }
+    /** Preserve earned queue/fractions, but never credit the interval while the server was stopped. */
+    public void startOnline(long now, Set<UUID> worlds) throws SQLException {
+        loadedWorlds = Set.copyOf(worlds);
+        for (var town : towns()) transaction(() -> {
+            var saved = clock(town).anchor();
+            saveClock(town, new CivilizationTime.Anchor(Math.max(now, saved.lastObservedMillis()), saved.remainderMillis(), saved.targetSteps()));
+            return null;
+        });
+        start(now);
+    }
+    public void updateLoadedWorlds(long now, Set<UUID> worlds) throws SQLException {
+        for (var town : towns()) transaction(() -> { accrue(town, now, false); return null; });
+        loadedWorlds = Set.copyOf(worlds);
+    }
+    private boolean active(UUID town) throws SQLException {
+        if (loadedWorlds == null) return true;
+        try (var s = connection.prepareStatement("SELECT world_id FROM settlement_worlds WHERE settlement_id=?")) {
+            s.setString(1, town.toString());
+            try (var r = s.executeQuery()) { return r.next() && loadedWorlds.contains(UUID.fromString(r.getString(1))); }
+        }
     }
     /** Older/equal evidence is idempotent. Partial observations pause; never seed a zero-food village. */
     public void observe(FarmObservation evidence, long now) throws SQLException {
@@ -308,9 +330,10 @@ public final class EconomyRuntimeRepository {
     }
     private void accrue(UUID town,long now,boolean offline) throws SQLException {
         var clock=clock(town);requireSettings(clock);var evidence=farm(town);
-        if(evidence==null||!evidence.complete()) saveClock(town,new CivilizationTime.Anchor(Math.max(now,clock.anchor().lastObservedMillis()),0,clock.completed()));
+        if (!active(town)) saveClock(town,new CivilizationTime.Anchor(Math.max(now,clock.anchor().lastObservedMillis()),clock.anchor().remainderMillis(),clock.anchor().targetSteps()));
+        else if(evidence==null||!evidence.complete()) saveClock(town,new CivilizationTime.Anchor(Math.max(now,clock.anchor().lastObservedMillis()),0,clock.completed()));
         else saveClock(town,CivilizationTime.accrue(clock.anchor(),now,clock.cadence(),offline
-                ? Math.multiplyExact(clock.cadence(),settings.maximumOfflinePeriods()) : Long.MAX_VALUE).anchor());
+                && loadedWorlds == null ? Math.multiplyExact(clock.cadence(),settings.maximumOfflinePeriods()) : Long.MAX_VALUE).anchor());
     }
     public int pulse(long now, boolean offline) throws SQLException {
         var towns = towns();
@@ -327,6 +350,7 @@ public final class EconomyRuntimeRepository {
         return processed;
     }
     private boolean step(UUID town) throws SQLException {
+        if (!active(town)) return false;
         var clock = clock(town); requireSettings(clock); var farm = farm(town);
         if (farm == null || !farm.complete() || clock.completed() == clock.anchor().targetSteps()) return false;
         var account = commodities.read(town).orElseThrow();

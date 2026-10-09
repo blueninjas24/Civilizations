@@ -104,6 +104,7 @@ world UUIDs. A new world has a distinct identity; it does not automatically dele
 or adopt previous towns. Returning to a preserved old world requires its original
 UUID/data plus the corresponding plugin database. Reinstalling an empty plugin data
 folder loses that saved simulation. Preserve consistent world/plugin/player-data
-backups together, especially when exchanges are pending. Current global clocks can
-advance absent-world towns; pausing them upon world switching is a pending user
-choice, not implemented by this batch. No world switch/reset/restore was performed.
+backups together, especially when exchanges are pending. The subsequent approved
+pause batch stops new population/economy progress during server downtime and world
+absence; see ONLINE_WORLD_PAUSE.md. The mining batch itself performed no world
+switch/reset/restore and did not implement automatic industry scheduling.

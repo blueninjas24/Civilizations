@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 28;
+    static final int CURRENT_VERSION = 29;
 
     @FunctionalInterface
     interface Migration {
@@ -269,7 +269,24 @@ final class SchemaMigrator {
                             """);
                 },
                 SchemaMigrator::createBusinesses,
-                SchemaMigrator::createIndustryStores
+                SchemaMigrator::createIndustryStores,
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE online_calendar (
+                                id INTEGER PRIMARY KEY CHECK(id=1), replay_version INTEGER NOT NULL CHECK(replay_version=1),
+                                adopted_millis INTEGER NOT NULL CHECK(typeof(adopted_millis)='integer' AND adopted_millis>=0),
+                                legacy_target INTEGER NOT NULL CHECK(typeof(legacy_target)='integer' AND legacy_target>=0),
+                                adopted_completed INTEGER NOT NULL CHECK(typeof(adopted_completed)='integer' AND adopted_completed>=0 AND adopted_completed<=legacy_target)
+                            )
+                            """);
+                    execute(connection,"""
+                            CREATE TABLE population_active_worlds (
+                                from_step INTEGER PRIMARY KEY CHECK(from_step>0),
+                                through_step INTEGER NOT NULL CHECK(typeof(through_step)='integer' AND through_step>=from_step), worlds TEXT NOT NULL
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX population_world_queue ON population_active_worlds(through_step)");
+                }
         ));
     }
 
@@ -381,6 +398,10 @@ final class SchemaMigrator {
                 requireColumns(connection,"industry_operations",Set.of("id","terms","quantity","explanation"));
                 requireColumns(connection,"industry_production",Set.of("business_id","period","operation_id"));
                 requireColumns(connection,"local_shipments",Set.of("id","seller_id","buyer_id","commodity","units","price","dispatched_period","due_period","delivered_period"));
+            }
+            if(migrations.size()>=29) {
+                requireColumns(connection,"online_calendar",Set.of("id","replay_version","adopted_millis","legacy_target","adopted_completed"));
+                requireColumns(connection,"population_active_worlds",Set.of("from_step","through_step","worlds"));
             }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));

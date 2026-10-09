@@ -75,6 +75,8 @@ public final class PopulationSession implements AutoCloseable {
     private EconomyRuntimeRepository economy;
     private final AtomicReference<java.util.Map<UUID, EconomyRuntimeRepository.View>> economyView = new AtomicReference<>(java.util.Map.of());
     private volatile String economyFailure;
+    private java.util.Set<UUID> loadedWorlds; // Owner-thread snapshot; null only for legacy headless harnesses.
+    private volatile boolean onlineOnly;
 
     public PopulationSession(File dataFolder, Logger logger, Settings settings, LongSupplier now) {
         this(dataFolder, logger, settings, now, null, FarmObservation.Policy.prototype());
@@ -123,6 +125,7 @@ public final class PopulationSession implements AutoCloseable {
     public java.util.Map<UUID, EconomyRuntimeRepository.View> economyView() { return economyView.get(); }
     public Optional<EconomySettings> economySettings() { return Optional.ofNullable(economySettings); }
     public String economyFailure() { return economyFailure; }
+    public boolean onlineOnly() { return onlineOnly; }
 
     public CompletableFuture<Status> start() {
         return start(true);
@@ -130,9 +133,17 @@ public final class PopulationSession implements AutoCloseable {
 
     /** Disable the real timer for accelerated tests; explicit pulses retain identical behavior. */
     public CompletableFuture<Status> start(boolean scheduleAutomatically) {
+        return start(scheduleAutomatically, null);
+    }
+
+    /** Live Paper adapter supplies immutable world IDs; no Bukkit object crosses the owner queue. */
+    public CompletableFuture<Status> start(boolean scheduleAutomatically, java.util.Set<UUID> initialWorlds) {
+        var initial = initialWorlds == null ? null : java.util.Set.copyOf(initialWorlds);
         if (!started.compareAndSet(false, true)) return CompletableFuture.failedFuture(new IllegalStateException("Session already started"));
+        onlineOnly = initial != null;
         return submit(() -> {
             try {
+                loadedWorlds = initial;
                 database.initialize();
                 var demographic = database.getDemographicRepository();
                 var saved = demographic.load(settings.population(), settings.migration());
@@ -142,13 +153,16 @@ public final class PopulationSession implements AutoCloseable {
                     throw new SQLException("Saved population seed differs; explicit transition required");
                 var clock = database.getCivilizationClockRepository();
                 if (clock.load(settings.millisPerMonth()).isEmpty()) clock.initialize(now.getAsLong(), settings.millisPerMonth());
-                var accrued = clock.accrue(now.getAsLong(), settings.millisPerMonth(),
-                        Math.multiplyExact(settings.millisPerMonth(), settings.maximumOfflineMonths()));
+                var accrued = loadedWorlds == null ? clock.accrue(now.getAsLong(), settings.millisPerMonth(),
+                        Math.multiplyExact(settings.millisPerMonth(), settings.maximumOfflineMonths()))
+                        : new CivilizationTime.Accrual(clock.resumeOnline(now.getAsLong(), settings.millisPerMonth()), 0, 0);
                 if (accrued.discardedMillis() > 0) logger.info("Prototype offline calendar cap discarded " + accrued.discardedMillis() + " real milliseconds");
                 advance(accrued.anchor().targetSteps());
                 if (economySettings != null) {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
-                    economy.start(now.getAsLong()); economyView.set(economy.views());
+                    if (loadedWorlds == null) economy.start(now.getAsLong());
+                    else economy.startOnline(now.getAsLong(), loadedWorlds);
+                    economyView.set(economy.views());
                 }
                 readyForWork = true;
                 if (scheduleAutomatically) timer = owner.scheduleWithFixedDelay(() -> {
@@ -160,6 +174,23 @@ public final class PopulationSession implements AutoCloseable {
             } catch (Exception failure) {
                 reportFailure(failure); database.close(); throw failure;
             }
+        });
+    }
+
+    /** Accrue the old world's interval before switching eligibility; saved masks retain queued work. */
+    public CompletableFuture<Void> updateLoadedWorlds(java.util.Set<UUID> worlds) {
+        var next = java.util.Set.copyOf(worlds);
+        long observed = now.getAsLong();
+        return submit(() -> {
+            requireReady();
+            if (loadedWorlds == null) throw new IllegalStateException("World availability requires online mode");
+            var clock = database.getCivilizationClockRepository();
+            var accrued = clock.accrueOnline(observed, settings.millisPerMonth(), loadedWorlds);
+            if (economy != null) economy.updateLoadedWorlds(observed, next);
+            loadedWorlds = next;
+            advance(accrued.anchor().targetSteps());
+            if (economy != null) economyView.set(economy.views());
+            return null;
         });
     }
 
@@ -291,7 +322,9 @@ public final class PopulationSession implements AutoCloseable {
     }
 
     private void pulseOnOwner() throws SQLException {
-        var queuedTime = database.getCivilizationClockRepository().accrue(now.getAsLong(), settings.millisPerMonth(), Long.MAX_VALUE);
+        var clock = database.getCivilizationClockRepository();
+        var queuedTime = loadedWorlds == null ? clock.accrue(now.getAsLong(), settings.millisPerMonth(), Long.MAX_VALUE)
+                : clock.accrueOnline(now.getAsLong(), settings.millisPerMonth(), loadedWorlds);
         var previous = status.get();
         status.set(new Status(previous.ready(), previous.completedMonths(), queuedTime.anchor().targetSteps(),
                 previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
@@ -306,7 +339,8 @@ public final class PopulationSession implements AutoCloseable {
     }
     private void advance(long target) throws SQLException {
         long began = System.nanoTime();
-        var result = database.getDemographicRepository().advance(target, settings.monthsPerBatch(), settings.population(), settings.migration());
+        var result = database.getDemographicRepository().advance(target, settings.monthsPerBatch(), settings.population(), settings.migration(),
+                loadedWorlds == null ? null : database.getCivilizationClockRepository().activeWorlds());
         var state = result.checkpoint().state(); publish(state);
         status.set(new Status(!closing.get(), result.checkpoint().completedSteps(), target, state.livingCount(), System.nanoTime() - began, null));
     }

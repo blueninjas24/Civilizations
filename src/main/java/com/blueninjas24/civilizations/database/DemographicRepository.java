@@ -82,9 +82,18 @@ public final class DemographicRepository {
 
     public SimulationRunner.Batch<PopulationState> advance(long targetSteps, int maximumSteps,
                                                            PopulationPolicy policy, MigrationPolicy migration) throws SQLException {
+        return advance(targetSteps,maximumSteps,policy,migration,null);
+    }
+
+    public SimulationRunner.Batch<PopulationState> advance(long targetSteps, int maximumSteps,
+                                                           PopulationPolicy policy, MigrationPolicy migration,
+                                                           java.util.function.LongFunction<java.util.Set<UUID>> activeWorlds) throws SQLException {
         begin();
         try {
             var before = read(policy, migration).orElseThrow(() -> new SQLException("Demographic clock not initialized"));
+            try (var s = connection.createStatement(); var r = s.executeQuery("SELECT EXISTS(SELECT 1 FROM online_calendar)")) {
+                if (r.getBoolean(1) && activeWorlds == null) throw new SQLException("Online demographic replay requires saved active-world masks");
+            }
             var worlds = new HashMap<UUID, String>();
             try (var statement = connection.createStatement(); var result = statement.executeQuery("""
                     SELECT s.id, COALESCE(w.world_id, 'legacy:' || s.world) AS world
@@ -94,8 +103,16 @@ public final class DemographicRepository {
             }
             var pending = new SimulationCheckpoint<>(before.seed(), before.completedSteps(), new Pending(before.state(), List.of()));
             var batch = SimulationRunner.advance(pending, targetSteps, maximumSteps, (state, context) -> {
-                var outcome = PopulationStep.advance(state.state(), context, policy);
-                var moved = PopulationMigration.advance(outcome.state(), context, policy.adulthoodSteps(), migration, worlds);
+                var active=new HashSet<UUID>();
+                if (activeWorlds == null) active.addAll(worlds.keySet());
+                else {
+                    var loaded = activeWorlds.apply(context.stepNumber());
+                    worlds.forEach((town, world) -> {
+                        if (!world.startsWith("legacy:") && loaded.contains(UUID.fromString(world))) active.add(town);
+                    });
+                }
+                var outcome = PopulationStep.advance(state.state(), context, policy, active);
+                var moved = PopulationMigration.advance(outcome.state(), context, policy.adulthoodSteps(), migration, worlds, active);
                 var events = new ArrayList<>(state.events());
                 events.addAll(outcome.events());
                 events.addAll(moved.events());

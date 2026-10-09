@@ -82,7 +82,10 @@ public final class Civilizations extends JavaPlugin {
             aid.runTaskTimer(this,20,100);
             purchases.runTaskTimer(this,20,100);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
-            var startup = population.start();
+            var availability = new com.blueninjas24.civilizations.paper.WorldAvailability(population, () -> getServer().getWorlds(), getLogger());
+            var startup = population.start(true, availability.snapshot());
+            getServer().getPluginManager().registerEvents(availability, this);
+            getLogger().info("Civilization time pauses during server downtime and for absent worlds; loaded-world chunks continue simulation.");
             // Completion callbacks run on the DB owner. Poll from Paper's main thread instead.
             new BukkitRunnable() {
                 @Override public void run() {

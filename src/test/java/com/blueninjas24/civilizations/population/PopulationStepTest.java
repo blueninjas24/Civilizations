@@ -19,6 +19,15 @@ class PopulationStepTest {
     private final Resident first = person(3, 240, home.id(), Resident.Status.ALIVE);
     private final Resident second = person(4, 240, home.id(), Resident.Status.ALIVE);
 
+    @Test void pausedSettlementRetainsAgesFamiliesAndLifeEvenUnderCertainBirthAndDeathRules() {
+        var before=couple(4);
+        var result=PopulationStep.advance(before,new SimulationRunner.Context(1,new Random(42)),policy(1,1),java.util.Set.of());
+        assertEquals(before,result.state());assertTrue(result.events().isEmpty());
+        var migration=PopulationMigration.advance(before,new SimulationRunner.Context(1,new Random(42)),216,
+                new MigrationPolicy(1,1),Map.of(settlement,"world"),java.util.Set.of());
+        assertEquals(before,migration.state());assertTrue(migration.events().isEmpty());
+    }
+
     @Test
     void eligibleBirthHasPermanentIdentityTwoParentsAndStructuredReason() {
         PopulationState before = couple(4);

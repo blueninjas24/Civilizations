@@ -18,6 +18,10 @@ the observed month. Succession/closure are not inferred from owner death.
 No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.md.
 
 ## Locked / approved
+- October 9 world/time clarification: pause absent worlds and server downtime.
+  Returning to an original world resumes saved population/economy without crediting
+  years of absence. Unloaded chunks in a loaded world still simulate; retain the
+  plugin DB, permanent world identity/history and already earned pending work.
 - October 9 industry clarification: mineral deposits are finite and never regrow or
   refill on restart/re-observation. Non-1:1 geology-based ore/rock byproducts share
   work. Sizes/capacities/abundance/rates are admin-editable with complete defaults;
@@ -73,10 +77,6 @@ No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.m
 - Public Civilizations source is acceptable after auditing secrets/history; Chronicler source remains private. This repository must not contain hidden Chronicler mechanics.
 
 ## Open — do not silently lock numerical/behavioral rules
-0. World switching: current global demographic/economic simulation can continue for
-   saved towns even when their world is absent. Asked whether absent worlds should
-   pause until return or continue evolving. A reply is pending; no per-world pause
-   or reset is silently introduced. Preserve matching world UUID/data and plugin DB.
 1. Exact criteria for recognizing a settlement: POI cluster, villagers, vanilla village, player-founded location; distinction from player settlement.
 2. Center/border evolution and merging/splitting criteria. World UUID and saved
    bed/villager identity matching approved; multi-town overlap must be diagnosed.
@@ -97,7 +97,7 @@ No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.m
 
 ### Engineering choices — October 7, 2026
 - October 8 approved economy prototype: separate `economy.yml`, one 60-second period,
-  offline cap 120 and batch two, adult/child food demand 2/1, output four per evidenced
+  legacy headless offline cap 120 and batch two, adult/child food demand 2/1, output four per evidenced
   available worker at editable 100%. Famine/feast recipes use 25%/200% output. Initial
   units per resident: food 12, timber/stone four each, iron/coal one each, livestock zero.
   Severe shortage <=50% coverage for three deficits; surplus >=125%, abundant >=200%.

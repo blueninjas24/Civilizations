@@ -2,6 +2,40 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 has started with tested business/site/founding/staffing storage; automatic businesses/production remain unwired, with 0/4 gameplay groups complete. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Approved server/world pause policy — October 9, 2026
+
+- Branch `codex/online-world-pause`: live Paper earns no time during server downtime
+  or for absent saved world UUIDs. Loaded worlds without players and unloaded chunks
+  still simulate. Population eligibility excludes paused towns from age/death/birth/
+  migration/arrival; live food/needs clocks and period execution pause too.
+- Schema 29 adds an audited online adoption and saved compressed world masks.
+  Accrual/masks commit atomically; pending replay retains eligibility over restart.
+  First adoption records and retires unverifiable uncompleted legacy demographic
+  backlog; completed history/ages/identities are not reset. Subsequent earned work
+  survives. Already earned economy queues wait for their world, not new downtime.
+- Twelve new temporary-DB/domain/Paper-adapter cases. Final Windows
+  `.\mvnw.cmd clean verify -B -ntp` passed 534 tests (532 unit/two packaged
+  integration), zero failures/errors/skips. Initial focused assertion incorrectly
+  expected already earned economic queue not to finish after return; clarified the
+  scenario, explicitly drained earned work, and added separate queue-pause coverage.
+- Marked disposable schema-28 DB backed up consistently before Paper upgrade to 29.
+  First native startup retained completed month 1658 despite the stopped interval;
+  normal online activity advanced to 1659 and diagnostics reported no failure.
+  Read-only integrity/FKs and previous settlement/resident/household IDs passed.
+- Second native restart after more than a minute stopped stayed at month 1659,
+  with zero queued months/no failure, then exited normally. Final read-only checks
+  retained old population/native-event/finance/family history and exact treasury
+  balances; integrity ok/no FK violations. Absence/load/unload transitions are
+  automated domain/SQLite/Paper-adapter tests, not a native multi-world playtest.
+- Shared calendar remains administrative chronology, not each paused world's age.
+  Population partial-month boundaries are shared; per-world demographic fractional
+  calendars remain unimplemented. Existing owner YAML is not rewritten; legacy
+  offline caps remain only for explicit headless harnesses. See ONLINE_WORLD_PAUSE.md.
+- Nine-phase roadmap unchanged. Phase 3 business/production groups remain partial
+  with 0/4 gameplay groups complete. Next: reliable site/resource evidence and
+  automatic founding/staffing/production using eligible economic periods. Human
+  client/compatibility/balancing still pending. No design answer needed for this batch.
+
 ## Finite mining and local warehouse accounting — October 9, 2026
 
 - Branch `codex/phase3-deposits-storage`: finite site/deposit identity retains
@@ -48,9 +82,9 @@
   and production reporting groups remain partial (0/4 completed gameplay groups).
   Next: reliable sites, bounded owner views, automatic founding/staffing and causal
   production/demand integration. Wider shop product eligibility remains future work.
-  World memory uses plugin DB + permanent world IDs; absent-world pause versus
-  continued global evolution is a pending user choice, with no implicit behavior
-  change. Local commit only, no merge/push. See FINITE_MINING_AND_WAREHOUSING.md.
+  World memory uses plugin DB + permanent world IDs. At this mining snapshot the
+  pause choice was pending; the subsequent approved pause batch supersedes it.
+  Local commit only, no merge/push. See FINITE_MINING_AND_WAREHOUSING.md.
 
 ## Phase 3 business and staffing foundation — October 9, 2026
 

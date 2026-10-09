@@ -144,7 +144,7 @@ responses:
 # Changing only the speed makes BOTH consumption and production happen more often.
 pace:
   seconds-per-period: 60
-  maximum-offline-periods: 120  # Catch-up cap; 0 = no offline economy catch-up.
+  maximum-offline-periods: 120  # Legacy headless cap only; live Paper pauses downtime.
   periods-per-batch: 2         # SQL-owner work budget, not a Paper tick deadline.
 
 food:

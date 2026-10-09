@@ -2,6 +2,11 @@
 
 Updated October 9, 2026. Based on verified work, not planned features.
 
+Latest foundation safeguard: villages pause while their world is absent or the
+server is stopped. They keep their people, supplies and history. Worlds with
+unloaded chunks still simulate. Wrapper verification passed 534 tests; this does
+not complete another Phase 3 gameplay milestone. See ONLINE_WORLD_PAUSE.md.
+
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
 completion. A phase is complete only after its canonical roadmap gate is passed.
@@ -30,7 +35,9 @@ not a replacement for ROADMAP.md or its design requirements.
 - [x] Households, basic family ties and the foundation for jobs. Saved households/relationships/skills and explainable age/skill qualification checks verified. Actual businesses/hiring belong to later phases.
 - [x] Aging, births and deaths. Saved headless rules, visible babies/adulthood, native deaths and simulated death removal verified on Paper.
 - [x] Immigration and emigration. Saved external arrivals and whole-household moves verified; five migrants materialized near their destination with permanent person IDs.
-- [x] Civilization calendar and saved simulation/catch-up state. Owner-thread timer, elapsed months, restart, bounded offline catch-up and read-only diagnostics verified.
+- [x] Civilization calendar and saved simulation state. Owner-thread timer,
+  bounded earned-work replay and diagnostics verified. October 9 approved policy:
+  server downtime/absent worlds pause; loaded-world unloaded chunks still simulate.
 - [x] Connect simulated people to visible villagers and in-game diagnostics; validate the population experience on Paper. Safe nearby spawning, names/ages, pending/activation restart recovery, native breeding coordination, approved zombie-conversion prevention, migration and death reconciliation verified with real Paper entities.
 
 First playable prototype reached: named residents persist, families/population change,

@@ -35,6 +35,29 @@ class EconomyRuntimeRepositoryTest {
     private EconomyRuntimeRepository runtime(EconomySettings settings) { return new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216); }
     private void observe(long time, boolean complete, long crops) throws SQLException { runtime.observe(new FarmObservation(town,world,time,complete,crops),time); }
     private void sql(String sql) throws SQLException { try (var s = db.getConnection().createStatement()) { s.execute(sql); } }
+    @Test void onlinePauseRetainsFractionAndQueuedGoodsUntilWorldReturns() throws SQLException {
+        observe(1000,true,0);runtime.startOnline(1000,Set.of(world));
+        runtime.pulse(2500,false);
+        assertEquals(1,runtime.views().get(town).account().state().completedPeriods());
+        runtime.updateLoadedWorlds(2500,Set.of());
+        var before=runtime.views().get(town).account();
+        runtime.pulse(1_000_000,false);assertEquals(before,runtime.views().get(town).account());
+        runtime.updateLoadedWorlds(1_000_000,Set.of(world));runtime.pulse(1_000_499,false);
+        assertEquals(before,runtime.views().get(town).account());
+        runtime.pulse(1_000_500,false);assertEquals(2,runtime.views().get(town).account().state().completedPeriods());
+    }
+    @Test void alreadyEarnedEconomyBacklogWaitsForAbsentWorldWithoutNewOfflineAccrual() throws SQLException {
+        observe(1000,true,0);runtime.startOnline(1000,Set.of(world));runtime.pulse(5000,false);
+        assertEquals(3,runtime.views().get(town).queuedPeriods());
+        runtime.updateLoadedWorlds(5000,Set.of());runtime.pulse(1_000_000,false);
+        assertEquals(3,runtime.views().get(town).queuedPeriods());
+        runtime=runtime(settings);runtime.startOnline(2_000_000,Set.of());
+        assertEquals(3,runtime.views().get(town).queuedPeriods());
+        runtime.updateLoadedWorlds(2_000_000,Set.of(world));
+        for(int i=0;i<3;i++)runtime.pulse(2_000_000,false);
+        assertEquals(4,runtime.views().get(town).account().state().completedPeriods());
+        assertEquals(0,runtime.views().get(town).queuedPeriods());
+    }
     @Test void explicitFoodReliefEndsCrisisWithoutFabricatedProductionOrDuplicateImports() throws SQLException {
         observe(1000,true,0);for(int period=1;period<=10;period++)runtime.pulse(1000L+1000L*period,false);
         assertEquals(Condition.SEVERE_SHORTAGE,runtime.views().get(town).needs().sharedFood());

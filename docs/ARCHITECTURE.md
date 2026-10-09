@@ -13,7 +13,11 @@ Illustrative dependency direction: `Paper listener -> application service -> dom
 - Database is source of truth for simulated population, businesses, resources, decisions and history; nearby Minecraft entities are projections of persistent residents.
 - Observation quality/timestamps distinguish unknown from zero. Do not overwrite authoritative state with partial loaded-chunk observations.
 - Two clocks: civilization calendar for generations/history; gameplay pacing for construction, trade and economic updates. Exact ratios are configurable/tunable, not yet locked.
-- Offline/unloaded simulation uses elapsed time in bounded steps; reconcile world effects over multiple ticks. Never force-load chunks just to progress statistics.
+- User-approved October 9: server downtime and absent worlds pause civilization.
+  Unloaded chunks within a loaded world still receive bounded data-only simulation;
+  reconcile physical effects over multiple ticks without forcing chunks to load.
+  Live time accrual saves active-world masks with earned population months. The
+  shared calendar is administrative chronology, not the age of a paused world.
 
 ## Identity and discovery
 - Use stable UUIDs, avoid identifying settlements by current name, player's position
