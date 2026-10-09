@@ -266,3 +266,10 @@ aid-preview:
 # Existing owner files without this section keep donations disabled until opted in.
 donations:
   enabled: true
+
+# Unsupported bulk editors pause new ore discovery, retaining saved deposits/history.
+# WorldEdit, FastAsyncWorldEdit and VoxelSniper are always guarded. Add other plugin
+# descriptor names here; this cannot certify unknown editors or offline world edits.
+# Removing/disabling an editor does not repair missing provenance automatically.
+ore-provenance:
+  additional-bulk-editor-plugins: []

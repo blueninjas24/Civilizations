@@ -1,5 +1,31 @@
 # Civilizations Development Log
 
+## October 9, 2026 — unsupported bulk-editor safeguard
+
+Branch `codex/phase3-editor-provenance-guard`. Installed WorldEdit/FAWE/VoxelSniper
+names and later enable events conservatively pause new ore discovery. Disabled
+installed editors also require reviewed recovery; removal does not clear gaps.
+Existing villages/deposits/history and editors themselves remain. Optional strict
+ore-provenance text settings add descriptor names, without removing built-in guards
+or rewriting owner files. Unknown/renamed editors, offline edits and hot reload are
+not certified; this is presence handling rather than mutation integration.
+
+Four new adapter/config cases; Windows Wrapper clean verify passed 653 (651 unit,
+two packaged integration), zero failures/errors/skips. Native test-plugin enable
+fenced its separate temporary owner; clean reopen retained untrusted history. Empty
+probe DB and main DB integrity/FKs passed; main industry/funds/exclusions unchanged,
+main clean/trusted fence and owner economy hash retained. No world edits/tickets.
+Startup month 1684 retained; online 1685. Normal stop exited 0; probe archived.
+An initial fixture deployment used an incorrect relative artifact path and was
+stopped normally; corrected absolute deployment supplied the passing native result.
+No production DB/world changes, new schema, real editor integration or human test.
+
+ORE_EDITOR_GUARD, development guide, tracking notes, checklist/status/progress/devlog
+updated. Phase 3 remains 1/4 (25%): safe nonfood opportunities/operation, renewable
+industry coverage, real customers, lifecycle and specialization remain. Succession
+needs the user's recipient choice before ownership implementation. Local feature
+commit only; no main merge/push.
+
 ## October 9, 2026 — atomic funded mine startup
 
 Branch `codex/phase3-atomic-mine-startup`. MiningStartupRepository now joins

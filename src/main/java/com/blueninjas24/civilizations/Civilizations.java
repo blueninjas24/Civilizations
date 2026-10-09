@@ -88,6 +88,10 @@ public final class Civilizations extends JavaPlugin {
             purchases.runTaskTimer(this,20,100);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
             population.configureOreTracking();
+            var editorGuard = new com.blueninjas24.civilizations.paper.OreEditorGuard(population, getLogger(),
+                    EconomyConfiguration.readAdditionalOreEditors(economyConfig));
+            getServer().getPluginManager().registerEvents(editorGuard, this);
+            editorGuard.inspectInstalled(java.util.List.of(getServer().getPluginManager().getPlugins()));
             orePlacements=new com.blueninjas24.civilizations.paper.OrePlacementTracker(population,getLogger());
             getServer().getPluginManager().registerEvents(orePlacements,this);
             var availability = new com.blueninjas24.civilizations.paper.WorldAvailability(population, () -> getServer().getWorlds(), getLogger());

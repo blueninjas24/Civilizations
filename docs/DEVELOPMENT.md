@@ -173,3 +173,13 @@ world-pause behavior. Its disable handler closes the session and removes only it
 own villagers/tickets. Stop normally, inspect databases read-only, and move the
 test probe JAR out of plugins afterward. The crop fixture may remain in this
 disposable world. This is not a human client acceptance test.
+
+OreEditorGuardProbe.java is a separate test-only plugin (name CivilizationsEditorProbe,
+main OreEditorGuardProbe, version 1, api-version 1.21, depend Civilizations). Compile
+against the packaged plugin/binary dependencies with empty sourcepath and package
+its descriptor separately. It requires the same marked localhost disposable server
+with no players, registers the production guard for its own configured name, and
+checks the actual enable event plus clean reopen using a separate empty temporary
+SQLite owner. It changes no world blocks, tickets or main settings. Stop normally,
+verify both fences/integrity read-only, archive the probe outside plugins. Never ship
+it with the distributed plugin. See ORE_EDITOR_GUARD.md.

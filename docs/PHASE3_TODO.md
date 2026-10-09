@@ -20,7 +20,10 @@ Updated October 9, 2026. Reporting progress remains one of four complete groups
 - [x] Save player-placement exclusions and enforce them against stale discovery.
 - [x] Capture native placements with clean-stop/failure protection and verify on Paper.
 - [x] Verify conservative piston movement exclusions on Paper.
-- [ ] Handle bulk-edit integration before automatic mines activate.
+- [x] Conservatively fence recognized/custom unsupported bulk-editor presence and
+      later enable events; verify real event and retained recovery gap on Paper.
+- [ ] Certify supported bulk-edit mutation integration before relaxing that fence;
+      unknown editors/offline edits remain outside provenance guarantees.
 - [x] Split complete observed coal/iron evidence into deterministic connected patches;
       retain coordinate identity and finite reserves on replay.
 - [ ] Connect safe loaded-chunk observation and coherent resource opportunities.

@@ -4,7 +4,7 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 649 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 653 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest Phase 3 step: villages can automatically start a funded farm, hire real
@@ -47,6 +47,12 @@ worker together. Failed startup leaves no partial business or missing money;
 retries preserve depleted ore and existing stock. Automated and packaged Paper
 checks passed. Automatic mine selection and production are still unfinished.
 See ATOMIC_MINE_STARTUP.md.
+
+Unsupported recognized world editors now pause new ore discovery instead of
+allowing bulk-placed ore to create reserves. Admins can add other editor names in
+economy.yml. Existing villages and saved deposits remain; restart retains warnings.
+The actual Paper enable event and recovery checks passed. This does not certify
+unknown editors or enable automatic mines. See ORE_EDITOR_GUARD.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project

@@ -2,6 +2,32 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## October 9, 2026 — unsupported bulk-editor safeguard
+
+Branch `codex/phase3-editor-provenance-guard`. Installed WorldEdit/FAWE/VoxelSniper
+names and later enable events conservatively pause new ore discovery. Disabled
+installed editors also require reviewed recovery; removal does not clear gaps.
+Existing villages/deposits/history and editors themselves remain. Optional strict
+ore-provenance text settings add descriptor names, without removing built-in guards
+or rewriting owner files. Unknown/renamed editors, offline edits and hot reload are
+not certified; this is presence handling rather than mutation integration.
+
+Four new adapter/config cases; Windows Wrapper clean verify passed 653 (651 unit,
+two packaged integration), zero failures/errors/skips. Native test-plugin enable
+fenced its separate temporary owner; clean reopen retained untrusted history. Empty
+probe DB and main DB integrity/FKs passed; main industry/funds/exclusions unchanged,
+main clean/trusted fence and owner economy hash retained. No world edits/tickets.
+Startup month 1684 retained; online 1685. Normal stop exited 0; probe archived.
+An initial fixture deployment used an incorrect relative artifact path and was
+stopped normally; corrected absolute deployment supplied the passing native result.
+No production DB/world changes, new schema, real editor integration or human test.
+
+ORE_EDITOR_GUARD, development guide, tracking notes, checklist/status/progress/devlog
+updated. Phase 3 remains 1/4 (25%): safe nonfood opportunities/operation, renewable
+industry coverage, real customers, lifecycle and specialization remain. Succession
+needs the user's recipient choice before ownership implementation. Local feature
+commit only; no main merge/push.
+
 ## October 9, 2026 — atomic funded mine startup
 
 Branch `codex/phase3-atomic-mine-startup`. MiningStartupRepository now joins

@@ -19,6 +19,7 @@ public final class EconomyConfiguration {
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
+        if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -27,6 +28,7 @@ public final class EconomyConfiguration {
         if (config.contains("bargaining")) rootKeys.add("bargaining");
         if (config.contains("barter")) rootKeys.add("barter");
         exactKeys(config, rootKeys);
+        readAdditionalOreEditors(config);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
@@ -225,6 +227,21 @@ public final class EconomyConfiguration {
         } catch (NumberFormatException | ArithmeticException invalid) {
             throw new IllegalArgumentException("purchases.trade-value-per-emerald must be finite with at most two decimal places", invalid);
         }
+    }
+    public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
+        if (!config.contains("ore-provenance")) return List.of();
+        var provenance = section(config, "ore-provenance");
+        exactKeys(provenance, Set.of("additional-bulk-editor-plugins"));
+        Object raw = provenance.get("additional-bulk-editor-plugins");
+        if (!(raw instanceof List<?> names) || names.size() > 32)
+            throw new IllegalArgumentException("additional-bulk-editor-plugins must be a list of at most 32 names");
+        var result = new ArrayList<String>();
+        for (Object value : names) {
+            if (!(value instanceof String name) || !name.matches("[A-Za-z0-9_-]{1,64}"))
+                throw new IllegalArgumentException("Bulk-editor names must be 1..64 letters, digits, underscore or hyphen");
+            result.add(name);
+        }
+        return List.copyOf(result);
     }
     private static void exactKeys(ConfigurationSection section, Set<String> expected) {
         if (!section.getKeys(false).equals(expected)) throw new IllegalArgumentException("Economy keys at "

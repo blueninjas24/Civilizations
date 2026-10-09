@@ -35,8 +35,9 @@ own lifecycle implementation, not resource capture or other independent work.
 The live placement fence is a conservative engineering safeguard, not a new mineral
 regeneration rule: capture failures/unclean stops pause new automatic discovery
 pending reviewed recovery. Existing settlements, reserves and history remain.
-Native placement capture does not certify piston/bulk-editor provenance; those
-integrations remain prerequisites before automatic mine founding. See LIVE_ORE_TRACKING.md.
+Native placements and conservative piston exclusions are verified. Recognized
+unsupported bulk-editor presence now fences discovery (ORE_EDITOR_GUARD.md); unknown
+editors/offline edits remain uncertified and supported operation integration is pending. See LIVE_ORE_TRACKING.md.
 
 ## October 9, 2026 — approved exposed existing ore prototype
 

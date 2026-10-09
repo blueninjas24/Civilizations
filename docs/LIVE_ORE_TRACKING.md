@@ -52,9 +52,10 @@ are taken from the API's moved-block list, not guessed from the piston head.
 
 Coordinate exclusions remain sticky after movement or breaking. Existing claims,
 reserve depletion and history are retained. Oversized/invalid evidence or failed
-saves uses the same gap fence as placements. Bulk world-edit plugins, external
-editors and other non-place mutations still need integration/conservative handling
-before automatic mines are activated. No world-edit plugin compatibility is claimed.
+saves uses the same gap fence as placements. Recognized unsupported bulk-editor presence and enable events now conservatively
+pause new discovery (ORE_EDITOR_GUARD.md); admins can add descriptor names. Unknown
+editors, external edits and other non-place mutations still need supported integration
+or reviewed handling before automatic mines are activated. No world-edit plugin compatibility is claimed.
 The fence is verified for normal full server stops/restarts; plugin hot reload and
 world edits while the plugin is absent are not certified tracking intervals.
 Healthy capture does not certify natural origin of old blocks. The user approved
