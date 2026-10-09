@@ -16,6 +16,7 @@ public final class EconomyConfiguration {
         if (config.contains("priorities")) rootKeys.add("priorities");
         if (config.contains("responses")) rootKeys.add("responses");
         if (config.contains("industry")) rootKeys.add("industry");
+        if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -35,6 +36,7 @@ public final class EconomyConfiguration {
         readBarter(config);
         readResponses(config);
         readIndustry(config);
+        readFarmBusinesses(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -62,6 +64,14 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    public static com.blueninjas24.civilizations.industry.FarmBusinessPolicy readFarmBusinesses(ConfigurationSection config) {
+        if(!config.contains("farm-businesses"))return com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
+        var settings=section(config,"farm-businesses");
+        exactKeys(settings,Set.of("enabled","worker-capacity","startup-trade-value-hundredths","minimum-age-months","minimum-farming-experience"));
+        if(!(settings.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-businesses.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.FarmBusinessPolicy(enabled,smallInteger(settings,"worker-capacity"),
+                integer(settings,"startup-trade-value-hundredths"),integer(settings,"minimum-age-months"),integer(settings,"minimum-farming-experience"));
     }
     /** Backend settings only until reliable discovery/founding/production adapters are implemented. */
     public static IndustryPolicy readIndustry(ConfigurationSection config) {

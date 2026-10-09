@@ -14,7 +14,7 @@ public final class EconomyRuntimeRepository {
     }
     public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods,
                        HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority, FoodAid foodAid,
-                       FoodAppeals.Snapshot appeal, List<HouseholdWellbeing.Snapshot> wellbeing, FoodResponses.Plan response) {
+                       FoodAppeals.Snapshot appeal, List<HouseholdWellbeing.Snapshot> wellbeing, FoodResponses.Plan response, String farmBusiness) {
         public View { wellbeing = List.copyOf(wellbeing); }
         /** Derived from immutable retained period inputs; never from mutable current reserves. */
         public Optional<FoodImportImpact.Outcome> foodImportImpact() {
@@ -31,7 +31,11 @@ public final class EconomyRuntimeRepository {
     private final long adulthood;
     private final VillagePriorities.Policy priorities;
     private final long seed;
-    private final String signature;
+    private String signature;
+    private com.blueninjas24.civilizations.industry.FarmBusinessPolicy farmBusinesses=com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
+    private FarmEnterprises enterprises;
+    private boolean inUse;
+    private final Map<UUID,String> enterpriseReasons=new HashMap<>();
     private final OpeningFunds openingFunds;
     private final HouseholdWellbeing.Policy wellbeing;
     private final FoodResponses.Settings responses;
@@ -64,6 +68,7 @@ public final class EconomyRuntimeRepository {
         if (adulthood < 1) throw new IllegalArgumentException("Invalid adult threshold");
     }
     public void start(long now) throws SQLException {
+        inUse=true;
         for (var town : towns()) transaction(() -> {
             var clock = clock(town);
             if (!commodities.read(town).orElseThrow().state().stocks().keySet().equals(settings.startingPerResident().keySet()))
@@ -103,6 +108,12 @@ public final class EconomyRuntimeRepository {
         for (var town : towns()) transaction(() -> { accrue(town, now, false); return null; });
         loadedWorlds = Set.copyOf(worlds);
     }
+    /** Configure once before use; startup applies existing-save forward settings transitions. */
+    public void configureFarmBusinesses(com.blueninjas24.civilizations.industry.FarmBusinessPolicy policy) throws SQLException {
+        if(inUse || enterprises!=null)throw new IllegalStateException("Configure farm businesses once before using runtime");
+        farmBusinesses=Objects.requireNonNull(policy);enterprises=new FarmEnterprises(connection,policy,adulthood);
+        if(policy.enabled())signature+="|farm-business-v1:"+policy;
+    }
     private boolean active(UUID town) throws SQLException {
         if (loadedWorlds == null) return true;
         try (var s = connection.prepareStatement("SELECT world_id FROM settlement_worlds WHERE settlement_id=?")) {
@@ -112,16 +123,20 @@ public final class EconomyRuntimeRepository {
     }
     /** Older/equal evidence is idempotent. Partial observations pause; never seed a zero-food village. */
     public void observe(FarmObservation evidence, long now) throws SQLException {
+        inUse=true;
         transaction(() -> {
             var old = farm(evidence.settlement());
             if (old != null && old.observedMillis() >= evidence.observedMillis()) return null;
             try (var s = connection.prepareStatement("""
-                    INSERT INTO farm_evidence VALUES (?,?,?,?,?)
+                    INSERT INTO farm_evidence(settlement_id,world_id,observed_millis,complete,planted_crops,site_x,site_y,site_z) VALUES (?,?,?,?,?,?,?,?)
                     ON CONFLICT(settlement_id) DO UPDATE SET world_id=excluded.world_id, observed_millis=excluded.observed_millis,
-                    complete=excluded.complete, planted_crops=excluded.planted_crops
+                    complete=excluded.complete, planted_crops=excluded.planted_crops,site_x=excluded.site_x,site_y=excluded.site_y,site_z=excluded.site_z
                     """)) {
                 s.setString(1, evidence.settlement().toString()); s.setString(2, evidence.world().toString()); s.setLong(3, evidence.observedMillis());
-                s.setInt(4, evidence.complete() ? 1 : 0); s.setLong(5, evidence.plantedCrops()); s.executeUpdate();
+                s.setInt(4, evidence.complete() ? 1 : 0); s.setLong(5, evidence.plantedCrops());
+                if(evidence.representativeCrop()==null)for(int i=6;i<=8;i++)s.setNull(i,Types.INTEGER);
+                else {var crop=evidence.representativeCrop();s.setInt(6,crop.x());s.setInt(7,crop.y());s.setInt(8,crop.z());}
+                s.executeUpdate();
             }
             if (evidence.complete() && living(evidence.settlement(), false) + living(evidence.settlement(), true) > 0 && !hasRuntime(evidence.settlement())) {
                 long people = living(evidence.settlement(), false) + living(evidence.settlement(), true);
@@ -336,6 +351,7 @@ public final class EconomyRuntimeRepository {
                 && loadedWorlds == null ? Math.multiplyExact(clock.cadence(),settings.maximumOfflinePeriods()) : Long.MAX_VALUE).anchor());
     }
     public int pulse(long now, boolean offline) throws SQLException {
+        inUse=true;
         var towns = towns();
         for (var town : towns) transaction(() -> {
             accrue(town,now,offline);
@@ -345,6 +361,8 @@ public final class EconomyRuntimeRepository {
         if (towns.isEmpty()) return processed;
         for (int visited = 0; visited < towns.size() && processed < settings.periodsPerBatch(); visited++) {
             var town = towns.get(Math.floorMod(cursor++, towns.size()));
+            if(farmBusinesses.enabled() && active(town) && clock(town).completed()<clock(town).anchor().targetSteps())
+                enterpriseReasons.put(town,enterprises.prepare(farm(town),farms.cropsPerWorker()));
             if (transaction(() -> step(town))) processed++;
         }
         return processed;
@@ -355,7 +373,8 @@ public final class EconomyRuntimeRepository {
         if (farm == null || !farm.complete() || clock.completed() == clock.anchor().targetSteps()) return false;
         var account = commodities.read(town).orElseThrow();
         long adults = living(town, false), children = living(town, true);
-        long output = settings.foodProduction(adults, OptionalLong.of(farm.plantedCrops() / farms.cropsPerWorker()));
+        long labor=farmBusinesses.enabled()?enterprises.workers(town):adults;
+        long output = settings.foodProduction(labor, OptionalLong.of(farm.plantedCrops() / farms.cropsPerWorker()));
         long nextPeriod=Math.incrementExact(clock.completed());var deliveries=new FoodDeliveryRepository(connection);
         var incoming=deliveries.eligible(town,nextPeriod);
         var flows = new TreeMap<Commodity, Flow>(); account.state().stocks().keySet().forEach(commodity -> flows.put(commodity, Flow.idle()));
@@ -390,7 +409,9 @@ public final class EconomyRuntimeRepository {
                     new FoodAid(pending.deliveries(),pending.eligibleNextPeriodUnits()),
                       new FoodAppealRepository(connection).load(town, account.state().completedPeriods()).orElse(null),
                       new HouseholdWellbeingRepository(connection).load(town,account.state().completedPeriods()),
-                      new FoodResponseRepository(connection).load(town,account.state().completedPeriods()).orElse(null)));
+                      new FoodResponseRepository(connection).load(town,account.state().completedPeriods()).orElse(null),
+                      farmBusinesses.enabled()?enterpriseReasons.getOrDefault(town,"Farm business enabled; awaiting eligible economic period"):
+                              "Automatic farm businesses disabled; legacy field accounting"));
         }
         return Collections.unmodifiableMap(result);
     }
@@ -427,9 +448,15 @@ public final class EconomyRuntimeRepository {
         try (var s = connection.prepareStatement("SELECT * FROM farm_evidence WHERE settlement_id=?")) {
             s.setString(1, town.toString()); try (var r = s.executeQuery()) {
                 return r.next() ? new FarmObservation(town, UUID.fromString(r.getString("world_id")), r.getLong("observed_millis"),
-                        r.getInt("complete") == 1, r.getLong("planted_crops")) : null;
+                        r.getInt("complete") == 1, r.getLong("planted_crops"),cropSite(r)) : null;
             }
         }
+    }
+    private static com.blueninjas24.civilizations.settlement.VillageObservation.Position cropSite(ResultSet r) throws SQLException {
+        Object x=r.getObject("site_x"),y=r.getObject("site_y"),z=r.getObject("site_z");
+        if(x==null && y==null && z==null)return null;
+        if(x==null || y==null || z==null)throw new SQLException("Incomplete saved farm site coordinates");
+        return new com.blueninjas24.civilizations.settlement.VillageObservation.Position(r.getInt("site_x"),r.getInt("site_y"),r.getInt("site_z"));
     }
     private Clock clock(UUID town) throws SQLException {
         try (var s = connection.prepareStatement("SELECT r.*,a.completed_periods FROM economy_runtime r JOIN economy_accounts a USING(settlement_id) WHERE settlement_id=?")) {

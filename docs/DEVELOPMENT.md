@@ -95,3 +95,22 @@ Retain multiple versions and test recovery before relying on backups.
 
 `.gitignore` is a Git rule, not a OneDrive exclusion. Moving the active checkout or
 restoring server data has not been performed by this development batch.
+
+## Manual automatic-farm native fixture
+
+src/test/paper/FarmBusinessProbe.java is compiled separately against the packaged
+plugin and Paper API dependencies, then packaged with a test-only plugin.yml:
+name CivilizationsFarmProbe, main FarmBusinessProbe, version 1, api-version 1.21,
+depend Civilizations. It is outside Maven's production and unit-test source roots;
+never install it on a real server or ship it in the plugin JAR.
+
+Only the marked disposable localhost server on port 25577 with no players is
+accepted. Back up its stopped Civilizations DB consistently before deploying a
+new plugin. The probe uses its own randomly named data-directory session and
+temporary database, two real test villagers, and 32 crop blocks around 1024/1024.
+It creates test-only chunk tickets and clears space above its small crop fixture.
+It verifies real snapshot evidence, founding, workers, food, startup spending and
+world-pause behavior. Its disable handler closes the session and removes only its
+own villagers/tickets. Stop normally, inspect databases read-only, and move the
+test probe JAR out of plugins afterward. The crop fixture may remain in this
+disposable world. This is not a human client acceptance test.

@@ -1,5 +1,34 @@
 # Civilizations Development Log
 
+## Automatic funded farms and assigned production — October 9, 2026
+
+- Connected real crop observations to one persistent village field enterprise,
+  qualified available founder/workers, actual once-only startup debit, saved site
+  and worker-backed food. No duplicate legacy adult output or double primary jobs.
+  Configurable defaults live in economy.yml; old files opt in and are not rewritten.
+- Added schema 30 nullable crop coordinates, deterministic founding/employment IDs,
+  replacement staffing, explicit blockers and admin food/business explanations.
+  Existing founding terms/history survive restart/tuning; smaller fields cap output.
+  Server/world pause remains intact. Nonfood automation/construction remain later.
+- Ten temporary SQLite scenarios plus two config cases cover funding, qualifications,
+  incomplete/legacy fields, shared labor, replacement, failure/retry, restart/pause,
+  migration and 240-period conservation. Initial validation caught two old migration
+  tests using newest runtime readers against deliberately rewound schemas; switched
+  checks to the compatible history repositories. Final Wrapper clean verify passed
+  553 tests (551 unit/two integration), zero failures/errors/skips.
+- Separately compiled test-only Paper fixture after excluding dependency source JARs
+  from manual javac classpath. Native real crop snapshots produced one farm, two
+  workers and eight food units; startup charged once and absent-world pause passed.
+  Consistent marked-dev backup preceded upgrade; normal shutdown exited zero.
+  Read-only old IDs/history/funds, schema 30, integrity/FKs and saved probe site passed.
+  Owner configuration hash unchanged; probe archived, server stopped. No production
+  world/data or main change. FarmBusinessProbe's own test crop fixture is disposable.
+- Updated automatic farm guide, owner settings, decisions, development instructions,
+  foundation/runtime notes, status and progress. Phase 3 first prototype reporting
+  group complete: 1/4 (25%); chains, turnover and specialization remain unfinished.
+  Next: connect another justified industry and its actual input/output accounting.
+  No new consequential design choice or user answer required; local feature commit only.
+
 ## Live staffing maintenance and business diagnostics — October 9, 2026
 
 - Connected saved businesses to the existing SQL-owner runtime: transactional

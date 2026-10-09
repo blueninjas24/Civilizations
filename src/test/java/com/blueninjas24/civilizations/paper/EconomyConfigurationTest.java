@@ -13,6 +13,16 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void automaticFarmDefaultsAreEditableAndOldFilesRemainDisabled() throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.FarmBusinessPolicy.prototype(),EconomyConfiguration.readFarmBusinesses(config));
+        config.set("farm-businesses.worker-capacity",8);assertEquals(8,EconomyConfiguration.readFarmBusinesses(config).workerCapacity());
+        config.set("farm-businesses",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readFarmBusinesses(config).enabled());
+    }
+    @Test void partialOrInvalidAutomaticFarmSettingsFailBeforeDatabaseStartup() throws Exception {
+        var config=defaults();config.set("farm-businesses.startup-trade-value-hundredths",-1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var bad=defaults();bad.set("farm-businesses.enabled","yes");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(bad));
+        var partial=defaults();partial.set("farm-businesses.minimum-age-months",null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(partial));
+    }
     @Test void barterSettingsAreEditableDisabledInitiallyAndOldFilesStayUntouched() throws Exception {
         var config=defaults();assertEquals(FoodBarters.Policy.prototype(),EconomyConfiguration.readBarter(config));
         config.set("barter.enabled",true);config.set("barter.goods.timber.units-per-item",2);config.set("barter.goods.timber.keep-units",10);

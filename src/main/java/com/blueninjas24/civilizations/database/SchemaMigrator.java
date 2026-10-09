@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 29;
+    static final int CURRENT_VERSION = 30;
 
     @FunctionalInterface
     interface Migration {
@@ -286,6 +286,10 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX population_world_queue ON population_active_worlds(through_step)");
+                },
+                connection -> {
+                    for(var coordinate:List.of("site_x","site_y","site_z"))
+                        execute(connection,"ALTER TABLE farm_evidence ADD COLUMN "+coordinate+" INTEGER CHECK("+coordinate+" IS NULL OR typeof("+coordinate+")='integer')");
                 }
         ));
     }
@@ -403,6 +407,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"online_calendar",Set.of("id","replay_version","adopted_millis","legacy_target","adopted_completed"));
                 requireColumns(connection,"population_active_worlds",Set.of("from_step","through_step","worlds"));
             }
+            if(migrations.size()>=30)requireColumns(connection,"farm_evidence",Set.of("site_x","site_y","site_z"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

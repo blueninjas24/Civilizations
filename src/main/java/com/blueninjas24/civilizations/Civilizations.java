@@ -55,6 +55,7 @@ public final class Civilizations extends JavaPlugin {
                     + "; edit economy.yml while stopped and restart to change settings.");
             population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis, economySettings, farmSettings,
                     EconomyConfiguration.readPriorities(economyConfig), openingFunds, EconomyConfiguration.readWellbeing(economyConfig),EconomyConfiguration.readResponses(economyConfig));
+            population.configureFarmBusinesses(EconomyConfiguration.readFarmBusinesses(economyConfig));
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)
                             .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);

@@ -1,5 +1,19 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 9, 2026 — automatic field enterprise prototype
+
+Under the user's approval to choose editable economy prototype settings, one
+village-wide field enterprise can start from complete actual crop evidence, an
+available adult and existing startup funds. New-file defaults: capacity four,
+25 Trade Value startup, age at least 216 months/adulthood, beginner experience zero.
+Existing owner files explicitly opt in. Assigned workers replace legacy adult
+field labor; no double production or invented capital. This aggregates observed
+fields for the first farm prototype, not permanent zoning or a per-building rule.
+Saved sites grant no crop ownership or block modification rights. Existing founding
+terms survive tuning; expansion, closure, succession, wages and nonfood automatic
+industries remain later scoped work. No locked design principle changes and no
+new user answer is required for this batch. See AUTOMATIC_FARMS.md.
+
 ## October 9, 2026 — Phase 3 business persistence boundary
 
 First backend batch uses explicit caller-supplied site/opportunity, age/skill

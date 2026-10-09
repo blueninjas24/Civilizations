@@ -1,6 +1,46 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 has started with tested business/site/founding/staffing storage; automatic businesses/production remain unwired, with 0/4 gameplay groups complete. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+
+## Automatic field enterprises — October 9, 2026
+
+- Branch `codex/phase3-automatic-farms`: complete actual Paper crop evidence can
+  establish one persistent village-wide field enterprise, select an available adult
+  founder, pay actual startup funds once and hire eligible residents. Stable site,
+  business and employment episode identities preserve history and retry safety.
+  No crop ownership, block harvesting, construction or invented money is introduced.
+- Optional editable farm-businesses defaults: enabled for new files, four workers,
+  2500 hundredths (25 Trade Value), at least adulthood/216 months, zero beginner
+  farming experience. Existing owner files remain unchanged and disabled until
+  explicitly opted in. Forward tuning retains old history and existing firm terms.
+- Assigned workers replace legacy all-adult farm labor; output is constrained by
+  actual observed field slots and settings. Other open jobs exclude candidates.
+  Dead/moved workers retain ended history and can be replaced. Smaller fields lower
+  production without silently dismissing workers. Absent worlds/server downtime pause.
+- Schema 30 adds nullable site coordinates transactionally. Legacy counts have no
+  fabricated site and require a fresh complete survey for founding. Founding/site/
+  capital share a transaction; hiring and food periods have their own transactions.
+  Failed food periods retain valid founding/jobs and retry without double charges.
+- Ten temporary-SQLite farm scenarios and two configuration cases added, including
+  240-period conservation, restart, partial/missing evidence, absent worlds, funding/
+  skills, worker replacement, injected failures and migration rollback. Two older
+  migration tests now inspect compatible records directly while deliberately holding
+  an old schema. Final Windows `.\mvnw.cmd clean verify -B -ntp` passed **553** cases
+  (551 unit/two packaged integration), zero failures/errors/skips.
+- Marked disposable schema-29 DB backed up consistently before schema-30 deployment.
+  Separate native Paper probe used real 32-crop snapshots and two test villagers:
+  one farm/two workers, output eight, treasury 10000 -> 7500 once; absent-world
+  periods/stocks stayed frozen. Main plugin diagnostics reported no failure and
+  retained month 1660 after downtime. Normal shutdown exited zero. Read-only checks
+  preserved prior IDs/history/funds, passed integrity/FKs in both databases, and
+  verified the saved actual crop site. Owner economy.yml hash was unchanged.
+  Probe was archived outside plugins; test server is stopped. Test-only chunk
+  tickets/entities were released; only the marked disposable crop fixture remains.
+- AUTOMATIC_FARMS.md documents settings, scope and limitations. First Phase 3
+  reporting group is complete for the farm prototype; the full canonical industry
+  gate is not passed. Nonfood industry, skills progression, wages, business revenue,
+  expansion, closure/succession, chains and specialization remain next scoped work.
+  No user decision blocks the next milestone; no merge/push or main change.
 
 ## Live business staffing bridge and diagnostics — October 9, 2026
 
@@ -1030,6 +1070,6 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   changed; no schema change, production data, merge or push. Phase 1 stays 90%.
 
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has four of four prototype reporting groups complete; Phase 3 has a tested business-storage/staffing foundation but zero of four completed gameplay groups. Phases 4–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has four of four prototype reporting groups complete; Phase 3 has one of four groups complete with automatic farm businesses. Phases 4–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.

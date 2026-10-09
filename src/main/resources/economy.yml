@@ -7,6 +7,20 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# First automatic Phase 3 enterprise: one village-wide field business.
+# Complete observed crops + free qualified adults + actual village funds required.
+# No block ownership, harvesting or building. Food output REPLACES legacy field output.
+# Workers also cannot hold another primary business job. No extra production/money.
+# Older files without this section retain legacy food; add the complete section to opt in.
+# Existing firm's capacity/requirements/startup terms are retained after edits.
+# 2500 hundredths = 25.00 abstract Trade Value, charged once at founding.
+farm-businesses:
+  enabled: true
+  worker-capacity: 4
+  startup-trade-value-hundredths: 2500
+  minimum-age-months: 216
+  minimum-farming-experience: 0
+
 # Phase 3 backend prototype. Automatic discovery/business production is not active yet.
 # Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.
 # An observed ore block is deposit evidence, not one item. At discovery only:

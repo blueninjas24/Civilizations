@@ -38,7 +38,7 @@ class FoodBarterRepositoryTest {
         return runtime.quoteFoodBarter(UUID.randomUUID(),p,town,units,"WHEAT",(int)units,Commodity.TIMBER,policy,foods,61000);
     }
     private String reserve(FoodBarters.Terms terms)throws SQLException{return runtime.reserveFoodBarter(terms,policy,foods,61000);}
-    private long timber()throws SQLException{return runtime.views().get(town).account().state().stocks().get(Commodity.TIMBER).units();}
+    private long timber()throws SQLException{return new CommodityRepository(db.getConnection()).read(town).orElseThrow().state().stocks().get(Commodity.TIMBER).units();}
     private long count(String table)throws SQLException{try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){return r.getLong(1);}}
     private void sql(String text)throws SQLException{try(var s=db.getConnection().createStatement()){s.execute(text);}}
     @Test void quoteMovesNothingAndReserveRestartCompletionCreditsFoodExactlyOnce()throws SQLException {
@@ -105,7 +105,7 @@ class FoodBarterRepositoryTest {
         var needs=runtime.views().get(town).needs();SchemaFixtures.rewind(db.getConnection(),23);sql("CREATE TABLE food_barters(bad TEXT)");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(23,r.getInt(1));}
-        assertEquals(needs,runtime.views().get(town).needs());assertEquals(16,timber());
+        assertEquals(needs,new HouseholdNeedsRepository(db.getConnection()).load(town,needs.period()).orElseThrow());assertEquals(16,timber());
         sql("DROP TABLE food_barters");new SchemaMigrator().migrate(db.getConnection());assertEquals(0,count("food_barters"));assertEquals(0,count("barter_stock_moves"));
     }
     @Test void accelerated240PeriodFamineNeverReplenishesBarterStocksAndConservesEveryTradeAcrossRestart()throws SQLException {

@@ -4,12 +4,13 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 541 tests; this does
-not complete another Phase 3 gameplay milestone. See ONLINE_WORLD_PAUSE.md.
+unloaded chunks still simulate. Latest Wrapper verification passed 553 tests.
+See ONLINE_WORLD_PAUSE.md for the pause policy.
 
-Latest Phase 3 step: the running plugin maintains saved staffing records when a
-worker dies or moves, and admins can inspect business owners, workers and vacancies.
-Automatic recognition, founding/hiring and production remain next. See BUSINESS_RUNTIME.md.
+Latest Phase 3 step: villages can automatically start a funded farm, hire real
+residents and produce food from their observed fields. Owners, workers and sites
+persist across restarts. The real Paper fixture verified founding, output, once-only
+spending and world pause. Old owner settings explicitly opt in. See AUTOMATIC_FARMS.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
@@ -21,7 +22,7 @@ not a replacement for ROADMAP.md or its design requirements.
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 0 / 4 | `░░░░░░░░░░` 0% |
+| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 1 / 4 | `██▌░░░░░░░` 25% |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -84,7 +85,7 @@ mortality, actual business employment, recurring nonfood industry, physical hous
 construction, regional trade or reputation is claimed here. Those remain in the
 canonical later phases or require separate consequential tuning.
 
-Phase 3 — persistent businesses and industry — is next. Phases 3–9 remain 0%.
+Phase 3 — persistent businesses and industry — is underway at 1/4 (25%). Phases 4–9 remain 0%.
 Percentages count verified reporting groups, not hours or overall plugin completion.
 
 Earlier batch notes below describe progress at that time; the current Phase 2 gate
@@ -119,21 +120,25 @@ trade prototype group is complete, advancing Phase 2 to 75%; broader autonomous
 responses/outcome learning still block 100%. Human survival/client/plugin testing
 remains required for release. See PLAYER_BARTER.md.
 
-## Phase 3 — started: business storage and staffing foundation
+## Phase 3 — automatic farm businesses: 1/4 prototype groups verified
 
-- [ ] Persistent businesses, owners, workers and sites.
+- [x] Persistent businesses, owners, workers and sites. Automatic field enterprise verified on actual Paper; other industries remain next.
 - [ ] Resources and connected production chains.
 - [ ] Business founding, competition, closure and succession.
 - [ ] Emergent specialization and tested business turnover.
 
-First milestone is partially implemented: real business/site identity, founders,
-initial owners, qualified hiring, finite worker capacity, once-only startup spending
-and retained employment history now have tested backend APIs. Dead/migrated people
-cannot count as current workers. Live bounded staffing maintenance and admin
-business diagnostics now connect saved records to the running plugin. Automatic
-site recognition and founding/hiring remain the next gate; registration produces no goods
-yet. Phase 3 stays 0/4 completed gameplay milestones rather than counting backend
-work as a finished in-game feature. See BUSINESS_FOUNDATION.md.
+First milestone now has an automatic farm prototype: complete crop surveys locate
+a real site, a qualified available resident starts a farm with actual village funds,
+and assigned workers produce field-bounded food. Saved ownership/jobs, once-only
+startup spending, restart and replacement staffing are verified. No worker or food
+is counted twice. Admin diagnostics explain blockers and production. Wrapper passed
+553 tests; the real Paper fixture verified 32 crops, two workers, eight food units,
+one startup charge and absent-world pause. Existing owner configs stay unchanged and
+must opt in. No buildings appear yet. See AUTOMATIC_FARMS.md.
+
+The remaining groups still require connected input/output industries, business
+competition/closure/succession and emergent specialization/turnover. This 25% counts
+one verified reporting group, not a quarter of total code or a full Phase 3 gate.
 
 Resource/production group now also has verified partial work: finite mining with
 shared rock byproducts, bounded business storage and actual local warehouse buying/

@@ -77,6 +77,7 @@ public final class PopulationSession implements AutoCloseable {
     private volatile String economyFailure;
     private java.util.Set<UUID> loadedWorlds; // Owner-thread snapshot; null only for legacy headless harnesses.
     private volatile boolean onlineOnly;
+    private com.blueninjas24.civilizations.industry.FarmBusinessPolicy farmBusinessPolicy=com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
     private com.blueninjas24.civilizations.database.BusinessRuntime businesses;
     private final AtomicReference<com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot> businessView =
             new AtomicReference<>(com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot.empty());
@@ -129,6 +130,10 @@ public final class PopulationSession implements AutoCloseable {
     public Optional<EconomySettings> economySettings() { return Optional.ofNullable(economySettings); }
     public String economyFailure() { return economyFailure; }
     public boolean onlineOnly() { return onlineOnly; }
+    public void configureFarmBusinesses(com.blueninjas24.civilizations.industry.FarmBusinessPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure farm businesses before session starts");
+        farmBusinessPolicy=java.util.Objects.requireNonNull(policy);
+    }
     public com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot businessView() { return businessView.get(); }
 
     public CompletableFuture<Status> start() {
@@ -165,6 +170,7 @@ public final class PopulationSession implements AutoCloseable {
                 advance(accrued.anchor().targetSteps());
                 if (economySettings != null) {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
+                    economy.configureFarmBusinesses(farmBusinessPolicy);
                     if (loadedWorlds == null) economy.start(now.getAsLong());
                     else economy.startOnline(now.getAsLong(), loadedWorlds);
                     economyView.set(economy.views());

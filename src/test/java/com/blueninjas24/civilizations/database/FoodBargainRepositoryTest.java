@@ -92,7 +92,8 @@ class FoodBargainRepositoryTest {
         var needs=runtime.views().get(town).needs();SchemaFixtures.rewind(db.getConnection(),22);sql("CREATE TABLE food_bargains(bad TEXT)");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(22,r.getInt(1));}
-        assertEquals(needs,runtime.views().get(town).needs());assertEquals(4800,balance());
+        assertEquals(needs,new HouseholdNeedsRepository(db.getConnection()).load(town,needs.period()).orElseThrow());
+        assertEquals(4800,new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths());
         sql("DROP TABLE food_bargains");new SchemaMigrator().migrate(db.getConnection());assertEquals(1,discuss(5,61000).result().failedAttempts());
     }
 }

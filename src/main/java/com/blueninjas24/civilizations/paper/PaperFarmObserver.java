@@ -119,7 +119,10 @@ public final class PaperFarmObserver extends BukkitRunnable {
         }
         FarmObservation evidence() {
             if (inspected.stream().anyMatch(chunk -> !chunk.isLoaded())) complete = false;
-            return new FarmObservation(town, world.getUID(), System.currentTimeMillis(), complete, crops.size());
+            var representative=crops.stream().min(Comparator.comparingInt(com.blueninjas24.civilizations.settlement.VillageObservation.Position::x)
+                    .thenComparingInt(com.blueninjas24.civilizations.settlement.VillageObservation.Position::y)
+                    .thenComparingInt(com.blueninjas24.civilizations.settlement.VillageObservation.Position::z)).orElse(null);
+            return new FarmObservation(town, world.getUID(), System.currentTimeMillis(), complete, crops.size(),representative);
         }
     }
 }

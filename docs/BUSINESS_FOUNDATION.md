@@ -1,8 +1,9 @@
 # Persistent business and staffing foundation
 
-This is the first Phase 3 backend batch. Ordinary villages do not automatically
-start businesses yet. Current food production, player exchanges and welfare remain
-unchanged. No buildings, blocks, villagers, personal wallets or salaries are created.
+This describes the first Phase 3 backend batch. Subsequent automatic field
+enterprises connect these APIs to funded founding, staffing and food output;
+see AUTOMATIC_FARMS.md for current behavior and owner opt-in. Other industries
+remain backend work. No buildings, personal wallets or salaries are created.
 
 ## Implemented records
 
