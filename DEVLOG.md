@@ -1,5 +1,30 @@
 # Civilizations Development Log
 
+## Admin-controlled opening capital — October 8, 2026
+
+- Branch `codex/phase2-configurable-opening-funds`: approved file-first economy
+  control; optional finance section enables one-time funds and an exact editable
+  Trade Value per living resident. New-file prototype 24.00; missing old sections
+  keep grants disabled. Comments and ECONOMY_TUNING explain opt-in/ranges/restart.
+- SQL-owner runtime opens capital with reliable enrollment or explicit startup
+  activation for unfunded economies. Population/rate/amount retained in receipt;
+  initialized zero/manual/spent balances survive new people, retuning and restart.
+  Failure rolls back opening plus enrollment together; no recurring income/payroll.
+- Eight new temporary-DB/config cases; final Windows Wrapper clean verify -B -ntp
+  passed 377 (375 unit/two packaged integration), zero failures/errors/skips.
+  Early runs exposed two new fixture mistakes; corrected nonexistent factory and
+  missing world binding without application changes. No schema migration (still 20).
+- Backed up confirmed-dev DB; pinned Paper passed 48.00 once for two people,
+  restart at 99.00/resident without refill, one ledger receipt, food/famine/donation/
+  recovery and unloaded checks. Normal plugin-only startup/diagnostics/shutdown
+  passed. Original identities/family/projection rows retained; integrity/FKs valid.
+  Old server economy file untouched, grants disabled. Probe archived outside plugin
+  folder and absent from production JAR. No production data, main, merge or push.
+- Recorded approved negotiation/reserves/cooldown/admin direction; these remain
+  planned, not wired. Next: recoverable budget-backed emerald exchanges, followed by
+  protected barter and bargaining with corresponding editable settings. Phase 2
+  stays 1/4 full reporting groups. Human client, balance and scale checks remain.
+
 ## Initial finances and contextual payment direction — October 8, 2026
 
 - User resolved the finance questions: moderate initial finances, then causal gains/

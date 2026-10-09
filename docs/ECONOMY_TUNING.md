@@ -64,6 +64,35 @@ for that commodity remains separate implementation work.
 
 ## Editing safely
 
+### Starting village funds
+
+New server files include this editable section:
+
+```yaml
+finance:
+  opening-funds-enabled: true
+  opening-trade-value-per-resident: 24
+```
+
+This opens a shared village spending budget once, based on its saved living people.
+The amount is abstract Trade Value, not emeralds added to an inventory. Use up to
+two decimal places, between 0 and 1000000. At default food prices, 24 represents
+roughly six periods of adult food demand. This is an experimental starting amount.
+
+Older files without `finance` keep grants disabled. Add the complete section to
+opt in: economies without a treasury receive capital at startup using their current
+living population. Existing accounts never refill, even if their balance is zero.
+Setting the amount to zero creates an initialized zero account; later changing it
+does not grant more. Disabling grants preserves all existing balances/history.
+Births, immigrants, unloaded chunks and server restarts cannot mint repeat grants.
+
+Stop, edit and restart to apply. Funding-only edits affect future openings; they do
+not reset food stocks or its clock. There is no economy mutation/reload command.
+Payments, barter, protected trade reserves and negotiation remain future features;
+their controls will be added here as the corresponding code is implemented.
+
+### Apply file changes
+
 1. Stop the server and back up your settings and save.
 2. Open `economy.yml` in a text editor. Keep its indentation; use numbers without
    quotes or percent signs. Comments beginning with `#` explain each section.

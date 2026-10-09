@@ -2,10 +2,35 @@
 
 Village budgets and prices use exact hundredths of abstract Trade Value. Treasury
 is spending capacity; it is not personal wealth or a prosperity score. This batch
-prepares finance mechanics, without enabling payments or giving live villages money.
+provides finance mechanics and configurable one-time opening capital, without player payments.
 The user has now approved a moderate configurable initial financial position and
-both emerald payments and contextual barter. The funding and payment adapters
-remain to be implemented; no live account is seeded by the current code.
+both emerald payments and contextual barter. Opening funding is wired to the SQL
+owner; payments, barter and negotiation remain to be implemented.
+
+## Configurable opening funds
+
+The optional `finance` section in server `plugins/Civilizations/economy.yml` controls
+`opening-funds-enabled` and `opening-trade-value-per-resident`. New files enable the
+prototype amount 24.00 Trade Value per saved living resident, including children.
+At default prices this equals six adult food-demand periods, or twelve child periods;
+it is only an initial-condition approximation, not wages or proof of prosperity.
+Existing files lacking this section retain disabled grants. Invalid/partial sections,
+quoted numbers, negative/nonfinite values and fractional cents fail before DB startup.
+Amounts may range from zero to 1,000,000 Trade Value per resident.
+
+An enabled new economy opens its treasury atomically with reliable farm enrollment.
+Explicitly enabling grants on an older server also initializes existing runtimes
+without a treasury at startup, using their current saved living population. This is
+activation-time capital, not a backdated grant. Empty villages wait for living residents.
+The receipt records population, exact per-resident amount and total. SQL failure rolls
+back the entire owner transaction; retry cannot create a second grant.
+
+Existing treasuries, including manually administered or zero balances, are preserved.
+Changing the amount, births, migration, re-observation and entity loads never refill
+an initialized account. Disable stops future grants without erasing balances.
+Funding-only edits do not change the food clock or discard food catch-up; the opening
+receipt retains the actual rate used. Schema stays 20 with the existing treasury ledger.
+No currency items, recurring income, salaries or personal bank accounts are created.
 
 ## Exact quotes
 
@@ -47,17 +72,18 @@ neither a debit nor goods; retry commits both, and food enters a future period o
 These fixtures are not a player transaction, payout, live supplier or funding policy.
 Opening/credits/debits also roll back together; committed receipts survive restart.
 
-Schema remains 20. No live/server database, world, owner configuration or Minecraft
-inventory is changed by this batch. Tests cover exact/partial/unknown budgets, 10,000
+Schema remains 20. The earlier quote/transaction batch changed no live/server database,
+world, owner configuration or Minecraft inventory. Its tests cover exact/partial/unknown budgets, 10,000
 seeded affordability cases, integer boundaries, existing scarcity price integration,
 shared rollback, retry, restart and unchanged standalone transaction contracts.
-Paper/client payout and funding tests are required when those adapters are built.
+Opening funding has since passed temporary-SQLite and disposable Paper checks.
+Paper/client payout tests are required when payment adapters are built.
 
 
 ## Approved next finance direction
 
 Residents may begin financially neutral/moderate. A configurable one-time village
-opening budget will represent initial spendable capital; its numeric scale is a
+opening budget now represents initial spendable capital; its numeric scale is a
 prototype, independent of qualitative household prosperity. Subsequent spending
 and actual revenue will change the account. Reloading or recreating visible
 villagers must never reset or replenish it. This is initial-condition seeding, not
@@ -71,4 +97,4 @@ prices will be configurable. Example stack quantities are not guaranteed exchang
 rates. A merchant's profession alone cannot create goods or a source of income.
 
 See DECISIONS_AND_OPEN_QUESTIONS.md for the user clarification and implementation
-boundaries. These approved directions have not yet passed implementation gates.
+boundaries. Opening funds are implemented; payment, barter and negotiation gates remain ahead.

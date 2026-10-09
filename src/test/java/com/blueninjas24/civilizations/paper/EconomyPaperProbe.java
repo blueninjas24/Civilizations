@@ -22,6 +22,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private PopulationSession session;
     private PaperFarmObserver observer;
     private EconomySettings economy;
+    private OpeningFunds openingFunds;
     private PopulationSession.Settings population;
     private File scenario;
     private CompletableFuture<?> future;
@@ -56,6 +57,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
             }
             var config=new YamlConfiguration(); try(var reader=new InputStreamReader(Objects.requireNonNull(plugin.getResource("economy.yml")),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
             economy=EconomyConfiguration.read(config); economy=tune(economy,100);
+            openingFunds=EconomyConfiguration.readOpeningFunds(config);
             var base=PopulationSession.Settings.prototype();
             population=new PopulationSession.Settings(base.seed(),base.millisPerMonth(),base.maximumOfflineMonths(),base.monthsPerBatch(),
                     new PopulationPolicy(12,216,240,480,720,0,0,0),new MigrationPolicy(0,0),base.recognition(),base.enrollment());
@@ -70,7 +72,8 @@ public final class EconomyPaperProbe extends JavaPlugin {
     }
     private EconomySettings tune(EconomySettings base,int output){return new EconomySettings(1,0,2,base.adultFoodUnits(),base.childFoodUnits(),base.foodUnitsPerWorker(),
             output,base.shortages(),base.startingPerResident(),base.baseTradeValues(),base.pricePercent());}
-    private void open(){session=new PopulationSession(scenario,getLogger(),population,now::get,economy,FarmObservation.Policy.prototype());future=session.start(false);}
+    private void open(){session=new PopulationSession(scenario,getLogger(),population,now::get,economy,FarmObservation.Policy.prototype(),
+            VillagePriorities.Policy.prototype(),openingFunds);future=session.start(false);}
     private boolean ready(){if(!future.isDone())return false;future.join();return true;}
     private void scan(){observer=new PaperFarmObserver(session,FarmObservation.Policy.prototype());observer.runTaskTimer(this,1,1);}
     private void crops(boolean planted){for(int x=X+4;x<X+12;x++)for(int z=Z+4;z<Z+12;z++){
@@ -99,7 +102,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
             require(report.flow().production()==8&&report.demand()==4&&report.after().units()==28,"Production/demand wrong");
             var needs=session.economyView().get(town).needs();require(needs!=null&&needs.homes().size()==1&&needs.homes().getFirst().foodDemand()==4,"Household needs wrong");
             require(needs.homes().getFirst().supplied()==4 && needs.homes().getFirst().unmetPeriods()==0 && needs.unassignedSupplied()==0,"Household supply allocation wrong");
-            require(session.economyView().get(town).treasury()==null,"Invented starting treasury");
+            require(session.economyView().get(town).treasury().hundredths()==4800,"Configured opening capital wrong");
             verifyAidPreview();
             new PopulationDebugCommand(session,()->"Food test").onCommand(Bukkit.getConsoleSender(),Objects.requireNonNull(Bukkit.getPluginCommand("civ")),"civ",new String[]{"debug","economy",town.toString()});
             crops(false);observer.cancel();scan();stage++;}
@@ -109,8 +112,10 @@ public final class EconomyPaperProbe extends JavaPlugin {
             famineNeeds=view.needs();require(famineNeeds.homes().getFirst().supplied()==0 && famineNeeds.homes().getFirst().unmetPeriods()>0,"Family famine allocation missing");require(famineNeeds.sharedFood()==Condition.SEVERE_SHORTAGE,"Needs did not retain crisis evidence");
             famineAppeal=view.appeal();require(famineAppeal!=null&&famineAppeal.status()==FoodAppeals.Status.OPEN&&famineAppeal.unmet()==4,"Food appeal did not open");
             faminePriority=view.priority();require(faminePriority!=null&&faminePriority.selected()==VillagePriorities.Action.SEEK_FOOD,"Crisis priority wrong");
-            observer.cancel();session.close();economy=tune(economy,200);now.addAndGet(10000);open();stage++;}
+            observer.cancel();session.close();economy=tune(economy,200);openingFunds=new OpeningFunds(true,9900);now.addAndGet(10000);open();stage++;}
         case 6->{if(!ready())return;require(famine.equals(session.economyView().get(town).latest()),"Past famine report changed on retuning");
+            require(session.economyView().get(town).treasury().hundredths()==4800,"Restart or tuning refilled treasury");
+            getLogger().info("OPENING_FUNDS_PASSED: configured population grant once, restart/retuning retained balance");
             require(famineNeeds.equals(session.economyView().get(town).needs()),"Household history changed on restart/retuning");
             require(famineAppeal.equals(session.economyView().get(town).appeal()),"Appeal changed on restart");
             require(faminePriority.equals(session.economyView().get(town).priority()),"Priority history changed on restart/retuning");

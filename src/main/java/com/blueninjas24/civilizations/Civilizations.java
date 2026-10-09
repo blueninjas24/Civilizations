@@ -46,7 +46,11 @@ public final class Civilizations extends JavaPlugin {
             getLogger().info("Economy prototype settings validated: " + economySettings.secondsPerPeriod()
                     + " seconds/period, food output " + economySettings.foodOutputPercent()
                     + "%; food accounting waits for reliable field evidence.");
-            population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis, economySettings, farmSettings,EconomyConfiguration.readPriorities(economyConfig));
+            var openingFunds = EconomyConfiguration.readOpeningFunds(economyConfig);
+            getLogger().info("Opening village funds: " + (openingFunds.enabled() ? "enabled; grants apply once to economies without a treasury" : "disabled")
+                    + "; edit economy.yml while stopped and restart to change settings.");
+            population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis, economySettings, farmSettings,
+                    EconomyConfiguration.readPriorities(economyConfig), openingFunds);
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)
                             .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);

@@ -1,6 +1,11 @@
 # Civilizations — locked decisions and unresolved questions
 
 ## Locked / approved
+- October 8 negotiation/admin clarification: user approved the proposed need-based
+  bargaining direction: accept/counter/refuse, configurable failed-round limit and
+  cooldown, protected essential supplies, reasons visible to players, no automatic
+  reputation penalty merely for disagreement. Server admins choose economy behavior
+  primarily through a commented text file. Numeric defaults remain tunable prototypes.
 - October 8 finance clarification: initial residents may begin at a moderate,
   neutral financial position rather than requiring player contributions to bootstrap
   every village. Use documented configurable prototype opening capital as its
@@ -280,3 +285,18 @@ Purchases must debit available funds and preserve both goods and payment receipt
 
 This entry records product direction, not an implemented funding or payment feature.
 Prototype values and payment/stock safety still require implementation and tests.
+
+## October 8, 2026 — configurable opening funds implementation
+
+Approved prototype authority sets 24.00 Trade Value per living resident once, in the
+shared treasury, enabled in new economy.yml files. Existing owner files require adding
+the optional finance section to opt in. Explicit opt-in seeds existing economic
+runtimes without treasuries at activation using their current living population;
+not a fabricated historical income. All initialized balances, including zero and
+manual openings, survive retuning, spending, population changes and re-observation.
+Zero grant deliberately initializes zero; disabled leaves absent accounts unknown.
+Opening receipts retain the population/rate and share the owner transaction. Existing
+schema 20 suffices; funding-only edits do not alter food-clock tuning/history.
+See FINANCE_FOUNDATION.md and ECONOMY_TUNING.md. Player payouts and negotiation are
+not implemented by this funding batch. No personal payroll/wallet design is added;
+the master design's abstract household prosperity remains authoritative.

@@ -20,13 +20,19 @@ public final class EconomyRuntimeRepository {
     private final VillagePriorities.Policy priorities;
     private final long seed;
     private final String signature;
+    private final OpeningFunds openingFunds;
     private int cursor;
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood) {
         this(connection,settings,farms,adulthood,VillagePriorities.Policy.prototype(),0);
     }
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood,
                                     VillagePriorities.Policy priorities, long seed) {
+        this(connection, settings, farms, adulthood, priorities, seed, OpeningFunds.disabled());
+    }
+    public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood,
+                                    VillagePriorities.Policy priorities, long seed, OpeningFunds openingFunds) {
         this.connection = connection; this.commodities = new CommodityRepository(connection);
+        this.openingFunds = Objects.requireNonNull(openingFunds);
         this.priorities = Objects.requireNonNull(priorities); this.seed = seed;
         this.settings = settings; this.farms = farms; this.adulthood = adulthood;
         signature = "food-runtime-1|" + settings + "|" + farms + "|adult=" + adulthood;
@@ -53,6 +59,7 @@ public final class EconomyRuntimeRepository {
                     s.setLong(1, Math.multiplyExact(settings.secondsPerPeriod(), 1000)); s.setString(2, signature); s.setString(3, town.toString()); s.executeUpdate();
                 }
             }
+            initializeOpeningFunds(town);
             return null;
         });
         pulse(now, true);
@@ -83,6 +90,7 @@ public final class EconomyRuntimeRepository {
                     s.setLong(3, now); s.setLong(4, 0); s.setLong(5, completed); s.setString(6, signature); s.executeUpdate();
                 }
             }
+            if (evidence.complete() && hasRuntime(evidence.settlement())) initializeOpeningFunds(evidence.settlement());
             if (!evidence.complete() && hasRuntime(evidence.settlement())) {
                 var clock = clock(evidence.settlement());
                 saveClock(evidence.settlement(), new CivilizationTime.Anchor(Math.max(now, clock.anchor().lastObservedMillis()), 0, clock.completed()));
@@ -165,6 +173,18 @@ public final class EconomyRuntimeRepository {
         try (var s = connection.prepareStatement("SELECT COUNT(*) FROM residents WHERE settlement_id=? AND status='ALIVE' AND age_steps " + (children ? "<" : ">=") + " ?")) {
             s.setString(1, town.toString()); s.setLong(2, adulthood); try (var r = s.executeQuery()) { return r.getLong(1); }
         }
+    }
+    /** Called inside the runtime's transaction. Existing accounts, including zero, are never topped up. */
+    private void initializeOpeningFunds(UUID town) throws SQLException {
+        if (!openingFunds.enabled()) return;
+        var treasury = new TreasuryRepository(connection);
+        if (treasury.load(town).isPresent()) return;
+        long people = Math.addExact(living(town, false), living(town, true));
+        if (people == 0) return;
+        var operation = UUID.nameUUIDFromBytes(("civilizations-opening-funds-1|" + town)
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        treasury.initializeRows(operation, town, openingFunds.amount(people),
+                "Prototype opening capital: living-residents=" + people + "; hundredths-per-resident=" + openingFunds.hundredthsPerResident());
     }
     private List<UUID> towns() throws SQLException {
         var result = new ArrayList<UUID>();

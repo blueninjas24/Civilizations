@@ -6,6 +6,19 @@
 # and starvation effects are not enabled.
 format-version: 1
 
+# Starting spending capacity, NOT emerald items or individual salaries.
+# New economies receive this amount per living resident ONCE. Enabling this on an
+# existing server also opens accounts for active economies that have NO treasury.
+# Existing accounts (even empty ones) never refill. Births/migration/restarts do not
+# add grants. Disabling stops new grants; it does not erase existing money.
+# 24 Trade Value is about six adult food periods at the default balanced food price.
+# This is experimental initial capital, not ongoing business revenue.
+# Valid amount: 0..1000000, at most two decimal places; 0 creates a recorded zero account.
+# Old files without this entire section keep grants disabled. Add it to opt in.
+finance:
+  opening-funds-enabled: true
+  opening-trade-value-per-resident: 24
+
 # Nonbinding priorities: seek food, investigate crowded homes, or monitor.
 # Buying/building is not enabled. Review sooner if pressure appears, escalates or clears.
 # These weights bias seeded choices among feasible, reasonably competitive priorities.

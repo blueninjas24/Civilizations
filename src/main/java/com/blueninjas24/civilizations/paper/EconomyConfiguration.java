@@ -15,11 +15,13 @@ public final class EconomyConfiguration {
         if (config.contains("priorities")) rootKeys.add("priorities");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
+        if (config.contains("finance")) rootKeys.add("finance");
         exactKeys(config, rootKeys);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
         readDonationsEnabled(config);
+        readOpeningFunds(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -82,6 +84,22 @@ public final class EconomyConfiguration {
             units.put(id, integer(items, id));
         }
         return new FoodAidPreview.Policy(enabled, smallInteger(section, "radius-blocks"), units);
+    }
+    /** Existing owner files require explicit opt-in; never silently mint opening capital. */
+    public static OpeningFunds readOpeningFunds(ConfigurationSection config) {
+        if (!config.contains("finance")) return OpeningFunds.disabled();
+        var finance = section(config, "finance");
+        exactKeys(finance, Set.of("opening-funds-enabled", "opening-trade-value-per-resident"));
+        if (!(finance.get("opening-funds-enabled") instanceof Boolean enabled))
+            throw new IllegalArgumentException("finance.opening-funds-enabled must be true or false");
+        Object value = finance.get("opening-trade-value-per-resident");
+        if (!(value instanceof Number)) throw new IllegalArgumentException("finance.opening-trade-value-per-resident must be a number");
+        try {
+            long cents = new BigDecimal(value.toString()).movePointRight(2).longValueExact();
+            return new OpeningFunds(enabled, cents);
+        } catch (NumberFormatException | ArithmeticException invalid) {
+            throw new IllegalArgumentException("finance.opening-trade-value-per-resident must be finite with at most two decimal places", invalid);
+        }
     }
     private static ConfigurationSection section(ConfigurationSection config, String path) {
         var section = config.getConfigurationSection(path);

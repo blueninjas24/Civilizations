@@ -13,6 +13,31 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void adminsCanTuneOpeningFundsWithoutOverwritingOlderFiles() throws Exception {
+        var config = defaults();
+        assertEquals(OpeningFunds.prototype(), EconomyConfiguration.readOpeningFunds(config));
+        config.set("finance.opening-trade-value-per-resident", 12.25);
+        assertEquals(3675, EconomyConfiguration.readOpeningFunds(config).amount(3));
+        config.set("finance.opening-funds-enabled", false);
+        assertFalse(EconomyConfiguration.readOpeningFunds(config).enabled());
+        config.set("finance", null);
+        assertEquals(OpeningFunds.disabled(), EconomyConfiguration.readOpeningFunds(config));
+        EconomyConfiguration.read(config);
+    }
+    @Test void invalidFinanceEditsFailBeforeStartupRatherThanGuessingMoney() throws Exception {
+        for (Object value : new Object[]{-1, 1000001, 1.001, "24", Double.NaN, Double.POSITIVE_INFINITY}) {
+            var config = defaults(); config.set("finance.opening-trade-value-per-resident", value);
+            assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(config));
+        }
+        for (String key : List.of("finance.opening-funds-enabled", "finance.opening-trade-value-per-resident")) {
+            var config = defaults(); config.set(key, null);
+            assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(config));
+        }
+        var config = defaults(); config.set("finance.opening-funds-enabled", "yes"); var invalidBoolean = config;
+        assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(invalidBoolean));
+        config = defaults(); config.set("finance.extra", 1); var typo = config;
+        assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(typo));
+    }
     @Test void existingFilesDoNotSilentlyEnableDonationsAndInvalidEditsFail() throws Exception {
         var config=defaults();assertTrue(EconomyConfiguration.readDonationsEnabled(config));config.set("donations",null);assertFalse(EconomyConfiguration.readDonationsEnabled(config));
         config=defaults();config.set("donations.enabled","yes");var invalid=config;assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(invalid));

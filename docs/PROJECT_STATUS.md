@@ -1,6 +1,35 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and conserved food allocation, saved planning priorities, explicit delivery accounting, confirmed player food donations and voluntary food appeals are implemented; treasury accounting, shared transaction support and exact affordability quotes are prepared, while funding, complete wellbeing and broader response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and conserved food allocation, saved planning priorities, explicit delivery accounting, confirmed player food donations, voluntary food appeals and configurable one-time opening funds are implemented; treasury accounting, shared transaction support and exact affordability quotes are prepared, while player payments, complete wellbeing and broader response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+
+## Configurable opening funds — October 8, 2026
+
+- Branch `codex/phase2-configurable-opening-funds`: admins control one-time opening
+  capital in the commented server economy.yml. New files enable 24.00 Trade Value
+  per living resident; existing files without finance retain disabled grants.
+- Reliable economic enrollment and its opening receipt share a transaction.
+  Explicit opt-in also funds existing runtimes without treasuries at startup,
+  based on activation-time living people. Every initialized account, including zero
+  or a manually administered account, is preserved through retuning/re-observation,
+  population changes, spending and restart. No recurring income/personal payroll.
+- Eight added automated cases; Windows Wrapper clean verify passed 377 cases
+  (375 unit/two packaged integration), zero failures/errors/skips. Covers admin
+  validation, fractional values, disabled/zero grants, opt-in, restart, retained
+  accounts, overflow and injected save failure rollback/retry. Initial verification
+  found two new fixture errors (nonexistent settings factory and missing world binding);
+  corrected fixtures without weakening application behavior.
+- Schema remains 20, existing ledger used; no reset or automatic owner file rewrite.
+  Funding-only edits leave food-clock history/catch-up intact. Paid exchanges,
+  protected barter reserves and negotiation are upcoming, with file-first admin tuning.
+  Phase 2 stays 1/4 full groups; no design question currently blocks the next batch.
+- Disposable pinned Paper passed configured 48.00 opening capital, unchanged balance
+  after restarting with 99.00 per resident, and prior food/donation/famine/unloaded
+  checks. Native save showed exactly one opening receipt and valid integrity/FKs.
+  Normal single-plugin startup, read-only diagnostics and clean shutdown passed;
+  original saved people/households/family/projection identities retained. Consistent
+  schema-20 dev backup taken first; old server config left untouched with grants off.
+  Production JAR excludes probes/JUnit. No human client payment/bargaining test yet;
+  no production data, main, merge or push changed.
 
 ## Finance direction clarified — October 8, 2026
 
@@ -115,10 +144,10 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 
 ## Immediate next work
 1. Economy tuning approved and implemented in commented `economy.yml`. Next:
-   a safe player inventory handoff for the tested food-delivery ledger, execution
-   of feasible responses, actual treasury funding/spending integration and
-   household allocation/full wellbeing. Saved household needs and explicit treasury
-   accounting are now implemented; no automatic taxation or personal wealth inferred.
+   recoverable budget-backed emerald purchases, protected barter and negotiation,
+   execution of feasible responses, fuller wellbeing and attributable outcomes.
+   Confirmed food donations, family food allocation and configurable opening capital
+   are implemented. No automatic taxation or personal wealth inferred.
 2. Human client playtest can follow later; user authorized Phase 2 without it.
    Preserve vanilla profession/trades/inventory when physical villagers are recreated,
    and handle other native transformations before recommending established survival worlds.
