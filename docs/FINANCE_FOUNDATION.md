@@ -2,10 +2,11 @@
 
 Village budgets and prices use exact hundredths of abstract Trade Value. Treasury
 is spending capacity; it is not personal wealth or a prosperity score. This batch
-provides finance mechanics and configurable one-time opening capital, without player payments.
+provides finance mechanics and configurable one-time opening capital. The subsequent
+purchase batch adds budget-backed player food payments (see FOOD_PURCHASES.md).
 The user has now approved a moderate configurable initial financial position and
 both emerald payments and contextual barter. Opening funding is wired to the SQL
-owner; payments, barter and negotiation remain to be implemented.
+owner; emerald food purchases are wired, while barter and negotiation remain ahead.
 
 ## Configurable opening funds
 
@@ -97,4 +98,5 @@ prices will be configurable. Example stack quantities are not guaranteed exchang
 rates. A merchant's profession alone cannot create goods or a source of income.
 
 See DECISIONS_AND_OPEN_QUESTIONS.md for the user clarification and implementation
-boundaries. Opening funds are implemented; payment, barter and negotiation gates remain ahead.
+boundaries. Opening funds and budget-backed emerald food purchases are implemented; barter and
+negotiation gates remain ahead. See FOOD_PURCHASES.md for saved-exchange proof and limits.

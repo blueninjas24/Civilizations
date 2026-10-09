@@ -28,6 +28,7 @@ public final class Civilizations extends JavaPlugin {
     private ManagedVillagerLifecycle lifecycle;
     private PaperFarmObserver farms;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
+    private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
 
     @Override
     public void onEnable() {
@@ -64,8 +65,12 @@ public final class Civilizations extends JavaPlugin {
             var previewPolicy = EconomyConfiguration.readAidPreview(economyConfig);
             aid = new com.blueninjas24.civilizations.paper.FoodAidTransfers(this,population,previewPolicy,
                     EconomyConfiguration.readDonationsEnabled(economyConfig), getServer().getLevelDirectory().resolve("players/data"));
-            getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.FoodAidMenu(this,population,aid,previewPolicy),this);
+            purchases = new com.blueninjas24.civilizations.paper.FoodPurchaseTransfers(this,population,previewPolicy,
+                    EconomyConfiguration.readPurchases(economyConfig),getServer().getLevelDirectory().resolve("players/data"));
+            getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.FoodAidMenu(this,population,aid,previewPolicy,purchases),this);
             aid.runTaskTimer(this,20,100);
+            purchases.runTaskTimer(this,20,100);
+            getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
             var startup = population.start();
             // Completion callbacks run on the DB owner. Poll from Paper's main thread instead.
             new BukkitRunnable() {
@@ -93,6 +98,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (purchases != null) purchases.close();
         if (aid != null) aid.close();
         if (projector != null) projector.close();
         if (lifecycle != null) lifecycle.flush();

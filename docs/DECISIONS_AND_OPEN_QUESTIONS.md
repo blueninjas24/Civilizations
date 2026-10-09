@@ -300,3 +300,20 @@ schema 20 suffices; funding-only edits do not alter food-clock tuning/history.
 See FINANCE_FOUNDATION.md and ECONOMY_TUNING.md. Player payouts and negotiation are
 not implemented by this funding batch. No personal payroll/wallet design is added;
 the master design's abstract household prosperity remains authoritative.
+
+
+## October 8, 2026 — editable emerald food purchase prototype
+
+Under the user's configurable economy prototype authority, new files enable food
+purchases at 8.00 Trade Value per emerald, targeting three food-demand periods and
+capping an exchange at 64 emeralds. Older files missing this optional section keep
+sales disabled. Current scarcity value floors to actual whole emeralds, limited by
+available treasury and unmet need; no guaranteed stack ratio or recurring income.
+A village must actually seek food with reliable reports and no queued catch-up.
+Existing reserved purchases and donations reduce available need. Whole ordinary
+held stacks exchange for currency in the same slot after explicit confirmation.
+Saved accepted terms remain immutable through retuning/disable and retry.
+Schema 21 and saved player proof protect once-only funds/items/food accounting.
+This is a verified emerald purchase prototype, not barter or bargaining, and does
+not attribute reputation. Full cross-save backup/native-death/plugin compatibility
+remain validation work. No personal wallets, industry income or salary rules added.

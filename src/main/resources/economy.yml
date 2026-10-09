@@ -2,8 +2,8 @@
 # On a server: plugins/Civilizations/economy.yml
 # Keep indentation: two spaces. Use numbers without quotes and % signs.
 # Edit while stopped, then restart. This file is never overwritten automatically.
-# Live food accounting uses planted fields and saved residents. Merchant transactions
-# and starvation effects are not enabled.
+# Live food accounting uses planted fields and saved residents. Optional village
+# food purchases pay emeralds. Barter, bargaining and starvation effects are not enabled.
 format-version: 1
 
 # Starting spending capacity, NOT emerald items or individual salaries.
@@ -18,6 +18,19 @@ format-version: 1
 finance:
   opening-funds-enabled: true
   opening-trade-value-per-resident: 24
+
+# Village food purchases, separate from free donations. Sneak-right-click, then Sell.
+# Ordinary vanilla trading is unchanged. Old files without this section keep sales off.
+# Villages buy only when seeking food, with reliable reports and actual funds.
+# Whole confirmed held stacks only: split a large stack if it exceeds remaining need.
+# Payment replaces the consumed stack in the main-hand slot; never drops overflow.
+# The market value rounds DOWN to whole emeralds. Only actual payment debits funds.
+# Disabling new sales still permits pending-trade recovery at its original saved rate.
+purchases:
+  enabled: true
+  trade-value-per-emerald: 8     # 0.01..1000000, up to two decimal places.
+  food-reserve-periods: 3       # Buy toward this many demand periods (1..100).
+  maximum-emeralds: 64          # Per whole-stack deal (1..64).
 
 # Nonbinding priorities: seek food, investigate crowded homes, or monitor.
 # Buying/building is not enabled. Review sooner if pressure appears, escalates or clears.

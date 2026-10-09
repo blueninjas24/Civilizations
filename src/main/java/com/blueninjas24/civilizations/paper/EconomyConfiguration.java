@@ -16,12 +16,14 @@ public final class EconomyConfiguration {
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
+        if (config.contains("purchases")) rootKeys.add("purchases");
         exactKeys(config, rootKeys);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
         readDonationsEnabled(config);
         readOpeningFunds(config);
+        readPurchases(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -104,6 +106,20 @@ public final class EconomyConfiguration {
     private static ConfigurationSection section(ConfigurationSection config, String path) {
         var section = config.getConfigurationSection(path);
         if (section == null) throw new IllegalArgumentException(path + " must be a YAML section"); return section;
+    }
+    public static FoodPurchases.Policy readPurchases(ConfigurationSection config) {
+        if (!config.contains("purchases")) return FoodPurchases.Policy.disabled();
+        var purchases = section(config, "purchases");
+        exactKeys(purchases, Set.of("enabled", "trade-value-per-emerald", "food-reserve-periods", "maximum-emeralds"));
+        if (!(purchases.get("enabled") instanceof Boolean enabled)) throw new IllegalArgumentException("purchases.enabled must be true or false");
+        Object rate = purchases.get("trade-value-per-emerald");
+        if (!(rate instanceof Number)) throw new IllegalArgumentException("purchases.trade-value-per-emerald must be a number");
+        try {
+            return new FoodPurchases.Policy(enabled, new BigDecimal(rate.toString()).movePointRight(2).longValueExact(),
+                    smallInteger(purchases, "food-reserve-periods"), smallInteger(purchases, "maximum-emeralds"));
+        } catch (NumberFormatException | ArithmeticException invalid) {
+            throw new IllegalArgumentException("purchases.trade-value-per-emerald must be finite with at most two decimal places", invalid);
+        }
     }
     private static void exactKeys(ConfigurationSection section, Set<String> expected) {
         if (!section.getKeys(false).equals(expected)) throw new IllegalArgumentException("Economy keys at "

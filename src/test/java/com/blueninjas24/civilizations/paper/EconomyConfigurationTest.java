@@ -13,6 +13,22 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void adminsControlPurchasesAndOlderFilesStayDisabled() throws Exception {
+        var config=defaults();assertEquals(FoodPurchases.Policy.prototype(),EconomyConfiguration.readPurchases(config));
+        config.set("purchases.trade-value-per-emerald",2.25);config.set("purchases.food-reserve-periods",5);config.set("purchases.maximum-emeralds",16);
+        assertEquals(new FoodPurchases.Policy(true,225,5,16),EconomyConfiguration.readPurchases(config));
+        config.set("purchases",null);assertEquals(FoodPurchases.Policy.disabled(),EconomyConfiguration.readPurchases(config));EconomyConfiguration.read(config);
+    }
+    @Test void partialMalformedAndUnsafePurchaseEditsFailBeforeStartup() throws Exception {
+        for(var entry:Map.of("purchases.enabled","yes","purchases.trade-value-per-emerald",0,"purchases.food-reserve-periods",101,
+                "purchases.maximum-emeralds",65,"purchases.unknown",true).entrySet()) {
+            var config=defaults();config.set(entry.getKey(),entry.getValue());assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        for(Object rate:new Object[]{"8",8.001,Double.NaN,Double.POSITIVE_INFINITY,-1,1000001}) {
+            var config=defaults();config.set("purchases.trade-value-per-emerald",rate);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("purchases.maximum-emeralds",null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     @Test void adminsCanTuneOpeningFundsWithoutOverwritingOlderFiles() throws Exception {
         var config = defaults();
         assertEquals(OpeningFunds.prototype(), EconomyConfiguration.readOpeningFunds(config));

@@ -52,7 +52,8 @@ Live food runs on a saved independent clock with real planted-field evidence,
 shortage/recovery explanations and editable famine/feast tuning. Household demand,
 housing pressure and shared food conditions now save with each period. Treasury
 accounting is tested separately from wellbeing; configurable one-time opening funding
-is now wired. Player payments and actual spending execution remain ahead.
+is now wired. Confirmed food sales now spend actual village funds and pay emeralds;
+barter, bargaining and broader execution remain ahead.
 New periods now divide fulfilled food between occupied families and unassigned
 residents, retaining each family's shortage streak. These simulated shares do not
 establish physical meals or complete prosperity.
@@ -92,6 +93,12 @@ reporting groups, so it remains 1/4 (25%); it does not measure coding hours or a
 partial work. It will advance when a full group and its acceptance gate are verified.
 See FINANCE_FOUNDATION.md, FOOD_APPEALS.md, FOOD_DONATIONS.md, PLAYER_FOOD_AID.md, FOOD_RELIEF.md, VILLAGE_PRIORITIES.md, LIVE_FOOD_ECONOMY.md,
 HOUSEHOLD_NEEDS_AND_TREASURY.md and ECONOMY_TUNING.md.
+
+Verified paid-food batch: protected Sell confirmation, configurable prices/need target,
+reserved funds, saved item exchange, refund/retry and restart passed 401 automated
+cases and disposable Paper. Native fixture exchanged 8 wheat for 3 emeralds once.
+This advances part of player trade; it does not complete the barter/bargaining,
+wellbeing, feasible-response and long-run balance gates.
 
 ## Phase 3 — planned
 

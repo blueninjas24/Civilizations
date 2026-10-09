@@ -36,6 +36,9 @@ public final class EconomyPaperProbe extends JavaPlugin {
     private UUID reliefOperation;
     private com.blueninjas24.civilizations.application.PendingFoodAid donation;
     private FoodAidTransfers transfers;
+    private FoodPurchaseTransfers purchases;
+    private com.blueninjas24.civilizations.application.PendingFoodPurchase purchaseReceipt;
+    private int purchasePayment, purchaseWait;
     private org.bukkit.entity.Player donor;
     private java.lang.reflect.Field saveDisabled;
     private boolean originalSaveDisabled;
@@ -148,10 +151,47 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 7->{if(session.economyView().get(town).farm().plantedCrops()!=64)return;now.addAndGet(1000);future=session.pulse();stage++;}
         case 8->{if(!ready())return;require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==20,"Feast recovery wrong");
             require(session.economyView().get(town).priority().selected()==VillagePriorities.Action.MONITOR,"Recovered priority did not clear");
-            for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();stage++;}
+            observer.cancel();session.close();economy=tune(economy,0);open();stage=30;}
+        case 30->{if(!ready())return;
+            var needs=session.economyView().get(town).needs();
+            if(needs.fulfilled()==needs.demand()){now.addAndGet(1000);future=session.pulse();return;}
+            purchases=new FoodPurchaseTransfers(this,session,FoodAidPreview.Policy.prototype(),FoodPurchases.Policy.prototype(),Bukkit.getServer().getLevelDirectory().resolve("players/data"));
+            donor.getInventory().setItemInMainHand(new org.bukkit.inventory.ItemStack(Material.WHEAT,8));
+            purchasePayment=purchases.quote(town,donor.getInventory().getItemInMainHand());require(purchasePayment>0,"No native purchase quote");
+            try{saveDisabled.setBoolean(null,true);}catch(Exception failure){throw new IllegalStateException(failure);}
+            var aid=new FoodAidTransfers(this,session,FoodAidPreview.Policy.prototype(),true,Bukkit.getServer().getLevelDirectory().resolve("players/data"));
+            var listener=new FoodAidMenu(this,session,aid,FoodAidPreview.Policy.prototype(),purchases);
+            var entityId=session.projectionView().orElseThrow().identities().aliases().keySet().stream().filter(k->k.worldId().equals(world.getUID())).findFirst().orElseThrow().entityId();
+            var interaction=new org.bukkit.event.player.PlayerInteractEntityEvent(donor,Objects.requireNonNull(world.getEntity(entityId)),org.bukkit.inventory.EquipmentSlot.HAND);
+            listener.interact(interaction);require(interaction.isCancelled(),"Purchase interaction not protected");
+            require(donor.getOpenInventory().getTopInventory().getItem(15).getType()==Material.EMERALD,"Native sale button missing");
+            var click=new org.bukkit.event.inventory.InventoryClickEvent(donor.getOpenInventory(),org.bukkit.event.inventory.InventoryType.SlotType.CONTAINER,15,org.bukkit.event.inventory.ClickType.LEFT,org.bukkit.event.inventory.InventoryAction.PICKUP_ALL);
+            listener.click(click);listener.click(click);require(click.isCancelled(),"Sale click not protected");aid.close();stage=31;}
+        case 31->{
+            var marker=donor.getPersistentDataContainer().get(FoodPurchaseTransfers.KEY,org.bukkit.persistence.PersistentDataType.STRING);if(marker==null)return;
+            if(purchaseReceipt==null)purchaseReceipt=com.blueninjas24.civilizations.application.PendingFoodPurchase.decode(marker);
+            purchases.poll(donor);
+            if(++purchaseWait<20){require(donor.getInventory().getItemInMainHand().getType()==Material.WHEAT,"Unverified preparation paid money");require(session.economyView().get(town).treasury().hundredths()==4800,"Unverified preparation reserved funds");return;}
+            try{saveDisabled.setBoolean(null,originalSaveDisabled);}catch(Exception failure){throw new IllegalStateException(failure);}
+            if(donor.getPersistentDataContainer().has(FoodPurchaseTransfers.KEY))return;
+            require(donor.getInventory().getItemInMainHand().getType()==Material.EMERALD&&donor.getInventory().getItemInMainHand().getAmount()==purchasePayment,"Native payout wrong");
+            donor.loadData();require(donor.getInventory().getItemInMainHand().getType()==Material.EMERALD&&donor.getInventory().getItemInMainHand().getAmount()==purchasePayment,"Saved payout missing");
+            require(session.economyView().get(town).treasury().hundredths()==4800-purchasePayment*800L,"Treasury debit wrong");
+            purchases.close();purchases=null;session.close();open();stage=32;}
+        case 32->{if(!ready())return;
+            require(session.economyView().get(town).foodAid().pendingDeliveries()==1,"Purchased food lost on restart");
+            future=session.completeFoodPurchase(purchaseReceipt.terms());stage=33;}
+        case 33->{if(!ready())return;require(Boolean.FALSE.equals(future.join()),"Duplicate purchase completion accepted");
+            now.addAndGet(1000);future=session.pulse();stage=34;}
+        case 34->{if(!ready())return;
+            var food=session.economyView().get(town).latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
+            require(food.flow().imports()==8,"Purchased food not credited once");getLogger().info("NATIVE_PURCHASE_PASSED: protected double-click, failed save withheld payment, saved emerald exchange, one debit/delivery, restart and duplicate completion");
+            // Restore the earlier feast/unloaded test expectation after the added purchase scenario.
+            observer=null;session.close();economy=tune(economy,200);open();stage=35;}
+        case 35->{if(!ready())return;for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();stage=9;}
         case 9->{if(world.isChunkLoaded(Math.floorDiv(X,16),Math.floorDiv(Z,16)))return;now.addAndGet(1000);future=session.pulse();stage++;}
         case 10->{if(!ready())return;require(!world.isChunkLoaded(Math.floorDiv(X,16),Math.floorDiv(Z,16)),"Economy force loaded chunk");
-            require(session.economyView().get(town).account().state().stocks().get(Commodity.FOOD).units()==32,"Unloaded food accounting failed");stage=99;}
+            require(session.economyView().get(town).latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().production()==16,"Unloaded food accounting failed");stage=99;}
         default->throw new AssertionError("Unknown stage");
     }}
     private void startNativeDonation() {
@@ -226,6 +266,6 @@ public final class EconomyPaperProbe extends JavaPlugin {
         require(rejected,"Custom food was treated as plain");
         getLogger().info("AID_PREVIEW_PASSED: native food, saved recipient, synthetic read-only player, custom rejection, no inventory or economy writes");
     }
-    private void cleanup(){if(saveDisabled!=null)try{saveDisabled.setBoolean(null,originalSaveDisabled);}catch(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"Cannot restore player-save flag",failure);}if(transfers!=null)transfers.close();if(observer!=null)observer.cancel();if(session!=null)session.close();if(world!=null)for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();}
+    private void cleanup(){if(saveDisabled!=null)try{saveDisabled.setBoolean(null,originalSaveDisabled);}catch(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"Cannot restore player-save flag",failure);}if(purchases!=null)purchases.close();if(transfers!=null)transfers.close();if(observer!=null)observer.cancel();if(session!=null)session.close();if(world!=null)for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();}
     @Override public void onDisable(){cleanup();}
 }

@@ -19,15 +19,18 @@ public final class FoodAidMenu implements Listener {
     private final PopulationSession session;
     private final FoodAidTransfers transfers;
     private final FoodAidPreview.Policy policy;
+    private final FoodPurchaseTransfers purchases;
     private static final class Menu implements InventoryHolder {
         private Inventory inventory;
-        private boolean used, canDonate;
+        private boolean used, canDonate, canSell;
+        private int emeralds;
         private final UUID town, player;
         private final ItemStack offered;
         Menu(UUID town,UUID player,ItemStack offered){this.town=town;this.player=player;this.offered=offered.clone();}
         @Override public Inventory getInventory(){return inventory;}
     }
-    public FoodAidMenu(org.bukkit.plugin.Plugin plugin,PopulationSession session,FoodAidTransfers transfers,FoodAidPreview.Policy policy){this.plugin=plugin;this.session=session;this.transfers=transfers;this.policy=policy;}
+    public FoodAidMenu(org.bukkit.plugin.Plugin plugin,PopulationSession session,FoodAidTransfers transfers,FoodAidPreview.Policy policy){this(plugin,session,transfers,policy,null);}
+    public FoodAidMenu(org.bukkit.plugin.Plugin plugin,PopulationSession session,FoodAidTransfers transfers,FoodAidPreview.Policy policy,FoodPurchaseTransfers purchases){this.plugin=plugin;this.session=session;this.transfers=transfers;this.policy=policy;this.purchases=purchases;}
     @EventHandler(ignoreCancelled=true) public void interact(PlayerInteractEntityEvent event) {
         if(event.getHand()!=EquipmentSlot.HAND||!event.getPlayer().isSneaking()||!(event.getRightClicked() instanceof Villager villager))return;
         var view=session.projectionView().orElse(null);if(view==null||!policy.enabled())return;
@@ -50,6 +53,16 @@ public final class FoodAidMenu implements Listener {
             Component.text(supported?"Give "+offered.getAmount()+" "+offered.getType().name().toLowerCase(Locale.ROOT).replace('_',' ')+" = "+units+" food units":"Hold plain supported food to offer a donation."),
             Component.text(available?"Click to donate the whole held stack.":!supported?"Reopen holding food to donate.":"Disabled by server settings or permissions."),Component.text("No payment or reputation reward yet.")));
         button.setItemMeta(meta);menu.inventory.setItem(13,button);
+        if(purchases!=null) {
+            menu.emeralds=supported?purchases.quote(person.settlementId(),offered):0;
+            menu.canSell=menu.emeralds>0&&player.hasPermission("civilizations.trade");
+            var sale=new ItemStack(menu.canSell?Material.EMERALD:Material.BARRIER);var saleMeta=sale.getItemMeta();
+            saleMeta.displayName(Component.text(menu.canSell?"Sell held food":"Village is not buying this stack"));
+            saleMeta.lore(List.of(Component.text(menu.canSell?"Whole held stack for "+menu.emeralds+" emeralds.":"Requires food need, available funds and permission."),
+                    Component.text("Final village needs and funds checked on confirmation."),
+                    Component.text("Keep the stack in your main hand until confirmed.")));
+            sale.setItemMeta(saleMeta);menu.inventory.setItem(15,sale);
+        }
         var notice=new ItemStack(Material.PAPER);var noticeMeta=notice.getItemMeta();
         var appeal=economy.appeal();boolean asking=appeal!=null&&appeal.status()==com.blueninjas24.civilizations.economy.FoodAppeals.Status.OPEN;
         noticeMeta.displayName(Component.text(asking?"Village asks for food":"Village food report"));
@@ -67,12 +80,14 @@ public final class FoodAidMenu implements Listener {
     @EventHandler public void click(InventoryClickEvent event) {
         if(!(event.getView().getTopInventory().getHolder() instanceof Menu menu))return;
         event.setCancelled(true);
-        if(!menu.canDonate||menu.used||event.getRawSlot()!=13||!event.isLeftClick()||!(event.getWhoClicked() instanceof org.bukkit.entity.Player player)||!menu.player.equals(player.getUniqueId()))return;
+        boolean selling=event.getRawSlot()==15&&menu.canSell;
+        if(menu.used||!(selling||event.getRawSlot()==13&&menu.canDonate)||!event.isLeftClick()||!(event.getWhoClicked() instanceof org.bukkit.entity.Player player)||!menu.player.equals(player.getUniqueId()))return;
         menu.used=true;
         plugin.getServer().getScheduler().runTask(plugin,()->{
             if(!player.isOnline())return;
             if(player.getOpenInventory().getTopInventory()==menu.inventory)player.closeInventory();
-            transfers.donate(player,menu.town,menu.offered);
+            if(selling)purchases.sell(player,menu.town,menu.offered,menu.emeralds);
+            else transfers.donate(player,menu.town,menu.offered);
         });
     }
     @EventHandler public void drag(InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof Menu)event.setCancelled(true);}

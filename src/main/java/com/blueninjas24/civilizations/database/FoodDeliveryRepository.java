@@ -53,6 +53,13 @@ final class FoodDeliveryRepository {
         }
         return new Pending(count,units(eligible(town,nextPeriod)));
     }
+    long pendingUnits(UUID town) throws SQLException {
+        long units = 0;
+        try (var s = connection.prepareStatement("SELECT units FROM food_deliveries WHERE settlement_id=? AND applied_period IS NULL")) {
+            s.setString(1, town.toString()); try (var r = s.executeQuery()) { while (r.next()) units = Math.addExact(units, r.getLong(1)); }
+        }
+        return units;
+    }
     private static Receipt read(ResultSet r) throws SQLException {
         long applied=r.getLong("applied_period");boolean pending=r.wasNull();
         return new Receipt(UUID.fromString(r.getString("operation_id")),UUID.fromString(r.getString("settlement_id")),r.getLong("units"),

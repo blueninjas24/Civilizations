@@ -88,8 +88,32 @@ Births, immigrants, unloaded chunks and server restarts cannot mint repeat grant
 
 Stop, edit and restart to apply. Funding-only edits affect future openings; they do
 not reset food stocks or its clock. There is no economy mutation/reload command.
-Payments, barter, protected trade reserves and negotiation remain future features;
-their controls will be added here as the corresponding code is implemented.
+Optional food purchases now pay emeralds from actual village funds. Barter,
+protected barter reserves and negotiation remain future features.
+
+### Food purchases
+
+```yaml
+purchases:
+  enabled: true
+  trade-value-per-emerald: 8
+  food-reserve-periods: 3
+  maximum-emeralds: 64
+```
+
+New files use these experimental defaults. Old files without this section keep sales
+disabled; add the complete section to opt in. Exchange rate allows 0.01..1000000
+Trade Value with at most two decimal places; reserve target allows 1..100 demand
+periods; payment cap allows 1..64 emeralds. Partial/unknown/invalid keys fail startup.
+Stop, edit and restart. New offers use the new settings; accepted pending purchases
+recover with their saved original terms even when new purchases are disabled.
+
+Villages buy supported plain food only while seeking it, with reliable field reports,
+no economic catch-up and actual funds. Whole held stacks must fit remaining need;
+split a large stack before offering it. Prices depend on current scarcity and round
+down to whole emeralds; only actual payment debits funds. Payment replaces the food
+in its main-hand slot. Sneak-right-click a managed villager, then choose Sell.
+See FOOD_PURCHASES.md for recovery and prototype limitations.
 
 ### Apply file changes
 

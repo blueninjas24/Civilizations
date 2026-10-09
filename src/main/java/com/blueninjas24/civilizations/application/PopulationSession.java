@@ -196,6 +196,24 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Boolean> activateProjection(UUID person, UUID entity) {
         return projectionWork(() -> database.getResidentProjectionRepository().activate(person, entity));
     }
+    public CompletableFuture<String> reserveFoodPurchase(FoodPurchases.Terms terms, FoodPurchases.Policy policy, FoodAidPreview.Policy foods) {
+        return submit(() -> {
+            requireReady(); if(economy==null)throw new IllegalStateException("Economy not enabled");
+            var result=economy.reserveFoodPurchase(terms,policy,foods,now.getAsLong());economyView.set(economy.views());return result;
+        });
+    }
+    public CompletableFuture<Boolean> completeFoodPurchase(FoodPurchases.Terms terms) {
+        return submit(() -> {
+            requireReady(); if(economy==null)throw new IllegalStateException("Economy not enabled");
+            var result=economy.completeFoodPurchase(terms,now.getAsLong());economyView.set(economy.views());return result;
+        });
+    }
+    public CompletableFuture<Boolean> cancelFoodPurchase(FoodPurchases.Terms terms) {
+        return submit(() -> {
+            requireReady(); if(economy==null)throw new IllegalStateException("Economy not enabled");
+            var result=economy.cancelFoodPurchase(terms);economyView.set(economy.views());return result;
+        });
+    }
     public CompletableFuture<Boolean> retireProjection(UUID person, UUID entity) {
         return projectionWork(() -> database.getResidentProjectionRepository().retire(person, entity));
     }
@@ -267,7 +285,7 @@ public final class PopulationSession implements AutoCloseable {
                     // Accepted work drains before the queued close; new submissions are rejected above.
                     result.complete(operation.run());
                 } catch (Exception failure) {
-                    if (failure instanceof SQLException) reportFailure(failure);
+                    if (failure instanceof SQLException && !(failure instanceof EconomyRuntimeRepository.PurchaseDeclined)) reportFailure(failure);
                     result.completeExceptionally(failure);
                 }
                 finally { queued.decrementAndGet(); }

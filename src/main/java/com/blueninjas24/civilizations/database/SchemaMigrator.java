@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 20;
+    static final int CURRENT_VERSION = 21;
 
     @FunctionalInterface
     interface Migration {
@@ -122,7 +122,25 @@ final class SchemaMigrator {
                             FOREIGN KEY(settlement_id,priority_period) REFERENCES village_priorities(settlement_id,period),
                             CHECK(status<>'OPEN' OR unmet>0), CHECK(status<>'RESOLVED' OR unmet=0)
                         )
-                        """)
+                        """),
+                connection -> {
+                    execute(connection, """
+                            CREATE TABLE food_purchases (
+                                operation_id TEXT PRIMARY KEY NOT NULL,
+                                player_id TEXT NOT NULL,
+                                settlement_id TEXT NOT NULL REFERENCES economy_runtime(settlement_id),
+                                units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units BETWEEN 1 AND 64000000),
+                                item TEXT NOT NULL CHECK(length(item) BETWEEN 1 AND 32),
+                                item_count INTEGER NOT NULL CHECK(typeof(item_count)='integer' AND item_count BETWEEN 1 AND 64),
+                                emeralds INTEGER NOT NULL CHECK(typeof(emeralds)='integer' AND emeralds BETWEEN 1 AND 64),
+                                rate INTEGER NOT NULL CHECK(typeof(rate)='integer' AND rate BETWEEN 1 AND 100000000),
+                                status TEXT NOT NULL CHECK(status IN ('RESERVED','COMPLETED','CANCELLED')),
+                                accepted_period INTEGER NOT NULL CHECK(typeof(accepted_period)='integer' AND accepted_period>0)
+                            )
+                            """);
+                    execute(connection, "CREATE UNIQUE INDEX one_reserved_purchase_per_player ON food_purchases(player_id) WHERE status='RESERVED'");
+                    execute(connection, "CREATE INDEX reserved_purchase_food ON food_purchases(settlement_id) WHERE status='RESERVED'");
+                }
         ));
     }
 
@@ -222,6 +240,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"household_needs",Set.of("supplied","unmet_periods"));
             }
             if (migrations.size() >= 20) requireColumns(connection,"food_appeals",Set.of("settlement_id","period","priority_period","status","unmet","previous_unmet","imports","production","change"));
+            if (migrations.size() >= 21) requireColumns(connection,"food_purchases",Set.of("operation_id","player_id","settlement_id","units","item","item_count","emeralds","rate","status","accepted_period"));
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

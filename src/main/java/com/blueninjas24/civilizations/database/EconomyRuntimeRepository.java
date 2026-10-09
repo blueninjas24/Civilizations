@@ -8,6 +8,10 @@ import java.util.*;
 
 /** Single SQL-owner food runtime. Saved clocks, evidence and period effects; no Bukkit access. */
 public final class EconomyRuntimeRepository {
+    /** Expected new-offer refusal, distinct from a database fault or corrupt saved trade. */
+    public static final class PurchaseDeclined extends SQLException {
+        public PurchaseDeclined(String reason) { super(reason); }
+    }
     public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods,
                        HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority, FoodAid foodAid, FoodAppeals.Snapshot appeal) {}
     public record FoodAid(long pendingDeliveries, long nextPeriodUnits) {}
@@ -112,6 +116,62 @@ public final class EconomyRuntimeRepository {
             accrue(town,now,false);var target=clock(town).anchor().targetSteps();
             if(target==Long.MAX_VALUE) throw new SQLException("No representable future food period");
             deliveries.record(operation,town,units,source,target);return true;
+        });
+    }
+    /** Trusted adapter must preserve consent and prepared player state before requesting a reservation. */
+    public String reserveFoodPurchase(FoodPurchases.Terms terms, FoodPurchases.Policy policy, FoodAidPreview.Policy foods, long now) throws SQLException {
+        Objects.requireNonNull(terms); Objects.requireNonNull(policy); Objects.requireNonNull(foods);
+        return transaction(() -> {
+            var purchases = new FoodPurchaseRepository(connection);
+            if (purchases.find(terms.operation()).isPresent()) return purchases.matching(terms).status().name();
+            if (!policy.enabled() || !foods.enabled()) throw new PurchaseDeclined("New food purchases disabled");
+            if (terms.hundredthsPerEmerald() != policy.hundredthsPerEmerald()
+                    || foods.units(terms.item(), terms.count()) != terms.units()) throw new PurchaseDeclined("Purchase conversion settings changed");
+            if (!hasRuntime(terms.settlement())) throw new PurchaseDeclined("Food economy not initialized");
+            accrue(terms.settlement(), now, false);
+            var clock = clock(terms.settlement());
+            if (clock.anchor().targetSteps() != clock.completed()) throw new PurchaseDeclined("Finish economy catch-up before a new purchase");
+            var evidence = farm(terms.settlement());
+            if (evidence == null || !evidence.complete()) throw new PurchaseDeclined("Reliable food evidence required for new purchase");
+            var needs = new HouseholdNeedsRepository(connection).load(terms.settlement(), clock.completed()).orElseThrow(() -> new PurchaseDeclined("Food needs unknown"));
+            var priority = new VillagePriorityRepository(connection).latest(terms.settlement()).orElseThrow();
+            if (priority.selected() != VillagePriorities.Action.SEEK_FOOD || needs.demand() <= needs.fulfilled())
+                throw new PurchaseDeclined("Village is not currently seeking food");
+            var account = commodities.read(terms.settlement()).orElseThrow();
+            long supply = account.state().stocks().get(Commodity.FOOD).units();
+            supply = Math.addExact(supply, purchases.reservedUnits(terms.settlement()));
+            supply = Math.addExact(supply, new FoodDeliveryRepository(connection).pendingUnits(terms.settlement()));
+            long target = Math.multiplyExact(needs.demand(), policy.reservePeriods());
+            if (supply >= target || terms.units() > target - supply) throw new PurchaseDeclined("Food offer exceeds remaining village purchase need");
+            long fairValue = Math.multiplyExact(settings.price(Commodity.FOOD, needs.sharedFood()).movePointRight(2).longValueExact(), terms.units());
+            var budget = new TreasuryRepository(connection).load(terms.settlement()).orElseThrow(() -> new PurchaseDeclined("Village treasury unknown"));
+            if (terms.emeralds() > FoodPurchases.maximumPayment(fairValue, budget.hundredths(), policy))
+                throw new PurchaseDeclined("Offer exceeds perceived value or available budget");
+            if (new FoodDeliveryRepository(connection).find(terms.operation()).isPresent()) throw new SQLException("Operation already used for food delivery");
+            return purchases.reserve(terms, clock.completed()).status().name();
+        });
+    }
+    /** Only after independently verifying a saved player goods/payment exchange. Recovery ignores new-offer settings. */
+    public boolean completeFoodPurchase(FoodPurchases.Terms terms, long now) throws SQLException {
+        return transaction(() -> {
+            var purchases = new FoodPurchaseRepository(connection); var saved = purchases.matching(terms);
+            if (saved.status() == FoodPurchaseRepository.Status.COMPLETED) return false;
+            if (saved.status() != FoodPurchaseRepository.Status.RESERVED) throw new SQLException("Cancelled purchase cannot complete");
+            accrue(terms.settlement(), now, false); long target = clock(terms.settlement()).anchor().targetSteps();
+            if (target == Long.MAX_VALUE) throw new SQLException("No future food period representable");
+            new FoodDeliveryRepository(connection).record(terms.operation(), terms.settlement(), terms.units(), terms.source(), target);
+            purchases.finish(terms, FoodPurchaseRepository.Status.COMPLETED); return true;
+        });
+    }
+    /** Only if the adapter proves exchange never happened. Never use an uncertain refund after a failed save. */
+    public boolean cancelFoodPurchase(FoodPurchases.Terms terms) throws SQLException {
+        return transaction(() -> {
+            var purchases = new FoodPurchaseRepository(connection);
+            if (purchases.find(terms.operation()).isEmpty()) return false;
+            var saved = purchases.matching(terms);
+            if (saved.status() == FoodPurchaseRepository.Status.CANCELLED) return false;
+            if (saved.status() != FoodPurchaseRepository.Status.RESERVED) throw new SQLException("Completed purchase cannot be refunded");
+            purchases.finish(terms, FoodPurchaseRepository.Status.CANCELLED); return true;
         });
     }
     private void accrue(UUID town,long now,boolean offline) throws SQLException {

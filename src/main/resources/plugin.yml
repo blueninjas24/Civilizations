@@ -9,6 +9,9 @@ commands:
     description: Civilizations food-aid previews and administrative diagnostics.
     usage: /civ aid [settlement UUID] or /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid>
 permissions:
+  civilizations.trade:
+    description: Confirm village food sales for emeralds in the Civilizations menu.
+    default: true
   civilizations.debug:
     description: Inspect saved Civilizations population and calendar state.
     default: op

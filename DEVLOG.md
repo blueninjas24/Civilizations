@@ -1,5 +1,34 @@
 # Civilizations Development Log
 
+## Recoverable village food payments — October 8, 2026
+
+- Branch `codex/phase2-purchase-accounting`: sneak-right-click a managed villager,
+  then explicitly Sell a supported plain whole food stack. A hungry village pays
+  whole emeralds from actual funds; regular vanilla trades and free donations remain.
+- Optional commented economy.yml purchases section: enabled in new files, disabled
+  in older files lacking the section; editable 8.00 Trade Value/emerald, three demand
+  periods as target and 64-emerald cap. Accepted terms survive disable/retuning.
+- Schema 21 records immutable reservations/completion/cancellation. Funds and
+  reservation share a transaction; pending donations/purchases count against need.
+  Independent complete Minecraft player-file proof precedes reservation and food
+  credit. Exact food stack becomes emeralds in the same slot; retries never pay twice.
+  Changed stacks cancel/refund once. Ambiguous inventory failures hold for review.
+- Windows Wrapper clean verify passed 401 cases (399 unit/two packaged integration),
+  zero failures/errors/skips. Added 24 cases for temporary SQLite, saved proof,
+  failed saves, inventory failures, restart, duplicates, held funds and admin settings.
+  Initial verification exposed nested transaction use; corrected repository read
+  inside its owner transaction, retaining the rollback checks.
+- Pinned disposable Paper passed native menu/double-click, failed-save withholding,
+  8 wheat for 3 saved emeralds, exactly one 24.00 debit, future food credit, restart
+  and duplicate completion. Previous famine/donation/allocation/unloaded checks pass.
+  Normal plugin-only startup/read-only diagnostics/clean shutdown passed. Schema-20
+  dev snapshot taken first; schema-21 integrity/FKs valid; original IDs/history kept.
+- Human client/inventory-plugin/native-death and cross-save crash compatibility remain
+  prototype validation limits; SQLite/player/world files need consistent backups.
+  No barter, bargaining, personal payroll or reputation attribution claimed.
+  Phase 2 remains 1/4 completed groups with substantial partial work. No production
+  data reset, main change, merge or push. See FOOD_PURCHASES.md and ECONOMY_TUNING.md.
+
 ## Admin-controlled opening capital — October 8, 2026
 
 - Branch `codex/phase2-configurable-opening-funds`: approved file-first economy
