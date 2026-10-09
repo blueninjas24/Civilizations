@@ -104,6 +104,12 @@ the observed month. Succession/closure are not inferred from owner death.
 No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.md.
 
 ## Locked / approved
+- October 9 observed-patch engineering boundary: face-connected positive evidence
+  is grouped without assuming diagonals, gaps or hidden ore. This conservative
+  utility is not a new geological law, founding policy or final exploration rule.
+  Existing permanent coordinate claims must be resolved before any founding;
+  provisional patches never split old deposit identity or refill reserves. Complete
+  bounded observations only, no world API or block changes. See RESOURCE_PATCHES.md.
 - October 9 piston provenance engineering boundary: exclude moved ore at its source
   and both adjacent axis coordinates. This accepts one conservative extra exclusion
   rather than guessing destination direction or querying/loading neighboring chunks.

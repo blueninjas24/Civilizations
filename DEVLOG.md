@@ -1,5 +1,52 @@
 # Civilizations Development Log
 
+## October 9, 2026 — bounded observed resource patches
+
+Branch `codex/phase3-resource-grouping`. OreClusters groups only complete bounded
+coal/iron evidence into face-connected patches, with deterministic canonical
+anchors/order and immutable metadata. Separate areas, diagonals and unknown gaps
+are not silently one deposit. Every observed coordinate occurs exactly once; six
+neighbor probes per coordinate, integer-overflow-safe, at most 512 input positions.
+No hidden ore, world work, chunk loading, reserve refill or new business behavior.
+Existing coordinate identity must be resolved before founding; two provisional
+patches may still belong to one saved deposit. No geological/founding policy locked.
+
+Six domain cases plus one temporary SQLite two-patch/depletion/restart scenario
+added. Focused 22 cases passed; Windows Wrapper clean verify passed 631 (629 unit/
+two packaged integration), zero failures/errors/skips. No Paper adapter changed;
+preceding native piston fixture remains the adapter check. Updated RESOURCE_PATCHES, exposed scanning, decisions,
+TODO, status/progress. Moved the preceding piston log entry into chronological
+position and removed its trailing blank line. Schema 34 unchanged; no server data
+changed by this domain batch. Live adapters/opportunities/funded production and
+bulk-editor integration remain; Phase 3 stays 1/4 (25%). Physical work remains Phase 4.
+
+## October 9, 2026 — conservative piston provenance
+
+Branch `codex/phase3-piston-provenance`. Extension/retraction MONITOR listeners
+exclude moved ore sources and both possible adjacent axis destinations, preventing
+movement from presenting tracked ore as fresh evidence. All ore movement is
+conservatively excluded; cancelled/non-ore events ignored. Bounds, immutable owner
+queue, overflow/error pause and sticky persistence reused. No destination reads,
+force loading, event cancellation, migration, reserve refill or world rights.
+
+Added five adapter tests. Wrapper clean verify passed 624 (622 unit/two packaged
+integration), zero failures/errors/skips. Guarded Paper synthetic place/extend/
+retract fixture passed and restored every block; seven saved exclusions, six new.
+Paid-chain/restart checks retained. First launch omitted interactive stdin;
+terminated only verified disposable JVM, confirmed dirty restart pauses discovery
+and clean stop cannot repair it. Backed up untrusted state after verifying known
+empty interval and unchanged industry/funds/exclusions; reviewed marked-dev trust
+rearm only. No production reset or automatic recovery capability. Corrected probe
+and probe-free runs stopped zero; test ticket removed and probe archived. Read-only
+schema 34, clean/trusted fence, unchanged industry/funds/settings, retained exclusions
+and integrity/FKs passed. Startup1675 retained; online1676. Build/probe packaging
+needed elevation after sandbox temp-JAR rename denial; completed successfully.
+
+Updated status/progress/TODO/live tracking/development/decisions. Phase 3 remains
+1/4 (25%); bulk editors, resource grouping, automatic funded chains and lifecycle
+remain. Actual piston physics/external plugin ordering are not certified. Local
+feature commit only; no push/merge/main changes. Physical construction stays Phase 4.
+
 ## Live native ore capture and fail-closed recovery — October 9, 2026
 
 - Registered OrePlacementTracker for successful native/multi-place ore events;
@@ -1197,30 +1244,3 @@ This will be the beginning of autonomous settlement development.
 - Updated plain-English tracker with partial milestones for all four P2 groups. Phase
   gate still partial: execution/outcome feedback, full wellbeing, actual budget flows
   and player trade remain. No production reset, remote push, merge or main change.
-## October 9, 2026 — conservative piston provenance
-
-Branch `codex/phase3-piston-provenance`. Extension/retraction MONITOR listeners
-exclude moved ore sources and both possible adjacent axis destinations, preventing
-movement from presenting tracked ore as fresh evidence. All ore movement is
-conservatively excluded; cancelled/non-ore events ignored. Bounds, immutable owner
-queue, overflow/error pause and sticky persistence reused. No destination reads,
-force loading, event cancellation, migration, reserve refill or world rights.
-
-Added five adapter tests. Wrapper clean verify passed 624 (622 unit/two packaged
-integration), zero failures/errors/skips. Guarded Paper synthetic place/extend/
-retract fixture passed and restored every block; seven saved exclusions, six new.
-Paid-chain/restart checks retained. First launch omitted interactive stdin;
-terminated only verified disposable JVM, confirmed dirty restart pauses discovery
-and clean stop cannot repair it. Backed up untrusted state after verifying known
-empty interval and unchanged industry/funds/exclusions; reviewed marked-dev trust
-rearm only. No production reset or automatic recovery capability. Corrected probe
-and probe-free runs stopped zero; test ticket removed and probe archived. Read-only
-schema34, clean/trusted fence, unchanged industry/funds/settings, retained exclusions
-and integrity/FKs passed. Startup1675 retained; online1676. Build/probe packaging
-needed elevation after sandbox temp-JAR rename denial; completed successfully.
-
-Updated status/progress/TODO/live tracking/development/decisions. Phase 3 remains
-1/4 (25%); bulk editors, resource grouping, automatic funded chains and lifecycle
-remain. Actual piston physics/external plugin ordering are not certified. Local
-feature commit only; no push/merge/main changes. Physical construction stays Phase4.
-

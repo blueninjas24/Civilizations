@@ -129,4 +129,19 @@ class MineralDiscoveryTest {
         assertEquals(1,count("mineral_deposits"));sql("DROP TABLE mineral_evidence");new SchemaMigrator().migrate(db.getConnection());
         assertEquals(0,count("mineral_discovery"));assertEquals(0,count("mineral_evidence"));assertThrows(SQLException.class,()->first());
     }
+    @Test void splitPatchesCreateSeparateConservedReservesAndReplayAfterRestartWithoutRefill() throws Exception {
+        var patches=OreClusters.split(observation(10,101,0,1,100));
+        var other=business(town,world,person,100);
+        var a=discovery.discover(mine.siteId(),patches.get(0),2,BUNDLE);
+        var b=discovery.discover(other.siteId(),patches.get(1),2,BUNDLE);
+        assertNotEquals(a.deposit().id(),b.deposit().id());assertEquals(8,a.deposit().initialBatches()+b.deposit().initialBatches());
+        db.getIndustryRepository().mine(UUID.randomUUID(),mine.id(),a.deposit().id(),2,0,8,8);
+        db.close();open();
+        var replay=OreClusters.split(observation(20,100,1,101,0));
+        assertEquals(2,discovery.discover(mine.siteId(),replay.get(0),999,BUNDLE).deposit().remainingBatches());
+        assertEquals(4,discovery.discover(other.siteId(),replay.get(1),999,BUNDLE).deposit().remainingBatches());
+        assertEquals(2,count("mineral_deposits"));assertEquals(4,count("mineral_evidence"));
+        assertThrows(SQLException.class,()->discovery.discover(other.siteId(),replay.get(0),999,BUNDLE));
+        assertEquals(4,count("mineral_evidence"));
+    }
 }

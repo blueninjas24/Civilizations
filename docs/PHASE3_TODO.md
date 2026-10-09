@@ -21,6 +21,8 @@ Updated October 9, 2026. Reporting progress remains one of four complete groups
 - [x] Capture native placements with clean-stop/failure protection and verify on Paper.
 - [x] Verify conservative piston movement exclusions on Paper.
 - [ ] Handle bulk-edit integration before automatic mines activate.
+- [x] Split complete observed coal/iron evidence into deterministic connected patches;
+      retain coordinate identity and finite reserves on replay.
 - [ ] Connect safe loaded-chunk observation and coherent resource opportunities.
 - [ ] Automatically fund/staff/operate nonfood industries under editable settings.
 - [ ] Connect real local customers and recipes; demand-based reserves, no fake buyers.

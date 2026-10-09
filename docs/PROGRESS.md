@@ -4,7 +4,7 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 624 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 631 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest Phase 3 step: villages can automatically start a funded farm, hire real
@@ -30,6 +30,11 @@ exclusions without cancelling movement or loading chunks. Bulk-editor coverage a
 observation/founding/operation are next. Automatic mining is still unfinished.
 See MINERAL_IDENTITY.md, LIVE_ORE_TRACKING.md and PHASE3_TODO.md. This advances a partial milestone;
 Phase 3 stays 25% until the complete gameplay group is verified.
+
+Observed ore can now be separated into connected patches instead of treating
+every ore block in a chunk as one deposit. Separate patches retain their finite
+reserves through mining and restart tests. This is another component toward live
+resource opportunities; it does not automatically start mines. See RESOURCE_PATCHES.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project

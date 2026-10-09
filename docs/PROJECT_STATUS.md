@@ -2,6 +2,25 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Bounded observed resource patches — October 9, 2026
+
+- Branch `codex/phase3-resource-grouping`: complete bounded observations split into
+  face-connected positive evidence, deterministic ordering/anchors, copied metadata
+  and immutable output. Distant/diagonal/unobserved gaps remain separate; no hidden
+  coordinates are invented. At most 512 coordinates/six neighbor probes each;
+  integer limits cannot wrap. Chunk borders do not impose geological borders.
+- Six domain tests plus one temporary SQLite scenario: independent patches conserve
+  initial reserves; depletion, reopen/retuning and duplicate-site rejection retain
+  identities without refill. Focused 22 cases passed; full Windows Wrapper clean
+  verify passed 631 (629 unit/two packaged integration), zero failures/errors/skips.
+  No new world adapter, production
+  behavior or migration; schema 34, no server DB/config changed by this batch.
+- Grouping is a provisional evidence utility, not final geology or mine founding.
+  Resolve saved identities first: two provisional patches may share an old deposit.
+  Live assembly/safety, automatic funded nonfood chains and lifecycle still pending.
+  RESOURCE_PATCHES/scanning/decisions/TODO/status/progress/devlog updated. Phase 3
+  remains 1/4 (25%); local feature commit only, no main merge/push.
+
 ## Conservative piston resource provenance — October 9, 2026
 
 - Branch `codex/phase3-piston-provenance`: successful extension/retraction saves

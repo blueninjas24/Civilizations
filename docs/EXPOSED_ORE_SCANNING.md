@@ -34,11 +34,12 @@ Cell budgets bound calls, not a hard CPU deadline or snapshot-capture time.
 
 OreScan provides scanner components, not automatic mining. No ore observer or mine
 scheduler is registered. Durable placement records and native live capture with
-a clean-stop/failure fence now exist (see LIVE_ORE_TRACKING.md). Piston/bulk-editor
-coverage and the actual discovery/operation bridge remain unfinished, so automatic
+a clean-stop/failure fence now exist (see LIVE_ORE_TRACKING.md). Conservative piston
+exclusions are verified; bulk-editor coverage and the actual discovery/operation bridge remain unfinished, so automatic
 ore opportunities remain disabled.
 
-A chunk survey is not a geological deposit. The next adapter must form coherent
+A chunk survey is not a geological deposit. OreClusters now supplies conservative
+face-connected observed patches (RESOURCE_PATCHES.md). The next adapter must form
 bounded opportunities, resolve saved coordinates/sites first and reject conflicts.
 Different sides of a chunk can contain unrelated resources; do not pass arbitrary
 chunk-wide observations directly to discovery as one deposit. Boundary uncertainty
