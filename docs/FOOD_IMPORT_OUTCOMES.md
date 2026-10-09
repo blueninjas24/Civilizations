@@ -25,12 +25,16 @@ Pending deliveries contribute nothing until their actual application period.
 - The result is a period-local marginal comparison. It does not simulate an alternate
   history of population, production or later prices.
 - It does not prove an appeal attracted the supplier, assign benefit to an individual
-  player or distinguish payment types. No reputation or learning bonus is awarded.
+  player or distinguish payment types. This comparison assigns no player rewards.
+  The follow-up in PRIORITY_LEARNING.md uses verified earlier delivery impacts for
+  a bounded future food-priority bonus, with separately saved replay inputs.
 - A reserve-only delivery can be useful later; zero immediate relief is not failure.
 
 ## Persistence and verification
 
-No schema or saved behavior changes. Schema 24 already retains the exact opening
+The outcome comparison itself requires no schema or saved behavior changes.
+The learning follow-up uses schema 25 as described in PRIORITY_LEARNING.md.
+Schema 24 already retains the exact opening
 stock, production, imports and all demand components in transactional economy
 history. The immutable cached view computes this evidence without SQL on the Paper
 thread. Restart and later consumption reconstruct the original result from those
@@ -44,6 +48,6 @@ later consumption. The disposable Paper regression fixture asserts the exact imp
 of the verified twelve-unit native donation and exercises the admin diagnostic.
 
 Phase 2 remains 3/4 complete. This supplies trustworthy aggregate outcome evidence;
-bounded configurable learning, attribution to executed response mechanisms and
-broader feasible action execution still need implementation and validation before
+bounded configurable food-priority learning is now implemented separately. Broader
+explicit feasible-response comparison/execution explanations still need validation before
 the autonomous-decision reporting group can be checked off.

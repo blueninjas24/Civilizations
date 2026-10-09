@@ -93,10 +93,15 @@ public final class EconomyConfiguration {
     }
     public static VillagePriorities.Policy readPriorities(ConfigurationSection config) {
         if (!config.contains("priorities")) return VillagePriorities.Policy.prototype();
-        exactKeys(section(config,"priorities"),Set.of("review-after-periods","food-weight","crisis-multiplier","housing-weight","monitor-weight","minimum-relative-percent"));
-        return new VillagePriorities.Policy(smallInteger(config,"priorities.review-after-periods"),smallInteger(config,"priorities.food-weight"),
+        var keys=new java.util.HashSet<>(Set.of("review-after-periods","food-weight","crisis-multiplier","housing-weight","monitor-weight","minimum-relative-percent"));
+        if(config.contains("priorities.learning"))keys.add("learning");
+        exactKeys(section(config,"priorities"),keys);
+        var policy=new VillagePriorities.Policy(smallInteger(config,"priorities.review-after-periods"),smallInteger(config,"priorities.food-weight"),
                 smallInteger(config,"priorities.crisis-multiplier"),smallInteger(config,"priorities.housing-weight"),smallInteger(config,"priorities.monitor-weight"),
                 smallInteger(config,"priorities.minimum-relative-percent"));
+        if(!config.contains("priorities.learning"))return policy;
+        exactKeys(section(config,"priorities.learning"),Set.of("window-periods","maximum-food-bonus-percent"));
+        return policy.withLearning(smallInteger(config,"priorities.learning.window-periods"),smallInteger(config,"priorities.learning.maximum-food-bonus-percent"));
     }
     /** Old owner files retain their read-only behavior until donations are explicitly enabled. */
     public static boolean readDonationsEnabled(ConfigurationSection config) {

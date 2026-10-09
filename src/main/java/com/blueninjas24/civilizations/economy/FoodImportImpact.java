@@ -21,7 +21,7 @@ public final class FoodImportImpact {
                     + " additional closing reserve. Without this period's imports, unmet demand would be "
                     + unmetWithoutImports + " (actual " + actualUnmet
                     + "), holding opening stock, production and demand fixed. This does not prove an appeal caused delivery"
-                    + " or attribute benefit to a particular player; no adaptive weight or reputation reward applied.";
+                    + " or attribute benefit to a particular player; this comparison assigns no player rewards.";
         }
     }
 
@@ -37,8 +37,15 @@ public final class FoodImportImpact {
         if (food.available() != available || food.demand() != demand || food.fulfilled() != fulfilled
                 || food.unmet() != unmet || food.after().units() != available - fulfilled)
             throw new IllegalArgumentException("Food report contradicts retained accounting inputs");
+        return assessInputs(food.before().units(),food.flow());
+    }
+    public static Outcome assessInputs(long opening, CommodityAccounting.Flow flow) {
+        if(opening<0)throw new IllegalArgumentException("Negative opening food");
+        long without=Math.addExact(opening,flow.production());
+        long demand=flow.demand();
+        long unmet=demand-Math.min(demand,Math.addExact(without,flow.imports()));
         long baselineUnmet = demand - Math.min(without, demand);
         long avoided = baselineUnmet - unmet;
-        return new Outcome(food.flow().imports(), baselineUnmet, unmet, avoided, food.flow().imports() - avoided);
+        return new Outcome(flow.imports(), baselineUnmet, unmet, avoided, flow.imports() - avoided);
     }
 }

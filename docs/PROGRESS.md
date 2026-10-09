@@ -54,12 +54,14 @@ housing pressure and shared food conditions now save with each period. Treasury
 accounting is tested separately from wellbeing; configurable one-time opening funding
 is now wired. Confirmed food sales now spend actual village funds and pay emeralds;
 emerald bargaining adds saved counters/cooldowns; finite-stock barter is now playable.
-Broader autonomous response execution and attributable feedback remain ahead.
+Broader explicit autonomous response comparison/execution explanations remain ahead.
 Food deliveries now also have an exact saved-accounting explanation: how much
 unmet need they prevented this period versus how much they added to reserves.
 Restart and later consumption preserve that evidence; pending food and independent
 farm recovery receive no false credit. This is another verified piece of the final
-group, not yet learning that changes a village's later choices. Full Wrapper
+group. The follow-up now uses verified earlier deliveries for bounded configurable
+food-priority learning (PRIORITY_LEARNING.md); broader explicit response comparison
+is still incomplete. Original outcome-evidence Wrapper
 verification passed 470 cases; native Paper checked the actual saved donation's
 four units of immediate relief and eight units of extra reserves. See
 FOOD_IMPORT_OUTCOMES.md. The reporting bar stays 75% until that whole group passes.
@@ -82,7 +84,8 @@ observed crowding, or monitor. Seeded selection filters infeasible/irrelevant op
 reviews on a bounded cadence and reconsiders when pressures appear or clear. These
 now include voluntary food appeals in the village menu, with saved shortage-change
 and resolution evidence. Budget-backed food purchases are implemented; broader
-response execution/learning and building permissions remain ahead.
+response comparison/execution explanations remain ahead. Bounded saved food-priority
+learning is implemented; actual building permissions belong to Phase 4.
 
 ### Phase 2 detail — see progress inside unfinished groups
 
@@ -90,7 +93,7 @@ response execution/learning and building permissions remain ahead.
 |---|---|---|
 | Supplies and shortages — complete | Commodity accounting, saved reserves/history, duration/recovery, long crisis fixtures | Complete as an accounting foundation |
 | Basic labor, treasury and wellbeing — complete | Field-backed adult production, household allocations, once-only opening funds, actual spending/payments, resident-linked welfare and crisis/recovery history; 419 automated cases and Paper | Complete for the Phase 2 food/housing prototype; employment/industry welfare belongs to Phase 3 |
-| Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery, player-readable food appeals and saved observed outcomes | Broader executed responses and learning weights from attributable outcomes |
+| Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery, appeals, exact import impacts and bounded configurable learning from verified earlier deliveries; 484 automated cases and native Paper | Broader explicit feasible-response comparison/execution explanations |
 | Player economy and stability — prototype complete | Configurable prices, exact finite-budget payments, saved negotiation/cooldowns, protected finite-stock barter, donations, mixed two-village 240-period conservation and native inventory/restart | Human client/inventory-plugin compatibility and survival balance remain release limits |
 
 Finance direction is now approved: a moderate configurable opening financial

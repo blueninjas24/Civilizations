@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 24;
+    static final int CURRENT_VERSION = 25;
 
     @FunctionalInterface
     interface Migration {
@@ -230,6 +230,22 @@ final class SchemaMigrator {
                                 CHECK((phase='RESERVE' AND after_units<before_units) OR (phase='CANCEL' AND after_units>before_units))
                             )
                             """);
+                },
+                connection -> {
+                    execute(connection,"ALTER TABLE village_priorities ADD COLUMN learning_replay INTEGER NOT NULL DEFAULT 0 CHECK(learning_replay IN (0,1))");
+                    execute(connection,"""
+                            CREATE TABLE priority_learning (
+                                settlement_id TEXT NOT NULL, period INTEGER NOT NULL,
+                                replay_version INTEGER NOT NULL CHECK(replay_version=1),
+                                window_periods INTEGER NOT NULL CHECK(typeof(window_periods)='integer' AND window_periods BETWEEN 1 AND 100),
+                                maximum_bonus INTEGER NOT NULL CHECK(typeof(maximum_bonus)='integer' AND maximum_bonus BETWEEN 1 AND 100),
+                                imported INTEGER NOT NULL CHECK(typeof(imported)='integer' AND imported>=0),
+                                avoided_unmet INTEGER NOT NULL CHECK(typeof(avoided_unmet)='integer' AND avoided_unmet BETWEEN 0 AND imported),
+                                PRIMARY KEY(settlement_id,period),
+                                FOREIGN KEY(settlement_id,period) REFERENCES village_priorities(settlement_id,period)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX applied_food_learning ON food_deliveries(settlement_id,applied_period)");
                 }
         ));
     }
@@ -322,6 +338,8 @@ final class SchemaMigrator {
                 requireColumns(connection, "treasuries", Set.of("settlement_id", "hundredths"));
                 requireColumns(connection, "treasury_entries", Set.of("sequence", "operation_id", "settlement_id", "kind", "amount", "balance_after", "reason"));
             }
+            if (migrations.size() >= 25) requireColumns(connection, "priority_learning", Set.of("settlement_id","period","replay_version","window_periods","maximum_bonus","imported","avoided_unmet"));
+            if (migrations.size() >= 25) requireColumns(connection, "village_priorities", Set.of("learning_replay"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

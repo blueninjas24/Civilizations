@@ -271,6 +271,82 @@ class EconomyRuntimeRepositoryTest {
         assertNull(runtime.views().get(town).appeal());assertEquals(old,runtime.views().get(town).needs());
         runtime.pulse(3000,false);assertEquals(2,runtime.views().get(town).appeal().period());
     }
+    private void learningFamine() throws SQLException {
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,
+                VillagePriorities.Policy.prototype().withLearning(12,25),0);
+        observe(1000,true,0);for(int period=1;period<=10;period++)runtime.pulse(1000L+1000L*period,false);
+    }
+    @Test void verifiedEarlierImportsChangeWeightsAndReplayExactlyAcrossRestart() throws SQLException {
+        learningFamine();var id=UUID.randomUUID();runtime.recordDeliveredFood(id,town,5,"Known delivery",11000);
+        runtime.pulse(12000,false);assertEquals(VillagePriorities.Evidence.none(),runtime.views().get(town).priority().evidence());
+        runtime.pulse(13000,false);var choice=runtime.views().get(town).priority();
+        assertEquals(new VillagePriorities.Evidence(5,5),choice.evidence());
+        assertEquals(1250,choice.candidates().get(1).weight());
+        db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();
+        assertEquals(choice,new VillagePriorityRepository(db.getConnection()).latest(town).orElseThrow());
+        runtime=runtime(settings);runtime.start(13000);runtime.pulse(14000,false);
+        assertEquals(0,runtime.views().get(town).priority().policy().learningPeriods());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT imported,avoided_unmet FROM priority_learning WHERE period=12")) {
+            assertTrue(r.next());assertEquals(5,r.getLong(1));assertEquals(5,r.getLong(2));
+        }
+    }
+    @Test void failedLearningWriteRollsBackFoodReceiptAndRetryRetainsExactlyOneOutcome() throws SQLException {
+        learningFamine();var before=runtime.views().get(town).account().state();var id=UUID.randomUUID();
+        runtime.recordDeliveredFood(id,town,5,"Known delivery",11000);
+        sql("CREATE TRIGGER reject_learning BEFORE INSERT ON priority_learning BEGIN SELECT RAISE(ABORT,'injected'); END");
+        assertThrows(SQLException.class,()->runtime.pulse(12000,false));assertEquals(before,runtime.views().get(town).account().state());
+        assertNull(new FoodDeliveryRepository(db.getConnection()).find(id).orElseThrow().appliedPeriod());
+        sql("DROP TRIGGER reject_learning");runtime.pulse(12000,false);runtime.pulse(13000,false);
+        assertEquals(new VillagePriorities.Evidence(5,5),runtime.views().get(town).priority().evidence());
+    }
+    @Test void schema24UpgradePreservesLegacyChoicesAndMigrationFailureIsAtomic() throws SQLException {
+        observe(1000,true,0);runtime.pulse(2000,false);var legacy=runtime.views().get(town).priority();
+        SchemaFixtures.rewind(db.getConnection(),24);sql("CREATE TABLE priority_learning (collision INTEGER)");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(24,r.getInt(1));}
+        sql("DROP TABLE priority_learning");new SchemaMigrator().migrate(db.getConnection());
+        assertEquals(legacy,new VillagePriorityRepository(db.getConnection()).latest(town).orElseThrow());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT count(*) FROM priority_learning")){assertEquals(0,r.getInt(1));}
+    }
+    @Test void learningWindowExpiresAndUnverifiedHistoryCannotEarnBonus() throws SQLException {
+        learningFamine();var id=UUID.randomUUID();runtime.recordDeliveredFood(id,town,5,"Known delivery",11000);
+        runtime.pulse(12000,false);runtime.pulse(13000,false);assertEquals(5,runtime.views().get(town).priority().evidence().imported());
+        for(int period=13;period<=30;period++)runtime.pulse(1000L+1000L*period,false);
+        assertEquals(VillagePriorities.Evidence.none(),runtime.views().get(town).priority().evidence());
+        // A reported import without matching applied receipt must not be treated as a verified action.
+        sql("UPDATE food_deliveries SET units=6 WHERE applied_period=11");
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,
+                VillagePriorities.Policy.prototype().withLearning(100,25),0);
+        runtime.start(31000);runtime.pulse(32000,false);
+        assertEquals(VillagePriorities.Evidence.none(),runtime.views().get(town).priority().evidence());
+    }
+    @Test void missingSavedLearningEvidenceFailsEvenWhenLegacySelectionWouldMatch() throws SQLException {
+        learningFamine();sql("DELETE FROM priority_learning WHERE period=(SELECT MAX(period) FROM village_priorities)");
+        var failure=assertThrows(SQLException.class,()->new VillagePriorityRepository(db.getConnection()).latest(town));
+        assertTrue(failure.getMessage().contains("evidence missing"));
+    }
+    @Test void seeded240PeriodLearningUsesOnlyAppliedEarlierReceiptsAndSurvivesRestart() throws SQLException {
+        var policy=VillagePriorities.Policy.prototype().withLearning(12,25);
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,policy,42);
+        observe(1000,true,0);var outcomes=new java.util.TreeMap<Long,FoodImportImpact.Outcome>();long imported=0;
+        for(long period=1;period<=240;period++) {
+            if(period%17==0)runtime.recordDeliveredFood(UUID.randomUUID(),town,5,"Scenario verified delivery",period*1000);
+            runtime.pulse(1000+period*1000,false);var view=runtime.views().get(town);
+            var impact=view.foodImportImpact().orElseThrow();outcomes.put(period,impact);imported+=impact.imported();
+            var choice=view.priority();long knownImports=0,knownAvoided=0;
+            for(var entry:outcomes.subMap(Math.max(1,choice.period()-12),true,choice.period(),false).values()) {
+                knownImports+=entry.imported();knownAvoided+=entry.avoidedUnmet();
+            }
+            assertEquals(new VillagePriorities.Evidence(knownImports,knownAvoided),choice.evidence());
+            assertTrue(choice.evidence().bonus(policy)<=25);assertNull(view.treasury());
+            if(period==120) {
+                db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();
+                runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,policy,42);
+                runtime.start(121000);assertEquals(choice,runtime.views().get(town).priority());
+            }
+        }
+        assertEquals(14*5,imported);assertEquals(0,runtime.views().get(town).account().state().stocks().get(Commodity.FOOD).units());
+    }
     @Test void failedAppealMigrationPreservesVersionAndRetriesAfterRepair() throws SQLException {
         SchemaFixtures.rewind(db.getConnection(),19);sql("CREATE TABLE food_appeals (bad_column TEXT)");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));

@@ -122,6 +122,20 @@ class EconomyConfigurationTest {
         var config=defaults();config.set("priorities",null);config.set("food.output-percent",25);
         assertEquals(VillagePriorities.Policy.prototype(),EconomyConfiguration.readPriorities(config));assertEquals(25,EconomyConfiguration.read(config).foodOutputPercent());
     }
+    @Test void learningIsEditableAndAbsentOldSettingsRemainDisabled() throws Exception {
+        var config=defaults();assertEquals(12,EconomyConfiguration.readPriorities(config).learningPeriods());
+        assertEquals(25,EconomyConfiguration.readPriorities(config).maximumFoodBonusPercent());
+        config.set("priorities.learning",null);assertEquals(VillagePriorities.Policy.prototype(),EconomyConfiguration.readPriorities(config));
+        config.set("priorities.learning.window-periods",0);config.set("priorities.learning.maximum-food-bonus-percent",0);
+        assertEquals(0,EconomyConfiguration.readPriorities(config).learningPeriods());
+    }
+    @Test void partialUnknownAndUnsafeLearningSettingsFail() throws Exception {
+        var config=defaults();config.set("priorities.learning.window-periods",null);
+        assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        for(var entry:java.util.Map.of("priorities.learning.maximum-food-bonus-percent",101,"priorities.learning.window-periods",0,"priorities.learning.typo",1).entrySet()) {
+            var invalid=defaults();invalid.set(entry.getKey(),entry.getValue());assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(invalid));
+        }
+    }
     @Test void partialOrUnsafePrioritySettingsFailClearly() throws Exception {
         var config=defaults();config.set("priorities.food-weight",null);var missing=config;assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(missing));
         config=defaults();config.set("priorities.minimum-relative-percent",101);var invalid=config;assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(invalid));

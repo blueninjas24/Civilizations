@@ -87,3 +87,12 @@ and observed recovery with actual production/import inputs. This response neithe
 buys goods nor grants construction permissions, and observed recovery is not proof
 of causal success. See FOOD_APPEALS.md. Paid responses and adaptive weights remain
 future work requiring real feasibility and attributable outcomes.
+
+## Saved learning — October 9 follow-up
+
+Paid food purchases and finite-stock player barter have since been implemented.
+Schema 25 now also retains a configurable bounded food-weight bonus from earlier
+verified deliveries' exact unmet-demand prevention. No observed appeal recovery is
+treated as proof an appeal attracted a supplier. Old reviews retain their original
+replay; new reviews save their learning policy/evidence and fail on missing metadata.
+See PRIORITY_LEARNING.md for tuning, seeded behavior, validation and remaining scope.

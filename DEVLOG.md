@@ -1,5 +1,38 @@
 # Civilizations Development Log
 
+## Configurable saved food-priority learning — October 9, 2026
+
+- Branch `codex/phase2-priority-learning`: configurable earlier verified import
+  outcomes reinforce food-priority weight by a bounded percentage. New defaults
+  look back 12 economic periods with a 25% cap; old files stay disabled. Strict
+  validation, explicit two-zero disable, no player penalties/rewards or new payments.
+- Prior applied receipt totals must match each historical period's imports. Marginal
+  unmet-demand prevention sets the bonus; pending/current-period/unmatched inputs
+  do not count. Existing review cadence remains. Enabled integer weights use
+  100-times resolution; unchanged disabled legacy reviews replay exactly.
+- Schema 25 adds explicit learning replay markers, versioned evidence/policy and
+  applied-delivery index. Old choices/history remain intact; enabled missing evidence
+  fails even if a legacy action would match. Learning write failure rolls back food,
+  needs, review and receipt use. Forward settings/restart preserve old evidence.
+- Fourteen new tests include 1,000-seed feasible choices, ratios/caps, admin settings,
+  migration/recovery, restart/disable, expiry/mismatch and 240 verified-delivery
+  periods. Full Wrapper verification passed 484 cases (482 unit/two packaged IT).
+  First full run caught two intentionally failed-upgrade diagnostic regressions;
+  fixed old-schema read compatibility without concealing current-schema corruption.
+- Pinned disposable Paper confirmed native twelve-unit delivery/four prevented
+  unmet units -> 8% bonus at a later review, retained across restarts; previous
+  donation/purchase/bargaining/barter/welfare/famine/unloaded checks passed.
+  Consistent marked dev schema-24 snapshot preceded upgrade; no production/world
+  reset or owner-config rewrite. No merge/push. Updated an obsolete import-impact
+  diagnostic sentence so it no longer claims adaptive weights are absent.
+  Final full Wrapper rerun after that wording correction passed; probe archived and
+  final plugin-only startup/diagnostics/shutdown passed. Read-only schema-24/25
+  comparison retained old IDs, review fields and economic history; integrity/FKs
+  valid, old owner settings disabled, native learned evidence/metadata verified.
+- Status/progress/decisions/guides updated. Phase 2 stays 3/4 (75%): food learning
+  is complete, broader explicit feasible-response comparison/execution explanations
+  remain. No new design question blocks the next scoped work.
+
 ## Exact food import outcome evidence — October 9, 2026
 
 - Branch `codex/phase2-import-outcomes`: FoodImportImpact compares each retained

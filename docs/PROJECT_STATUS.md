@@ -1,6 +1,41 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies, basic labor/treasury/wellbeing and player trade/stability prototype groups (3/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Broader autonomous response execution/outcome learning remains pending. Phases 3–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies, basic labor/treasury/wellbeing and player trade/stability prototype groups (3/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded configurable food-priority learning is now implemented; broader explicit feasible-response comparison/execution explanations remain pending. Phases 3–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+
+## Configurable saved food-priority learning — October 9, 2026
+
+- Branch `codex/phase2-priority-learning`: prior verified deliveries can modestly
+  reinforce SEEK_FOOD at a future scheduled review. Optional strict editable
+  `priorities.learning` uses a 12-period window and 25% maximum food bonus in new
+  files; old files stay disabled. Both zero disables. No penalties, invented
+  suppliers, extra money, payments, reputation or construction permissions.
+- Only earlier period imports exactly matching applied receipts count. Saved
+  unmet-demand prevention determines a bounded bonus; reserve-only deliveries and
+  absent player visits are not failures. Food must still be unmet; existing
+  cadence/pressure transitions prevent per-tick reselection. Enabled weights use
+  100-times resolution; disabled legacy seeded choices/explanations are preserved.
+- Transactional schema 25 adds a learning replay marker, versioned evidence/policy
+  rows and indexed applied-receipt lookup. Old reviews default to no learning and
+  are not rewritten; new choices replay their saved evidence through later tuning
+  and restart. Missing required evidence fails explicitly. Failed upgrade recovery
+  retains old-schema diagnostics; current-schema missing tables remain faults.
+- Fourteen added cases cover domain ratios/blocked seeded choices, strict admin
+  tuning, migration/replay/rollback/expiry/mismatch and a seeded 240-period scenario.
+  Windows `.\mvnw.cmd clean verify -B -ntp` passed 484 cases (482 unit/two packaged
+  integration), zero failures/errors/skips. First full run caught two old-schema
+  diagnostic regressions during intentionally failed upgrades; repaired and reran.
+- Pinned disposable Paper verified a native earlier twelve-unit delivery prevented
+  four unmet units, earned an 8% future food bonus and retained evidence across
+  restarts. Existing payment/bargaining/barter/welfare/famine/unloaded regressions
+  passed. Consistent marked dev schema-24 snapshot preceded upgrade. No world reset,
+  production changes, owner-config rewrite, merge or push. See PRIORITY_LEARNING.md.
+  Test-only probe archived; final plugin-only startup/diagnostics/shutdown passed.
+  Read-only schema/integrity/FK checks confirmed all checked prior identity/economy
+  history and legacy review fields retained, with old owner learning still disabled.
+  Native fixture's versioned twelve/four evidence and required metadata also checked.
+- Phase 2 stays 3/4 (75%): bounded food learning is implemented. The remaining
+  scope is explicit broader feasible-response comparison/execution explanations,
+  rather than industry, building or regional supplier simulation from later phases.
 
 ## Exact food import outcome evidence — October 9, 2026
 

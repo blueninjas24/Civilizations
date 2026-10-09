@@ -88,6 +88,12 @@ purchases:
 # These weights bias seeded choices among feasible, reasonably competitive priorities.
 # Old files may omit this whole section. Edits apply to future reviews; history is retained.
 priorities:
+  # Earlier verified deliveries can mildly reinforce seeking food when it is still needed.
+  # Both zero disables. Otherwise window 1..100; maximum bonus 1..100 percent.
+  # Old files without learning stay disabled. No penalties, payment changes or player rewards.
+  learning:
+    window-periods: 12
+    maximum-food-bonus-percent: 25
   review-after-periods: 5
   food-weight: 10
   crisis-multiplier: 3

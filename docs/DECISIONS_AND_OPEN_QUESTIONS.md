@@ -391,3 +391,19 @@ failed transactions; future reserve consumption is not credited as another impor
 Bounded configurable action learning still needs explicit implemented feasibility,
 response attribution and saved replay inputs before the final reporting gate passes.
 No new user decision blocks the next scoped Phase 2 work. See FOOD_IMPORT_OUTCOMES.md.
+
+## October 9, 2026 — configurable bounded food-priority learning
+
+Under the approved editable economy prototype authority, new files now use a
+12-economic-period lookback and 25% maximum extra food-priority weight. Existing
+files opt in explicitly; both values zero disables. Only earlier imports matching
+applied receipts contribute their aggregate immediate unmet-demand prevention.
+No player absence or failed bargaining penalty, individual attribution/reputation,
+imaginary supplier or automatic payment is introduced. Reserve-only arrivals are
+not failures. Learning changes a planning choice, with real exchange feasibility
+and player confirmation still enforced independently. Enabled scoring uses scaled
+integer resolution and versioned saved evidence; legacy replay remains intact.
+No consequential locked rule is changed. Broader explicit response comparison is
+the remaining Phase 2 reporting scope; industries/construction/regional suppliers
+stay in their canonical later phases. No new user answer required. See
+PRIORITY_LEARNING.md for prototype settings and limits.
