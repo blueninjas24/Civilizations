@@ -28,41 +28,60 @@ public final class TreasuryRepository {
         if (delta == 0 || delta == Long.MIN_VALUE) throw new IllegalArgumentException("Invalid treasury movement");
         return apply(operation, town, delta > 0 ? "CREDIT" : "DEBIT", Math.abs(delta), reason);
     }
-    private Entry apply(UUID operation, UUID town, String kind, long amount, String reason) throws SQLException {
+    /** Internal callers may compose funding/spending with a receipt in their own owner transaction. */
+    Entry initializeRows(UUID operation, UUID town, long hundredths, String reason) throws SQLException {
+        if(hundredths<0)throw new IllegalArgumentException("Negative opening treasury");
+        return applyRows(operation,town,"OPENING",hundredths,reason);
+    }
+    Entry postRows(UUID operation, UUID town, long delta, String reason) throws SQLException {
+        if(delta==0 || delta==Long.MIN_VALUE)throw new IllegalArgumentException("Invalid treasury movement");
+        return applyRows(operation,town,delta>0?"CREDIT":"DEBIT",Math.abs(delta),reason);
+    }
+    private static void validate(UUID operation, UUID town, String reason) {
         Objects.requireNonNull(operation); Objects.requireNonNull(town); Objects.requireNonNull(reason);
-        if (reason.isBlank()) throw new IllegalArgumentException("Treasury source/reason required");
-        if (!connection.getAutoCommit()) throw new SQLException("Treasury requires no active transaction");
+        if(reason.isBlank())throw new IllegalArgumentException("Treasury source/reason required");
+    }
+    private Entry apply(UUID operation, UUID town, String kind, long amount, String reason) throws SQLException {
+        validate(operation,town,reason);
+        if(!connection.getAutoCommit())throw new SQLException("Treasury requires no active transaction");
         connection.setAutoCommit(false);
         try {
-            var old = entry(operation);
-            if (old.isPresent()) {
-                var saved = old.orElseThrow();
-                if (!saved.settlement().equals(town) || !saved.kind().equals(kind) || saved.amount() != amount || !saved.reason().equals(reason))
-                    throw new SQLException("Treasury operation ID reused with different inputs");
-                connection.commit(); connection.setAutoCommit(true); return saved;
-            }
-            var before = load(town); long after;
-            if (kind.equals("OPENING")) {
-                if (before.isPresent()) throw new SQLException("Treasury already initialized");
-                after = amount;
-                try (var s = connection.prepareStatement("INSERT INTO treasuries VALUES (?,?)")) { s.setString(1, town.toString()); s.setLong(2, after); s.executeUpdate(); }
-            } else {
-                long balance = before.orElseThrow(() -> new SQLException("Treasury not initialized")).hundredths();
-                if (kind.equals("DEBIT") && amount > balance) throw new SQLException("Insufficient treasury");
-                after = kind.equals("CREDIT") ? Math.addExact(balance, amount) : balance - amount;
-                try (var s = connection.prepareStatement("UPDATE treasuries SET hundredths=? WHERE settlement_id=?")) {
-                    s.setLong(1, after); s.setString(2, town.toString()); if (s.executeUpdate() != 1) throw new SQLException("Treasury disappeared");
-                }
-            }
-            var result = new Entry(operation, town, kind, amount, after, reason);
-            try (var s = connection.prepareStatement("INSERT INTO treasury_entries(operation_id,settlement_id,kind,amount,balance_after,reason) VALUES (?,?,?,?,?,?)")) {
-                s.setString(1, operation.toString()); s.setString(2, town.toString()); s.setString(3, kind); s.setLong(4, amount); s.setLong(5, after); s.setString(6, reason); s.executeUpdate();
-            }
-            connection.commit(); connection.setAutoCommit(true); return result;
-        } catch (SQLException | RuntimeException failure) {
-            try { connection.rollback(); connection.setAutoCommit(true); } catch (SQLException rollback) { failure.addSuppressed(rollback); }
+            var result=applyRows(operation,town,kind,amount,reason);
+            connection.commit();connection.setAutoCommit(true);return result;
+        } catch(SQLException | RuntimeException failure) {
+            try { connection.rollback();connection.setAutoCommit(true); } catch(SQLException rollback) { failure.addSuppressed(rollback); }
             throw failure;
         }
+    }
+    /** Never commits or rolls back: the caller must finish or roll back the entire surrounding operation. */
+    private Entry applyRows(UUID operation, UUID town, String kind, long amount, String reason) throws SQLException {
+        validate(operation,town,reason);
+        if(connection.getAutoCommit())throw new SQLException("Treasury rows require an owner transaction");
+        var old=entry(operation);
+        if(old.isPresent()) {
+            var saved=old.orElseThrow();
+            if(!saved.settlement().equals(town) || !saved.kind().equals(kind) || saved.amount()!=amount || !saved.reason().equals(reason))
+                throw new SQLException("Treasury operation ID reused with different inputs");
+            return saved;
+        }
+        var before=load(town);long after;
+        if(kind.equals("OPENING")) {
+            if(before.isPresent())throw new SQLException("Treasury already initialized");
+            after=amount;
+            try(var s=connection.prepareStatement("INSERT INTO treasuries(settlement_id,hundredths) VALUES (?,?)")) { s.setString(1,town.toString());s.setLong(2,after);s.executeUpdate(); }
+        } else {
+            long balance=before.orElseThrow(()->new SQLException("Treasury not initialized")).hundredths();
+            if(kind.equals("DEBIT") && amount>balance)throw new SQLException("Insufficient treasury");
+            after=kind.equals("CREDIT")?Math.addExact(balance,amount):balance-amount;
+            try(var s=connection.prepareStatement("UPDATE treasuries SET hundredths=? WHERE settlement_id=?")) {
+                s.setLong(1,after);s.setString(2,town.toString());if(s.executeUpdate()!=1)throw new SQLException("Treasury disappeared");
+            }
+        }
+        var result=new Entry(operation,town,kind,amount,after,reason);
+        try(var s=connection.prepareStatement("INSERT INTO treasury_entries(operation_id,settlement_id,kind,amount,balance_after,reason) VALUES (?,?,?,?,?,?)")) {
+            s.setString(1,operation.toString());s.setString(2,town.toString());s.setString(3,kind);s.setLong(4,amount);s.setLong(5,after);s.setString(6,reason);s.executeUpdate();
+        }
+        return result;
     }
     public Optional<Entry> entry(UUID operation) throws SQLException {
         try (var s = connection.prepareStatement("SELECT * FROM treasury_entries WHERE operation_id=?")) {

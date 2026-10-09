@@ -1,6 +1,35 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and conserved food allocation, saved planning priorities, explicit delivery accounting, confirmed player food donations and voluntary food appeals are implemented; treasury accounting is prepared, while funding, complete wellbeing and broader response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 accounting foundation passed (1/4 reporting milestones); live food, household needs and conserved food allocation, saved planning priorities, explicit delivery accounting, confirmed player food donations and voluntary food appeals are implemented; treasury accounting, shared transaction support and exact affordability quotes are prepared, while funding, complete wellbeing and broader response execution remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+
+## Exact finance quotes and shared treasury transactions — October 8, 2026
+
+- Branch `codex/phase2-finance-transaction-foundation`: pure TradeQuotes provides
+  exact full-stack Trade Value cost and maximum affordable whole items. Unknown
+  budget differs from a measured zero; partial affordability never rounds up.
+  Existing scarcity price rounding is reused once, with overflow/invalid inputs
+  rejected. Quotes neither reserve funds nor accept goods or promise a payout.
+- Treasury standalone APIs preserve their behavior. Internal row operations now
+  join an existing SQL-owner transaction, allowing money and receipt writes to
+  commit together. They never finish the caller's transaction. Tests combine an
+  explicit fixture debit and food-delivery receipt; injected receipt failure rolls
+  back both, retry retains both and later food accounting consumes the receipt once.
+- Twelve new cases; final Windows Wrapper `clean verify -B -ntp` passed 369 tests
+  (367 unit/two packaged integration), no failures/errors/skips. Covers 10,000 seeded
+  affordability cases, scarcity conversion, cent/long boundaries, insufficient funds,
+  shared opening/credit/debit rollback, operation retries and restart.
+- Initial verification exposed an intermittent existing preview fixture failure:
+  Paper Location retains a weak world reference and the unregistered proxy could be
+  collected. Test now retains its fixture worlds strongly; pinned Paper source
+  confirmed the lifetime contract. No gameplay behavior was changed for that fix.
+- Schema remains 20. No real/server DB, world, inventory or owner config changed;
+  all writes used temporary test databases. No new Paper-facing behavior or server
+  smoke run this batch; funding/payment adapters will need native Paper/client tests.
+- Updated finance guide, status, decisions, devlog and progress detail. Phase 2
+  remains 1/4 full reporting groups. Initial funding source and player currency
+  questions are pending; no starting money, income, emerald exchange rate, live
+  purchase or barter policy has been assumed. Next: approved funding and payment
+  handoff, then budget-backed purchase execution and integrated economy balance.
 
 ## Voluntary village food appeals — October 8, 2026
 

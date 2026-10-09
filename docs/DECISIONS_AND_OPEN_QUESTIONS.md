@@ -230,3 +230,17 @@ and observed pressure change, imports and production. Resolved pressure is not
 claimed as causal success, and does not silently train decision weights. Paid trade,
 actual village funding and adaptive outcome scoring remain separate future work.
 See FOOD_APPEALS.md for observation/history and paused/catch-up limits.
+
+## October 8, 2026 — finance questions and independent groundwork
+
+Questions presented to the user: first village funding via voluntary player
+contributions, a configurable one-time grant plus contributions, or waiting for
+industry income; first payments via physical emeralds with an editable exchange
+rate, barter, or an existing server currency plugin. Neither has been assumed
+approved. Real business income stays dependent on actual future industries.
+
+Independent engineering work provides exact Trade Value/whole-item affordability
+quotes and internal treasury operations that share an owner's receipt transaction.
+No live budget, income rule, exchange rate, payout or merchant acceptance is created.
+Existing scarcity pricing and standalone treasury behavior remain unchanged.
+See FINANCE_FOUNDATION.md. These calculations do not reserve or promise payment.

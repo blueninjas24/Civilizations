@@ -28,6 +28,8 @@ class FoodAidPreviewCommandTest {
     private final AtomicLong now = new AtomicLong(1000);
     private final List<String> messages = new ArrayList<>();
     private boolean inventoryRead;
+    // Bukkit Location holds only a weak world reference; fixture worlds are not registered in a server.
+    private final List<World> fixtureWorlds = new ArrayList<>();
     private static final class PlainStack extends ItemStack {
         private final boolean custom; private final Material material; private final int count;
         PlainStack(Material material, int count, boolean custom) { super(); this.material=material;this.count=count;this.custom=custom; }
@@ -52,6 +54,7 @@ class FoodAidPreviewCommandTest {
         var world=(World)Proxy.newProxyInstance(World.class.getClassLoader(),new Class<?>[]{World.class},(p,m,a)->{
             if(m.getName().equals("getUID"))return id;throw new AssertionError("Unexpected world access: "+m.getName());
         });
+        fixtureWorlds.add(world);
         return new Location(world,x,64,0);
     }
     private PopulationSession session() throws Exception {
