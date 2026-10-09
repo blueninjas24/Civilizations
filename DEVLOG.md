@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## October 9, 2026 — registered live resource surveys
+
+Branch `codex/phase3-live-resource-surveys`. Read-only PaperOreObserver now captures
+one already-loaded saved-home chunk per town, traverses bounded ticks, then queues
+immutable evidence to the SQL owner. Healthy tracking, matching/present world,
+complete pair/bounds and current exclusions are required. Existing claims resolve
+before reporting provisional patches; conflicts fail without reserve/business
+changes. No force loading, physical mining, money, persisted opportunities or new
+schema. Editable new-file budgets, old owner files explicitly opt in; strict keys
+validated before startup. At most 1024 towns, 512 positives, one scan/future pending.
+
+Nine new temporary-reader/config/owner-world tests. Wrapper clean verify passed 640
+(638 unit/two packaged integration), zero failures/errors/skips. Guarded native
+scheduled pipeline passed with actual snapshot and current exclusion; all four
+blocks restored, synthetic homes/people in separate DB only, no actual villagers.
+Read-only main industry/funds/exclusions, both DB integrity/FKs and clean/trusted
+fences, unchanged owner settings passed. Startup 1676 retained; online 1677. Ticket
+removed, probe archived and normal stop 0. No human/natural mine acceptance claim.
+
+Updated LIVE_RESOURCE_SURVEYS/TODO/status/progress and config. Phase 3 still 1/4
+(25%); wider suitable opportunities, funding/staffing, timed chains, lifecycle and
+specialization remain. Succession choice asked; no answer assumed. Local passing
+feature commit only, no production DB/world reset, push/merge or main change.
+
 ## October 9, 2026 — bounded observed resource patches
 
 Branch `codex/phase3-resource-grouping`. OreClusters groups only complete bounded

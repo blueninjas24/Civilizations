@@ -289,6 +289,18 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
 
+    /** Provisional immutable observations only. New founding must independently revalidate saved coordinate claims. */
+    public CompletableFuture<List<com.blueninjas24.civilizations.database.MineralSurveyReader.Patch>> surveyMinerals(UUID town,
+            List<com.blueninjas24.civilizations.industry.MineralObservation> observations) {
+        var frozen=List.copyOf(observations);
+        return submit(()-> {
+            requireReady();if(!oreDiscoveryReady())throw new SQLException("Live ore tracking is not ready; survey paused");
+            if(loadedWorlds!=null && frozen.stream().anyMatch(o->!loadedWorlds.contains(o.world())))
+                throw new SQLException("Survey world is absent; no live resource observation");
+            return new com.blueninjas24.civilizations.database.MineralSurveyReader(database.getConnection()).read(town,frozen);
+        });
+    }
+
     public CompletableFuture<Void> observeFarms(FarmObservation observation) {
         return submit(() -> {
             requireReady(); if (economy == null) throw new IllegalStateException("Economy not enabled in this session");

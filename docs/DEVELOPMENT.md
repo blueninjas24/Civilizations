@@ -98,6 +98,20 @@ restoring server data has not been performed by this development batch.
 
 ## Manual automatic-farm native fixture
 
+LiveOreSurveyProbe is a separate guarded test-only plugin, name
+CivilizationsLiveSurveyProbe/main LiveOreSurveyProbe, API1.21, dependency
+Civilizations. It uses the marked localhost/no-player guard, a separate random
+data directory/session, synthetic saved homes/people and four temporary ore/air
+blocks in an already-loaded chunk. No actual villagers or inventories are changed.
+It runs the production PaperOreObserver with explicit small test budgets, saves
+one known placement exclusion in its own DB, and verifies the actual scheduled
+snapshot/SQL-owner pipeline reports one admitted patch. Disable cancels observation,
+closes the owner and restores/checks every fixture block. No mine is founded.
+Back up the stopped dev DB, compile against binary dependencies, archive the probe
+after a passing normal stop, and remove any console-only fixture loading ticket.
+Keep owner economy.yml unchanged; the explicit test policy does not opt an old
+owner file in. Never ship this fixture in a production JAR. See LIVE_RESOURCE_SURVEYS.md.
+
 The piston extension also dispatches synthetic BlockPistonExtendEvent and
 BlockPistonRetractEvent through the registered listener. It verifies all seven
 fixture exclusions (placement, horizontal movement and vertical movement) on the

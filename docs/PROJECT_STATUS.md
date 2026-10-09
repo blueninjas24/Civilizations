@@ -2,6 +2,30 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Nonfood automation, connected chains, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## Live read-only resource survey pipeline — October 9, 2026
+
+- Branch `codex/phase3-live-resource-surveys`: registered main-thread bounded
+  snapshot traversal at the canonical saved-home chunk. One scan/future at a time,
+  max 1024 queued towns and 512 combined positive coordinates. Text settings in new
+  economy.yml; missing old sections remain disabled with no owner-file rewrite.
+  Unknown/partial/unloaded traversal is deferred, not treated as resource loss.
+- SQL-owner bridge requires healthy capture, present/matching world and complete
+  consistent evidence, filters current sticky exclusions and resolves saved claims.
+  Conflicting deposits/minerals are rejected; separated patches may retain one
+  depleted identity. Only provisional results/diagnostics, no persisted opportunities,
+  funding, businesses, stocks, mining or new schema. Automatic mines remain disabled.
+- Nine new reader/config/session cases. Windows Wrapper clean verify passed 640
+  (638 unit/two packaged integration), zero failures/errors/skips. Guarded scheduled
+  Paper pipeline passed with four ore/air blocks restored and synthetic saved homes
+  in a separate DB: two residents, one exclusion, zero businesses, clean/trusted fence.
+  Main startup 1676 retained; online 1677. Normal stop exited 0; test loading ticket
+  removed and probe archived. Read-only old industry/funds/exclusions, integrity/FKs,
+  clean/trusted fences and unchanged owner settings passed. No human playtest claim.
+- LIVE_RESOURCE_SURVEYS/config/TODO/status/progress/devlog updated. Phase 3 stays
+  1/4 (25%). Next: actual opportunity suitability, atomic funded founding and timed
+  worker-backed nonfood chains; bulk-editor provenance remains separate. Ownership
+  succession choice still pending. Local feature commit only; no main merge/push.
+
 ## Bounded observed resource patches — October 9, 2026
 
 - Branch `codex/phase3-resource-grouping`: complete bounded observations split into

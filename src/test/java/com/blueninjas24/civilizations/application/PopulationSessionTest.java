@@ -33,6 +33,32 @@ class PopulationSessionTest {
                 new VillageObservation.Person(new UUID(0, 12), secondBed, true, "Second")));
     }
     private static <T> T await(CompletableFuture<T> result) throws Exception { return result.get(5, TimeUnit.SECONDS); }
+    @Test void liveSurveyUsesOwnerPlacementHistoryAndRejectsCaptureGaps() throws Exception {
+        try(var session=session(settings(2,12))) {
+            session.configureOreTracking();await(session.start(false));
+            await(session.observe(observed()));var town=session.settlementNames().keySet().iterator().next();
+            var world=observed().worldId();var position=new VillageObservation.Position(0,40,0);
+            var coal=new com.blueninjas24.civilizations.industry.MineralObservation(world,1000,true,com.blueninjas24.civilizations.economy.Commodity.COAL,List.of(position));
+            var iron=new com.blueninjas24.civilizations.industry.MineralObservation(world,1000,true,com.blueninjas24.civilizations.economy.Commodity.IRON,List.of());
+            assertEquals(1,await(session.surveyMinerals(town,List.of(coal,iron))).size());
+            await(session.recordOrePlacements(world,"test-world",List.of(position),1000));
+            assertTrue(await(session.surveyMinerals(town,List.of(coal,iron))).isEmpty());
+            session.invalidateOreTracking("injected gap");
+            assertThrows(ExecutionException.class,()->await(session.surveyMinerals(town,List.of(coal,iron))));
+        }
+    }
+    @Test void liveSurveyRefusesAbsentWorldAndResumesAfterWorldReturns() throws Exception {
+        var world=observed().worldId();
+        try(var session=session(settings(2,12))) {
+            session.configureOreTracking();await(session.start(false,java.util.Set.of(world)));
+            await(session.observe(observed()));var town=session.settlementNames().keySet().iterator().next();
+            var pair=List.of(new com.blueninjas24.civilizations.industry.MineralObservation(world,1000,true,com.blueninjas24.civilizations.economy.Commodity.COAL,List.of()),
+                    new com.blueninjas24.civilizations.industry.MineralObservation(world,1000,true,com.blueninjas24.civilizations.economy.Commodity.IRON,List.of()));
+            await(session.updateLoadedWorlds(java.util.Set.of()));
+            assertThrows(ExecutionException.class,()->await(session.surveyMinerals(town,pair)));
+            await(session.updateLoadedWorlds(java.util.Set.of(world)));assertTrue(await(session.surveyMinerals(town,pair)).isEmpty());
+        }
+    }
     @Test void captureGapBeforeStartupCannotBeOverwrittenBySuccessfulInitialization() throws Exception {
         try(var session=session(settings(2,12))) {
             session.configureOreTracking();session.invalidateOreTracking("early capture gap");await(session.start(false));

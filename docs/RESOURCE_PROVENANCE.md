@@ -3,7 +3,8 @@
 The user-approved exposed-ore prototype accepts unknown old origin but excludes
 newly tracked player placements. This batch establishes durable exclusion storage
 and enforcement. The subsequent LIVE_ORE_TRACKING.md batch registers native
-placement capture with a clean-stop/failure fence; no automatic mine observer yet.
+placement capture with a clean-stop/failure fence. Bounded read-only live surveys
+now exist (LIVE_RESOURCE_SURVEYS.md); no automatic mine founding/operation yet.
 
 ## Storage and owner boundary
 
@@ -43,12 +44,12 @@ history and finite extraction accounting stay intact. This is not block ownershi
 ## Remaining live bridge
 
 The production listener now captures successful native placements and uses a
-clean-stop/failure fence to protect missing pending writes across crashes. Relevant
-block movement and bulk-edit integrations still need coverage before automatic
+clean-stop/failure fence to protect missing pending writes across crashes.
+Piston movement now has conservative verified exclusions; bulk-edit integrations need coverage before automatic
 resource founding is enabled. In-memory pending positions alone are insufficient.
 Native place events do not certify all non-place mutations.
 
-Coherent resource grouping, automatic mine founding, ongoing exploration, extra
+Observed patch grouping and bounded live surveys exist. Automatic mine founding, ongoing exploration, extra
 mineral/stone/sand catalogs and automatic chain scheduling remain subsequent work.
 The original site-only discovery API is still trusted legacy code and does not
 provide coordinate/provenance safeguards; live observers must use the new path.

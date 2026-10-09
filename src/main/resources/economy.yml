@@ -7,6 +7,16 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# Read-only exposed coal/iron evidence in one saved-home chunk per town.
+# No mining, block ownership or automatic businesses are enabled by this setting.
+# Existing files without this section opt in explicitly; no file rewrite on upgrade.
+# Unknown border evidence is discarded; unloaded chunks are never forced to load.
+ore-observer:
+  enabled: true
+  vertical-radius: 24
+  cells-per-tick: 512
+  interval-ticks: 400
+
 # Phase 3 workshop recipe BACKEND: does not create/run workshops automatically yet.
 # Abstract commodity units, not individual Minecraft swords/pickaxes or player trades.
 # Real delivered inputs + saved qualified workers + matching business/store required.

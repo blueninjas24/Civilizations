@@ -58,8 +58,9 @@ before automatic mines are activated. No world-edit plugin compatibility is clai
 The fence is verified for normal full server stops/restarts; plugin hot reload and
 world edits while the plugin is absent are not certified tracking intervals.
 Healthy capture does not certify natural origin of old blocks. The user approved
-that old-origin limitation. Automatic resource clustering, mine founding, scheduling
-and production are still separate unfinished work.
+that old-origin limitation. Connected observed patches and a read-only live observer
+now exist (RESOURCE_PATCHES.md, LIVE_RESOURCE_SURVEYS.md). Actual opportunity
+selection, mine founding, scheduling and production are still unfinished.
 
 ## Verification design
 

@@ -13,6 +13,18 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void readOnlyOreObservationDefaultsAreEditableAndMissingOldSectionStaysDisabled() throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.OreObserverPolicy.prototype(),EconomyConfiguration.readOreObserver(config));
+        config.set("ore-observer.cells-per-tick",64);assertEquals(64,EconomyConfiguration.readOreObserver(config).cellsPerTick());
+        config.set("ore-observer",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readOreObserver(config).enabled());
+    }
+    @Test void malformedOreObserverSettingsFailBeforeDatabaseStartup() throws Exception {
+        for(var key:List.of("vertical-radius","cells-per-tick","interval-ticks")) {
+            var config=defaults();config.set("ore-observer."+key,0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+            config.set("ore-observer."+key,null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("ore-observer.enabled","yes");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     @Test void automaticFarmDefaultsAreEditableAndOldFilesRemainDisabled() throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.FarmBusinessPolicy.prototype(),EconomyConfiguration.readFarmBusinesses(config));
         config.set("farm-businesses.worker-capacity",8);assertEquals(8,EconomyConfiguration.readFarmBusinesses(config).workerCapacity());

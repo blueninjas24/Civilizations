@@ -32,8 +32,9 @@ Cell budgets bound calls, not a hard CPU deadline or snapshot-capture time.
 
 ## Remaining runtime work
 
-OreScan provides scanner components, not automatic mining. No ore observer or mine
-scheduler is registered. Durable placement records and native live capture with
+OreScan provides scanner components, not automatic mining. A bounded read-only ore
+observer is now registered (LIVE_RESOURCE_SURVEYS.md); no mine scheduler is active.
+Durable placement records and native live capture with
 a clean-stop/failure fence now exist (see LIVE_ORE_TRACKING.md). Conservative piston
 exclusions are verified; bulk-editor coverage and the actual discovery/operation bridge remain unfinished, so automatic
 ore opportunities remain disabled.
