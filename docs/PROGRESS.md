@@ -52,7 +52,9 @@ Live food runs on a saved independent clock with real planted-field evidence,
 shortage/recovery explanations and editable famine/feast tuning. Household demand,
 housing pressure and shared food conditions now save with each period. Treasury
 accounting is tested separately from wellbeing; actual funding/spending is not wired.
-These reports do not establish personal food rations or complete prosperity.
+New periods now divide fulfilled food between occupied families and unassigned
+residents, retaining each family's shortage streak. These simulated shares do not
+establish physical meals or complete prosperity.
 
 Explicit delivered-food receipts now survive restart and enter future periods once,
 with transactional shortage relief and no retroactive catch-up aid. This is internal
@@ -72,7 +74,7 @@ are planning intentions, not executed purchases or building permissions.
 | Reporting group | Verified pieces | What still blocks completion |
 |---|---|---|
 | Supplies and shortages — complete | Commodity accounting, saved reserves/history, duration/recovery, long crisis fixtures | Complete as an accounting foundation |
-| Labor, treasury and wellbeing — partial | Field-backed adult production, food clock, household demand/housing snapshots, explicit treasury ledger | Actual funding/spending integration, fuller wellbeing/allocation and economic effects |
+| Labor, treasury and wellbeing — partial | Field-backed adult production, food clock, household demand/housing snapshots, conserved family food shares and recovery streaks, explicit treasury ledger | Actual funding/spending integration, fuller wellbeing and economic effects |
 | Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery | Executing feasible economic responses and learning weights from actual outcomes |
 | Player economy and stability — partial | Configurable scarcity prices, long shortage/recovery tests and explicit delivery accounting plus `/civ aid` previews and confirmed menu donations with saved recovery | Paid trade/barter, budget/stock effects and integrated economy balance tests |
 

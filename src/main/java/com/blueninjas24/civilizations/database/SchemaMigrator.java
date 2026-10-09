@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 18;
+    static final int CURRENT_VERSION = 19;
 
     @FunctionalInterface
     interface Migration {
@@ -99,6 +99,12 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX pending_food_deliveries ON food_deliveries(settlement_id,sequence) WHERE applied_period IS NULL");
+                },
+                connection -> {
+                    for (var column : List.of("unassigned_demand", "unassigned_supplied"))
+                        execute(connection, "ALTER TABLE needs_periods ADD COLUMN " + column + " INTEGER CHECK(" + column + " IS NULL OR (typeof(" + column + ")='integer' AND " + column + ">=0))");
+                    for (var column : List.of("supplied", "unmet_periods"))
+                        execute(connection, "ALTER TABLE household_needs ADD COLUMN " + column + " INTEGER CHECK(" + column + " IS NULL OR (typeof(" + column + ")='integer' AND " + column + ">=0))");
                 }
         ));
     }
@@ -194,6 +200,10 @@ final class SchemaMigrator {
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));
+            if (migrations.size() >= 19) {
+                requireColumns(connection,"needs_periods",Set.of("unassigned_demand","unassigned_supplied"));
+                requireColumns(connection,"household_needs",Set.of("supplied","unmet_periods"));
+            }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

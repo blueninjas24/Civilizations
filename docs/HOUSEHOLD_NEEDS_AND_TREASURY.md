@@ -1,7 +1,7 @@
 # Household needs and settlement treasury
 
 This Phase 2 batch records observable needs and establishes explicit budget accounting.
-It does not complete prosperity, household allocation or the full economy milestone.
+It now includes simulated household food allocation; full prosperity and the economy milestone remain incomplete.
 
 ## Household evidence
 
@@ -16,8 +16,9 @@ crowded. Missing capacity remains unknown, distinct from a measured zero. This d
 not change the approved prototype housing formula, households, beds or migration.
 
 Food condition, fulfilled demand and shortage duration describe shared village
-supplies. They do not prove what any family actually ate: household rationing remains
-open. Family food demand and housing are evidence for future wellbeing/decision rules,
+supplies. New periods also record each occupied family's simulated share of that
+fulfilled food and its consecutive undersupplied periods. This does not prove
+physical meals or place items in villager inventories. Food and housing are evidence for future wellbeing/decision rules,
 not a personal bank balance or complete prosperity score. Employment, safety and
 material needs are not fabricated to complete such a score. No demographic penalty
 or income is derived from these reports yet.
@@ -73,3 +74,40 @@ crisis evidence after restart/retuning, and no invented treasury.
 Large-server profiling and human survival playtesting remain outstanding. The
 existing approximate food catch-up uses current saved people and last reliable farm
 capacity; this batch does not reconstruct historical demographic/economy interleaving.
+
+## Household food allocation — October 8 prototype
+
+Schema 19 adds nullable allocation fields to needs history. Existing periods retain
+unknown allocation; the upgrade never invents historical meals or shortage streaks.
+New periods distribute only the food actually fulfilled by commodity accounting.
+An older plugin will refuse schema 19; reverting requires a consistent pre-upgrade
+backup, not manually lowering the database version.
+Each occupied household's configured adult/child demand determines its proportional
+share. People without a household share a separate pool using the same demand rules.
+Whole units round down, then the largest fractional remainders receive leftovers.
+Exact ties use household UUID order, followed by the unassigned pool. This is a
+repeatable prototype bookkeeping rule, not a final social rationing policy; persistent
+ties can favor the same household. No child-first, wealth or leadership privileges
+are introduced. Adult/child food needs remain editable in economy.yml.
+
+Allocated food sums exactly to village fulfilled food; no bucket receives more than
+its demand. Zero demand and zero supply are valid. Arithmetic uses exact integers,
+including overflow-safe products. A family's unmet-period counter increments only
+when its simulated share falls short, survives restart, and clears when supplied.
+An extinct/disappearing household loses its consecutive streak when later reoccupied;
+its earlier historical entries remain. Unknown pre-upgrade counters begin with the
+first observed deficit, without inferring old shortages. Diagnostics report SUPPLIED,
+UNDERSUPPLIED or historical UNKNOWN alongside independently observed housing.
+
+The allocation, streaks, village stock changes, aid receipt use and planning choice
+share one SQL transaction. No new chunks are loaded and no blocks/entities/inventories
+are changed. No mortality, fertility, migration, payment or numerical prosperity
+modifier consumes this allocation yet. Those effects and a different configurable
+social rationing strategy remain future work.
+
+Validation covers proportional conservation, whole-unit ties, stable household order,
+zero demand, long-integer products, 1,200-period repeatability, crisis/relief streaks,
+SQLite restart, historical schema-18 migration and transactional migration failure.
+The disposable Paper probe checks family supply, famine history across restart and
+recovery from an actual confirmed food donation. Scale profiling and human survival
+playtesting remain pending.

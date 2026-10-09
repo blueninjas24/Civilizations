@@ -205,3 +205,16 @@ stay editable under approved prototype economy authority. An immutable player re
 plus independently verified saved NBT guards SQL credit and restart retries. This is
 pinned to tested Minecraft 26.2 players/data layout; formats/plugins/backups need
 compatibility validation, not silent receipt deletion or refund. See FOOD_DONATIONS.md.
+
+## October 8, 2026 — simulated household allocation prototype
+
+Under the approved prototype economy scope, completed food periods now assign their
+actual fulfilled units proportionally to configured household adult/child needs,
+including a separate pool for residents without a household. Largest remainders
+conserve whole units; exact ties follow permanent household UUID order, then the
+unassigned pool. This engineering rule is documented and repeatable, not locked
+social policy. Food-demand weights remain editable in economy.yml. A configurable
+alternative rationing strategy and any demographic or prosperity consequences remain
+future decisions. Current allocation is diagnostic and never claims physical meals.
+Schema 19 preserves earlier allocation as unknown and records forward unmet streaks.
+See HOUSEHOLD_NEEDS_AND_TREASURY.md for tie bias and other limits.

@@ -138,7 +138,7 @@ public final class EconomyRuntimeRepository {
         flows.put(Commodity.FOOD, new Flow(output, FoodDeliveryRepository.units(incoming), settings.foodDemand(adults, children), 0, 0, 0, 0));
         var period = commodities.advanceRows(town, nextPeriod, flows, settings.shortages());
         var needs = new HouseholdNeedsRepository(connection);
-        var assessment = HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings);
+        var assessment = HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings, needs.load(town, nextPeriod - 1).orElse(null));
         needs.save(assessment);
         new VillagePriorityRepository(connection).consider(assessment,seed,priorities);
         deliveries.apply(incoming,nextPeriod);

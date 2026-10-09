@@ -1,5 +1,32 @@
 # Civilizations Development Log
 
+## Household food allocation — October 8, 2026
+
+- Branch `codex/phase2-household-food-allocation`: completed food periods now divide
+  fulfilled supplies proportionally between occupied families and the unassigned
+  resident pool. Whole-unit largest remainders conserve food; permanent IDs resolve
+  exact ties. Adult/child demand remains editable. This is simulated coverage, not
+  physical meals, invented wealth or a new mortality/fertility rule.
+- Saved SUPPLIED/UNDERSUPPLIED diagnostics and consecutive unmet family periods
+  survive restart and clear with relief. Historic schema-18 allocation stays UNKNOWN;
+  disappeared/reoccupied households begin a new consecutive streak. Exact tie bias
+  and future social rationing policy are documented rather than silently locked.
+- Transactional schema 19 adds four nullable fields; explicit-column INSERTs prevent
+  schema-extension breakage. Allocation shares the food/needs/priority/receipt commit.
+  No reset, forced chunk loads, owner config rewrite or production save changes.
+- Eight added automated cases; final Windows Wrapper `clean verify -B -ntp` passed
+  345 cases (343 unit/two packaged integration), zero failures/errors/skips. Includes
+  10,000 seeded conservation scenarios, integer overflow boundaries, ordering/ties,
+  a 1,200-period crisis/recovery, real family persistence and migration failure/retry.
+- Disposable Paper probe passed supplied family, famine streak, unchanged history
+  on restart and recovery after a verified native food donation; unloaded accounting
+  still passed. Normal single-plugin startup/status/shutdown passed, no forced chunks.
+- Consistent schema-18 confirmed-dev backup first; schema 19 integrity/FKs checked.
+  Original settlement/resident/household IDs and family/entity links retained.
+  Production JAR excludes probes/JUnit. Human client playtesting and scale profiling
+  remain pending, alongside treasury funding/spending, autonomous response execution,
+  outcome feedback and paid trade/barter. Phase 2 remains 1/4 complete reporting groups.
+
 ### Confirmed player food donations — October 8, 2026
 
 - Branch `codex/phase2-player-food-donations`: sneak-right-click a saved living

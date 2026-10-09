@@ -206,4 +206,42 @@ class EconomyRuntimeRepositoryTest {
         SchemaFixtures.rewind(db.getConnection(),14); new SchemaMigrator().migrate(db.getConnection());
         assertEquals(original,db.getCommodityRepository().history(town,1).orElseThrow()); assertTrue(runtime.views().isEmpty());
     }
+    private void assignLivingFamily() throws SQLException {
+        var home=UUID.randomUUID();var people=db.getPopulationRepository();
+        people.insertHousehold(new com.blueninjas24.civilizations.population.Household(home,town,"Allocation family"));
+        for(var person:people.findResidents(town)) if(person.status()==Resident.Status.ALIVE)
+            people.updateResident(new Resident(person.id(),person.name(),town,home,person.ageSteps(),person.status()));
+    }
+    @Test void householdAllocationPersistsAcrossRestartAndRelief() throws SQLException {
+        assignLivingFamily();
+        observe(1000,true,0);
+        for(int period=1;period<=10;period++)runtime.pulse(1000L+1000L*period,false);
+        var before=runtime.views().get(town).needs();
+        assertEquals(before.fulfilled(),before.homes().stream().mapToLong(h->h.supplied()).sum()+before.unassignedSupplied());
+        assertTrue(before.homes().stream().allMatch(h->h.unmetPeriods()>0));
+        db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("FoodRuntimeTest"));db.initialize();runtime=runtime(settings);
+        assertEquals(before,runtime.views().get(town).needs());
+        runtime.recordDeliveredFood(UUID.randomUUID(),town,20,"Allocation relief",11000);runtime.pulse(12000,false);
+        assertTrue(runtime.views().get(town).needs().homes().stream().allMatch(h->h.supplied()==h.foodDemand() && h.unmetPeriods()==0));
+    }
+    @Test void schema18HistoryKeepsUnknownAllocationWhileNewPeriodsAllocate() throws SQLException {
+        assignLivingFamily();
+        observe(1000,true,0);runtime.pulse(2000,false);
+        var old=runtime.views().get(town).needs();SchemaFixtures.rewind(db.getConnection(),18);
+        new SchemaMigrator().migrate(db.getConnection());
+        var historical=new HouseholdNeedsRepository(db.getConnection()).load(town,1).orElseThrow();
+        assertEquals(old.fulfilled(),historical.fulfilled());assertNull(historical.unassignedSupplied());
+        assertTrue(historical.homes().stream().allMatch(h->h.supplied()==null && h.unmetPeriods()==null));
+        runtime.pulse(3000,false);assertNotNull(runtime.views().get(town).needs().unassignedSupplied());
+    }
+    @Test void failedAllocationMigrationRollsBackAllNewColumnsAndRetries() throws SQLException {
+        SchemaFixtures.rewind(db.getConnection(),18);
+        sql("ALTER TABLE household_needs ADD COLUMN unmet_periods INTEGER");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertTrue(r.next());assertEquals(18,r.getInt(1));}
+        assertThrows(SQLException.class,()->sql("SELECT unassigned_demand FROM needs_periods"));
+        sql("ALTER TABLE household_needs DROP COLUMN unmet_periods");new SchemaMigrator().migrate(db.getConnection());
+        sql("SELECT unassigned_demand FROM needs_periods");
+    }
+
 }
