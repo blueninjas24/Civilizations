@@ -60,7 +60,9 @@ public final class FoodAidMenu implements Listener {
             saleMeta.displayName(Component.text(menu.canSell?"Sell held food":"Village is not buying this stack"));
             saleMeta.lore(List.of(Component.text(menu.canSell?"Whole held stack for "+menu.emeralds+" emeralds.":"Requires food need, available funds and permission."),
                     Component.text("Final village needs and funds checked on confirmation."),
-                    Component.text("Keep the stack in your main hand until confirmed.")));
+                    Component.text("Keep the stack in your main hand until confirmed."),
+                    Component.text("To discuss a price: /civ bargain <emeralds>."),
+                    Component.text("Split large stacks if they exceed the village's need.")));
             sale.setItemMeta(saleMeta);menu.inventory.setItem(15,sale);
         }
         var notice=new ItemStack(Material.PAPER);var noticeMeta=notice.getItemMeta();

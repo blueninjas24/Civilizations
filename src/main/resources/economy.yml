@@ -3,8 +3,21 @@
 # Keep indentation: two spaces. Use numbers without quotes and % signs.
 # Edit while stopped, then restart. This file is never overwritten automatically.
 # Live food accounting uses planted fields and saved residents. Optional village
-# food purchases pay emeralds. Barter, bargaining and starvation effects are not enabled.
+# food purchases and bargaining pay emeralds. Barter and starvation effects are not enabled.
 format-version: 1
+
+# Players can ask a food price with /civ bargain <emeralds>, then /civ bargain accept.
+# Each proposal uses current need/value/funds. Nothing exchanges until acceptance.
+# Excessive prices receive counters; consecutive failed prices eventually close the deal.
+# Closing/reopening menus or reconnecting cannot erase the saved village cooldown.
+# No reputation penalty. Old files missing this section keep bargaining disabled.
+# Attempts: 1..100; cooldown: 1..86400 seconds; offer validity: 1..3600 seconds.
+# Edit while stopped, restart. Pending verified purchases still recover if disabled.
+bargaining:
+  enabled: true
+  maximum-failed-offers: 3
+  cooldown-seconds: 60
+  offer-seconds: 45
 
 # Basic family wellbeing, not money or a personal bank account. No population penalties.
 # New people start at 50/100; families share the mean of their saved welfare scores.

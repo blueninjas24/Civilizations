@@ -29,6 +29,7 @@ public final class Civilizations extends JavaPlugin {
     private PaperFarmObserver farms;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
     private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
+    private com.blueninjas24.civilizations.paper.FoodBargainingCommand bargaining;
 
     @Override
     public void onEnable() {
@@ -59,14 +60,17 @@ public final class Civilizations extends JavaPlugin {
                     () -> observer == null ? "Village observer not started" : observer.diagnostic()
                             + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic());
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
-            var router = new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
-                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population, EconomyConfiguration.readAidPreview(economyConfig)));
-            command.setExecutor(router); command.setTabCompleter(router);
             var previewPolicy = EconomyConfiguration.readAidPreview(economyConfig);
+            var bargainingPolicy=EconomyConfiguration.readBargaining(economyConfig);
             aid = new com.blueninjas24.civilizations.paper.FoodAidTransfers(this,population,previewPolicy,
                     EconomyConfiguration.readDonationsEnabled(economyConfig), getServer().getLevelDirectory().resolve("players/data"));
             purchases = new com.blueninjas24.civilizations.paper.FoodPurchaseTransfers(this,population,previewPolicy,
-                    EconomyConfiguration.readPurchases(economyConfig),getServer().getLevelDirectory().resolve("players/data"));
+                    EconomyConfiguration.readPurchases(economyConfig),getServer().getLevelDirectory().resolve("players/data"),bargainingPolicy);
+            bargaining=new com.blueninjas24.civilizations.paper.FoodBargainingCommand(this,population,purchases,previewPolicy,
+                    EconomyConfiguration.readPurchases(economyConfig),bargainingPolicy);
+            var router=new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
+                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining);
+            command.setExecutor(router);command.setTabCompleter(router);bargaining.runTaskTimer(this,1,1);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.FoodAidMenu(this,population,aid,previewPolicy,purchases),this);
             aid.runTaskTimer(this,20,100);
             purchases.runTaskTimer(this,20,100);
@@ -98,6 +102,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(bargaining!=null)bargaining.close();
         if (purchases != null) purchases.close();
         if (aid != null) aid.close();
         if (projector != null) projector.close();

@@ -163,7 +163,7 @@ public final class EconomyPaperProbe extends JavaPlugin {
         case 30->{if(!ready())return;
             var needs=session.economyView().get(town).needs();
             if(needs.fulfilled()==needs.demand()){now.addAndGet(1000);future=session.pulse();return;}
-            purchases=new FoodPurchaseTransfers(this,session,FoodAidPreview.Policy.prototype(),FoodPurchases.Policy.prototype(),Bukkit.getServer().getLevelDirectory().resolve("players/data"));
+            purchases=new FoodPurchaseTransfers(this,session,FoodAidPreview.Policy.prototype(),FoodPurchases.Policy.prototype(),Bukkit.getServer().getLevelDirectory().resolve("players/data"),FoodBargaining.Policy.prototype());
             donor.getInventory().setItemInMainHand(new org.bukkit.inventory.ItemStack(Material.WHEAT,8));
             purchasePayment=purchases.quote(town,donor.getInventory().getItemInMainHand());require(purchasePayment>0,"No native purchase quote");
             try{saveDisabled.setBoolean(null,true);}catch(Exception failure){throw new IllegalStateException(failure);}
@@ -173,8 +173,16 @@ public final class EconomyPaperProbe extends JavaPlugin {
             var interaction=new org.bukkit.event.player.PlayerInteractEntityEvent(donor,Objects.requireNonNull(world.getEntity(entityId)),org.bukkit.inventory.EquipmentSlot.HAND);
             listener.interact(interaction);require(interaction.isCancelled(),"Purchase interaction not protected");
             require(donor.getOpenInventory().getTopInventory().getItem(15).getType()==Material.EMERALD,"Native sale button missing");
-            var click=new org.bukkit.event.inventory.InventoryClickEvent(donor.getOpenInventory(),org.bukkit.event.inventory.InventoryType.SlotType.CONTAINER,15,org.bukkit.event.inventory.ClickType.LEFT,org.bukkit.event.inventory.InventoryAction.PICKUP_ALL);
-            listener.click(click);listener.click(click);require(click.isCancelled(),"Sale click not protected");aid.close();stage=31;}
+            aid.close();
+            future=session.bargain(new FoodPurchases.Terms(UUID.randomUUID(),donor.getUniqueId(),town,8,"WHEAT",8,5,800),FoodPurchases.Policy.prototype(),FoodAidPreview.Policy.prototype(),FoodBargaining.Policy.prototype());stage=40;}
+        case 40->{if(!ready())return;var deal=(FoodBargaining.Deal)future.join();
+            require(deal.result().status()==FoodBargaining.Status.COUNTER&&deal.result().offer()==purchasePayment,"Native bargain did not counter actual quote");
+            require(donor.getInventory().getItemInMainHand().getType()==Material.WHEAT&&session.economyView().get(town).treasury().hundredths()==4800,"Discussion moved goods/funds");
+            session.close();open();stage=41;}
+        case 41->{if(!ready())return;future=session.bargainAcceptance(donor.getUniqueId(),town,FoodBargaining.Policy.prototype());stage=42;}
+        case 42->{if(!ready())return;
+            purchases.close();purchases=new FoodPurchaseTransfers(this,session,FoodAidPreview.Policy.prototype(),FoodPurchases.Policy.prototype(),Bukkit.getServer().getLevelDirectory().resolve("players/data"),FoodBargaining.Policy.prototype());
+            var terms=(FoodPurchases.Terms)future.join();require(purchases.sellTerms(donor,terms),"Saved counter could not be accepted");require(!purchases.sellTerms(donor,terms),"Double acceptance entered twice");stage=31;}
         case 31->{
             var marker=donor.getPersistentDataContainer().get(FoodPurchaseTransfers.KEY,org.bukkit.persistence.PersistentDataType.STRING);if(marker==null)return;
             if(purchaseReceipt==null)purchaseReceipt=com.blueninjas24.civilizations.application.PendingFoodPurchase.decode(marker);
@@ -193,7 +201,8 @@ public final class EconomyPaperProbe extends JavaPlugin {
             now.addAndGet(1000);future=session.pulse();stage=34;}
         case 34->{if(!ready())return;
             var food=session.economyView().get(town).latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
-            require(food.flow().imports()==8,"Purchased food not credited once");getLogger().info("NATIVE_PURCHASE_PASSED: protected double-click, failed save withheld payment, saved emerald exchange, one debit/delivery, restart and duplicate completion");
+            require(food.flow().imports()==8,"Purchased food not credited once");getLogger().info("NATIVE_PURCHASE_PASSED: saved counter/restart, explicit double acceptance protected, failed save withheld payment, saved emerald exchange, one debit/delivery, restart and duplicate completion");
+            getLogger().info("NATIVE_BARGAINING_PASSED: current-value counter, no discussion debit, restart retained terms and confirmed native exchange once");
             // Restore the earlier feast/unloaded test expectation after the added purchase scenario.
             observer=null;session.close();economy=tune(economy,200);open();stage=35;}
         case 35->{if(!ready())return;for(long key:tickets)world.removePluginChunkTicket((int)(key>>32),(int)key,this);tickets.clear();stage=9;}

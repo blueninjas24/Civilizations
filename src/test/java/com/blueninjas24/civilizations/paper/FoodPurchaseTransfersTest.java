@@ -53,7 +53,7 @@ class FoodPurchaseTransfersTest {
             default->throw new AssertionError(m.getName());
         });
         return (Player)Proxy.newProxyInstance(getClass().getClassLoader(),new Class<?>[]{Player.class},(p,m,a)->switch(m.getName()){
-            case "getUniqueId"->playerId;case "hasPermission"->allowed;case "getPersistentDataContainer"->pdc;
+            case "getUniqueId"->playerId;case "isOnline"->true;case "hasPermission"->allowed;case "getPersistentDataContainer"->pdc;
             case "getInventory"->inv;case "getLocation"->new Location(world,0,64,0);
             case "sendMessage"->{messages.add((String)a[0]);yield null;}case "saveData"->{
                 var marker=(String)data.get(FoodPurchaseTransfers.KEY);
@@ -94,6 +94,53 @@ class FoodPurchaseTransfersTest {
             if(m.getName().equals("getLogger"))return Logger.getLogger("PurchaseTransfers");throw new AssertionError(m.getName());
         });
         return new FoodPurchaseTransfers(plugin,session,FoodAidPreview.Policy.prototype(),policy,directory.resolve("players"),count->new Plain(Material.EMERALD,count));
+    }
+    private Plugin bargainPlugin(Player player){
+        var server=(Server)Proxy.newProxyInstance(getClass().getClassLoader(),new Class<?>[]{Server.class},(p,m,a)->{
+            if(m.getName().equals("getPlayer"))return playerId.equals(a[0])?player:null;
+            throw new AssertionError(m.getName());
+        });
+        return (Plugin)Proxy.newProxyInstance(getClass().getClassLoader(),new Class<?>[]{Plugin.class},(p,m,a)->switch(m.getName()){
+            case "getLogger"->Logger.getLogger("Bargaining");case "getServer"->server;default->throw new AssertionError(m.getName());
+        });
+    }
+    private void awaitMessage(FoodBargainingCommand command,String contains)throws Exception{
+        long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+        while(messages.stream().noneMatch(m->m.contains(contains))&&System.nanoTime()<deadline){command.run();Thread.sleep(5);}
+        assertTrue(messages.stream().anyMatch(m->m.contains(contains)),messages.toString());
+    }
+    @Test void commandCounterAndExplicitAcceptancePayExactlyOnce()throws Exception{
+        try(var session=session()){
+            var town=enroll(session);var player=player();var plugin=bargainPlugin(player);
+            try(var transfer=new FoodPurchaseTransfers(plugin,session,FoodAidPreview.Policy.prototype(),FoodPurchases.Policy.prototype(),directory.resolve("players"),count->new Plain(Material.EMERALD,count),FoodBargaining.Policy.prototype());
+                var command=new FoodBargainingCommand(plugin,session,transfer,FoodAidPreview.Policy.prototype(),FoodPurchases.Policy.prototype(),FoodBargaining.Policy.prototype())){
+                command.onCommand(player,null,"civ",new String[]{"bargain","5"});awaitMessage(command,"counters with 3");
+                assertEquals(0,exchanges);assertEquals(4800,session.economyView().get(town).treasury().hundredths());
+                command.onCommand(player,null,"civ",new String[]{"bargain","accept"});awaitMessage(command,"Checking your saved bargain");
+                long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+                while(!data.containsKey(FoodPurchaseTransfers.KEY)&&System.nanoTime()<deadline){command.run();Thread.sleep(5);}
+                assertTrue(data.containsKey(FoodPurchaseTransfers.KEY),messages.toString());finish(transfer,player);
+                assertEquals(1,exchanges);assertEquals(Material.EMERALD,held.getType());assertEquals(3,held.getAmount());
+                assertEquals(2400,session.economyView().get(town).treasury().hundredths());
+                messages.clear();command.onCommand(player,null,"civ",new String[]{"bargain","accept"});awaitMessage(command,"offer unavailable");
+                assertEquals(1,exchanges);
+            }
+        }
+    }
+    @Test void changedFoodAndInvalidOrUnauthorizedCommandCannotMoveFunds()throws Exception{
+        try(var session=session()){
+            var town=enroll(session);var player=player();var plugin=bargainPlugin(player);
+            try(var transfer=transfer(session,FoodPurchases.Policy.prototype());
+                var command=new FoodBargainingCommand(plugin,session,transfer,FoodAidPreview.Policy.prototype(),FoodPurchases.Policy.prototype(),FoodBargaining.Policy.prototype())){
+                allowed=false;command.onCommand(player,null,"civ",new String[]{"bargain","5"});assertTrue(messages.getLast().contains("permission"));allowed=true;
+                command.onCommand(player,null,"civ",new String[]{"bargain","65"});assertTrue(messages.getLast().contains("1 to 64"));
+                command.onCommand(player,null,"civ",new String[]{"bargain","3"});awaitMessage(command,"agrees to 3");held=new Plain(Material.STONE,8);
+                messages.clear();command.onCommand(player,null,"civ",new String[]{"bargain","accept"});awaitMessage(command,"food");
+                session.bargainAcceptance(playerId,town,FoodBargaining.Policy.prototype()).get(5,TimeUnit.SECONDS);command.run();
+                assertFalse(data.containsKey(FoodPurchaseTransfers.KEY));assertEquals(0,exchanges);
+                assertEquals(4800,session.economyView().get(town).treasury().hundredths());
+            }
+        }
     }
     private void finish(FoodPurchaseTransfers transfer,Player player)throws Exception{
         long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);

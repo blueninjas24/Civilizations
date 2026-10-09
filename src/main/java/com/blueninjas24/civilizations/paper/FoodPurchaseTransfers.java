@@ -21,6 +21,7 @@ public final class FoodPurchaseTransfers extends BukkitRunnable implements AutoC
     private final PopulationSession session;
     private final FoodAidPreview.Policy foods;
     private final FoodPurchases.Policy policy;
+    private final FoodBargaining.Policy bargaining;
     private final Path playerDirectory;
     private final java.util.function.IntFunction<ItemStack> paymentFactory;
     private final Map<UUID, Work> work = new HashMap<>();
@@ -31,9 +32,17 @@ public final class FoodPurchaseTransfers extends BukkitRunnable implements AutoC
     public FoodPurchaseTransfers(Plugin plugin,PopulationSession session,FoodAidPreview.Policy foods,FoodPurchases.Policy policy,Path directory) {
         this(plugin,session,foods,policy,directory,count->new ItemStack(Material.EMERALD,count));
     }
+    public FoodPurchaseTransfers(Plugin plugin,PopulationSession session,FoodAidPreview.Policy foods,FoodPurchases.Policy policy,Path directory,FoodBargaining.Policy bargaining) {
+        this(plugin,session,foods,policy,directory,count->new ItemStack(Material.EMERALD,count),bargaining);
+    }
     FoodPurchaseTransfers(Plugin plugin,PopulationSession session,FoodAidPreview.Policy foods,FoodPurchases.Policy policy,Path directory,
                           java.util.function.IntFunction<ItemStack> paymentFactory) {
+        this(plugin,session,foods,policy,directory,paymentFactory,FoodBargaining.Policy.disabled());
+    }
+    FoodPurchaseTransfers(Plugin plugin,PopulationSession session,FoodAidPreview.Policy foods,FoodPurchases.Policy policy,Path directory,
+                          java.util.function.IntFunction<ItemStack> paymentFactory,FoodBargaining.Policy bargaining) {
         this.plugin=plugin;this.session=session;this.foods=foods;this.policy=policy;this.playerDirectory=directory;
+        this.bargaining=Objects.requireNonNull(bargaining);
         this.paymentFactory=Objects.requireNonNull(paymentFactory);
     }
     /** Indicative cached quote. Owner revalidates funds/needs/price before reserving it. */
@@ -43,12 +52,24 @@ public final class FoodPurchaseTransfers extends BukkitRunnable implements AutoC
             long units=FoodAidPreviewCommand.foodUnits(offered,foods);
             var view=session.economyView().get(town);if(view==null||view.needs()==null||view.treasury()==null||view.priority()==null
                     ||view.queuedPeriods()!=0||!view.farm().complete()||view.priority().selected()!=VillagePriorities.Action.SEEK_FOOD)return 0;
+            long target=Math.multiplyExact(view.needs().demand(),policy.reservePeriods());
+            if(view.needs().demand()<=view.needs().fulfilled() || units>target-view.account().state().stocks().get(Commodity.FOOD).units())return 0;
             long value=Math.multiplyExact(session.economySettings().orElseThrow().price(Commodity.FOOD,view.needs().sharedFood()).movePointRight(2).longValueExact(),units);
             return FoodPurchases.maximumPayment(value,view.treasury().hundredths(),policy);
         }catch(IllegalArgumentException|ArithmeticException invalid){return 0;}
     }
     public boolean sell(Player player,UUID town,ItemStack offered,int emeralds) {
+        if(!sameFood(player.getInventory().getItemInMainHand(),offered)||emeralds<1||emeralds>quote(town,offered)) {
+            player.sendMessage("Your food or the village offer changed. Reopen village supplies.");return false;
+        }
+        return sellTerms(player,new FoodPurchases.Terms(UUID.randomUUID(),player.getUniqueId(),town,FoodAidPreviewCommand.foodUnits(offered,foods),
+                offered.getType().name(),offered.getAmount(),emeralds,policy.hundredthsPerEmerald()));
+    }
+    /** Explicit acceptance reuses its saved discussion operation; caller never invents or increases the agreed amount. */
+    public boolean sellTerms(Player player,FoodPurchases.Terms terms) {
+        var town=terms.settlement();
         if(!session.status().ready()||!policy.enabled()||!foods.enabled()||!player.hasPermission("civilizations.trade")
+                ||!terms.player().equals(player.getUniqueId())
                 ||work.size()>=16||player.getPersistentDataContainer().has(KEY)||player.getPersistentDataContainer().has(FoodAidTransfers.KEY)) {
             player.sendMessage("Trading is unavailable or a previous transfer is still recovering. No items taken.");return false;
         }
@@ -56,11 +77,10 @@ public final class FoodPurchaseTransfers extends BukkitRunnable implements AutoC
             player.sendMessage("The village is no longer ready or nearby. No items taken.");return false;
         }
         var held=player.getInventory().getItemInMainHand();
-        if(!sameFood(held,offered)||emeralds<1||emeralds>quote(town,offered)) {
+        if(held==null||held.hasItemMeta()||!held.getType().name().equals(terms.item())||held.getAmount()!=terms.count()
+                ||terms.emeralds()>quote(town,held)) {
             player.sendMessage("Your food or the village offer changed. Reopen village supplies.");return false;
         }
-        var terms=new FoodPurchases.Terms(UUID.randomUUID(),player.getUniqueId(),town,FoodAidPreviewCommand.foodUnits(held,foods),
-                held.getType().name(),held.getAmount(),emeralds,policy.hundredthsPerEmerald());
         var receipt=new PendingFoodPurchase(terms,PendingFoodPurchase.Stage.PREPARED);
         set(player,receipt);saveAndProve(player,receipt);
         player.sendMessage("Checking village funds for your food offer. Keep that stack in your main hand until confirmed.");return true;
@@ -101,7 +121,7 @@ public final class FoodPurchaseTransfers extends BukkitRunnable implements AutoC
                 case PROOF -> {
                     if(!Boolean.TRUE.equals(result)){work.remove(player.getUniqueId());warn(player,"Trade is waiting for a verified Minecraft save.");return;}
                     switch(receipt.stage()) {
-                        case PREPARED -> work.put(player.getUniqueId(),new Work(receipt,Stage.RESERVE,session.reserveFoodPurchase(terms,policy,foods)));
+                        case PREPARED -> work.put(player.getUniqueId(),new Work(receipt,Stage.RESERVE,session.reserveFoodPurchase(terms,policy,foods,bargaining)));
                         case EXCHANGED -> work.put(player.getUniqueId(),new Work(receipt,Stage.COMPLETE,session.completeFoodPurchase(terms)));
                         case CANCELLED -> work.put(player.getUniqueId(),new Work(receipt,Stage.CANCEL,session.cancelFoodPurchase(terms)));
                         case REVIEW -> warn(player,"Trade inventory recovery needs administrator review; funds remain held.");

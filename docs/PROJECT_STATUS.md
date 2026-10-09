@@ -1,6 +1,36 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies and basic labor/treasury/wellbeing (2/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases and resident-linked food/housing welfare. Barter/bargaining, broader response execution and integrated balance remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+**Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies and basic labor/treasury/wellbeing (2/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining and resident-linked food/housing welfare. Barter, broader response execution and integrated balance remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
+
+## Saved emerald bargaining — October 8, 2026
+
+- Branch `codex/phase2-food-bargaining`: `/civ bargain <emeralds>` proposes a price
+  for a whole plain food stack; `/civ bargain accept` explicitly confirms the latest
+  agreement/counter. Current need, scarcity value and available funds set offers.
+  No goods or funds move during discussion. Ordinary village trades remain intact.
+- Optional commented bargaining section: three failed prices, 60-second cooldown,
+  45-second offer deadline. Strict editable limits; old owner files stay untouched
+  and disabled without the new section. Menu/reconnect/restart cannot bypass an
+  active player/village cooldown; quick purchases also respect it. No reputation penalty.
+- Schema 23 adds saved discussion terms/history/policy and marks a consumed bargain
+  in its purchase reservation transaction. Expired, superseded, changed or unaffordable
+  offers cannot spend. Reserved transfer recovery retains the existing independent
+  Minecraft save proof and remains possible with new bargaining disabled.
+- Windows `.\mvnw.cmd clean verify -B -ntp` passed 435 cases (433 unit/two packaged
+  integration), zero failures/errors/skips. Sixteen added cases cover domain rules,
+  temporary SQLite migration/rollback/restart, current funds, patience/cooldowns,
+  command confirmation, changed held goods, duplicates, permission and admin tuning.
+- Pinned disposable Paper passed a current-value counter surviving restart, explicit
+  double acceptance protection, withheld payment on failed save and one native
+  8-wheat/3-emerald exchange/debit/future delivery. Prior welfare, famine/recovery,
+  donations and unloaded-operation checks passed. Schema-22 dev backup preceded
+  upgrade. Normal plugin-only startup, diagnostics and shutdown passed; integrity/FKs
+  valid and original resident/home/family/projection/finance/welfare history retained.
+  No production data/world reset, main change, merge or push.
+- Phase 2 remains 2/4 reporting groups (50%); this completes another piece inside
+  player trade. Barter/outbound supplies, broader executed responses/learning and
+  integrated balance/compatibility remain. Human client tests remain deferred.
+  See FOOD_BARGAINING.md for behavior, configuration and limits.
 
 ## Basic household wellbeing — October 8, 2026
 

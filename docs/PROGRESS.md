@@ -53,7 +53,7 @@ shortage/recovery explanations and editable famine/feast tuning. Household deman
 housing pressure and shared food conditions now save with each period. Treasury
 accounting is tested separately from wellbeing; configurable one-time opening funding
 is now wired. Confirmed food sales now spend actual village funds and pay emeralds;
-barter, bargaining and broader execution remain ahead.
+emerald bargaining now adds saved counters and cooldowns; barter and broader execution remain ahead.
 New periods now divide fulfilled food between occupied families and unassigned
 residents, retaining each family's shortage streak. These simulated shares do not
 establish physical meals. Basic family welfare now follows actual food/housing
@@ -82,13 +82,13 @@ response execution/learning and building permissions remain ahead.
 | Supplies and shortages — complete | Commodity accounting, saved reserves/history, duration/recovery, long crisis fixtures | Complete as an accounting foundation |
 | Basic labor, treasury and wellbeing — complete | Field-backed adult production, household allocations, once-only opening funds, actual spending/payments, resident-linked welfare and crisis/recovery history; 419 automated cases and Paper | Complete for the Phase 2 food/housing prototype; employment/industry welfare belongs to Phase 3 |
 | Autonomous decisions — partial | Real pressures, feasible priority candidates, seeded weighted choice, saved explanations, early review/recovery, player-readable food appeals and saved observed outcomes | Broader executed responses and learning weights from attributable outcomes |
-| Player economy and stability — partial | Configurable scarcity prices, exact budget-limited quotes, long shortage/recovery tests and explicit delivery accounting plus `/civ aid` previews and confirmed menu donations with saved recovery | Barter/bargaining, protected outbound goods and wider integrated balance/compatibility tests |
+| Player economy and stability — partial | Configurable scarcity prices, exact budget-limited quotes, long shortage/recovery tests, donations, emerald purchases and saved price bargaining/cooldowns | Barter, protected outbound goods and wider integrated balance/compatibility tests |
 
 Finance direction is now approved: a moderate configurable opening financial
 position, emerald payments and optional barter from real production stocks. These
 choices resolve the earlier questions. One-time opening funds are implemented;
-emerald food payments and basic family welfare are now implemented; barter and
-negotiation remain pending. The full milestone count has advanced to 2/4. Actual business/workplace assignment
+emerald food payments, basic family welfare and emerald bargaining are now implemented; barter
+remains pending. The full milestone count remains 2/4. Actual business/workplace assignment
 belongs to Phase 3.
 
 Completed pieces in a partial group are real progress. The top bar counts whole
@@ -104,6 +104,12 @@ This advances part of player trade; it does not complete the barter/bargaining,
 feasible-response and wider balance gates. The subsequent welfare batch passed
 419 automated cases, including a 240-period finite-budget exchange/restart scenario,
 and real Paper famine/recovery. See HOUSEHOLD_WELLBEING.md.
+
+The bargaining batch adds `/civ bargain <price>` and explicit acceptance: current
+value/budget counters, editable patience/deadlines and restart-safe cooldowns.
+Wrapper passed 435 automated cases; disposable Paper verified a saved counter
+surviving restart and one native 8-wheat/3-emerald exchange. Barter and the other
+unfinished gates keep the phase at 2/4 (50%). See FOOD_BARGAINING.md.
 
 ## Phase 3 — planned
 

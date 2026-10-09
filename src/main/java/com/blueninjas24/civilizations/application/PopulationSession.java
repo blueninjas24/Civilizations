@@ -204,10 +204,21 @@ public final class PopulationSession implements AutoCloseable {
         return projectionWork(() -> database.getResidentProjectionRepository().activate(person, entity));
     }
     public CompletableFuture<String> reserveFoodPurchase(FoodPurchases.Terms terms, FoodPurchases.Policy policy, FoodAidPreview.Policy foods) {
+        return reserveFoodPurchase(terms,policy,foods,FoodBargaining.Policy.disabled());
+    }
+    public CompletableFuture<String> reserveFoodPurchase(FoodPurchases.Terms terms, FoodPurchases.Policy policy, FoodAidPreview.Policy foods,FoodBargaining.Policy bargaining) {
         return submit(() -> {
             requireReady(); if(economy==null)throw new IllegalStateException("Economy not enabled");
-            var result=economy.reserveFoodPurchase(terms,policy,foods,now.getAsLong());economyView.set(economy.views());return result;
+            var result=economy.reserveFoodPurchase(terms,policy,foods,bargaining,now.getAsLong());economyView.set(economy.views());return result;
         });
+    }
+    public CompletableFuture<FoodBargaining.Deal> bargain(FoodPurchases.Terms requested,FoodPurchases.Policy purchases,FoodAidPreview.Policy foods,FoodBargaining.Policy bargaining) {
+        return submit(()->{requireReady();if(economy==null)throw new IllegalStateException("Economy not enabled");
+            return economy.bargain(requested,purchases,foods,bargaining,now.getAsLong());});
+    }
+    public CompletableFuture<FoodPurchases.Terms> bargainAcceptance(UUID player,UUID town,FoodBargaining.Policy bargaining) {
+        return submit(()->{requireReady();if(economy==null)throw new IllegalStateException("Economy not enabled");
+            return economy.bargainAcceptance(player,town,bargaining,now.getAsLong());});
     }
     public CompletableFuture<Boolean> completeFoodPurchase(FoodPurchases.Terms terms) {
         return submit(() -> {

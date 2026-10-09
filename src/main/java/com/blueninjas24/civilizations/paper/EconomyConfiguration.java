@@ -18,6 +18,7 @@ public final class EconomyConfiguration {
         if (config.contains("finance")) rootKeys.add("finance");
         if (config.contains("purchases")) rootKeys.add("purchases");
         if (config.contains("wellbeing")) rootKeys.add("wellbeing");
+        if (config.contains("bargaining")) rootKeys.add("bargaining");
         exactKeys(config, rootKeys);
         readFarms(config);
         readPriorities(config);
@@ -26,6 +27,7 @@ public final class EconomyConfiguration {
         readOpeningFunds(config);
         readPurchases(config);
         readWellbeing(config);
+        readBargaining(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -68,6 +70,12 @@ public final class EconomyConfiguration {
         if (!(section.get("enabled") instanceof Boolean enabled)) throw new IllegalArgumentException("wellbeing.enabled must be true or false");
         return new HouseholdWellbeing.Policy(enabled, smallInteger(section,"starting-score"), smallInteger(section,"recovery-per-period"),
                 smallInteger(section,"food-shortage-penalty"), smallInteger(section,"food-crisis-penalty"), smallInteger(section,"crowding-penalty"));
+    }
+    public static FoodBargaining.Policy readBargaining(ConfigurationSection config) {
+        if(!config.contains("bargaining"))return FoodBargaining.Policy.disabled();
+        var section=section(config,"bargaining");exactKeys(section,Set.of("enabled","maximum-failed-offers","cooldown-seconds","offer-seconds"));
+        if(!(section.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("bargaining.enabled must be true or false");
+        return new FoodBargaining.Policy(enabled,smallInteger(section,"maximum-failed-offers"),smallInteger(section,"cooldown-seconds"),smallInteger(section,"offer-seconds"));
     }
     public static VillagePriorities.Policy readPriorities(ConfigurationSection config) {
         if (!config.contains("priorities")) return VillagePriorities.Policy.prototype();

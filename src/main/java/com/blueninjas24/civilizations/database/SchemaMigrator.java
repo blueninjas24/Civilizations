@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 22;
+    static final int CURRENT_VERSION = 23;
 
     @FunctionalInterface
     interface Migration {
@@ -174,6 +174,30 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX latest_resident_wellbeing ON wellbeing_members(resident_id,sequence DESC)");
+                },
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE food_bargains (
+                                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                                operation_id TEXT UNIQUE NOT NULL, player_id TEXT NOT NULL,
+                                settlement_id TEXT NOT NULL REFERENCES economy_runtime(settlement_id),
+                                units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units BETWEEN 1 AND 64000000),
+                                item TEXT NOT NULL CHECK(length(item) BETWEEN 1 AND 32),
+                                item_count INTEGER NOT NULL CHECK(typeof(item_count)='integer' AND item_count BETWEEN 1 AND 64),
+                                requested INTEGER NOT NULL CHECK(typeof(requested)='integer' AND requested BETWEEN 1 AND 64),
+                                offered INTEGER NOT NULL CHECK(typeof(offered)='integer' AND offered BETWEEN 0 AND 64),
+                                rate INTEGER NOT NULL CHECK(typeof(rate)='integer' AND rate BETWEEN 1 AND 100000000),
+                                status TEXT NOT NULL CHECK(status IN ('AGREED','COUNTER','CLOSED','RESERVED')),
+                                failed_attempts INTEGER NOT NULL CHECK(typeof(failed_attempts)='integer' AND failed_attempts BETWEEN 0 AND 100),
+                                observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                                expires_millis INTEGER NOT NULL CHECK(typeof(expires_millis)='integer' AND expires_millis>=observed_millis),
+                                cooldown_until INTEGER NOT NULL CHECK(typeof(cooldown_until)='integer' AND cooldown_until>=0),
+                                maximum_attempts INTEGER NOT NULL CHECK(typeof(maximum_attempts)='integer' AND maximum_attempts BETWEEN 1 AND 100),
+                                cooldown_seconds INTEGER NOT NULL CHECK(typeof(cooldown_seconds)='integer' AND cooldown_seconds BETWEEN 1 AND 86400),
+                                offer_seconds INTEGER NOT NULL CHECK(typeof(offer_seconds)='integer' AND offer_seconds BETWEEN 1 AND 3600)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX current_player_bargain ON food_bargains(player_id,settlement_id,sequence DESC)");
                 }
         ));
     }
@@ -277,6 +301,7 @@ final class SchemaMigrator {
             if (migrations.size() >= 21) requireColumns(connection,"food_purchases",Set.of("operation_id","player_id","settlement_id","units","item","item_count","emeralds","rate","status","accepted_period"));
             if (migrations.size() >= 22) requireColumns(connection,"household_wellbeing",Set.of("sequence","settlement_id","period","household_id","before_score","after_score","condition","food","housing","starting_score","recovery","food_penalty","crisis_penalty","crowding_penalty","crisis_after","food_streak"));
             if (migrations.size() >= 22) requireColumns(connection,"wellbeing_members",Set.of("sequence","resident_id","food_streak"));
+            if (migrations.size() >= 23) requireColumns(connection,"food_bargains",Set.of("sequence","operation_id","player_id","settlement_id","units","item","item_count","requested","offered","rate","status","failed_attempts","observed_millis","expires_millis","cooldown_until","maximum_attempts","cooldown_seconds","offer_seconds"));
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

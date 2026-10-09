@@ -6,11 +6,11 @@ author: Blueninjas24
 description: Evolving, autonomous civilizations for Minecraft.
 commands:
   civ:
-    description: Civilizations food-aid previews and administrative diagnostics.
-    usage: /civ aid [settlement UUID] or /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid>
+    description: Civilizations village food aid, bargaining and administrative diagnostics.
+    usage: /civ aid [settlement UUID] or /civ bargain <emeralds|accept> [settlement UUID] or /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid>
 permissions:
   civilizations.trade:
-    description: Confirm village food sales for emeralds in the Civilizations menu.
+    description: Bargain and confirm village food sales for emeralds.
     default: true
   civilizations.debug:
     description: Inspect saved Civilizations population and calendar state.

@@ -129,6 +129,10 @@ public final class EconomyRuntimeRepository {
     }
     /** Trusted adapter must preserve consent and prepared player state before requesting a reservation. */
     public String reserveFoodPurchase(FoodPurchases.Terms terms, FoodPurchases.Policy policy, FoodAidPreview.Policy foods, long now) throws SQLException {
+        return reserveFoodPurchase(terms,policy,foods,FoodBargaining.Policy.disabled(),now);
+    }
+    public String reserveFoodPurchase(FoodPurchases.Terms terms, FoodPurchases.Policy policy, FoodAidPreview.Policy foods,
+                                      FoodBargaining.Policy bargaining, long now) throws SQLException {
         Objects.requireNonNull(terms); Objects.requireNonNull(policy); Objects.requireNonNull(foods);
         return transaction(() -> {
             var purchases = new FoodPurchaseRepository(connection);
@@ -136,29 +140,64 @@ public final class EconomyRuntimeRepository {
             if (!policy.enabled() || !foods.enabled()) throw new PurchaseDeclined("New food purchases disabled");
             if (terms.hundredthsPerEmerald() != policy.hundredthsPerEmerald()
                     || foods.units(terms.item(), terms.count()) != terms.units()) throw new PurchaseDeclined("Purchase conversion settings changed");
-            if (!hasRuntime(terms.settlement())) throw new PurchaseDeclined("Food economy not initialized");
-            accrue(terms.settlement(), now, false);
-            var clock = clock(terms.settlement());
+            int maximum=maximumFoodPayment(terms.settlement(),terms.units(),policy,now);
+            if (terms.emeralds()>maximum) throw new PurchaseDeclined("Offer exceeds perceived value or available budget");
+            if (bargaining.enabled()) new FoodBargainRepository(connection).reserve(terms,bargaining,now);
+            if (new FoodDeliveryRepository(connection).find(terms.operation()).isPresent()) throw new SQLException("Operation already used for food delivery");
+            return purchases.reserve(terms, clock(terms.settlement()).completed()).status().name();
+        });
+    }
+    /** New discussions record no payment promise or goods transfer. Current owner facts set each counter. */
+    public FoodBargaining.Deal bargain(FoodPurchases.Terms requested, FoodPurchases.Policy purchases, FoodAidPreview.Policy foods,
+                                       FoodBargaining.Policy bargaining, long now) throws SQLException {
+        return transaction(() -> {
+            var repository=new FoodBargainRepository(connection);
+            var duplicate=repository.find(requested.operation()).orElse(null);
+            if(duplicate!=null) {
+                if(!duplicate.requested().equals(requested))throw new SQLException("Bargain operation reused with different terms");
+                return duplicate;
+            }
+            if(!bargaining.enabled() || !purchases.enabled() || !foods.enabled())throw new PurchaseDeclined("New bargaining disabled");
+            var previous=repository.latest(requested.player(),requested.settlement()).orElse(null);
+            if(previous!=null && previous.result().status()==FoodBargaining.Status.CLOSED
+                    && Math.max(now,previous.result().observedMillis())<previous.result().cooldownUntil())return previous;
+            if(requested.hundredthsPerEmerald()!=purchases.hundredthsPerEmerald()
+                    || foods.units(requested.item(),requested.count())!=requested.units())throw new PurchaseDeclined("Offer conversion changed");
+            int maximum=maximumFoodPayment(requested.settlement(),requested.units(),purchases,now);
+            if(maximum<1)throw new PurchaseDeclined("Village cannot offer a whole emerald for this stack");
+            var result=FoodBargaining.discuss(requested.emeralds(),maximum,now,previous==null ? null : previous.result(),bargaining);
+            var deal=new FoodBargaining.Deal(requested,result);repository.save(deal);return deal;
+        });
+    }
+    public FoodPurchases.Terms bargainAcceptance(UUID player,UUID town,FoodBargaining.Policy policy,long now) throws SQLException {
+        if(!policy.enabled())throw new PurchaseDeclined("New bargaining disabled");
+        var deal=new FoodBargainRepository(connection).latest(player,town).orElseThrow(()->new PurchaseDeclined("Make a food price offer first"));
+        var result=deal.result();
+        if((result.status()!=FoodBargaining.Status.AGREED && result.status()!=FoodBargaining.Status.COUNTER)
+                || Math.max(now,result.observedMillis())>=result.expiresMillis())throw new PurchaseDeclined("No current bargain to accept");
+        return deal.paymentTerms();
+    }
+    /** Reads inside the caller's owner transaction; pending supplies and reservations reduce remaining need. */
+    private int maximumFoodPayment(UUID town,long units,FoodPurchases.Policy policy,long now) throws SQLException {
+            if (!hasRuntime(town)) throw new PurchaseDeclined("Food economy not initialized");
+            accrue(town, now, false);
+            var clock = clock(town);
             if (clock.anchor().targetSteps() != clock.completed()) throw new PurchaseDeclined("Finish economy catch-up before a new purchase");
-            var evidence = farm(terms.settlement());
+            var evidence = farm(town);
             if (evidence == null || !evidence.complete()) throw new PurchaseDeclined("Reliable food evidence required for new purchase");
-            var needs = new HouseholdNeedsRepository(connection).load(terms.settlement(), clock.completed()).orElseThrow(() -> new PurchaseDeclined("Food needs unknown"));
-            var priority = new VillagePriorityRepository(connection).latest(terms.settlement()).orElseThrow();
+            var needs = new HouseholdNeedsRepository(connection).load(town, clock.completed()).orElseThrow(() -> new PurchaseDeclined("Food needs unknown"));
+            var priority = new VillagePriorityRepository(connection).latest(town).orElseThrow();
             if (priority.selected() != VillagePriorities.Action.SEEK_FOOD || needs.demand() <= needs.fulfilled())
                 throw new PurchaseDeclined("Village is not currently seeking food");
-            var account = commodities.read(terms.settlement()).orElseThrow();
+            var account = commodities.read(town).orElseThrow();
             long supply = account.state().stocks().get(Commodity.FOOD).units();
-            supply = Math.addExact(supply, purchases.reservedUnits(terms.settlement()));
-            supply = Math.addExact(supply, new FoodDeliveryRepository(connection).pendingUnits(terms.settlement()));
+            supply = Math.addExact(supply, new FoodPurchaseRepository(connection).reservedUnits(town));
+            supply = Math.addExact(supply, new FoodDeliveryRepository(connection).pendingUnits(town));
             long target = Math.multiplyExact(needs.demand(), policy.reservePeriods());
-            if (supply >= target || terms.units() > target - supply) throw new PurchaseDeclined("Food offer exceeds remaining village purchase need");
-            long fairValue = Math.multiplyExact(settings.price(Commodity.FOOD, needs.sharedFood()).movePointRight(2).longValueExact(), terms.units());
-            var budget = new TreasuryRepository(connection).load(terms.settlement()).orElseThrow(() -> new PurchaseDeclined("Village treasury unknown"));
-            if (terms.emeralds() > FoodPurchases.maximumPayment(fairValue, budget.hundredths(), policy))
-                throw new PurchaseDeclined("Offer exceeds perceived value or available budget");
-            if (new FoodDeliveryRepository(connection).find(terms.operation()).isPresent()) throw new SQLException("Operation already used for food delivery");
-            return purchases.reserve(terms, clock.completed()).status().name();
-        });
+            if (supply >= target || units > target - supply) throw new PurchaseDeclined("Food offer exceeds remaining village purchase need");
+            long fairValue = Math.multiplyExact(settings.price(Commodity.FOOD, needs.sharedFood()).movePointRight(2).longValueExact(), units);
+            var budget = new TreasuryRepository(connection).load(town).orElseThrow(() -> new PurchaseDeclined("Village treasury unknown"));
+            return FoodPurchases.maximumPayment(fairValue, budget.hundredths(), policy);
     }
     /** Only after independently verifying a saved player goods/payment exchange. Recovery ignores new-offer settings. */
     public boolean completeFoodPurchase(FoodPurchases.Terms terms, long now) throws SQLException {

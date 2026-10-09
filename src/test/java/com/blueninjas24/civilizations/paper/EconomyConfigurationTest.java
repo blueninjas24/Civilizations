@@ -13,6 +13,19 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void bargainingIsEditableAndOldOwnerFilesDoNotOptInAutomatically() throws Exception {
+        var config=defaults();assertEquals(FoodBargaining.Policy.prototype(),EconomyConfiguration.readBargaining(config));
+        config.set("bargaining.maximum-failed-offers",5);config.set("bargaining.cooldown-seconds",120);config.set("bargaining.offer-seconds",30);
+        assertEquals(new FoodBargaining.Policy(true,5,120,30),EconomyConfiguration.readBargaining(config));
+        config.set("bargaining",null);EconomyConfiguration.read(config);assertEquals(FoodBargaining.Policy.disabled(),EconomyConfiguration.readBargaining(config));
+    }
+    @Test void unsafeAndPartialBargainingSettingsFailBeforeDatabaseStartup() throws Exception {
+        for(var key:List.of("maximum-failed-offers","cooldown-seconds","offer-seconds")) {
+            var config=defaults();config.set("bargaining."+key,0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+            config.set("bargaining."+key,null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("bargaining.extra",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     @Test void wellbeingIsEditableAndOldOwnerFilesStayDisabled() throws Exception {
         var config=defaults();assertEquals(HouseholdWellbeing.Policy.prototype(),EconomyConfiguration.readWellbeing(config));
         config.set("wellbeing.starting-score",60);config.set("wellbeing.recovery-per-period",2);

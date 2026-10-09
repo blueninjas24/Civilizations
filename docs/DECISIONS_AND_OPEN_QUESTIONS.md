@@ -335,3 +335,17 @@ homes. Moves retain people's history; replacement occupants do not inherit it.
 No industry/employment assumptions, individual wallets or payroll are introduced.
 These are prototype welfare rules, not finalized prosperity balance or starvation.
 See HOUSEHOLD_WELLBEING.md. No new user decision blocks further Phase 2 work.
+
+## October 8, 2026 — configurable emerald bargaining prototype
+
+The approved negotiation direction now uses `/civ bargain <emeralds>` and explicit
+`/civ bargain accept` for a held ordinary food stack. Current scarcity, actual need
+and finite funds determine acceptance/counter. Prototype editable patience is three
+failed prices, cooldown 60 seconds, offer validity 45 seconds. Repeated counters
+retain the original deadline; a new conversation after expiry starts fresh. Saved
+per-player/per-village history prevents menu/reconnect/restart cooldown bypass;
+quick menu purchases also respect active cooldowns. Failed alignment gives no
+reputation penalty. A counter reserves no goods or money; accepted terms still
+require safe purchase confirmation and current affordability. Old configs opt in
+with the complete optional section. This is emerald food bargaining, not barter or
+business-specific merchants. See FOOD_BARGAINING.md. No new design answer required.

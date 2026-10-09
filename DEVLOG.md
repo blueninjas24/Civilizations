@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## Saved emerald bargaining — October 8, 2026
+
+- Branch `codex/phase2-food-bargaining`: food asking prices now get an agreement or
+  counter from current shortage/value/funds; explicit acceptance uses the existing
+  saved inventory purchase pipeline. Discussion never debits goods or funds.
+- Editable optional economy.yml patience/cooldown/deadline defaults: 3/60s/45s.
+  Saved per-player/village terms survive restart; menus and quick purchases cannot
+  bypass active cooldown. No reputation penalty. Old configs remain unchanged.
+- Transactional schema 23 preserves histories/identities and consumes accepted
+  bargains with their funds reservation. Added expiry/supersession/changed goods,
+  retry, rollback, migration-failure and disabled-new-offer recovery checks.
+- Wrapper clean verify -B -ntp passed 435 tests (433 unit/two packaged integration),
+  no failures/errors/skips. Sixteen new cases. During focused development, helper
+  extraction exposed a stale clock variable and a test tried a new price before
+  processing due food catch-up; fixed the code reference and used the real pulse
+  in that fixture. Final verification retained both safeguards.
+- Actual marked disposable Paper passed saved counter/restart and explicit native
+  exchange of 8 wheat for 3 emeralds once, failed-save withholding, one debit and
+  future delivery; previous donation, famine, welfare and unloaded checks passed.
+  Consistent schema-22 dev snapshot taken before upgrade. No production changes.
+- Phase 2 remains 50% by whole milestones; bargaining is additional verified work
+  inside unfinished trade. Barter, broader executed responses/learning and integrated
+  balance/compatibility remain. No merge/push/main change. See FOOD_BARGAINING.md.
+
 ## Basic household wellbeing — October 8, 2026
 
 - Branch `codex/phase2-household-wellbeing`: occupied families now have a saved,
