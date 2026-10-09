@@ -13,6 +13,23 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void barterSettingsAreEditableDisabledInitiallyAndOldFilesStayUntouched() throws Exception {
+        var config=defaults();assertEquals(FoodBarters.Policy.disabled(),EconomyConfiguration.readBarter(config));
+        config.set("barter.enabled",true);config.set("barter.goods.timber.units-per-item",2);config.set("barter.goods.timber.keep-units",10);
+        config.set("barter.goods.stone",null);config.set("barter.maximum-items",12);
+        assertEquals(new FoodBarters.Policy(true,3,12,Map.of(Commodity.TIMBER,new FoodBarters.Goods("OAK_LOG",2,10))),EconomyConfiguration.readBarter(config));
+        config.set("barter",null);EconomyConfiguration.read(config);assertEquals(FoodBarters.Policy.disabled(),EconomyConfiguration.readBarter(config));
+    }
+    @Test void invalidPartialAndUnsubstantiatedBarterGoodsFailBeforeStartup() throws Exception {
+        for(var key:List.of("food-reserve-periods","maximum-items")) {
+            var config=defaults();config.set("barter."+key,0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        for(var key:List.of("item","units-per-item","keep-units")) {
+            var config=defaults();config.set("barter.goods.timber."+key,null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("barter.goods.timber.item","DIAMOND");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var extra=defaults();extra.set("barter.extra",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(extra));
+    }
     @Test void bargainingIsEditableAndOldOwnerFilesDoNotOptInAutomatically() throws Exception {
         var config=defaults();assertEquals(FoodBargaining.Policy.prototype(),EconomyConfiguration.readBargaining(config));
         config.set("bargaining.maximum-failed-offers",5);config.set("bargaining.cooldown-seconds",120);config.set("bargaining.offer-seconds",30);

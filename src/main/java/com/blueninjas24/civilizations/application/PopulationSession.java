@@ -226,6 +226,23 @@ public final class PopulationSession implements AutoCloseable {
             var result=economy.completeFoodPurchase(terms,now.getAsLong());economyView.set(economy.views());return result;
         });
     }
+    public CompletableFuture<FoodBarters.Terms> quoteFoodBarter(UUID operation,UUID player,UUID town,long units,String item,int count,
+                                                               Commodity commodity,FoodBarters.Policy policy,FoodAidPreview.Policy foods) {
+        return submit(()->{requireReady();if(economy==null)throw new IllegalStateException("Economy not enabled");
+            return economy.quoteFoodBarter(operation,player,town,units,item,count,commodity,policy,foods,now.getAsLong());});
+    }
+    public CompletableFuture<String> reserveFoodBarter(FoodBarters.Terms terms,FoodBarters.Policy policy,FoodAidPreview.Policy foods) {
+        return submit(()->{requireReady();if(economy==null)throw new IllegalStateException("Economy not enabled");
+            var result=economy.reserveFoodBarter(terms,policy,foods,now.getAsLong());economyView.set(economy.views());return result;});
+    }
+    public CompletableFuture<Boolean> completeFoodBarter(FoodBarters.Terms terms) {
+        return submit(()->{requireReady();if(economy==null)throw new IllegalStateException("Economy not enabled");
+            var result=economy.completeFoodBarter(terms,now.getAsLong());economyView.set(economy.views());return result;});
+    }
+    public CompletableFuture<Boolean> cancelFoodBarter(FoodBarters.Terms terms) {
+        return submit(()->{requireReady();if(economy==null)throw new IllegalStateException("Economy not enabled");
+            var result=economy.cancelFoodBarter(terms);economyView.set(economy.views());return result;});
+    }
     public CompletableFuture<Boolean> cancelFoodPurchase(FoodPurchases.Terms terms) {
         return submit(() -> {
             requireReady(); if(economy==null)throw new IllegalStateException("Economy not enabled");

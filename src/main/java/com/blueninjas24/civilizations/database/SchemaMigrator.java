@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 23;
+    static final int CURRENT_VERSION = 24;
 
     @FunctionalInterface
     interface Migration {
@@ -198,6 +198,38 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX current_player_bargain ON food_bargains(player_id,settlement_id,sequence DESC)");
+                },
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE food_barters (
+                                operation_id TEXT PRIMARY KEY NOT NULL, player_id TEXT NOT NULL,
+                                settlement_id TEXT NOT NULL REFERENCES economy_runtime(settlement_id),
+                                food_units INTEGER NOT NULL CHECK(typeof(food_units)='integer' AND food_units BETWEEN 1 AND 64000000),
+                                food_item TEXT NOT NULL CHECK(length(food_item) BETWEEN 1 AND 32),
+                                food_count INTEGER NOT NULL CHECK(typeof(food_count)='integer' AND food_count BETWEEN 1 AND 64),
+                                commodity TEXT NOT NULL, payment_item TEXT NOT NULL,
+                                payment_count INTEGER NOT NULL CHECK(typeof(payment_count)='integer' AND payment_count BETWEEN 1 AND 64),
+                                units_per_item INTEGER NOT NULL CHECK(typeof(units_per_item)='integer' AND units_per_item BETWEEN 1 AND 1000000),
+                                status TEXT NOT NULL CHECK(status IN ('RESERVED','COMPLETED','CANCELLED')),
+                                accepted_period INTEGER NOT NULL CHECK(typeof(accepted_period)='integer' AND accepted_period>=0),
+                                FOREIGN KEY(settlement_id,commodity) REFERENCES economy_stocks(settlement_id,commodity),
+                                CHECK((commodity='timber' AND payment_item='OAK_LOG') OR (commodity='stone' AND payment_item='COBBLESTONE'))
+                            )
+                            """);
+                    execute(connection,"CREATE UNIQUE INDEX one_reserved_barter_per_player ON food_barters(player_id) WHERE status='RESERVED'");
+                    execute(connection,"CREATE INDEX reserved_barter_food ON food_barters(settlement_id) WHERE status='RESERVED'");
+                    execute(connection,"""
+                            CREATE TABLE barter_stock_moves (
+                                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                                operation_id TEXT NOT NULL REFERENCES food_barters(operation_id),
+                                phase TEXT NOT NULL CHECK(phase IN ('RESERVE','CANCEL')),
+                                after_period INTEGER NOT NULL CHECK(typeof(after_period)='integer' AND after_period>=0),
+                                before_units INTEGER NOT NULL CHECK(typeof(before_units)='integer' AND before_units>=0),
+                                after_units INTEGER NOT NULL CHECK(typeof(after_units)='integer' AND after_units>=0),
+                                UNIQUE(operation_id,phase),
+                                CHECK((phase='RESERVE' AND after_units<before_units) OR (phase='CANCEL' AND after_units>before_units))
+                            )
+                            """);
                 }
         ));
     }
@@ -302,6 +334,8 @@ final class SchemaMigrator {
             if (migrations.size() >= 22) requireColumns(connection,"household_wellbeing",Set.of("sequence","settlement_id","period","household_id","before_score","after_score","condition","food","housing","starting_score","recovery","food_penalty","crisis_penalty","crowding_penalty","crisis_after","food_streak"));
             if (migrations.size() >= 22) requireColumns(connection,"wellbeing_members",Set.of("sequence","resident_id","food_streak"));
             if (migrations.size() >= 23) requireColumns(connection,"food_bargains",Set.of("sequence","operation_id","player_id","settlement_id","units","item","item_count","requested","offered","rate","status","failed_attempts","observed_millis","expires_millis","cooldown_until","maximum_attempts","cooldown_seconds","offer_seconds"));
+            if (migrations.size() >= 24) requireColumns(connection,"food_barters",Set.of("operation_id","player_id","settlement_id","food_units","food_item","food_count","commodity","payment_item","payment_count","units_per_item","status","accepted_period"));
+            if (migrations.size() >= 24) requireColumns(connection,"barter_stock_moves",Set.of("sequence","operation_id","phase","after_period","before_units","after_units"));
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {

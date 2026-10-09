@@ -6,6 +6,27 @@
 # food purchases and bargaining pay emeralds. Barter and starvation effects are not enabled.
 format-version: 1
 
+# Barter accounting foundation; no live barter menu/command yet.
+# Disabled pending the saved-player inventory adapter; enabling this alone adds no trades.
+# Prototype outgoing goods use real saved opening supplies, not new industry production.
+# Remove a goods entry to disallow it. Only timber/OAK_LOG and stone/COBBLESTONE supported.
+# Whole items floor to current Trade Value; keep-units protects that commodity's stock.
+# Food target 1..100 periods; maximum-items 1..64; units-per-item 1..1000000;
+# keep-units 0..1000000000. Edit while stopped and restart.
+barter:
+  enabled: false
+  food-reserve-periods: 3
+  maximum-items: 64
+  goods:
+    timber:
+      item: OAK_LOG
+      units-per-item: 1
+      keep-units: 2
+    stone:
+      item: COBBLESTONE
+      units-per-item: 1
+      keep-units: 2
+
 # Players can ask a food price with /civ bargain <emeralds>, then /civ bargain accept.
 # Each proposal uses current need/value/funds. Nothing exchanges until acceptance.
 # Excessive prices receive counters; consecutive failed prices eventually close the deal.

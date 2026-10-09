@@ -19,6 +19,7 @@ public final class EconomyConfiguration {
         if (config.contains("purchases")) rootKeys.add("purchases");
         if (config.contains("wellbeing")) rootKeys.add("wellbeing");
         if (config.contains("bargaining")) rootKeys.add("bargaining");
+        if (config.contains("barter")) rootKeys.add("barter");
         exactKeys(config, rootKeys);
         readFarms(config);
         readPriorities(config);
@@ -28,6 +29,7 @@ public final class EconomyConfiguration {
         readPurchases(config);
         readWellbeing(config);
         readBargaining(config);
+        readBarter(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
         exactKeys(section(config, "pace"), Set.of("seconds-per-period", "maximum-offline-periods", "periods-per-batch"));
         exactKeys(section(config, "food"), Set.of("units-per-adult", "units-per-child", "units-per-worker", "output-percent"));
@@ -76,6 +78,18 @@ public final class EconomyConfiguration {
         var section=section(config,"bargaining");exactKeys(section,Set.of("enabled","maximum-failed-offers","cooldown-seconds","offer-seconds"));
         if(!(section.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("bargaining.enabled must be true or false");
         return new FoodBargaining.Policy(enabled,smallInteger(section,"maximum-failed-offers"),smallInteger(section,"cooldown-seconds"),smallInteger(section,"offer-seconds"));
+    }
+    public static FoodBarters.Policy readBarter(ConfigurationSection config) {
+        if(!config.contains("barter"))return FoodBarters.Policy.disabled();
+        var section=section(config,"barter");exactKeys(section,Set.of("enabled","food-reserve-periods","maximum-items","goods"));
+        if(!(section.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("barter.enabled must be true or false");
+        var goods=new TreeMap<Commodity,FoodBarters.Goods>();var entries=section(section,"goods");
+        for(var id:entries.getKeys(false)) {
+            var entry=section(entries,id);exactKeys(entry,Set.of("item","units-per-item","keep-units"));
+            if(!(entry.get("item") instanceof String item))throw new IllegalArgumentException("barter item must be a material name");
+            goods.put(new Commodity(id),new FoodBarters.Goods(item,integer(entry,"units-per-item"),integer(entry,"keep-units")));
+        }
+        return new FoodBarters.Policy(enabled,smallInteger(section,"food-reserve-periods"),smallInteger(section,"maximum-items"),goods);
     }
     public static VillagePriorities.Policy readPriorities(ConfigurationSection config) {
         if (!config.contains("priorities")) return VillagePriorities.Policy.prototype();

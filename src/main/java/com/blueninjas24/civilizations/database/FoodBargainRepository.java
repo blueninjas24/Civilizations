@@ -32,10 +32,9 @@ final class FoodBargainRepository {
         }
     }
     void reserve(FoodPurchases.Terms terms,FoodBargaining.Policy policy,long now) throws SQLException {
-        owner();var latest=latest(terms.player(),terms.settlement()).orElse(null);
+        owner();requireNoCooldown(terms.player(),terms.settlement(),now);
+        var latest=latest(terms.player(),terms.settlement()).orElse(null);
         long observed=Math.max(now,latest==null ? 0 : latest.result().observedMillis());
-        if(latest!=null && latest.result().status()==FoodBargaining.Status.CLOSED && observed<latest.result().cooldownUntil())
-            throw new EconomyRuntimeRepository.PurchaseDeclined("Village bargaining cooldown is still active");
         var proposal=find(terms.operation()).orElse(null);
         if(proposal!=null) {
             if(latest==null || !latest.requested().operation().equals(terms.operation())
@@ -49,6 +48,12 @@ final class FoodBargainRepository {
             // Quick menu acceptance is a successful alignment, but never bypasses an active cooldown.
             save(new FoodBargaining.Deal(terms,new FoodBargaining.Result(FoodBargaining.Status.RESERVED,terms.emeralds(),0,observed,observed,0,policy)));
         }
+    }
+    void requireNoCooldown(UUID player,UUID town,long now) throws SQLException {
+        var latest=latest(player,town).orElse(null);
+        if(latest!=null && latest.result().status()==FoodBargaining.Status.CLOSED
+                && Math.max(now,latest.result().observedMillis())<latest.result().cooldownUntil())
+            throw new EconomyRuntimeRepository.PurchaseDeclined("Village bargaining cooldown is still active");
     }
     private void owner() throws SQLException {if(connection.getAutoCommit())throw new SQLException("Bargaining requires owner transaction");}
     private static FoodBargaining.Deal read(ResultSet r) throws SQLException {

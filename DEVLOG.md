@@ -1,5 +1,24 @@
 # Civilizations Development Log
 
+## Protected barter accounting — October 9, 2026
+
+- Branch `codex/phase2-barter-accounting`: real saved timber/stone can fund an
+  internal food quote even without cash. Whole-item value, actual need, protected
+  remaining stock and prior material demand constrain offers. No new industry.
+- Transactional schema 24 reserves goods immediately, records before/after movements,
+  restores cancellations once and completes one future food receipt. Competing
+  offers, emerald reservations and UUID reuse cannot spend the same supplies twice.
+  Existing history, treasury and population are retained. Disabling new offers does
+  not prevent reserved recovery. Completion still requires a future trusted adapter
+  to prove the saved physical exchange; no player barter interface claimed here.
+- Optional commented file-first tuning starts disabled and preserves old configs.
+  Wrapper clean verify passed 450 automated cases, including fifteen new cases and
+  seeded 240-period finite-stock conservation/restart. Disposable Paper's existing
+  donation/purchase/bargaining/welfare/famine/unloaded regression probe passed schema24.
+- Schema-23 marked development snapshot taken first. No main/merge/push or production
+  reset. Progress remains 50% by full groups; physical barter and broader decisions
+  remain. See BARTER_ACCOUNTING.md for history semantics and next adapter contracts.
+
 ## Saved emerald bargaining — October 8, 2026
 
 - Branch `codex/phase2-food-bargaining`: food asking prices now get an agreement or

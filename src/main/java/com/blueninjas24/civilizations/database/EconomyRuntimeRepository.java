@@ -138,6 +138,8 @@ public final class EconomyRuntimeRepository {
             var purchases = new FoodPurchaseRepository(connection);
             if (purchases.find(terms.operation()).isPresent()) return purchases.matching(terms).status().name();
             if (!policy.enabled() || !foods.enabled()) throw new PurchaseDeclined("New food purchases disabled");
+            if (new FoodBarterRepository(connection).find(terms.operation()).isPresent()) throw new SQLException("Purchase operation already used for barter");
+            if (new FoodBarterRepository(connection).hasReservedPlayer(terms.player())) throw new PurchaseDeclined("Finish reserved barter before another purchase");
             if (terms.hundredthsPerEmerald() != policy.hundredthsPerEmerald()
                     || foods.units(terms.item(), terms.count()) != terms.units()) throw new PurchaseDeclined("Purchase conversion settings changed");
             int maximum=maximumFoodPayment(terms.settlement(),terms.units(),policy,now);
@@ -179,6 +181,12 @@ public final class EconomyRuntimeRepository {
     }
     /** Reads inside the caller's owner transaction; pending supplies and reservations reduce remaining need. */
     private int maximumFoodPayment(UUID town,long units,FoodPurchases.Policy policy,long now) throws SQLException {
+        long fairValue=validateFoodNeed(town,units,policy.reservePeriods(),now);
+        var budget = new TreasuryRepository(connection).load(town).orElseThrow(() -> new PurchaseDeclined("Village treasury unknown"));
+        return FoodPurchases.maximumPayment(fairValue, budget.hundredths(), policy);
+    }
+    /** Food value independent of money: a cash-poor village may still have goods to barter. */
+    private long validateFoodNeed(UUID town,long units,int reservePeriods,long now) throws SQLException {
             if (!hasRuntime(town)) throw new PurchaseDeclined("Food economy not initialized");
             accrue(town, now, false);
             var clock = clock(town);
@@ -192,12 +200,77 @@ public final class EconomyRuntimeRepository {
             var account = commodities.read(town).orElseThrow();
             long supply = account.state().stocks().get(Commodity.FOOD).units();
             supply = Math.addExact(supply, new FoodPurchaseRepository(connection).reservedUnits(town));
+            supply = Math.addExact(supply, new FoodBarterRepository(connection).reservedFood(town));
             supply = Math.addExact(supply, new FoodDeliveryRepository(connection).pendingUnits(town));
-            long target = Math.multiplyExact(needs.demand(), policy.reservePeriods());
+            long target = Math.multiplyExact(needs.demand(), reservePeriods);
             if (supply >= target || units > target - supply) throw new PurchaseDeclined("Food offer exceeds remaining village purchase need");
-            long fairValue = Math.multiplyExact(settings.price(Commodity.FOOD, needs.sharedFood()).movePointRight(2).longValueExact(), units);
-            var budget = new TreasuryRepository(connection).load(town).orElseThrow(() -> new PurchaseDeclined("Village treasury unknown"));
-            return FoodPurchases.maximumPayment(fairValue, budget.hundredths(), policy);
+            return Math.multiplyExact(settings.price(Commodity.FOOD, needs.sharedFood()).movePointRight(2).longValueExact(), units);
+    }
+    /** Indicative owner quote; no items, reserves or funds move. Caller still needs durable player consent/proof. */
+    public FoodBarters.Terms quoteFoodBarter(UUID operation,UUID player,UUID town,long units,String item,int count,
+                                            Commodity commodity,FoodBarters.Policy policy,FoodAidPreview.Policy foods,long now) throws SQLException {
+        return transaction(()->barterOffer(operation,player,town,units,item,count,commodity,policy,foods,now));
+    }
+    private FoodBarters.Terms barterOffer(UUID operation,UUID player,UUID town,long units,String item,int count,
+                                         Commodity commodity,FoodBarters.Policy policy,FoodAidPreview.Policy foods,long now) throws SQLException {
+        if(!policy.enabled()||!foods.enabled())throw new PurchaseDeclined("New barter disabled");
+        var goods=policy.goods().get(commodity);if(goods==null)throw new PurchaseDeclined("Village does not offer this barter commodity");
+        if(foods.units(item,count)!=units)throw new PurchaseDeclined("Food conversion changed");
+        new FoodBargainRepository(connection).requireNoCooldown(player,town,now);
+        long foodValue=validateFoodNeed(town,units,policy.foodReservePeriods(),now);
+        var stock=commodities.read(town).orElseThrow().state().stocks().get(commodity);
+        if(stock==null||stock.shortagePeriods()>0)throw new PurchaseDeclined("Available barter stock unknown or in shortage");
+        // Phase 2 only exports idle opening materials. Future industry/construction inputs need their own reserve rules.
+        try(var s=connection.prepareStatement("SELECT households,industry,construction,exports,events FROM economy_periods WHERE settlement_id=? AND commodity=? AND period=?")) {
+            s.setString(1,town.toString());s.setString(2,commodity.id());s.setLong(3,clock(town).completed());
+            try(var r=s.executeQuery()) {
+                if(!r.next())throw new PurchaseDeclined("Barter commodity history unknown");
+                for(int i=1;i<=5;i++)if(r.getLong(i)!=0)throw new PurchaseDeclined("Village needs these materials; prototype barter unavailable");
+            }
+        }
+        long outgoingValue=settings.price(commodity,Condition.BALANCED).movePointRight(2).longValueExact();
+        int payment=FoodBarters.maximumPayment(foodValue,outgoingValue,stock.units(),goods,policy.maximumItems());
+        if(payment<1)throw new PurchaseDeclined("No whole barter item affordable from disposable supplies");
+        return new FoodBarters.Terms(operation,player,town,units,item,count,commodity,goods.item(),payment,goods.unitsPerItem());
+    }
+    /** Trusted adapter only: PREPARED player save must be independently verified before this call. */
+    public String reserveFoodBarter(FoodBarters.Terms terms,FoodBarters.Policy policy,FoodAidPreview.Policy foods,long now) throws SQLException {
+        return transaction(()->{
+            var barters=new FoodBarterRepository(connection);
+            if(barters.find(terms.operation()).isPresent())return barters.matching(terms).status().name();
+            try(var s=connection.prepareStatement("SELECT 1 FROM food_purchases WHERE player_id=? AND status='RESERVED'")) {
+                s.setString(1,terms.player().toString());try(var r=s.executeQuery()){if(r.next())throw new PurchaseDeclined("Finish reserved purchase before barter");}
+            }
+            if(barters.hasReservedPlayer(terms.player()))throw new PurchaseDeclined("Finish your reserved barter first");
+            if(new FoodPurchaseRepository(connection).find(terms.operation()).isPresent()
+                    ||new FoodDeliveryRepository(connection).find(terms.operation()).isPresent()
+                    ||new FoodBargainRepository(connection).find(terms.operation()).isPresent())throw new SQLException("Barter operation already used");
+            var quote=barterOffer(terms.operation(),terms.player(),terms.settlement(),terms.foodUnits(),terms.foodItem(),terms.foodCount(),terms.commodity(),policy,foods,now);
+            if(!quote.paymentItem().equals(terms.paymentItem())||quote.unitsPerItem()!=terms.unitsPerItem()||terms.paymentCount()>quote.paymentCount())
+                throw new PurchaseDeclined("Barter goods conversion/value/available stock changed");
+            return barters.reserve(terms,clock(terms.settlement()).completed());
+        });
+    }
+    /** Only after independent saved-player EXCHANGED proof. Existing reservations recover despite retuning/disable. */
+    public boolean completeFoodBarter(FoodBarters.Terms terms,long now) throws SQLException {
+        return transaction(()->{
+            var barters=new FoodBarterRepository(connection);var saved=barters.matching(terms);
+            if(saved.status()==FoodBarterRepository.Status.COMPLETED)return false;
+            if(saved.status()!=FoodBarterRepository.Status.RESERVED)throw new SQLException("Cancelled barter cannot complete");
+            accrue(terms.settlement(),now,false);long target=clock(terms.settlement()).anchor().targetSteps();
+            if(target==Long.MAX_VALUE)throw new SQLException("No future food period representable");
+            new FoodDeliveryRepository(connection).record(terms.operation(),terms.settlement(),terms.foodUnits(),terms.source(),target);
+            barters.finish(terms,FoodBarterRepository.Status.COMPLETED,clock(terms.settlement()).completed());return true;
+        });
+    }
+    /** Only after durable proof of no player exchange. An ambiguous inventory failure must hold supplies for review. */
+    public boolean cancelFoodBarter(FoodBarters.Terms terms) throws SQLException {
+        return transaction(()->{
+            var barters=new FoodBarterRepository(connection);if(barters.find(terms.operation()).isEmpty())return false;
+            var saved=barters.matching(terms);if(saved.status()==FoodBarterRepository.Status.CANCELLED)return false;
+            if(saved.status()!=FoodBarterRepository.Status.RESERVED)throw new SQLException("Completed barter cannot be refunded");
+            barters.finish(terms,FoodBarterRepository.Status.CANCELLED,clock(terms.settlement()).completed());return true;
+        });
     }
     /** Only after independently verifying a saved player goods/payment exchange. Recovery ignores new-offer settings. */
     public boolean completeFoodPurchase(FoodPurchases.Terms terms, long now) throws SQLException {

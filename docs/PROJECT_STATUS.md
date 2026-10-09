@@ -2,6 +2,34 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 8, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 has passed supplies and basic labor/treasury/wellbeing (2/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining and resident-linked food/housing welfare. Barter, broader response execution and integrated balance remain pending. Phases 3–9 remain planned. This is not a balanced survival release; see PHASE1_PLAYTEST.md for limits.
 
+## Protected barter accounting — October 9, 2026
+
+- Branch `codex/phase2-barter-accounting`: internal food-for-timber/stone quotes,
+  exact goods reservations, cancellation and future food completion now use actual
+  available supplies. No live barter menu/command or physical payout in this batch.
+  The optional editable section starts disabled; existing owner configs stay untouched.
+- Prototype exports only idle, non-shortage timber/OAK_LOG and stone/COBBLESTONE,
+  with editable whole-item conversion, keep-stock floor, food target and item cap.
+  No profession-generated goods or industry output. Quotes move no goods or funds;
+  cash-poor villages can barter actual supplies. Failed bargaining cooldowns remain.
+- Schema 24 adds immutable barter receipts and ordered reserve/refund stock movements
+  with before/after quantities and completed-period context. Earlier reports remain
+  intact; current supplies may differ from the last closing report. Shared pending
+  food need and cross-payment player/operation guards prevent spending twice.
+- Windows Wrapper clean verify passed 450 cases (448 unit/two packaged integration),
+  no failures/errors/skips. Fifteen added cases cover exact floors/value, competing
+  offers, stock/need conservation, cancellation/completion, changed terms, rollback,
+  migration failure, admin settings and a seeded 240-period finite-stock famine
+  scenario with restart. Previous Paper donation, purchase, bargaining, welfare,
+  famine/recovery and unloaded regression probe passed under schema 24.
+- Consistent marked dev schema-23 snapshot preceded upgrade. No production/world
+  reset, main change, merge or push. Normal final plugin startup/diagnostics/shutdown
+  passed; integrity/FKs valid and resident/home/family/finance/welfare/bargaining
+  history retained. Accelerated dev population continues normally, without a reset.
+  Phase 2 remains 2/4 groups (50%); physical
+  barter confirmation/recovery, broader responses/learning and balance remain.
+  See BARTER_ACCOUNTING.md. Next: player-facing saved inventory exchange.
+
 ## Saved emerald bargaining — October 8, 2026
 
 - Branch `codex/phase2-food-bargaining`: `/civ bargain <emeralds>` proposes a price

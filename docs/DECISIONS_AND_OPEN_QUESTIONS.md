@@ -349,3 +349,16 @@ reputation penalty. A counter reserves no goods or money; accepted terms still
 require safe purchase confirmation and current affordability. Old configs opt in
 with the complete optional section. This is emerald food bargaining, not barter or
 business-specific merchants. See FOOD_BARGAINING.md. No new design answer required.
+
+## October 9, 2026 — protected barter accounting prototype
+
+Under approved editable economy authority, first internal outgoing mappings are
+timber/OAK_LOG and stone/COBBLESTONE at one commodity unit/item, keeping two units
+per commodity, with a 64-item cap and three food-demand-period target. Only actual
+idle saved materials can fund a quote; demand/shortage blocks export. The mappings
+are intentionally limited until real Phase 3 industries exist. Existing opening
+stocks are not recurring production. Schema 24 records reserves/refunds separately
+from unchanged period reports; it does not fabricate past exports. Config starts
+disabled; a live barter inventory adapter still needs implementation and validation.
+No extra treasury funding, reputation, personal wallets or gameplay penalties.
+See BARTER_ACCOUNTING.md. No new design answer blocks the next adapter work.

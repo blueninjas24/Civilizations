@@ -1,6 +1,6 @@
 # Civilizations progress tracker
 
-Updated October 8, 2026. Based on verified work, not planned features.
+Updated October 9, 2026. Based on verified work, not planned features.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
@@ -110,6 +110,12 @@ value/budget counters, editable patience/deadlines and restart-safe cooldowns.
 Wrapper passed 435 automated cases; disposable Paper verified a saved counter
 surviving restart and one native 8-wheat/3-emerald exchange. Barter and the other
 unfinished gates keep the phase at 2/4 (50%). See FOOD_BARGAINING.md.
+
+Barter now has tested internal accounting: real timber/stone reservations, protected
+stock floors and once-only cancellation/completion, including a 240-period finite-
+stock famine/restart scenario. The 450-case Wrapper build and existing Paper economy
+regressions passed. No live barter interface yet; this partial work does not complete
+the trade group. Next is saved player-inventory confirmation. See BARTER_ACCOUNTING.md.
 
 ## Phase 3 — planned
 
