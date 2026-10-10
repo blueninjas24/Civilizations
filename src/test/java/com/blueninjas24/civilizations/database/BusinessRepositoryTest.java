@@ -58,6 +58,74 @@ class BusinessRepositoryTest {
         try(var s=database.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)) { assertTrue(r.next()); return r.getLong(1); }
     }
 
+    private void die(Resident person)throws SQLException {
+        database.getPopulationRepository().updateResident(new Resident(person.id(),person.name(),person.settlementId(),person.householdId(),person.ageSteps(),Resident.Status.DECEASED));
+    }
+    private void child(Resident parent,Resident child)throws SQLException {
+        database.getPopulationRepository().insertFamilyTie(new FamilyTie(parent.id(),child.id(),FamilyTie.Type.PARENT_CHILD));
+    }
+    @Test void qualifiedFamilyInheritsBeforeEmployeeWithoutChangingFoundingMoneyOrJobs()throws Exception {
+        var request=proposal(0,2,2500);businesses.found(request);
+        var heir=person(town,250,Resident.Status.ALIVE,12);child(founder,heir);
+        var worker=person(town,300,Resident.Status.ALIVE,20);
+        var job=businesses.hire(UUID.randomUUID(),request.business().id(),worker.id(),12);die(founder);
+        var succession=new BusinessSuccession(database.getConnection());var operation=UUID.randomUUID();
+        var transfer=succession.succeed(operation,request.business().id(),13).orElseThrow();
+        assertEquals(heir.id(),transfer.nextOwner());assertEquals(BusinessSuccession.Kind.FAMILY,transfer.kind());
+        assertEquals(request,businesses.findFounding(request.business().id()).orElseThrow());
+        assertEquals(request,businesses.found(request));assertEquals(7500,balance());assertEquals(2,count("treasury_entries"));
+        assertEquals(heir.id(),businesses.findBusinesses(town).getFirst().ownerId());assertEquals(List.of(job),businesses.currentWorkers(request.business().id()));
+        assertEquals(transfer,succession.succeed(operation,request.business().id(),13).orElseThrow());
+        assertThrows(SQLException.class,()->succession.succeed(operation,request.business().id(),14));
+        database.close();open();assertEquals(heir.id(),businesses.findBusiness(request.business().id()).orElseThrow().ownerId());
+        assertEquals(request,businesses.findFounding(request.business().id()).orElseThrow());
+        assertEquals(transfer,new BusinessSuccession(database.getConnection()).find(operation).orElseThrow());
+    }
+    @Test void unqualifiedUnderageDeadAndElsewhereFamilyDoNotBlockQualifiedEmployee()throws Exception {
+        var request=proposal(0,2,0);businesses.found(request);
+        for(var relative:List.of(person(town,100,Resident.Status.ALIVE,20),person(town,300,Resident.Status.ALIVE,0),
+                person(town,300,Resident.Status.DECEASED,20),person(town(),300,Resident.Status.ALIVE,20)))child(founder,relative);
+        var worker=person(town,300,Resident.Status.ALIVE,20);businesses.hire(UUID.randomUUID(),request.business().id(),worker.id(),12);die(founder);
+        var result=new BusinessSuccession(database.getConnection()).succeed(UUID.randomUUID(),request.business().id(),13).orElseThrow();
+        assertEquals(worker.id(),result.nextOwner());assertEquals(BusinessSuccession.Kind.EMPLOYEE,result.kind());assertEquals(10000,balance());
+    }
+    @Test void successionDoesNotChangeAWorkingRelativesIndustryOrPromoteAnUnqualifiedEmployee()throws Exception {
+        var request=proposal(0,2,0);businesses.found(request);var relative=person(town,300,Resident.Status.ALIVE,20);child(founder,relative);
+        var other=proposal(4,2,0);var old=other.business();
+        var mine=new Business(old.id(),town,old.name(),founder.id(),founder.id(),"mining",old.siteId(),2,12);
+        businesses.found(new BusinessFounding(mine,other.site(),FOUNDER,WORKER,0,"Test cross-industry job"));
+        var job=businesses.hire(UUID.randomUUID(),mine.id(),relative.id(),12);
+        var unqualified=person(town,300,Resident.Status.ALIVE,3);businesses.hire(UUID.randomUUID(),request.business().id(),unqualified.id(),12);die(founder);
+        assertTrue(new BusinessSuccession(database.getConnection()).succeed(UUID.randomUUID(),request.business().id(),13).isEmpty());
+        assertEquals(founder.id(),businesses.findBusiness(request.business().id()).orElseThrow().ownerId());
+        assertEquals(List.of(job),businesses.currentWorkers(mine.id()));assertEquals(0,count("business_ownership"));
+    }
+    @Test void ownershipAuditFailureRollsBackOwnerAndCanRetry()throws Exception {
+        var request=proposal(0,2,2000);businesses.found(request);var heir=person(town,300,Resident.Status.ALIVE,20);child(founder,heir);die(founder);
+        sql("CREATE TRIGGER fail_ownership BEFORE INSERT ON business_ownership BEGIN SELECT RAISE(ABORT,'test ownership failure'); END");
+        var succession=new BusinessSuccession(database.getConnection());var op=UUID.randomUUID();
+        assertThrows(SQLException.class,()->succession.succeed(op,request.business().id(),13));
+        assertEquals(founder.id(),businesses.findBusiness(request.business().id()).orElseThrow().ownerId());assertEquals(0,count("business_ownership"));
+        assertTrue(database.getConnection().getAutoCommit());assertEquals(8000,balance());
+        sql("DROP TRIGGER fail_ownership");assertEquals(heir.id(),succession.succeed(op,request.business().id(),13).orElseThrow().nextOwner());
+    }
+    @Test void runtimeSuccessionPausesAbsentWorldAndPublishesCurrentOwner()throws Exception {
+        var request=proposal(0,2,0);businesses.found(request);var heir=person(town,300,Resident.Status.ALIVE,20);child(founder,heir);die(founder);
+        var runtime=new BusinessRuntime(database.getConnection(),8,64);
+        runtime.refresh(13,Set.of());assertEquals(founder.id(),businesses.findBusiness(request.business().id()).orElseThrow().ownerId());
+        var view=runtime.refresh(14,Set.of(world)).businesses().get(request.business().id());
+        assertTrue(view.ownerAvailable());assertEquals(heir.id(),businesses.findBusiness(request.business().id()).orElseThrow().ownerId());assertEquals(1,count("business_ownership"));
+        runtime.refresh(15,Set.of(world));assertEquals(1,count("business_ownership"));
+    }
+    @Test void schema37OwnershipUpgradeFailureRetainsExistingBusinessAndRetries()throws Exception {
+        var request=proposal(0,2,2000);businesses.found(request);SchemaFixtures.rewind(database.getConnection(),37);
+        sql("CREATE INDEX business_owner_history ON businesses(id)");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(database.getConnection()));
+        assertThrows(SQLException.class,()->count("business_ownership"));assertEquals(request,businesses.findFounding(request.business().id()).orElseThrow());assertEquals(8000,balance());
+        sql("DROP INDEX business_owner_history");new SchemaMigrator().migrate(database.getConnection());assertEquals(0,count("business_ownership"));
+        try(var s=database.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+    }
+
     @Test void allFoundingTermsStaffingCapitalAndSnapshotSurviveRestart() throws Exception {
         var request=proposal(0,2,2500); var saved=businesses.found(request);
         var worker=person(town,250,Resident.Status.ALIVE,3);

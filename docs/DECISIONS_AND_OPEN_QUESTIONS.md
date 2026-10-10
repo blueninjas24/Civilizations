@@ -37,6 +37,9 @@ October 9 playtest decisions, approved but not yet implemented:
   separate from village money, for later eligible family business investment.
   No successful sale by the deadline closes the business. Closure ends operation,
   not its saved identity/history or physical building; retain remaining assets.
+  Additional approval: qualified buyers may use their family estate fund and their
+  existing business's spare cash under configurable limits. Every withdrawal/payment
+  must be recorded and conserved; no automatic treasury grant or invented money.
 - Businesses and households prioritize available suitable vacant premises before
   new construction. Reuse depends on needs, capacity, condition and permission;
   vacancy alone never justifies an unsuitable move or modifying player buildings.

@@ -1,5 +1,30 @@
 # Civilizations Development Log
 
+## October 9, 2026 — qualified inheritance and immutable founding
+
+Branch `codex/phase3-qualified-succession`. Added current business reads independent
+of historical founding, switched industry/current diagnostics to current ownership,
+and added atomic family-first/employee-next succession in bounded present-world
+refresh. Requires deceased owner and saved local age/skill/industry qualifications;
+no successor leaves ownership unchanged until resale. Preserves employment, funds,
+stock, sites and founder identity. Schema 38 adds immutable indexed ownership events.
+
+Six new temp SQLite cases; focused 53 passed. Windows Wrapper clean verify passed
+698 (696 unit/two packaged integration), zero failures/errors/skips. Actual guarded
+Paper fixture verifies qualified heir, one transfer, 3 coal/7 remaining bundles,
+absence/restart and retained 8500 treasury/1000 working capital. First native probe
+read-only connection omitted foreign-key enforcement; corrected the harness and
+reran successfully. First run's execution stdin was unavailable; a guarded temporary
+helper dispatched the normal stop command on the marked localhost/no-player server.
+Second run used an interactive execution console and normal stop, exit 0. No kill,
+world writes/tickets or user-server updates. Probe archived, original properties
+restored, main dev industry/funds/identity retained, integrity/FKs healthy. Its
+calendar/resident aging progressed normally during online testing.
+
+Buyer funding from estate and owned-business spare cash under configurable limits
+approved; sale/deadline/estate accounting remains next. No main merge/push. Phase 3
+still 25%; inheritance alone does not complete the lifecycle/competition group.
+
 ## October 9, 2026 — human playtest follow-up
 
 Branch `codex/playtest-trade-responsiveness`. User verified village recognition,

@@ -63,6 +63,9 @@ premises are preferred; physical building reuse remains Phase 4.
 - [ ] Explainable pause/closure/reassessment and competition for workers/capital.
 - [ ] Preserve closed firms, sites, inventories and employment history.
 - [ ] Tested ownership succession with explicit recipient eligibility and accounting.
+- [x] Atomic family-first/qualified employee inheritance, immutable founding/current
+      owner separation and present-world runtime integration; temp SQL rollback/retry
+      and actual Paper mine/restart checks passed. Resale/estate/closure remain.
 - [ ] Bound skill development and investment; no manufactured profit or payroll.
 - [ ] Restart-safe turnover and failed-transition recovery scenarios.
 

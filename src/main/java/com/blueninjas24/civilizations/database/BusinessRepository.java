@@ -69,11 +69,23 @@ public final class BusinessRepository {
                 UUID town = UUID.fromString(r.getString("settlement_id"));
                 UUID siteId = UUID.fromString(r.getString("site_id"));
                 var business = new Business(id,town,r.getString("name"),UUID.fromString(r.getString("founder_id")),
-                        UUID.fromString(r.getString("owner_id")),r.getString("industry"),siteId,r.getInt("worker_capacity"),r.getLong("founded_step"));
+                        UUID.fromString(r.getString("founder_id")),r.getString("industry"),siteId,r.getInt("worker_capacity"),r.getLong("founded_step"));
                 var site = new BusinessSite(siteId,town,UUID.fromString(r.getString("world_id")),r.getInt("x"),r.getInt("y"),
                         r.getInt("z"),r.getLong("observed_millis"),r.getString("evidence"));
                 return Optional.of(new BusinessFounding(business,site,requirements(id,"FOUNDER",r.getLong("founder_min_age")),
                         requirements(id,"WORKER",r.getLong("worker_min_age")),r.getLong("startup_hundredths"),r.getString("reason")));
+            }
+        }
+    }
+
+    /** Current ownership is separate from the immutable accepted founding terms. */
+    public Optional<Business> findBusiness(UUID id) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT * FROM businesses WHERE id=?")) {
+            s.setString(1,id.toString());try(var r=s.executeQuery()) {
+                if(!r.next())return Optional.empty();
+                return Optional.of(new Business(id,UUID.fromString(r.getString("settlement_id")),r.getString("name"),
+                        UUID.fromString(r.getString("founder_id")),UUID.fromString(r.getString("owner_id")),
+                        r.getString("industry"),UUID.fromString(r.getString("site_id")),r.getInt("worker_capacity"),r.getLong("founded_step")));
             }
         }
     }
@@ -83,7 +95,7 @@ public final class BusinessRepository {
         try (var s = connection.prepareStatement("SELECT id FROM businesses WHERE settlement_id=? ORDER BY id")) {
             s.setString(1,town.toString());
             try (var r = s.executeQuery()) {
-                while (r.next()) result.add(findFounding(UUID.fromString(r.getString(1))).orElseThrow().business());
+                while (r.next()) result.add(findBusiness(UUID.fromString(r.getString(1))).orElseThrow());
             }
         }
         return List.copyOf(result);

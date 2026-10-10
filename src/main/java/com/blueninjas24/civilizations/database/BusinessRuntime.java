@@ -36,9 +36,17 @@ public final class BusinessRuntime {
         cache.replaceAll((id,v)->withPause(v,loadedWorlds));
         for(var id:ids) {
             var founding=businesses.findFounding(id).orElseThrow(()->new SQLException("Business disappeared during owner refresh"));
-            var b=founding.business();var site=founding.site();
+            var b=businesses.findBusiness(id).orElseThrow();var site=founding.site();
             boolean paused=loadedWorlds!=null && !loadedWorlds.contains(site.worldId());
-            if(!paused)businesses.reconcileBusiness(id,completedMonth);
+            if(!paused) {
+                businesses.reconcileBusiness(id,completedMonth);
+                if(completedMonth>=b.foundedStep()) {
+                    var operation=UUID.nameUUIDFromBytes(("civilizations:business-succession-v1:"+id+":"+b.ownerId())
+                            .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    new BusinessSuccession(connection).succeed(operation,id,completedMonth);
+                    b=businesses.findBusiness(id).orElseThrow();
+                }
+            }
             int open;
             String separation;
             try(var s=connection.prepareStatement("SELECT COUNT(*) FROM business_employment WHERE business_id=? AND ended_step IS NULL")) {

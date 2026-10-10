@@ -2,6 +2,13 @@
 
 Updated October 9, 2026. Based on verified work, not planned features.
 
+Latest: a deceased business owner's qualified family member can inherit; otherwise
+a qualified employee can take over. Children/unqualified relatives cannot bypass
+requirements, and workers do not silently change industries. The business keeps its
+founder, money, supplies and history. Automated tests and a real Paper mine/restart
+check passed. Business sales, estate funds, closure and competition are next; the
+lifecycle group is still incomplete, so Phase 3 remains 25%.
+
 Human playtest passed: villages register residents, bread donations remove the right
 items, food sales pay the agreed emeralds, and villagers remain saved after restart.
 The reported slow trade confirmation now has a tested shorter polling interval;
@@ -12,7 +19,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 692 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 698 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

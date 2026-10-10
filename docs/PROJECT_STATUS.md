@@ -2,6 +2,37 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. A human client verified recognition, donations, emerald sales and resident restart persistence; broader inventory-plugin compatibility, barter/bargaining client coverage and survival balancing remain validation limits. This is not a balanced release.
 
+## October 9, 2026 — qualified business succession
+
+Business founding remains immutable and separate from current ownership. Present
+worlds' bounded business refresh now transfers a deceased owner's firm to an
+eligible industry-qualified recorded family member first, then a qualified current
+employee. Alive/moved owners are not treated as deceased. Age, skills, settlement
+and current industry employment are checked. Multiple eligible relatives use stable
+UUID ordering; unrelated housemates are not family. No successor leaves ownership
+unchanged pending resale. No invented training, employment, grants or money transfer.
+
+Schema 38 transactionally adds ownership audit events/index. Owner update and audit
+commit together; failure rolls both back. Original founding replay charges nothing
+again after transfer. Current diagnostics/industry operations read the current owner.
+Six new temporary SQLite cases cover family priority, employee fallback,
+qualification/occupation refusal, rollback/retry, absence/runtime integration and
+37->38 failed migration/recovery. Focused 53 passed; full Windows Wrapper clean
+verify passed 698 (696 unit/two packaged integration), zero failures/errors/skips.
+
+Actual Paper owner fixture passed qualified inheritance, exactly one event, three
+coal/seven remaining bundles, world pause and restart. Initial native assertion
+connection omitted foreign-key enforcement and was corrected; application behavior
+was not relaxed. Both runs stopped normally; successful probe archived, original
+network properties restored. Fresh fixture integrity/FKs healthy, treasury 8500 and
+business capital 1000 retained. Marked dev industry/funds/identity matched pre-upgrade
+backup; its existing resident/calendar advanced normally while online. No probe block
+writes/tickets, and no changes to the user's own server. See BUSINESS_SUCCESSION.md.
+
+Resale, family estate funds, closure/competition, per-block resource retirement and
+automatic wider industries remain upcoming. Buyer estate/business spare-cash sources
+with configurable limits are approved. Phase 3 remains 1/4 complete groups (25%).
+
 ## October 9, 2026 — human playtest and trade responsiveness
 
 Human playtest passed village recognition (seven imported residents), a two-bread

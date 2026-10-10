@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 37;
+    static final int CURRENT_VERSION = 38;
 
     @FunctionalInterface
     interface Migration {
@@ -409,6 +409,21 @@ final class SchemaMigrator {
                     // Legacy rows lack guaranteed cadence: retain cargo without guessing historical terms.
                     execute(connection,"ALTER TABLE industry_auto_shipments ADD COLUMN haul_cadence INTEGER CHECK(haul_cadence IS NULL OR (typeof(haul_cadence)='integer' AND haul_cadence BETWEEN 1000 AND 86400000))");
                     execute(connection,"CREATE INDEX auto_shipment_haul_cadence ON industry_auto_shipments(haul_cadence,haul_window,shipment_id)");
+                },
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE business_ownership (
+                                operation_id TEXT PRIMARY KEY,
+                                business_id TEXT NOT NULL REFERENCES businesses(id),
+                                previous_owner TEXT NOT NULL REFERENCES residents(id),
+                                next_owner TEXT NOT NULL REFERENCES residents(id),
+                                observed_step INTEGER NOT NULL CHECK(typeof(observed_step)='integer' AND observed_step>=0),
+                                kind TEXT NOT NULL CHECK(kind IN ('FAMILY','EMPLOYEE')),
+                                CHECK(previous_owner<>next_owner),
+                                UNIQUE(business_id,previous_owner)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX business_owner_history ON business_ownership(business_id,observed_step,operation_id)");
                 }
         ));
     }
@@ -544,6 +559,7 @@ final class SchemaMigrator {
             }
             if(migrations.size()>=36)requireColumns(connection,"industry_auto_shipments",Set.of("shipment_id","clock_business_id","haul_window"));
             if(migrations.size()>=37)requireColumns(connection,"industry_auto_shipments",Set.of("haul_cadence"));
+            if(migrations.size()>=38)requireColumns(connection,"business_ownership",Set.of("operation_id","business_id","previous_owner","next_owner","observed_step","kind"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

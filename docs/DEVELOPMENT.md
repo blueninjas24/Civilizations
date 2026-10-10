@@ -217,9 +217,14 @@ it with the distributed plugin. See ORE_EDITOR_GUARD.md.
 IndustryRuntimeProbe.java is a separate test-only plugin (name
 CivilizationsIndustryRuntimeProbe, main IndustryRuntimeProbe, version 1, API 1.21,
 depend Civilizations). Compile/package separately as above. It requires the marked
-localhost no-player server and an unloaded abstract site chunk. A separate SQL
+localhost no-player server on port 25578 and an unloaded abstract site chunk. Back
+up/restore server.properties while stopped, keeping the player port free. A separate SQL
 fixture owner seeds explicit funded industry, then real PopulationSession owners
 run accelerated deterministic clocks/pulses and world masks. Check finite output,
-absence, downtime/restart and preserved capital. No world edits/tickets/main save
-changes. Stop normally, inspect both DBs read-only, archive the probe. Never ship it
+absence, downtime/restart and preserved capital. Its succession fixture records a
+qualified child, deceased founder and actual child employment, then verifies current
+owner, immutable founding and exactly one ownership event across restart. No world
+edits/tickets or main data changes beyond the plugin's additive schema upgrade.
+Back up the stopped marked dev DB first. Stop normally, inspect both DBs read-only,
+archive the probe. Never ship it
 with the plugin. See TIMED_INDUSTRY.md; TONIGHT_PLAYTEST.md is the player checklist.

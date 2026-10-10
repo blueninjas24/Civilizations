@@ -88,7 +88,7 @@ public final class IndustryRepository {
         if(capacity<1 || capital<0 || space.isEmpty() || space.size()>64 || space.values().stream().anyMatch(v->v<1))
             throw new IllegalArgumentException("Invalid business store opening");
         String terms=terms("store",business,capacity,catalog(space),capital);Map<Commodity,Long> sizes=space;
-        var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+        var b=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown business"));
         try(var s=connection.prepareStatement("SELECT terms FROM industry_stores WHERE business_id=?")) {
             s.setString(1,business.toString());try(var r=s.executeQuery()) {
                 if(r.next()) { if(!terms.equals(r.getString(1)))throw new SQLException("Store opening terms changed; explicit capacity transition required"); return store(business).orElseThrow(); }
@@ -142,7 +142,7 @@ public final class IndustryRepository {
                 if(r.next()) { long last=r.getLong(1);if(!r.wasNull() && period<=last)throw new SQLException("Mining period is stale or already completed"); }
             }
         }
-        var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+        var b=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown business"));
         var d=deposit(deposit).orElseThrow(()->new SQLException("Unknown deposit"));
         if(!b.industry().equals("mining") || !b.siteId().equals(d.siteId()))throw new SQLException("Mining business must occupy the actual deposit site");
         var stock=store(business).orElseThrow(()->new SQLException("Missing business storage"));
@@ -172,7 +172,7 @@ public final class IndustryRepository {
         String operationTerms=terms("recipe-v1",business,recipe.id(),recipe.industry(),catalog(recipe.inputs()),catalog(recipe.outputs()),
                 recipe.batchesPerWorker(),recipe.siteCapacity(),requested,period);
         if(receipt(operation,operationTerms).isPresent())return recipeRun(operation).orElseThrow(()->new SQLException("Recipe receipt missing run"));
-        var b=businesses.findFounding(business).orElseThrow(()->new SQLException("Unknown business")).business();
+        var b=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown business"));
         if(!b.industry().equals(recipe.industry()))throw new SQLException("Recipe does not match business industry");
         try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
             s.setString(1,business.toString());try(var r=s.executeQuery()) {
@@ -245,8 +245,8 @@ public final class IndustryRepository {
                 :haulCadence==null?terms("purchase-clock-v1",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity,haulWindow)
                 :terms("purchase-clock-v2",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity,haulWindow,haulCadence);
         if(receipt(operation,terms).isPresent())return shipment(operation).orElseThrow();
-        var origin=businesses.findFounding(seller).orElseThrow(()->new SQLException("Unknown seller")).business();
-        var destination=businesses.findFounding(buyer).orElseThrow(()->new SQLException("Unknown buyer")).business();
+        var origin=businesses.findBusiness(seller).orElseThrow(()->new SQLException("Unknown seller"));
+        var destination=businesses.findBusiness(buyer).orElseThrow(()->new SQLException("Unknown buyer"));
         if(!origin.settlementId().equals(destination.settlementId()))throw new SQLException("Local transport cannot cross settlements; regional routes belong to Phase 5");
         long dispatched=0;
         String haulingSql=haulWindow==null?"SELECT t.units FROM local_shipments t JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND t.dispatched_period=? AND NOT EXISTS(SELECT 1 FROM industry_auto_shipments a WHERE a.shipment_id=t.id)"
