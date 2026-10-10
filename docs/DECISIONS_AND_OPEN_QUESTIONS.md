@@ -32,6 +32,15 @@ pause/close while retaining site, stock, funds and history; or defer ownership t
 admin choice. No answer is assumed. This consequential ownership rule blocks its
 own lifecycle implementation, not resource capture or other independent work.
 
+Paid workshop supply uses the approved configurable economy prototype authority:
+new files enable up to two periods of complete recipe inputs, bounded review of
+16 actual local warehouses and existing editable base Trade Value prices. Only
+business-owned funds/stock transfer; no new money, individual wallets, speculative
+finished-goods consumption or universal industries. Old files explicitly opt in.
+Paid automatic cargo has the buyer's persistent clock identity; legacy shipments
+retain their original delivery caller. Schema 36 and application/native checks
+verify the accounting. See WORKSHOP_SUPPLIES.md. No new answer needed for this scope.
+
 The live placement fence is a conservative engineering safeguard, not a new mineral
 regeneration rule: capture failures/unclean stops pause new automatic discovery
 pending reviewed recovery. Existing settlements, reserves and history remain.

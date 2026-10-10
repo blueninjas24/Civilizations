@@ -7,6 +7,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void supplyReusesEditablePricesAndAbsentOldSectionDoesNotOptIn() throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readWorkshopSupply(config).enabled());
+        config.loadFromString("industry-supply:\n  enabled: true\n  input-periods: 2\n  warehouses-per-review: 16\nprices:\n  base-trade-value:\n    iron: 12.25\n    coal: 6\n");
+        var policy=EconomyConfiguration.readWorkshopSupply(config);assertTrue(policy.enabled());
+        assertEquals(1225,policy.unitHundredths().get(com.blueninjas24.civilizations.economy.Commodity.IRON));
+        config.set("prices.base-trade-value.iron",12.001);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWorkshopSupply(config));
+        config.set("prices.base-trade-value.iron",12);config.set("industry-supply.input-periods",9);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWorkshopSupply(config));
+        config.set("industry-supply.input-periods",2);config.set("industry-supply.enabled","yes");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWorkshopSupply(config));
+        config.set("industry-supply.enabled",true);config.set("industry-supply.unknown",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWorkshopSupply(config));
+    }
     @Test void oldFilesStayDisabledAndNewSettingsAreStrictAndEditable() throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readIndustryRuntime(config).enabled());
         config.loadFromString("industry-runtime:\n  enabled: true\n  real-millis-per-period: 2000\n  businesses-per-pulse: 3\n");

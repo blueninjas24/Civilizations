@@ -21,6 +21,7 @@ public final class EconomyConfiguration {
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
+        if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -31,6 +32,7 @@ public final class EconomyConfiguration {
         exactKeys(config, rootKeys);
         readAdditionalOreEditors(config);
         readIndustryRuntime(config);
+        readWorkshopSupply(config);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
@@ -236,7 +238,23 @@ public final class EconomyConfiguration {
         exactKeys(runtime,Set.of("enabled","real-millis-per-period","businesses-per-pulse"));
         if(!(runtime.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("industry-runtime.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.IndustryRuntimePolicy(enabled,integer(runtime,"real-millis-per-period"),
-                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config));
+                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config),readWorkshopSupply(config));
+    }
+    /** Reuse editable base prices; no second currency, grant or invented supplier. */
+    public static com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy readWorkshopSupply(ConfigurationSection config) {
+        if(!config.contains("industry-supply"))return com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy.disabled();
+        var supply=section(config,"industry-supply");
+        exactKeys(supply,Set.of("enabled","input-periods","warehouses-per-review"));
+        if(!(supply.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("industry-supply.enabled must be true or false");
+        var values=new TreeMap<Commodity,Long>();
+        var prices=section(config,"prices.base-trade-value");
+        for(var id:prices.getKeys(false)) {
+            Object value=prices.get(id);
+            if(!(value instanceof Number))throw new IllegalArgumentException("prices.base-trade-value."+id+" must be a number");
+            try {values.put(new Commodity(id),new BigDecimal(value.toString()).movePointRight(2).longValueExact());}
+            catch(NumberFormatException|ArithmeticException invalid) {throw new IllegalArgumentException("Supply prices must be finite with at most two decimal places",invalid);}
+        }
+        return new com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy(enabled,smallInteger(supply,"input-periods"),smallInteger(supply,"warehouses-per-review"),values);
     }
     public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
         if (!config.contains("ore-provenance")) return List.of();

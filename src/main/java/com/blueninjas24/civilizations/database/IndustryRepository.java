@@ -230,47 +230,61 @@ public final class IndustryRepository {
     /** Buyer owns reserved cargo after payment. Actual money transfers once; destination storage is reserved in advance. */
     public Shipment purchase(UUID operation,UUID seller,UUID buyer,Commodity commodity,long units,long price,long period,long delay,long haulCapacity) throws SQLException {
         if(seller.equals(buyer) || units<1 || price<0 || period<0 || delay<1 || haulCapacity<1)throw new IllegalArgumentException("Invalid local purchase");
-        long due=Math.addExact(period,delay);String terms=terms("purchase",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity);
-        return transaction(()-> {
-            if(receipt(operation,terms).isPresent())return shipment(operation).orElseThrow();
-            var origin=businesses.findFounding(seller).orElseThrow(()->new SQLException("Unknown seller")).business();
-            var destination=businesses.findFounding(buyer).orElseThrow(()->new SQLException("Unknown buyer")).business();
-            if(!origin.settlementId().equals(destination.settlementId()))throw new SQLException("Local transport cannot cross settlements; regional routes belong to Phase 5");
-            long dispatched=0;
-            try(var s=connection.prepareStatement("SELECT t.units FROM local_shipments t JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND t.dispatched_period=?")) {
-                s.setString(1,origin.settlementId().toString());s.setLong(2,period);
-                try(var r=s.executeQuery()) { while(r.next())dispatched=Math.addExact(dispatched,r.getLong(1)); }
-            }
-            if(Math.addExact(dispatched,units)>haulCapacity)throw new SQLException("Local haul capacity exhausted for this period");
-            var from=store(seller).orElseThrow(()->new SQLException("Seller store missing"));
-            var to=store(buyer).orElseThrow(()->new SQLException("Buyer store missing"));
-            Long size=to.spacePerUnit().get(commodity);
-            if(size==null || Math.multiplyExact(size,units)>to.freeSpace())throw new SQLException("Destination lacks supported free storage");
-            if(from.units().getOrDefault(commodity,0L)<units)throw new SQLException("Seller lacks actual goods");
-            if(to.hundredths()<price)throw new SQLException("Buyer lacks purchasing funds");
-            changeStock(seller,commodity,-units);setCapital(buyer,to.hundredths()-price);setCapital(seller,Math.addExact(from.hundredths(),price));
-            save(operation,terms,units,"Actual local goods purchase; paid "+price+" hundredths; cargo reserved until period "+due);
-            try(var s=connection.prepareStatement("INSERT INTO local_shipments(id,seller_id,buyer_id,commodity,units,price,dispatched_period,due_period) VALUES(?,?,?,?,?,?,?,?)")) {
-                s.setString(1,operation.toString());s.setString(2,seller.toString());s.setString(3,buyer.toString());s.setString(4,commodity.id());
-                s.setLong(5,units);s.setLong(6,price);s.setLong(7,period);s.setLong(8,due);s.executeUpdate();
-            }
-            return shipment(operation).orElseThrow();
-        });
+        Math.addExact(period,delay);
+        return transaction(()->purchaseRows(operation,seller,buyer,commodity,units,price,period,delay,haulCapacity,null));
+    }
+    Shipment purchaseRows(UUID operation,UUID seller,UUID buyer,Commodity commodity,long units,long price,long period,long delay,long haulCapacity,Long haulWindow) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Shipment rows require active SQL owner transaction");
+        if(seller.equals(buyer) || units<1 || price<0 || period<0 || delay<1 || haulCapacity<1)throw new IllegalArgumentException("Invalid local purchase");
+        if(haulWindow!=null && haulWindow<0)throw new IllegalArgumentException("Negative shared hauling window");
+        long due=Math.addExact(period,delay);String terms=haulWindow==null?terms("purchase",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity)
+                :terms("purchase-clock-v1",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity,haulWindow);
+        if(receipt(operation,terms).isPresent())return shipment(operation).orElseThrow();
+        var origin=businesses.findFounding(seller).orElseThrow(()->new SQLException("Unknown seller")).business();
+        var destination=businesses.findFounding(buyer).orElseThrow(()->new SQLException("Unknown buyer")).business();
+        if(!origin.settlementId().equals(destination.settlementId()))throw new SQLException("Local transport cannot cross settlements; regional routes belong to Phase 5");
+        long dispatched=0;
+        String haulingSql=haulWindow==null?"SELECT t.units FROM local_shipments t JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND t.dispatched_period=? AND NOT EXISTS(SELECT 1 FROM industry_auto_shipments a WHERE a.shipment_id=t.id)"
+                :"SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=?";
+        try(var s=connection.prepareStatement(haulingSql)) {
+            s.setString(1,origin.settlementId().toString());s.setLong(2,haulWindow==null?period:haulWindow);
+            try(var r=s.executeQuery()) { while(r.next())dispatched=Math.addExact(dispatched,r.getLong(1)); }
+        }
+        if(Math.addExact(dispatched,units)>haulCapacity)throw new SQLException("Local haul capacity exhausted for this period");
+        var from=store(seller).orElseThrow(()->new SQLException("Seller store missing"));
+        var to=store(buyer).orElseThrow(()->new SQLException("Buyer store missing"));
+        Long size=to.spacePerUnit().get(commodity);
+        if(size==null || Math.multiplyExact(size,units)>to.freeSpace())throw new SQLException("Destination lacks supported free storage");
+        if(from.units().getOrDefault(commodity,0L)<units)throw new SQLException("Seller lacks actual goods");
+        if(to.hundredths()<price)throw new SQLException("Buyer lacks purchasing funds");
+        changeStock(seller,commodity,-units);setCapital(buyer,to.hundredths()-price);setCapital(seller,Math.addExact(from.hundredths(),price));
+        save(operation,terms,units,"Actual local goods purchase; paid "+price+" hundredths; cargo reserved until period "+due);
+        try(var s=connection.prepareStatement("INSERT INTO local_shipments(id,seller_id,buyer_id,commodity,units,price,dispatched_period,due_period) VALUES(?,?,?,?,?,?,?,?)")) {
+            s.setString(1,operation.toString());s.setString(2,seller.toString());s.setString(3,buyer.toString());s.setString(4,commodity.id());
+            s.setLong(5,units);s.setLong(6,price);s.setLong(7,period);s.setLong(8,due);s.executeUpdate();
+        }
+        if(haulWindow!=null)try(var s=connection.prepareStatement("INSERT INTO industry_auto_shipments VALUES(?,?,?)")) {
+            s.setString(1,operation.toString());s.setString(2,buyer.toString());s.setLong(3,haulWindow);s.executeUpdate();
+        }
+        return shipment(operation).orElseThrow();
     }
 
     /** No early/duplicate delivery. Pending space becomes real stock in the same transaction. */
     public Shipment deliver(UUID operation,long period) throws SQLException {
         if(period<0)throw new IllegalArgumentException("Negative delivery period");
-        return transaction(()-> {
-            var cargo=shipment(operation).orElseThrow(()->new SQLException("Unknown shipment"));
-            if(cargo.deliveredPeriod()!=null)return cargo;
-            if(period<cargo.duePeriod())throw new SQLException("Cargo has not arrived");
-            changeStock(cargo.buyer(),cargo.commodity(),cargo.units());
-            try(var s=connection.prepareStatement("UPDATE local_shipments SET delivered_period=? WHERE id=? AND delivered_period IS NULL")) {
-                s.setLong(1,period);s.setString(2,operation.toString());if(s.executeUpdate()!=1)throw new SQLException("Shipment changed during delivery");
-            }
-            store(cargo.buyer()).orElseThrow();return shipment(operation).orElseThrow();
-        });
+        return transaction(()->deliverRows(operation,period));
+    }
+    Shipment deliverRows(UUID operation,long period) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Shipment rows require active SQL owner transaction");
+        if(period<0)throw new IllegalArgumentException("Negative delivery period");
+        var cargo=shipment(operation).orElseThrow(()->new SQLException("Unknown shipment"));
+        if(cargo.deliveredPeriod()!=null)return cargo;
+        if(period<cargo.duePeriod())throw new SQLException("Cargo has not arrived");
+        changeStock(cargo.buyer(),cargo.commodity(),cargo.units());
+        try(var s=connection.prepareStatement("UPDATE local_shipments SET delivered_period=? WHERE id=? AND delivered_period IS NULL")) {
+            s.setLong(1,period);s.setString(2,operation.toString());if(s.executeUpdate()!=1)throw new SQLException("Shipment changed during delivery");
+        }
+        store(cargo.buyer()).orElseThrow();return shipment(operation).orElseThrow();
     }
 
     /** Real abstract use, with caller-established demand/reason; no fake NPC shopper or unlimited spending. */

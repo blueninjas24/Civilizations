@@ -4,8 +4,15 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 666 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 681 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
+
+Latest industry step: an existing workshop can pay a local warehouse for actual
+materials, wait for delivery and make tool supplies. It cannot spend money twice
+after a restart or use goods still in transit. The real Paper application check
+passed. Automatic creation of these nonfood businesses and upstream supply are
+still unfinished, so Phase 3 remains one of four complete groups (25%). Settings
+are editable; old files opt in. See WORKSHOP_SUPPLIES.md.
 
 Latest Phase 3 step: villages can automatically start a funded farm, hire real
 residents and produce food from their observed fields. Owners, workers and sites

@@ -93,6 +93,8 @@ public final class IndustryRuntime {
                 }
             }
             var industry=new IndustryRepository(connection);
+            var supplies=new WorkshopSupplies(connection);
+            int arrived=supplies.deliverRows(id,period);
             var operation=UUID.nameUUIDFromBytes(("civilizations:timed-industry-v1:"+id+":"+period).getBytes(StandardCharsets.UTF_8));
             if(!ownerAvailable)reason="Paused: owner unavailable; inheritance not assumed";
             else if(clock.industry().equals("mining")) {
@@ -105,9 +107,13 @@ public final class IndustryRuntime {
                         policy.mining().batchesPerWorker(),policy.mining().siteBatchCapacity()).explanation();
             } else {
                 var recipe=policy.recipes().values().stream().filter(r->r.industry().equals(clock.industry())).findFirst();
-                reason=recipe.isEmpty()?"Paused: no configured industry recipe"
-                        :industry.processRows(operation,id,recipe.orElseThrow(),recipe.orElseThrow().siteCapacity(),period).receipt().explanation();
+                if(recipe.isEmpty())reason="Paused: no configured industry recipe";
+                else {
+                    String supply=supplies.acquireRows(id,recipe.orElseThrow(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),policy.supply(),policy.mining());
+                    reason=supply+"; "+industry.processRows(operation,id,recipe.orElseThrow(),recipe.orElseThrow().siteCapacity(),period).receipt().explanation();
+                }
             }
+            reason="Owned cargo delivered: "+arrived+"; "+reason;
             try(var s=connection.prepareStatement("INSERT INTO industry_runtime_history VALUES(?,?,?)")) {
                 s.setString(1,id.toString());s.setLong(2,period);s.setString(3,reason.substring(0,Math.min(1024,reason.length())));s.executeUpdate();
             }

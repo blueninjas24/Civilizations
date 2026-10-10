@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 35;
+    static final int CURRENT_VERSION = 36;
 
     @FunctionalInterface
     interface Migration {
@@ -390,6 +390,20 @@ final class SchemaMigrator {
                                 observed_ms INTEGER NOT NULL CHECK(typeof(observed_ms)='integer' AND observed_ms>=0)
                             )
                             """);
+                },
+                connection -> {
+                    execute(connection,"CREATE UNIQUE INDEX shipment_buyer_identity ON local_shipments(id,buyer_id)");
+                    execute(connection,"""
+                            CREATE TABLE industry_auto_shipments (
+                                shipment_id TEXT PRIMARY KEY NOT NULL,
+                                clock_business_id TEXT NOT NULL REFERENCES industry_runtime(business_id),
+                                haul_window INTEGER NOT NULL CHECK(typeof(haul_window)='integer' AND haul_window>=0),
+                                FOREIGN KEY(shipment_id,clock_business_id) REFERENCES local_shipments(id,buyer_id)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX auto_shipment_clock ON industry_auto_shipments(clock_business_id,shipment_id)");
+                    execute(connection,"CREATE INDEX auto_shipment_haul ON industry_auto_shipments(haul_window,shipment_id)");
+                    execute(connection,"CREATE INDEX pending_local_shipments_buyer ON local_shipments(buyer_id,due_period,id) WHERE delivered_period IS NULL");
                 }
         ));
     }
@@ -523,6 +537,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"industry_runtime_history",Set.of("business_id","period","explanation"));
                 requireColumns(connection,"industry_runtime_tuning",Set.of("sequence","business_id","after_period","old_cadence","new_cadence","discarded_remainder","observed_ms"));
             }
+            if(migrations.size()>=36)requireColumns(connection,"industry_auto_shipments",Set.of("shipment_id","clock_business_id","haul_window"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

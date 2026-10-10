@@ -4,9 +4,10 @@ import java.util.*;
 
 /** Editable timed work for existing funded firms; no automatic founding or invented buyers. */
 public record IndustryRuntimePolicy(boolean enabled, long millisPerPeriod, int businessesPerPulse,
-                                    IndustryPolicy mining, Map<String,ProductionRecipe> recipes) {
+                                    IndustryPolicy mining, Map<String,ProductionRecipe> recipes, WorkshopSupplyPolicy supply) {
     public IndustryRuntimePolicy {
         Objects.requireNonNull(mining); recipes = Map.copyOf(recipes);
+        Objects.requireNonNull(supply);
         if (millisPerPeriod < 1000 || millisPerPeriod > 86_400_000 || businessesPerPulse < 1 || businessesPerPulse > 64)
             throw new IllegalArgumentException("Industry cadence must be 1000..86400000 ms; pulse budget 1..64");
         var industries = new HashSet<String>();
@@ -15,6 +16,9 @@ public record IndustryRuntimePolicy(boolean enabled, long millisPerPeriod, int b
             if (!e.getKey().equals(e.getValue().id()) || e.getValue().industry().equals("mining") || !industries.add(e.getValue().industry()))
                 throw new IllegalArgumentException("One named runtime recipe per non-mining industry required");
         }
+    }
+    public IndustryRuntimePolicy(boolean enabled,long millisPerPeriod,int businessesPerPulse,IndustryPolicy mining,Map<String,ProductionRecipe> recipes) {
+        this(enabled,millisPerPeriod,businessesPerPulse,mining,recipes,WorkshopSupplyPolicy.disabled());
     }
     public static IndustryRuntimePolicy disabled() {
         return new IndustryRuntimePolicy(false,30_000,8,IndustryPolicy.prototype(),Map.of());

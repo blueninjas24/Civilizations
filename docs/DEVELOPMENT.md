@@ -1,5 +1,16 @@
 # Development and recovery procedures
 
+WorkshopSupplyProbe.java is another test-only plugin, name
+CivilizationsWorkshopSupplyProbe, main WorkshopSupplyProbe, API 1.21, dependent on
+Civilizations. Compile/package separately as described below. Only the marked
+localhost disposable server with no players is accepted. The fixture uses its own
+SQLite database and actual PopulationSession owner, explicit synthetic businesses,
+depleted mined materials, real capital and an unloaded site; no world changes.
+It checks paid orders, delayed usable inputs, tools, absence/restart and conserved
+funds. Stop normally, inspect integrity/FKs and retained main settings/state, then
+archive the probe outside plugins. Never install it in the player test server.
+See WORKSHOP_SUPPLIES.md for settings, migration and current gameplay limits.
+
 This guide supports Phase 1; it does not establish new gameplay rules or claim
 a Paper smoke test has been completed.
 

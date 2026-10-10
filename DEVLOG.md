@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## October 9, 2026 — paid automatic workshop inputs
+
+Branch `codex/phase3-workshop-supply-planning`. Added deterministic complete-bundle
+planning, editable supply policy/base-price adapter and SQL-owner automatic local
+purchases/deliveries inside timed recipe periods. Only actual warehouse stock,
+buyer funds, eligible labor, reserved storage and bounded transport; no fake buyers,
+grant, payroll, world changes or new firms. Deterministic receipts protect once-only
+payments. Entire period rollback includes cargo, money and material work. Legacy
+shipments retain their original schedule and independent quota namespace. Already
+owned automatic cargo arrives even with new supply off or owner unavailable.
+
+Schema 36 adds buyer-clock cargo identity with compound foreign key and query
+indexes. No legacy backfill or stock/fund/history change. Fifteen new cases;
+focused 84 passed; complete Windows Wrapper clean verify passed 681 (679 unit/two
+packaged integration), zero failures/errors/skips. Initial focused run exposed
+duplicate test site coordinates; corrected the fixture without changing application
+identity constraints. Actual Paper application probe passed two delayed tool batches,
+four cargo records, conserved treasury/business capital, world absence and restart.
+Synthetic separate database/unloaded sites, no blocks/entities/tickets/player data.
+Stopped dev schema 35 backup retained; native 35->36 comparisons passed, clean-stop
+timestamp refreshed as expected, integrity/FKs healthy. Normal stop exited 0; test
+probe archived. Updated only the stopped separate player-test plugin JAR.
+
+Docs/settings/domain/runtime/repository/migration/tests/native probe updated.
+Phase 3 still 25%; automatic nonfood founding/upstream supply, other primary
+industries, actual finished-goods demand and lifecycle/specialization remain.
+No main merge/push. Succession decision remains pending, not assumed.
+
 ## October 9, 2026 — timed existing industry operation
 
 Branch `codex/phase3-timed-industry-runtime`. Existing funded/staffed mines and

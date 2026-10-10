@@ -38,6 +38,10 @@ Updated October 9, 2026. Reporting progress remains one of four complete groups
       unloaded data-only work; verify failure isolation and actual session on Paper.
 - [ ] Automatically select/fund/staff nonfood industries under editable settings.
 - [ ] Connect real local customers and recipes; demand-based reserves, no fake buyers.
+- [x] Existing workshops automatically buy complete affordable recipe inputs from
+      actual local warehouse stock; verify payments, delayed cargo, input work,
+      rollback, legacy clock isolation, world pause and restart on real Paper.
+      Upstream warehouse stocking and actual finished-goods demand remain.
 - [ ] Add suitable renewable forestry/fishing opportunities and finite stone/sand
       production as scoped catalog/observation work; do not infer resources from a
       biome alone or claim ores beyond the implemented coal/iron catalog.

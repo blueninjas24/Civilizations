@@ -275,10 +275,19 @@ ore-provenance:
   additional-bulk-editor-plugins: []
 
 # Timed operation of existing funded/staffed mines and workshops. This does not
-# found firms or supply inputs. Missing old sections remain disabled until opted in.
+# found firms. Missing old sections remain disabled until opted in.
 # Online worlds earn time even with unloaded chunks; server/world absence pauses.
 # At most this many firms complete one earned period each per SQL-owner pulse.
 industry-runtime:
   enabled: true
   real-millis-per-period: 30000
   businesses-per-pulse: 8
+
+# Existing workshops buy actual recipe inputs from local owned warehouse stock.
+# Uses prices.base-trade-value above; paid cargo arrives after local-delivery-periods.
+# No new money or suppliers. Larger buffers still require funds, labor and space.
+# Missing old sections remain disabled; paid automatic cargo still arrives.
+industry-supply:
+  enabled: true
+  input-periods: 2
+  warehouses-per-review: 16

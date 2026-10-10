@@ -1,6 +1,36 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Automatic nonfood founding, local purchasing/customer connections, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+
+## October 9, 2026 — paid automatic workshop inputs
+
+Branch `codex/phase3-workshop-supply-planning`. Existing staffed/funded workshops
+now buy complete affordable recipe bundles from actual same-village warehouse
+stock, pay once, reserve cargo space, wait for delivery and consume owned inputs.
+No invented supplier, income, finished-goods customer or automatic founding.
+New-file supply defaults: enabled, two periods of inputs, 16 warehouses reviewed;
+prices reuse editable base Trade Value. Old files without industry-supply remain
+disabled. Already paid automatic cargo still arrives when new purchasing is off.
+Legacy cargo counts for ordering but retains its original delivery caller/clock.
+Transport uses bounded shared windows rather than unrelated buyer period numbers.
+
+Schema 36 binds automatic shipments to the actual buyer's saved clock, preserving
+existing funds, stock, reserves, owners, history and legacy cargo. Payments,
+arrivals, recipe work and checkpoint share rollback/retry boundaries. Fifteen new
+cases: seven planner, seven temporary SQLite, one config. Focused 84 passed;
+Windows Wrapper clean verify passed 681 (679 unit/two packaged integration), zero
+failures/errors/skips. Guarded actual PopulationSession Paper probe passed four
+paid cargo records, two tool units, conserved 9000 treasury/1000 business funds,
+world pause and restart; unloaded synthetic sites, separate DB, no world writes.
+Native main 35->36 retained industry/settings and clean/trusted provenance; only
+the normal clean-stop timestamp refreshed. Integrity/FKs passed, normal stop 0,
+probe archived. Updated the stopped separate player server's plugin JAR only;
+its existing optional supply settings still require opt-in if absent.
+
+Phase 3 remains 1/4 complete reporting groups (25%). Automatic nonfood founding,
+upstream warehouse supply, renewable/primary industries, finished-goods demand,
+lifecycle/succession and specialization remain. Ownership answer remains pending;
+it blocks succession only. See WORKSHOP_SUPPLIES.md and PHASE3_TODO.md.
 
 ## October 9, 2026 — timed existing industry operation
 
