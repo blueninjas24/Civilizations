@@ -52,6 +52,14 @@ Updated October 9, 2026. Reporting progress remains one of four complete groups
 
 ## 3. Business lifecycle and competition — pending
 
+Approved October 9: eligible industry-qualified family first, then a qualified
+employee, otherwise an affordable qualified sale with configurable valuation and
+deadline. Save proceeds in a separate family estate fund; failed sale closes
+operation but preserves assets/site/history. Separate immutable founder from current
+owner before implementing transfer. Test qualification, capital conservation,
+retry/rollback/restart, estate eligibility and no invented funds. Suitable vacant
+premises are preferred; physical building reuse remains Phase 4.
+
 - [ ] Explainable pause/closure/reassessment and competition for workers/capital.
 - [ ] Preserve closed firms, sites, inventories and employment history.
 - [ ] Tested ownership succession with explicit recipient eligibility and accounting.

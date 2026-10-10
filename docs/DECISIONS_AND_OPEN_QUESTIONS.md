@@ -26,20 +26,26 @@ and resource rules; Phase 4 supplies physical excavation/layouts/work points; re
 transport remains Phase 5 and physical deterioration/disasters follow later gates.
 The canonical nine-phase roadmap is unchanged. See PHASE3_TODO.md.
 
-Ownership succession was asked separately: pass a deceased owner's business first
-to an eligible adult family member, then an eligible existing employee, otherwise
-pause/close while retaining site, stock, funds and history; or defer ownership to
-admin choice. No answer is assumed. This consequential ownership rule blocks its
-own lifecycle implementation, not resource capture or other independent work.
+October 9 playtest decisions, approved but not yet implemented:
 
-Before automatic mine selection, clarify player removal of ore that supports a
-saved deposit. Proposed: pause the affected reserve while retaining its identity,
-goods, funds and history, until further natural evidence permits work. Alternative:
-continue the already discovered finite abstract pool. This controls whether work
-can continue after its visible source is gone; no answer is assumed and existing
-reserve behavior has not been changed. Native placement/piston/editor safeguards
-do not establish this depletion policy. The question is pending with the user;
-read-only wider observation can proceed independently.
+- Succession first selects eligible, industry-qualified family, then a qualified
+  existing employee. Kinship never bypasses age/skill/occupation requirements;
+  a miner does not become a qualified shopkeeper just by inheriting.
+- With no qualified successor, the family tries to sell to an eligible, qualified
+  villager who can actually afford the purchase. Approved configurable prototype
+  prices and sale deadline; proceeds belong to a persistent family estate fund,
+  separate from village money, for later eligible family business investment.
+  No successful sale by the deadline closes the business. Closure ends operation,
+  not its saved identity/history or physical building; retain remaining assets.
+- Businesses and households prioritize available suitable vacant premises before
+  new construction. Reuse depends on needs, capacity, condition and permission;
+  vacancy alone never justifies an unsuitable move or modifying player buildings.
+  Physical building evaluation/reuse/construction remains Phase 4 work.
+- Player-mined supporting ore loses only that coordinate's source, not the whole
+  connected vein. Future work must preserve already extracted goods and history,
+  avoid double loss, and prevent removal/replacement/revisit from refilling reserves.
+  Per-source reserve attribution and break capture need implementation and tests;
+  current reserve behavior has not yet changed under this approval.
 
 Schema 37's cadence-aware hauling is an engineering correction under the approved
 editable economy authority. Rate/window identify different actual transport times;
@@ -71,8 +77,9 @@ work consumes real saved reserves/ingredients with actual employees/storage; no
 new funding grants or invented consumers. World/server absence pauses. Existing
 clocks/history survive restart; cadence changes require an empty queue and retain
 a transition record. Work/input changes, receipt/history/checkpoint are atomic.
-Owner unavailability defers operation without selecting an heir. Succession remains
-unanswered. Automatic opportunities/founding, purchasing/customer demand and wider
+Owner unavailability currently defers operation without selecting an heir. Qualified
+succession/resale rules are now approved above, but not implemented. Automatic
+opportunities/founding, purchasing/customer demand and wider
 industry coverage still need scoped work. See TIMED_INDUSTRY.md.
 
 ## October 9, 2026 — approved exposed existing ore prototype

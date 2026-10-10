@@ -52,12 +52,19 @@ Explain output should show candidate feasibility, top contributing factors, sele
 - Civ-to-Civ shipments are abstract and update both parties/route state. Nearby caravans are occasional visible evidence, not mandatory entities traveling entire routes.
 
 ## Buildings and infrastructure
+- Approved October 9: households and businesses consider suitable permitted vacant
+  premises before new construction. Capacity/condition/function must meet needs;
+  retained vacancy does not license unsuitable occupation or player-build changes.
 - Projects require need/opportunity, feasible site, resources, labor and funding. Road access generally precedes construction. Buildings emerge in stages over gameplay-relevant time.
 - Geography imposes construction cost: mild grading possible, major terrain generally detoured/terraced/bridged/tunneled with appropriate resources.
 - Buildings and roads have persistent ownership/condition/importance. Maintenance deficits can cause gradual physical decay of Civ-owned blocks, never unapproved player builds.
 - Roads improve with actual traffic and economic importance; no modern asphalt highways or vehicles.
 
 ## History, diplomacy and crisis
+- Approved October 9: qualified eligible family, then qualified employees, may
+  succeed an owner. Otherwise attempt an affordable qualified sale with editable
+  valuation/deadline and separate persistent family estate proceeds. Failure closes
+  operation while preserving business/site/remaining assets/history. Not implemented yet.
 - Every notable event is structured with time, entity IDs, type and context. Significance derives from outcomes, not a direct random “legendary” roll.
 - Neutral relations are common. Friendly/hostile shifts arise from aid, trade, resource disputes, disruption or attacks. Escalation to conflict is rare and contextual.
 - Trajectory labels are computed descriptions. Mine depletion can cause unemployment→emigration→closures→maintenance decline; new industry, trade or player help can reverse it.

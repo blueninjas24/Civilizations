@@ -82,10 +82,12 @@ public final class Civilizations extends JavaPlugin {
             var router=new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
                     new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining,barterCommand);
             command.setExecutor(router);command.setTabCompleter(router);bargaining.runTaskTimer(this,1,1);
-            barterCommand.runTaskTimer(this,1,1);barters.runTaskTimer(this,20,100);
+            // Poll completed transfer stages promptly; each adapter still caps work at four players.
+            // Five-second polling multiplied the wait across save/ledger stages during playtesting.
+            barterCommand.runTaskTimer(this,1,1);barters.runTaskTimer(this,20,5);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.FoodAidMenu(this,population,aid,previewPolicy,purchases),this);
-            aid.runTaskTimer(this,20,100);
-            purchases.runTaskTimer(this,20,100);
+            aid.runTaskTimer(this,20,5);
+            purchases.runTaskTimer(this,20,5);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
             population.configureOreTracking();
             population.configureIndustryRuntime(EconomyConfiguration.readIndustryRuntime(economyConfig));

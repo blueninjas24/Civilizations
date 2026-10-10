@@ -2,9 +2,17 @@
 
 Updated October 9, 2026. Based on verified work, not planned features.
 
+Human playtest passed: villages register residents, bread donations remove the right
+items, food sales pay the agreed emeralds, and villagers remain saved after restart.
+The reported slow trade confirmation now has a tested shorter polling interval;
+the updated JAR is installed, with actual human response-time recheck pending. Normal food
+speed has been restored after the accelerated test. Inheritance, resale, vacant
+building reuse and individual ore-source loss now have approved rules; implementation
+is next. These approvals do not complete another Phase 3 milestone.
+
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 691 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 692 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments
@@ -16,7 +24,8 @@ complete reporting group, with connected industry work partly implemented.
 Villages can now look for exposed coal/iron in nearby already-loaded chunks,
 instead of just the home chunk. Bounded observation preserves capture time and
 keeps the last result readable. Actual Paper checks passed. This does not start
-mines yet; resource removal and funding rules must be settled before that work.
+mines yet; per-block resource loss is now approved, while funded opportunity
+selection and safe source-retirement implementation remain unfinished.
 The current player build is ready for farms, families and food trade testing.
 
 Latest industry step: an existing workshop can pay a local warehouse for actual

@@ -1,5 +1,13 @@
 # Current prototype: a short player checklist
 
+October 9 human client checks passed recognition, bread donation, emerald food sale
+with exact inventory changes, and resident persistence after normal restart. Broader
+barter/bargaining/compatibility coverage remains pending. The reported ~15-second
+sale wait exposed five-second stage polling; the follow-up build polls each transfer
+adapter every five ticks, retaining proof/ledger gates. Actual new-build human latency
+still needs a recheck. Default food accounting is 60 seconds/period; a temporary
+10-second test interval was restored after the playtest. Population speed is separate.
+
 The prepared local test folder is under Windows %LOCALAPPDATA%\Temp, with a name
 starting civilizations-phase3-player-test-. Double-click START-PLAYTEST.cmd there,
 wait for the server to say Done, and join from Java Minecraft 26.2 using

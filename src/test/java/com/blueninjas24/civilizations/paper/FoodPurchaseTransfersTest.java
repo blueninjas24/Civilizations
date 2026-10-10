@@ -90,8 +90,12 @@ class FoodPurchaseTransfersTest {
         now.set(61000);session.pulse().get(5,TimeUnit.SECONDS);return town;
     }
     private FoodPurchaseTransfers transfer(PopulationSession session,FoodPurchases.Policy policy){
+        var server=(Server)Proxy.newProxyInstance(getClass().getClassLoader(),new Class<?>[]{Server.class},(p,m,a)->{
+            if(m.getName().equals("getOnlinePlayers"))return List.of(player());throw new AssertionError(m.getName());
+        });
         var plugin=(Plugin)Proxy.newProxyInstance(getClass().getClassLoader(),new Class<?>[]{Plugin.class},(p,m,a)->{
-            if(m.getName().equals("getLogger"))return Logger.getLogger("PurchaseTransfers");throw new AssertionError(m.getName());
+            if(m.getName().equals("getLogger"))return Logger.getLogger("PurchaseTransfers");
+            if(m.getName().equals("getServer"))return server;throw new AssertionError(m.getName());
         });
         return new FoodPurchaseTransfers(plugin,session,FoodAidPreview.Policy.prototype(),policy,directory.resolve("players"),count->new Plain(Material.EMERALD,count));
     }
@@ -155,6 +159,19 @@ class FoodPurchaseTransfersTest {
             assertEquals(2400,session.economyView().get(town).treasury().hundredths());assertEquals(1,session.economyView().get(town).foodAid().pendingDeliveries());
             now.set(121000);session.pulse().get(5,TimeUnit.SECONDS);
             assertEquals(8,session.economyView().get(town).latest().reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().imports());
+        }
+    }
+    @Test void frequentScheduledPollingPreservesSinglePaymentAndVerifiedCompletion()throws Exception{
+        try(var session=session();var transfer=transfer(session,FoodPurchases.Policy.prototype())){
+            var town=enroll(session);var player=player();assertTrue(transfer.sell(player,town,held.clone(),3));
+            long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+            while(data.containsKey(FoodPurchaseTransfers.KEY)&&System.nanoTime()<deadline){transfer.run();Thread.sleep(5);}
+            assertFalse(data.containsKey(FoodPurchaseTransfers.KEY),"Scheduled transfer did not finish: "+messages);
+            for(int i=0;i<20;i++)transfer.run();
+            assertEquals(1,exchanges);assertEquals(Material.EMERALD,held.getType());assertEquals(3,held.getAmount());
+            assertEquals(2400,session.economyView().get(town).treasury().hundredths());
+            assertEquals(1,session.economyView().get(town).foodAid().pendingDeliveries());
+            assertEquals(1,messages.stream().filter(m->m.startsWith("Trade confirmed:")).count());
         }
     }
     @Test void failedPreparedSaveCannotReserveDebitOrPayUntilVerified()throws Exception{

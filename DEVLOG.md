@@ -1,5 +1,31 @@
 # Civilizations Development Log
 
+## October 9, 2026 — human playtest follow-up
+
+Branch `codex/playtest-trade-responsiveness`. User verified village recognition,
+two-bread donation/six food units, two-bread sale/three emeralds and exact inventory
+effects, plus persistent residents after normal restart. A legacy unbound dev town
+blocked enrollment; approved stopped-server database archive retained the original
+file with verified hash and preserved world/settings. No world deletion or implicit
+legacy adoption. Temporary 10-second food pacing restored to default 60 seconds
+with config backup; no database/world edit during pace changes.
+
+Found a five-second poll interval at each asynchronous purchase/recovery stage,
+consistent with the reported ~15-second wait. Reduced aid/purchase/barter polling
+to five ticks, preserving each adapter's four-player cap, SQL/save proof gates and
+main-thread inventory operations. New repeated scheduled-run test verifies a single
+exchange/debit/pending food delivery and confirmation; focused transfer suite 29 passed.
+Windows Wrapper clean verify passed 692 (690 unit/two packaged integration), zero
+failures/errors/skips. Installed verified JAR in stopped user dev server after old
+artifact backup; saved database/settings fingerprints unchanged during installation.
+Actual new-build human response time still needs checking. No schema migration.
+
+Recorded approvals: eligible qualified family, then employee succession; affordable
+qualified resale with editable price/deadline and family estate fund; unsuccessful
+sale closes operation while retaining site/assets/history. Prefer suitable permitted
+vacancies before construction. Player mining removes only the affected ore source.
+These are planned, not implemented. No main merge/push; Phase 3 remains 25%.
+
 ## October 9, 2026 — cadence-aware local hauling
 
 Branch `codex/phase3-haul-clock-retuning`. Reproduced a genuine speed-tuning bug:

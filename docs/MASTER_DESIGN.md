@@ -62,6 +62,15 @@
 - Founding requires plausible working age, skill/experience, capital/resources and opportunity. Businesses can thrive, compete abstractly, expand, shrink, close, change owners, pass to family/employees, relocate or be repurposed.
 - Rare multi-settlement firms can emerge as significant historical exceptions. Closed buildings remain for reuse, preservation, decay or demolition.
 
+October 9 approved lifecycle clarification (planned): eligible industry-qualified
+family inherits first, then a qualified employee; otherwise family attempts a paid
+sale to a qualified affordable buyer under editable prices/deadline. Proceeds stay
+in a separate persistent family estate fund for later eligible business investment.
+Unsuccessful sale closes operation while retaining site, assets and history.
+Businesses/families prefer suitable vacant premises before new construction.
+Player removal of supporting ore retires only the mined coordinate's source,
+preserving the rest of the vein and already extracted goods without regeneration.
+
 ### October 9 industry development clarification
 
 Resource development is bounded and suitable to its location across industries,

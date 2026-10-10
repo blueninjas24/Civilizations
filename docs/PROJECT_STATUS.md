@@ -1,6 +1,38 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. A human client verified recognition, donations, emerald sales and resident restart persistence; broader inventory-plugin compatibility, barter/bargaining client coverage and survival balancing remain validation limits. This is not a balanced release.
+
+## October 9, 2026 — human playtest and trade responsiveness
+
+Human playtest passed village recognition (seven imported residents), a two-bread
+donation worth six food units, and a two-bread sale for three emeralds with correct
+inventory changes. Normal restart retained six living residents; the log recorded
+one prior native zombie death. Old unbound legacy development settlement data
+initially blocked enrollment; with the server stopped and user approval, its database
+was archived and fingerprint-verified, preserving world and settings. Existing
+populated saves are not generally disposable. Economy speed temporarily changed
+60 -> 10 seconds for testing and restored to 60 while stopped, with config backups.
+
+The observed roughly 15-second trade wait matches five-second polling across
+multiple asynchronous proof/ledger stages. Purchase, barter and donation adapters
+now poll every five ticks (250 ms at 20 TPS), retaining four-player work caps,
+main-thread inventory handling and verified-save/SQL recovery checks. This reduces
+scheduler-induced waits; disk/SQL load and player count still affect actual latency.
+Focused transfer verification passed 29 cases, including a new real scheduled-run
+path case proving one payout, debit, delivery and confirmation under repeated polls.
+Windows Wrapper clean verify passed 692 tests (690 unit/two packaged integration),
+zero failures/errors/skips. Updated JAR installed while the user's dev server was
+stopped; previous JAR backed up, installation hash verified, database/settings
+fingerprints unchanged. User-client confirmation timing on this build remains pending.
+Schema remains 37; this fix changes no saved transfer format or database schema.
+
+Qualified family -> qualified employee -> affordable qualified sale -> closure is
+approved, with editable valuation/deadline and a separate persistent family estate
+fund. Suitable permitted vacant premises take priority over new construction;
+physical reuse is Phase 4. Player-mined ore retires only the affected coordinate's
+source, not the full vein. These rules are recorded but not yet implemented.
+Next: immutable founder/current-owner separation, tested succession/resale accounting
+and per-coordinate reserve retirement. Phase 3 remains 1/4 reporting groups (25%).
 
 ## October 9, 2026 — transport clock retuning safeguard
 
