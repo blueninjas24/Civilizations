@@ -1,6 +1,6 @@
-# Civilizations â€” implementation status and handoff
+# Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 10, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, automatic resale buyers, wider competition and specialization remain unfinished. Qualified succession, paid resale, retained unsold closure and actual employee work learning are verified. Phases 4â€“9 remain planned. A human client verified recognition, donations, emerald sales and resident restart persistence; broader inventory-plugin compatibility, barter/bargaining client coverage and survival balancing remain validation limits. This is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 10, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, automatic resale buyers, wider competition and specialization remain unfinished. Qualified succession, paid resale, retained unsold closure and actual employee work learning are verified. Phases 4–9 remain planned. A human client verified recognition, donations, emerald sales and resident restart persistence; broader inventory-plugin compatibility, barter/bargaining client coverage and survival balancing remain validation limits. This is not a balanced release.
 
 
 ## October 10, 2026 — learning from actual productive work
@@ -28,7 +28,7 @@ automatic sale valuation/buyers remain unfinished. Phase 3 stays 1/4 reporting g
 (25%); this verified component advances work inside an unfinished group.
 
 
-## October 9, 2026 â€” qualified business succession
+## October 9, 2026 — qualified business succession
 
 Latest follow-on: unsold expiry now records retained closure and releases all open
 jobs atomically after qualified inheritance review. Expired firms stop new work
@@ -117,7 +117,7 @@ Automatic resale, closure/competition, per-block resource retirement and
 automatic wider industries remain upcoming. Buyer estate/business spare-cash sources
 with configurable limits are approved. Phase 3 remains 1/4 complete groups (25%).
 
-## October 9, 2026 â€” human playtest and trade responsiveness
+## October 9, 2026 — human playtest and trade responsiveness
 
 Human playtest passed village recognition (seven imported residents), a two-bread
 donation worth six food units, and a two-bread sale for three emeralds with correct
@@ -149,7 +149,7 @@ source, not the full vein. These rules are recorded but not yet implemented.
 Next: immutable founder/current-owner separation, tested succession/resale accounting
 and per-coordinate reserve retirement. Phase 3 remains 1/4 reporting groups (25%).
 
-## October 9, 2026 â€” transport clock retuning safeguard
+## October 9, 2026 — transport clock retuning safeguard
 
 Branch `codex/phase3-haul-clock-retuning`. A reproduced bug made an old shipment
 falsely exhaust today's transport after industry speed changed: window numbers
@@ -179,11 +179,11 @@ other industries, lifecycle and specialization remain. Pending ore-removal and
 ownership choices precede their corresponding mine/lifecycle work. No main merge
 or push. See TONIGHT_PLAYTEST.md and WORKSHOP_SUPPLIES.md.
 
-## October 9, 2026 â€” nearby resource observation
+## October 9, 2026 — nearby resource observation
 
 Branch `codex/phase3-nearby-resource-surveys`. Bounded center-first loaded-chunk
 surveys now extend around saved village homes: new radius one (nine targets),
-editable 0â€“2, at most 25 targets/town and 1024 towns. Old enabled sections missing
+editable 0–2, at most 25 targets/town and 1024 towns. Old enabled sections missing
 the new key retain one home chunk; absent sections stay disabled. No chunk loading,
 extraction or automatic founding. Immutable evidence retains original capture
 time, not traversal completion time. Last completed explanations retain town,
@@ -206,7 +206,7 @@ Phase 3 remains 1/4 complete groups. Ore removal and succession decisions are
 pending before their corresponding automatic mine/lifecycle work. Wider survey
 coverage is an observation component, not completion of connected production.
 
-## October 9, 2026 â€” paid automatic workshop inputs
+## October 9, 2026 — paid automatic workshop inputs
 
 Branch `codex/phase3-workshop-supply-planning`. Existing staffed/funded workshops
 now buy complete affordable recipe bundles from actual same-village warehouse
@@ -236,7 +236,7 @@ upstream warehouse supply, renewable/primary industries, finished-goods demand,
 lifecycle/succession and specialization remain. Ownership answer remains pending;
 it blocks succession only. See WORKSHOP_SUPPLIES.md and PHASE3_TODO.md.
 
-## October 9, 2026 â€” timed existing industry operation
+## October 9, 2026 — timed existing industry operation
 
 Branch `codex/phase3-timed-industry-runtime`. Existing funded/staffed mines and
 workshops now execute bounded online work through PopulationSession's SQL owner.
@@ -280,7 +280,7 @@ local purchasing/customers, renewable/stone/sand coverage, lifecycle and special
 remain. Inheritance recipient choice remains pending. Local feature commit only;
 main unchanged, no merge/push.
 
-## October 9, 2026 â€” unsupported bulk-editor safeguard
+## October 9, 2026 — unsupported bulk-editor safeguard
 
 Branch `codex/phase3-editor-provenance-guard`. Installed WorldEdit/FAWE/VoxelSniper
 names and later enable events conservatively pause new ore discovery. Disabled
@@ -306,7 +306,7 @@ industry coverage, real customers, lifecycle and specialization remain. Successi
 needs the user's recipient choice before ownership implementation. Local feature
 commit only; no main merge/push.
 
-## October 9, 2026 â€” atomic funded mine startup
+## October 9, 2026 — atomic funded mine startup
 
 Branch `codex/phase3-atomic-mine-startup`. MiningStartupRepository now joins
 business/site founding, finite coordinate discovery, empty storage, actual working
@@ -333,7 +333,7 @@ complete automatic nonfood operation. Next: mutation compatibility safeguards an
 actual suitable, demand-backed opportunities. Ownership succession remains pending.
 Local feature commit only; no main merge/push.
 
-## Live read-only resource survey pipeline â€” October 9, 2026
+## Live read-only resource survey pipeline — October 9, 2026
 
 - Branch `codex/phase3-live-resource-surveys`: registered main-thread bounded
   snapshot traversal at the canonical saved-home chunk. One scan/future at a time,
@@ -357,7 +357,7 @@ Local feature commit only; no main merge/push.
   worker-backed nonfood chains; bulk-editor provenance remains separate. Ownership
   succession choice still pending. Local feature commit only; no main merge/push.
 
-## Bounded observed resource patches â€” October 9, 2026
+## Bounded observed resource patches — October 9, 2026
 
 - Branch `codex/phase3-resource-grouping`: complete bounded observations split into
   face-connected positive evidence, deterministic ordering/anchors, copied metadata
@@ -376,7 +376,7 @@ Local feature commit only; no main merge/push.
   RESOURCE_PATCHES/scanning/decisions/TODO/status/progress/devlog updated. Phase 3
   remains 1/4 (25%); local feature commit only, no main merge/push.
 
-## Conservative piston resource provenance â€” October 9, 2026
+## Conservative piston resource provenance — October 9, 2026
 
 - Branch `codex/phase3-piston-provenance`: successful extension/retraction saves
   moved ore sources and both possible adjacent axis destinations. Immutable bounded
@@ -400,7 +400,7 @@ Local feature commit only; no main merge/push.
   Next: coherent observation grouping, then safe observation and funded operation.
   Local feature commit only; no merge/push, main or production changes.
 
-## Live native ore placement capture and recovery fence â€” October 9, 2026
+## Live native ore placement capture and recovery fence — October 9, 2026
 
 - Branch `codex/phase3-live-ore-tracking`: registered MONITOR listener captures
   successful native ore placements/multi-place positions, ignoring cancelled,
@@ -441,7 +441,7 @@ Local feature commit only; no main merge/push.
   remains pending separately; no answer assumed. Local feature commits only, no
   merge/push, main or production save changes. Physical development remains Phase 4.
 
-## Resource provenance persistence and industry direction â€” October 9, 2026
+## Resource provenance persistence and industry direction — October 9, 2026
 
 - Branch `codex/phase3-resource-provenance`: recorded user-approved common industry
   direction: suitable sites, paid bounded exploration, timed non-1:1 output,
@@ -481,7 +481,7 @@ Local feature commit only; no main merge/push.
   Ownership succession preference was asked separately; no answer assumed. Physical
   works remain Phase 4; no merge/push, main or production save changes.
 
-## Approved exposed ore and bounded scanner â€” October 9, 2026
+## Approved exposed ore and bounded scanner — October 9, 2026
 
 - Branch `codex/phase3-exposed-ore-scan`: user approved exposed existing ore as
   finite prototype evidence, excluding newly tracked player placements. Unknown
@@ -509,7 +509,7 @@ Local feature commit only; no main merge/push.
   Local feature commit only; no merge/push or main modification. No user decision
   currently blocks that scoped work.
 
-## Coordinate-backed finite mineral identity â€” October 9, 2026
+## Coordinate-backed finite mineral identity — October 9, 2026
 
 - Branch `codex/phase3-mineral-identity`: bounded canonical coal/iron observations
   match deposits by permanent world/ore coordinates. Alternate sites cannot claim
@@ -541,7 +541,7 @@ Local feature commit only; no main merge/push.
   Phase 3 remains 1/4 (25%), with discovery identity advancing a partial group.
   No production mutation, merge/push or main change.
 
-## Connected workshop recipe accounting â€” October 9, 2026
+## Connected workshop recipe accounting — October 9, 2026
 
 - Branch `codex/phase3-workshop-production`: trusted SQL-owner processing consumes
   delivered business inputs and adds complete-batch outputs, bounded by actual
@@ -583,7 +583,7 @@ Local feature commit only; no main merge/push.
   nonfood resource/workplace adapters and causal operation. No new design question,
   production mutation, push/merge or main change.
 
-## Automatic field enterprises â€” October 9, 2026
+## Automatic field enterprises — October 9, 2026
 
 - Branch `codex/phase3-automatic-farms`: complete actual Paper crop evidence can
   establish one persistent village-wide field enterprise, select an available adult
@@ -623,7 +623,7 @@ Local feature commit only; no main merge/push.
   expansion, closure/succession, chains and specialization remain next scoped work.
   No user decision blocks the next milestone; no merge/push or main change.
 
-## Live business staffing bridge and diagnostics â€” October 9, 2026
+## Live business staffing bridge and diagnostics — October 9, 2026
 
 - Branch `codex/phase3-business-runtime`: existing businesses now receive owner-thread
   invalid-job reconciliation after population pulses. Dead/moved residents' episodes
@@ -654,7 +654,7 @@ Local feature commit only; no main merge/push.
   including preventing double-counted food/labor. Phase 3 remains partial (0/4 full
   gameplay groups); nine-phase roadmap unchanged. No design answer needed, no push/merge.
 
-## Approved server/world pause policy â€” October 9, 2026
+## Approved server/world pause policy — October 9, 2026
 
 - Branch `codex/online-world-pause`: live Paper earns no time during server downtime
   or for absent saved world UUIDs. Loaded worlds without players and unloaded chunks
@@ -688,7 +688,7 @@ Local feature commit only; no main merge/push.
   automatic founding/staffing/production using eligible economic periods. Human
   client/compatibility/balancing still pending. No design answer needed for this batch.
 
-## Finite mining and local warehouse accounting â€” October 9, 2026
+## Finite mining and local warehouse accounting — October 9, 2026
 
 - Branch `codex/phase3-deposits-storage`: finite site/deposit identity retains
   discovery terms and a geological ore/rock bundle. Explicit actual mining workers,
@@ -717,7 +717,7 @@ Local feature commit only; no main merge/push.
   storage/reservations, paid resale profits/total money, consumption, retry/rollback,
   impossible/stale actions, store funding, migration failure and independent snapshot
   cargo recovery. A 240-period chain conserves every coal/rock unit through
-  mineâ†’warehouseâ†’shopâ†’explicit input use; 10000 seeded calculations enforce limits.
+  mine→warehouse→shop→explicit input use; 10000 seeded calculations enforce limits.
 - Sixteen added cases; final Windows `.\mvnw.cmd clean verify -B -ntp` passed 522
   (520 unit/two packaged integration), zero failures/errors/skips. Initial focused
   compile found a test-only reused lambda variable, corrected before successful
@@ -738,7 +738,7 @@ Local feature commit only; no main merge/push.
   pause choice was pending; the subsequent approved pause batch supersedes it.
   Local commit only, no merge/push. See FINITE_MINING_AND_WAREHOUSING.md.
 
-## Phase 3 business and staffing foundation â€” October 9, 2026
+## Phase 3 business and staffing foundation — October 9, 2026
 
 - Branch `codex/phase3-business-foundation`: immutable business/site/founding and
   employment records retain real founder/initial owner/resident/site UUIDs. Explicit
@@ -780,7 +780,7 @@ Local feature commit only; no main merge/push.
   No new consequential answer is needed for this batch. Source roadmap unchanged;
   local feature-branch commit only, no merge/push. See BUSINESS_FOUNDATION.md.
 
-## Phase 2 prototype gate passed â€” October 9, 2026
+## Phase 2 prototype gate passed — October 9, 2026
 
 - Branch `codex/phase2-response-gate`: villages now save a seeded weighted preference
   among feasible donation requests, emerald offers, real timber/stone barter or wait.
@@ -815,9 +815,9 @@ Local feature commit only; no main merge/push.
   inventory-plugin/native-death/cross-save compatibility, profiling and survival
   balance remain release work. No industries/jobs, construction, regional suppliers,
   reputation or starvation deaths are invented. Next is Phase 3 businesses/industry;
-  Phases 3â€“9 remain planned. Earlier entries below are chronological batch snapshots.
+  Phases 3–9 remain planned. Earlier entries below are chronological batch snapshots.
 
-## Configurable saved food-priority learning â€” October 9, 2026
+## Configurable saved food-priority learning — October 9, 2026
 
 - Branch `codex/phase2-priority-learning`: prior verified deliveries can modestly
   reinforce SEEK_FOOD at a future scheduled review. Optional strict editable
@@ -852,7 +852,7 @@ Local feature commit only; no main merge/push.
   scope is explicit broader feasible-response comparison/execution explanations,
   rather than industry, building or regional supplier simulation from later phases.
 
-## Exact food import outcome evidence â€” October 9, 2026
+## Exact food import outcome evidence — October 9, 2026
 
 - Branch `codex/phase2-import-outcomes`: new plain-Java FoodImportImpact derives
   actual imports' marginal shortage relief and extra closing reserves from saved
@@ -880,7 +880,7 @@ Local feature commit only; no main merge/push.
   aggregate outcome evidence is now implemented; broader executed responses and
   bounded configurable learning from attributable action outcomes remain.
 
-## Playable finite-stock food barter â€” October 9, 2026
+## Playable finite-stock food barter — October 9, 2026
 
 - Branch `codex/phase2-player-barter`: `/civ barter timber|stone` previews a whole
   held food stack for current available oak logs/cobblestone; `/civ barter accept`
@@ -915,7 +915,7 @@ Local feature commit only; no main merge/push.
   human client/inventory-plugin/release balance stay outside the verified prototype.
   See PLAYER_BARTER.md. Next: feasible responses and explained outcome feedback.
 
-## Protected barter accounting â€” October 9, 2026
+## Protected barter accounting — October 9, 2026
 
 - Branch `codex/phase2-barter-accounting`: internal food-for-timber/stone quotes,
   exact goods reservations, cancellation and future food completion now use actual
@@ -943,7 +943,7 @@ Local feature commit only; no main merge/push.
   barter confirmation/recovery, broader responses/learning and balance remain.
   See BARTER_ACCOUNTING.md. Next: player-facing saved inventory exchange.
 
-## Saved emerald bargaining â€” October 8, 2026
+## Saved emerald bargaining — October 8, 2026
 
 - Branch `codex/phase2-food-bargaining`: `/civ bargain <emeralds>` proposes a price
   for a whole plain food stack; `/civ bargain accept` explicitly confirms the latest
@@ -973,7 +973,7 @@ Local feature commit only; no main merge/push.
   integrated balance/compatibility remain. Human client tests remain deferred.
   See FOOD_BARGAINING.md for behavior, configuration and limits.
 
-## Basic household wellbeing â€” October 8, 2026
+## Basic household wellbeing — October 8, 2026
 
 - Branch `codex/phase2-household-wellbeing`: occupied families now have a saved,
   explained basic food/housing welfare score and SECURE/PRESSURED/FOOD_CRISIS/UNKNOWN
@@ -1008,7 +1008,7 @@ Local feature commit only; no main merge/push.
   execution, barter/bargaining and balance/compatibility gates remain unfinished.
   No production data reset, main change, merge or push. See HOUSEHOLD_WELLBEING.md.
 
-## Budget-backed emerald food purchases â€” October 8, 2026
+## Budget-backed emerald food purchases — October 8, 2026
 
 - Branch `codex/phase2-purchase-accounting`: sneak-right-click a managed villager,
   then explicitly Sell a supported plain whole food stack. A hungry village pays
@@ -1037,7 +1037,7 @@ Local feature commit only; no main merge/push.
   Phase 2 remains 1/4 completed groups with substantial partial work. No production
   data reset, main change, merge or push. See FOOD_PURCHASES.md and ECONOMY_TUNING.md.
 
-## Configurable opening funds â€” October 8, 2026
+## Configurable opening funds — October 8, 2026
 
 - Branch `codex/phase2-configurable-opening-funds`: admins control one-time opening
   capital in the commented server economy.yml. New files enable 24.00 Trade Value
@@ -1066,7 +1066,7 @@ Local feature commit only; no main merge/push.
   Production JAR excludes probes/JUnit. No human client payment/bargaining test yet;
   no production data, main, merge or push changed.
 
-## Finance direction clarified â€” October 8, 2026
+## Finance direction clarified — October 8, 2026
 
 The user approved moderate initial finances as the starting basis, configurable
 opening capital, emerald payments and optional barter using contextual real stocks.
@@ -1076,7 +1076,7 @@ remain Phase 3; current housing and observed farm labor do not imply an employer
 Repeated entity loads/spawns must preserve finances rather than seed more capital.
 No numeric grant, exchange rate or guaranteed stack-for-stack ratio is locked.
 
-## Exact finance quotes and shared treasury transactions â€” October 8, 2026
+## Exact finance quotes and shared treasury transactions — October 8, 2026
 
 - Branch `codex/phase2-finance-transaction-foundation`: pure TradeQuotes provides
   exact full-stack Trade Value cost and maximum affordable whole items. Unknown
@@ -1105,7 +1105,7 @@ No numeric grant, exchange rate or guaranteed stack-for-stack ratio is locked.
   purchase or barter policy has been assumed. Next: approved funding and payment
   handoff, then budget-backed purchase execution and integrated economy balance.
 
-## Voluntary village food appeals â€” October 8, 2026
+## Voluntary village food appeals — October 8, 2026
 
 - Branch `codex/phase2-village-food-appeals`: a selected SEEK_FOOD priority now
   publishes the actual latest-period deficit in Village supplies. Empty-hand or
@@ -1133,7 +1133,7 @@ No numeric grant, exchange rate or guaranteed stack-for-stack ratio is locked.
   pending. Treasury funding/spending, paid trade/barter, broader action feasibility
   and attributable outcome feedback remain ahead. Phase 2 stays 1/4 full groups.
 
-## Household food allocation â€” October 8, 2026
+## Household food allocation — October 8, 2026
 
 - Branch `codex/phase2-household-food-allocation`: completed food periods now divide
   fulfilled supplies proportionally between occupied families and the unassigned
@@ -1188,7 +1188,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 3. Current roadmap phase: businesses and industry; no
    construction or canonical roadmap changes. Latest feature work has not been pushed.
 
-## Confirmed player food donations â€” October 8, 2026
+## Confirmed player food donations — October 8, 2026
 
 - Branch `codex/phase2-player-food-donations`: sneak-right-click a saved living
   villager with ordinary food, then explicitly confirm the whole held stack in Village
@@ -1216,7 +1216,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 - Phase 2 still 1/4 full reporting groups; actual player aid is now a verified partial
   feature. Next: household food allocation/wellbeing and broader economic responses.
 
-## Player food-aid previews â€” October 8, 2026
+## Player food-aid previews — October 8, 2026
 
 - Branch `codex/phase2-food-aid-preview`: `/civ aid` now previews an ordinary held
   food stack for the nearest ready village home, names the saved village and shows
@@ -1245,7 +1245,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   not completed trade/barter. Next: a recoverable actual inventory transfer and
   broader household/economic responses. No new gameplay decision needed here.
 
-## Explicit food delivery accounting â€” October 8, 2026
+## Explicit food delivery accounting — October 8, 2026
 
 - Branch `codex/phase2-food-relief`: trusted internal adapters can record explicit
   delivered food with source, quantity and operation ID. Pending goods enter a future
@@ -1269,7 +1269,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   reporting groups with these verified partial pieces listed in PROGRESS.md.
   See FOOD_RELIEF.md. No production reset, push, merge or main modification.
 
-## Evidence-based village priorities â€” October 8, 2026
+## Evidence-based village priorities — October 8, 2026
 - Branch `codex/phase2-village-priorities`: villages choose MONITOR, SEEK_FOOD or
   INVESTIGATE_HOUSING from saved unmet food and observed household crowding. Unknown
   housing cannot justify crowding; infeasible priorities are excluded under every seed.
@@ -1295,7 +1295,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   PROGRESS now lists verified partial pieces rather than hiding them behind 25%.
   See VILLAGE_PRIORITIES.md. No push, merge or main modification.
 
-## Household needs and treasury accounting â€” October 8, 2026
+## Household needs and treasury accounting — October 8, 2026
 - Branch `codex/phase2-household-needs`: food periods now retain household adults,
   children, configured demand, observed housing and unassigned living residents.
   Unknown capacity is distinct from crowded housing. Shared food pressure is not
@@ -1322,7 +1322,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   Next gate: feasible decision pressures/responses with tested causal prerequisites.
   See HOUSEHOLD_NEEDS_AND_TREASURY.md. No merge/push/main changes.
 
-## Live food economy â€” October 8, 2026
+## Live food economy — October 8, 2026
 - Branch `codex/phase2-live-food`: loaded main-thread crop snapshots around saved
   homes feed the existing SQL owner. Saved living adults supply bounded prototype
   labor; children consume food. Default capacity is one worker per 16 planted crops.
@@ -1347,7 +1347,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   reliable field evidence rather than full historical event interleaving. Scale and
   human survival playtesting remain pending. See LIVE_FOOD_ECONOMY.md.
 
-## Editable economy prototype settings â€” October 8, 2026
+## Editable economy prototype settings — October 8, 2026
 - User authorized configurable economy defaults and requested easy famine/feast tuning.
   `economy.yml` is created only if missing and validated before database startup.
   Comments, owner edits and matching custom commodity stock/price entries are preserved.
@@ -1365,7 +1365,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   Recorded tuning transitions and live food were subsequently implemented above. No approval blocker remains for prototype tuning.
   Phase 2 stays 1/4 (25%) with partial labor/price work; no merge/push/main changes.
 
-## Phase 2 commodity accounting â€” October 8, 2026
+## Phase 2 commodity accounting — October 8, 2026
 - Branch `codex/phase2-commodity-accounting`: plain-Java commodity keys, exact stock
   conservation, explicit incoming/demand categories, reserve use, per-commodity
   shortage duration, protected caller policy and quantitative report explanations.
@@ -1385,7 +1385,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   No production reset, construction, main modification, remote push or merge.
   See COMMODITY_ACCOUNTING.md for contract and remaining gates.
 
-## Live population and approved zombie rule â€” October 8, 2026
+## Live population and approved zombie rule — October 8, 2026
 - User chose to disable zombie conversion for managed villagers. Registered INFECTION
   guard leaves unmanaged villagers, curing, lightning and unrelated transforms alone.
   Verified lethal zombie attacks still kill people and save death/history; no general immunity.
@@ -1413,7 +1413,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   Vanilla trade/profession/inventory preservation on recreation is not implemented;
   use disposable worlds for playtesting. Source/history/roadmap remain preserved.
 
-## Resident projection preparation â€” October 8, 2026
+## Resident projection preparation — October 8, 2026
 - Branch `codex/phase1-resident-projection`: schema 13 incarnation registry,
   claim-before-spawn APIs, retained aliases, actual-death ledger and immutable owner
   views. Pure planner covers unloaded/pending/moved/deceased identities. No entity
@@ -1651,6 +1651,6 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
   changed; no schema change, production data, merge or push. Phase 1 stays 90%.
 
 ## User workflow
-`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has four of four prototype reporting groups complete; Phase 3 has one of four groups complete with automatic farm businesses. Phases 4â€“9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
+`docs/PROGRESS.md` tracks verified roadmap milestones in plain English. Current snapshot: Phase 1 has ten of ten prototype milestones complete; Phase 2 has four of four prototype reporting groups complete; Phase 3 has one of four groups complete with automatic farm businesses. Phases 4–9 have none complete. These counts are not time estimates or release-readiness percentages. Future batches update it alongside this status file.
 
 This ChatGPT thread is product/design HQ. Codex is implementation agent. It may proceed autonomously on scoped engineering work, committing to feature branches, but must escalate consequential design decisions and destructive operations. Preserve the full nine-phase roadmap.
