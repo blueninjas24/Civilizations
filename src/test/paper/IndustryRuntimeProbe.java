@@ -45,16 +45,17 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                         switch(stage++) {
                             case 0 -> {session=create();pending=session.start(false,Set.of(world));}
                             case 1 -> {now.set(2000);pending=session.pulse();}
-                            case 2 -> {check(1,9);paidSale=new BusinessSales.Request(UUID.randomUUID(),saleFirm,saleOwner,heir,1,mine,250,null,0);pending=session.sellBusiness(paidSale);}
-                            case 3 -> {checkSale();pending=session.updateLoadedWorlds(Set.of());}
-                            case 4 -> {now.set(100_000);pending=session.pulse();}
-                            case 5 -> {check(1,9);checkSale();pending=session.updateLoadedWorlds(Set.of(world));}
-                            case 6 -> {now.set(101_000);pending=session.pulse();}
-                            case 7 -> {check(2,8);session.close();now.set(1_000_000);session=create();pending=session.start(false,Set.of(world));}
-                            case 8 -> {check(2,8);pending=session.sellBusiness(paidSale);}
-                            case 9 -> {checkSale();now.set(1_001_000);pending=session.pulse();}
-                            case 10 -> {
-                                check(3,7);checkSale();getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified inheritance, conserved paid resale/replay, qualified staff continue a deceased-owner mine without promotion, finite output, absent-world pause and restart; separate database, no world writes");
+                            case 2 -> {check(1,9);paidSale=new BusinessSales.Request(UUID.randomUUID(),saleFirm,saleOwner,heir,1,mine,250,null,0);pending=session.openBusinessSale(saleFirm,250,5000);}
+                            case 3 -> {pending=session.sellBusiness(paidSale);}
+                            case 4 -> {checkSale();pending=session.updateLoadedWorlds(Set.of());}
+                            case 5 -> {now.set(100_000);pending=session.pulse();}
+                            case 6 -> {check(1,9);checkSale();pending=session.updateLoadedWorlds(Set.of(world));}
+                            case 7 -> {now.set(101_000);pending=session.pulse();}
+                            case 8 -> {check(2,8);session.close();now.set(1_000_000);session=create();pending=session.start(false,Set.of(world));}
+                            case 9 -> {check(2,8);pending=session.sellBusiness(paidSale);}
+                            case 10 -> {checkSale();now.set(1_001_000);pending=session.pulse();}
+                            case 11 -> {
+                                check(3,7);checkSale();getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified inheritance, exact saved offer and conserved paid resale/replay, qualified staff continue a deceased-owner mine without promotion, finite output, absent-world pause and restart; separate database, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -132,6 +133,8 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
         try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+folder.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro")) {
             try(var s=c.createStatement()){s.execute("PRAGMA foreign_keys=ON");}
             var sales=new BusinessSales(c,BusinessPurchasePolicy.disabled());
+            var listing=new BusinessSaleListings(c).find(saleFirm,saleOwner).orElseThrow();
+            if(listing.status()!=BusinessSaleListings.Status.SOLD||listing.price()!=250||!listing.saleOperation().equals(paidSale.operation()))throw new IllegalStateException("Listing completion mismatch");
             if(!sales.find(paidSale.operation()).orElseThrow().equals(paidSale)||sales.entries(paidSale.operation()).size()!=2
                     ||sales.estate(saleOwner).orElseThrow()!=250||new IndustryRepository(c).store(mine).orElseThrow().hundredths()!=750
                     ||!new BusinessRepository(c).findBusiness(saleFirm).orElseThrow().ownerId().equals(heir)

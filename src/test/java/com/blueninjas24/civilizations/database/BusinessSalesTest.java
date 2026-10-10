@@ -148,8 +148,12 @@ class BusinessSalesTest {
             try(var session=new PopulationSession(directory.toFile(),Logger.getLogger("BusinessSaleOwnerTest"),settings,()->1000)) {
                 session.configureBusinessPurchases(BusinessPurchasePolicy.prototype());session.start(false,Set.of()).get(5,TimeUnit.SECONDS);
                 assertThrows(ExecutionException.class,()->session.sellBusiness(q).get(5,TimeUnit.SECONDS));
+                assertThrows(ExecutionException.class,()->session.openBusinessSale(q.business(),1000,1000).get(5,TimeUnit.SECONDS));
+                assertNull(session.status().failure());
                 session.updateLoadedWorlds(Set.of(world)).get(5,TimeUnit.SECONDS);
+                session.openBusinessSale(q.business(),1000,1000).get(5,TimeUnit.SECONDS);
                 assertThrows(ExecutionException.class,()->session.sellBusiness(request(1000,null,0)).get(5,TimeUnit.SECONDS));
+                assertNull(session.status().failure());
                 assertEquals(q,session.sellBusiness(q).get(5,TimeUnit.SECONDS));
                 assertThrows(IllegalStateException.class,()->session.configureBusinessPurchases(BusinessPurchasePolicy.disabled()));
             }
@@ -159,6 +163,89 @@ class BusinessSalesTest {
             }
         }finally{open();}
         assertEquals(1000,sales.estate(seller.id()).orElseThrow());assertEquals(5000,cash(source.business().id()));assertEquals(1,count("business_sales"));
+        assertEquals(BusinessSaleListings.Status.SOLD,new BusinessSaleListings(db.getConnection()).find(q.business(),seller.id()).orElseThrow().status());
+    }
+    @Test void savedListingTermsReplayWithoutResettingDeadlineOrChangingPrice()throws Exception {
+        var listings=new BusinessSaleListings(db.getConnection());var listing=listings.open(target.business().id(),1000,1000,1000,1);
+        assertEquals(listing,listings.open(target.business().id(),1000,1000,2000,2));
+        assertThrows(SQLException.class,()->listings.open(target.business().id(),1001,1000,2000,2));
+        assertThrows(SQLException.class,()->listings.open(source.business().id(),1000,1000,1000,1));
+        var heir=person(20);child(seller,heir);
+        // Already accepted terms remain saved; no payment can bypass newly available inheritance.
+        assertEquals(listing,listings.open(target.business().id(),1000,1000,3000,3));
+        assertThrows(SQLException.class,()->sales.sell(request(1000,null,0)));
+    }
+    @Test void absenceAndDowntimePreserveEarnedTimeAndExpiryRefusesNewPaymentWithoutDeletingAssets()throws Exception {
+        var listings=new BusinessSaleListings(db.getConnection());var id=target.business().id();long money=allMoney();
+        listings.open(id,1000,1000,1000,1);listings.observe(1500,Set.of(world));listings.observe(100000,Set.of());
+        assertEquals(500,listings.find(id,seller.id()).orElseThrow().elapsedMillis());db.close();open();listings=new BusinessSaleListings(db.getConnection());
+        listings.resume(1000000);listings.observe(1000499,Set.of(world));assertEquals(BusinessSaleListings.Status.OPEN,listings.find(id,seller.id()).orElseThrow().status());
+        listings.observe(1000500,Set.of(world));assertEquals(BusinessSaleListings.Status.EXPIRED,listings.find(id,seller.id()).orElseThrow().status());
+        assertThrows(SQLException.class,()->sales.sell(request(1000,null,0)));assertEquals(money,allMoney());assertEquals(target,firms.findFounding(id).orElseThrow());
+        assertEquals(seller.id(),firms.findBusiness(id).orElseThrow().ownerId());assertEquals(300,cash(id));assertEquals(0,count("business_sales"));
+    }
+    @Test void listingPriceAndSaleCompletionAreAtomicWithMoneyAndAcceptedReplay()throws Exception {
+        var listings=new BusinessSaleListings(db.getConnection());var id=target.business().id();listings.open(id,1000,1000,1000,1);
+        assertThrows(SQLException.class,()->sales.sell(request(999,null,0)));assertEquals(6000,cash(source.business().id()));
+        var q=request(1000,null,0);sales.sell(q);var sold=listings.find(id,seller.id()).orElseThrow();
+        assertEquals(BusinessSaleListings.Status.SOLD,sold.status());assertEquals(q.operation(),sold.saleOperation());
+        listings.observe(Long.MAX_VALUE,Set.of(world));assertEquals(sold,listings.find(id,seller.id()).orElseThrow());assertEquals(q,sales.sell(q));
+    }
+    @Test void listingCompletionFailureRollsBackOwnerPaymentAndEstateThenRetriesOnce()throws Exception {
+        var listings=new BusinessSaleListings(db.getConnection());var id=target.business().id();var before=listings.open(id,1000,1000,1000,1);long money=allMoney();
+        sql("CREATE TRIGGER fail_listing_completion BEFORE UPDATE OF status ON business_sale_listings WHEN NEW.status='SOLD' BEGIN SELECT RAISE(ABORT,'fixture listing failure'); END");
+        var q=request(1000,null,0);assertThrows(SQLException.class,()->sales.sell(q));assertEquals(before,listings.find(id,seller.id()).orElseThrow());
+        assertEquals(seller.id(),firms.findBusiness(id).orElseThrow().ownerId());assertEquals(money,allMoney());assertEquals(0,count("family_estates"));assertTrue(sales.find(q.operation()).isEmpty());
+        sql("DROP TRIGGER fail_listing_completion");sales.sell(q);sales.sell(q);assertEquals(money,allMoney());assertEquals(1,count("business_sales"));
+    }
+    @Test void newlyQualifiedInheritanceResolvesAnOpenOfferWithoutChargingBuyer()throws Exception {
+        var listings=new BusinessSaleListings(db.getConnection());var id=target.business().id();listings.open(id,1000,1000,1000,1);
+        child(seller,buyer);new BusinessSuccession(db.getConnection()).succeed(UUID.randomUUID(),id,1).orElseThrow();listings.observe(1500,Set.of(world));
+        assertEquals(BusinessSaleListings.Status.RESOLVED,listings.find(id,seller.id()).orElseThrow().status());assertEquals(6000,cash(source.business().id()));assertEquals(0,count("family_estates"));
+    }
+    @Test void unexpectedlyMissingAcceptedListingCannotCommitPaymentWithoutItsCompletion()throws Exception {
+        var listings=new BusinessSaleListings(db.getConnection());var id=target.business().id();var old=listings.open(id,1000,1000,1000,1);
+        sql("CREATE TRIGGER remove_sale_listing AFTER UPDATE OF owner_id ON businesses BEGIN DELETE FROM business_sale_listings WHERE business_id=NEW.id; END");
+        var q=request(1000,null,0);long money=allMoney();assertThrows(SQLException.class,()->sales.sell(q));
+        assertEquals(old,listings.find(id,seller.id()).orElseThrow());assertEquals(seller.id(),firms.findBusiness(id).orElseThrow().ownerId());
+        assertEquals(money,allMoney());assertTrue(sales.find(q.operation()).isEmpty());assertEquals(0,count("family_estates"));
+    }
+    @Test void clockFailureRollsBackAndRetryExpiresWithBoundedArithmetic()throws Exception {
+        var listings=new BusinessSaleListings(db.getConnection());var id=target.business().id();var before=listings.open(id,1000,1000,1000,1);
+        sql("CREATE TRIGGER fail_listing_clock BEFORE UPDATE OF last_ms ON business_sale_listings BEGIN SELECT RAISE(ABORT,'fixture clock failure'); END");
+        assertThrows(SQLException.class,()->listings.observe(1500,Set.of(world)));assertEquals(before,listings.find(id,seller.id()).orElseThrow());assertTrue(db.getConnection().getAutoCommit());
+        sql("DROP TRIGGER fail_listing_clock");listings.observe(900,Set.of(world));assertEquals(before,listings.find(id,seller.id()).orElseThrow());
+        listings.observe(Long.MAX_VALUE,Set.of(world));assertEquals(1000,listings.find(id,seller.id()).orElseThrow().elapsedMillis());
+    }
+    @Test void schema39ListingUpgradeFailureRetainsFundsAndRetries()throws Exception {
+        SchemaFixtures.rewind(db.getConnection(),39);sql("CREATE INDEX business_open_sale_listings ON businesses(id)");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));assertThrows(SQLException.class,()->count("business_sale_listings"));
+        assertEquals(6000,cash(source.business().id()));assertEquals(target,firms.findFounding(target.business().id()).orElseThrow());
+        sql("DROP INDEX business_open_sale_listings");new SchemaMigrator().migrate(db.getConnection());assertEquals(0,count("business_sale_listings"));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+    }
+    @Test void failedWorldBoundarySuspendsNewSalesUntilCauseIsFixedAndSessionRestarts()throws Exception {
+        var q=new BusinessSales.Request(UUID.randomUUID(),target.business().id(),seller.id(),buyer.id(),0,source.business().id(),1000,null,0);
+        new BusinessSaleListings(db.getConnection()).open(q.business(),1000,1000,1000,0);
+        sql("CREATE TRIGGER fail_listing_boundary BEFORE UPDATE OF last_ms ON business_sale_listings WHEN NEW.last_ms>OLD.last_ms BEGIN SELECT RAISE(ABORT,'fixture boundary failure'); END");
+        db.close();var now=new java.util.concurrent.atomic.AtomicLong(1000);
+        var settings=new PopulationSession.Settings(42,1000,0,2,new PopulationPolicy(12,216,240,480,720,0,0,0),MigrationPolicy.disabled(),
+                com.blueninjas24.civilizations.settlement.VillageRecognition.Policy.prototype(),VillageEnrollmentRepository.Policy.prototype());
+        try {
+            try(var session=new PopulationSession(directory.toFile(),Logger.getLogger("ListingBoundaryTest"),settings,now::get)) {
+                session.configureBusinessPurchases(BusinessPurchasePolicy.prototype());session.start(false,Set.of(world)).get(5,TimeUnit.SECONDS);
+                now.set(1500);session.updateLoadedWorlds(Set.of()).get(5,TimeUnit.SECONDS);assertTrue(session.businessSaleDiagnostic().contains("fixture boundary failure"));
+                session.updateLoadedWorlds(Set.of(world)).get(5,TimeUnit.SECONDS);
+                assertThrows(ExecutionException.class,()->session.sellBusiness(q).get(5,TimeUnit.SECONDS));
+            }
+            open();assertEquals(6000,cash(source.business().id()));assertTrue(sales.find(q.operation()).isEmpty());
+            sql("DROP TRIGGER fail_listing_boundary");db.close();now.set(100000);
+            try(var resumed=new PopulationSession(directory.toFile(),Logger.getLogger("ListingBoundaryTest"),settings,now::get)) {
+                resumed.configureBusinessPurchases(BusinessPurchasePolicy.prototype());resumed.start(false,Set.of(world)).get(5,TimeUnit.SECONDS);
+                assertEquals(q,resumed.sellBusiness(q).get(5,TimeUnit.SECONDS));
+            }
+        }finally{open();}
+        assertEquals(1,count("business_sales"));assertEquals(5000,cash(source.business().id()));
     }
     @Test void allPaymentAndOwnershipChangesRollbackWhenAuditFailsAndRetryOnce()throws Exception {
         var estate=earnedEstate(buyer);long money=allMoney();var q=request(1000,estate,500);

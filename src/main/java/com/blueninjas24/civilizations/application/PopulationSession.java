@@ -87,6 +87,8 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.database.IndustryRuntime industries;
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
+    private boolean listingClockSuspended;
+    private volatile String listingClockFailure;
     private volatile String industryFailure;
     private boolean industrySuspended; // Failed boundary cannot safely reconstruct a live interval; restart skips it.
     private final AtomicReference<com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot> businessView =
@@ -171,13 +173,24 @@ public final class PopulationSession implements AutoCloseable {
             requireReady();
             var sales=new com.blueninjas24.civilizations.database.BusinessSales(database.getConnection(),purchasePolicy);
             if(sales.find(request.operation()).isEmpty()) {
+                if(listingClockSuspended)throw new SQLException("Listing clock suspended until reviewed restart: "+listingClockFailure);
+                new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).observe(now.getAsLong(),loadedWorlds);
                 var founding=database.getBusinessRepository().findFounding(request.business()).orElseThrow(()->new SQLException("Unknown business"));
-                if(loadedWorlds!=null&&!loadedWorlds.contains(founding.site().worldId()))throw new SQLException("Business world is absent");
-                if(request.step()!=status.get().completedMonths())throw new SQLException("Sale requires current completed calendar step");
+                if(loadedWorlds!=null&&!loadedWorlds.contains(founding.site().worldId()))throw new com.blueninjas24.civilizations.database.BusinessSales.Declined("Business world is absent");
+                if(request.step()!=status.get().completedMonths())throw new com.blueninjas24.civilizations.database.BusinessSales.Declined("Sale requires current completed calendar step");
             }
             return sales.sell(request);
         });
     }
+    public CompletableFuture<com.blueninjas24.civilizations.database.BusinessSaleListings.Listing> openBusinessSale(UUID business,long price,long deadlineMillis) {
+        return submit(()->{
+            requireReady();if(listingClockSuspended)throw new SQLException("Listing clock suspended until reviewed restart: "+listingClockFailure);
+            var founding=database.getBusinessRepository().findFounding(business).orElseThrow(()->new SQLException("Unknown business"));
+            if(loadedWorlds!=null&&!loadedWorlds.contains(founding.site().worldId()))throw new com.blueninjas24.civilizations.database.BusinessSales.Declined("Business world is absent");
+            return new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).open(business,price,deadlineMillis,now.getAsLong(),status.get().completedMonths());
+        });
+    }
+    public String businessSaleDiagnostic(){return listingClockFailure==null?"Saved sale clocks ready; automatic listings/closure unfinished":"Sale clock deferred: "+listingClockFailure;}
     public boolean oreDiscoveryReady() { return trackOres && oreHistoryHealthy.get() && status().ready(); }
     public String oreTrackingDiagnostic() {
         return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
@@ -216,6 +229,7 @@ public final class PopulationSession implements AutoCloseable {
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy);
                 industries.start(now.getAsLong());
+                new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
                 var demographic = database.getDemographicRepository();
                 var saved = demographic.load(settings.population(), settings.migration());
                 if (saved.isEmpty())
@@ -259,6 +273,11 @@ public final class PopulationSession implements AutoCloseable {
             var clock = database.getCivilizationClockRepository();
             var accrued = clock.accrueOnline(observed, settings.millisPerMonth(), loadedWorlds);
             if (economy != null) economy.updateLoadedWorlds(observed, next);
+            if(!listingClockSuspended)try {new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).observe(observed,loadedWorlds);}
+            catch(SQLException|RuntimeException failure) {
+                listingClockSuspended=true;listingClockFailure=failure.getMessage();
+                logger.log(Level.SEVERE,"Listing clock boundary failed; new sales suspended until reviewed restart",failure);
+            }
             if(!industrySuspended)try {industries.observeAvailability(observed,loadedWorlds);}
             catch(SQLException|RuntimeException failure) {
                 industrySuspended=true;industryFailure="failed world boundary; fix cause and restart before industry resumes: "+failure.getMessage();
@@ -448,6 +467,11 @@ public final class PopulationSession implements AutoCloseable {
         status.set(new Status(previous.ready(), previous.completedMonths(), queuedTime.anchor().targetSteps(),
                 previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
         advance(queuedTime.anchor().targetSteps());
+        if(!listingClockSuspended)try {new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).observe(now.getAsLong(),loadedWorlds);listingClockFailure=null;}
+        catch(SQLException|RuntimeException failure) {
+            if(!java.util.Objects.equals(listingClockFailure,failure.getMessage()))logger.log(Level.SEVERE,"Listing clocks deferred; no sale terms or funds changed",failure);
+            listingClockFailure=failure.getMessage();
+        }
         if(!industrySuspended)try {industries.pulse(now.getAsLong(),loadedWorlds);industryFailure=null;}
         catch(SQLException|RuntimeException failure) {
             if(!java.util.Objects.equals(industryFailure,failure.getMessage()))logger.log(Level.SEVERE,"Industry update deferred; saved work remains retryable",failure);
@@ -486,7 +510,8 @@ public final class PopulationSession implements AutoCloseable {
                     // Accepted work drains before the queued close; new submissions are rejected above.
                     result.complete(operation.run());
                 } catch (Exception failure) {
-                    if (failure instanceof SQLException && !(failure instanceof EconomyRuntimeRepository.PurchaseDeclined)) reportFailure(failure);
+                    if (failure instanceof SQLException && !(failure instanceof EconomyRuntimeRepository.PurchaseDeclined)
+                            && !(failure instanceof com.blueninjas24.civilizations.database.BusinessSales.Declined)) reportFailure(failure);
                     result.completeExceptionally(failure);
                 }
                 finally { queued.decrementAndGet(); }

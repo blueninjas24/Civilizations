@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 39;
+    static final int CURRENT_VERSION = 40;
 
     @FunctionalInterface
     interface Migration {
@@ -425,7 +425,26 @@ final class SchemaMigrator {
                             """);
                     execute(connection,"CREATE INDEX business_owner_history ON business_ownership(business_id,observed_step,operation_id)");
                 },
-                SchemaMigrator::createBusinessSales
+                SchemaMigrator::createBusinessSales,
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE business_sale_listings (
+                                business_id TEXT NOT NULL REFERENCES businesses(id),
+                                seller_id TEXT NOT NULL REFERENCES residents(id),
+                                price INTEGER NOT NULL CHECK(typeof(price)='integer' AND price>0),
+                                deadline_ms INTEGER NOT NULL CHECK(typeof(deadline_ms)='integer' AND deadline_ms BETWEEN 1000 AND 86400000),
+                                created_step INTEGER NOT NULL CHECK(typeof(created_step)='integer' AND created_step>=0),
+                                last_ms INTEGER NOT NULL CHECK(typeof(last_ms)='integer' AND last_ms>=0),
+                                elapsed_ms INTEGER NOT NULL CHECK(typeof(elapsed_ms)='integer' AND elapsed_ms>=0 AND elapsed_ms<=deadline_ms),
+                                status TEXT NOT NULL CHECK(status IN ('OPEN','SOLD','RESOLVED','EXPIRED')),
+                                sale_operation TEXT REFERENCES business_sales(operation_id),
+                                CHECK((status='SOLD' AND sale_operation IS NOT NULL) OR (status<>'SOLD' AND sale_operation IS NULL)),
+                                CHECK(status<>'EXPIRED' OR elapsed_ms=deadline_ms),
+                                PRIMARY KEY(business_id,seller_id)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX business_open_sale_listings ON business_sale_listings(last_ms,business_id) WHERE status='OPEN'");
+                }
         ));
     }
 
@@ -566,6 +585,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"business_sales",Set.of("operation_id","business_id","previous_owner","next_owner","observed_step","cash_source","cash_amount","estate_source","estate_amount"));
                 requireColumns(connection,"business_sale_entries",Set.of("operation_id","source_kind","source_id","direction","before_cash","after_cash"));
             }
+            if(migrations.size()>=40)requireColumns(connection,"business_sale_listings",Set.of("business_id","seller_id","price","deadline_ms","created_step","last_ms","elapsed_ms","status","sale_operation"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

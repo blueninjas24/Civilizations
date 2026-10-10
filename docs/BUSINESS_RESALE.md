@@ -1,8 +1,10 @@
 # Paid business resale and family estates
 
-This is a transaction backend and internal SQL-owner application boundary. It does
-not yet advertise businesses, choose buyers, value a sale automatically or close an
-unsold firm. Qualified family/employee inheritance remains ahead of any sale.
+This is a transaction backend and internal SQL-owner application boundary. Saved
+explicit offers and absence-safe deadlines are now verified; see
+BUSINESS_SALE_LISTINGS.md. It does not yet automatically advertise businesses,
+choose buyers, value a sale or close an unsold firm. Qualified family/employee
+inheritance remains ahead of any sale.
 
 ## Rules and accounting
 
@@ -60,7 +62,7 @@ configuration validation before the database starts. Edit while stopped/restart.
 
 ## Remaining work
 
-Automatic listings, editable valuations, absence-safe sale deadlines, buyer review,
+Automatic listings, editable valuations, buyer review,
 unsold closure, competition, and estate-backed new-business investment remain
 unfinished. The ledger can already fund a qualified family's later acquisition of
 an existing business. Suitable vacant building evaluation/reuse stays Phase 4.

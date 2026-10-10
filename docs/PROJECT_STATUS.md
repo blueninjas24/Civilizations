@@ -4,6 +4,18 @@
 
 ## October 9, 2026 — qualified business succession
 
+Latest follow-on: schema 40 saves explicit sale offers with immutable price/deadline,
+online/present-world elapsed time, resolved ownership and atomic SOLD completion.
+Normal refusal no longer falsely reports a population save failure. Failed world
+boundaries suspend new sales until reviewed restart; funds/history remain unchanged.
+Focus 55 passed; Windows Wrapper clean verify passed 734 (732 unit/two packaged
+integration), zero failures/errors/skips. Native Paper passed exact saved 250-price
+sale, inheritance/staffed finite work, replay, absence/restart and conserved
+8500 treasury/750 business cash/250 estate. Normal stop, restored settings, archived
+probe; schema-39 dev assets retained and schema-40 integrity/FKs healthy. User-server
+unchanged. Automatic offer creation/valuation/buyers and retained closure remain;
+EXPIRED records a deadline, not closure. Phase 3 stays 25%. See BUSINESS_SALE_LISTINGS.md.
+
 Latest follow-on: explicitly approved qualified-existing-staff operation after
 owner death is configurable across timed mines/workshops, warehouse supply and
 automatic farms. No staff/owner/estate money is invented. Farms reconcile lost labor,

@@ -74,6 +74,9 @@ premises are preferred; physical building reuse remains Phase 4.
       real paid warehouse/workshop inputs, qualified finite mining and inherited
       farm staffing; temporary DB and Paper pause/restart/conservation verified.
 - [ ] Bound skill development and investment; no manufactured profit or payroll.
+- [x] Saved explicit sale offers, immutable accepted price/deadline, online-only
+      elapsed time and atomic paid completion; temp SQL failure/restart/migration
+      cases and actual Paper passed. Automatic valuation/buyers and closure remain.
 - [ ] Restart-safe turnover and failed-transition recovery scenarios.
 
 ## 4. Emergent specialization and acceptance — pending

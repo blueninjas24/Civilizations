@@ -2,6 +2,12 @@
 
 Updated October 9, 2026. Based on verified work, not planned features.
 
+Latest: a business sale offer now remembers its price and deadline. Time away from
+the server or world does not use up that deadline; a sale saves the payment and
+new owner together. All 734 tests and the real Paper check passed. Choosing buyers
+automatically and closing an unsold business are still next. Phase 3 remains 25%
+because the full business lifecycle group is unfinished.
+
 Latest: your approved rule now lets qualified existing staff keep a business working
 after its owner dies, while ownership is resolved. Admins can choose to pause it
 instead. Actual workers, supplies, storage and finite resources still limit output.
@@ -31,7 +37,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 725 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 734 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

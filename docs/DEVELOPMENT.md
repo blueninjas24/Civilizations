@@ -1,5 +1,13 @@
 # Development and recovery procedures
 
+Latest IndustryRuntimeProbe also opens an explicit saved 250-price offer through
+the SQL owner before payment and checks SOLD linkage after restart. Its fixture
+database must be schema 40 with one paid sale, business cash 750, estate 250 and
+treasury 8500. Backup the stopped marked development database/settings first;
+after normal stop verify old asset rows retained, integrity/FKs healthy, archive
+the probe outside plugins and restore network properties byte-for-byte. No probe
+belongs on the player's own server. See BUSINESS_SALE_LISTINGS.md for limits.
+
 WorkshopSupplyProbe.java is another test-only plugin, name
 CivilizationsWorkshopSupplyProbe, main WorkshopSupplyProbe, API 1.21, dependent on
 Civilizations. Compile/package separately as described below. Only the marked

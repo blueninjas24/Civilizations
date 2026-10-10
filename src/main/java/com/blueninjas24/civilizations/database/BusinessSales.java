@@ -7,6 +7,10 @@ import java.util.*;
 
 /** SQL-owner paid acquisition. Actual business/estate money moves atomically with ownership. */
 public final class BusinessSales {
+    /** Ordinary refusal, distinct from failed SQL/save operations. */
+    public static final class Declined extends SQLException {
+        public Declined(String reason){super(reason);}
+    }
     public record Request(UUID operation,UUID business,UUID seller,UUID buyer,long step,
                           UUID cashSource,long cashAmount,UUID estateSource,long estateAmount) {
         public Request {
@@ -47,25 +51,26 @@ public final class BusinessSales {
         }
     }
     private void sellRows(Request q)throws SQLException {
+        boolean listed=new BusinessSaleListings(connection).requireAcceptedPrice(q);
         var target=businesses.findBusiness(q.business()).orElseThrow(()->new SQLException("Unknown sale business"));
         var seller=population.findResident(q.seller()).orElseThrow(()->new SQLException("Unknown seller"));
         if(!target.ownerId().equals(q.seller())||seller.status()!=Resident.Status.DECEASED)
-            throw new SQLException("Sale requires the current deceased owner");
+            throw new Declined("Sale requires the current deceased owner");
         if(q.step()<target.foundedStep()||q.step()<lastTransferStep(q.business()))throw new SQLException("Sale predates ownership history");
-        if(succession.candidate(q.business()).isPresent())throw new SQLException("Qualified successor takes priority over resale");
-        if(!succession.qualifiedBuyer(q.buyer(),q.business()))throw new SQLException("Buyer is not eligible for this industry");
+        if(succession.candidate(q.business()).isPresent())throw new Declined("Qualified successor takes priority over resale");
+        if(!succession.qualifiedBuyer(q.buyer(),q.business()))throw new Declined("Buyer is not eligible for this industry");
         long beforeBusiness=0,beforeEstate=0;
         if(q.cashSource()!=null) {
             var payer=businesses.findBusiness(q.cashSource()).orElseThrow(()->new SQLException("Unknown buyer business"));
             if(!payer.ownerId().equals(q.buyer())||!payer.settlementId().equals(target.settlementId()))
-                throw new SQLException("Buyer does not own a local funding business");
-            beforeBusiness=new IndustryRepository(connection).store(q.cashSource()).orElseThrow(()->new SQLException("Buyer business has no cash account")).hundredths();
-            if(q.cashAmount()>policy.businessAvailable(beforeBusiness))throw new SQLException("Business funding limit or retained cash prevents purchase");
+                throw new Declined("Buyer does not own a local funding business");
+            beforeBusiness=new IndustryRepository(connection).store(q.cashSource()).orElseThrow(()->new Declined("Buyer business has no cash account")).hundredths();
+            if(q.cashAmount()>policy.businessAvailable(beforeBusiness))throw new Declined("Business funding limit or retained cash prevents purchase");
         }
         if(q.estateSource()!=null) {
-            if(!familyMember(q.buyer(),q.estateSource()))throw new SQLException("Buyer cannot spend an unrelated family estate");
-            beforeEstate=estate(q.estateSource()).orElseThrow(()->new SQLException("Buyer estate does not exist"));
-            if(q.estateAmount()>policy.estateAvailable(beforeEstate))throw new SQLException("Estate funding limit or balance prevents purchase");
+            if(!familyMember(q.buyer(),q.estateSource()))throw new Declined("Buyer cannot spend an unrelated family estate");
+            beforeEstate=estate(q.estateSource()).orElseThrow(()->new Declined("Buyer estate does not exist"));
+            if(q.estateAmount()>policy.estateAvailable(beforeEstate))throw new Declined("Estate funding limit or balance prevents purchase");
         }
         long sellerBefore=estate(q.seller()).orElse(0L);
         long sellerAfter=Math.addExact(sellerBefore,q.price());
@@ -94,6 +99,7 @@ public final class BusinessSales {
             s.setString(1,q.buyer().toString());s.setString(2,q.business().toString());s.setString(3,q.seller().toString());
             if(s.executeUpdate()!=1)throw new SQLException("Stale sale owner");
         }
+        new BusinessSaleListings(connection).sold(q,listed);
     }
     private long lastTransferStep(UUID business)throws SQLException {
         try(var s=connection.prepareStatement("SELECT MAX(observed_step) FROM (SELECT observed_step FROM business_ownership WHERE business_id=? UNION ALL SELECT observed_step FROM business_sales WHERE business_id=?)")) {

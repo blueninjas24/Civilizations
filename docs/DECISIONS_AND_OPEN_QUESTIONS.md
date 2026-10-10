@@ -42,7 +42,8 @@ October 9 playtest decisions, with implementation boundaries:
   must be recorded and conserved; no automatic treasury grant or invented money.
   Qualified inheritance and paid-sale/estate accounting are now verified. Editable
   funding defaults retain 10.00 Trade Value, allow 25% of spare business cash and
-  100% of estate cash per purchase. Automatic listings/deadlines/closure remain.
+  100% of estate cash per purchase. Saved explicit offers and online-only deadlines
+  are verified. Automatic valuation/listing creation/buyer review and closure remain.
   Additional explicit approval: qualified existing employees may keep the business
   operating while the family seeks a buyer. Real supplies, finite reserves, storage,
   purchasing funds and world-pause rules still apply. Continued work does not make

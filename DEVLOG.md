@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## October 9, 2026 — saved offers and absence-safe sale deadlines
+
+Branch codex/phase3-qualified-succession. Schema 40 additively saves accepted offer
+price/deadline and elapsed online/present-world time. Startup skips downtime;
+world boundaries preserve prior availability and failed boundaries suspend new
+payments until reviewed restart. Exact listed price, real payment, estate credit,
+owner/audit and SOLD completion are atomic. Ordinary refusal is distinguished from
+save failure. Qualified inheritance resolves the old offer without payment.
+Expiry retains assets/jobs and is not yet business closure. API takes explicit
+trusted price/deadline; automatic valuation/buyer selection/closure remain next.
+
+Nine added tests; focus 55 passed; Windows Wrapper clean verify passed 734
+(732 unit/two packaged integration), zero failures/errors/skips, 3:58. Native Paper
+passed exact saved 250 offer and single paid resale/replay, inheritance, qualified
+staffed deceased-owner mine, finite output, absence/restart and conserved treasury
+8500/cash750/estate250. Consistent dev schema-39 backup first; original asset rows
+retained after upgrade, schema40 integrity/FKs healthy. Normal shutdown exit0,
+properties restored byte-for-byte and probe archived. User-server/world untouched.
+Docs/tracker updated; Phase3 still25%, no main merge/push or new decision needed.
+
 ## October 9, 2026 — qualified staff continue after owner death
 
 User explicitly approved continued operation while the family seeks a buyer.
