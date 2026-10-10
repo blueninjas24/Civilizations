@@ -21,11 +21,12 @@ public final class WorkshopSupplyProbe extends JavaPlugin {
     private java.io.File folder;
     private UUID world,smith,warehouse,town;
     private IndustryRuntimePolicy policy;
+    private boolean legacyChecked;
     @Override public void onEnable() {
         try {
             var root=getServer().getWorldContainer().toPath().toRealPath();
             if(!Files.readString(root.resolve("civilizations-dev-marker.txt")).trim().equals("Disposable Civilizations Phase 1 test environment")
-                    || !getServer().getIp().equals("127.0.0.1") || getServer().getPort()!=25577 || !getServer().getOnlinePlayers().isEmpty())
+                    || !getServer().getIp().equals("127.0.0.1") || getServer().getPort()!=25578 || !getServer().getOnlinePlayers().isEmpty())
                 throw new IllegalStateException("Marked localhost disposable server without players required");
             world=getServer().getWorlds().getFirst().getUID();folder=new java.io.File(getDataFolder(),"run-"+UUID.randomUUID());
             if(getServer().getWorlds().getFirst().isChunkLoaded(128,128))throw new IllegalStateException("Fixture site chunk must be unloaded");
@@ -52,7 +53,7 @@ public final class WorkshopSupplyProbe extends JavaPlugin {
                             case 7 -> {check(1,500,500,2,0);now.set(1001000);pending=session.pulse();}
                             case 8 -> {check(1,0,1000,4,2);now.set(1002000);pending=session.pulse();}
                             case 9 -> {
-                                check(2,0,1000,4,0);getLogger().info("NATIVE WORKSHOP SUPPLY PASS: actual owner pays real warehouse, unavailable cargo, delayed input transformation, conserved money, absent-world pause and restart; unloaded fixture, separate database, no world writes");
+                                check(2,0,1000,4,0);getLogger().info("NATIVE WORKSHOP SUPPLY PASS: actual owner pays real warehouse, unavailable cargo, delayed input transformation, cadence identity, conserved money, absent-world pause and restart; legacy paid-cargo upgrade checked="+legacyChecked+"; unloaded fixture, separate database, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(WorkshopSupplyProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -67,6 +68,7 @@ public final class WorkshopSupplyProbe extends JavaPlugin {
         var result=new PopulationSession(folder,getLogger(),settings,now::get);result.configureIndustryRuntime(policy);return result;
     }
     private void seed()throws Exception {
+        checkLegacyUpgrade();
         var db=new DatabaseManager(folder,getLogger());
         try {
             db.initialize();town=UUID.randomUUID();var owner=UUID.randomUUID();var worker=UUID.randomUUID();
@@ -94,12 +96,32 @@ public final class WorkshopSupplyProbe extends JavaPlugin {
             db.getBusinessRepository().hire(UUID.randomUUID(),smith,worker,0);
         }finally{db.close();}
     }
+    private void checkLegacyUpgrade()throws Exception {
+        var legacy=new java.io.File(getDataFolder(),"legacy-upgrade-fixture");
+        if(!legacy.toPath().resolve("civilizations.db").toFile().exists())return;
+        long orders,money,stock;
+        try(var c=DriverManager.getConnection("jdbc:sqlite:"+legacy.toPath().resolve("civilizations.db"))) {
+            if(scalar(c,"PRAGMA user_version")!=36)throw new IllegalStateException("Prepared copied schema-36 fixture required");
+            orders=scalar(c,"SELECT COUNT(*) FROM industry_auto_shipments");money=scalar(c,"SELECT SUM(hundredths) FROM industry_stores");
+            stock=scalar(c,"SELECT SUM(units) FROM industry_stock");if(orders<1)throw new IllegalStateException("Existing paid-cargo fixture required");
+        }
+        var upgraded=new DatabaseManager(legacy,getLogger());
+        try {
+            upgraded.initialize();var c=upgraded.getConnection();
+            if(scalar(c,"PRAGMA user_version")!=37 || scalar(c,"SELECT COUNT(*) FROM industry_auto_shipments WHERE haul_cadence IS NULL")!=orders
+                    || scalar(c,"SELECT SUM(hundredths) FROM industry_stores")!=money || scalar(c,"SELECT SUM(units) FROM industry_stock")!=stock)
+                throw new IllegalStateException("Legacy paid cargo or funds changed during upgrade");
+            try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("Legacy upgrade foreign key failed");}
+            legacyChecked=true;
+        }finally{upgraded.close();}
+    }
     private void check(long tools,long buyerFunds,long sellerFunds,long orders,long pendingCount)throws Exception {
         try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+folder.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro")) {
             if(scalar(c,"SELECT units FROM industry_stock WHERE business_id='"+smith+"' AND commodity='tools'")!=tools
                     || scalar(c,"SELECT hundredths FROM industry_stores WHERE business_id='"+smith+"'")!=buyerFunds
                     || scalar(c,"SELECT hundredths FROM industry_stores WHERE business_id='"+warehouse+"'")!=sellerFunds
                     || scalar(c,"SELECT COUNT(*) FROM industry_auto_shipments")!=orders
+                    || scalar(c,"SELECT COUNT(*) FROM industry_auto_shipments WHERE haul_cadence=1000")!=orders
                     || scalar(c,"SELECT COUNT(*) FROM industry_auto_shipments a JOIN local_shipments t ON t.id=a.shipment_id WHERE delivered_period IS NULL")!=pendingCount
                     || scalar(c,"SELECT hundredths FROM treasuries WHERE settlement_id='"+town+"'")!=9000)
                 throw new IllegalStateException("Supply, delivery or money conservation failed");

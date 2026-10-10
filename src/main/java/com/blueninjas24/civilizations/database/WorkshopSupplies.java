@@ -19,7 +19,7 @@ final class WorkshopSupplies {
         var industry=new IndustryRepository(connection);for(var id:arrivals)industry.deliverRows(id,period);
         return arrivals.size();
     }
-    String acquireRows(UUID buyer,ProductionRecipe recipe,long period,long haulWindow,WorkshopSupplyPolicy policy,IndustryPolicy transport)throws SQLException {
+    String acquireRows(UUID buyer,ProductionRecipe recipe,long period,long haulWindow,long haulCadence,WorkshopSupplyPolicy policy,IndustryPolicy transport)throws SQLException {
         requireTransaction();
         if(!policy.enabled())return "New automatic input purchases disabled";
         var businesses=new BusinessRepository(connection);var founding=businesses.findFounding(buyer).orElseThrow(()->new SQLException("Unknown workshop"));
@@ -40,15 +40,15 @@ final class WorkshopSupplies {
             }}
         }
         long hauled=0;
-        try(var s=connection.prepareStatement("SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=?")) {
-            s.setString(1,founding.business().settlementId().toString());s.setLong(2,haulWindow);try(var r=s.executeQuery()){while(r.next())hauled=Math.addExact(hauled,r.getLong(1));}
+        try(var s=connection.prepareStatement("SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=? AND a.haul_cadence=?")) {
+            s.setString(1,founding.business().settlementId().toString());s.setLong(2,haulWindow);s.setLong(3,haulCadence);try(var r=s.executeQuery()){while(r.next())hauled=Math.addExact(hauled,r.getLong(1));}
         }
         var plan=WorkshopInputPlan.choose(recipe,businesses.currentWorkers(buyer).size(),store.hundredths(),store.freeSpace(),
                 Math.max(0,transport.localHaulUnitsPerPeriod()-hauled),128-incoming,store.units(),pending,store.spacePerUnit(),warehouses,policy);
         for(var order:plan.orders()) {
             var operation=UUID.nameUUIDFromBytes(("civilizations:workshop-input-v1:"+buyer+":"+period+":"+order.seller()+":"+order.commodity().id()).getBytes(StandardCharsets.UTF_8));
             industry.purchaseRows(operation,order.seller(),buyer,order.commodity(),order.units(),order.price(),period,
-                    transport.localDeliveryPeriods(),transport.localHaulUnitsPerPeriod(),haulWindow);
+                    transport.localDeliveryPeriods(),transport.localHaulUnitsPerPeriod(),haulWindow,haulCadence);
         }
         return plan.explanation()+"; reviewed "+warehouses.size()+" local warehouses";
     }

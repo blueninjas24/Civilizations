@@ -8,6 +8,7 @@ final class SchemaFixtures {
     private SchemaFixtures() {}
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<37 && version>=36){statement.execute("DROP INDEX auto_shipment_haul_cadence");statement.execute("ALTER TABLE industry_auto_shipments DROP COLUMN haul_cadence");}
             if(version<36) {statement.execute("DROP TABLE industry_auto_shipments");statement.execute("DROP INDEX shipment_buyer_identity");statement.execute("DROP INDEX pending_local_shipments_buyer");}
             if(version<35) {statement.execute("DROP TABLE industry_runtime_history");statement.execute("DROP TABLE industry_runtime_tuning");statement.execute("DROP TABLE industry_runtime");}
             if(version<34)statement.execute("DROP TABLE ore_tracking");

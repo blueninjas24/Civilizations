@@ -69,6 +69,15 @@ Its compound foreign key binds each shipment to its actual buyer's existing
 industry clock. Upgrade creates no shipments and changes no saved stock, funds,
 reserves, owners or history. Legacy pending cargo is not backfilled into it.
 
+Schema 37 additionally saves the hauling cadence on new automatic shipments and
+in their immutable purchase terms. Window numbers alone alias different actual
+times after admins change industry speed. The shared quota therefore uses both
+cadence and window; an old rate cannot falsely exhaust today's transport. Retuning
+starts a new quota namespace, without changing already paid cargo's arrival clock,
+price or ownership. Older automatic rows retain an unknown/null historical cadence,
+not a guessed current setting. They remain deliverable and keep their original
+receipts/history; neither those rows nor manual cargo consume the new quota namespace.
+
 Automatic mine-to-warehouse stocking, nonfood founding, natural site selection,
 renewable forestry/fishing, finite primary stone/sand, finished-goods customers,
 ownership succession and specialization remain unfinished. This is a verified

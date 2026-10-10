@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## October 9, 2026 — cadence-aware local hauling
+
+Branch `codex/phase3-haul-clock-retuning`. Reproduced a genuine speed-tuning bug:
+old window 99 at 1000 ms blocked current window 99 at 2000 ms despite being from a
+different time. Added cadence to new immutable automatic purchase terms/quota
+identity. Same-rate shared capacity and replay still enforced; manual/legacy
+namespaces retained. No repricing, cargo cancellation, grants or new customer.
+Schema 37 adds nullable constrained cadence/index transactionally. Older rows
+remain deliverable with unknown cadence; no historical setting inferred or backfilled.
+
+Three new temp SQLite cases. Original regression failed as intended, then passed;
+wider initial 41 passed. Added manual-namespace fixture collided with its period-0
+setup shipments and correctly refused; changed the test to independent period 99.
+Corrected 10 focused passed; final Windows Wrapper clean verify passed 691 (689
+unit/two packaged integration), zero failures/errors/skips. Actual packaged Paper
+owner checks passed four cadence-tagged cargos, two tools, conserved 9000 treasury/
+1000 business capital, absence and restart. Copied known legacy schema-36 cargo
+fixture upgraded with all original table/column data retained and original file
+fingerprint unchanged. Fresh/copy/main integrity/FKs passed. Main 36->37 industry,
+settings and provenance retained. No probe world writes/tickets; port 25578 kept
+player address free, normal stop 0, original properties restored, probe archived.
+Final player JAR updated only while stopped; world/save/settings retained.
+
+Source changes: repository/runtime/supply helper, migration/test schema fixture,
+three supply regression cases, native probe, guides/status/progress/devlog.
+Phase 3 remains 25%. Pausing at pending ore-removal and ownership design choices
+before their automatic mine/lifecycle work; no answer assumed, main merge or push.
+
 ## October 9, 2026 — bounded nearby resource surveys
 
 Branch `codex/phase3-nearby-resource-surveys`. Added deterministic center/ring

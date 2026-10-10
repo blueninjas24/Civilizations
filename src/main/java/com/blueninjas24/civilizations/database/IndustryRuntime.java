@@ -109,7 +109,7 @@ public final class IndustryRuntime {
                 var recipe=policy.recipes().values().stream().filter(r->r.industry().equals(clock.industry())).findFirst();
                 if(recipe.isEmpty())reason="Paused: no configured industry recipe";
                 else {
-                    String supply=supplies.acquireRows(id,recipe.orElseThrow(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),policy.supply(),policy.mining());
+                    String supply=supplies.acquireRows(id,recipe.orElseThrow(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),policy.millisPerPeriod(),policy.supply(),policy.mining());
                     reason=supply+"; "+industry.processRows(operation,id,recipe.orElseThrow(),recipe.orElseThrow().siteCapacity(),period).receipt().explanation();
                 }
             }

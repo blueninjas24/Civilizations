@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 36;
+    static final int CURRENT_VERSION = 37;
 
     @FunctionalInterface
     interface Migration {
@@ -404,6 +404,11 @@ final class SchemaMigrator {
                     execute(connection,"CREATE INDEX auto_shipment_clock ON industry_auto_shipments(clock_business_id,shipment_id)");
                     execute(connection,"CREATE INDEX auto_shipment_haul ON industry_auto_shipments(haul_window,shipment_id)");
                     execute(connection,"CREATE INDEX pending_local_shipments_buyer ON local_shipments(buyer_id,due_period,id) WHERE delivered_period IS NULL");
+                },
+                connection -> {
+                    // Legacy rows lack guaranteed cadence: retain cargo without guessing historical terms.
+                    execute(connection,"ALTER TABLE industry_auto_shipments ADD COLUMN haul_cadence INTEGER CHECK(haul_cadence IS NULL OR (typeof(haul_cadence)='integer' AND haul_cadence BETWEEN 1000 AND 86400000))");
+                    execute(connection,"CREATE INDEX auto_shipment_haul_cadence ON industry_auto_shipments(haul_cadence,haul_window,shipment_id)");
                 }
         ));
     }
@@ -538,6 +543,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"industry_runtime_tuning",Set.of("sequence","business_id","after_period","old_cadence","new_cadence","discarded_remainder","observed_ms"));
             }
             if(migrations.size()>=36)requireColumns(connection,"industry_auto_shipments",Set.of("shipment_id","clock_business_id","haul_window"));
+            if(migrations.size()>=37)requireColumns(connection,"industry_auto_shipments",Set.of("haul_cadence"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

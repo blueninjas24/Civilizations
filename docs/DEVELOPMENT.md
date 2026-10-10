@@ -11,6 +11,16 @@ funds. Stop normally, inspect integrity/FKs and retained main settings/state, th
 archive the probe outside plugins. Never install it in the player test server.
 See WORKSHOP_SUPPLIES.md for settings, migration and current gameplay limits.
 
+The latest WorkshopSupplyProbe guard uses port 25578; temporarily change only the
+stopped marked dev server's port with a backup, then restore original properties
+after normal stop. The player server stays on 25577. To check legacy cargo upgrade,
+prepare a consistent SQLite backup of a known earlier schema-36 synthetic supply
+fixture as plugins/CivilizationsWorkshopSupplyProbe/legacy-upgrade-fixture/civilizations.db.
+Never copy a player/production save. The source fixture remains read-only; only the
+separate copy upgrades. The native PASS must report legacy checked=true to claim
+that case. Fresh work also verifies saved cadence identity; temp SQLite tests cover
+the actual retuning collision, shared quota, replay and failed-migration recovery.
+
 This guide supports Phase 1; it does not establish new gameplay rules or claim
 a Paper smoke test has been completed.
 

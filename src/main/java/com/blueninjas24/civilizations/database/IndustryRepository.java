@@ -234,20 +234,27 @@ public final class IndustryRepository {
         return transaction(()->purchaseRows(operation,seller,buyer,commodity,units,price,period,delay,haulCapacity,null));
     }
     Shipment purchaseRows(UUID operation,UUID seller,UUID buyer,Commodity commodity,long units,long price,long period,long delay,long haulCapacity,Long haulWindow) throws SQLException {
+        return purchaseRows(operation,seller,buyer,commodity,units,price,period,delay,haulCapacity,haulWindow,null);
+    }
+    Shipment purchaseRows(UUID operation,UUID seller,UUID buyer,Commodity commodity,long units,long price,long period,long delay,long haulCapacity,Long haulWindow,Long haulCadence) throws SQLException {
         if(connection.getAutoCommit())throw new SQLException("Shipment rows require active SQL owner transaction");
         if(seller.equals(buyer) || units<1 || price<0 || period<0 || delay<1 || haulCapacity<1)throw new IllegalArgumentException("Invalid local purchase");
         if(haulWindow!=null && haulWindow<0)throw new IllegalArgumentException("Negative shared hauling window");
+        if(haulCadence!=null && (haulWindow==null || haulCadence<1000 || haulCadence>86400000))throw new IllegalArgumentException("Invalid hauling clock identity");
         long due=Math.addExact(period,delay);String terms=haulWindow==null?terms("purchase",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity)
-                :terms("purchase-clock-v1",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity,haulWindow);
+                :haulCadence==null?terms("purchase-clock-v1",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity,haulWindow)
+                :terms("purchase-clock-v2",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity,haulWindow,haulCadence);
         if(receipt(operation,terms).isPresent())return shipment(operation).orElseThrow();
         var origin=businesses.findFounding(seller).orElseThrow(()->new SQLException("Unknown seller")).business();
         var destination=businesses.findFounding(buyer).orElseThrow(()->new SQLException("Unknown buyer")).business();
         if(!origin.settlementId().equals(destination.settlementId()))throw new SQLException("Local transport cannot cross settlements; regional routes belong to Phase 5");
         long dispatched=0;
         String haulingSql=haulWindow==null?"SELECT t.units FROM local_shipments t JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND t.dispatched_period=? AND NOT EXISTS(SELECT 1 FROM industry_auto_shipments a WHERE a.shipment_id=t.id)"
-                :"SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=?";
+                :"SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=? AND "
+                +(haulCadence==null?"a.haul_cadence IS NULL":"a.haul_cadence=?");
         try(var s=connection.prepareStatement(haulingSql)) {
             s.setString(1,origin.settlementId().toString());s.setLong(2,haulWindow==null?period:haulWindow);
+            if(haulCadence!=null)s.setLong(3,haulCadence);
             try(var r=s.executeQuery()) { while(r.next())dispatched=Math.addExact(dispatched,r.getLong(1)); }
         }
         if(Math.addExact(dispatched,units)>haulCapacity)throw new SQLException("Local haul capacity exhausted for this period");
@@ -263,8 +270,9 @@ public final class IndustryRepository {
             s.setString(1,operation.toString());s.setString(2,seller.toString());s.setString(3,buyer.toString());s.setString(4,commodity.id());
             s.setLong(5,units);s.setLong(6,price);s.setLong(7,period);s.setLong(8,due);s.executeUpdate();
         }
-        if(haulWindow!=null)try(var s=connection.prepareStatement("INSERT INTO industry_auto_shipments VALUES(?,?,?)")) {
-            s.setString(1,operation.toString());s.setString(2,buyer.toString());s.setLong(3,haulWindow);s.executeUpdate();
+        if(haulWindow!=null)try(var s=connection.prepareStatement("INSERT INTO industry_auto_shipments(shipment_id,clock_business_id,haul_window,haul_cadence) VALUES(?,?,?,?)")) {
+            s.setString(1,operation.toString());s.setString(2,buyer.toString());s.setLong(3,haulWindow);
+            if(haulCadence==null)s.setNull(4,Types.INTEGER);else s.setLong(4,haulCadence);s.executeUpdate();
         }
         return shipment(operation).orElseThrow();
     }

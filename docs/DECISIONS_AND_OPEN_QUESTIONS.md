@@ -41,6 +41,12 @@ reserve behavior has not been changed. Native placement/piston/editor safeguards
 do not establish this depletion policy. The question is pending with the user;
 read-only wider observation can proceed independently.
 
+Schema 37's cadence-aware hauling is an engineering correction under the approved
+editable economy authority. Rate/window identify different actual transport times;
+retuning starts a forward quota namespace without changing earlier paid terms or
+inventing historical cadence for older records. Original cargo, funds and history
+remain; no ownership or mineral-depletion answer is inferred from this fix.
+
 Paid workshop supply uses the approved configurable economy prototype authority:
 new files enable up to two periods of complete recipe inputs, bounded review of
 16 actual local warehouses and existing editable base Trade Value prices. Only

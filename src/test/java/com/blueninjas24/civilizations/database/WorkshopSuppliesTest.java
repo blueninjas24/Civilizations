@@ -118,4 +118,46 @@ class WorkshopSuppliesTest {
         sql("DROP TABLE industry_auto_shipments");new SchemaMigrator().migrate(db.getConnection());
         assertEquals(0,count("industry_auto_shipments"));assertEquals(800,store(smith).hundredths());assertEquals(2,store(smith).reservedIncomingSpace());
     }
+    @Test void slowerIndustryCadenceCannotMistakeHistoricHaulingForCurrentCapacity()throws Exception {
+        UUID otherBuyer=business("blacksmith",null,10);
+        db.getBusinessRepository().hire(UUID.randomUUID(),mine,owner,0);
+        db.getIndustryRepository().mine(UUID.randomUUID(),mine,deposit,1,1,1,1);
+        var oldPolicy=policy(supply,3);new IndustryRuntime(db.getConnection(),oldPolicy).start(1000);
+        db.getConnection().setAutoCommit(false);
+        for(var e:Map.of(Commodity.IRON,2L,Commodity.COAL,1L).entrySet())
+            db.getIndustryRepository().purchaseRows(UUID.randomUUID(),mine,otherBuyer,e.getKey(),e.getValue(),1,100,1,3,99L);
+        db.getConnection().commit();db.getConnection().setAutoCommit(true);
+        // Window 99 under 1000 ms was a different time from window 99 under 2000 ms.
+        var slower=new IndustryRuntime(db.getConnection(),new IndustryRuntimePolicy(true,2000,8,oldPolicy.mining(),oldPolicy.recipes(),supply));
+        slower.start(196000);slower.pulse(198000,Set.of(world));
+        assertEquals(500,store(smith).hundredths(),"Old clock namespace must not exhaust current transport");
+        assertEquals(4,count("industry_auto_shipments"));
+    }
+    @Test void cadenceIdentitySharesCurrentQuotaPreservesReplayAndKeepsManualNamespace()throws Exception {
+        new IndustryRuntime(db.getConnection(),policy(supply,128)).start(1000);
+        UUID operation=UUID.randomUUID();db.getConnection().setAutoCommit(false);
+        var first=db.getIndustryRepository().purchaseRows(operation,warehouse,smith,Commodity.COAL,1,100,0,1,1,99L,1000L);
+        assertEquals(first,db.getIndustryRepository().purchaseRows(operation,warehouse,smith,Commodity.COAL,1,100,0,1,1,99L,1000L));
+        assertThrows(SQLException.class,()->db.getIndustryRepository().purchaseRows(operation,warehouse,smith,Commodity.COAL,1,100,0,1,1,99L,2000L));
+        assertThrows(SQLException.class,()->db.getIndustryRepository().purchaseRows(UUID.randomUUID(),warehouse,smith,Commodity.COAL,1,100,99,1,1,99L,1000L));
+        assertThrows(IllegalArgumentException.class,()->db.getIndustryRepository().purchaseRows(UUID.randomUUID(),warehouse,smith,Commodity.COAL,1,100,99,1,1,null,1000L));
+        db.getIndustryRepository().purchaseRows(UUID.randomUUID(),warehouse,smith,Commodity.COAL,1,100,99,1,1,99L,2000L);
+        db.getConnection().commit();db.getConnection().setAutoCommit(true);
+        assertEquals(800,store(smith).hundredths());assertEquals(200,store(warehouse).hundredths());assertEquals(2,count("industry_auto_shipments"));
+        db.getIndustryRepository().purchase(UUID.randomUUID(),warehouse,smith,Commodity.IRON,1,1,99,1,1);
+        assertEquals(799,store(smith).hundredths());assertEquals(201,store(warehouse).hundredths());
+    }
+    @Test void schema36UpgradeRollsBackThenRetainsAndDeliversLegacyAutomaticCargo()throws Exception {
+        var runtime=new IndustryRuntime(db.getConnection(),policy(supply,128));runtime.start(1000);runtime.pulse(2000,Set.of(world));
+        SchemaFixtures.rewind(db.getConnection(),36);
+        sql("CREATE INDEX auto_shipment_haul_cadence ON industry_auto_shipments(haul_window)");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(36,r.getInt(1));}
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM pragma_table_info('industry_auto_shipments') WHERE name='haul_cadence'")){assertEquals(0,r.getInt(1));}
+        assertEquals(500,store(smith).hundredths());assertEquals(3,store(smith).reservedIncomingSpace());assertEquals(2,count("industry_auto_shipments"));
+        sql("DROP INDEX auto_shipment_haul_cadence");new SchemaMigrator().migrate(db.getConnection());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM industry_auto_shipments WHERE haul_cadence IS NULL")){assertEquals(2,r.getInt(1));}
+        runtime.start(100000);runtime.pulse(101000,Set.of(world));assertEquals(1,store(smith).units().get(tools));
+        assertEquals(0,store(smith).reservedIncomingSpace());assertEquals(500,store(smith).hundredths());assertEquals(500,store(warehouse).hundredths());
+    }
 }

@@ -2,6 +2,36 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## October 9, 2026 — transport clock retuning safeguard
+
+Branch `codex/phase3-haul-clock-retuning`. A reproduced bug made an old shipment
+falsely exhaust today's transport after industry speed changed: window numbers
+alone alias different actual times. New automatic shipment terms and quota queries
+include cadence plus window. Shared limits still bind buyers under the same rate;
+immutable replay refuses changed terms. Manual quota remains separate. Retuning
+starts a new rate namespace without changing paid cargo's ownership, prices or
+arrival clock. Schema 37 transactionally adds bounded nullable haul_cadence and
+an index; old automatic rows keep unknown cadence, not guessed current settings.
+
+Three new temporary SQLite cases cover the actual regression, quota/replay and
+failed 36->37 migration with later legacy arrival. Corrected focus 10 passed;
+final Windows Wrapper clean verify passed 691 (689 unit/two packaged integration),
+zero failures/errors/skips. An extra fixture initially shared period zero with its
+setup's real shipments; corrected to an independent period, preserving application
+quota behavior. Actual Paper owner supply/restart/world-pause/cadence checks passed.
+A copied known schema-36 paid-cargo fixture upgraded with all original table/column
+data retained; original fingerprint unchanged. Main dev 36->37 retained industry,
+funds/settings/provenance; all integrity/FKs healthy. No world writes or tickets
+in this probe. Normal stop 0, dev properties restored, probe archived. Final tested
+JAR installed in the stopped player server; settings and save retained.
+
+Phase 3 remains 1/4 complete groups. Current build supports player testing of
+families, farms, food aid/trade and diagnostics. Existing funded nonfood firms have
+timed work and local input purchasing; natural nonfood founding, upstream supply,
+other industries, lifecycle and specialization remain. Pending ore-removal and
+ownership choices precede their corresponding mine/lifecycle work. No main merge
+or push. See TONIGHT_PLAYTEST.md and WORKSHOP_SUPPLIES.md.
+
 ## October 9, 2026 — nearby resource observation
 
 Branch `codex/phase3-nearby-resource-surveys`. Bounded center-first loaded-chunk
