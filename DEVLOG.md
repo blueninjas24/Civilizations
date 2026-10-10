@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## October 9, 2026 — bounded nearby resource surveys
+
+Branch `codex/phase3-nearby-resource-surveys`. Added deterministic center/ring
+geometry, editable 0–2 horizontal chunk radius, legacy scope compatibility,
+capture-time preservation and retained completed diagnostics with town/chunk.
+One snapshot/future remains pending; no forced chunks, extraction or new firms.
+New-file radius one; old missing key keeps zero. Seven new tests, focused 67
+passed; final functional Windows Wrapper clean verify passed 688 (686 unit/two
+packaged integration), zero failures/errors/skips. YAML comment-only clarification
+then repackaged with unchanged values/application; skipped tests only on that
+comment packaging step, not the full verification above. Whitespace cleanup only
+in the previous supply fixture. No schema change (36).
+
+First native attempt timed out. Added fixture diagnostics; they exposed completed
+results overwritten by subsequent scans. Fixed publication and persistent last
+result, repeated full verification, then actual Paper fixture passed nearby chunk
+1,0 beyond empty home 0,0, original capture timestamp after clock advance, saved
+exclusion and retained explanations. Four blocks restored/checked, two test-only
+loading tickets removed, separate DB healthy with two people/one exclusion/no firms.
+Main industry/settings/provenance preserved; integrity/FKs passed. Port 25578 kept
+player address free; normal stop 0, original dev settings restored, probe archived.
+Player JAR updated only while stopped; source player guide expanded. No main merge
+or push. Phase 3 still 25%; ore-removal and succession decisions remain pending.
+
 ## October 9, 2026 — paid automatic workshop inputs
 
 Branch `codex/phase3-workshop-supply-planning`. Added deterministic complete-bundle

@@ -1,25 +1,36 @@
 # Live read-only resource surveys
 
-PaperOreObserver is registered with the plugin and observes one already-loaded
-saved-home chunk per town. The canonical lowest home coordinate is the first
-prototype anchor; this is a deliberately narrow observation footprint, not a
-settlement boundary or omniscient underground search. No chunk is force-loaded.
+PaperOreObserver is registered with the plugin and observes already-loaded chunks
+around each town's canonical lowest saved-home coordinate. Bounded center-first
+rings extend the observation footprint, not the settlement boundary or rights
+to extract. This is not an omniscient underground search. No chunk is force-loaded.
 Snapshots are captured on the main thread and traversed over bounded ticks.
 The current catalog remains exposed normal/deepslate coal and iron.
 
 The optional ore-observer section in economy.yml sets enabled, vertical-radius,
-cells-per-tick and interval-ticks. New-file defaults: enabled, 24 blocks vertically
+cells-per-tick, interval-ticks and horizontal-radius-chunks (0–2). New-file defaults:
+radius one chunk (nine targets maximum), enabled, 24 blocks vertically
 around the home, 512 cells per tick and 400 ticks between observation rounds.
 Missing old-file sections stay disabled, with no automatic owner-file rewrite.
+An old enabled section missing only the new horizontal setting retains its previous
+home-chunk-only scope. Radius zero uses one target; radius two uses at most 25.
 Malformed/partial settings fail before database startup. Maxima cap input budgets;
 these settings do not change existing deposits, extraction yields or prices.
 
-Only one scan and one SQL future are pending. The town queue is bounded at 1024;
+Only one scan and one SQL future are pending. The queue is bounded at 1024 towns,
+each with at most 25 chunk targets. Unloaded targets are skipped, not loaded;
 each survey is capped at 512 combined positive coal/iron coordinates. Unloading
 before traversal finishes, unreliable border evidence, scan overflow, capture gaps and failed
 owner validation discard/defer evidence. Unloading is not resource depletion.
 Unknown is never converted to zero by a partial scan. No placement exclusion is
 assumed from a stale snapshot: the SQL owner rechecks current sticky exclusions.
+Evidence retains the timestamp sampled just before snapshot capture, even when
+traversal spans many ticks. Completion does not make an old snapshot fresh.
+The previous completed result remains visible alongside ongoing scan status,
+with its town, chunk and capture time; another target cannot erase its explanation.
+Nearby chunks remain independent complete observations; they are not silently stitched
+into one village-wide or cross-border deposit. Automatic founding still needs
+freshness, funded need, suitable sites and actual eligibility revalidation.
 
 PopulationSession.surveyMinerals passes immutable data to MineralSurveyReader.
 The owner requires healthy live tracking, a present world and matching saved town

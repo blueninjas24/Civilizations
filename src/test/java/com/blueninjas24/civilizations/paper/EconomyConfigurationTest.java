@@ -13,6 +13,18 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void nearbyOreRadiusIsEditableAndOldSectionsKeepTheirPreviousScope() throws Exception {
+        var config=defaults();assertEquals(1,EconomyConfiguration.readOreObserver(config).horizontalRadiusChunks());
+        config.set("ore-observer.horizontal-radius-chunks",2);assertEquals(2,EconomyConfiguration.readOreObserver(config).horizontalRadiusChunks());
+        config.set("ore-observer.horizontal-radius-chunks",null);EconomyConfiguration.read(config);
+        assertEquals(0,EconomyConfiguration.readOreObserver(config).horizontalRadiusChunks());
+    }
+    @Test void invalidNearbyOreRadiusFailsBeforeOpeningDatabase() throws Exception {
+        for(Object value:List.of(-1,3,1.5,"one")) {
+            var config=defaults();config.set("ore-observer.horizontal-radius-chunks",value);
+            assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+    }
     @Test void readOnlyOreObservationDefaultsAreEditableAndMissingOldSectionStaysDisabled() throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.OreObserverPolicy.prototype(),EconomyConfiguration.readOreObserver(config));
         config.set("ore-observer.cells-per-tick",64);assertEquals(64,EconomyConfiguration.readOreObserver(config).cellsPerTick());

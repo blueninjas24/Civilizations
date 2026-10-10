@@ -111,15 +111,24 @@ restoring server data has not been performed by this development batch.
 
 LiveOreSurveyProbe is a separate guarded test-only plugin, name
 CivilizationsLiveSurveyProbe/main LiveOreSurveyProbe, API1.21, dependency
-Civilizations. It uses the marked localhost/no-player guard, a separate random
+Civilizations. Its latest guard requires the marked localhost/no-player dev server
+on port 25578, leaving the player-test address 25577 free. Back up server.properties
+while stopped, change only that port, and restore it after a normal stop. It uses a separate random
 data directory/session, synthetic saved homes/people and four temporary ore/air
-blocks in an already-loaded chunk. No actual villagers or inventories are changed.
+blocks in already-loaded chunk 1,0, with empty synthetic homes in chunk 0,0.
+No actual villagers or inventories are changed.
 It runs the production PaperOreObserver with explicit small test budgets, saves
 one known placement exclusion in its own DB, and verifies the actual scheduled
-snapshot/SQL-owner pipeline reports one admitted patch. Disable cancels observation,
+snapshot/SQL-owner pipeline reaches the nearby chunk and reports one admitted patch.
+Its injected clock advances during traversal; diagnostics must retain capture time.
+Disable cancels observation,
 closes the owner and restores/checks every fixture block. No mine is founded.
 Back up the stopped dev DB, compile against binary dependencies, archive the probe
 after a passing normal stop, and remove any console-only fixture loading ticket.
+On this verified empty disposable server only, use console
+`execute in minecraft:overworld run forceload add 0 0 16 0` for the two fixture
+chunks, and remove it with `execute in minecraft:overworld run forceload remove 0 0 16 0`.
+Production observation never adds tickets or loads these chunks.
 Keep owner economy.yml unchanged; the explicit test policy does not opt an old
 owner file in. Never ship this fixture in a production JAR. See LIVE_RESOURCE_SURVEYS.md.
 

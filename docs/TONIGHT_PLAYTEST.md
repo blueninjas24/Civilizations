@@ -1,5 +1,19 @@
 # Current prototype: a short player checklist
 
+The prepared local test folder is under Windows %LOCALAPPDATA%\Temp, with a name
+starting civilizations-phase3-player-test-. Double-click START-PLAYTEST.cmd there,
+wait for the server to say Done, and join from Java Minecraft 26.2 using
+127.0.0.1:25577. It is a server plugin; your client does not need a mod installed.
+In that server console, type `op YOUR_MINECRAFT_NAME` to use debug commands.
+Type `stop` in the console when finished. The folder is outside OneDrive and uses
+a separate test world/save. Keep it if you want to resume the same village later.
+
+The prepared settings predate optional workshop supply and nearby-chunk radius.
+The artifact is updated after verified batches, but those existing settings are
+preserved. Missing industry-supply stays off; missing horizontal-radius-chunks
+keeps home-chunk surveys. See WORKSHOP_SUPPLIES.md and LIVE_RESOURCE_SURVEYS.md to
+opt in while stopped. This does not create nonfood businesses automatically.
+
 Use a disposable Paper test server and world. The current prototype has persistent
 villagers/families, food shortages, village food deliveries/trading and automatic
 farms. Phase 3 industry work is still in progress. It does not yet offer automatic

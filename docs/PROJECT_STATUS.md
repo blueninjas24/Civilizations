@@ -2,6 +2,33 @@
 
 **Verified against local source, Git, Wrapper and disposable Paper on October 9, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, competition/closure/succession and specialization remain unfinished. Phases 4–9 remain planned. Human client, inventory-plugin compatibility and survival balancing remain validation limits; this is not a balanced release.
 
+## October 9, 2026 — nearby resource observation
+
+Branch `codex/phase3-nearby-resource-surveys`. Bounded center-first loaded-chunk
+surveys now extend around saved village homes: new radius one (nine targets),
+editable 0–2, at most 25 targets/town and 1024 towns. Old enabled sections missing
+the new key retain one home chunk; absent sections stay disabled. No chunk loading,
+extraction or automatic founding. Immutable evidence retains original capture
+time, not traversal completion time. Last completed explanations retain town,
+chunk and timestamp alongside ongoing work. Native testing exposed results being
+overwritten immediately by the next target; corrected and verified their retention.
+
+Seven new geometry/config cases; focused 67 passed. Final functional Windows
+Wrapper clean verify passed 688 (686 unit/two packaged integration), zero failures,
+errors or skips. Clarified YAML comments repackaged afterward with values/code
+unchanged. Actual Paper fixture passed nearby ore beyond an empty home chunk,
+exclusion filtering, capture time after clock advance and retained results.
+Four temporary blocks restored/checked; two console-only fixture tickets removed.
+Separate synthetic DB: two residents, one exclusion, no businesses, clean/trusted
+fence. Main industry/settings/provenance retained; integrity/FKs healthy. Schema
+remains 36. Test used 25578, then original dev properties restored after normal
+stop 0; probe archived. Updated only the stopped player-server JAR, not its save
+or settings. Source guide now explains starting/joining the local test.
+
+Phase 3 remains 1/4 complete groups. Ore removal and succession decisions are
+pending before their corresponding automatic mine/lifecycle work. Wider survey
+coverage is an observation component, not completion of connected production.
+
 ## October 9, 2026 — paid automatic workshop inputs
 
 Branch `codex/phase3-workshop-supply-planning`. Existing staffed/funded workshops

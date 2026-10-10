@@ -32,6 +32,15 @@ pause/close while retaining site, stock, funds and history; or defer ownership t
 admin choice. No answer is assumed. This consequential ownership rule blocks its
 own lifecycle implementation, not resource capture or other independent work.
 
+Before automatic mine selection, clarify player removal of ore that supports a
+saved deposit. Proposed: pause the affected reserve while retaining its identity,
+goods, funds and history, until further natural evidence permits work. Alternative:
+continue the already discovered finite abstract pool. This controls whether work
+can continue after its visible source is gone; no answer is assumed and existing
+reserve behavior has not been changed. Native placement/piston/editor safeguards
+do not establish this depletion policy. The question is pending with the user;
+read-only wider observation can proceed independently.
+
 Paid workshop supply uses the approved configurable economy prototype authority:
 new files enable up to two periods of complete recipe inputs, bounded review of
 16 actual local warehouses and existing editable base Trade Value prices. Only

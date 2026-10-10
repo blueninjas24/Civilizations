@@ -77,9 +77,11 @@ public final class EconomyConfiguration {
     }
     public static com.blueninjas24.civilizations.industry.OreObserverPolicy readOreObserver(ConfigurationSection config) {
         if(!config.contains("ore-observer"))return com.blueninjas24.civilizations.industry.OreObserverPolicy.disabled();
-        var s=section(config,"ore-observer");exactKeys(s,Set.of("enabled","vertical-radius","cells-per-tick","interval-ticks"));
+        var s=section(config,"ore-observer");var keys=new HashSet<>(Set.of("enabled","vertical-radius","cells-per-tick","interval-ticks"));
+        if(s.contains("horizontal-radius-chunks"))keys.add("horizontal-radius-chunks");exactKeys(s,keys);
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("ore-observer.enabled must be true or false");
-        return new com.blueninjas24.civilizations.industry.OreObserverPolicy(enabled,smallInteger(s,"vertical-radius"),smallInteger(s,"cells-per-tick"),smallInteger(s,"interval-ticks"));
+        return new com.blueninjas24.civilizations.industry.OreObserverPolicy(enabled,smallInteger(s,"vertical-radius"),smallInteger(s,"cells-per-tick"),smallInteger(s,"interval-ticks"),
+                s.contains("horizontal-radius-chunks")?smallInteger(s,"horizontal-radius-chunks"):0);
     }
     public static com.blueninjas24.civilizations.industry.FarmBusinessPolicy readFarmBusinesses(ConfigurationSection config) {
         if(!config.contains("farm-businesses"))return com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();

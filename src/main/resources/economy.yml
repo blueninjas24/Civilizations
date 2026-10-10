@@ -7,22 +7,23 @@
 # Starvation effects are not enabled.
 format-version: 1
 
-# Read-only exposed coal/iron evidence in one saved-home chunk per town.
+# Read-only exposed coal/iron evidence around each saved home anchor.
 # No mining, block ownership or automatic businesses are enabled by this setting.
 # Existing files without this section opt in explicitly; no file rewrite on upgrade.
 # Unknown border evidence is discarded; unloaded chunks are never forced to load.
 ore-observer:
   enabled: true
+  horizontal-radius-chunks: 1  # 0..2; 0 keeps only the home chunk. Never loads chunks.
   vertical-radius: 24
   cells-per-tick: 512
   interval-ticks: 400
 
-# Phase 3 workshop recipe BACKEND: does not create/run workshops automatically yet.
+# Recipes for existing timed workshops; does not create workshops automatically.
 # Abstract commodity units, not individual Minecraft swords/pickaxes or player trades.
 # Real delivered inputs + saved qualified workers + matching business/store required.
 # The store must support every input/output with positive storage-space-per-unit.
 # Inputs, outputs and work rates may be tuned; saved production history is immutable.
-# Older files may omit this section; that never enables automatic workshop production.
+# Timed work and automatic input purchases require their separate settings below.
 recipes:
   smith_tools:
     industry: blacksmith
@@ -48,7 +49,7 @@ farm-businesses:
   minimum-age-months: 216
   minimum-farming-experience: 0
 
-# Phase 3 backend prototype. Automatic discovery/business production is not active yet.
+# Phase 3 finite mining backend. Timed work runs existing mines; auto founding is pending.
 # Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.
 # An observed ore block is deposit evidence, not one item. At discovery only:
 # initial extraction bundles = observed ore count * deposit-batches-per-observed-ore.

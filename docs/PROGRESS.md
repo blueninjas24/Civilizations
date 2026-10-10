@@ -4,8 +4,14 @@ Updated October 9, 2026. Based on verified work, not planned features.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 681 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 688 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
+
+Villages can now look for exposed coal/iron in nearby already-loaded chunks,
+instead of just the home chunk. Bounded observation preserves capture time and
+keeps the last result readable. Actual Paper checks passed. This does not start
+mines yet; resource removal and funding rules must be settled before that work.
+The current player build is ready for farms, families and food trade testing.
 
 Latest industry step: an existing workshop can pay a local warehouse for actual
 materials, wait for delivery and make tool supplies. It cannot spend money twice

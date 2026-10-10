@@ -119,4 +119,3 @@ class WorkshopSuppliesTest {
         assertEquals(0,count("industry_auto_shipments"));assertEquals(800,store(smith).hundredths());assertEquals(2,store(smith).reservedIncomingSpace());
     }
 }
-

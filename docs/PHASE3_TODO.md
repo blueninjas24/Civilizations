@@ -30,6 +30,9 @@ Updated October 9, 2026. Reporting progress remains one of four complete groups
 - [x] Register bounded read-only saved-home ore observation with SQL-owner identity
       and mutation checks; verify the scheduled pipeline on disposable Paper.
       Wider coverage, suitability, durable opportunity selection and funding remain.
+- [x] Add bounded editable nearby loaded-chunk rings, preserve capture time and
+      retain completed diagnostics; verify neighboring ore/exclusions on Paper.
+      Durable suitable funded opportunity selection remains unfinished.
 - [x] Atomic trusted mine startup joins founding, finite discovery, empty storage,
       actual capital and first worker; verify rollback/replay and packaged paid chain.
       Automatic opportunity selection and operation remain unfinished.
