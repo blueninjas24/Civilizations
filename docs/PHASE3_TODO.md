@@ -70,6 +70,9 @@ premises are preferred; physical building reuse remains Phase 4.
       limits, atomic proceeds/audit/ownership and SQL-owner world/date gates;
       temporary SQLite and actual Paper replay/conservation passed. Automatic
       listings/valuation/deadlines and unsold closure remain unfinished.
+- [x] Configurable approved existing-staff operation after owner death, including
+      real paid warehouse/workshop inputs, qualified finite mining and inherited
+      farm staffing; temporary DB and Paper pause/restart/conservation verified.
 - [ ] Bound skill development and investment; no manufactured profit or payroll.
 - [ ] Restart-safe turnover and failed-transition recovery scenarios.
 

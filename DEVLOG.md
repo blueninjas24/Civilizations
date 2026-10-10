@@ -1,5 +1,27 @@
 # Civilizations Development Log
 
+## October 9, 2026 — qualified staff continue after owner death
+
+User explicitly approved continued operation while the family seeks a buyer.
+Added opt-in editable business-operations policy/shared availability checks for
+timed mines/workshops, automatic warehouse supply and field enterprises. Deceased
+owners need actual qualified existing staff; moved living owners are not deceased.
+Farms reconcile deceased labor without automatically replacing staff while ownership
+is unresolved. After inheritance, current-owner reads restore normal staffing.
+No promotion, estate credit, grants, wages or physical changes. Old sections keep
+legacy behavior; enabled farm retuning preserves immutable past economy periods.
+Schema remains 39. Automatic listing/deadlines/closure remain next.
+
+Ten new tests, focus 91 passed; full Windows Wrapper clean verify 725 passed
+(723 unit/two packaged integration), no failures/errors/skips. Farm fixture initially
+counted its deceased founder as productive; corrected assertions without relaxing
+behavior. Native Paper passed a deceased-owner mine staffed by a worker lacking
+founder skill: 3 coal, reserve 5->2, owner retained. Other inheritance, paid resale/
+replay and absence/restart checks passed; funds 8500 treasury/750 cash/250 estate
+conserved. Normal stop exit 0, properties restored, probe archived, dev assets
+retained and integrity/FKs healthy. User-server unchanged. Phase 3 remains 25%;
+no main merge/push. See BUSINESS_OPERATIONS.md. No new decision needed.
+
 ## October 9, 2026 — conserved business resale and family estates
 
 Branch codex/phase3-qualified-succession. Schema 39 additively records estates,

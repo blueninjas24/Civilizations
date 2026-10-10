@@ -4,6 +4,18 @@
 
 ## October 9, 2026 — qualified business succession
 
+Latest follow-on: explicitly approved qualified-existing-staff operation after
+owner death is configurable across timed mines/workshops, warehouse supply and
+automatic farms. No staff/owner/estate money is invented. Farms reconcile lost labor,
+retain remaining staff and use current ownership for later staffing after succession.
+Schema stays 39. Wrapper clean verify passed 725 (723 unit/two packaged integration);
+focus 91 passed. Native Paper verifies a deceased-owner mine producing three coal
+with a worker qualified for work but not ownership, no promotion, finite reserve
+five -> two, plus inherited mine/sale/replay/world pause/restart and conserved funds.
+Normal stop, probe archived, settings restored; dev assets retained, integrity/FKs
+healthy. User's own server unchanged. See BUSINESS_OPERATIONS.md. Automatic listings,
+valuation/deadlines/closure/competition still unfinished; Phase 3 remains 25%.
+
 Latest follow-on: paid resale accounting and separate family estate funds are
 verified. Qualified buyers use real owned-business spare cash and/or eligible
 prior-sale estate proceeds under editable limits. Inheritance takes priority.

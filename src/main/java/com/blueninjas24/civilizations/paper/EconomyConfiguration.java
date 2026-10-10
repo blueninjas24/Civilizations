@@ -23,6 +23,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
+        if (config.contains("business-operations")) rootKeys.add("business-operations");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -35,6 +36,7 @@ public final class EconomyConfiguration {
         readIndustryRuntime(config);
         readWorkshopSupply(config);
         readBusinessPurchasePolicy(config);
+        readBusinessOperations(config);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
@@ -83,6 +85,13 @@ public final class EconomyConfiguration {
         exactKeys(s,Set.of("minimum-retained-business-cash-hundredths","maximum-spare-business-percent","maximum-estate-percent"));
         return new com.blueninjas24.civilizations.industry.BusinessPurchasePolicy(integer(s,"minimum-retained-business-cash-hundredths"),
                 smallInteger(s,"maximum-spare-business-percent"),smallInteger(s,"maximum-estate-percent"));
+    }
+    public static com.blueninjas24.civilizations.industry.BusinessOperationPolicy readBusinessOperations(ConfigurationSection config) {
+        if(!config.contains("business-operations"))return com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
+        var s=section(config,"business-operations");exactKeys(s,Set.of("enabled","continue-staffed-after-owner-death"));
+        if(!(s.get("enabled") instanceof Boolean enabled)||!(s.get("continue-staffed-after-owner-death") instanceof Boolean continued))
+            throw new IllegalArgumentException("business-operations settings must be true or false");
+        return new com.blueninjas24.civilizations.industry.BusinessOperationPolicy(enabled,continued);
     }
     public static com.blueninjas24.civilizations.industry.OreObserverPolicy readOreObserver(ConfigurationSection config) {
         if(!config.contains("ore-observer"))return com.blueninjas24.civilizations.industry.OreObserverPolicy.disabled();

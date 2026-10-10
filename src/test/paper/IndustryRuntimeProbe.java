@@ -23,6 +23,7 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
     private UUID founder, heir, mine;
     private UUID saleOwner,saleFirm;
     private BusinessSales.Request paidSale;
+    private UUID pendingMine,pendingOwner;
     private IndustryRuntimePolicy policy;
     @Override public void onEnable() {
         try {
@@ -53,7 +54,7 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                             case 8 -> {check(2,8);pending=session.sellBusiness(paidSale);}
                             case 9 -> {checkSale();now.set(1_001_000);pending=session.pulse();}
                             case 10 -> {
-                                check(3,7);checkSale();getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified family succession, paid business resale into conserved family estate, once-only acquisition replay after restart, real PopulationSession pulses, finite worker-backed output, absent-world pause, unloaded data-only work; separate database, no world writes");
+                                check(3,7);checkSale();getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified inheritance, conserved paid resale/replay, qualified staff continue a deceased-owner mine without promotion, finite output, absent-world pause and restart; separate database, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -66,7 +67,7 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
     private PopulationSession create() {
         var settings=new PopulationSession.Settings(42,1000,0,2,new PopulationPolicy(12,216,240,480,720,0,0,0),MigrationPolicy.disabled(),VillageRecognition.Policy.prototype(),VillageEnrollmentRepository.Policy.prototype());
         var result=new PopulationSession(folder,getLogger(),settings,now::get);result.configureIndustryRuntime(policy);
-        result.configureBusinessPurchases(new BusinessPurchasePolicy(500,50,100));return result;
+        result.configureBusinessPurchases(new BusinessPurchasePolicy(500,50,100));result.configureBusinessOperations(BusinessOperationPolicy.prototype());return result;
     }
     private void seed()throws Exception {
         var db=new DatabaseManager(folder,getLogger());
@@ -94,6 +95,17 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
             var spare=new Business(UUID.randomUUID(),town,"Fixture Resale Firm",saleOwner,saleOwner,"mining",spareSite.id(),1,0);saleFirm=spare.id();
             db.getBusinessRepository().found(new BusinessFounding(spare,spareSite,req,req,0,"Explicit fixture resale"));
             db.getPopulationRepository().updateResident(new Resident(saleOwner,"Fixture Seller",town,null,300,Resident.Status.DECEASED));
+            pendingOwner=UUID.randomUUID();UUID employee=UUID.randomUUID();
+            db.getPopulationRepository().insertResident(new Resident(pendingOwner,"Fixture Pending Owner",town,null,300,Resident.Status.ALIVE));
+            db.getPopulationRepository().insertResident(new Resident(employee,"Fixture Qualified Employee",town,null,300,Resident.Status.ALIVE));
+            db.getPopulationRepository().recordSkillExperience(pendingOwner,"mining",20);db.getPopulationRepository().recordSkillExperience(employee,"mining",5);
+            var pendingSite=new BusinessSite(UUID.randomUUID(),town,world,2052,40,2048,1,"Synthetic separate pending-sale patch");
+            var pendingBusiness=new Business(UUID.randomUUID(),town,"Fixture Staffed Mine",pendingOwner,pendingOwner,"mining",pendingSite.id(),1,0);pendingMine=pendingBusiness.id();
+            new MiningStartupRepository(db.getConnection()).start(new MiningStartupRepository.Request(new BusinessFounding(pendingBusiness,pendingSite,
+                    new JobRequirements(216,Map.of("mining",20L)),new JobRequirements(216,Map.of("mining",2L)),0,"Existing qualified staff without a qualified successor"),
+                    new MineralObservation(world,1,true,Commodity.COAL,List.of(new VillageObservation.Position(2052,40,2048))),5,
+                    policy.mining().miningBundle(),100,policy.mining().storageSpacePerUnit(),0,employee));
+            db.getPopulationRepository().updateResident(new Resident(pendingOwner,"Fixture Pending Owner",town,null,300,Resident.Status.DECEASED));
         } finally{db.close();}
     }
     private void check(long stock,long remaining)throws Exception {
@@ -103,8 +115,14 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
             if(!businesses.findBusiness(mine).orElseThrow().ownerId().equals(heir)
                     ||!businesses.findFounding(mine).orElseThrow().business().ownerId().equals(founder))throw new IllegalStateException("Owner/founding identity mismatch");
             try(var s=c.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM business_ownership")){if(r.getLong(1)!=1)throw new IllegalStateException("Duplicate or missing succession");}
-            try(var s=c.createStatement();var r=s.executeQuery("SELECT units FROM industry_stock WHERE commodity='coal'")){if(r.getLong(1)!=stock)throw new IllegalStateException("Unexpected timed stock");}
-            try(var s=c.createStatement();var r=s.executeQuery("SELECT remaining_batches FROM mineral_deposits")){if(r.getLong(1)!=remaining)throw new IllegalStateException("Unexpected finite reserve");}
+            try(var s=c.prepareStatement("SELECT units FROM industry_stock WHERE commodity='coal' AND business_id=?")) {
+                for(var id:List.of(mine,pendingMine)){s.setString(1,id.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=stock)throw new IllegalStateException("Unexpected timed stock");}}
+            }
+            try(var s=c.prepareStatement("SELECT d.remaining_batches FROM mineral_deposits d JOIN businesses b ON b.site_id=d.site_id WHERE b.id=?")) {
+                s.setString(1,mine.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=remaining)throw new IllegalStateException("Unexpected finite reserve");}
+                s.setString(1,pendingMine.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=5-stock)throw new IllegalStateException("Unexpected pending-sale reserve");}
+            }
+            if(!businesses.findBusiness(pendingMine).orElseThrow().ownerId().equals(pendingOwner))throw new IllegalStateException("Employee was invented as qualified owner");
             try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){if(!r.getString(1).equals("ok"))throw new IllegalStateException("Integrity failed");}
             try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("Foreign key failed");}
         }

@@ -13,6 +13,20 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void staffedOperationRuleIsEditableAndOldFilesKeepLegacyBehavior()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.BusinessOperationPolicy.prototype(),EconomyConfiguration.readBusinessOperations(config));
+        config.set("business-operations.continue-staffed-after-owner-death",false);EconomyConfiguration.read(config);
+        assertFalse(EconomyConfiguration.readBusinessOperations(config).continueStaffedAfterOwnerDeath());
+        config.set("business-operations",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readBusinessOperations(config).enabled());
+    }
+    @Test void invalidOperatingRuleFailsBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of("yes",1)) {
+            var config=defaults();config.set("business-operations.continue-staffed-after-owner-death",value);
+            assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("business-operations.continue-staffed-after-owner-death",null);
+        assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     @Test void resaleFundingDefaultsAreEditableAndMissingOldSectionDisablesPurchases()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.prototype(),EconomyConfiguration.readBusinessPurchasePolicy(config));
         config.set("business-resale-funding.maximum-spare-business-percent",50);EconomyConfiguration.read(config);

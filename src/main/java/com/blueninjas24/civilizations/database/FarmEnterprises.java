@@ -14,8 +14,13 @@ public final class FarmEnterprises {
     private final PopulationRepository population;
     private final FarmBusinessPolicy policy;
     private final long adulthood;
+    private final BusinessOperationPolicy operations;
     public FarmEnterprises(Connection connection,FarmBusinessPolicy policy,long adulthood) throws SQLException {
+        this(connection,policy,adulthood,BusinessOperationPolicy.disabled());
+    }
+    public FarmEnterprises(Connection connection,FarmBusinessPolicy policy,long adulthood,BusinessOperationPolicy operations) throws SQLException {
         this.connection=connection;this.policy=policy;this.adulthood=adulthood;
+        this.operations=Objects.requireNonNull(operations);
         businesses=new BusinessRepository(connection);population=new PopulationRepository(connection);
     }
     public static UUID businessId(UUID town){return id("civilizations:field-enterprise-v1:"+town);}
@@ -49,10 +54,16 @@ public final class FarmEnterprises {
             saved=Optional.of(businesses.found(new BusinessFounding(business,site,requirements,requirements,policy.startupHundredths(),
                     "Prototype field enterprise: complete crops, qualified founder and actual startup capital")));
         }
-        var founding=saved.orElseThrow();var business=founding.business();
+        var founding=saved.orElseThrow();var business=businesses.findBusiness(founding.business().id()).orElseThrow();
         if(!business.industry().equals("farming") || !founding.site().worldId().equals(farm.world()))
             throw new SQLException("Automatic farm identity conflicts with saved industry/world");
         businesses.reconcileBusiness(business.id(),month);
+        if(operations.enabled()) {
+            var availability=new BusinessOperations(connection,operations).evaluate(business.id());
+            if(!availability.permitted())return "Farm business: "+availability.explanation();
+            var owner=population.findResident(business.ownerId()).orElseThrow();
+            if(owner.status()==Resident.Status.DECEASED)return "Farm business: "+businesses.currentWorkers(business.id()).size()+" existing workers; "+availability.explanation();
+        }
         int target=(int)Math.min(slots,business.workerCapacity());
         int current=businesses.currentWorkers(business.id()).size();
         for(var candidate:candidates(farm.settlement(),founding.workerRequirements())) {
@@ -65,7 +76,11 @@ public final class FarmEnterprises {
         }
         return "Farm business: "+current+" workers; observed slots "+slots+"; capacity "+business.workerCapacity()+"; startup charged once";
     }
-    public long workers(UUID town) throws SQLException {return businesses.currentWorkers(businessId(town)).size();}
+    public long workers(UUID town) throws SQLException {
+        var id=businessId(town);
+        if(operations.enabled()&&(businesses.findBusiness(id).isEmpty()||!new BusinessOperations(connection,operations).evaluate(id).permitted()))return 0;
+        return businesses.currentWorkers(id).size();
+    }
     private List<UUID> candidates(UUID town,JobRequirements requirements) throws SQLException {
         var result=new ArrayList<UUID>();
         try(var s=connection.prepareStatement("""

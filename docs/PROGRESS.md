@@ -2,6 +2,12 @@
 
 Updated October 9, 2026. Based on verified work, not planned features.
 
+Latest: your approved rule now lets qualified existing staff keep a business working
+after its owner dies, while ownership is resolved. Admins can choose to pause it
+instead. Actual workers, supplies, storage and finite resources still limit output.
+All 725 tests and a real Paper check passed. Automatic listings/deadlines/closure
+remain next; Phase 3 still has one complete milestone group out of four (25%).
+
 Latest: qualified buyers can pay for a business with real business cash and family
 estate money. Payments and ownership save together and cannot repeat after restart.
 Admins can edit spending limits. All 715 tests and a real Paper check passed.
@@ -25,7 +31,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 715 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 725 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

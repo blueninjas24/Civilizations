@@ -79,6 +79,35 @@ class IndustryRuntimeTest {
         var view=new BusinessRuntime(db.getConnection(),8,32).refresh(1,Set.of(world)).businesses().get(business);
         assertTrue(view.lastProduction().contains("owner unavailable"));assertFalse(view.ownerAvailable());
     }
+    private void staffedAfterDeath()throws Exception {
+        db.getBusinessRepository().endEmployment(db.getBusinessRepository().currentWorkers(business).getFirst().id(),0,"Fixture owner stops working");
+        db.getBusinessRepository().hire(UUID.randomUUID(),business,smith,0);
+        db.getPopulationRepository().updateResident(new Resident(miner,"Fixture",town,null,300,Resident.Status.DECEASED));
+    }
+    @Test void approvedExistingStaffContinueFiniteMiningWithoutPromotionOrMoneyCreation()throws Exception {
+        staffedAfterDeath();var runtime=new IndustryRuntime(db.getConnection(),policy(1000,8),BusinessOperationPolicy.prototype());runtime.start(1000);
+        runtime.pulse(2000,Set.of(world));assertEquals(1,stock(Commodity.COAL));assertEquals(9,remaining());
+        assertEquals(miner,db.getBusinessRepository().findBusiness(business).orElseThrow().ownerId());assertEquals(0,count("business_ownership"));
+        assertEquals(1000,db.getIndustryRepository().store(business).orElseThrow().hundredths());assertEquals(0,count("family_estates"));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT explanation FROM industry_runtime_history")){assertTrue(r.getString(1).contains("Qualified existing staff"));}
+        runtime.pulse(100000,Set.of());assertEquals(9,remaining());
+    }
+    @Test void adminCanPauseStaffedFirmWithoutEndingJobsOrResettingAssets()throws Exception {
+        staffedAfterDeath();var runtime=new IndustryRuntime(db.getConnection(),policy(1000,8),new BusinessOperationPolicy(true,false));runtime.start(1000);
+        runtime.pulse(2000,Set.of(world));assertEquals(10,remaining());assertEquals(0,stock(Commodity.COAL));assertEquals(1,db.getBusinessRepository().currentWorkers(business).size());
+    }
+    @Test void approvalDoesNotTreatAMovedLivingOwnerAsDeceased()throws Exception {
+        UUID other=UUID.randomUUID();db.saveSettlement(new Settlement(other,"Elsewhere","Fixture",20,64,0,1,0,0));
+        sql("UPDATE residents SET settlement_id='"+other+"' WHERE id='"+miner+"'");
+        db.getBusinessRepository().hire(UUID.randomUUID(),business,smith,0);
+        var runtime=new IndustryRuntime(db.getConnection(),policy(1000,8),BusinessOperationPolicy.prototype());runtime.start(1000);runtime.pulse(2000,Set.of(world));
+        assertEquals(10,remaining());assertEquals(0,stock(Commodity.COAL));
+    }
+    @Test void ownerDeathWithoutQualifiedExistingStaffDoesNotInventWorkers()throws Exception {
+        staffedAfterDeath();db.getPopulationRepository().updateResident(new Resident(smith,"Fixture",town,null,100,Resident.Status.ALIVE));
+        var runtime=new IndustryRuntime(db.getConnection(),policy(1000,8),BusinessOperationPolicy.prototype());runtime.start(1000);runtime.pulse(2000,Set.of(world));
+        assertEquals(10,remaining());assertEquals(0,stock(Commodity.COAL));assertEquals(0,count("industry_production"));
+    }
     @Test void deliveredInputsAreConsumedByTimedWorkshopAndBudgetDoesNotStarveEitherFirm() throws Exception {
         var site=new BusinessSite(UUID.randomUUID(),town,world,3,64,0,10,"Explicit workshop test");
         var b=new Business(UUID.randomUUID(),town,"Smith",smith,smith,"blacksmith",site.id(),1,0);var req=new JobRequirements(216,Map.of());

@@ -12,9 +12,14 @@ public final class IndustryRuntime {
                          CivilizationTime.Anchor anchor, long completed) {}
     private final Connection connection;
     private final IndustryRuntimePolicy policy;
+    private final BusinessOperationPolicy operations;
     private String cursor = "";
     public IndustryRuntime(Connection connection, IndustryRuntimePolicy policy) {
+        this(connection,policy,BusinessOperationPolicy.disabled());
+    }
+    public IndustryRuntime(Connection connection, IndustryRuntimePolicy policy,BusinessOperationPolicy operations) {
         this.connection=Objects.requireNonNull(connection); this.policy=Objects.requireNonNull(policy);
+        this.operations=Objects.requireNonNull(operations);
     }
     /** Restart preserves earned work/fractions but earns no downtime. */
     public void start(long now) throws SQLException {
@@ -85,18 +90,12 @@ public final class IndustryRuntime {
             long period=Math.incrementExact(clock.completed());
             var id=clock.business();
             String reason;
-            boolean ownerAvailable;
-            try(var s=connection.prepareStatement("SELECT r.status,r.settlement_id,b.settlement_id FROM businesses b JOIN residents r ON r.id=b.owner_id WHERE b.id=?")) {
-                s.setString(1,id.toString());try(var r=s.executeQuery()) {
-                    if(!r.next())throw new SQLException("Industry owner identity missing");
-                    ownerAvailable=r.getString(1).equals("ALIVE") && r.getString(2).equals(r.getString(3));
-                }
-            }
+            var availability=new BusinessOperations(connection,operations).evaluate(id);
             var industry=new IndustryRepository(connection);
-            var supplies=new WorkshopSupplies(connection);
+            var supplies=new WorkshopSupplies(connection,operations);
             int arrived=supplies.deliverRows(id,period);
             var operation=UUID.nameUUIDFromBytes(("civilizations:timed-industry-v1:"+id+":"+period).getBytes(StandardCharsets.UTF_8));
-            if(!ownerAvailable)reason="Paused: owner unavailable; inheritance not assumed";
+            if(!availability.permitted())reason=availability.explanation();
             else if(clock.industry().equals("mining")) {
                 var deposits=new ArrayList<UUID>();
                 try(var s=connection.prepareStatement("SELECT d.id FROM mineral_deposits d JOIN businesses b ON b.site_id=d.site_id WHERE b.id=? ORDER BY d.id LIMIT 2")) {
@@ -113,7 +112,7 @@ public final class IndustryRuntime {
                     reason=supply+"; "+industry.processRows(operation,id,recipe.orElseThrow(),recipe.orElseThrow().siteCapacity(),period).receipt().explanation();
                 }
             }
-            reason="Owned cargo delivered: "+arrived+"; "+reason;
+            reason="Owned cargo delivered: "+arrived+"; "+availability.explanation()+"; "+reason;
             try(var s=connection.prepareStatement("INSERT INTO industry_runtime_history VALUES(?,?,?)")) {
                 s.setString(1,id.toString());s.setLong(2,period);s.setString(3,reason.substring(0,Math.min(1024,reason.length())));s.executeUpdate();
             }

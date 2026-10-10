@@ -9,7 +9,9 @@ import java.util.*;
 /** Composition within one timed business-period transaction, never a second purchasing thread. */
 final class WorkshopSupplies {
     private final Connection connection;
-    WorkshopSupplies(Connection connection){this.connection=Objects.requireNonNull(connection);}
+    private final BusinessOperationPolicy operations;
+    WorkshopSupplies(Connection connection){this(connection,BusinessOperationPolicy.disabled());}
+    WorkshopSupplies(Connection connection,BusinessOperationPolicy operations){this.connection=Objects.requireNonNull(connection);this.operations=Objects.requireNonNull(operations);}
     int deliverRows(UUID buyer,long period)throws SQLException {
         requireTransaction();
         var arrivals=new ArrayList<UUID>();
@@ -33,12 +35,13 @@ final class WorkshopSupplies {
         }
         if(incoming>128)return "Supply deferred: pending cargo review budget exceeded; legacy deliveries require their original caller";
         var warehouses=new ArrayList<WorkshopInputPlan.Warehouse>();
-        try(var s=connection.prepareStatement("SELECT b.id FROM businesses b JOIN residents r ON r.id=b.owner_id JOIN industry_stores k ON k.business_id=b.id WHERE b.settlement_id=? AND b.industry='warehouse' AND r.status='ALIVE' AND r.settlement_id=b.settlement_id ORDER BY b.id LIMIT ?")) {
-            s.setString(1,founding.business().settlementId().toString());s.setInt(2,policy.warehousesPerReview());
-            try(var r=s.executeQuery()){while(r.next()) {
-                var id=UUID.fromString(r.getString(1));warehouses.add(new WorkshopInputPlan.Warehouse(id,industry.store(id).orElseThrow().units()));
-            }}
+        var candidates=new ArrayList<UUID>();
+        try(var s=connection.prepareStatement("SELECT b.id FROM businesses b JOIN residents r ON r.id=b.owner_id JOIN industry_stores k ON k.business_id=b.id WHERE b.settlement_id=? AND b.industry='warehouse' AND ((r.status='ALIVE' AND r.settlement_id=b.settlement_id) OR (r.status='DECEASED' AND ?=1)) ORDER BY b.id LIMIT ?")) {
+            s.setString(1,founding.business().settlementId().toString());s.setInt(2,operations.enabled()&&operations.continueStaffedAfterOwnerDeath()?1:0);s.setInt(3,policy.warehousesPerReview());
+            try(var r=s.executeQuery()){while(r.next())candidates.add(UUID.fromString(r.getString(1)));}
         }
+        var availability=new BusinessOperations(connection,operations);
+        for(var id:candidates)if(availability.evaluate(id).permitted())warehouses.add(new WorkshopInputPlan.Warehouse(id,industry.store(id).orElseThrow().units()));
         long hauled=0;
         try(var s=connection.prepareStatement("SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=? AND a.haul_cadence=?")) {
             s.setString(1,founding.business().settlementId().toString());s.setLong(2,haulWindow);s.setLong(3,haulCadence);try(var r=s.executeQuery()){while(r.next())hauled=Math.addExact(hauled,r.getLong(1));}

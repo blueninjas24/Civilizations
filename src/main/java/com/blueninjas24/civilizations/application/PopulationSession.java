@@ -86,6 +86,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.IndustryRuntimePolicy industryPolicy=com.blueninjas24.civilizations.industry.IndustryRuntimePolicy.disabled();
     private com.blueninjas24.civilizations.database.IndustryRuntime industries;
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
+    private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private volatile String industryFailure;
     private boolean industrySuspended; // Failed boundary cannot safely reconstruct a live interval; restart skips it.
     private final AtomicReference<com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot> businessView =
@@ -160,6 +161,10 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure business purchases before session starts");
         purchasePolicy=java.util.Objects.requireNonNull(policy);
     }
+    public void configureBusinessOperations(com.blueninjas24.civilizations.industry.BusinessOperationPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure business operation before session starts");
+        operationPolicy=java.util.Objects.requireNonNull(policy);
+    }
     /** Internal acquisition boundary; listing/valuation/buyer selection are separate lifecycle work. */
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessSales.Request> sellBusiness(com.blueninjas24.civilizations.database.BusinessSales.Request request) {
         return submit(()->{
@@ -209,7 +214,7 @@ public final class PopulationSession implements AutoCloseable {
                     if(!fence.trusted())oreHistoryIssue.set("unclean stop or prior capture gap; reviewed recovery required");
                 }
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
-                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy);
+                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy);
                 industries.start(now.getAsLong());
                 var demographic = database.getDemographicRepository();
                 var saved = demographic.load(settings.population(), settings.migration());
@@ -226,7 +231,7 @@ public final class PopulationSession implements AutoCloseable {
                 advance(accrued.anchor().targetSteps());
                 if (economySettings != null) {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
-                    economy.configureFarmBusinesses(farmBusinessPolicy);
+                    economy.configureFarmBusinesses(farmBusinessPolicy,operationPolicy);
                     if (loadedWorlds == null) economy.start(now.getAsLong());
                     else economy.startOnline(now.getAsLong(), loadedWorlds);
                     economyView.set(economy.views());

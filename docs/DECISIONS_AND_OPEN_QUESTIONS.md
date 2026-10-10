@@ -43,6 +43,11 @@ October 9 playtest decisions, with implementation boundaries:
   Qualified inheritance and paid-sale/estate accounting are now verified. Editable
   funding defaults retain 10.00 Trade Value, allow 25% of spare business cash and
   100% of estate cash per purchase. Automatic listings/deadlines/closure remain.
+  Additional explicit approval: qualified existing employees may keep the business
+  operating while the family seeks a buyer. Real supplies, finite reserves, storage,
+  purchasing funds and world-pause rules still apply. Continued work does not make
+  employees qualified owners, mint estate income or grant automatic hiring authority.
+  Keep this rule configurable. A moved living owner is not a deceased seller.
 - Businesses and households prioritize available suitable vacant premises before
   new construction. Reuse depends on needs, capacity, condition and permission;
   vacancy alone never justifies an unsuitable move or modifying player buildings.

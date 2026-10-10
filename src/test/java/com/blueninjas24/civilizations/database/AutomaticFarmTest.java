@@ -52,6 +52,25 @@ class AutomaticFarmTest {
         runtime.pulse(2000,false);assertEquals(7500,funds());assertEquals(2,db.getBusinessRepository().employmentHistory(business).size());
         runtime.pulse(3000,false);assertEquals(8,output());assertEquals(7500,funds());
     }
+    @Test void approvedStaffedFarmContinuesAfterDeathWithoutHiringAndCurrentOwnerCanResumeHiring()throws Exception {
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216);
+        runtime.configureFarmBusinesses(policy,BusinessOperationPolicy.prototype());observe(1000,true,32,true);runtime.pulse(2000,false);
+        var id=FarmEnterprises.businessId(town);var original=db.getBusinessRepository().findFounding(id).orElseThrow();
+        db.getPopulationRepository().updateResident(new Resident(new UUID(0,1),"Person",town,null,300,Resident.Status.DECEASED));
+        person(new UUID(0,5),300);observe(2001,true,48,true);runtime.pulse(3001,false);
+        assertEquals(4,output());assertEquals(1,db.getBusinessRepository().currentWorkers(id).size());assertEquals(7500,funds());
+        assertTrue(runtime.views().get(town).farmBusiness().contains("existing workers"));
+        new BusinessSuccession(db.getConnection()).succeed(UUID.randomUUID(),id,0).orElseThrow();
+        runtime.pulse(4001,false);assertEquals(12,output());assertEquals(3,db.getBusinessRepository().currentWorkers(id).size());
+        assertEquals(original,db.getBusinessRepository().findFounding(id).orElseThrow());assertEquals(7500,funds());
+    }
+    @Test void configurablePauseStopsFarmProductionAfterDeathWithoutDiscardingJobs()throws Exception {
+        runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216);
+        runtime.configureFarmBusinesses(policy,new BusinessOperationPolicy(true,false));observe(1000,true,32,true);runtime.pulse(2000,false);
+        db.getPopulationRepository().updateResident(new Resident(new UUID(0,1),"Person",town,null,300,Resident.Status.DECEASED));
+        runtime.pulse(3000,false);assertEquals(0,output());assertEquals(1,db.getBusinessRepository().currentWorkers(FarmEnterprises.businessId(town)).size());
+        assertEquals(2,db.getBusinessRepository().employmentHistory(FarmEnterprises.businessId(town)).size());assertEquals(7500,funds());
+    }
     @Test void unknownPartialOrSmallFieldsCannotCreateFarmOrSpendFunds() throws Exception {
         observe(1000,true,32,false);runtime.pulse(2000,false);assertEquals(0,output());
         assertTrue(runtime.views().get(town).farmBusiness().contains("crop position required"));assertEquals(10000,funds());

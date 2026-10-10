@@ -67,6 +67,20 @@ class WorkshopSuppliesTest {
         runtime.pulse(104000,Set.of(world));assertEquals(2,store(smith).units().get(tools));assertEquals(4,count("industry_auto_shipments"));
         assertEquals(9000,new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths());
     }
+    @Test void staffedWarehouseAndWorkshopContinueConservedPurchasesAfterOwnerDeath()throws Exception {
+        UUID staff=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(staff,"Warehouse Staff",town,null,300,Resident.Status.ALIVE));
+        db.getBusinessRepository().hire(UUID.randomUUID(),warehouse,staff,0);
+        db.getPopulationRepository().updateResident(new Resident(owner,"Owner",town,null,300,Resident.Status.DECEASED));
+        var runtime=new IndustryRuntime(db.getConnection(),policy(supply,128),BusinessOperationPolicy.prototype());runtime.start(1000);
+        runtime.pulse(2000,Set.of(world));assertEquals(500,store(smith).hundredths());assertEquals(500,store(warehouse).hundredths());
+        runtime.pulse(3000,Set.of(world));assertEquals(1,store(smith).units().get(tools));assertEquals(500,store(smith).hundredths());
+        assertEquals(owner,db.getBusinessRepository().findBusiness(smith).orElseThrow().ownerId());assertEquals(0,count("business_ownership"));assertEquals(0,count("family_estates"));
+    }
+    @Test void warehouseWithoutStaffCannotSellAutomaticallyAfterOwnerDeath()throws Exception {
+        db.getPopulationRepository().updateResident(new Resident(owner,"Owner",town,null,300,Resident.Status.DECEASED));
+        var runtime=new IndustryRuntime(db.getConnection(),policy(supply,128),BusinessOperationPolicy.prototype());runtime.start(1000);runtime.pulse(2000,Set.of(world));
+        assertEquals(1000,store(smith).hundredths());assertEquals(0,count("industry_auto_shipments"));assertEquals(4,store(warehouse).units().get(Commodity.IRON));
+    }
     @Test void checkpointFailureRollsBackPurchasesMoneyTagsThenDeliveryAndRecipe()throws Exception {
         var runtime=new IndustryRuntime(db.getConnection(),policy(supply,128));runtime.start(1000);
         sql("CREATE TRIGGER fail_work BEFORE UPDATE OF completed ON industry_runtime WHEN NEW.business_id='"+smith+"' BEGIN SELECT RAISE(ABORT,'injected'); END");

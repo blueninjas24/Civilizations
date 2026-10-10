@@ -226,6 +226,9 @@ qualified child, deceased founder and actual child employment, then verifies cur
 owner, immutable founding and exactly one ownership event across restart. A second
 firm uses PopulationSession.sellBusiness to verify real cash/estate conservation
 and accepted replay after restart. No world
+operations are required. A separate deceased owner's mine uses a qualified employee
+whose skill is below the saved founder threshold; it must produce finite goods
+without promotion, retain ownership and pause with its world. No world
 edits/tickets or main data changes beyond the plugin's additive schema upgrade.
 Back up the stopped marked dev DB first. Stop normally, inspect both DBs read-only,
 archive the probe. Never ship it

@@ -7,6 +7,15 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# Qualified EXISTING employees may keep working after an owner's death while the
+# business awaits succession/resale. No promotion, hiring authority, grants or wages.
+# Real supplies, finite deposits, storage and online-world limits still apply.
+# Set continue-staffed-after-owner-death false to pause until a living local owner.
+# enabled false/missing old section retains legacy behavior (mines pause, farms continue).
+business-operations:
+  enabled: true
+  continue-staffed-after-owner-death: true
+
 # Limits for the paid business-resale backend; automatic listing/buyers are upcoming.
 # Buyers must qualify and own the funding business or belong to the saved estate family.
 # 1000 hundredths = 10.00 Trade Value kept in the buyer's business for operations.

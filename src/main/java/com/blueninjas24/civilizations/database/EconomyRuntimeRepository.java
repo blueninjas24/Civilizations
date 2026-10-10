@@ -110,9 +110,13 @@ public final class EconomyRuntimeRepository {
     }
     /** Configure once before use; startup applies existing-save forward settings transitions. */
     public void configureFarmBusinesses(com.blueninjas24.civilizations.industry.FarmBusinessPolicy policy) throws SQLException {
+        configureFarmBusinesses(policy,com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled());
+    }
+    public void configureFarmBusinesses(com.blueninjas24.civilizations.industry.FarmBusinessPolicy policy,com.blueninjas24.civilizations.industry.BusinessOperationPolicy operations) throws SQLException {
         if(inUse || enterprises!=null)throw new IllegalStateException("Configure farm businesses once before using runtime");
-        farmBusinesses=Objects.requireNonNull(policy);enterprises=new FarmEnterprises(connection,policy,adulthood);
+        farmBusinesses=Objects.requireNonNull(policy);enterprises=new FarmEnterprises(connection,policy,adulthood,operations);
         if(policy.enabled())signature+="|farm-business-v1:"+policy;
+        if(operations.enabled())signature+="|business-operations-v1:"+operations;
     }
     private boolean active(UUID town) throws SQLException {
         if (loadedWorlds == null) return true;
