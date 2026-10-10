@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 38;
+    static final int CURRENT_VERSION = 39;
 
     @FunctionalInterface
     interface Migration {
@@ -424,7 +424,8 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX business_owner_history ON business_ownership(business_id,observed_step,operation_id)");
-                }
+                },
+                SchemaMigrator::createBusinessSales
         ));
     }
 
@@ -560,6 +561,11 @@ final class SchemaMigrator {
             if(migrations.size()>=36)requireColumns(connection,"industry_auto_shipments",Set.of("shipment_id","clock_business_id","haul_window"));
             if(migrations.size()>=37)requireColumns(connection,"industry_auto_shipments",Set.of("haul_cadence"));
             if(migrations.size()>=38)requireColumns(connection,"business_ownership",Set.of("operation_id","business_id","previous_owner","next_owner","observed_step","kind"));
+            if(migrations.size()>=39) {
+                requireColumns(connection,"family_estates",Set.of("decedent_id","hundredths"));
+                requireColumns(connection,"business_sales",Set.of("operation_id","business_id","previous_owner","next_owner","observed_step","cash_source","cash_amount","estate_source","estate_amount"));
+                requireColumns(connection,"business_sale_entries",Set.of("operation_id","source_kind","source_id","direction","before_cash","after_cash"));
+            }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));
@@ -1080,6 +1086,47 @@ final class SchemaMigrator {
                 )
                 """);
         execute(connection, "CREATE INDEX treasury_history ON treasury_entries(settlement_id,sequence)");
+    }
+
+    private static void createBusinessSales(Connection connection)throws SQLException {
+        execute(connection,"""
+                CREATE TABLE family_estates (
+                    decedent_id TEXT PRIMARY KEY REFERENCES residents(id),
+                    hundredths INTEGER NOT NULL CHECK(typeof(hundredths)='integer' AND hundredths>=0)
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE business_sales (
+                    operation_id TEXT PRIMARY KEY,
+                    business_id TEXT NOT NULL REFERENCES businesses(id),
+                    previous_owner TEXT NOT NULL REFERENCES residents(id),
+                    next_owner TEXT NOT NULL REFERENCES residents(id),
+                    observed_step INTEGER NOT NULL CHECK(typeof(observed_step)='integer' AND observed_step>=0),
+                    cash_source TEXT REFERENCES industry_stores(business_id),
+                    cash_amount INTEGER NOT NULL CHECK(typeof(cash_amount)='integer' AND cash_amount>=0),
+                    estate_source TEXT REFERENCES family_estates(decedent_id),
+                    estate_amount INTEGER NOT NULL CHECK(typeof(estate_amount)='integer' AND estate_amount>=0),
+                    CHECK((cash_amount=0 AND cash_source IS NULL) OR (cash_amount>0 AND cash_source IS NOT NULL)),
+                    CHECK((estate_amount=0 AND estate_source IS NULL) OR (estate_amount>0 AND estate_source IS NOT NULL)),
+                    CHECK(typeof(cash_amount+estate_amount)='integer' AND cash_amount+estate_amount>0),
+                    CHECK(previous_owner<>next_owner AND (cash_source IS NULL OR cash_source<>business_id)),
+                    UNIQUE(business_id,previous_owner)
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE business_sale_entries (
+                    operation_id TEXT NOT NULL REFERENCES business_sales(operation_id),
+                    source_kind TEXT NOT NULL CHECK(source_kind IN ('BUSINESS','ESTATE')),
+                    source_id TEXT NOT NULL,
+                    direction TEXT NOT NULL CHECK(direction IN ('PAYMENT','PROCEEDS')),
+                    before_cash INTEGER NOT NULL CHECK(typeof(before_cash)='integer' AND before_cash>=0),
+                    after_cash INTEGER NOT NULL CHECK(typeof(after_cash)='integer' AND after_cash>=0),
+                    CHECK((direction='PAYMENT' AND before_cash>after_cash) OR (direction='PROCEEDS' AND after_cash>before_cash AND source_kind='ESTATE')),
+                    PRIMARY KEY(operation_id,source_kind,source_id,direction)
+                )
+                """);
+        execute(connection,"CREATE INDEX business_sale_history ON business_sales(business_id,observed_step,operation_id)");
+        execute(connection,"CREATE INDEX estate_sale_history ON business_sale_entries(source_kind,source_id,operation_id)");
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

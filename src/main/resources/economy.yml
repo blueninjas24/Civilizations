@@ -7,6 +7,17 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# Limits for the paid business-resale backend; automatic listing/buyers are upcoming.
+# Buyers must qualify and own the funding business or belong to the saved estate family.
+# 1000 hundredths = 10.00 Trade Value kept in the buyer's business for operations.
+# Each purchase may use at most 25% of cash ABOVE this floor and 100% of estate cash.
+# Set both percentages to 0 to forbid new purchases. No grants or personal wallets.
+# Existing files without this complete section disable new purchases; accepted history remains.
+business-resale-funding:
+  minimum-retained-business-cash-hundredths: 1000
+  maximum-spare-business-percent: 25
+  maximum-estate-percent: 100
+
 # Read-only exposed coal/iron evidence around each saved home anchor.
 # No mining, block ownership or automatic businesses are enabled by this setting.
 # Existing files without this section opt in explicitly; no file rewrite on upgrade.

@@ -1,5 +1,27 @@
 # Civilizations Development Log
 
+## October 9, 2026 — conserved business resale and family estates
+
+Branch codex/phase3-qualified-succession. Schema 39 additively records estates,
+paid sales and before/after payments/proceeds. Qualified inheritance takes priority;
+eligible buyers use real owned-business spare cash and/or recorded family estate
+proceeds. Editable limits retain 10.00 Trade Value, spend at most 25% of surplus cash
+and 100% of estate cash per purchase. No grants, salary, personal wallets or stock
+conversion. Firm site/founder/assets/jobs/cargo persist. SQL-owner API rejects new
+absent-world/future-date purchases and preserves historical accepted replay.
+
+Seventeen new tests; focus 81 passed. Windows Wrapper clean verify passed 715
+(713 unit/two packaged integration), zero failures/errors/skips. Initial fixtures
+made a paying customer underage and used updateResident for a move; corrected test
+setup without changing application behavior. Native Paper PASS: inheritance then
+paid acquisition, replay after restart, pause, 3 coal/7 reserve, 750 working cash +
+250 estate and unchanged 8500 treasury. Deployment initially used a relative build
+path from the server folder; hash check halted startup, corrected to absolute path
+before successful run. Normal stop exit 0, settings restored, probe archived, dev
+assets retained and integrity/FKs healthy. User's server untouched. Automatic listings,
+valuation/deadlines, closure/competition and estate-backed new founding remain next.
+Phase 3 stays 25%; no main merge/push or blocking design question.
+
 ## October 9, 2026 — qualified inheritance and immutable founding
 
 Branch `codex/phase3-qualified-succession`. Added current business reads independent

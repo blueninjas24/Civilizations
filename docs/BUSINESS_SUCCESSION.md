@@ -22,7 +22,8 @@ Schema 38 adds business_ownership and an indexed per-business event history; old
 rows/accounts remain unchanged. This is a transactional additive migration. The
 37->38 failure/retry test keeps founding and treasury intact.
 
-Family estate funds, business sale, configurable buyer withdrawals, sale deadlines,
+Paid sale/estate accounting and configurable withdrawals are verified; see
+BUSINESS_RESALE.md. Automatic listings, sale deadlines,
 closure/competition and skill development remain upcoming. No physical building
 change/reuse is implemented here; Phase 4 handles suitable permitted vacancies.
 

@@ -4,6 +4,18 @@
 
 ## October 9, 2026 — qualified business succession
 
+Latest follow-on: paid resale accounting and separate family estate funds are
+verified. Qualified buyers use real owned-business spare cash and/or eligible
+prior-sale estate proceeds under editable limits. Inheritance takes priority.
+Payment, estate credit, audit and owner change are atomic; retry does not pay twice.
+Internal session API rejects new absent-world/future-date sales. Schema 39 retains
+prior assets. Wrapper clean verify passed 715 (713 unit/two packaged integration);
+focus 81 passed. Paper owner fixture passed a 250 cash-to-estate purchase, replay,
+pause/restart and 3 coal/7 reserve, retaining treasury 8500 and cash/estate total 1000.
+Marked dev assets retained; normal stop, settings restored, probe archived. No own
+server/world changes. Automatic listings/valuation/deadlines/closure/competition and
+estate-backed new founding remain unfinished. See BUSINESS_RESALE.md. Phase 3 25%.
+
 Business founding remains immutable and separate from current ownership. Present
 worlds' bounded business refresh now transfers a deceased owner's firm to an
 eligible industry-qualified recorded family member first, then a qualified current
@@ -29,7 +41,7 @@ business capital 1000 retained. Marked dev industry/funds/identity matched pre-u
 backup; its existing resident/calendar advanced normally while online. No probe block
 writes/tickets, and no changes to the user's own server. See BUSINESS_SUCCESSION.md.
 
-Resale, family estate funds, closure/competition, per-block resource retirement and
+Automatic resale, closure/competition, per-block resource retirement and
 automatic wider industries remain upcoming. Buyer estate/business spare-cash sources
 with configurable limits are approved. Phase 3 remains 1/4 complete groups (25%).
 

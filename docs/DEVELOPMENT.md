@@ -223,7 +223,9 @@ fixture owner seeds explicit funded industry, then real PopulationSession owners
 run accelerated deterministic clocks/pulses and world masks. Check finite output,
 absence, downtime/restart and preserved capital. Its succession fixture records a
 qualified child, deceased founder and actual child employment, then verifies current
-owner, immutable founding and exactly one ownership event across restart. No world
+owner, immutable founding and exactly one ownership event across restart. A second
+firm uses PopulationSession.sellBusiness to verify real cash/estate conservation
+and accepted replay after restart. No world
 edits/tickets or main data changes beyond the plugin's additive schema upgrade.
 Back up the stopped marked dev DB first. Stop normally, inspect both DBs read-only,
 archive the probe. Never ship it

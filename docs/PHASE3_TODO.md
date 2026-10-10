@@ -66,6 +66,10 @@ premises are preferred; physical building reuse remains Phase 4.
 - [x] Atomic family-first/qualified employee inheritance, immutable founding/current
       owner separation and present-world runtime integration; temp SQL rollback/retry
       and actual Paper mine/restart checks passed. Resale/estate/closure remain.
+- [x] Paid acquisition backend with real buyer business/estate funds, configurable
+      limits, atomic proceeds/audit/ownership and SQL-owner world/date gates;
+      temporary SQLite and actual Paper replay/conservation passed. Automatic
+      listings/valuation/deadlines and unsold closure remain unfinished.
 - [ ] Bound skill development and investment; no manufactured profit or payroll.
 - [ ] Restart-safe turnover and failed-transition recovery scenarios.
 

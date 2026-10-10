@@ -13,6 +13,22 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void resaleFundingDefaultsAreEditableAndMissingOldSectionDisablesPurchases()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.prototype(),EconomyConfiguration.readBusinessPurchasePolicy(config));
+        config.set("business-resale-funding.maximum-spare-business-percent",50);EconomyConfiguration.read(config);
+        assertEquals(2500,EconomyConfiguration.readBusinessPurchasePolicy(config).businessAvailable(6000));
+        config.set("business-resale-funding",null);EconomyConfiguration.read(config);
+        assertEquals(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled(),EconomyConfiguration.readBusinessPurchasePolicy(config));
+    }
+    @Test void malformedResaleLimitsFailBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of(-1,101,1.5,"all")) {
+            var config=defaults();config.set("business-resale-funding.maximum-estate-percent",value);
+            assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var missing=defaults();missing.set("business-resale-funding.minimum-retained-business-cash-hundredths",null);
+        assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(missing));
+        var extra=defaults();extra.set("business-resale-funding.free-money",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(extra));
+    }
     @Test void nearbyOreRadiusIsEditableAndOldSectionsKeepTheirPreviousScope() throws Exception {
         var config=defaults();assertEquals(1,EconomyConfiguration.readOreObserver(config).horizontalRadiusChunks());
         config.set("ore-observer.horizontal-radius-chunks",2);assertEquals(2,EconomyConfiguration.readOreObserver(config).horizontalRadiusChunks());

@@ -22,6 +22,7 @@ public final class EconomyConfiguration {
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
+        if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -33,6 +34,7 @@ public final class EconomyConfiguration {
         readAdditionalOreEditors(config);
         readIndustryRuntime(config);
         readWorkshopSupply(config);
+        readBusinessPurchasePolicy(config);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
@@ -74,6 +76,13 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    public static com.blueninjas24.civilizations.industry.BusinessPurchasePolicy readBusinessPurchasePolicy(ConfigurationSection config) {
+        if(!config.contains("business-resale-funding"))return com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
+        var s=section(config,"business-resale-funding");
+        exactKeys(s,Set.of("minimum-retained-business-cash-hundredths","maximum-spare-business-percent","maximum-estate-percent"));
+        return new com.blueninjas24.civilizations.industry.BusinessPurchasePolicy(integer(s,"minimum-retained-business-cash-hundredths"),
+                smallInteger(s,"maximum-spare-business-percent"),smallInteger(s,"maximum-estate-percent"));
     }
     public static com.blueninjas24.civilizations.industry.OreObserverPolicy readOreObserver(ConfigurationSection config) {
         if(!config.contains("ore-observer"))return com.blueninjas24.civilizations.industry.OreObserverPolicy.disabled();

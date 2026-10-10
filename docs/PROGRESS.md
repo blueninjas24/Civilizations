@@ -2,6 +2,12 @@
 
 Updated October 9, 2026. Based on verified work, not planned features.
 
+Latest: qualified buyers can pay for a business with real business cash and family
+estate money. Payments and ownership save together and cannot repeat after restart.
+Admins can edit spending limits. All 715 tests and a real Paper check passed.
+Automatic sale listings, paused deadlines and closure are next; Phase 3 stays 25%
+because the whole lifecycle/competition group is not finished.
+
 Latest: a deceased business owner's qualified family member can inherit; otherwise
 a qualified employee can take over. Children/unqualified relatives cannot bypass
 requirements, and workers do not silently change industries. The business keeps its
@@ -19,7 +25,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 698 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 715 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

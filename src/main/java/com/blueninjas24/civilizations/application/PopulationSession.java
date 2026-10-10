@@ -85,6 +85,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.database.BusinessRuntime businesses;
     private com.blueninjas24.civilizations.industry.IndustryRuntimePolicy industryPolicy=com.blueninjas24.civilizations.industry.IndustryRuntimePolicy.disabled();
     private com.blueninjas24.civilizations.database.IndustryRuntime industries;
+    private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
     private volatile String industryFailure;
     private boolean industrySuspended; // Failed boundary cannot safely reconstruct a live interval; restart skips it.
     private final AtomicReference<com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot> businessView =
@@ -154,6 +155,23 @@ public final class PopulationSession implements AutoCloseable {
     public String industryRuntimeDiagnostic() {
         return !industryPolicy.enabled()?"Timed industry disabled in economy.yml":industryFailure!=null
                 ?"Timed industry deferred: "+industryFailure:"Timed industry active for saved firms; automatic founding remains unfinished";
+    }
+    public void configureBusinessPurchases(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure business purchases before session starts");
+        purchasePolicy=java.util.Objects.requireNonNull(policy);
+    }
+    /** Internal acquisition boundary; listing/valuation/buyer selection are separate lifecycle work. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.BusinessSales.Request> sellBusiness(com.blueninjas24.civilizations.database.BusinessSales.Request request) {
+        return submit(()->{
+            requireReady();
+            var sales=new com.blueninjas24.civilizations.database.BusinessSales(database.getConnection(),purchasePolicy);
+            if(sales.find(request.operation()).isEmpty()) {
+                var founding=database.getBusinessRepository().findFounding(request.business()).orElseThrow(()->new SQLException("Unknown business"));
+                if(loadedWorlds!=null&&!loadedWorlds.contains(founding.site().worldId()))throw new SQLException("Business world is absent");
+                if(request.step()!=status.get().completedMonths())throw new SQLException("Sale requires current completed calendar step");
+            }
+            return sales.sell(request);
+        });
     }
     public boolean oreDiscoveryReady() { return trackOres && oreHistoryHealthy.get() && status().ready(); }
     public String oreTrackingDiagnostic() {

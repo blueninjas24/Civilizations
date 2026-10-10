@@ -21,6 +21,8 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
     private java.io.File folder;
     private UUID world;
     private UUID founder, heir, mine;
+    private UUID saleOwner,saleFirm;
+    private BusinessSales.Request paidSale;
     private IndustryRuntimePolicy policy;
     @Override public void onEnable() {
         try {
@@ -42,14 +44,16 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                         switch(stage++) {
                             case 0 -> {session=create();pending=session.start(false,Set.of(world));}
                             case 1 -> {now.set(2000);pending=session.pulse();}
-                            case 2 -> {check(1,9);pending=session.updateLoadedWorlds(Set.of());}
-                            case 3 -> {now.set(100_000);pending=session.pulse();}
-                            case 4 -> {check(1,9);pending=session.updateLoadedWorlds(Set.of(world));}
-                            case 5 -> {now.set(101_000);pending=session.pulse();}
-                            case 6 -> {check(2,8);session.close();now.set(1_000_000);session=create();pending=session.start(false,Set.of(world));}
-                            case 7 -> {check(2,8);now.set(1_001_000);pending=session.pulse();}
-                            case 8 -> {
-                                check(3,7);getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified family succession, historical founding/current owner separation, real PopulationSession pulses, finite worker-backed output, absent-world pause, unloaded data-only work and restart without downtime catch-up; separate database, no world writes");
+                            case 2 -> {check(1,9);paidSale=new BusinessSales.Request(UUID.randomUUID(),saleFirm,saleOwner,heir,1,mine,250,null,0);pending=session.sellBusiness(paidSale);}
+                            case 3 -> {checkSale();pending=session.updateLoadedWorlds(Set.of());}
+                            case 4 -> {now.set(100_000);pending=session.pulse();}
+                            case 5 -> {check(1,9);checkSale();pending=session.updateLoadedWorlds(Set.of(world));}
+                            case 6 -> {now.set(101_000);pending=session.pulse();}
+                            case 7 -> {check(2,8);session.close();now.set(1_000_000);session=create();pending=session.start(false,Set.of(world));}
+                            case 8 -> {check(2,8);pending=session.sellBusiness(paidSale);}
+                            case 9 -> {checkSale();now.set(1_001_000);pending=session.pulse();}
+                            case 10 -> {
+                                check(3,7);checkSale();getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified family succession, paid business resale into conserved family estate, once-only acquisition replay after restart, real PopulationSession pulses, finite worker-backed output, absent-world pause, unloaded data-only work; separate database, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -61,7 +65,8 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
     }
     private PopulationSession create() {
         var settings=new PopulationSession.Settings(42,1000,0,2,new PopulationPolicy(12,216,240,480,720,0,0,0),MigrationPolicy.disabled(),VillageRecognition.Policy.prototype(),VillageEnrollmentRepository.Policy.prototype());
-        var result=new PopulationSession(folder,getLogger(),settings,now::get);result.configureIndustryRuntime(policy);return result;
+        var result=new PopulationSession(folder,getLogger(),settings,now::get);result.configureIndustryRuntime(policy);
+        result.configureBusinessPurchases(new BusinessPurchasePolicy(500,50,100));return result;
     }
     private void seed()throws Exception {
         var db=new DatabaseManager(folder,getLogger());
@@ -83,6 +88,12 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
             var job=db.getBusinessRepository().currentWorkers(mine).getFirst();db.getBusinessRepository().endEmployment(job.id(),0,"Fixture owner deceased");
             db.getPopulationRepository().updateResident(new Resident(worker,"Fixture",town,null,300,Resident.Status.DECEASED));
             db.getBusinessRepository().hire(UUID.randomUUID(),mine,heir,0);
+            saleOwner=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(saleOwner,"Fixture Seller",town,null,300,Resident.Status.ALIVE));
+            db.getPopulationRepository().recordSkillExperience(saleOwner,"mining",10);
+            var spareSite=new BusinessSite(UUID.randomUUID(),town,world,2050,40,2048,1,"Synthetic resale site; no block ownership");
+            var spare=new Business(UUID.randomUUID(),town,"Fixture Resale Firm",saleOwner,saleOwner,"mining",spareSite.id(),1,0);saleFirm=spare.id();
+            db.getBusinessRepository().found(new BusinessFounding(spare,spareSite,req,req,0,"Explicit fixture resale"));
+            db.getPopulationRepository().updateResident(new Resident(saleOwner,"Fixture Seller",town,null,300,Resident.Status.DECEASED));
         } finally{db.close();}
     }
     private void check(long stock,long remaining)throws Exception {
@@ -99,5 +110,17 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
         }
     }
     private void fail(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"NATIVE TIMED INDUSTRY FAIL",failure);getServer().getPluginManager().disablePlugin(this);}
+    private void checkSale()throws Exception {
+        try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+folder.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro")) {
+            try(var s=c.createStatement()){s.execute("PRAGMA foreign_keys=ON");}
+            var sales=new BusinessSales(c,BusinessPurchasePolicy.disabled());
+            if(!sales.find(paidSale.operation()).orElseThrow().equals(paidSale)||sales.entries(paidSale.operation()).size()!=2
+                    ||sales.estate(saleOwner).orElseThrow()!=250||new IndustryRepository(c).store(mine).orElseThrow().hundredths()!=750
+                    ||!new BusinessRepository(c).findBusiness(saleFirm).orElseThrow().ownerId().equals(heir)
+                    ||!new BusinessRepository(c).findFounding(saleFirm).orElseThrow().business().ownerId().equals(saleOwner))
+                throw new IllegalStateException("Paid resale identity or conserved money mismatch");
+            try(var s=c.createStatement();var r=s.executeQuery("SELECT SUM(hundredths) FROM treasuries")){if(r.getLong(1)!=8500)throw new IllegalStateException("Resale changed village treasury");}
+        }
+    }
     @Override public void onDisable(){if(session!=null){session.close();session=null;}if(fixture!=null)fixture.shutdown();}
 }

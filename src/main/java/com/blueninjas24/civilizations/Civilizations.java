@@ -91,6 +91,7 @@ public final class Civilizations extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
             population.configureOreTracking();
             population.configureIndustryRuntime(EconomyConfiguration.readIndustryRuntime(economyConfig));
+            population.configureBusinessPurchases(EconomyConfiguration.readBusinessPurchasePolicy(economyConfig));
             var editorGuard = new com.blueninjas24.civilizations.paper.OreEditorGuard(population, getLogger(),
                     EconomyConfiguration.readAdditionalOreEditors(economyConfig));
             getServer().getPluginManager().registerEvents(editorGuard, this);

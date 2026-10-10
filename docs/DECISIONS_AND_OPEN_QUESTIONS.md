@@ -26,7 +26,7 @@ and resource rules; Phase 4 supplies physical excavation/layouts/work points; re
 transport remains Phase 5 and physical deterioration/disasters follow later gates.
 The canonical nine-phase roadmap is unchanged. See PHASE3_TODO.md.
 
-October 9 playtest decisions, approved but not yet implemented:
+October 9 playtest decisions, with implementation boundaries:
 
 - Succession first selects eligible, industry-qualified family, then a qualified
   existing employee. Kinship never bypasses age/skill/occupation requirements;
@@ -40,6 +40,9 @@ October 9 playtest decisions, approved but not yet implemented:
   Additional approval: qualified buyers may use their family estate fund and their
   existing business's spare cash under configurable limits. Every withdrawal/payment
   must be recorded and conserved; no automatic treasury grant or invented money.
+  Qualified inheritance and paid-sale/estate accounting are now verified. Editable
+  funding defaults retain 10.00 Trade Value, allow 25% of spare business cash and
+  100% of estate cash per purchase. Automatic listings/deadlines/closure remain.
 - Businesses and households prioritize available suitable vacant premises before
   new construction. Reuse depends on needs, capacity, condition and permission;
   vacancy alone never justifies an unsuitable move or modifying player buildings.
@@ -81,7 +84,8 @@ new funding grants or invented consumers. World/server absence pauses. Existing
 clocks/history survive restart; cadence changes require an empty queue and retain
 a transition record. Work/input changes, receipt/history/checkpoint are atomic.
 Owner unavailability currently defers operation without selecting an heir. Qualified
-succession/resale rules are now approved above, but not implemented. Automatic
+succession/resale rules are approved; qualified inheritance and paid-sale accounting
+are verified, while automatic resale/closure remains unfinished. Automatic
 opportunities/founding, purchasing/customer demand and wider
 industry coverage still need scoped work. See TIMED_INDUSTRY.md.
 

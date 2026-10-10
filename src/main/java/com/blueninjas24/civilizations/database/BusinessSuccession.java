@@ -8,6 +8,7 @@ import java.util.*;
 /** Atomic qualified succession on the SQL owner. No invented skills, funds or family relationships. */
 public final class BusinessSuccession {
     public enum Kind { FAMILY, EMPLOYEE }
+    public record Candidate(UUID resident, Kind kind) {}
     public record Transfer(UUID operation, UUID business, UUID previousOwner, UUID nextOwner, long step, Kind kind) {}
     private final Connection connection;
     private final BusinessRepository businesses;
@@ -41,18 +42,9 @@ public final class BusinessSuccession {
         if(step<business.foundedStep())throw new SQLException("Succession predates founding");
         var owner=population.findResident(business.ownerId()).orElseThrow(()->new SQLException("Missing business owner"));
         if(owner.status()!=Resident.Status.DECEASED)return Optional.empty();
-        var family=new TreeSet<UUID>(Comparator.comparing(UUID::toString));
-        for(var tie:population.findFamilyTies(owner.id()))family.add(tie.first().equals(owner.id())?tie.second():tie.first());
-        family.addAll(population.findSiblings(owner.id()));
-        if(family.size()>256)throw new SQLException("Family succession review budget exceeded");
-        var requirements=businesses.findFounding(id).orElseThrow().founderRequirements();
-        UUID successor=null;Kind kind=Kind.FAMILY;
-        for(var candidate:family)if(qualified(candidate,business,requirements)){successor=candidate;break;}
-        if(successor==null) {
-            kind=Kind.EMPLOYEE;
-            for(var employee:businesses.currentWorkers(id))if(qualified(employee.residentId(),business,requirements)){successor=employee.residentId();break;}
-        }
-        if(successor==null)return Optional.empty();
+        var selected=candidate(id);
+        if(selected.isEmpty())return Optional.empty();
+        UUID successor=selected.orElseThrow().resident();Kind kind=selected.orElseThrow().kind();
         try(var s=connection.prepareStatement("UPDATE businesses SET owner_id=? WHERE id=? AND owner_id=?")) {
             s.setString(1,successor.toString());s.setString(2,id.toString());s.setString(3,owner.id().toString());
             if(s.executeUpdate()!=1)throw new SQLException("Stale business owner");
@@ -63,6 +55,24 @@ public final class BusinessSuccession {
             s.setString(4,successor.toString());s.setLong(5,step);s.setString(6,kind.name());s.executeUpdate();
         }
         return Optional.of(result);
+    }
+    /** Read-only selection also prevents resale from bypassing an available successor. */
+    public Optional<Candidate> candidate(UUID id)throws SQLException {
+        var business=businesses.findBusiness(id).orElseThrow(()->new SQLException("Unknown business"));
+        var owner=population.findResident(business.ownerId()).orElseThrow();
+        if(owner.status()!=Resident.Status.DECEASED)return Optional.empty();
+        var family=new TreeSet<UUID>(Comparator.comparing(UUID::toString));
+        for(var tie:population.findFamilyTies(owner.id()))family.add(tie.first().equals(owner.id())?tie.second():tie.first());
+        family.addAll(population.findSiblings(owner.id()));
+        if(family.size()>256)throw new SQLException("Family succession review budget exceeded");
+        var requirements=businesses.findFounding(id).orElseThrow().founderRequirements();
+        for(var relative:family)if(qualified(relative,business,requirements))return Optional.of(new Candidate(relative,Kind.FAMILY));
+        for(var employee:businesses.currentWorkers(id))if(qualified(employee.residentId(),business,requirements))return Optional.of(new Candidate(employee.residentId(),Kind.EMPLOYEE));
+        return Optional.empty();
+    }
+    boolean qualifiedBuyer(UUID resident,UUID business)throws SQLException {
+        var b=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown business"));
+        return qualified(resident,b,businesses.findFounding(business).orElseThrow().founderRequirements());
     }
     private boolean qualified(UUID candidate,Business business,JobRequirements requirements)throws SQLException {
         var person=population.findResident(candidate).orElseThrow(()->new SQLException("Missing succession family member"));
