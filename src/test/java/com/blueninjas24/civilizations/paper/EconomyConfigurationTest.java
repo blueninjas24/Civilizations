@@ -13,6 +13,17 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void automaticResaleDefaultsAreEditableAndOldFilesRemainDisabled()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.BusinessResalePolicy.prototype(),EconomyConfiguration.readAutomaticResale(config));
+        config.set("automatic-business-resale.sale-deadline-seconds",1200);EconomyConfiguration.read(config);assertEquals(1200000,EconomyConfiguration.readAutomaticResale(config).deadlineMillis());
+        config.set("automatic-business-resale",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readAutomaticResale(config).enabled());
+    }
+    @Test void invalidResaleRatesValuesAndBudgetsFailBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of(0,129,1.5,"many")) {
+            var config=defaults();config.set("automatic-business-resale.buyers-per-review",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("automatic-business-resale.stock-value-hundredths-per-unit.coal",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     @Test void studyCostsAndBudgetsAreEditableAndLegacyFilesRemainDisabled()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.StudyPolicy.prototype(),EconomyConfiguration.readStudy(config));
         config.set("resident-study.skills.mining.practice-supplies.stone",3);EconomyConfiguration.read(config);

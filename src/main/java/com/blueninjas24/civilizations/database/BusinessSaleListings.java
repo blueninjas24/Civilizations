@@ -14,7 +14,10 @@ public final class BusinessSaleListings {
     public Listing open(UUID business,long price,long deadlineMillis,long now,long step)throws SQLException {
         Objects.requireNonNull(business);
         if(price<1||deadlineMillis<1000||deadlineMillis>86400000||now<0||step<0)throw new IllegalArgumentException("Invalid business listing");
-        return transaction(()->{
+        return transaction(()->openRows(business,price,deadlineMillis,now,step));
+    }
+    Listing openRows(UUID business,long price,long deadlineMillis,long now,long step)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Listing rows require owner transaction");
             var firms=new BusinessRepository(connection);var b=firms.findBusiness(business).orElseThrow(()->new SQLException("Unknown listing business"));
             var old=find(business,b.ownerId());
             if(old.isPresent()) {
@@ -32,7 +35,6 @@ public final class BusinessSaleListings {
                 s.setLong(5,step);s.setLong(6,now);s.executeUpdate();
             }
             return find(business,b.ownerId()).orElseThrow();
-        });
     }
     /** Startup advances only the observation anchor, preserving earned time without downtime catch-up. */
     public void resume(long now)throws SQLException {observe(now,null,true);}

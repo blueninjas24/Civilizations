@@ -1,9 +1,9 @@
 # Development and recovery procedures
 
-Adult-study probe follow-up: schema43, a separate study-run DB with 0→1→2 skill,
+Adult-study probe follow-up: schema 43, a separate study-run DB with 0→1→2 skill,
 COMPLETED course, stone/timber8 remaining from10 each, four material spending rows.
 Hungry first review must spend nothing; absence/restart/replay add no experience.
-Keep all16 old dev asset/skill/audit snapshots unchanged and no invented main courses.
+Keep all 16 old dev asset/skill/audit snapshots unchanged and no invented main courses.
 Latest Wrapper clean verify770 passed. RESIDENT_STUDY.md describes settings/scope.
 Migration failure assertions must read prior-schema tables directly, not new-schema
 view diagnostics. Stop/restore/archive as with the existing guarded industry probe.
@@ -266,3 +266,15 @@ edits/tickets or main data changes beyond the plugin's additive schema upgrade.
 Back up the stopped marked dev DB first. Stop normally, inspect both DBs read-only,
 archive the probe. Never ship it
 with the plugin. See TIMED_INDUSTRY.md; TONIGHT_PLAYTEST.md is the player checklist.
+
+
+October 10 resale extension: IndustryRuntimeProbe also runs a separate random
+PopulationSession database with automatic resale enabled. Four deceased owners'
+firms are bought with real funds by one qualified resident, then reopened without
+repeat payments. Start while the world is absent to prove no offers appear, resume
+and verify actual saved proceeds, unchanged total funds and foreign keys. Read-only
+repository connections must enable PRAGMA foreign_keys=ON. Store opening funds
+are debited from the treasury; do not count them as an additional grant. No player
+jobs/world blocks are changed. Use a persistent console (exec tty=true) so `stop`
+remains available; restore settings/archive the probe after normal shutdown.
+See AUTOMATIC_BUSINESS_RESALE.md for config, schema 44 and limits.

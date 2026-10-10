@@ -60,10 +60,10 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                             case 14 -> {check(4,6);checkClosure();now.set(10_001_000);pending=session.pulse();}
                             case 15 -> {
                                 check(5,5);checkSale();checkClosure();session.close();session=null;
-                                pending=CompletableFuture.runAsync(()->{try{checkStudy();}catch(Exception failure){throw new CompletionException(failure);}},fixture);
+                                pending=CompletableFuture.runAsync(()->{try{checkAutomaticResale();checkStudy();}catch(Exception failure){throw new CompletionException(failure);}},fixture);
                             }
                             case 16 -> {
-                                getLogger().info("NATIVE TIMED INDUSTRY PASS: supply-backed study consumes exact stone/timber, pauses without food, once-only skill completion survives absence/restart; eight actual employee awards, inheritance, conserved resale and retained closure verified; separate databases, no world writes");
+                                getLogger().info("NATIVE TIMED INDUSTRY PASS: automatic funded resale, unlimited ownership, absent-world/restart conservation; supply-backed study consumes exact stone/timber, pauses without food, once-only skill completion survives absence/restart; eight actual employee awards, inheritance, conserved resale and retained closure verified; separate databases, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -72,6 +72,51 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                 }
             }.runTaskTimer(this,1,1);
         } catch(Exception failure){fail(failure);}
+    }
+    private void checkAutomaticResale()throws Exception {
+        var data=new java.io.File(getDataFolder(),"auto-resale-run-"+UUID.randomUUID());
+        var town=UUID.randomUUID();var buyer=UUID.randomUUID();var source=UUID.randomUUID();
+        var targets=new ArrayList<UUID>();var sellers=new ArrayList<UUID>();
+        var db=new DatabaseManager(data,getLogger());
+        try {
+            db.initialize();db.saveSettlement(new Settlement(town,"Automatic sale fixture","World",0,64,0,1,0,0));
+            db.getVillageIdentityRepository().observeWorld(world,"World");db.getVillageIdentityRepository().bindSettlement(town,world);
+            new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,100000,"Actual fixture capital");
+            for(int i=0;i<5;i++) {
+                UUID resident=i==0?buyer:UUID.randomUUID(),firm=i==0?source:UUID.randomUUID();
+                db.getPopulationRepository().insertResident(new Resident(resident,"Fixture",town,null,300,Resident.Status.ALIVE));
+                db.getPopulationRepository().recordSkillExperience(resident,"farming",10);
+                var site=new BusinessSite(UUID.randomUUID(),town,world,2048+i,64,2048,0,"Abstract test site");
+                var business=new Business(firm,town,"Fixture firm",resident,resident,"farming",site.id(),2,0);
+                db.getBusinessRepository().found(new BusinessFounding(business,site,new JobRequirements(216,Map.of("farming",2L)),new JobRequirements(216,Map.of()),0,"Actual fixture opportunity"));
+                db.getIndustryRepository().openStore(firm,100,Map.of(Commodity.STONE,1L),i==0?10000:300);
+                if(i>0){targets.add(firm);sellers.add(resident);db.getPopulationRepository().updateResident(new Resident(resident,"Fixture",town,null,300,Resident.Status.DECEASED));}
+            }
+        }finally{db.close();}
+        var clock=new AtomicLong(1000);
+        var settings=new PopulationSession.Settings(42,1000,0,2,new PopulationPolicy(12,216,240,480,720,0,0,0),MigrationPolicy.disabled(),VillageRecognition.Policy.prototype(),VillageEnrollmentRepository.Policy.prototype());
+        for(int run=0;run<2;run++) {
+            try(var owner=new PopulationSession(data,getLogger(),settings,clock::get)) {
+                owner.configureBusinessPurchases(new BusinessPurchasePolicy(1000,100,100));owner.configureAutomaticResale(BusinessResalePolicy.prototype());
+                owner.start(false,run==0?Set.of():Set.of(world)).get(5,TimeUnit.SECONDS);
+                if(run==0) {
+                    clock.set(2000);owner.pulse().get(5,TimeUnit.SECONDS);
+                    try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+data.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro");var q=c.createStatement();var r=q.executeQuery("SELECT COUNT(*) FROM business_sale_listings")){if(r.getLong(1)!=0)throw new IllegalStateException("Absent world created sale offers");}
+                    owner.updateLoadedWorlds(Set.of(world)).get(5,TimeUnit.SECONDS);
+                }
+                clock.addAndGet(1000);owner.pulse().get(5,TimeUnit.SECONDS);
+                try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+data.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro")) {
+                    try(var q=c.createStatement()){q.execute("PRAGMA foreign_keys=ON");}
+                    var firms=new BusinessRepository(c);var sales=new BusinessSales(c,BusinessPurchasePolicy.disabled());
+                    for(int i=0;i<4;i++)if(!firms.findBusiness(targets.get(i)).orElseThrow().ownerId().equals(buyer)||sales.estate(sellers.get(i)).orElseThrow()!=1300)throw new IllegalStateException("Automatic ownership/payment mismatch");
+                    if(new IndustryRepository(c).store(source).orElseThrow().hundredths()!=4800)throw new IllegalStateException("Automatic payment duplicated or invented");
+                    try(var q=c.createStatement();var r=q.executeQuery("SELECT COUNT(*) FROM business_sales")){if(r.getLong(1)!=4)throw new IllegalStateException("Missing/duplicate automatic sale");}
+                    try(var q=c.createStatement();var r=q.executeQuery("SELECT (SELECT SUM(hundredths) FROM treasuries)+(SELECT SUM(hundredths) FROM industry_stores)+(SELECT SUM(hundredths) FROM family_estates)")){if(r.getLong(1)!=100000)throw new IllegalStateException("Automatic resale lost/created money");}
+                    try(var q=c.createStatement();var r=q.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("Automatic resale foreign key failure");}
+                }
+            }
+            clock.set(1000000);
+        }
     }
     private void checkStudy()throws Exception {
         var studyFolder=new java.io.File(getDataFolder(),"study-run-"+UUID.randomUUID());

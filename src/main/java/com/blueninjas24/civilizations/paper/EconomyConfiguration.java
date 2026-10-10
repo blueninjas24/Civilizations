@@ -24,6 +24,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("business-operations")) rootKeys.add("business-operations");
+        if (config.contains("automatic-business-resale")) rootKeys.add("automatic-business-resale");
         if (config.contains("resident-study")) rootKeys.add("resident-study");
         if (config.contains("work-learning")) rootKeys.add("work-learning");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
@@ -41,6 +42,7 @@ public final class EconomyConfiguration {
         readBusinessOperations(config);
         readWorkLearning(config);
         readStudy(config);
+        readAutomaticResale(config);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
@@ -82,6 +84,14 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    public static com.blueninjas24.civilizations.industry.BusinessResalePolicy readAutomaticResale(ConfigurationSection config) {
+        if(!config.contains("automatic-business-resale"))return com.blueninjas24.civilizations.industry.BusinessResalePolicy.disabled();
+        var s=section(config,"automatic-business-resale");exactKeys(s,Set.of("enabled","minimum-site-value-hundredths","startup-recovery-percent","sale-deadline-seconds","buyers-per-review","stock-value-hundredths-per-unit"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("automatic-business-resale.enabled must be true or false");
+        var values=section(s,"stock-value-hundredths-per-unit");var prices=new TreeMap<Commodity,Long>();
+        for(var key:values.getKeys(false))prices.put(new Commodity(key),integer(values,key));
+        return new com.blueninjas24.civilizations.industry.BusinessResalePolicy(enabled,integer(s,"minimum-site-value-hundredths"),smallInteger(s,"startup-recovery-percent"),Math.multiplyExact(integer(s,"sale-deadline-seconds"),1000),smallInteger(s,"buyers-per-review"),prices);
     }
     public static com.blueninjas24.civilizations.industry.StudyPolicy readStudy(ConfigurationSection config) {
         if(!config.contains("resident-study"))return com.blueninjas24.civilizations.industry.StudyPolicy.disabled();

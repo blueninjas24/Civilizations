@@ -1,5 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 10, 2026 — unlimited private ownership approved
+
+The user chose unlimited business ownership where private ownership applies.
+Every acquisition still requires industry qualification and actual funds; each
+resident can hold only one worker job. A computational buyer-review budget must
+not become a portfolio cap. Government-specific restrictions are deferred to
+Phase 6 government modifiers; no government types or dictatorship rules are
+implemented by the Phase 3 resale batch. See AUTOMATIC_BUSINESS_RESALE.md.
+
 ## October 9, 2026 — approved industry development direction
 
 User approved bounded, paid exploration that can fail and stops for reassessment;

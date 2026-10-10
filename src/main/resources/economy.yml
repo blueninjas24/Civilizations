@@ -351,3 +351,24 @@ resident-study:
       practice-supplies:
         stone: 1
         timber: 1
+
+# Qualified family/employee inheritance always precedes sale.
+# No ownership cap: a villager may buy multiple firms using actual funds.
+# Candidate search rotates across saved pages; this is a CPU budget, not a population cap.
+# Price = max(minimum site value, startup recovery) + owned cash + paid pending cargo
+#         + currently owned stock value. Undiscovered/unextracted geology is not cash.
+# Accepted prices/deadlines never reset after tuning. Old files explicitly opt in.
+automatic-business-resale:
+  enabled: true
+  minimum-site-value-hundredths: 1000
+  startup-recovery-percent: 50
+  sale-deadline-seconds: 600
+  buyers-per-review: 32
+  stock-value-hundredths-per-unit:
+    food: 200
+    timber: 150
+    stone: 100
+    iron: 500
+    coal: 200
+    livestock_products: 300
+    tools: 800

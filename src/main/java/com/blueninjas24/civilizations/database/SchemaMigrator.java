@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 43;
+    static final int CURRENT_VERSION = 44;
 
     @FunctionalInterface
     interface Migration {
@@ -534,6 +534,20 @@ final class SchemaMigrator {
                             FOREIGN KEY(course_id,commodity) REFERENCES study_materials(course_id,commodity)
                         )
                         """);
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE business_lifecycle_reviews (
+                            business_id TEXT PRIMARY KEY NOT NULL REFERENCES businesses(id),
+                            seller_id TEXT NOT NULL REFERENCES residents(id),
+                            buyer_cursor TEXT NOT NULL,
+                            step INTEGER NOT NULL CHECK(typeof(step)='integer' AND step>=0),
+                            observed_ms INTEGER NOT NULL CHECK(typeof(observed_ms)='integer' AND observed_ms>=0),
+                            seed INTEGER NOT NULL CHECK(typeof(seed)='integer'),
+                            reason TEXT NOT NULL CHECK(length(trim(reason)) BETWEEN 1 AND 2048)
+                        )
+                        """);
+                    execute(connection,"CREATE INDEX business_local_portfolio ON businesses(owner_id,settlement_id,id)");
                 }
         ));
     }
@@ -687,6 +701,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"study_reviews",Set.of("course_id","settlement_id","period","before_experience","after_experience","reason"));
                 requireColumns(connection,"study_spending",Set.of("course_id","period","commodity","units"));
             }
+            if(migrations.size()>=44)requireColumns(connection,"business_lifecycle_reviews",Set.of("business_id","seller_id","buyer_cursor","step","observed_ms","seed","reason"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

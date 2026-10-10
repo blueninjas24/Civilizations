@@ -20,13 +20,21 @@ public final class BusinessRuntime {
     private final int batchSize, cacheSize;
     private final LinkedHashMap<UUID,View> cache = new LinkedHashMap<>();
     private String cursor = "";
+    private AutomaticBusinessResale resale;
     public BusinessRuntime(Connection connection, int batchSize, int cacheSize) throws SQLException {
         if(batchSize<1 || batchSize>64 || cacheSize<batchSize || cacheSize>4096)
             throw new IllegalArgumentException("Invalid business runtime budgets");
         this.connection=connection;this.batchSize=batchSize;this.cacheSize=cacheSize;
         businesses=new BusinessRepository(connection);
     }
+    public void configureResale(com.blueninjas24.civilizations.industry.BusinessResalePolicy policy,
+                                com.blueninjas24.civilizations.industry.BusinessPurchasePolicy funding,long seed) {
+        resale=new AutomaticBusinessResale(connection,policy,funding,seed);
+    }
     public Snapshot refresh(long completedMonth, Set<UUID> loadedWorlds) throws SQLException {
+        return refresh(completedMonth,loadedWorlds,0,false);
+    }
+    public Snapshot refresh(long completedMonth,Set<UUID> loadedWorlds,long now,boolean allowSales)throws SQLException {
         if(!connection.getAutoCommit())throw new SQLException("Business runtime requires idle SQL owner");
         long total;
         try(var s=connection.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM businesses")) { total=r.getLong(1); }
@@ -47,6 +55,7 @@ public final class BusinessRuntime {
                     b=businesses.findBusiness(id).orElseThrow();
                 }
                 new BusinessClosure(connection).closeIfExpired(id,completedMonth);
+                if(allowSales&&resale!=null){resale.review(id,completedMonth,now);b=businesses.findBusiness(id).orElseThrow();}
             }
             int open;
             String separation;
@@ -66,7 +75,8 @@ public final class BusinessRuntime {
             }
             var view=new View(id,b.settlementId(),site.worldId(),b.name(),b.industry(),founder,owner,available,b.workerCapacity(),
                     businesses.currentWorkers(id).size(),open,separation,b.foundedStep(),site.x(),site.y(),site.z(),paused,lastProduction(id),
-                    new BusinessClosure(connection).find(id).map(c->"Closed at administrative month "+c.step()+": "+c.reason()).orElse("Open; ownership/lifecycle requirements still apply"));
+                    new BusinessClosure(connection).find(id).map(c->"Closed at administrative month "+c.step()+": "+c.reason()).orElse(
+                            resale==null?"Open; ownership/lifecycle requirements still apply":resale.explanation(id).orElse("Open; qualified succession before resale")));
             cache.remove(id);cache.put(id,view);cursor=id.toString();
             while(cache.size()>cacheSize)cache.remove(cache.keySet().iterator().next());
         }

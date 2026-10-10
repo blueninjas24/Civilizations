@@ -2,6 +2,13 @@
 
 Updated October 10, 2026. Based on verified work, not planned features.
 
+Latest: businesses now find qualified buyers automatically after inheritance fails.
+A villager may own unlimited firms, but purchases need real money and each resident
+still holds one worker job. Prices/deadlines are editable and survive restart.
+All 783 tests and the isolated Paper check passed; your server is unchanged.
+Phase 3 remains 1/4 groups (25%): broader skill/investment/competition and automatic
+first mines/workshops remain before another complete group can be counted.
+
 Latest: unemployed adults now have saved, supply-funded training courses. Hungry
 villages wait; practice uses real supplies, and skills survive restart without
 repeating costs. All770 tests and the isolated Paper check passed. Career choice
@@ -56,7 +63,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 770 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 783 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

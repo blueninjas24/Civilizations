@@ -89,6 +89,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.BusinessResalePolicy resalePolicy=com.blueninjas24.civilizations.industry.BusinessResalePolicy.disabled();
     private boolean listingClockSuspended;
     private volatile String listingClockFailure;
     private volatile String industryFailure;
@@ -177,6 +178,10 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure study before session starts");
         studyPolicy=java.util.Objects.requireNonNull(policy);
     }
+    public void configureAutomaticResale(com.blueninjas24.civilizations.industry.BusinessResalePolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure automatic resale before session starts");
+        resalePolicy=java.util.Objects.requireNonNull(policy);
+    }
     /** Internal acquisition boundary; listing/valuation/buyer selection are separate lifecycle work. */
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessSales.Request> sellBusiness(com.blueninjas24.civilizations.database.BusinessSales.Request request) {
         return submit(()->{
@@ -200,7 +205,7 @@ public final class PopulationSession implements AutoCloseable {
             return new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).open(business,price,deadlineMillis,now.getAsLong(),status.get().completedMonths());
         });
     }
-    public String businessSaleDiagnostic(){return listingClockFailure==null?"Saved sale clocks ready; automatic listings/closure unfinished":"Sale clock deferred: "+listingClockFailure;}
+    public String businessSaleDiagnostic(){return listingClockFailure==null?"Saved sale clocks ready; automatic resale "+(resalePolicy.enabled()?"enabled; qualification and real funding required":"disabled in owner settings"):"Sale clock deferred: "+listingClockFailure;}
     public boolean oreDiscoveryReady() { return trackOres && oreHistoryHealthy.get() && status().ready(); }
     public String oreTrackingDiagnostic() {
         return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
@@ -237,6 +242,7 @@ public final class PopulationSession implements AutoCloseable {
                     if(!fence.trusted())oreHistoryIssue.set("unclean stop or prior capture gap; reviewed recovery required");
                 }
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
+                businesses.configureResale(resalePolicy,purchasePolicy,settings.seed());
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy);
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
@@ -484,7 +490,7 @@ public final class PopulationSession implements AutoCloseable {
             listingClockFailure=failure.getMessage();
         }
         // Close expired unsold offers before new industry/economy work; refresh is bounded.
-        businessView.set(businesses.refresh(status.get().completedMonths(),loadedWorlds));
+        businessView.set(businesses.refresh(status.get().completedMonths(),loadedWorlds,now.getAsLong(),!listingClockSuspended&&listingClockFailure==null));
         if(!industrySuspended)try {industries.pulse(now.getAsLong(),loadedWorlds);industryFailure=null;}
         catch(SQLException|RuntimeException failure) {
             if(!java.util.Objects.equals(industryFailure,failure.getMessage()))logger.log(Level.SEVERE,"Industry update deferred; saved work remains retryable",failure);

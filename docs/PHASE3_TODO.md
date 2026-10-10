@@ -50,7 +50,7 @@ Updated October 10, 2026. Reporting progress remains one of four complete groups
       biome alone or claim ores beyond the implemented coal/iron catalog.
 - [ ] Verify live production chains, capacity/depletion and unloaded operation.
 
-## 3. Business lifecycle and competition — pending
+## 3. Business lifecycle and competition — in progress
 
 Approved October 9: eligible industry-qualified family first, then a qualified
 employee, otherwise an affordable qualified sale with configurable valuation and
@@ -61,12 +61,12 @@ retry/rollback/restart, estate eligibility and no invented funds. Suitable vacan
 premises are preferred; physical building reuse remains Phase 4.
 
 - [ ] Explainable pause/closure/reassessment and competition for workers/capital.
-- [ ] Preserve closed firms, sites, inventories and employment history.
+- [x] Preserve closed firms, sites, inventories and employment history.
 - [x] Saved unsold-offer expiry closes operation/releases jobs atomically while
       retaining stock/cash/resources/sites/history; immediate expiry guards,
       paid cargo/replay, legacy farms, temp migration/failure tests and Paper restart
-      passed. Automatic valuation/listing/buyer review and general competition remain.
-- [ ] Tested ownership succession with explicit recipient eligibility and accounting.
+      passed. Automatic valuation/listing/buyer review now verified below; general competition remains.
+- [x] Tested ownership succession with explicit recipient eligibility and accounting.
 - [x] Atomic family-first/qualified employee inheritance, immutable founding/current
       owner separation and present-world runtime integration; temp SQL rollback/retry
       and actual Paper mine/restart checks passed. Resale/estate/closure remain.
@@ -89,8 +89,13 @@ premises are preferred; physical building reuse remains Phase 4.
       integration remain. No free skills, money or bypass of founder requirements.
 - [x] Saved explicit sale offers, immutable accepted price/deadline, online-only
       elapsed time and atomic paid completion; temp SQL failure/restart/migration
-      cases and actual Paper passed. Automatic valuation/buyers and closure remain.
-- [ ] Restart-safe turnover and failed-transition recovery scenarios.
+      cases and actual Paper passed. Automatic valuation/buyers and retained closure now verified below.
+- [x] Automatic offers and qualified buyers, immutable configurable prices, saved
+      buyer pages and real estate/business payments; transactional failure/retry,
+      migration, unlimited ownership and actual PopulationSession Paper restart
+      passed. No forced living-owner sales or extra worker jobs.
+- [x] Restart-safe turnover and failed-transition recovery scenarios for implemented
+      inheritance/resale/closure paths; seeded multi-year specialization remains group4.
 
 ## 4. Emergent specialization and acceptance — pending
 

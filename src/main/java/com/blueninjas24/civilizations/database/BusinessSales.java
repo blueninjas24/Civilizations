@@ -50,7 +50,8 @@ public final class BusinessSales {
             throw failure;
         }
     }
-    private void sellRows(Request q)throws SQLException {
+    void sellRows(Request q)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Sale rows require owner transaction");
         BusinessClosure.requireOpen(connection,q.business());
         boolean listed=new BusinessSaleListings(connection).requireAcceptedPrice(q);
         var target=businesses.findBusiness(q.business()).orElseThrow(()->new SQLException("Unknown sale business"));
