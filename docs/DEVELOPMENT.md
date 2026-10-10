@@ -1,5 +1,14 @@
 # Development and recovery procedures
 
+Adult-study probe follow-up: schema43, a separate study-run DB with 0→1→2 skill,
+COMPLETED course, stone/timber8 remaining from10 each, four material spending rows.
+Hungry first review must spend nothing; absence/restart/replay add no experience.
+Keep all16 old dev asset/skill/audit snapshots unchanged and no invented main courses.
+Latest Wrapper clean verify770 passed. RESIDENT_STUDY.md describes settings/scope.
+Migration failure assertions must read prior-schema tables directly, not new-schema
+view diagnostics. Stop/restore/archive as with the existing guarded industry probe.
+
+
 Work-learning probe follow-up: verify schema 42, eight participant entries and
 actual mining skills 15/8 from starting 10/5. No awards during world absence,
 closure or replay; existing asset/skill snapshots must survive upgrade unchanged.

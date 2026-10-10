@@ -14,7 +14,7 @@ public final class EconomyRuntimeRepository {
     }
     public record View(CommodityRepository.Account account, FarmObservation farm, Result latest, long queuedPeriods,
                        HouseholdNeeds.Assessment needs, TreasuryRepository.Account treasury, VillagePriorities.Decision priority, FoodAid foodAid,
-                       FoodAppeals.Snapshot appeal, List<HouseholdWellbeing.Snapshot> wellbeing, FoodResponses.Plan response, String farmBusiness) {
+                       FoodAppeals.Snapshot appeal, List<HouseholdWellbeing.Snapshot> wellbeing, FoodResponses.Plan response, String farmBusiness,String study) {
         public View { wellbeing = List.copyOf(wellbeing); }
         /** Derived from immutable retained period inputs; never from mutable current reserves. */
         public Optional<FoodImportImpact.Outcome> foodImportImpact() {
@@ -39,6 +39,7 @@ public final class EconomyRuntimeRepository {
     private final OpeningFunds openingFunds;
     private final HouseholdWellbeing.Policy wellbeing;
     private final FoodResponses.Settings responses;
+    private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
     private int cursor;
     private Set<UUID> loadedWorlds;
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood) {
@@ -117,6 +118,20 @@ public final class EconomyRuntimeRepository {
         farmBusinesses=Objects.requireNonNull(policy);enterprises=new FarmEnterprises(connection,policy,adulthood,operations);
         if(policy.enabled())signature+="|farm-business-v1:"+policy;
         if(operations.enabled())signature+="|business-operations-v1:"+operations;
+    }
+    public void configureStudy(com.blueninjas24.civilizations.industry.StudyPolicy policy) {
+        if(inUse)throw new IllegalStateException("Configure study before using economy");
+        studyPolicy=Objects.requireNonNull(policy);
+    }
+    public ResidentStudy.Course enrollStudy(UUID operation,UUID resident,UUID town,String skill,long now)throws SQLException {
+        return transaction(()->{
+            var study=new ResidentStudy(connection,studyPolicy,adulthood);
+            var existing=study.find(operation);
+            if(existing.isPresent())return study.enrollRows(operation,resident,town,skill,existing.orElseThrow().eligibleAfter());
+            if(!hasRuntime(town)||!active(town))throw new SQLException("Study requires initialized present-world economy");
+            accrue(town,now,false);
+            return study.enrollRows(operation,resident,town,skill,clock(town).anchor().targetSteps());
+        });
     }
     private boolean active(UUID town) throws SQLException {
         if (loadedWorlds == null) return true;
@@ -383,7 +398,10 @@ public final class EconomyRuntimeRepository {
         var incoming=deliveries.eligible(town,nextPeriod);
         var flows = new TreeMap<Commodity, Flow>(); account.state().stocks().keySet().forEach(commodity -> flows.put(commodity, Flow.idle()));
         flows.put(Commodity.FOOD, new Flow(output, FoodDeliveryRepository.units(incoming), settings.foodDemand(adults, children), 0, 0, 0, 0));
-        var period = commodities.advanceRows(town, nextPeriod, flows, settings.shortages());
+        var study=new ResidentStudy(connection,studyPolicy,adulthood);
+        var studyPlan=study.planRows(town,nextPeriod,account.state(),flows,farmBusinesses.enabled()||output==0);
+        var period = commodities.advanceRows(town, nextPeriod, studyPlan.flows(), settings.shortages());
+        study.applyRows(town,nextPeriod,studyPlan,period);
         var needs = new HouseholdNeedsRepository(connection);
         var assessment = HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings, needs.load(town, nextPeriod - 1).orElse(null));
         needs.save(assessment);
@@ -415,7 +433,8 @@ public final class EconomyRuntimeRepository {
                       new HouseholdWellbeingRepository(connection).load(town,account.state().completedPeriods()),
                       new FoodResponseRepository(connection).load(town,account.state().completedPeriods()).orElse(null),
                       farmBusinesses.enabled()?enterpriseReasons.getOrDefault(town,"Farm business enabled; awaiting eligible economic period"):
-                              "Automatic farm businesses disabled; legacy field accounting"));
+                              "Automatic farm businesses disabled; legacy field accounting",
+                      new ResidentStudy(connection,studyPolicy,adulthood).summary(town)));
         }
         return Collections.unmodifiableMap(result);
     }

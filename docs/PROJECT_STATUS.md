@@ -1,6 +1,43 @@
 # Civilizations — implementation status and handoff
 
-**Verified against local source, Git, Wrapper and disposable Paper on October 10, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, automatic resale buyers, wider competition and specialization remain unfinished. Qualified succession, paid resale, retained unsold closure and actual employee work learning are verified. Phases 4–9 remain planned. A human client verified recognition, donations, emerald sales and resident restart persistence; broader inventory-plugin compatibility, barter/bargaining client coverage and survival balancing remain validation limits. This is not a balanced release.
+**Verified against local source, Git, Wrapper and disposable Paper on October 10, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, automatic resale buyers, wider competition and specialization remain unfinished. Qualified succession, paid resale, retained unsold closure and actual employee work learning and supply-backed study are verified. Phases 4–9 remain planned. A human client verified recognition, donations, emerald sales and resident restart persistence; broader inventory-plugin compatibility, barter/bargaining client coverage and survival balancing remain validation limits. This is not a balanced release.
+
+
+## October 10, 2026 — saved supply-backed adult study
+
+Approved unemployed-adult training now has persistent internal enrollment and
+execution in real village food periods. Only living local unemployed adults without
+an operating owned firm qualify; hiring, movement or death cancels later reviews
+without deleting earned skills/history. Genuine nonfood practice supplies are
+consumed as recorded event demand. Food/material buffers, rotating student slots,
+current ceilings and retained course terms prevent free skills or double spending.
+Already earned backlog, downtime, absent worlds and incomplete observations cannot
+create study. Legacy field output counting all adults defers study to avoid double
+labor. Village diagnostics explain waiting/disabled/budget/supply conditions.
+
+Defaults: one experience point, mining/smithing target10, stone1+timber1 per success,
+two students/period, eight active courses/village, one future food-demand period and
+two material units retained. All editable in economy.yml; old files opt in. No
+personal wallets, salaries, invented teachers, cash charges or industry founding.
+Transactional additive schema43 retains accepted courses, material terms, actual
+period reviews and spending linked to economy history; existing saves preserved.
+
+Eleven temporary-DB study cases, one policy case and two config cases added. Focus
+110 passed before final diagnostics; initial full run found its old-schema test
+assertion incorrectly querying new diagnostic tables during deliberate downgrade.
+Corrected only the test stock read and added a budget diagnostic assertion. Final
+Windows `.\mvnw.cmd clean verify` passed770 (768 unit/two packaged integration),
+zero failures/errors/skips,4:42. Native Paper passed hungry pause, actual two stone/
+two timber consumed, 0→1→2 skill and retained completion through absence/restart,
+plus prior employee learning/inheritance/resale/closure checks. Integrity/FKs healthy.
+Normal stop exit0, original network properties restored exactly, probe archived;
+all16 preexisting dev asset/skill/audit snapshots unchanged and no main-dev courses
+invented. Human server/database/world unchanged; local feature branch only.
+
+Internal backend does not yet select careers or automatically start mines/workshops.
+Connect suitable observed opportunities, funded founding and upstream/finished-goods
+demand next; farm work learning, automatic valuation/buyers and wider competition
+remain. Phase3 stays1/4 groups (25%). See RESIDENT_STUDY.md. No new design answer needed.
 
 
 ## October 10, 2026 — learning from actual productive work

@@ -2,6 +2,12 @@
 
 Updated October 10, 2026. Based on verified work, not planned features.
 
+Latest: unemployed adults now have saved, supply-funded training courses. Hungry
+villages wait; practice uses real supplies, and skills survive restart without
+repeating costs. All770 tests and the isolated Paper check passed. Career choice
+and automatic first mines/workshops remain next, so Phase3 still has one complete
+reporting group out of four (25%). These changes are not installed on your server.
+
 Latest: employees can gradually learn through successful mining/workshop production.
 They keep their skills after restart; idle or closed businesses award nothing.
 All 756 tests and the isolated Paper check passed. Unemployed-adult training and
@@ -50,7 +56,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 756 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 770 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

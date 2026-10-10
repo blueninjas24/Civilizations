@@ -80,9 +80,13 @@ premises are preferred; physical building reuse remains Phase 4.
 - [x] Actual timed mine/workshop employees gain bounded configurable skills, saved
       with production/audits/checkpoint; rollback/replay/retuning/absence/restart
       and qualified succession verified in temporary SQLite and Paper.
+- [x] Saved unemployed-adult courses consume real village practice goods with food/
+      material priority, rotating slots, skills/status/spending/period atomicity,
+      absence/backlog/restart guards and diagnostics; temp DB/Paper passed.
 - [ ] Bound broader skill development and investment; no manufactured profit or payroll.
-      Gradual resource-backed adult training and learning from actual employee work
-      are approved, with configurable costs/speed/limits; implementation is next.
+      Actual employee learning and internal supply-backed adult study are verified;
+      automatic opportunity-based career selection, farm learning and investment
+      integration remain. No free skills, money or bypass of founder requirements.
 - [x] Saved explicit sale offers, immutable accepted price/deadline, online-only
       elapsed time and atomic paid completion; temp SQL failure/restart/migration
       cases and actual Paper passed. Automatic valuation/buyers and closure remain.

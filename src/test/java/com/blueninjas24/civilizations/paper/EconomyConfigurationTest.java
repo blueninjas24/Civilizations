@@ -13,6 +13,19 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void studyCostsAndBudgetsAreEditableAndLegacyFilesRemainDisabled()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.StudyPolicy.prototype(),EconomyConfiguration.readStudy(config));
+        config.set("resident-study.skills.mining.practice-supplies.stone",3);EconomyConfiguration.read(config);
+        assertEquals(3,EconomyConfiguration.readStudy(config).skills().get("mining").materials().get(Commodity.STONE));
+        config.set("resident-study",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readStudy(config).enabled());
+    }
+    @Test void invalidStudyFoodCostsRatesAndBudgetsFailBeforeDatabaseStartup()throws Exception {
+        for(Object invalid:List.of(0,1001,1.5,"fast")) {
+            var config=defaults();config.set("resident-study.gain-per-period",invalid);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("resident-study.skills.mining.practice-supplies.food",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        config.set("resident-study.skills.mining.practice-supplies.food",null);config.set("resident-study.students-per-period",9);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     @Test void workLearningDefaultsAreEditableAndAbsentOldSectionsRemainDisabled()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WorkLearningPolicy.prototype(),EconomyConfiguration.readWorkLearning(config));
         config.set("work-learning.experience-per-productive-period",2);EconomyConfiguration.read(config);

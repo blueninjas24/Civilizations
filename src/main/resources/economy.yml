@@ -327,3 +327,27 @@ industry-supply:
   enabled: true
   input-periods: 2
   warehouses-per-review: 16
+
+# Gradual practice by unemployed adults selected for actual opportunities.
+# Courses are persistent; this backend does not automatically choose careers yet.
+# Real village supplies are consumed per successful study period; food comes first.
+# Missing old sections leave study disabled. Edit while stopped, then restart.
+resident-study:
+  enabled: true
+  gain-per-period: 1
+  maximum-experience: 100
+  students-per-period: 2
+  active-courses-per-village: 8
+  food-reserve-periods: 1
+  material-reserve-units: 2
+  skills:
+    mining:
+      target-experience: 10
+      practice-supplies:
+        stone: 1
+        timber: 1
+    smithing:
+      target-experience: 10
+      practice-supplies:
+        stone: 1
+        timber: 1

@@ -56,8 +56,9 @@ October 9 playtest decisions, with implementation boundaries:
   thresholds still apply; no instant career changes or invented productive labor.
   Starting resident profiles currently have no saved mining/smithing experience.
   Actual employee learning in timed mines/workshops is now verified (schema 42);
-  unemployed-adult supply-backed study and automatic nonfood founding remain
-  unfinished. Approval does not waive saved qualification requirements.
+  unemployed-adult supply-backed study is now verified (schema43). Automatic
+  opportunity-based career selection and nonfood founding remain unfinished.
+  Approval does not waive saved qualification requirements.
 - Businesses and households prioritize available suitable vacant premises before
   new construction. Reuse depends on needs, capacity, condition and permission;
   vacancy alone never justifies an unsuitable move or modifying player buildings.

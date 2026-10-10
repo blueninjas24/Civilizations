@@ -88,6 +88,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
     private boolean listingClockSuspended;
     private volatile String listingClockFailure;
     private volatile String industryFailure;
@@ -172,6 +173,10 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure work learning before session starts");
         learningPolicy=java.util.Objects.requireNonNull(policy);
     }
+    public void configureStudy(com.blueninjas24.civilizations.industry.StudyPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure study before session starts");
+        studyPolicy=java.util.Objects.requireNonNull(policy);
+    }
     /** Internal acquisition boundary; listing/valuation/buyer selection are separate lifecycle work. */
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessSales.Request> sellBusiness(com.blueninjas24.civilizations.database.BusinessSales.Request request) {
         return submit(()->{
@@ -251,6 +256,7 @@ public final class PopulationSession implements AutoCloseable {
                 if (economySettings != null) {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
                     economy.configureFarmBusinesses(farmBusinessPolicy,operationPolicy);
+                    economy.configureStudy(studyPolicy);
                     if (loadedWorlds == null) economy.start(now.getAsLong());
                     else economy.startOnline(now.getAsLong(), loadedWorlds);
                     economyView.set(economy.views());

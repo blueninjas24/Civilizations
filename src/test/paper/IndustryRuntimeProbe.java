@@ -59,7 +59,11 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                             case 13 -> {check(4,6);checkClosure();session.close();now.set(10_000_000);session=create();pending=session.start(false,Set.of(world));}
                             case 14 -> {check(4,6);checkClosure();now.set(10_001_000);pending=session.pulse();}
                             case 15 -> {
-                                check(5,5);checkSale();checkClosure();getLogger().info("NATIVE TIMED INDUSTRY PASS: actual employee learning and eight once-only skill audits, qualified inheritance, exact saved offer and conserved resale/replay, staff work until unsold expiry, retained closure/jobs/output and skills survive restart, finite output and absent-world pause; separate database, no world writes");
+                                check(5,5);checkSale();checkClosure();session.close();session=null;
+                                pending=CompletableFuture.runAsync(()->{try{checkStudy();}catch(Exception failure){throw new CompletionException(failure);}},fixture);
+                            }
+                            case 16 -> {
+                                getLogger().info("NATIVE TIMED INDUSTRY PASS: supply-backed study consumes exact stone/timber, pauses without food, once-only skill completion survives absence/restart; eight actual employee awards, inheritance, conserved resale and retained closure verified; separate databases, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -68,6 +72,40 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                 }
             }.runTaskTimer(this,1,1);
         } catch(Exception failure){fail(failure);}
+    }
+    private void checkStudy()throws Exception {
+        var studyFolder=new java.io.File(getDataFolder(),"study-run-"+UUID.randomUUID());
+        var town=UUID.randomUUID();var learner=UUID.randomUUID();var operation=UUID.randomUUID();
+        var bands=new EnumMap<com.blueninjas24.civilizations.economy.CommodityAccounting.Condition,Integer>(com.blueninjas24.civilizations.economy.CommodityAccounting.Condition.class);
+        for(var band:com.blueninjas24.civilizations.economy.CommodityAccounting.Condition.values())bands.put(band,100);
+        var settings=new com.blueninjas24.civilizations.economy.EconomySettings(1,3,2,2,1,4,100,
+                new com.blueninjas24.civilizations.economy.CommodityAccounting.Policy(5000,12500,20000,3),
+                Map.of(Commodity.FOOD,2L,Commodity.STONE,10L,Commodity.TIMBER,10L),
+                Map.of(Commodity.FOOD,java.math.BigDecimal.ONE,Commodity.STONE,java.math.BigDecimal.ONE,Commodity.TIMBER,java.math.BigDecimal.ONE),bands);
+        var study=new StudyPolicy(true,1,100,2,8,1,2,Map.of("mining",new StudyPolicy.Course(2,Map.of(Commodity.STONE,1L,Commodity.TIMBER,1L))));
+        var db=new DatabaseManager(studyFolder,getLogger());
+        try {
+            db.initialize();db.saveSettlement(new Settlement(town,"Study fixture","World",0,64,0,1,0,0));
+            db.getVillageIdentityRepository().observeWorld(world,"World");db.getVillageIdentityRepository().bindSettlement(town,world);
+            db.getPopulationRepository().insertResident(new Resident(learner,"Learner",town,null,300,Resident.Status.ALIVE));
+            var runtime=new EconomyRuntimeRepository(db.getConnection(),settings,com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype(),216);runtime.configureStudy(study);
+            runtime.observe(new com.blueninjas24.civilizations.economy.FarmObservation(town,world,1000,true,0),1000);runtime.startOnline(1000,Set.of(world));
+            runtime.enrollStudy(operation,learner,town,"mining",1000);runtime.pulse(2000,false);
+            if(db.getPopulationRepository().findWorkProfile(learner).orElseThrow().experience().getOrDefault("mining",0L)!=0
+                    ||runtime.views().get(town).account().state().stocks().get(Commodity.STONE).units()!=10)throw new IllegalStateException("Hungry study created skill or lost supplies");
+            runtime.recordDeliveredFood(UUID.randomUUID(),town,20,"Probe-owned food supplies",2000);runtime.pulse(3000,false);
+            if(db.getPopulationRepository().findWorkProfile(learner).orElseThrow().experience().getOrDefault("mining",0L)!=1)throw new IllegalStateException("Supplied study did not learn");
+            runtime.updateLoadedWorlds(3000,Set.of());runtime.pulse(100000,false);
+            db.close();db=new DatabaseManager(studyFolder,getLogger());db.initialize();
+            runtime=new EconomyRuntimeRepository(db.getConnection(),settings,com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype(),216);runtime.configureStudy(study);runtime.startOnline(1000000,Set.of(world));
+            if(db.getPopulationRepository().findWorkProfile(learner).orElseThrow().experience().getOrDefault("mining",0L)!=1)throw new IllegalStateException("Absent/restart study awarded skill");
+            runtime.pulse(1001000,false);runtime.pulse(1001000,false);runtime.pulse(1002000,false);
+            if(db.getPopulationRepository().findWorkProfile(learner).orElseThrow().experience().getOrDefault("mining",0L)!=2
+                    ||!new ResidentStudy(db.getConnection(),study,216).find(operation).orElseThrow().status().equals("COMPLETED"))throw new IllegalStateException("Study completion/replay mismatch");
+            for(var commodity:List.of(Commodity.STONE,Commodity.TIMBER))if(runtime.views().get(town).account().state().stocks().get(commodity).units()!=8)throw new IllegalStateException("Practice consumption mismatch");
+            try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM study_spending")){if(r.getLong(1)!=4)throw new IllegalStateException("Practice audit duplicated");}
+            try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("Study foreign keys failed");}
+        }finally{db.close();}
     }
     private PopulationSession create() {
         var settings=new PopulationSession.Settings(42,1000,0,2,new PopulationPolicy(12,216,240,480,720,0,0,0),MigrationPolicy.disabled(),VillageRecognition.Policy.prototype(),VillageEnrollmentRepository.Policy.prototype());

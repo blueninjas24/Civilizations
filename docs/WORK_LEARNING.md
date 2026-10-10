@@ -2,8 +2,8 @@
 
 User approved gradual skill development on October 9. This batch implements only
 learning by employees of existing timed mines and workshops. Supply-backed study
-for unemployed adults, farm work learning and automatic nonfood founding remain
-separate unfinished work. It does not create a skilled founding population.
+for unemployed adults is a separate batch (see RESIDENT_STUDY.md); farm work learning
+and automatic nonfood founding remain unfinished. It does not create a skilled founding population.
 
 Each new productive business period can give its actual living local qualified
 employees a small experience gain in the configured industry skill. An owner who

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 42;
+    static final int CURRENT_VERSION = 43;
 
     @FunctionalInterface
     interface Migration {
@@ -482,6 +482,58 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX resident_industry_learning ON industry_learning_entries(resident_id,operation_id)");
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE resident_courses (
+                            id TEXT PRIMARY KEY NOT NULL,
+                            resident_id TEXT NOT NULL REFERENCES residents(id),
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                            skill TEXT NOT NULL CHECK(length(trim(skill)) BETWEEN 1 AND 64),
+                            target INTEGER NOT NULL CHECK(typeof(target)='integer' AND target BETWEEN 1 AND 1000000000),
+                            gain INTEGER NOT NULL CHECK(typeof(gain)='integer' AND gain BETWEEN 1 AND 1000),
+                            eligible_after INTEGER NOT NULL CHECK(typeof(eligible_after)='integer' AND eligible_after>=0),
+                            status TEXT NOT NULL CHECK(status IN ('ACTIVE','COMPLETED','CANCELLED'))
+                        )
+                        """);
+                    execute(connection,"CREATE UNIQUE INDEX active_resident_course ON resident_courses(resident_id) WHERE status='ACTIVE'");
+                    execute(connection,"CREATE INDEX village_active_courses ON resident_courses(settlement_id,id) WHERE status='ACTIVE'");
+                    execute(connection,"""
+                        CREATE TABLE study_materials (
+                            course_id TEXT NOT NULL REFERENCES resident_courses(id),
+                            commodity TEXT NOT NULL CHECK(commodity<>'food'),
+                            units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units BETWEEN 1 AND 1000000),
+                            PRIMARY KEY(course_id,commodity)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE study_reviews (
+                            course_id TEXT NOT NULL REFERENCES resident_courses(id),
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                            period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                            before_experience INTEGER NOT NULL CHECK(typeof(before_experience)='integer' AND before_experience>=0),
+                            after_experience INTEGER NOT NULL CHECK(typeof(after_experience)='integer' AND after_experience>=before_experience),
+                            status TEXT NOT NULL CHECK(status IN ('ACTIVE','COMPLETED','CANCELLED')),
+                            reason TEXT NOT NULL CHECK(length(trim(reason)) BETWEEN 1 AND 2048),
+                            food_reserve INTEGER NOT NULL CHECK(food_reserve BETWEEN 0 AND 100),
+                            material_reserve INTEGER NOT NULL CHECK(material_reserve BETWEEN 0 AND 1000000000),
+                            student_budget INTEGER NOT NULL CHECK(student_budget BETWEEN 1 AND 32),
+                            food_commodity TEXT NOT NULL DEFAULT 'food' CHECK(food_commodity='food'),
+                            PRIMARY KEY(course_id,period),
+                            FOREIGN KEY(settlement_id,food_commodity,period) REFERENCES economy_periods(settlement_id,commodity,period)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE study_spending (
+                            course_id TEXT NOT NULL,
+                            period INTEGER NOT NULL,
+                            commodity TEXT NOT NULL CHECK(commodity<>'food'),
+                            units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units BETWEEN 1 AND 1000000),
+                            PRIMARY KEY(course_id,period,commodity),
+                            FOREIGN KEY(course_id,period) REFERENCES study_reviews(course_id,period),
+                            FOREIGN KEY(course_id,commodity) REFERENCES study_materials(course_id,commodity)
+                        )
+                        """);
                 }
         ));
     }
@@ -628,6 +680,12 @@ final class SchemaMigrator {
             if(migrations.size()>=42) {
                 requireColumns(connection,"industry_learning_reviews",Set.of("operation_id","business_id","period","enabled","skill","gain","ceiling","worker_budget","explanation"));
                 requireColumns(connection,"industry_learning_entries",Set.of("operation_id","resident_id","before_experience","after_experience"));
+            }
+            if(migrations.size()>=43) {
+                requireColumns(connection,"resident_courses",Set.of("id","resident_id","settlement_id","skill","target","gain","eligible_after","status"));
+                requireColumns(connection,"study_materials",Set.of("course_id","commodity","units"));
+                requireColumns(connection,"study_reviews",Set.of("course_id","settlement_id","period","before_experience","after_experience","reason"));
+                requireColumns(connection,"study_spending",Set.of("course_id","period","commodity","units"));
             }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
