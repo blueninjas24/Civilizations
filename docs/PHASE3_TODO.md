@@ -62,6 +62,10 @@ premises are preferred; physical building reuse remains Phase 4.
 
 - [ ] Explainable pause/closure/reassessment and competition for workers/capital.
 - [ ] Preserve closed firms, sites, inventories and employment history.
+- [x] Saved unsold-offer expiry closes operation/releases jobs atomically while
+      retaining stock/cash/resources/sites/history; immediate expiry guards,
+      paid cargo/replay, legacy farms, temp migration/failure tests and Paper restart
+      passed. Automatic valuation/listing/buyer review and general competition remain.
 - [ ] Tested ownership succession with explicit recipient eligibility and accounting.
 - [x] Atomic family-first/qualified employee inheritance, immutable founding/current
       owner separation and present-world runtime integration; temp SQL rollback/retry
@@ -74,6 +78,8 @@ premises are preferred; physical building reuse remains Phase 4.
       real paid warehouse/workshop inputs, qualified finite mining and inherited
       farm staffing; temporary DB and Paper pause/restart/conservation verified.
 - [ ] Bound skill development and investment; no manufactured profit or payroll.
+      Gradual resource-backed adult training and learning from actual employee work
+      are approved, with configurable costs/speed/limits; implementation is next.
 - [x] Saved explicit sale offers, immutable accepted price/deadline, online-only
       elapsed time and atomic paid completion; temp SQL failure/restart/migration
       cases and actual Paper passed. Automatic valuation/buyers and closure remain.

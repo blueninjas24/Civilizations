@@ -58,6 +58,7 @@ public final class BusinessSuccession {
     }
     /** Read-only selection also prevents resale from bypassing an available successor. */
     public Optional<Candidate> candidate(UUID id)throws SQLException {
+        if(new BusinessClosure(connection).find(id).isPresent())return Optional.empty();
         var business=businesses.findBusiness(id).orElseThrow(()->new SQLException("Unknown business"));
         var owner=population.findResident(business.ownerId()).orElseThrow();
         if(owner.status()!=Resident.Status.DECEASED)return Optional.empty();

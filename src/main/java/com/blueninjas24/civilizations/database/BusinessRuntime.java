@@ -8,7 +8,7 @@ public final class BusinessRuntime {
     public record View(UUID id, UUID settlement, UUID world, String name, String industry,
                        String founder, String owner, boolean ownerAvailable, int capacity,
                        int workers, int openAssignments, String lastSeparation, long foundedStep,
-                       int x, int y, int z, boolean paused, String lastProduction) {
+                       int x, int y, int z, boolean paused, String lastProduction,String lifecycle) {
         public int vacancies() { return capacity - workers; }
     }
     public record Snapshot(long total, Map<UUID,View> businesses) {
@@ -46,6 +46,7 @@ public final class BusinessRuntime {
                     new BusinessSuccession(connection).succeed(operation,id,completedMonth);
                     b=businesses.findBusiness(id).orElseThrow();
                 }
+                new BusinessClosure(connection).closeIfExpired(id,completedMonth);
             }
             int open;
             String separation;
@@ -64,7 +65,8 @@ public final class BusinessRuntime {
                 }
             }
             var view=new View(id,b.settlementId(),site.worldId(),b.name(),b.industry(),founder,owner,available,b.workerCapacity(),
-                    businesses.currentWorkers(id).size(),open,separation,b.foundedStep(),site.x(),site.y(),site.z(),paused,lastProduction(id));
+                    businesses.currentWorkers(id).size(),open,separation,b.foundedStep(),site.x(),site.y(),site.z(),paused,lastProduction(id),
+                    new BusinessClosure(connection).find(id).map(c->"Closed at administrative month "+c.step()+": "+c.reason()).orElse("Open; ownership/lifecycle requirements still apply"));
             cache.remove(id);cache.put(id,view);cursor=id.toString();
             while(cache.size()>cacheSize)cache.remove(cache.keySet().iterator().next());
         }
@@ -90,6 +92,6 @@ public final class BusinessRuntime {
     }
     private static View withPause(View v,Set<UUID> worlds) {
         return new View(v.id(),v.settlement(),v.world(),v.name(),v.industry(),v.founder(),v.owner(),v.ownerAvailable(),v.capacity(),
-                v.workers(),v.openAssignments(),v.lastSeparation(),v.foundedStep(),v.x(),v.y(),v.z(),worlds!=null && !worlds.contains(v.world()),v.lastProduction());
+                v.workers(),v.openAssignments(),v.lastSeparation(),v.foundedStep(),v.x(),v.y(),v.z(),worlds!=null && !worlds.contains(v.world()),v.lastProduction(),v.lifecycle());
     }
 }

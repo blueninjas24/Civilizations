@@ -71,6 +71,19 @@ class AutomaticFarmTest {
         runtime.pulse(3000,false);assertEquals(0,output());assertEquals(1,db.getBusinessRepository().currentWorkers(FarmEnterprises.businessId(town)).size());
         assertEquals(2,db.getBusinessRepository().employmentHistory(FarmEnterprises.businessId(town)).size());assertEquals(7500,funds());
     }
+    @Test void unsoldClosedFarmCannotRestartProductionOrHireEvenWithLegacyOperationPolicy()throws Exception {
+        var owner=new UUID(0,1);db.getPopulationRepository().recordSkillExperience(owner,"farming",10);
+        var site=new BusinessSite(UUID.randomUUID(),town,world,3,64,5,1000,"Test-owned existing field enterprise");
+        var business=new Business(FarmEnterprises.businessId(town),town,"Farm",owner,owner,"farming",site.id(),4,0);
+        var original=new BusinessFounding(business,site,new JobRequirements(216,Map.of("farming",10L)),new JobRequirements(216,Map.of()),0,"Saved test opportunity");
+        db.getBusinessRepository().found(original);observe(1000,true,32,true);runtime.pulse(2000,false);assertEquals(8,output());
+        db.getPopulationRepository().updateResident(new Resident(owner,"Person",town,null,300,Resident.Status.DECEASED));
+        var offers=new BusinessSaleListings(db.getConnection());offers.open(business.id(),100,1000,2000,0);offers.observe(3000,Set.of(world));
+        new BusinessClosure(db.getConnection()).closeIfExpired(business.id(),0).orElseThrow();runtime.pulse(3000,false);
+        assertEquals(0,output());assertTrue(runtime.views().get(town).farmBusiness().contains("closed"));assertEquals(10000,funds());
+        assertTrue(db.getBusinessRepository().currentWorkers(business.id()).isEmpty());assertEquals(original,db.getBusinessRepository().findFounding(business.id()).orElseThrow());
+        runtime.pulse(4000,false);assertEquals(0,output());assertEquals(2,db.getBusinessRepository().employmentHistory(business.id()).size());
+    }
     @Test void unknownPartialOrSmallFieldsCannotCreateFarmOrSpendFunds() throws Exception {
         observe(1000,true,32,false);runtime.pulse(2000,false);assertEquals(0,output());
         assertTrue(runtime.views().get(town).farmBusiness().contains("crop position required"));assertEquals(10000,funds());

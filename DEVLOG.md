@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## October 9, 2026 — retained unsold closure and released employment
+
+Schema41 additively retains closure reason/date linked to a saved expired offer.
+Bounded present-world refresh attempts qualified inheritance first, then atomically
+closes unsold operation and ends open jobs. Expired firms stop new work immediately
+before their bounded visit. Closed mining/recipes/hiring/trade/new capital are
+blocked, while accepted historic receipts and already-owned cargo remain safe.
+Stable automatic-farm identity cannot rehire/resurrect; no physical deletion,
+asset loss, invented estate proceeds or reassigned employees. Corrected stale
+business diagnostics claiming succession was unimplemented.
+
+Nine new closure tests plus one farm regression. Initial fixture lacked actual
+starting treasury; corrected setup without relaxing money checks. Broad pre-final
+focus73 and final focus43 passed; Windows Wrapper clean verify744 passed (742 unit,
+two integration), no failures/errors/skips,4:00. Native first harness connection
+omitted foreign keys; corrected the harness only and reran. PASS: staff worked until
+expiry, then jobs ended/output stopped across restart, coal3/reserve2 retained;
+other inherited mine coal5/reserve5 and paid replay/funds8500/750/250 retained.
+Both runs stopped normally exit0, failed evidence/passing probe archived, original
+network properties restored, dev schema40 assets retained through schema41 upgrade,
+integrity/FKs healthy. User-server unchanged; no main merge/push. Phase3 remains25%.
+User approved gradual resource-backed adult training/work learning next; not yet
+implemented. Automatic valuation/listing/buyers and wider competition remain.
+
 ## October 9, 2026 — saved offers and absence-safe sale deadlines
 
 Branch codex/phase3-qualified-succession. Schema 40 additively saves accepted offer

@@ -43,12 +43,20 @@ October 9 playtest decisions, with implementation boundaries:
   Qualified inheritance and paid-sale/estate accounting are now verified. Editable
   funding defaults retain 10.00 Trade Value, allow 25% of spare business cash and
   100% of estate cash per purchase. Saved explicit offers and online-only deadlines
-  are verified. Automatic valuation/listing creation/buyer review and closure remain.
+  are verified. Retained unsold closure is now verified. Automatic valuation,
+  listing creation and qualified funded buyer review remain unfinished.
   Additional explicit approval: qualified existing employees may keep the business
   operating while the family seeks a buyer. Real supplies, finite reserves, storage,
   purchasing funds and world-pause rules still apply. Continued work does not make
   employees qualified owners, mint estate income or grant automatic hiring authority.
   Keep this rule configurable. A moved living owner is not a deceased seller.
+- Additional explicit approval: unemployed adults can train gradually using real
+  available supplies; employees can gain skills through actual work. Costs, speed,
+  limits and qualification requirements must remain editable. Required ownership
+  thresholds still apply; no instant career changes or invented productive labor.
+  Starting resident profiles currently have no saved mining/smithing experience.
+  This is approval for scoped skill development, not a claim that training or
+  automatic nonfood founding is already implemented.
 - Businesses and households prioritize available suitable vacant premises before
   new construction. Reuse depends on needs, capacity, condition and permission;
   vacancy alone never justifies an unsuitable move or modifying player buildings.

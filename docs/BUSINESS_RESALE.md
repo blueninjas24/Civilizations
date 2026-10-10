@@ -3,7 +3,8 @@
 This is a transaction backend and internal SQL-owner application boundary. Saved
 explicit offers and absence-safe deadlines are now verified; see
 BUSINESS_SALE_LISTINGS.md. It does not yet automatically advertise businesses,
-choose buyers, value a sale or close an unsold firm. Qualified family/employee
+choose buyers or value a sale. Retained unsold closure is now connected; see
+BUSINESS_CLOSURE.md. Qualified family/employee
 inheritance remains ahead of any sale.
 
 ## Rules and accounting
@@ -63,7 +64,7 @@ configuration validation before the database starts. Edit while stopped/restart.
 ## Remaining work
 
 Automatic listings, editable valuations, buyer review,
-unsold closure, competition, and estate-backed new-business investment remain
+competition, and estate-backed new-business investment remain
 unfinished. The ledger can already fund a qualified family's later acquisition of
 an existing business. Suitable vacant building evaluation/reuse stays Phase 4.
 This backend alone does not complete another Phase 3 reporting group.

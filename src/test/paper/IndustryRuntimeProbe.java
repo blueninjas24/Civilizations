@@ -54,8 +54,12 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                             case 8 -> {check(2,8);session.close();now.set(1_000_000);session=create();pending=session.start(false,Set.of(world));}
                             case 9 -> {check(2,8);pending=session.sellBusiness(paidSale);}
                             case 10 -> {checkSale();now.set(1_001_000);pending=session.pulse();}
-                            case 11 -> {
-                                check(3,7);checkSale();getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified inheritance, exact saved offer and conserved paid resale/replay, qualified staff continue a deceased-owner mine without promotion, finite output, absent-world pause and restart; separate database, no world writes");
+                            case 11 -> {check(3,7);checkSale();pending=session.openBusinessSale(pendingMine,100,1000);}
+                            case 12 -> {now.set(1_002_000);pending=session.pulse();}
+                            case 13 -> {check(4,6);checkClosure();session.close();now.set(10_000_000);session=create();pending=session.start(false,Set.of(world));}
+                            case 14 -> {check(4,6);checkClosure();now.set(10_001_000);pending=session.pulse();}
+                            case 15 -> {
+                                check(5,5);checkSale();checkClosure();getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified inheritance, exact saved offer and conserved paid resale/replay, qualified staff continue until unsold expiry, retained closure releases jobs and stops output across restart, finite output and absent-world pause; separate database, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -117,11 +121,12 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                     ||!businesses.findFounding(mine).orElseThrow().business().ownerId().equals(founder))throw new IllegalStateException("Owner/founding identity mismatch");
             try(var s=c.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM business_ownership")){if(r.getLong(1)!=1)throw new IllegalStateException("Duplicate or missing succession");}
             try(var s=c.prepareStatement("SELECT units FROM industry_stock WHERE commodity='coal' AND business_id=?")) {
-                for(var id:List.of(mine,pendingMine)){s.setString(1,id.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=stock)throw new IllegalStateException("Unexpected timed stock");}}
+                boolean closed=new BusinessClosure(c).find(pendingMine).isPresent();
+                for(var id:List.of(mine,pendingMine)){s.setString(1,id.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=(id.equals(pendingMine)&&closed?3:stock))throw new IllegalStateException("Unexpected timed stock");}}
             }
             try(var s=c.prepareStatement("SELECT d.remaining_batches FROM mineral_deposits d JOIN businesses b ON b.site_id=d.site_id WHERE b.id=?")) {
                 s.setString(1,mine.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=remaining)throw new IllegalStateException("Unexpected finite reserve");}
-                s.setString(1,pendingMine.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=5-stock)throw new IllegalStateException("Unexpected pending-sale reserve");}
+                s.setString(1,pendingMine.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=5-(new BusinessClosure(c).find(pendingMine).isPresent()?3:stock))throw new IllegalStateException("Unexpected pending-sale reserve");}
             }
             if(!businesses.findBusiness(pendingMine).orElseThrow().ownerId().equals(pendingOwner))throw new IllegalStateException("Employee was invented as qualified owner");
             try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){if(!r.getString(1).equals("ok"))throw new IllegalStateException("Integrity failed");}
@@ -129,6 +134,15 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
         }
     }
     private void fail(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"NATIVE TIMED INDUSTRY FAIL",failure);getServer().getPluginManager().disablePlugin(this);}
+    private void checkClosure()throws Exception {
+        try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+folder.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro")) {
+            try(var s=c.createStatement()){s.execute("PRAGMA foreign_keys=ON");}
+            var saved=new BusinessClosure(c).find(pendingMine).orElseThrow();
+            if(!saved.seller().equals(pendingOwner)||!new BusinessRepository(c).currentWorkers(pendingMine).isEmpty())throw new IllegalStateException("Closure identity/staff mismatch");
+            try(var s=c.prepareStatement("SELECT COUNT(*) FROM business_employment WHERE business_id=? AND ended_step IS NULL")){s.setString(1,pendingMine.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=0)throw new IllegalStateException("Closed jobs still open");}}
+            if(new BusinessOperations(c,BusinessOperationPolicy.prototype()).evaluate(pendingMine).permitted())throw new IllegalStateException("Closed mine permitted");
+        }
+    }
     private void checkSale()throws Exception {
         try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+folder.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro")) {
             try(var s=c.createStatement()){s.execute("PRAGMA foreign_keys=ON");}

@@ -14,7 +14,8 @@ public final class BusinessDiagnostics {
         if(views.isEmpty())lines.add("No business cached for this settlement. Farm founding requires enabled settings, reliable fields, available residents and capital.");
         for(var v:views.stream().limit(20).toList()) {
             lines.add(v.name()+" ["+v.industry()+"] "+v.id()+"; "+(v.paused()?"world absent: paused":"world available"));
-            lines.add("Founder: "+v.founder()+"; owner: "+v.owner()+"; "+(v.ownerAvailable()?"owner available":"owner unavailable; succession not implemented"));
+            lines.add("Founder: "+v.founder()+"; owner: "+v.owner()+"; "+(v.ownerAvailable()?"owner available":"owner unavailable; qualified succession/resale review"));
+            lines.add("Lifecycle: "+v.lifecycle());
             lines.add("Workers: "+v.workers()+"/"+v.capacity()+"; vacancies: "+v.vacancies()+"; retained open assignments: "+v.openAssignments());
             lines.add("Site: "+v.x()+", "+v.y()+", "+v.z()+"; founded administrative month "+v.foundedStep()+". Registration grants no block rights.");
             if(v.lastSeparation()!=null)lines.add("Latest staffing separation: "+v.lastSeparation());

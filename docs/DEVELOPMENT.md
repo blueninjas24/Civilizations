@@ -1,5 +1,13 @@
 # Development and recovery procedures
 
+Latest IndustryRuntimeProbe also expires a separate staffed deceased-owner mine.
+Verify schema41, one retained closure, no open jobs on that firm, preserved coal3/
+reserve2 and no further output after restart; the inherited mine reaches coal5/
+reserve5 and the single saved paid sale retains funds8500/750/250. All assertion
+connections enable SQLite foreign keys. Back up stopped disposable assets/settings,
+stop normally, compare retained main asset rows, check integrity/FKs, restore exact
+properties and archive the test plugin. See BUSINESS_CLOSURE.md.
+
 Latest IndustryRuntimeProbe also opens an explicit saved 250-price offer through
 the SQL owner before payment and checks SOLD linkage after restart. Its fixture
 database must be schema 40 with one paid sale, business cash 750, estate 250 and

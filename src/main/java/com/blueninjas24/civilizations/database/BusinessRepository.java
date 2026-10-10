@@ -117,6 +117,7 @@ public final class BusinessRepository {
             return saved; // Replaying an ended episode never resurrects it.
         }
         var founding = findFounding(businessId).orElseThrow(() -> new SQLException("Unknown business"));
+        BusinessClosure.requireOpen(connection,businessId);
         if (step < founding.business().foundedStep()) throw new SQLException("Employment predates business");
         requireQualified(residentId,founding.business().settlementId(),founding.workerRequirements());
         try (var s = connection.prepareStatement("SELECT COUNT(*) FROM business_employment WHERE business_id=? AND ended_step IS NULL")) {

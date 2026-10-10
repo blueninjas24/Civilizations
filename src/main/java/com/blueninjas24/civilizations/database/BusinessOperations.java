@@ -9,12 +9,15 @@ import java.util.*;
 public final class BusinessOperations {
     public record Availability(boolean permitted,String explanation) {}
     private final BusinessRepository businesses;
+    private final Connection connection;
     private final PopulationRepository population;
     private final BusinessOperationPolicy policy;
     public BusinessOperations(Connection connection,BusinessOperationPolicy policy)throws SQLException {
+        this.connection=connection;
         businesses=new BusinessRepository(connection);population=new PopulationRepository(connection);this.policy=Objects.requireNonNull(policy);
     }
     public Availability evaluate(UUID id)throws SQLException {
+        if(BusinessClosure.blocked(connection,id))return new Availability(false,"Closed or unsold deadline expired; assets/history retained");
         var b=businesses.findBusiness(id).orElseThrow(()->new SQLException("Unknown operating business"));
         var owner=population.findResident(b.ownerId()).orElseThrow(()->new SQLException("Missing business owner"));
         if(owner.status()==Resident.Status.ALIVE&&owner.settlementId().equals(b.settlementId()))

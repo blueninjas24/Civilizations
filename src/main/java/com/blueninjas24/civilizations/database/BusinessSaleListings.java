@@ -22,6 +22,7 @@ public final class BusinessSaleListings {
                 if(saved.price()!=price||saved.deadlineMillis()!=deadlineMillis)throw new SQLException("Listing reused with different accepted terms");
                 return saved;
             }
+            BusinessClosure.requireOpen(connection,business);
             if(step<b.foundedStep())throw new SQLException("Listing predates founding");
             var owner=new PopulationRepository(connection).findResident(b.ownerId()).orElseThrow();
             if(owner.status()!=Resident.Status.DECEASED)throw new BusinessSales.Declined("Listing requires deceased current owner");

@@ -55,6 +55,7 @@ public final class FarmEnterprises {
                     "Prototype field enterprise: complete crops, qualified founder and actual startup capital")));
         }
         var founding=saved.orElseThrow();var business=businesses.findBusiness(founding.business().id()).orElseThrow();
+        if(BusinessClosure.blocked(connection,business.id()))return "Farm business closed or unsold deadline expired; field/site/assets/history retained";
         if(!business.industry().equals("farming") || !founding.site().worldId().equals(farm.world()))
             throw new SQLException("Automatic farm identity conflicts with saved industry/world");
         businesses.reconcileBusiness(business.id(),month);
@@ -78,6 +79,7 @@ public final class FarmEnterprises {
     }
     public long workers(UUID town) throws SQLException {
         var id=businessId(town);
+        if(BusinessClosure.blocked(connection,id))return 0;
         if(operations.enabled()&&(businesses.findBusiness(id).isEmpty()||!new BusinessOperations(connection,operations).evaluate(id).permitted()))return 0;
         return businesses.currentWorkers(id).size();
     }

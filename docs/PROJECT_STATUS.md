@@ -4,6 +4,28 @@
 
 ## October 9, 2026 — qualified business succession
 
+Latest follow-on: unsold expiry now records retained closure and releases all open
+jobs atomically after qualified inheritance review. Expired firms stop new work
+before their bounded closure visit. New mining/recipes/hiring/trade/capital are
+blocked; paid cargo and exact historic receipts remain safe. Farms cannot silently
+restart under their stable identity. Diagnostics retain the reason/date and no
+longer falsely say succession is unimplemented. Schema 41 is additive. Nine new
+closure cases plus one farm regression; final focus 43 passed, broader pre-final
+focus 73 passed; Windows Wrapper clean verify passed 744 (742 unit/two packaged
+integration), zero failures/errors/skips. Native Paper passed staffed work until
+expiry, ended jobs, retained coal3/reserve2 and stopped output across restart;
+other mine coal5/reserve5, inherited owner and paid replay retained. Funds stay
+8500 treasury/750 cash/250 estate. First harness read connection omitted required
+foreign keys; corrected only the harness and reran. Both runs stopped normally,
+settings restored, probes archived; old dev assets retained, integrity/FKs healthy.
+User-server unchanged. Automatic valuation/listing creation/buyer selection and
+wider competition remain. Phase 3 stays 25%. See BUSINESS_CLOSURE.md.
+
+Next qualification work: user approved gradual resource-backed training for
+unemployed adults and learning through actual employee work, with editable costs,
+speed and limits. Ownership thresholds remain required. No training is implemented
+by this closure batch; automatic nonfood founding remains unfinished.
+
 Latest follow-on: schema 40 saves explicit sale offers with immutable price/deadline,
 online/present-world elapsed time, resolved ownership and atomic SOLD completion.
 Normal refusal no longer falsely reports a population save failure. Failed world

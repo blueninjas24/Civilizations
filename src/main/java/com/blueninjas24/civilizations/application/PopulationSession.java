@@ -472,12 +472,13 @@ public final class PopulationSession implements AutoCloseable {
             if(!java.util.Objects.equals(listingClockFailure,failure.getMessage()))logger.log(Level.SEVERE,"Listing clocks deferred; no sale terms or funds changed",failure);
             listingClockFailure=failure.getMessage();
         }
+        // Close expired unsold offers before new industry/economy work; refresh is bounded.
+        businessView.set(businesses.refresh(status.get().completedMonths(),loadedWorlds));
         if(!industrySuspended)try {industries.pulse(now.getAsLong(),loadedWorlds);industryFailure=null;}
         catch(SQLException|RuntimeException failure) {
             if(!java.util.Objects.equals(industryFailure,failure.getMessage()))logger.log(Level.SEVERE,"Industry update deferred; saved work remains retryable",failure);
             industryFailure=failure.getMessage();
         }
-        if(industryPolicy.enabled())businessView.set(businesses.refresh(status.get().completedMonths(),loadedWorlds));
         if (economy != null && status.get().remainingMonths() == 0) {
             try { economy.pulse(now.getAsLong(), false); economyView.set(economy.views()); economyFailure = null; }
             catch (SQLException | RuntimeException failure) {

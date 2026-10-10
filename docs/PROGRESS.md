@@ -2,6 +2,13 @@
 
 Updated October 9, 2026. Based on verified work, not planned features.
 
+Latest: an unsold business now closes after its saved deadline. Workers can look
+for other jobs; the business keeps its goods, money, remaining ore and history.
+Restarting cannot bring it back accidentally. All 744 tests and the real Paper
+check passed. Automatic prices/buyers and wider industry founding still remain,
+so Phase 3 is still one fully finished reporting group out of four (25%).
+You approved gradual skill learning; that is the next development work, not yet live.
+
 Latest: a business sale offer now remembers its price and deadline. Time away from
 the server or world does not use up that deadline; a sale saves the payment and
 new owner together. All 734 tests and the real Paper check passed. Choosing buyers
@@ -37,7 +44,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 734 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 744 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

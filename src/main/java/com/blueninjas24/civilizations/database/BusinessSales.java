@@ -51,6 +51,7 @@ public final class BusinessSales {
         }
     }
     private void sellRows(Request q)throws SQLException {
+        BusinessClosure.requireOpen(connection,q.business());
         boolean listed=new BusinessSaleListings(connection).requireAcceptedPrice(q);
         var target=businesses.findBusiness(q.business()).orElseThrow(()->new SQLException("Unknown sale business"));
         var seller=population.findResident(q.seller()).orElseThrow(()->new SQLException("Unknown seller"));

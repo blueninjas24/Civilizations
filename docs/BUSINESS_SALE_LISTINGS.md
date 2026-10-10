@@ -1,8 +1,9 @@
 # Saved business sale offers
 
 This is the offer and timing layer for the approved business resale rules. It does
-not yet automatically value or advertise a business, select a buyer, or close an
-unsold firm. Qualified inheritance still takes priority. Existing qualified staff
+not yet automatically value or advertise a business or select a buyer. Retained
+unsold closure is now connected; see BUSINESS_CLOSURE.md. Qualified inheritance
+still takes priority. Existing qualified staff
 can continue working under the separately configurable business-operations policy.
 
 ## Accepted terms and payment
@@ -41,10 +42,11 @@ offers; exceeding that limit defers the whole review rather than partially spend
 deadlines. A future larger-server implementation needs a bounded paging strategy.
 
 An owner transfer marks the old offer RESOLVED. Deadline expiry marks it EXPIRED
-and refuses new payment. **EXPIRED is not business closure:** this layer does not
-delete a firm, end its jobs or remove assets. Automatic offer creation, editable
-valuation/deadline policy, qualified funded buyer selection and explicit retained
-closure are the next connected lifecycle work. No automatic live offers exist yet.
+and refuses new payment. The separate bounded closure review now records retained
+closure and ends jobs after inheritance priority; expired firms stop new work
+immediately. Neither layer deletes assets. Automatic offer creation, editable
+valuation/deadline policy and qualified funded buyer selection remain next.
+No automatic live offers exist yet.
 
 ## Persistence and verification
 
