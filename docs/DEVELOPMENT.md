@@ -1,5 +1,13 @@
 # Development and recovery procedures
 
+Work-learning probe follow-up: verify schema 42, eight participant entries and
+actual mining skills 15/8 from starting 10/5. No awards during world absence,
+closure or replay; existing asset/skill snapshots must survive upgrade unchanged.
+The latest Windows Wrapper verification passed 756 tests. Every probe read connection
+must enable foreign keys when using repositories; direct read-only assertions must
+not require widening application APIs. See WORK_LEARNING.md for defaults/limits.
+
+
 Latest IndustryRuntimeProbe also expires a separate staffed deceased-owner mine.
 Verify schema41, one retained closure, no open jobs on that firm, preserved coal3/
 reserve2 and no further output after restart; the inherited mine reaches coal5/

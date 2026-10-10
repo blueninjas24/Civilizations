@@ -13,6 +13,19 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void workLearningDefaultsAreEditableAndAbsentOldSectionsRemainDisabled()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WorkLearningPolicy.prototype(),EconomyConfiguration.readWorkLearning(config));
+        config.set("work-learning.experience-per-productive-period",2);EconomyConfiguration.read(config);
+        assertEquals(2,EconomyConfiguration.readWorkLearning(config).experiencePerProductivePeriod());
+        config.set("work-learning",null);EconomyConfiguration.read(config);assertEquals(com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled(),EconomyConfiguration.readWorkLearning(config));
+    }
+    @Test void malformedLearningSettingsFailBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of(0,1001,1.5,"fast")) {
+            var config=defaults();config.set("work-learning.experience-per-productive-period",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("work-learning.industry-skills.mining",42);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var missing=defaults();missing.set("work-learning.enabled",null);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(missing));
+    }
     @Test void staffedOperationRuleIsEditableAndOldFilesKeepLegacyBehavior()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.BusinessOperationPolicy.prototype(),EconomyConfiguration.readBusinessOperations(config));
         config.set("business-operations.continue-staffed-after-owner-death",false);EconomyConfiguration.read(config);

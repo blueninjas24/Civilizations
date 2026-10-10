@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 41;
+    static final int CURRENT_VERSION = 42;
 
     @FunctionalInterface
     interface Migration {
@@ -456,6 +456,32 @@ final class SchemaMigrator {
                             )
                             """);
                     execute(connection,"CREATE INDEX business_closure_history ON business_closures(observed_step,business_id)");
+                },
+                connection -> {
+                    execute(connection,"""
+                            CREATE TABLE industry_learning_reviews (
+                                operation_id TEXT PRIMARY KEY NOT NULL REFERENCES industry_production(operation_id),
+                                business_id TEXT NOT NULL REFERENCES businesses(id),
+                                period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=0),
+                                enabled INTEGER NOT NULL CHECK(enabled IN (0,1)),
+                                skill TEXT CHECK(skill IS NULL OR length(trim(skill)) BETWEEN 1 AND 64),
+                                gain INTEGER NOT NULL CHECK(typeof(gain)='integer' AND gain BETWEEN 1 AND 1000),
+                                ceiling INTEGER NOT NULL CHECK(typeof(ceiling)='integer' AND ceiling BETWEEN 1 AND 1000000000),
+                                worker_budget INTEGER NOT NULL CHECK(typeof(worker_budget)='integer' AND worker_budget BETWEEN 1 AND 1000),
+                                explanation TEXT NOT NULL CHECK(length(trim(explanation)) BETWEEN 1 AND 2048),
+                                FOREIGN KEY(business_id,period) REFERENCES industry_production(business_id,period)
+                            )
+                            """);
+                    execute(connection,"""
+                            CREATE TABLE industry_learning_entries (
+                                operation_id TEXT NOT NULL REFERENCES industry_learning_reviews(operation_id),
+                                resident_id TEXT NOT NULL REFERENCES residents(id),
+                                before_experience INTEGER NOT NULL CHECK(typeof(before_experience)='integer' AND before_experience>=0),
+                                after_experience INTEGER NOT NULL CHECK(typeof(after_experience)='integer' AND after_experience>before_experience),
+                                PRIMARY KEY(operation_id,resident_id)
+                            )
+                            """);
+                    execute(connection,"CREATE INDEX resident_industry_learning ON industry_learning_entries(resident_id,operation_id)");
                 }
         ));
     }
@@ -599,6 +625,10 @@ final class SchemaMigrator {
             }
             if(migrations.size()>=40)requireColumns(connection,"business_sale_listings",Set.of("business_id","seller_id","price","deadline_ms","created_step","last_ms","elapsed_ms","status","sale_operation"));
             if(migrations.size()>=41)requireColumns(connection,"business_closures",Set.of("business_id","seller_id","observed_step","reason"));
+            if(migrations.size()>=42) {
+                requireColumns(connection,"industry_learning_reviews",Set.of("operation_id","business_id","period","enabled","skill","gain","ceiling","worker_budget","explanation"));
+                requireColumns(connection,"industry_learning_entries",Set.of("operation_id","resident_id","before_experience","after_experience"));
+            }
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",
                     "food_condition", "food_unmet", "crowded_homes", "selected", "review_after", "food_weight", "crisis_multiplier", "housing_weight", "monitor_weight", "relative_percent"));
             if (migrations.size() >= 18) requireColumns(connection,"food_deliveries",Set.of("sequence","operation_id","settlement_id","units","source","eligible_after","applied_period"));

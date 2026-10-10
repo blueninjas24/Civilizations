@@ -23,7 +23,7 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
     private UUID founder, heir, mine;
     private UUID saleOwner,saleFirm;
     private BusinessSales.Request paidSale;
-    private UUID pendingMine,pendingOwner;
+    private UUID pendingMine,pendingOwner,pendingEmployee;
     private IndustryRuntimePolicy policy;
     @Override public void onEnable() {
         try {
@@ -59,7 +59,7 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                             case 13 -> {check(4,6);checkClosure();session.close();now.set(10_000_000);session=create();pending=session.start(false,Set.of(world));}
                             case 14 -> {check(4,6);checkClosure();now.set(10_001_000);pending=session.pulse();}
                             case 15 -> {
-                                check(5,5);checkSale();checkClosure();getLogger().info("NATIVE TIMED INDUSTRY PASS: qualified inheritance, exact saved offer and conserved paid resale/replay, qualified staff continue until unsold expiry, retained closure releases jobs and stops output across restart, finite output and absent-world pause; separate database, no world writes");
+                                check(5,5);checkSale();checkClosure();getLogger().info("NATIVE TIMED INDUSTRY PASS: actual employee learning and eight once-only skill audits, qualified inheritance, exact saved offer and conserved resale/replay, staff work until unsold expiry, retained closure/jobs/output and skills survive restart, finite output and absent-world pause; separate database, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -72,7 +72,7 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
     private PopulationSession create() {
         var settings=new PopulationSession.Settings(42,1000,0,2,new PopulationPolicy(12,216,240,480,720,0,0,0),MigrationPolicy.disabled(),VillageRecognition.Policy.prototype(),VillageEnrollmentRepository.Policy.prototype());
         var result=new PopulationSession(folder,getLogger(),settings,now::get);result.configureIndustryRuntime(policy);
-        result.configureBusinessPurchases(new BusinessPurchasePolicy(500,50,100));result.configureBusinessOperations(BusinessOperationPolicy.prototype());return result;
+        result.configureBusinessPurchases(new BusinessPurchasePolicy(500,50,100));result.configureBusinessOperations(BusinessOperationPolicy.prototype());result.configureWorkLearning(WorkLearningPolicy.prototype());return result;
     }
     private void seed()throws Exception {
         var db=new DatabaseManager(folder,getLogger());
@@ -100,7 +100,7 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
             var spare=new Business(UUID.randomUUID(),town,"Fixture Resale Firm",saleOwner,saleOwner,"mining",spareSite.id(),1,0);saleFirm=spare.id();
             db.getBusinessRepository().found(new BusinessFounding(spare,spareSite,req,req,0,"Explicit fixture resale"));
             db.getPopulationRepository().updateResident(new Resident(saleOwner,"Fixture Seller",town,null,300,Resident.Status.DECEASED));
-            pendingOwner=UUID.randomUUID();UUID employee=UUID.randomUUID();
+            pendingOwner=UUID.randomUUID();UUID employee=UUID.randomUUID();pendingEmployee=employee;
             db.getPopulationRepository().insertResident(new Resident(pendingOwner,"Fixture Pending Owner",town,null,300,Resident.Status.ALIVE));
             db.getPopulationRepository().insertResident(new Resident(employee,"Fixture Qualified Employee",town,null,300,Resident.Status.ALIVE));
             db.getPopulationRepository().recordSkillExperience(pendingOwner,"mining",20);db.getPopulationRepository().recordSkillExperience(employee,"mining",5);
@@ -129,6 +129,13 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                 s.setString(1,pendingMine.toString());try(var r=s.executeQuery()){if(r.getLong(1)!=5-(new BusinessClosure(c).find(pendingMine).isPresent()?3:stock))throw new IllegalStateException("Unexpected pending-sale reserve");}
             }
             if(!businesses.findBusiness(pendingMine).orElseThrow().ownerId().equals(pendingOwner))throw new IllegalStateException("Employee was invented as qualified owner");
+            long pendingStock=new BusinessClosure(c).find(pendingMine).isPresent()?3:stock;
+            try(var s=c.prepareStatement("SELECT experience FROM resident_skills WHERE resident_id=? AND skill='mining'")) {
+                for(var expected:Map.of(heir,10+stock,pendingEmployee,5+pendingStock,founder,10L).entrySet()) {
+                    s.setString(1,expected.getKey().toString());try(var r=s.executeQuery()){if(!r.next()||r.getLong(1)!=expected.getValue())throw new IllegalStateException("Actual work learning or paused/closed skill preservation mismatch");}
+                }
+            }
+            try(var s=c.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM industry_learning_entries")){if(r.getLong(1)!=stock+pendingStock)throw new IllegalStateException("Duplicate or missing learning audit");}
             try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){if(!r.getString(1).equals("ok"))throw new IllegalStateException("Integrity failed");}
             try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("Foreign key failed");}
         }

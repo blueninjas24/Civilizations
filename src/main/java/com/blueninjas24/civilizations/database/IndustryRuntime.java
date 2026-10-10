@@ -13,13 +13,18 @@ public final class IndustryRuntime {
     private final Connection connection;
     private final IndustryRuntimePolicy policy;
     private final BusinessOperationPolicy operations;
+    private final WorkLearningPolicy learning;
     private String cursor = "";
     public IndustryRuntime(Connection connection, IndustryRuntimePolicy policy) {
         this(connection,policy,BusinessOperationPolicy.disabled());
     }
     public IndustryRuntime(Connection connection, IndustryRuntimePolicy policy,BusinessOperationPolicy operations) {
+        this(connection,policy,operations,WorkLearningPolicy.disabled());
+    }
+    public IndustryRuntime(Connection connection, IndustryRuntimePolicy policy,BusinessOperationPolicy operations,WorkLearningPolicy learning) {
         this.connection=Objects.requireNonNull(connection); this.policy=Objects.requireNonNull(policy);
         this.operations=Objects.requireNonNull(operations);
+        this.learning=Objects.requireNonNull(learning);
     }
     /** Restart preserves earned work/fractions but earns no downtime. */
     public void start(long now) throws SQLException {
@@ -95,6 +100,10 @@ public final class IndustryRuntime {
             var supplies=new WorkshopSupplies(connection,operations);
             int arrived=supplies.deliverRows(id,period);
             var operation=UUID.nameUUIDFromBytes(("civilizations:timed-industry-v1:"+id+":"+period).getBytes(StandardCharsets.UTF_8));
+            boolean freshProduction;
+            try(var s=connection.prepareStatement("SELECT 1 FROM industry_operations WHERE id=?")) {
+                s.setString(1,operation.toString());try(var r=s.executeQuery()){freshProduction=!r.next();}
+            }
             if(!availability.permitted())reason=availability.explanation();
             else if(clock.industry().equals("mining")) {
                 var deposits=new ArrayList<UUID>();
@@ -112,7 +121,7 @@ public final class IndustryRuntime {
                     reason=supply+"; "+industry.processRows(operation,id,recipe.orElseThrow(),recipe.orElseThrow().siteCapacity(),period).receipt().explanation();
                 }
             }
-            reason="Owned cargo delivered: "+arrived+"; "+availability.explanation()+"; "+reason;
+            reason="Owned cargo delivered: "+arrived+"; "+availability.explanation()+"; "+reason+"; "+new IndustryLearning(connection,learning).reviewRows(operation,id,freshProduction);
             try(var s=connection.prepareStatement("INSERT INTO industry_runtime_history VALUES(?,?,?)")) {
                 s.setString(1,id.toString());s.setLong(2,period);s.setString(3,reason.substring(0,Math.min(1024,reason.length())));s.executeUpdate();
             }

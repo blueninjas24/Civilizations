@@ -24,6 +24,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("business-operations")) rootKeys.add("business-operations");
+        if (config.contains("work-learning")) rootKeys.add("work-learning");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
         if (config.contains("finance")) rootKeys.add("finance");
@@ -37,6 +38,7 @@ public final class EconomyConfiguration {
         readWorkshopSupply(config);
         readBusinessPurchasePolicy(config);
         readBusinessOperations(config);
+        readWorkLearning(config);
         readFarms(config);
         readPriorities(config);
         readAidPreview(config);
@@ -78,6 +80,17 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    public static com.blueninjas24.civilizations.industry.WorkLearningPolicy readWorkLearning(ConfigurationSection config) {
+        if(!config.contains("work-learning"))return com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
+        var s=section(config,"work-learning");exactKeys(s,Set.of("enabled","experience-per-productive-period","maximum-experience","maximum-workers-per-review","industry-skills"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("work-learning.enabled must be true or false");
+        var mappings=section(s,"industry-skills");var skills=new TreeMap<String,String>();
+        for(var key:mappings.getKeys(false)) {
+            if(!(mappings.get(key) instanceof String skill))throw new IllegalArgumentException("work-learning.industry-skills values must be skill names");
+            skills.put(key,skill);
+        }
+        return new com.blueninjas24.civilizations.industry.WorkLearningPolicy(enabled,integer(s,"experience-per-productive-period"),integer(s,"maximum-experience"),smallInteger(s,"maximum-workers-per-review"),skills);
     }
     public static com.blueninjas24.civilizations.industry.BusinessPurchasePolicy readBusinessPurchasePolicy(ConfigurationSection config) {
         if(!config.contains("business-resale-funding"))return com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();

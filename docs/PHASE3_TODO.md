@@ -1,16 +1,16 @@
-# Phase 3 — businesses and industry checklist
+# Phase 3 â€” businesses and industry checklist
 
-Updated October 9, 2026. Reporting progress remains one of four complete groups
+Updated October 10, 2026. Reporting progress remains one of four complete groups
 (25%). Completed backend components do not complete live gameplay milestones.
 
-## 1. Persistent businesses, owners, workers and sites — verified
+## 1. Persistent businesses, owners, workers and sites â€” verified
 
 - [x] Save identities, founders, owners, workplace sites and employment history.
 - [x] Require eligible residents and real startup capital; prevent double jobs.
 - [x] Automatically found/staff real observed farms and produce worker-backed food.
 - [x] Validate founding, retries, restarts and absent-world pause on disposable Paper.
 
-## 2. Resources and connected production — in progress
+## 2. Resources and connected production â€” in progress
 
 - [x] Finite geological reserves, shared ore/rock work, bounded business storage.
 - [x] Paid local warehouse transactions and unavailable-until-delivered cargo.
@@ -50,7 +50,7 @@ Updated October 9, 2026. Reporting progress remains one of four complete groups
       biome alone or claim ores beyond the implemented coal/iron catalog.
 - [ ] Verify live production chains, capacity/depletion and unloaded operation.
 
-## 3. Business lifecycle and competition — pending
+## 3. Business lifecycle and competition â€” pending
 
 Approved October 9: eligible industry-qualified family first, then a qualified
 employee, otherwise an affordable qualified sale with configurable valuation and
@@ -77,7 +77,10 @@ premises are preferred; physical building reuse remains Phase 4.
 - [x] Configurable approved existing-staff operation after owner death, including
       real paid warehouse/workshop inputs, qualified finite mining and inherited
       farm staffing; temporary DB and Paper pause/restart/conservation verified.
-- [ ] Bound skill development and investment; no manufactured profit or payroll.
+- [x] Actual timed mine/workshop employees gain bounded configurable skills, saved
+      with production/audits/checkpoint; rollback/replay/retuning/absence/restart
+      and qualified succession verified in temporary SQLite and Paper.
+- [ ] Bound broader skill development and investment; no manufactured profit or payroll.
       Gradual resource-backed adult training and learning from actual employee work
       are approved, with configurable costs/speed/limits; implementation is next.
 - [x] Saved explicit sale offers, immutable accepted price/deadline, online-only
@@ -85,7 +88,7 @@ premises are preferred; physical building reuse remains Phase 4.
       cases and actual Paper passed. Automatic valuation/buyers and closure remain.
 - [ ] Restart-safe turnover and failed-transition recovery scenarios.
 
-## 4. Emergent specialization and acceptance — pending
+## 4. Emergent specialization and acceptance â€” pending
 
 - [ ] Opportunity selection compares viable industries, demand, labor and capital.
 - [ ] Different geography/history produces different mixes; no universal industry list.

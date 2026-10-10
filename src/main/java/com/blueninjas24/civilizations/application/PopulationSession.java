@@ -87,6 +87,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.database.IndustryRuntime industries;
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private boolean listingClockSuspended;
     private volatile String listingClockFailure;
     private volatile String industryFailure;
@@ -167,6 +168,10 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure business operation before session starts");
         operationPolicy=java.util.Objects.requireNonNull(policy);
     }
+    public void configureWorkLearning(com.blueninjas24.civilizations.industry.WorkLearningPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure work learning before session starts");
+        learningPolicy=java.util.Objects.requireNonNull(policy);
+    }
     /** Internal acquisition boundary; listing/valuation/buyer selection are separate lifecycle work. */
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessSales.Request> sellBusiness(com.blueninjas24.civilizations.database.BusinessSales.Request request) {
         return submit(()->{
@@ -227,7 +232,7 @@ public final class PopulationSession implements AutoCloseable {
                     if(!fence.trusted())oreHistoryIssue.set("unclean stop or prior capture gap; reviewed recovery required");
                 }
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
-                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy);
+                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy);
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
                 var demographic = database.getDemographicRepository();

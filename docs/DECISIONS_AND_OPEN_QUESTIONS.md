@@ -1,6 +1,6 @@
-# Civilizations — locked decisions and unresolved questions
+# Civilizations â€” locked decisions and unresolved questions
 
-## October 9, 2026 — approved industry development direction
+## October 9, 2026 â€” approved industry development direction
 
 User approved bounded, paid exploration that can fail and stops for reassessment;
 structured mine networks (main haul tunnels/shafts/branches), terrain/hazard/player
@@ -55,8 +55,9 @@ October 9 playtest decisions, with implementation boundaries:
   limits and qualification requirements must remain editable. Required ownership
   thresholds still apply; no instant career changes or invented productive labor.
   Starting resident profiles currently have no saved mining/smithing experience.
-  This is approval for scoped skill development, not a claim that training or
-  automatic nonfood founding is already implemented.
+  Actual employee learning in timed mines/workshops is now verified (schema 42);
+  unemployed-adult supply-backed study and automatic nonfood founding remain
+  unfinished. Approval does not waive saved qualification requirements.
 - Businesses and households prioritize available suitable vacant premises before
   new construction. Reuse depends on needs, capacity, condition and permission;
   vacancy alone never justifies an unsuitable move or modifying player buildings.
@@ -89,7 +90,7 @@ Native placements and conservative piston exclusions are verified. Recognized
 unsupported bulk-editor presence now fences discovery (ORE_EDITOR_GUARD.md); unknown
 editors/offline edits remain uncertified and supported operation integration is pending. See LIVE_ORE_TRACKING.md.
 
-## October 9, 2026 — timed existing industry prototype
+## October 9, 2026 â€” timed existing industry prototype
 
 Approved configurable economy authority supplies a 30-real-second work period and
 eight existing firms per pulse for new files. Old files explicitly opt in. Timed
@@ -103,7 +104,7 @@ are verified, while automatic resale/closure remains unfinished. Automatic
 opportunities/founding, purchasing/customer demand and wider
 industry coverage still need scoped work. See TIMED_INDUSTRY.md.
 
-## October 9, 2026 — approved exposed existing ore prototype
+## October 9, 2026 â€” approved exposed existing ore prototype
 
 The user answered: "Allow exposed existing ore." Exposed pre-existing coal/iron
 may count as finite prototype resource evidence even when its old natural/player
@@ -114,7 +115,7 @@ permit forced chunk loading. Durable placement tracking and a bounded live obser
 are prerequisites before enabling automatic mine opportunities. See
 EXPOSED_ORE_SCANNING.md for conservative exposure and completeness rules.
 
-## October 9, 2026 — coordinate identity engineering boundary
+## October 9, 2026 â€” coordinate identity engineering boundary
 
 Permanent world/ore coordinates now establish one finite saved deposit under a
 trusted registered site. Overlapping surveys link identity without extending
@@ -125,7 +126,7 @@ geological cluster criteria, mine expansion or block rights. Automatic discovery
 still requires live observation and placement tracking; the origin choice above is
 now approved. See MINERAL_IDENTITY.md.
 
-## October 9, 2026 — workshop recipe prototype accounting
+## October 9, 2026 â€” workshop recipe prototype accounting
 
 Approved editable economy authority supplies the first blacksmith recipe: two iron
 plus one coal yield one abstract tools unit; two batches per actual worker, site cap
@@ -137,7 +138,7 @@ NPC shopping, physical block work or household payroll. Tools are business stock
 village reserves and old owner files are unchanged. No new design answer is needed.
 See WORKSHOP_PRODUCTION.md for saved recipe history and deployment limitations.
 
-## October 9, 2026 — automatic field enterprise prototype
+## October 9, 2026 â€” automatic field enterprise prototype
 
 Under the user's approval to choose editable economy prototype settings, one
 village-wide field enterprise can start from complete actual crop evidence, an
@@ -151,7 +152,7 @@ terms survive tuning; expansion, closure, succession, wages and nonfood automati
 industries remain later scoped work. No locked design principle changes and no
 new user answer is required for this batch. See AUTOMATIC_FARMS.md.
 
-## October 9, 2026 — Phase 3 business persistence boundary
+## October 9, 2026 â€” Phase 3 business persistence boundary
 
 First backend batch uses explicit caller-supplied site/opportunity, age/skill
 requirements, capacity and startup cost. Positive investment debits actual village
@@ -239,7 +240,7 @@ No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.m
 - Randomness bounded by feasibility; lightweight government; rare wars/disasters; abandoned towns preserve history and may return.
 - Public Civilizations source is acceptable after auditing secrets/history; Chronicler source remains private. This repository must not contain hidden Chronicler mechanics.
 
-## Open — do not silently lock numerical/behavioral rules
+## Open â€” do not silently lock numerical/behavioral rules
 1. Exact criteria for recognizing a settlement: POI cluster, villagers, vanilla village, player-founded location; distinction from player settlement.
 2. Center/border evolution and merging/splitting criteria. World UUID and saved
    bed/villager identity matching approved; multi-town overlap must be diagnosed.
@@ -258,7 +259,7 @@ No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.m
   Ancestry cycles/self-links are invalid. This does not choose fertility, parent
   limits, partner exclusivity, marriage lifecycles or family-generation policy.
 
-### Engineering choices — October 7, 2026
+### Engineering choices â€” October 7, 2026
 - October 8 approved economy prototype: separate `economy.yml`, one 60-second period,
   legacy headless offline cap 120 and batch two, adult/child food demand 2/1, output four per evidenced
   available worker at editable 100%. Famine/feast recipes use 25%/200% output. Initial
@@ -315,7 +316,7 @@ No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.m
   mixed engines/settings changes rejected. Runtime policy changes require an explicit
   recorded transition. Snapshot/progress/events save atomically before live scheduling.
 - Experimental demographic prototype: 12 monthly steps/year, adulthood 18, parent
-  ages 20–40, senior threshold 60; eligible-pair birth chance 0.015/month, baseline
+  ages 20â€“40, senior threshold 60; eligible-pair birth chance 0.015/month, baseline
   death chance 0.0001/month plus 0.0005 per year beyond 60. Editable policy inputs
   under user authorization, not locked canon. Births require observed housing space
   and living unrelated partners. Runtime cadence, seeding and housing observation
@@ -328,10 +329,10 @@ No new consequential answer blocks this storage batch. See BUSINESS_FOUNDATION.m
 - Headless runner checkpoints carry seed, completed logical steps and immutable caller state. Per-step randomness is derived independently to preserve outcomes across batch sizes; budgets cap steps, not CPU time. The synthetic harness does not establish any calendar ratio, birth/death rate or settlement simulation rule. Persistent replay versioning remains future engineering work.
 - Schema version 4 stores resident/household identities separately from the old census. Age is an unconverted logical step count; optional household means unassigned housing. Deceased records are retained. No residents are inferred from old counts, no housing capacity is chosen and no implicit settlement transfer is supported. Family, occupation, seeding and demographic rules remain separate upcoming work.
 
-Codex may choose internal implementation details that do not change gameplay intent; document the choice. For consequential open rules, present 2–3 concrete options with tradeoffs and a recommendation; wait for user approval. Add approved outcomes here and update other canonical docs. Do not present hypothetical illustrative numbers as settled decisions.
+Codex may choose internal implementation details that do not change gameplay intent; document the choice. For consequential open rules, present 2â€“3 concrete options with tradeoffs and a recommendation; wait for user approval. Add approved outcomes here and update other canonical docs. Do not present hypothetical illustrative numbers as settled decisions.
 
 
-## October 8, 2026 — approved configurable economy applied to live food
+## October 8, 2026 â€” approved configurable economy applied to live food
 
 Within the approved prototype settings authority: sixteen planted crops per worker,
 32-block horizontal/16-block vertical household observation, one-minute food periods,
@@ -345,7 +346,7 @@ and do not revise locked design principles. Household rationing, treasury transa
 food-driven mortality and player merchant rules remain separate future work.
 
 
-## October 8, 2026 — household needs and treasury boundaries
+## October 8, 2026 â€” household needs and treasury boundaries
 
 Engineering implementation records existing household food demand and observed
 housing per completed economic period, with shared village food condition separately
@@ -359,7 +360,7 @@ open implementation/design work; this accounting does not choose them. See
 HOUSEHOLD_NEEDS_AND_TREASURY.md. Existing configurable prototype authority is retained.
 
 
-## October 8, 2026 — prototype priority decisions
+## October 8, 2026 â€” prototype priority decisions
 
 Under approved configurable economy settings, nonbinding priorities use recorded
 unmet food and observed crowding. Defaults: review every five economic periods,
@@ -373,7 +374,7 @@ include real funds, counterparties, labor/materials and safe sites. Stored repla
 inputs preserve original explanations and apply tuning forward. See VILLAGE_PRIORITIES.md.
 
 
-## October 8, 2026 — explicit food receipt boundary
+## October 8, 2026 â€” explicit food receipt boundary
 
 Engineering delivery accounting accepts only an explicit trusted source/amount and
 unique operation ID; it does not establish physical goods or invent counterparties.
@@ -386,7 +387,7 @@ inventory handoff before exposing commands. See FOOD_RELIEF.md. This preserves
 approved configurable economy authority and the canonical roadmap.
 
 
-## October 8, 2026 — read-only player aid preview
+## October 8, 2026 â€” read-only player aid preview
 
 Within approved configurable prototype economy authority: ordinary wheat/carrot/
 potato/beetroot each preview as one food unit; bread three, baked potato two.
@@ -401,7 +402,7 @@ by this preview. Real donation recovery needs reliable inventory-save evidence; 
 pinned saveData call alone cannot provide it. See PLAYER_FOOD_AID.md.
 
 
-## October 8, 2026 — confirmed donation handoff
+## October 8, 2026 â€” confirmed donation handoff
 
 User preferred interaction through villagers and authorized further Phase 2 work.
 Prototype sneak-right-click preserves vanilla trading; the menu explicitly confirms
@@ -413,7 +414,7 @@ plus independently verified saved NBT guards SQL credit and restart retries. Thi
 pinned to tested Minecraft 26.2 players/data layout; formats/plugins/backups need
 compatibility validation, not silent receipt deletion or refund. See FOOD_DONATIONS.md.
 
-## October 8, 2026 — simulated household allocation prototype
+## October 8, 2026 â€” simulated household allocation prototype
 
 Under the approved prototype economy scope, completed food periods now assign their
 actual fulfilled units proportionally to configured household adult/child needs,
@@ -426,7 +427,7 @@ future decisions. Current allocation is diagnostic and never claims physical mea
 Schema 19 preserves earlier allocation as unknown and records forward unmet streaks.
 See HOUSEHOLD_NEEDS_AND_TREASURY.md for tie bias and other limits.
 
-## October 8, 2026 — voluntary village food appeals
+## October 8, 2026 â€” voluntary village food appeals
 
 A selected SEEK_FOOD priority now exposes the actual unmet units from its latest
 completed period in the existing village supplies menu. This scoped response uses
@@ -438,7 +439,7 @@ claimed as causal success, and does not silently train decision weights. Paid tr
 actual village funding and adaptive outcome scoring remain separate future work.
 See FOOD_APPEALS.md for observation/history and paused/catch-up limits.
 
-## October 8, 2026 — finance questions and independent groundwork
+## October 8, 2026 â€” finance questions and independent groundwork
 
 Questions presented to the user: first village funding via voluntary player
 contributions, a configurable one-time grant plus contributions, or waiting for
@@ -452,7 +453,7 @@ No live budget, income rule, exchange rate, payout or merchant acceptance is cre
 Existing scarcity pricing and standalone treasury behavior remain unchanged.
 See FINANCE_FOUNDATION.md. These calculations do not reserve or promise payment.
 
-## October 8, 2026 — finance questions resolved by user
+## October 8, 2026 â€” finance questions resolved by user
 
 The user approved a moderate initial financial position as the basis for village
 spending, followed by causal gains/losses, and both emerald payment and contextual
@@ -478,7 +479,7 @@ Purchases must debit available funds and preserve both goods and payment receipt
 This entry records product direction, not an implemented funding or payment feature.
 Prototype values and payment/stock safety still require implementation and tests.
 
-## October 8, 2026 — configurable opening funds implementation
+## October 8, 2026 â€” configurable opening funds implementation
 
 Approved prototype authority sets 24.00 Trade Value per living resident once, in the
 shared treasury, enabled in new economy.yml files. Existing owner files require adding
@@ -494,7 +495,7 @@ not implemented by this funding batch. No personal payroll/wallet design is adde
 the master design's abstract household prosperity remains authoritative.
 
 
-## October 8, 2026 — editable emerald food purchase prototype
+## October 8, 2026 â€” editable emerald food purchase prototype
 
 Under the user's configurable economy prototype authority, new files enable food
 purchases at 8.00 Trade Value per emerald, targeting three food-demand periods and
@@ -511,7 +512,7 @@ not attribute reputation. Full cross-save backup/native-death/plugin compatibili
 remain validation work. No personal wallets, industry income or salary rules added.
 
 
-## October 8, 2026 — basic wellbeing prototype under configurable economy authority
+## October 8, 2026 â€” basic wellbeing prototype under configurable economy authority
 
 The user authorized sensible editable economy prototypes. This batch adds food/
 housing welfare, separate from treasury and personal wealth: neutral initial 50,
@@ -528,7 +529,7 @@ No industry/employment assumptions, individual wallets or payroll are introduced
 These are prototype welfare rules, not finalized prosperity balance or starvation.
 See HOUSEHOLD_WELLBEING.md. No new user decision blocks further Phase 2 work.
 
-## October 8, 2026 — configurable emerald bargaining prototype
+## October 8, 2026 â€” configurable emerald bargaining prototype
 
 The approved negotiation direction now uses `/civ bargain <emeralds>` and explicit
 `/civ bargain accept` for a held ordinary food stack. Current scarcity, actual need
@@ -542,7 +543,7 @@ require safe purchase confirmation and current affordability. Old configs opt in
 with the complete optional section. This is emerald food bargaining, not barter or
 business-specific merchants. See FOOD_BARGAINING.md. No new design answer required.
 
-## October 9, 2026 — protected barter accounting prototype
+## October 9, 2026 â€” protected barter accounting prototype
 
 Under approved editable economy authority, first internal outgoing mappings are
 timber/OAK_LOG and stone/COBBLESTONE at one commodity unit/item, keeping two units
@@ -555,7 +556,7 @@ disabled; a live barter inventory adapter still needs implementation and validat
 No extra treasury funding, reputation, personal wallets or gameplay penalties.
 See BARTER_ACCOUNTING.md. No new design answer blocks the next adapter work.
 
-## October 9, 2026 — player barter adapter and trade prototype gate
+## October 9, 2026 â€” player barter adapter and trade prototype gate
 
 The approved food-for-goods direction now uses `/civ barter timber|stone` to preview
 an actual finite-stock offer and `/civ barter accept` to confirm. New files enable
@@ -571,7 +572,7 @@ gate, advancing reporting to 3/4 (75%). Remaining autonomous outcome learning ne
 actual attributable evidence; no causal success is inferred merely from recovery.
 Human client/plugin compatibility and survival balance remain release validation.
 
-## October 9, 2026 — attributable aggregate import outcome evidence
+## October 9, 2026 â€” attributable aggregate import outcome evidence
 
 An exact period-local comparison now measures imported food's marginal contribution
 to prevented unmet demand and closing reserves, holding the saved opening inventory,
@@ -584,7 +585,7 @@ Bounded configurable action learning still needs explicit implemented feasibilit
 response attribution and saved replay inputs before the final reporting gate passes.
 No new user decision blocks the next scoped Phase 2 work. See FOOD_IMPORT_OUTCOMES.md.
 
-## October 9, 2026 — configurable bounded food-priority learning
+## October 9, 2026 â€” configurable bounded food-priority learning
 
 Under the approved editable economy prototype authority, new files now use a
 12-economic-period lookback and 25% maximum extra food-priority weight. Existing
@@ -600,7 +601,7 @@ the remaining Phase 2 reporting scope; industries/construction/regional supplier
 stay in their canonical later phases. No new user answer required. See
 PRIORITY_LEARNING.md for prototype settings and limits.
 
-## October 9, 2026 — Phase 2 feasible response prototype gate
+## October 9, 2026 â€” Phase 2 feasible response prototype gate
 
 Approved configurable economy prototypes now include optional response weights:
 donation 6, emerald 4, barter 4, wait 1, relative threshold 25%. Only actual feasible

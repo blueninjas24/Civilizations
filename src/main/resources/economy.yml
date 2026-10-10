@@ -69,6 +69,21 @@ farm-businesses:
   minimum-age-months: 216
   minimum-farming-experience: 0
 
+# Actual timed mining/workshop output can teach existing qualified employees.
+# Gain is per productive period, not per item; zero output gives no experience.
+# Missing old sections keep learning disabled. Edit stopped/restart; past awards
+# and skills are retained. Lowering the ceiling never takes earned skills away.
+# Removing an industry disables its future learning. This does not train unemployed
+# residents, grant money, create workers or waive founder requirements.
+work-learning:
+  enabled: true
+  experience-per-productive-period: 1
+  maximum-experience: 100
+  maximum-workers-per-review: 64
+  industry-skills:
+    mining: mining
+    blacksmith: smithing
+
 # Phase 3 finite mining backend. Timed work runs existing mines; auto founding is pending.
 # Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.
 # An observed ore block is deposit evidence, not one item. At discovery only:

@@ -1,6 +1,12 @@
 # Civilizations progress tracker
 
-Updated October 9, 2026. Based on verified work, not planned features.
+Updated October 10, 2026. Based on verified work, not planned features.
+
+Latest: employees can gradually learn through successful mining/workshop production.
+They keep their skills after restart; idle or closed businesses award nothing.
+All 756 tests and the isolated Paper check passed. Unemployed-adult training and
+automatic first mines/workshops are next. Phase 3 remains 25% because the broader
+milestone groups are unfinished. Your server still has its earlier playtest build.
 
 Latest: an unsold business now closes after its saved deadline. Workers can look
 for other jobs; the business keeps its goods, money, remaining ore and history.
@@ -44,7 +50,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 744 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 756 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments
@@ -129,17 +135,17 @@ not a replacement for ROADMAP.md or its design requirements.
 
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
-| 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
-| 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 1 / 4 | `██▌░░░░░░░` 25% |
-| 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
-| 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
-| 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
-| 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
-| 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
-| 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
+| 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ` 100% â€” prototype gate passed |
+| 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ` 100% â€” prototype gate passed |
+| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 1 / 4 | `â–ˆâ–ˆâ–Œâ–‘â–‘â–‘â–‘â–‘â–‘â–‘` 25% |
+| 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘` 0% |
+| 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘` 0% |
+| 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘` 0% |
+| 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘` 0% |
+| 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘` 0% |
+| 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘` 0% |
 
-## Phase 1 — prototype gate passed
+## Phase 1 â€” prototype gate passed
 
 - [x] Reliable plugin build and automated testing.
 - [x] Settlement saving and safe database upgrade machinery.
@@ -160,7 +166,7 @@ probe uses synthetic observation positions; a human Minecraft client playtest is
 needed. This is the Phase 1 foundation gate, not a balanced survival release. See
 PHASE1_PLAYTEST.md for setup and material limitations, including trade resets on moves.
 
-## Phase 2 — prototype gate passed
+## Phase 2 â€” prototype gate passed
 
 - [x] Commodity supplies, demand, reserves and shortages. Saved accounting/history,
   actual field-backed food, shortage duration/recovery and forward famine/feast tuning.
@@ -194,7 +200,7 @@ mortality, actual business employment, recurring nonfood industry, physical hous
 construction, regional trade or reputation is claimed here. Those remain in the
 canonical later phases or require separate consequential tuning.
 
-Phase 3 — persistent businesses and industry — is underway at 1/4 (25%). Phases 4–9 remain 0%.
+Phase 3 â€” persistent businesses and industry â€” is underway at 1/4 (25%). Phases 4â€“9 remain 0%.
 Percentages count verified reporting groups, not hours or overall plugin completion.
 
 Earlier batch notes below describe progress at that time; the current Phase 2 gate
@@ -229,7 +235,7 @@ trade prototype group is complete, advancing Phase 2 to 75%; broader autonomous
 responses/outcome learning still block 100%. Human survival/client/plugin testing
 remains required for release. See PLAYER_BARTER.md.
 
-## Phase 3 — automatic farm businesses: 1/4 prototype groups verified
+## Phase 3 â€” automatic farm businesses: 1/4 prototype groups verified
 
 - [x] Persistent businesses, owners, workers and sites. Automatic field enterprise verified on actual Paper; other industries remain next.
 - [ ] Resources and connected production chains.
@@ -270,42 +276,42 @@ Wrapper passed 586 cases and the native synthetic coordinate fixture passed. Act
 ore scans and automatic nonfood businesses are still unfinished; progress remains
 1/4 (25%) while that next reporting group is partly implemented.
 
-## Phase 4 — planned
+## Phase 4 â€” planned
 
 - [ ] Building templates and authoring foundation.
 - [ ] Terrain-aware layouts and road access.
 - [ ] Player-build protection and safe staged construction.
 - [ ] Upgrades, reuse, decay and disposable-world safety tests.
 
-## Phase 5 — planned
+## Phase 5 â€” planned
 
 - [ ] Inter-settlement imports/exports and economic dependency.
 - [ ] Persistent roads, bridges and routes.
 - [ ] Nearby merchants and abstract long-distance trade/migration.
 - [ ] Route maintenance/disruption and unloaded-region tests.
 
-## Phase 6 — planned
+## Phase 6 â€” planned
 
 - [ ] Governments, leaders and succession.
 - [ ] Settlement relations and limited diplomacy.
 - [ ] Earned player reputation and causal structured histories.
 - [ ] Notable people/infrastructure and identity-preserving rename/merger tests.
 
-## Phase 7 — planned
+## Phase 7 â€” planned
 
 - [ ] Prosperity and decline emerge from interacting conditions.
 - [ ] Maintenance problems and gradual deterioration.
 - [ ] Abandonment, ruins, preservation and recovery.
 - [ ] Repeatable long histories and recovery scenarios.
 
-## Phase 8 — planned
+## Phase 8 â€” planned
 
 - [ ] Organic territory, outposts and discovery.
 - [ ] Cultural/historic structures and rare contextual crises.
 - [ ] Abstract conflict with appropriate nearby evidence.
 - [ ] Player settlements and earned influence.
 
-## Phase 9 — planned
+## Phase 9 â€” planned
 
 - [ ] Performance at 20+ settlements, including rare large cities.
 - [ ] Compatibility, migrations, recovery and administration.
