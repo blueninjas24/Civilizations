@@ -76,7 +76,54 @@ public final class WarehouseSupplyProbe extends JavaPlugin {
                 clock.set(101000);session.pulse().get(10,TimeUnit.SECONDS);check(4,0,500,1000,500,0);
                 clock.set(102000);session.pulse().get(10,TimeUnit.SECONDS);check(4,1,500,1000,500,0);
             }
+            runToolChecks();
         }catch(Exception failure){throw new CompletionException(failure);}
+    }
+    private IndustryRuntimePolicy toolPolicy() {
+        var before=policy(true);
+        return new IndustryRuntimePolicy(true,1000,8,before.mining(),before.recipes(),before.supply(),before.warehouseSupply(),new ToolUpkeepPolicy(true,0,2,50,400,Set.of("mining")));
+    }
+    private void runToolChecks()throws Exception {
+        folder=new File(getDataFolder(),"tools-run-"+UUID.randomUUID());fixture();
+        var db=new DatabaseManager(folder,getLogger());
+        try {
+            db.initialize();var industry=db.getIndustryRepository();
+            for(var e:Map.of(Commodity.IRON,4L,Commodity.COAL,2L).entrySet()) {
+                long price=e.getKey().equals(Commodity.IRON)?800:200;
+                var cargo=industry.purchase(UUID.randomUUID(),mine,smith,e.getKey(),e.getValue(),price,0,1,128);industry.deliver(cargo.id(),1);
+            }
+            var recipe=toolPolicy().recipes().get("tools");industry.process(UUID.randomUUID(),smith,recipe,1,1);industry.process(UUID.randomUUID(),smith,recipe,1,2);
+            var cargo=industry.purchase(UUID.randomUUID(),smith,warehouse,tools,1,400,0,1,128);industry.deliver(cargo.id(),1);
+            for(var job:db.getBusinessRepository().currentWorkers(smith))db.getBusinessRepository().endEmployment(job.id(),0,"Explicit fixture production complete");
+            UUID miner=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(miner,"Miner",town,null,300,Resident.Status.ALIVE));db.getBusinessRepository().hire(UUID.randomUUID(),mine,miner,0);
+        }finally{db.close();}
+        var clock=new AtomicLong(1000);
+        try(var session=new PopulationSession(folder,getLogger(),PopulationSession.Settings.prototype(),clock::get)) {
+            session.configureIndustryRuntime(toolPolicy());session.start(false,Set.of(world)).get(10,TimeUnit.SECONDS);
+            clock.set(2000);session.pulse().get(10,TimeUnit.SECONDS);checkToolState(8,0,0,50,1);
+            clock.set(3000);session.pulse().get(10,TimeUnit.SECONDS);checkToolState(7,1,1,50,1);
+            clock.set(4000);session.pulse().get(10,TimeUnit.SECONDS);checkToolState(6,1,0,50,2);
+            clock.set(5000);session.pulse().get(10,TimeUnit.SECONDS);checkToolState(5,1,0,0,3);
+            clock.set(6000);session.pulse().get(10,TimeUnit.SECONDS);checkToolState(4,2,1,0,3);
+        }
+        clock.set(100000);
+        try(var session=new PopulationSession(folder,getLogger(),PopulationSession.Settings.prototype(),clock::get)) {
+            session.configureIndustryRuntime(toolPolicy());session.start(false,Set.of(world)).get(10,TimeUnit.SECONDS);session.pulse().get(10,TimeUnit.SECONDS);checkToolState(4,2,1,0,3);
+            session.updateLoadedWorlds(Set.of()).get(10,TimeUnit.SECONDS);clock.set(2000000);session.pulse().get(10,TimeUnit.SECONDS);checkToolState(4,2,1,0,3);
+        }
+        getLogger().info("NATIVE BUSINESS TOOL UPKEEP PASS: real mine cash pays for real smith output, two tools used only by productive work, half-speed fractions, saved service, warehouse chain, restart and world pause");
+    }
+    private void checkToolState(long reserve,int used,long service,int remainder,int shipments)throws Exception {
+        try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+folder.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro")) {
+            try(var s=c.createStatement()){s.execute("PRAGMA foreign_keys=ON");}
+            require(new IndustryRepository(c).deposit(deposit).orElseThrow().remainingBatches()==reserve,"Tool-adjusted reserve mismatch");
+            try(var s=c.createStatement();var r=s.executeQuery("SELECT COALESCE(SUM(tools_used),0) FROM business_tool_reviews")){require(r.getLong(1)==used,"Tool use repeated or invented");}
+            try(var s=c.prepareStatement("SELECT service_periods,remainder_percent FROM business_tools WHERE business_id=?")){s.setString(1,mine.toString());try(var r=s.executeQuery()){require(r.next()&&r.getLong(1)==service&&r.getInt(2)==remainder,"Saved service/fraction mismatch");}}
+            try(var s=c.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM industry_auto_shipments")){require(r.getLong(1)==shipments,"Tool payments duplicated or missing");}
+            try(var s=c.createStatement();var r=s.executeQuery("SELECT (SELECT SUM(hundredths) FROM treasuries)+(SELECT SUM(hundredths) FROM industry_stores)")){require(r.getLong(1)==10000,"Tool purchases created/lost money");}
+            try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){require(r.getString(1).equals("ok"),"Tool fixture integrity failure");}
+            try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){require(!r.next(),"Tool fixture FK failure");}
+        }
     }
     @Override public void onEnable() {
         try {

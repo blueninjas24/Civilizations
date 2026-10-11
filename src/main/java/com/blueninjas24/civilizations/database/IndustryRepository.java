@@ -313,12 +313,14 @@ public final class IndustryRepository {
 
     /** Real abstract use, with caller-established demand/reason; no fake NPC shopper or unlimited spending. */
     public Receipt consume(UUID operation,UUID business,Commodity commodity,long units,Use use,String reason) throws SQLException {
+        return transaction(()->consumeRows(operation,business,commodity,units,use,reason));
+    }
+    Receipt consumeRows(UUID operation,UUID business,Commodity commodity,long units,Use use,String reason)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Consumption rows require active SQL owner transaction");
         Objects.requireNonNull(use);Business.text(reason,2048);if(units<1)throw new IllegalArgumentException("Consumption must be positive");
         String terms=terms("consume",business,commodity.id(),units,use,reason);
-        return transaction(()-> {
-            var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
-            changeStock(business,commodity,-units);return save(operation,terms,units,"Recorded "+use+": "+reason);
-        });
+        var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
+        changeStock(business,commodity,-units);return save(operation,terms,units,"Recorded "+use+": "+reason);
     }
 
     public Optional<Shipment> shipment(UUID id) throws SQLException {

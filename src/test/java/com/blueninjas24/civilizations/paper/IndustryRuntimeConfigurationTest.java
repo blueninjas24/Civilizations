@@ -7,6 +7,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void toolsAreExplicitEditableAndDoNotRequireFreeVillageStocks()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readToolUpkeep(config).enabled());
+        config.loadFromString("business-tools:\n  enabled: true\n  startup-grace-periods: 3\n  work-periods-per-tool: 8\n  missing-tools-output-percent: 50\n  tool-value-hundredths: 4000\n  industries: [mining, blacksmith]\n");
+        var policy=EconomyConfiguration.readToolUpkeep(config);assertTrue(policy.enabled());assertEquals(4000,policy.toolValueHundredths());
+        config.set("business-tools.work-periods-per-tool",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readToolUpkeep(config));
+        config.set("business-tools.work-periods-per-tool",8);config.set("business-tools.industries",List.of("mining","mining"));assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readToolUpkeep(config));
+        config.set("business-tools.industries",List.of("mining"));config.set("business-tools.extra",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readToolUpkeep(config));
+    }
     @Test void warehouseRestockingIsExplicitEditableAndStrict()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readWarehouseSupply(config).enabled());
         config.loadFromString("warehouse-supply:\n  enabled: true\n  customers-per-review: 8\n  producers-per-review: 12\n");

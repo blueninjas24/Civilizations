@@ -1,7 +1,8 @@
 # Existing warehouse restocking
 
 Existing staffed warehouses can buy actual extracted goods from operating local
-mines to cover funded input gaps at existing workshops. This connects the first
+mines and configured workshops' actual output to cover funded recipe and tool
+maintenance gaps. See BUSINESS_TOOLS.md for the real maintenance customer. This connects the first
 mine → warehouse → blacksmith chain without manual stocking. It does not found any
 of these firms, create money or invent customers for finished tools.
 
@@ -31,7 +32,8 @@ These settings are review limits, not ownership caps.
 - Subtract paid pending imports to operating warehouses once across the village,
   for ordering only. Cargo cannot be resold or used before arrival. This includes
   legacy paid cargo, whose original delivery caller remains responsible.
-- Buy only operating local mines' currently owned output. Remaining ore reserves,
+- Buy only operating local mines' currently owned yields or configured workshop
+  output. Producers retain one due maintenance kit. Remaining ore reserves,
   future production and village commodity stock are not merchant inventory.
 - Require at least one qualified saved warehouse employee. Normal owner/closure
   checks apply; approved qualified staffing can keep a deceased owner's firm running.
@@ -51,8 +53,9 @@ Warehouse trading earns no production skill awards and consumes no imaginary
 finished goods. Stable supplier ordering is a prototype allocation rule, not the
 final competition/specialization engine. No automatic warehouses, payroll,
 regional transport, physical storage buildings or construction are introduced.
-Schema remains 50; existing shipping receipts and clock tables are reused without
-backfill or destructive conversion. Runtime recipe industry `warehouse` is reserved
+Warehouse restocking reuses existing shipping receipts and clock tables without
+backfill or destructive conversion. Tool upkeep adds schema 51's empty service
+and audit tables separately. Runtime recipe industry `warehouse` is reserved
 for this purchasing role rather than a production recipe.
 
 ## Validation

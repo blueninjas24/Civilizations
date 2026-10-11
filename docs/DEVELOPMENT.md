@@ -1,5 +1,15 @@
 # Development and recovery procedures
 
+October 11 tool-upkeep extension: WarehouseSupplyProbe adds an independent
+tools-run database, real smith output and actual PopulationSession mine/tool
+periods. Check real cash conservation, only productive kit use, fractional slower
+work, saved service, delayed warehouse purchases, restart and world absence.
+Back up the stopped marked fixture before schema 51 deployment. Its ordinary
+population calendar can advance during the probe; compare identities/assets and
+explain any exact normal month separately. Stop normally, verify integrity/FKs,
+restore exact properties and archive the test JAR. Never deploy probes to human
+servers. BUSINESS_TOOLS.md and DEVLOG.md record completed validation.
+
 ## Warehouse restocking smoke test
 
 WarehouseSupplyProbe is a separate test-only plugin, name

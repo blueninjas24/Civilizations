@@ -103,6 +103,7 @@ public final class IndustryRuntime {
             var availability=new BusinessOperations(connection,operations).evaluate(id);
             var industry=new IndustryRepository(connection);
             var supplies=new WorkshopSupplies(connection,operations);
+            var tools=new BusinessTools(connection,policy);
             int arrived=supplies.deliverRows(id,period);
             var operation=UUID.nameUUIDFromBytes(("civilizations:timed-industry-v1:"+id+":"+period).getBytes(StandardCharsets.UTF_8));
             boolean freshProduction;
@@ -118,16 +119,26 @@ public final class IndustryRuntime {
                 if(deposits.size()!=1)reason="Paused: one unambiguous saved finite deposit required";
                 else if(!industry.sourceHistoryTrusted(deposits.getFirst())||(!mutationHealthy.getAsBoolean()&&industry.hasCoordinateSources(deposits.getFirst())))
                     reason="Paused: ore mutation history requires reviewed recovery; reserve and goods retained";
-                else reason=industry.mineRows(operation,id,deposits.getFirst(),policy.mining().siteBatchCapacity(),period,
-                        policy.mining().batchesPerWorker(),policy.mining().siteBatchCapacity()).explanation();
+                else {
+                    var supply=tools.acquireRows(id,clock.industry(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),operations);
+                    long maximum=Math.min(policy.mining().siteBatchCapacity(),Math.multiplyExact(new BusinessRepository(connection).currentWorkers(id).size(),policy.mining().batchesPerWorker()));
+                    var wear=tools.prepare(id,clock.industry(),maximum);
+                    var receipt=industry.mineRows(operation,id,deposits.getFirst(),wear==null?policy.mining().siteBatchCapacity():wear.requested(),period,policy.mining().batchesPerWorker(),policy.mining().siteBatchCapacity());
+                    reason=supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
+                }
             } else if(clock.industry().equals("warehouse")) {
-                reason=new WarehouseSupplies(connection,policy,operations).acquireRows(id,clock.world(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod());
+                reason=new WarehouseSupplies(connection,policy,operations,mutationHealthy).acquireRows(id,clock.world(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod());
             } else {
                 var recipe=policy.recipes().values().stream().filter(r->r.industry().equals(clock.industry())).findFirst();
                 if(recipe.isEmpty())reason="Paused: no configured industry recipe";
                 else {
-                    String supply=supplies.acquireRows(id,recipe.orElseThrow(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),policy.millisPerPeriod(),policy.supply(),policy.mining());
-                    reason=supply+"; "+industry.processRows(operation,id,recipe.orElseThrow(),recipe.orElseThrow().siteCapacity(),period).receipt().explanation();
+                    long haulWindow=clock.anchor().lastObservedMillis()/policy.millisPerPeriod();
+                    String upkeep=tools.acquireRows(id,clock.industry(),period,haulWindow,operations);
+                    String supply=supplies.acquireRows(id,recipe.orElseThrow(),period,haulWindow,policy.millisPerPeriod(),policy.purchasingSupply(),policy.mining());
+                    long maximum=Math.min(recipe.orElseThrow().siteCapacity(),Math.multiplyExact(new BusinessRepository(connection).currentWorkers(id).size(),recipe.orElseThrow().batchesPerWorker()));
+                    var wear=tools.prepare(id,clock.industry(),maximum);
+                    var receipt=industry.processRows(operation,id,recipe.orElseThrow(),wear==null?recipe.orElseThrow().siteCapacity():wear.requested(),period).receipt();
+                    reason=upkeep+"; "+supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
                 }
             }
             reason="Owned cargo delivered: "+arrived+"; "+availability.explanation()+"; "+reason+"; "+new IndustryLearning(connection,learning).reviewRows(operation,id,freshProduction);

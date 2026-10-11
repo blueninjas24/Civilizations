@@ -46,6 +46,10 @@ finished-goods demand. It does not open a business, choose a career, consume a g
 mint money, refill ore or create abstract sales. Founding still requires suitable
 permitted sites, current connected patch validation, free qualified founders/workers,
 actual funding and comparison with existing production/transport alternatives.
-Initial workshop/customer demand and later connected chains remain unfinished.
-There is no new player command, setting default, scheduler or schema migration;
-schema stays 50. Existing industry operation and accounting behavior is unchanged.
+The original input-demand review added no scheduler or schema migration (schema
+50). BUSINESS_TOOLS.md now adds actual, funded maintenance demand from existing
+eligible mines/workshops, sharing recipe money and storage rather than claiming
+them twice. Immediate ore-capture failures suppress mine maintenance pressure.
+Existing warehouses can also buy configured workshops' actual output. These are
+genuine maintenance needs, not invented final consumers; initial automatic
+workshop/customer selection and business founding remain unfinished.

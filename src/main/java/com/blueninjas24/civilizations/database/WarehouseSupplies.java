@@ -12,8 +12,13 @@ final class WarehouseSupplies {
     private final Connection connection;
     private final IndustryRuntimePolicy policy;
     private final BusinessOperationPolicy operations;
+    private final java.util.function.BooleanSupplier mutationHealthy;
     WarehouseSupplies(Connection connection,IndustryRuntimePolicy policy,BusinessOperationPolicy operations) {
+        this(connection,policy,operations,()->true);
+    }
+    WarehouseSupplies(Connection connection,IndustryRuntimePolicy policy,BusinessOperationPolicy operations,java.util.function.BooleanSupplier mutationHealthy) {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);this.operations=Objects.requireNonNull(operations);
+        this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
     String acquireRows(UUID buyer,UUID world,long period,long haulWindow)throws SQLException {
         if(connection.getAutoCommit())throw new SQLException("Warehouse purchases require active SQL owner transaction");
@@ -27,7 +32,7 @@ final class WarehouseSupplies {
         }
         if(!staffed)return "Restocking deferred: qualified warehouse staff required";
         var town=founding.business().settlementId();
-        var demand=new LocalIndustryDemand(connection,policy,operations).review(town,Set.of(world),policy.warehouseSupply().customersPerReview());
+        var demand=new LocalIndustryDemand(connection,policy,operations,mutationHealthy).review(town,Set.of(world),policy.warehouseSupply().customersPerReview());
         if(!demand.complete())return "Restocking deferred: "+demand.explanation();
         var availability=new BusinessOperations(connection,operations);var industry=new IndustryRepository(connection);
         var warehouses=ids(town,"warehouse",policy.supply().warehousesPerReview());
@@ -42,10 +47,22 @@ final class WarehouseSupplies {
             if(count>128)return "Restocking deferred: warehouse pending cargo review budget exceeded";
             if(id.equals(buyer))incoming=count;
         }
-        var producers=ids(town,"mining",policy.warehouseSupply().producersPerReview());
+        var producers=producerIds(town,policy.warehouseSupply().producersPerReview());
         if(producers.size()>policy.warehouseSupply().producersPerReview())return "Restocking deferred: producer review budget exceeded";
         var sources=new ArrayList<WorkshopInputPlan.Warehouse>();
-        for(var id:producers)if(availability.evaluate(id).permitted())sources.add(new WorkshopInputPlan.Warehouse(id,industry.store(id).orElseThrow().units()));
+        for(var id:producers)if(availability.evaluate(id).permitted()) {
+            var b=businesses.findBusiness(id).orElseThrow();var allowed=new HashSet<Commodity>();
+            if(b.industry().equals("mining")) {
+                try(var s=connection.prepareStatement("SELECT y.commodity FROM mineral_yields y JOIN mineral_deposits d ON d.id=y.deposit_id WHERE d.site_id=?")) {
+                    s.setString(1,b.siteId().toString());try(var r=s.executeQuery()){while(r.next())allowed.add(new Commodity(r.getString(1)));}
+                }
+            }else policy.recipes().values().stream().filter(r->r.industry().equals(b.industry())).forEach(r->allowed.addAll(r.outputs().keySet()));
+            var stock=new TreeMap<Commodity,Long>();industry.store(id).orElseThrow().units().forEach((good,units)->{if(allowed.contains(good))stock.put(good,units);});
+            var store=industry.store(id).orElseThrow();
+            if(!businesses.currentWorkers(id).isEmpty()&&new BusinessTools(connection,policy).replacementDue(id,b.industry(),store))
+                stock.computeIfPresent(ToolUpkeepPolicy.TOOLS,(good,units)->Math.max(0,units-1));
+            sources.add(new WorkshopInputPlan.Warehouse(id,stock));
+        }
         long hauled=0;
         try(var s=connection.prepareStatement("SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=? AND a.haul_cadence=?")) {
             s.setString(1,town.toString());s.setLong(2,haulWindow);s.setLong(3,policy.millisPerPeriod());
@@ -53,18 +70,29 @@ final class WarehouseSupplies {
         }
         var store=industry.store(buyer).orElseThrow();
         var orders=WarehouseInputPlan.choose(demand.uncovered(),pending,store.hundredths(),store.freeSpace(),
-                Math.max(0,policy.mining().localHaulUnitsPerPeriod()-hauled),128-incoming,store.spacePerUnit(),sources,policy.supply().unitHundredths());
+                Math.max(0,policy.mining().localHaulUnitsPerPeriod()-hauled),128-incoming,store.spacePerUnit(),sources,policy.purchasingSupply().unitHundredths());
         for(var order:orders) {
             var operation=UUID.nameUUIDFromBytes(("civilizations:warehouse-input-v1:"+buyer+":"+period+":"+order.seller()+":"+order.commodity().id()).getBytes(StandardCharsets.UTF_8));
             industry.purchaseRows(operation,order.seller(),buyer,order.commodity(),order.units(),order.price(),period,
                     policy.mining().localDeliveryPeriods(),policy.mining().localHaulUnitsPerPeriod(),haulWindow,policy.millisPerPeriod());
         }
-        return "Warehouse restocking: "+orders.size()+" paid purchases from actual local mine stock; shared pending cargo covers future orders only";
+        return "Warehouse restocking: "+orders.size()+" paid purchases from actual local producer output; shared pending cargo covers future orders only";
     }
     private List<UUID> ids(UUID town,String kind,int limit)throws SQLException {
         var result=new ArrayList<UUID>();
         try(var s=connection.prepareStatement("SELECT b.id FROM businesses b JOIN industry_stores k ON k.business_id=b.id WHERE b.settlement_id=? AND b.industry=? ORDER BY b.id LIMIT ?")) {
             s.setString(1,town.toString());s.setString(2,kind);s.setInt(3,limit+1);try(var r=s.executeQuery()){while(r.next())result.add(UUID.fromString(r.getString(1)));}
+        }
+        return result;
+    }
+    private List<UUID> producerIds(UUID town,int limit)throws SQLException {
+        var result=new ArrayList<UUID>();
+        try(var s=connection.prepareStatement("SELECT b.id,b.industry FROM businesses b JOIN industry_stores k ON k.business_id=b.id WHERE b.settlement_id=? AND b.industry<>'warehouse' ORDER BY b.id LIMIT ?")) {
+            s.setString(1,town.toString());s.setInt(2,limit+1);try(var r=s.executeQuery()){while(r.next()) {
+                String kind=r.getString(2);
+                if(!kind.equals("mining")&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
+                result.add(UUID.fromString(r.getString(1)));
+            }}
         }
         return result;
     }

@@ -2,6 +2,13 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: mines and workshops buy replacement tools using their own money.
+Tools wear through actual work; missing tools slow work, giving blacksmiths real
+customers. Rates and startup grace are editable. All 902 tests and both isolated
+Paper checks passed. Your server is unchanged. Phase 3 remains 25% by complete
+groups; automatic first industries and specialization remain. Next: approved
+warehouse startup funding under the shared protected village grant budget.
+
 Latest: existing warehouses can now stock themselves by paying real local mines.
 Blacksmiths buy the delivered materials and make tools; money and goods cannot
 duplicate through restart. All 886 tests and the isolated Paper chain check passed.

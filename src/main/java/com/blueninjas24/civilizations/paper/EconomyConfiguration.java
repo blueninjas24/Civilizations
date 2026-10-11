@@ -23,6 +23,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
+        if (config.contains("business-tools")) rootKeys.add("business-tools");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("business-operations")) rootKeys.add("business-operations");
         if (config.contains("automatic-business-resale")) rootKeys.add("automatic-business-resale");
@@ -41,6 +42,7 @@ public final class EconomyConfiguration {
         readIndustryRuntime(config);
         readWorkshopSupply(config);
         readWarehouseSupply(config);
+        readToolUpkeep(config);
         readBusinessPurchasePolicy(config);
         readBusinessOperations(config);
         readWorkLearning(config);
@@ -310,7 +312,18 @@ public final class EconomyConfiguration {
         exactKeys(runtime,Set.of("enabled","real-millis-per-period","businesses-per-pulse"));
         if(!(runtime.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("industry-runtime.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.IndustryRuntimePolicy(enabled,integer(runtime,"real-millis-per-period"),
-                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config),readWorkshopSupply(config),readWarehouseSupply(config));
+                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config),readWorkshopSupply(config),readWarehouseSupply(config),readToolUpkeep(config));
+    }
+    public static com.blueninjas24.civilizations.industry.ToolUpkeepPolicy readToolUpkeep(ConfigurationSection config) {
+        if(!config.contains("business-tools"))return com.blueninjas24.civilizations.industry.ToolUpkeepPolicy.disabled();
+        var s=section(config,"business-tools");
+        exactKeys(s,Set.of("enabled","startup-grace-periods","work-periods-per-tool","missing-tools-output-percent","tool-value-hundredths","industries"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("business-tools.enabled must be true or false");
+        if(!(s.get("industries") instanceof List<?> raw)||raw.size()>32||raw.stream().anyMatch(x->!(x instanceof String))||new HashSet<>(raw).size()!=raw.size())
+            throw new IllegalArgumentException("business-tools.industries must be a distinct bounded industry list");
+        var kinds=new HashSet<String>();raw.forEach(x->kinds.add((String)x));
+        return new com.blueninjas24.civilizations.industry.ToolUpkeepPolicy(enabled,smallInteger(s,"startup-grace-periods"),smallInteger(s,"work-periods-per-tool"),
+                smallInteger(s,"missing-tools-output-percent"),integer(s,"tool-value-hundredths"),kinds);
     }
     public static com.blueninjas24.civilizations.industry.WarehouseSupplyPolicy readWarehouseSupply(ConfigurationSection config) {
         if(!config.contains("warehouse-supply"))return com.blueninjas24.civilizations.industry.WarehouseSupplyPolicy.disabled();

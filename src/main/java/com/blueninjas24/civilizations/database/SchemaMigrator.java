@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 50;
+    static final int CURRENT_VERSION = 51;
 
     @FunctionalInterface
     interface Migration {
@@ -707,6 +707,26 @@ final class SchemaMigrator {
                             FOREIGN KEY(settlement_id,world_id,x,y,z) REFERENCES mineral_opportunities(settlement_id,world_id,x,y,z)
                         )
                         """);
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE business_tools (
+                            business_id TEXT PRIMARY KEY NOT NULL REFERENCES businesses(id),
+                            productive_periods INTEGER NOT NULL CHECK(typeof(productive_periods)='integer' AND productive_periods>=0),
+                            service_periods INTEGER NOT NULL CHECK(typeof(service_periods)='integer' AND service_periods>=0),
+                            remainder_percent INTEGER NOT NULL CHECK(typeof(remainder_percent)='integer' AND remainder_percent BETWEEN 0 AND 99)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE business_tool_reviews (
+                            operation_id TEXT PRIMARY KEY NOT NULL REFERENCES industry_operations(id),
+                            business_id TEXT NOT NULL REFERENCES businesses(id),
+                            period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=0),
+                            tools_used INTEGER NOT NULL CHECK(typeof(tools_used)='integer' AND tools_used BETWEEN 0 AND 1),
+                            policy TEXT NOT NULL,
+                            explanation TEXT NOT NULL
+                        )
+                        """);
                 }
         ));
     }
@@ -864,6 +884,10 @@ final class SchemaMigrator {
             if(migrations.size()>=50) {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
+            if(migrations.size()>=51) {
+                requireColumns(connection,"business_tools",Set.of("business_id","productive_periods","service_periods","remainder_percent"));
+                requireColumns(connection,"business_tool_reviews",Set.of("operation_id","business_id","period","tools_used","policy","explanation"));
             }
             if(migrations.size()>=48)requireColumns(connection,"mineral_opportunities",Set.of("settlement_id","world_id","x","y","z","mineral","first_seen_millis","last_seen_millis"));
             if(migrations.size()>=46) {

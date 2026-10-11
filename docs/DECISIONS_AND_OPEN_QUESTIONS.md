@@ -1,14 +1,24 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11, 2026 — warehouse startup grants approved
+
+The user approved warehouses sharing the already approved mine/workshop startup
+grant limits and food-budget protection. Their purchasing capital must be debited
+from actual village money, with no separate spending allowance or created money.
+This approval does not remove qualification, suitable-site or demand checks.
+The guarded warehouse startup adapter is the next scoped implementation.
+
 ## October 11, 2026 — business tool upkeep approved
 
 The user approved gradual tool wear at productive businesses, replacement
 purchases paid from their own business money, configurable rates and a startup
 grace period. Missing tools should slow work. This establishes actual maintenance
 demand for blacksmith output; it does not authorize fake consumers, new money,
-individual payroll or public treasury subsidies. Implementation and numerical
-prototype settings are the next scoped batch, not yet implemented by the
-warehouse restocking change. Existing settings must opt in explicitly.
+individual payroll or public treasury subsidies. BUSINESS_TOOLS.md documents
+the implementation and editable prototype settings: three productive grace
+periods, eight work periods per toolkit, 50% work without tools and 40 Trade Value
+per replacement. Existing files must opt in explicitly. Retained store catalogs
+are never rewritten; unsupported stores retain their prior work behavior.
 
 ## October 10, 2026 — limited village startup grants approved
 

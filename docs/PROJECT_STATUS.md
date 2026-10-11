@@ -1,5 +1,29 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026 — business tool upkeep verified
+
+Existing timed mines/workshops buy real replacement tools with business money;
+tools wear only during positive production. Editable grace, wear, slowdown and
+price are in economy.yml. Warehouses can buy configured workshops' actual output.
+Maintenance and recipe demand share funds/storage; depleted/untrusted mines create
+no tool pressure. Service/fractions, use receipts and production commit together.
+Legacy files stay opted out; retained unsupported store catalogs are preserved.
+Schema 51 adds two empty service/audit tables without free kits or asset backfill.
+
+16 tests added; final focused 23 and Windows Wrapper clean verify passed 902
+(900 unit/two packaged integration), zero failures/errors/skips, 6:13. Actual
+PopulationSession on isolated Paper passed upkeep and prior warehouse checks:
+two real tool uses, reserve four, cash 10000 conserved, saved service/fractions,
+restart and absent-world pause. SQLite integrity/FKs healthy. Main 79/85 old
+tables unchanged; other differences verified as exactly one normal population
+month plus clock/tracking bookkeeping. All assets/history preserved. Fixture
+stopped, exact settings restored, probe archived; no forced chunks/probe world
+writes. Human server untouched. See BUSINESS_TOOLS.md and DEVLOG.md.
+
+Phase 3 remains 1/4 complete groups (25%): automatic nonfood founding/careers,
+wider industries and specialization remain. Approved warehouse startup grants
+under existing shared food-protected limits are next.
+
 ## October 11, 2026 — upstream warehouse restocking verified
 
 Existing staffed warehouses now buy actual extracted local mine goods for funded

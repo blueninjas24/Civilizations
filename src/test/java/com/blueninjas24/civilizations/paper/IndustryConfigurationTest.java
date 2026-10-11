@@ -14,7 +14,8 @@ class IndustryConfigurationTest {
     }
     @Test void defaultFileAndMissingOldSectionHaveCompleteDefaults() {
         var config=config();EconomyConfiguration.read(config);
-        assertEquals(IndustryPolicy.prototype(),EconomyConfiguration.readIndustry(config));
+        var prototype=IndustryPolicy.prototype();var sizes=new java.util.TreeMap<>(prototype.storageSpacePerUnit());sizes.put(new Commodity("tools"),1L);
+        assertEquals(new IndustryPolicy(prototype.depositBatchesPerObservedOre(),prototype.batchesPerWorker(),prototype.siteBatchCapacity(),prototype.storageCapacity(),prototype.localDeliveryPeriods(),prototype.localHaulUnitsPerPeriod(),prototype.miningBundle(),sizes),EconomyConfiguration.readIndustry(config));
         config.set("industry",null);EconomyConfiguration.read(config);
         assertEquals(IndustryPolicy.prototype(),EconomyConfiguration.readIndustry(config));
     }

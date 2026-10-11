@@ -130,6 +130,7 @@ industry:
     iron: 1
     timber: 2
     food: 1
+    tools: 1
 
 # /civ barter timber (or stone) requests a quote for the whole held food stack.
 # /civ barter accept explicitly confirms it; saved inventory proof gates the exchange.
@@ -356,6 +357,21 @@ warehouse-supply:
   enabled: true
   customers-per-review: 16
   producers-per-review: 16
+
+# An abstract tool kit supports eight PRODUCTIVE timed periods at a firm.
+# First three productive periods are grace; no wear during downtime/idle work.
+# Without tools work runs at 50%, retaining fractional work for small businesses.
+# Replacements spend BUSINESS cash. 4000 hundredths = 40 Trade Value on both legs.
+# This tool value is separate from village opening stocks; it creates no free tools.
+# Missing old sections stay disabled. Retained stores need existing tools support;
+# their saved catalogs are never silently rewritten. Farms are not connected yet.
+business-tools:
+  enabled: true
+  startup-grace-periods: 3
+  work-periods-per-tool: 8
+  missing-tools-output-percent: 50
+  tool-value-hundredths: 4000
+  industries: [mining, blacksmith]
 
 # Gradual practice by unemployed adults selected for actual opportunities.
 # Courses are persistent; this backend does not automatically choose careers yet.

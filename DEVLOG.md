@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## October 11, 2026 — genuine business tool maintenance demand
+
+Added ToolUpkeepPolicy/ToolUpkeep and transactional BusinessTools. Existing timed
+firms pay for real replacement tools, consume kits only with positive production
+and save service/fractional slowdown. Configurable grace/wear/output/value/industries;
+no free opening kits. Maintenance shares recipe funds/storage; untrusted/depleted
+mines create no demand. Warehouses buy actual producer yields/configured outputs,
+protecting a staffed smith's due kit. Legacy sections opt out, catalogs stay immutable.
+Schema 51 adds empty service/audit tables transactionally, no asset backfill.
+
+16 tests added. Initial focused migration failures required the central rewind
+fixture to drop new tables; first full run's sole failure was an outdated bundled
+storage expectation. Legacy defaults stayed unchanged. Final focused 23 and Windows
+.\mvnw.cmd clean verify passed 902 (900 unit/two packaged integration), zero
+failures/errors/skips, 6:13. Real PopulationSession on marked disposable Paper passed
+new upkeep (cash 10000, reserve four, two kit uses, saved service/fractions, restart,
+world pause) and prior warehouse chain (cash 10000, reserve eight). Both DBs healthy.
+Probe packaging initially assumed descriptor outside classes; corrected before
+deployment. Main snapshot flagged a normal month; verified sole living age +1,
+unchanged identities/history/assets and expected clocks. 79/85 old tables unchanged,
+new tables empty. Normal stop, no forced chunks, exact properties restored, probe
+archived. Windows OSHI warning environmental; human server untouched. Approved
+warehouse grants under shared protected limits are next; Phase 3 remains 25%.
+
 ## October 11, 2026 — paid upstream warehouse restocking
 
 Added WarehouseSupplyPolicy, deterministic WarehouseInputPlan and owner-transaction
