@@ -498,3 +498,14 @@ automatic-mines:
   mineral-yield-per-batch:
     coal: 2
     iron: 1
+
+# Read-only existing markers around one saved home per village. Never opens an
+# inventory, moves blocks or grants property rights. Not automatic founding yet.
+# Legacy files without this section stay disabled; select either/both marker types.
+workplace-observer:
+  enabled: true
+  vertical-radius: 16
+  cells-per-tick: 512
+  interval-ticks: 400
+  horizontal-radius-chunks: 1
+  markers: [barrel, smithing_table]

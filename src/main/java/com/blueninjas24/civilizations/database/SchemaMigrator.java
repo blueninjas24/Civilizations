@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 57;
+    static final int CURRENT_VERSION = 58;
 
     @FunctionalInterface
     interface Migration {
@@ -847,6 +847,40 @@ final class SchemaMigrator {
                         )
                         """);
                     execute(connection,"CREATE INDEX career_vacancy_courses ON career_study_enrollments(business_id,course_id)");
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE workplace_surveys (
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                            world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                            chunk_x INTEGER NOT NULL,chunk_z INTEGER NOT NULL,
+                            captured_millis INTEGER NOT NULL CHECK(typeof(captured_millis)='integer' AND captured_millis>=0),
+                            complete INTEGER NOT NULL CHECK(complete IN(0,1)),fingerprint TEXT NOT NULL,
+                            PRIMARY KEY(settlement_id,world_id,chunk_x,chunk_z),
+                            FOREIGN KEY(settlement_id,world_id) REFERENCES settlement_worlds(settlement_id,world_id)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE workplace_sightings (
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                            x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                            kind TEXT NOT NULL CHECK(kind IN('BARREL','SMITHING_TABLE')),
+                            first_seen_millis INTEGER NOT NULL CHECK(first_seen_millis>=0),
+                            last_seen_millis INTEGER NOT NULL CHECK(last_seen_millis>=first_seen_millis),
+                            PRIMARY KEY(settlement_id,world_id,x,y,z,kind),
+                            FOREIGN KEY(settlement_id,world_id) REFERENCES settlement_worlds(settlement_id,world_id)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE workplace_markers (
+                            settlement_id TEXT NOT NULL,world_id TEXT NOT NULL,chunk_x INTEGER NOT NULL,chunk_z INTEGER NOT NULL,
+                            x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,kind TEXT NOT NULL,
+                            PRIMARY KEY(settlement_id,world_id,x,y,z),
+                            FOREIGN KEY(settlement_id,world_id,chunk_x,chunk_z) REFERENCES workplace_surveys(settlement_id,world_id,chunk_x,chunk_z),
+                            FOREIGN KEY(settlement_id,world_id,x,y,z,kind) REFERENCES workplace_sightings(settlement_id,world_id,x,y,z,kind)
+                        )
+                        """);
+                    execute(connection,"CREATE INDEX workplace_coordinate_members ON workplace_markers(world_id,x,y,z)");
                 }
 
         ));
@@ -1005,6 +1039,11 @@ final class SchemaMigrator {
             if(migrations.size()>=50) {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
+            if(migrations.size()>=58){
+                requireColumns(connection,"workplace_surveys",Set.of("settlement_id","world_id","chunk_x","chunk_z","captured_millis","complete","fingerprint"));
+                requireColumns(connection,"workplace_sightings",Set.of("settlement_id","world_id","x","y","z","kind","first_seen_millis","last_seen_millis"));
+                requireColumns(connection,"workplace_markers",Set.of("settlement_id","world_id","chunk_x","chunk_z","x","y","z","kind"));
             }
             if(migrations.size()>=57){
                 requireColumns(connection,"career_study_reviews",Set.of("business_id","settlement_id","period","commodity","after_resident","policy","explanation"));

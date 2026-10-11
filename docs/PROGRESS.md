@@ -2,16 +2,15 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
-Villages with real workshop customers and a funded staffed warehouse can now
-start a finite coal or iron mine from currently observed ore. They choose an
-already qualified resident, spend real protected funds and produce goods over
-time. Restart does not refill the mine. All 990 tests and isolated Paper checks
-passed; your playable server has not been changed.
+Villages can now recognize nearby barrels and smithing tables as possible
+workplaces, while leaving blocks and their contents alone. Saved evidence survives
+restart; removed markers stop being candidates. All 1,003 tests and the disposable
+Paper check passed. Your playable server has not been changed.
 
-Phase 3 remains 25% by complete milestone groups. This completes a narrow automatic
-mine adapter, not the whole industry chain: first-founder training, first
-warehouses/workshops, wider industries and specialization remain. Next: connect
-those first businesses to real opportunities and materials. See AUTOMATIC_MINES.md.
+Phase 3 remains 25% by complete milestone groups. Finite automatic mines for
+existing real customers are implemented; first-founder training and automatic
+warehouse/workshop opening remain. These markers provide locations for that
+next step. Wider industries and specialization remain too. See WORKPLACE_MARKERS.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project

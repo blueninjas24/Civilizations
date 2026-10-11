@@ -1,15 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
-## Pending: first workshop/warehouse locations before construction
+## October 11, 2026: existing workplace markers approved
 
-Asked the user whether nearby existing smithing tables/barrels may serve as
-configurable data-only workplace markers, or whether an admin must designate
-workplaces for now. This would not move blocks, draw from block inventories or
-confer ownership/permission to alter player buildings. It matters before automatic
-first workshop/warehouse founding; a resource-coordinate mine anchor does not
-establish a suitable indoor workshop or warehouse. Await the answer rather than
-silently inventing occupancy rights. AGENTS.md: "Never silently revise locked
-design principles or invent consequential gameplay decisions."
+The user answered "Yes" to configurable recognition of existing nearby smithing
+tables and barrels as data-only workshop/warehouse workplace markers. Recognition
+does not move blocks, access block inventories, convey property ownership or
+permit changes to player buildings. Business founding still requires qualification,
+actual demand/funding, a suitable unclaimed current marker and revalidation; a
+marker is not itself a business or a construction/occupancy permission.
+
+The first scoped batch implements bounded loaded-chunk snapshot observation and
+saved current candidates/history. First founders and automatic first workshop/
+warehouse founding remain subsequent work; construction stays Phase 4.
 
 ## October 11, 2026: approved mine direction connected to real startup
 

@@ -28,6 +28,7 @@ public final class Civilizations extends JavaPlugin {
     private ManagedVillagerLifecycle lifecycle;
     private PaperFarmObserver farms;
     private com.blueninjas24.civilizations.paper.PaperOreObserver ores;
+    private com.blueninjas24.civilizations.paper.PaperWorkplaceObserver workplaces;
     private com.blueninjas24.civilizations.paper.OrePlacementTracker orePlacements;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
     private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
@@ -50,6 +51,7 @@ public final class Civilizations extends JavaPlugin {
             var economySettings = EconomyConfiguration.read(economyConfig);
             var farmSettings = EconomyConfiguration.readFarms(economyConfig);
             var oreSettings=EconomyConfiguration.readOreObserver(economyConfig);
+            var workplaceSettings=EconomyConfiguration.readWorkplaceObserver(economyConfig);
             getLogger().info("Economy prototype settings validated: " + economySettings.secondsPerPeriod()
                     + " seconds/period, food output " + economySettings.foodOutputPercent()
                     + "%; food accounting waits for reliable field evidence.");
@@ -65,7 +67,8 @@ public final class Civilizations extends JavaPlugin {
             var debug = new PopulationDebugCommand(population,
                     () -> observer == null ? "Village observer not started" : observer.diagnostic()
                             + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic()
-                            + "; " + (ores==null?"Ore observer not started":ores.diagnostic()));
+                            + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
+                            + "; " + (workplaces==null?"Workplace observer not started":workplaces.diagnostic()));
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
             var previewPolicy = EconomyConfiguration.readAidPreview(economyConfig);
             var bargainingPolicy=EconomyConfiguration.readBargaining(economyConfig);
@@ -90,6 +93,7 @@ public final class Civilizations extends JavaPlugin {
             purchases.runTaskTimer(this,20,5);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
             population.configureOreTracking();
+            population.configureWorkplaces(workplaceSettings);
             population.configureIndustryRuntime(EconomyConfiguration.readIndustryRuntime(economyConfig));
             population.configureBusinessPurchases(EconomyConfiguration.readBusinessPurchasePolicy(economyConfig));
             population.configureBusinessOperations(EconomyConfiguration.readBusinessOperations(economyConfig));
@@ -121,6 +125,7 @@ public final class Civilizations extends JavaPlugin {
                         observer = new VillageObserver(Civilizations.this, population, observerSettings);
                         farms = new PaperFarmObserver(population, farmSettings); farms.runTaskTimer(Civilizations.this, 1, 1);
                         ores=new com.blueninjas24.civilizations.paper.PaperOreObserver(population,oreSettings);ores.runTaskTimer(Civilizations.this,1,1);
+                        workplaces=new com.blueninjas24.civilizations.paper.PaperWorkplaceObserver(population,workplaceSettings);workplaces.runTaskTimer(Civilizations.this,1,1);
                         lifecycle = new ManagedVillagerLifecycle(population, getLogger());
                         getServer().getPluginManager().registerEvents(lifecycle, Civilizations.this);
                         lifecycle.runTaskTimer(Civilizations.this, 1, 1);

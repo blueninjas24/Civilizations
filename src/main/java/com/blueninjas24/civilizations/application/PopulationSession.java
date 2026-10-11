@@ -92,6 +92,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.StartupGrantPolicy startupGrantPolicy=com.blueninjas24.civilizations.industry.StartupGrantPolicy.disabled();
     private com.blueninjas24.civilizations.database.AutomaticMineFounding automaticMines;
     private volatile String automaticMineDiagnostic="Automatic mine founding disabled";
+    private com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy workplacePolicy=com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy.disabled();
     private com.blueninjas24.civilizations.industry.CareerStudyPolicy careerStudyPolicy=com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();
     private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessStaffingPolicy staffingPolicy=com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();
@@ -190,6 +191,9 @@ public final class PopulationSession implements AutoCloseable {
     public void configureWorkLearning(com.blueninjas24.civilizations.industry.WorkLearningPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure work learning before session starts");
         learningPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureWorkplaces(com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure workplaces before session starts");workplacePolicy=java.util.Objects.requireNonNull(policy);
     }
     public void configureMineFounding(com.blueninjas24.civilizations.industry.MineFoundingPolicy policy,com.blueninjas24.civilizations.industry.StartupGrantPolicy grants) {
         if(started.get())throw new IllegalStateException("Configure mine founding before session starts");
@@ -462,6 +466,14 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
 
+    public CompletableFuture<Void> observeWorkplaces(UUID town,com.blueninjas24.civilizations.industry.WorkplaceObservation observation) {
+        return submit(()->{requireReady();if(!workplacePolicy.enabled())throw new IllegalStateException("Workplace recognition disabled");new com.blueninjas24.civilizations.database.WorkplaceOpportunities(database.getConnection()).observe(town,observation);return null;});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.WorkplaceOpportunities.Review> currentWorkplaceOpportunities(UUID town,long maximumAgeMillis,int limit) {
+        return submit(()->{requireReady();if(!workplacePolicy.enabled())return new com.blueninjas24.civilizations.database.WorkplaceOpportunities.Review(java.util.List.of(),"Workplace recognition disabled");
+            var r=new com.blueninjas24.civilizations.database.WorkplaceOpportunities(database.getConnection()).review(town,now.getAsLong(),maximumAgeMillis,loadedWorlds,limit);
+            return new com.blueninjas24.civilizations.database.WorkplaceOpportunities.Review(r.candidates().stream().filter(c->workplacePolicy.kinds().contains(c.kind())).toList(),r.explanation()+"; current enabled marker types enforced");});
+    }
     public CompletableFuture<Void> observeFarms(FarmObservation observation) {
         return submit(() -> {
             requireReady(); if (economy == null) throw new IllegalStateException("Economy not enabled in this session");

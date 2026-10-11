@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void workplaceMarkersAreEditableStrictAndLegacyOptIn()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readWorkplaceObserver(config).enabled());
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(WorkplaceObserverPolicy.prototype(),EconomyConfiguration.readWorkplaceObserver(config));config.set("workplace-observer.markers",List.of("barrel"));assertEquals(1,EconomyConfiguration.readWorkplaceObserver(config).kinds().size());
+        config.set("workplace-observer.markers",List.of("chest"));assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWorkplaceObserver(config));config.set("workplace-observer.markers",List.of("barrel","barrel"));assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWorkplaceObserver(config));
+        config.set("workplace-observer.markers",List.of("barrel"));config.set("workplace-observer.extra",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWorkplaceObserver(config));
+    }
     @Test void automaticMineSettingsAreEditableStrictAndLegacyOptIn()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readMineFounding(config).enabled());
         try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}

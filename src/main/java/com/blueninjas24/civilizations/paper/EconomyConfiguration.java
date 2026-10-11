@@ -12,6 +12,7 @@ public final class EconomyConfiguration {
     private EconomyConfiguration() {}
     public static EconomySettings read(ConfigurationSection config) {
         var rootKeys = new HashSet<>(Set.of("format-version", "pace", "food", "shortages", "starting-units-per-resident", "prices"));
+        if (config.contains("workplace-observer")) rootKeys.add("workplace-observer");
         if (config.contains("farms")) rootKeys.add("farms");
         if (config.contains("priorities")) rootKeys.add("priorities");
         if (config.contains("responses")) rootKeys.add("responses");
@@ -60,6 +61,7 @@ public final class EconomyConfiguration {
         readStudy(config);
         readStartupGrants(config);
         readMineFounding(config);
+        readWorkplaceObserver(config);
         readAutomaticResale(config);
         readFarms(config);
         readPriorities(config);
@@ -123,6 +125,15 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-tool-budget.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy(enabled,integer(s,"tool-trade-value-hundredths"),
                 integer(s,"per-period-limit-hundredths"),integer(s,"minimum-treasury-hundredths"),smallInteger(s,"food-reserve-periods"),integer(s,"food-unit-value-hundredths"));
+    }
+    public static com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy readWorkplaceObserver(ConfigurationSection config) {
+        if(!config.contains("workplace-observer"))return com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy.disabled();
+        var s=section(config,"workplace-observer");exactKeys(s,Set.of("enabled","vertical-radius","cells-per-tick","interval-ticks","horizontal-radius-chunks","markers"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("workplace-observer.enabled must be true or false");
+        if(!(s.get("markers") instanceof List<?> raw)||raw.isEmpty()||raw.size()>2||raw.stream().anyMatch(x->!(x instanceof String))||new HashSet<>(raw).size()!=raw.size())throw new IllegalArgumentException("Workplace markers must be a distinct supported list");
+        var kinds=new HashSet<com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind>();
+        for(var name:raw)kinds.add(switch((String)name){case "barrel"->com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL;case "smithing_table"->com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE;default->throw new IllegalArgumentException("Unsupported workplace marker "+name);});
+        return new com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy(enabled,smallInteger(s,"vertical-radius"),smallInteger(s,"cells-per-tick"),smallInteger(s,"interval-ticks"),smallInteger(s,"horizontal-radius-chunks"),kinds);
     }
     public static com.blueninjas24.civilizations.industry.MineFoundingPolicy readMineFounding(ConfigurationSection config) {
         if(!config.contains("automatic-mines"))return com.blueninjas24.civilizations.industry.MineFoundingPolicy.disabled();

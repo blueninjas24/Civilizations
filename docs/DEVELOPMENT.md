@@ -1,5 +1,43 @@
 # Development and recovery procedures
 
+## October 11, 2026: approved workplace marker observation verified
+
+Nearby loaded barrels and smithing tables can now be recognized as data-only
+warehouse/workshop candidates. Editable economy.yml settings bound scan range,
+work per tick and marker types. Main-thread immutable snapshots never inspect
+inventories, force-load chunks, place blocks or claim player property. Complete
+new scans replace current evidence; empty scans clear candidates while retaining
+positive sighting history. Partial, stale, future, absent-world, overlapping-town
+and already occupied anchors cannot authorize selection. Representative-home
+coverage is intentionally bounded rather than an exhaustive village survey.
+
+Schema 58 transactionally adds three empty workplace evidence/history tables.
+Existing businesses, goods, money, identities and courses are unchanged. Legacy
+economy files without workplace-observer remain disabled. Recognition does not
+open businesses: real demand, qualified founders, protected funding and final
+live-block revalidation are still required in the next founding adapters.
+
+Thirteen automated tests added. Focused tests: 38 passed. Windows
+.\mvnw.cmd clean verify: 1,003 passed (1,001 unit and two packaged integration),
+zero failures/errors/skips, 4:46. A test initially expected the wrong exception
+for coordinate overflow; corrected to match exact arithmetic, then verified.
+WorkplaceMarkerProbe compiled and passed on the marked disposable Paper server:
+scheduled scanner and SQL owner recognized both markers; three wheat in the test
+barrel remained untouched; complete empty re-observation and restart preserved
+history without recreating candidates. Both temporary test blocks were restored,
+and the helper released its temporary test-only chunk ticket.
+
+Server stopped normally; original properties restored byte-exact; helper archived.
+All 96 original database tables compared: 92 unchanged; four differences were
+clock/food-clock timestamps, current farm evidence and ore-trust bookkeeping.
+No calendar month or food period advanced; original business assets, finances,
+residents, skills, courses and history were unchanged. New main-fixture workplace
+tables stayed empty under legacy opt-out. Human server untouched; no push/merge.
+
+Phase 3 remains 25% by completed roadmap groups. Next: first warehouse/workshop
+founders, actual demand and protected startup funding; then wider industries and
+specialization. Physical building remains Phase 4. See WORKPLACE_MARKERS.md.
+
 ## October 11, 2026: demand-backed automatic coal/iron mine founding verified
 
 Current trusted exposed ore can now support an automatic finite mine when actual

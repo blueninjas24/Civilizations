@@ -1,5 +1,11 @@
 # Phase 3 — businesses and industry checklist
 
+Verified approved barrel/smithing-table workplace observation: bounded loaded
+snapshots, current candidates and retained history, removal/conflict/occupation
+guards, schema58 migration and legacy opt-out. 1,003 tests plus scheduled Paper
+probe passed. No inventories or property claims; automatic first warehouse/workshop
+founding remains unfinished. See WORKPLACE_MARKERS.md.
+
 Verified current-evidence automatic coal/iron mine startup for existing actual
 funded workshop/warehouse demand: qualified founder, protected real shared grant,
 finite coordinate reserve, seeded bounded selection and existing-capacity guard.
