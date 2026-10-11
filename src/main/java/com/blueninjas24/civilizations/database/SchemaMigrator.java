@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 44;
+    static final int CURRENT_VERSION = 45;
 
     @FunctionalInterface
     interface Migration {
@@ -548,6 +548,37 @@ final class SchemaMigrator {
                         )
                         """);
                     execute(connection,"CREATE INDEX business_local_portfolio ON businesses(owner_id,settlement_id,id)");
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE farm_learning_reviews (
+                            settlement_id TEXT NOT NULL,
+                            period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                            commodity TEXT NOT NULL CHECK(commodity='food'),
+                            business_id TEXT NOT NULL REFERENCES businesses(id),
+                            field_slots INTEGER NOT NULL CHECK(typeof(field_slots)='integer' AND field_slots>=0),
+                            production INTEGER NOT NULL CHECK(typeof(production)='integer' AND production>=0),
+                            enabled INTEGER NOT NULL CHECK(enabled IN (0,1)),
+                            skill TEXT CHECK(skill IS NULL OR length(trim(skill)) BETWEEN 1 AND 64),
+                            gain INTEGER NOT NULL CHECK(typeof(gain)='integer' AND gain BETWEEN 1 AND 1000),
+                            ceiling INTEGER NOT NULL CHECK(typeof(ceiling)='integer' AND ceiling BETWEEN 1 AND 1000000000),
+                            worker_budget INTEGER NOT NULL CHECK(typeof(worker_budget)='integer' AND worker_budget BETWEEN 1 AND 1000),
+                            explanation TEXT NOT NULL CHECK(length(trim(explanation)) BETWEEN 1 AND 2048),
+                            PRIMARY KEY(settlement_id,period),
+                            FOREIGN KEY(settlement_id,period,commodity) REFERENCES economy_periods(settlement_id,period,commodity)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE farm_learning_entries (
+                            settlement_id TEXT NOT NULL,
+                            period INTEGER NOT NULL,
+                            resident_id TEXT NOT NULL REFERENCES residents(id),
+                            before_experience INTEGER NOT NULL CHECK(typeof(before_experience)='integer' AND before_experience>=0),
+                            after_experience INTEGER NOT NULL CHECK(typeof(after_experience)='integer' AND after_experience>before_experience),
+                            PRIMARY KEY(settlement_id,period,resident_id),
+                            FOREIGN KEY(settlement_id,period) REFERENCES farm_learning_reviews(settlement_id,period)
+                        )
+                        """);
                 }
         ));
     }
@@ -700,6 +731,10 @@ final class SchemaMigrator {
                 requireColumns(connection,"study_materials",Set.of("course_id","commodity","units"));
                 requireColumns(connection,"study_reviews",Set.of("course_id","settlement_id","period","before_experience","after_experience","reason"));
                 requireColumns(connection,"study_spending",Set.of("course_id","period","commodity","units"));
+            }
+            if(migrations.size()>=45) {
+                requireColumns(connection,"farm_learning_reviews",Set.of("settlement_id","period","commodity","business_id","field_slots","production","enabled","skill","gain","ceiling","worker_budget","explanation"));
+                requireColumns(connection,"farm_learning_entries",Set.of("settlement_id","period","resident_id","before_experience","after_experience"));
             }
             if(migrations.size()>=44)requireColumns(connection,"business_lifecycle_reviews",Set.of("business_id","seller_id","buyer_cursor","step","observed_ms","seed","reason"));
             if (migrations.size() >= 17) requireColumns(connection, "village_priorities", Set.of("settlement_id", "period", "seed", "replay_version",

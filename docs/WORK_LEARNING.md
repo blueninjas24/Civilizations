@@ -1,9 +1,10 @@
 # Learning through actual industry work
 
-User approved gradual skill development on October 9. This batch implements only
-learning by employees of existing timed mines and workshops. Supply-backed study
-for unemployed adults is a separate batch (see RESIDENT_STUDY.md); farm work learning
-and automatic nonfood founding remain unfinished. It does not create a skilled founding population.
+User approved gradual skill development on October 9. Learning by employees of
+existing timed mines/workshops and automatic farm businesses is now verified.
+Supply-backed study for unemployed adults is a separate batch (RESIDENT_STUDY.md).
+Automatic career choice and nonfood founding remain unfinished. Learning does not
+create an already skilled founding population.
 
 Each new productive business period can give its actual living local qualified
 employees a small experience gain in the configured industry skill. An owner who
@@ -33,10 +34,13 @@ work-learning:
   industry-skills:
     mining: mining
     blacksmith: smithing
+    farming: farming
 ```
 
 These are prototype rates, not years of experience. Period speed follows the
-existing `industry-runtime` cadence. Gains are 1..1000; ceiling 1..1,000,000,000;
+existing `industry-runtime` cadence for mines/workshops; farming uses the food
+economy cadence. See FARM_WORK_LEARNING.md for reduced productive slots and
+transactional food-period awards. Gains are 1..1000; ceiling 1..1,000,000,000;
 worker review budget 1..1000. Lowering the ceiling never removes existing experience.
 Missing old sections keep learning disabled; edit stopped/restart to opt in. Remove
 an industry entry or disable the section to stop its future learning. Invalid edits
@@ -61,3 +65,10 @@ including two packaged integration cases. Isolated Paper awarded exactly eight
 productive employee gains, preserved 15/8 mining experience after restart/absence
 and closure, and retained existing development assets/skills. Test server stopped;
 human server unchanged. Schema 42 upgrade integrity and foreign keys passed.
+
+
+October 10 farm extension: schema 45 links farm participant audits to actual food
+periods. Nine new temporary-DB cases and real Paper session verification passed;
+full Wrapper clean verify passed 792 tests (790 unit/two integration), no failures/
+errors/skips. Old files need the explicit farming mapping; they are not rewritten.
+No new skill-based production bonus or automatic career/founding policy is added.

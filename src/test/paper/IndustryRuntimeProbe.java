@@ -60,10 +60,10 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                             case 14 -> {check(4,6);checkClosure();now.set(10_001_000);pending=session.pulse();}
                             case 15 -> {
                                 check(5,5);checkSale();checkClosure();session.close();session=null;
-                                pending=CompletableFuture.runAsync(()->{try{checkAutomaticResale();checkStudy();}catch(Exception failure){throw new CompletionException(failure);}},fixture);
+                                pending=CompletableFuture.runAsync(()->{try{checkAutomaticResale();checkFarmLearning();checkStudy();}catch(Exception failure){throw new CompletionException(failure);}},fixture);
                             }
                             case 16 -> {
-                                getLogger().info("NATIVE TIMED INDUSTRY PASS: automatic funded resale, unlimited ownership, absent-world/restart conservation; supply-backed study consumes exact stone/timber, pauses without food, once-only skill completion survives absence/restart; eight actual employee awards, inheritance, conserved resale and retained closure verified; separate databases, no world writes");
+                                getLogger().info("NATIVE TIMED INDUSTRY PASS: farm employees learn once from real output, lost field slots limit awards, zero output/absence/restart retain skills; automatic funded resale, unlimited ownership, absent-world/restart conservation; supply-backed study consumes exact stone/timber, pauses without food, once-only skill completion survives absence/restart; eight actual employee awards, inheritance, conserved resale and retained closure verified; separate databases, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -113,6 +113,49 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                     try(var q=c.createStatement();var r=q.executeQuery("SELECT COUNT(*) FROM business_sales")){if(r.getLong(1)!=4)throw new IllegalStateException("Missing/duplicate automatic sale");}
                     try(var q=c.createStatement();var r=q.executeQuery("SELECT (SELECT SUM(hundredths) FROM treasuries)+(SELECT SUM(hundredths) FROM industry_stores)+(SELECT SUM(hundredths) FROM family_estates)")){if(r.getLong(1)!=100000)throw new IllegalStateException("Automatic resale lost/created money");}
                     try(var q=c.createStatement();var r=q.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("Automatic resale foreign key failure");}
+                }
+            }
+            clock.set(1000000);
+        }
+    }
+    private void checkFarmLearning()throws Exception {
+        var data=new java.io.File(getDataFolder(),"farm-learning-run-"+UUID.randomUUID());
+        var town=UUID.randomUUID();var workers=List.of(new UUID(0,1),new UUID(0,2));
+        var db=new DatabaseManager(data,getLogger());
+        try {
+            db.initialize();db.saveSettlement(new Settlement(town,"Farm learning fixture","World",0,64,0,1,0,0));
+            db.getVillageIdentityRepository().observeWorld(world,"World");db.getVillageIdentityRepository().bindSettlement(town,world);
+            for(var resident:workers)db.getPopulationRepository().insertResident(new Resident(resident,"Worker",town,null,300,Resident.Status.ALIVE));
+            new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,10000,"Actual fixture capital");
+        }finally{db.close();}
+        var bands=new EnumMap<com.blueninjas24.civilizations.economy.CommodityAccounting.Condition,Integer>(com.blueninjas24.civilizations.economy.CommodityAccounting.Condition.class);
+        for(var band:com.blueninjas24.civilizations.economy.CommodityAccounting.Condition.values())bands.put(band,100);
+        var economy=new com.blueninjas24.civilizations.economy.EconomySettings(1,3,2,2,1,4,100,new com.blueninjas24.civilizations.economy.CommodityAccounting.Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,12L),Map.of(Commodity.FOOD,java.math.BigDecimal.valueOf(2)),bands);
+        var settings=new PopulationSession.Settings(42,1000,0,2,new PopulationPolicy(12,216,240,480,720,0,0,0),MigrationPolicy.disabled(),VillageRecognition.Policy.prototype(),VillageEnrollmentRepository.Policy.prototype());
+        var clock=new AtomicLong(1000);
+        for(int run=0;run<2;run++) {
+            try(var owner=new PopulationSession(data,getLogger(),settings,clock::get,economy,com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype())) {
+                owner.configureFarmBusinesses(new FarmBusinessPolicy(true,4,2500,216,0));owner.configureWorkLearning(WorkLearningPolicy.prototype());owner.configureBusinessOperations(BusinessOperationPolicy.prototype());
+                owner.start(false,Set.of(world)).get(5,TimeUnit.SECONDS);
+                if(run==0)owner.observeFarms(new com.blueninjas24.civilizations.economy.FarmObservation(town,world,1000,true,32,new VillageObservation.Position(2048,64,2048))).get(5,TimeUnit.SECONDS);
+                clock.addAndGet(1000);owner.pulse().get(5,TimeUnit.SECONDS);owner.pulse().get(5,TimeUnit.SECONDS);
+                if(owner.economyView().get(town).latest().reports().getFirst().flow().production()!=8)throw new IllegalStateException("Farm output changed while learning");
+                if(run==0){owner.updateLoadedWorlds(Set.of()).get(5,TimeUnit.SECONDS);clock.set(100000);owner.pulse().get(5,TimeUnit.SECONDS);}
+                else {
+                    owner.observeFarms(new com.blueninjas24.civilizations.economy.FarmObservation(town,world,clock.get(),true,16,new VillageObservation.Position(2048,64,2048))).get(5,TimeUnit.SECONDS);
+                    clock.addAndGet(1000);owner.pulse().get(5,TimeUnit.SECONDS);
+                    owner.observeFarms(new com.blueninjas24.civilizations.economy.FarmObservation(town,world,clock.get(),true,0)).get(5,TimeUnit.SECONDS);
+                    clock.addAndGet(1000);owner.pulse().get(5,TimeUnit.SECONDS);
+                }
+                try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+data.toPath().resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro")) {
+                    try(var q=c.createStatement()){q.execute("PRAGMA foreign_keys=ON");}
+                    var expectations=run==0?List.of(1L,1L):List.of(3L,2L);
+                    try(var q=c.prepareStatement("SELECT experience FROM resident_skills WHERE resident_id=? AND skill='farming'")) {
+                        for(int i=0;i<2;i++){q.setString(1,workers.get(i).toString());try(var r=q.executeQuery()){if(!r.next()||r.getLong(1)!=expectations.get(i))throw new IllegalStateException("Farm productive-slot skill mismatch");}}
+                    }
+                    try(var q=c.createStatement();var r=q.executeQuery("SELECT COUNT(*) FROM farm_learning_entries")){if(r.getLong(1)!=(run==0?2:5))throw new IllegalStateException("Farm learning duplicated or missing");}
+                    if(new TreasuryRepository(c).load(town).orElseThrow().hundredths()!=7500)throw new IllegalStateException("Farm learning invented money");
+                    try(var q=c.createStatement();var r=q.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("Farm learning FK failure");}
                 }
             }
             clock.set(1000000);

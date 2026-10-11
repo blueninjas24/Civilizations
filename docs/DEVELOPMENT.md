@@ -278,3 +278,14 @@ are debited from the treasury; do not count them as an additional grant. No play
 jobs/world blocks are changed. Use a persistent console (exec tty=true) so `stop`
 remains available; restore settings/archive the probe after normal shutdown.
 See AUTOMATIC_BUSINESS_RESALE.md for config, schema 44 and limits.
+
+
+October 10 farm-learning extension: IndustryRuntimeProbe uses another separate random
+SQL fixture with saved adults and explicit synthetic crop evidence, then real
+PopulationSession food owners. It verifies output8, once-only skills1/1 through
+absence, reopen with no catch-up, reduced fields yielding3/2 cumulative experience,
+zero-output pause, five participant entries and unchanged actual startup funds.
+It changes no world blocks/chunk tickets. This validates the application loop, not
+new crop snapshot behavior; the prior FarmBusinessProbe covers actual crop evidence.
+Stop normally, verify schema 45/backup snapshots read-only, restore exact settings,
+archive test JAR. See FARM_WORK_LEARNING.md.

@@ -83,10 +83,14 @@ premises are preferred; physical building reuse remains Phase 4.
 - [x] Saved unemployed-adult courses consume real village practice goods with food/
       material priority, rotating slots, skills/status/spending/period atomicity,
       absence/backlog/restart guards and diagnostics; temp DB/Paper passed.
+- [x] Farm employees gain experience with actual food production, limited by
+      observed productive slots; transaction rollback, pause/restart, retained
+      ceilings verified in temporary SQLite and actual Paper PopulationSession;
+      earned succession qualification covered in SQLite. Legacy adults do not learn.
 - [ ] Bound broader skill development and investment; no manufactured profit or payroll.
       Actual employee learning and internal supply-backed adult study are verified;
-      automatic opportunity-based career selection, farm learning and investment
-      integration remain. No free skills, money or bypass of founder requirements.
+      automatic opportunity-based career selection and investment integration remain.
+      No free skills, money or bypass of founder requirements.
 - [x] Saved explicit sale offers, immutable accepted price/deadline, online-only
       elapsed time and atomic paid completion; temp SQL failure/restart/migration
       cases and actual Paper passed. Automatic valuation/buyers and retained closure now verified below.

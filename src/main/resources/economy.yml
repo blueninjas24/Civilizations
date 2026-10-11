@@ -83,6 +83,7 @@ work-learning:
   industry-skills:
     mining: mining
     blacksmith: smithing
+    farming: farming
 
 # Phase 3 finite mining backend. Timed work runs existing mines; auto founding is pending.
 # Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.

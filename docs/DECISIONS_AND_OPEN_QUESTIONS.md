@@ -53,7 +53,7 @@ October 9 playtest decisions, with implementation boundaries:
   funding defaults retain 10.00 Trade Value, allow 25% of spare business cash and
   100% of estate cash per purchase. Saved explicit offers and online-only deadlines
   are verified. Retained unsold closure is now verified. Automatic valuation,
-  listing creation and qualified funded buyer review remain unfinished.
+  listing creation and qualified funded buyer review are now verified (schema 44).
   Additional explicit approval: qualified existing employees may keep the business
   operating while the family seeks a buyer. Real supplies, finite reserves, storage,
   purchasing funds and world-pause rules still apply. Continued work does not make
@@ -64,7 +64,8 @@ October 9 playtest decisions, with implementation boundaries:
   limits and qualification requirements must remain editable. Required ownership
   thresholds still apply; no instant career changes or invented productive labor.
   Starting resident profiles currently have no saved mining/smithing experience.
-  Actual employee learning in timed mines/workshops is now verified (schema 42);
+  Actual employee learning in timed mines/workshops (schema 42) and automatic
+  field enterprises (schema 45) is now verified;
   unemployed-adult supply-backed study is now verified (schema43). Automatic
   opportunity-based career selection and nonfood founding remain unfinished.
   Approval does not waive saved qualification requirements.

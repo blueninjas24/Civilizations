@@ -34,6 +34,7 @@ public final class EconomyRuntimeRepository {
     private String signature;
     private com.blueninjas24.civilizations.industry.FarmBusinessPolicy farmBusinesses=com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
     private FarmEnterprises enterprises;
+    private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private boolean inUse;
     private final Map<UUID,String> enterpriseReasons=new HashMap<>();
     private final OpeningFunds openingFunds;
@@ -118,6 +119,10 @@ public final class EconomyRuntimeRepository {
         farmBusinesses=Objects.requireNonNull(policy);enterprises=new FarmEnterprises(connection,policy,adulthood,operations);
         if(policy.enabled())signature+="|farm-business-v1:"+policy;
         if(operations.enabled())signature+="|business-operations-v1:"+operations;
+    }
+    public void configureWorkLearning(com.blueninjas24.civilizations.industry.WorkLearningPolicy policy) {
+        if(inUse)throw new IllegalStateException("Configure farm learning before using economy");
+        learningPolicy=Objects.requireNonNull(policy);
     }
     public void configureStudy(com.blueninjas24.civilizations.industry.StudyPolicy policy) {
         if(inUse)throw new IllegalStateException("Configure study before using economy");
@@ -402,6 +407,7 @@ public final class EconomyRuntimeRepository {
         var studyPlan=study.planRows(town,nextPeriod,account.state(),flows,farmBusinesses.enabled()||output==0);
         var period = commodities.advanceRows(town, nextPeriod, studyPlan.flows(), settings.shortages());
         study.applyRows(town,nextPeriod,studyPlan,period);
+        if(farmBusinesses.enabled())new FarmLearning(connection,learningPolicy).reviewRows(town,nextPeriod,farm.plantedCrops()/farms.cropsPerWorker());
         var needs = new HouseholdNeedsRepository(connection);
         var assessment = HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings, needs.load(town, nextPeriod - 1).orElse(null));
         needs.save(assessment);
@@ -432,7 +438,8 @@ public final class EconomyRuntimeRepository {
                       new FoodAppealRepository(connection).load(town, account.state().completedPeriods()).orElse(null),
                       new HouseholdWellbeingRepository(connection).load(town,account.state().completedPeriods()),
                       new FoodResponseRepository(connection).load(town,account.state().completedPeriods()).orElse(null),
-                      farmBusinesses.enabled()?enterpriseReasons.getOrDefault(town,"Farm business enabled; awaiting eligible economic period"):
+                      farmBusinesses.enabled()?enterpriseReasons.getOrDefault(town,"Farm business enabled; awaiting eligible economic period")
+                              +new FarmLearning(connection,learningPolicy).explanation(town,account.state().completedPeriods()).map(reason->"; "+reason).orElse(""):
                               "Automatic farm businesses disabled; legacy field accounting",
                       new ResidentStudy(connection,studyPolicy,adulthood).summary(town)));
         }

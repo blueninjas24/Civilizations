@@ -2,6 +2,12 @@
 
 Updated October 10, 2026. Based on verified work, not planned features.
 
+Latest: farmers now gain experience from actual productive work, keeping it through
+restart. Fewer fields mean fewer learning slots; idle/closed farms award nothing.
+All 792 tests and the isolated Paper session check passed. Your server is unchanged.
+Phase 3 still has 1/4 complete groups (25%): automatic career choice, first mines/
+workshops and wider competition remain. This advances the unfinished skills gate.
+
 Latest: businesses now find qualified buyers automatically after inheritance fails.
 A villager may own unlimited firms, but purchases need real money and each resident
 still holds one worker job. Prices/deadlines are editable and survive restart.
@@ -63,7 +69,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 783 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 792 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

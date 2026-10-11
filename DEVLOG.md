@@ -2,6 +2,51 @@
 
 
 
+
+## October 10, 2026 — farm employees learn through actual food production
+
+Automatic field-enterprise employees now gain configurable farming experience in
+new productive food periods. Food, skills, before/after participant audit, needs/
+decisions and checkpoint commit together; a later failure rolls all of them back.
+Owners without jobs and legacy adult-only field labor do not learn. Saved jobs in
+excess of reduced observed field slots rotate through only the productive slots.
+Zero output, closed farms, incomplete observations, absent worlds and downtime
+award nothing. Existing history is not backfilled; existing skills are never reduced.
+
+The existing work-learning section gains a farming mapping in new defaults, with
+one point per productive food period and ceiling 100. Old owner files opt in without
+being rewritten. Skill growth does not increase output, create money, add jobs or
+waive founding thresholds. A tested working employee can become qualified for
+succession through actual work. Schema45 adds review/participant tables tied to
+saved food periods, preserving existing farms, food history, money and skills.
+Application wiring passes the same approved policy to industry and food runtimes;
+farm diagnostics explain latest awards, zero production or budget deferral.
+
+Nine temporary-DB tests added. First focused run caught three fixture errors:
+wrong requirement/need table names and a zero-crop observation claiming a crop
+position. Corrected fixtures only; focused 90 passed. Full Windows Wrapper command
+`.\mvnw.cmd clean verify` passed 792 (790 unit/two packaged integration), zero
+failures/errors/skips, 4:26. Guarded Paper PopulationSession checks passed actual
+output8, once-only employee awards, restart/absence, reduced-slot rotation and
+zero-output pause, with unchanged startup spending; prior resale/inheritance/
+industry learning/study/closure probes passed. Initial standalone probe compile
+referenced a package-private repository constructor; replaced only the harness
+read with SQL and compiled against current classes, without widening the API.
+
+The isolated fixture stopped normally (exit0); schema 45 integrity/FKs healthy,
+all 20 preexisting asset/skill/course/audit snapshots unchanged. Original network
+settings restored byte-for-byte and test probe archived. Human server/database/
+world unchanged. Source/tests/config and documentation updated on the local
+feature branch; no push/main merge. See FARM_WORK_LEARNING.md and WORK_LEARNING.md.
+
+Phase 3 remains 1/4 complete groups (25%). Farm learning finishes another skills
+component; opportunity-based career choice, initial nonfood founding, broader
+labor/capital competition and seeded acceptance remain before another group gate.
+Next: connect safe, evidence-backed opportunities to training and real funded
+industry founding; per-coordinate supporting ore loss is an approved prerequisite.
+No blocking design question for the completed farm batch.
+
+
 ## October 10, 2026 — automatic qualified, funded business resale
 
 Present-world business maintenance now creates offers after qualified family and

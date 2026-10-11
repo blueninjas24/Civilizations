@@ -263,6 +263,7 @@ public final class PopulationSession implements AutoCloseable {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
                     economy.configureFarmBusinesses(farmBusinessPolicy,operationPolicy);
                     economy.configureStudy(studyPolicy);
+                    economy.configureWorkLearning(learningPolicy);
                     if (loadedWorlds == null) economy.start(now.getAsLong());
                     else economy.startOnline(now.getAsLong(), loadedWorlds);
                     economyView.set(economy.views());
