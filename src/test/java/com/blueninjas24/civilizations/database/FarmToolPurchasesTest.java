@@ -147,6 +147,36 @@ class FarmToolPurchasesTest {
         db.getIndustryRepository().purchase(UUID.randomUUID(),seller,buyer,ToolUpkeepPolicy.TOOLS,1,16000,0,1,10);
         assertEquals(4000,cash());assertEquals(16000,db.getIndustryRepository().store(seller).orElseThrow().hundredths());
     }
+    @Test void actualWarehouseRestockingIgnoresAuditedFarmEquipmentButNotUnsupportedStores()throws Exception {
+        purchases().purchase(request,policy(),Set.of(world));
+        var businesses=db.getBusinessRepository();var requirements=new JobRequirements(216,Map.of());
+        UUID warehouse=UUID.randomUUID(),mine=UUID.randomUUID();
+        for(var id:List.of(warehouse,mine)) {
+            String kind=id.equals(warehouse)?"warehouse":"mining";
+            var site=new BusinessSite(UUID.randomUUID(),town,world,id.equals(warehouse)?20:30,64,0,1000,"Explicit fixture "+kind);
+            businesses.found(new BusinessFounding(new Business(id,town,"Fixture "+kind,merchant,merchant,kind,site.id(),1,0),site,requirements,requirements,0,"Explicit fixture"));
+            UUID worker=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(worker,"Fixture worker",town,null,300,Resident.Status.ALIVE));
+            businesses.hire(UUID.randomUUID(),id,worker,0);
+            db.getIndustryRepository().openStore(id,100,Map.of(Commodity.IRON,1L,ToolUpkeepPolicy.TOOLS,1L),id.equals(warehouse)?1000:0);
+        }
+        var deposit=UUID.randomUUID();db.getIndustryRepository().discover(deposit,businesses.findFounding(mine).orElseThrow().site().id(),1,1,Map.of(Commodity.IRON,2L));
+        db.getIndustryRepository().mine(UUID.randomUUID(),mine,deposit,1,0,1,1);
+        for(var job:businesses.currentWorkers(mine))businesses.endEmployment(job.id(),0,"Explicit completed fixture work");
+        var recipe=new ProductionRecipe("fixture_tools","blacksmith",Map.of(Commodity.IRON,1L),Map.of(ToolUpkeepPolicy.TOOLS,1L),1,1);
+        var industryPolicy=new IndustryRuntimePolicy(true,1000,8,IndustryPolicy.prototype(),Map.of(recipe.id(),recipe),
+                new WorkshopSupplyPolicy(true,1,16,Map.of(Commodity.IRON,100L)),new WarehouseSupplyPolicy(true,16,16));
+        var runtime=new IndustryRuntime(db.getConnection(),industryPolicy);runtime.start(1000);runtime.pulse(2000,Set.of(world));
+        assertEquals(900,db.getIndustryRepository().store(warehouse).orElseThrow().hundredths());
+        assertEquals(100,db.getIndustryRepository().store(mine).orElseThrow().hundredths());
+        assertEquals(1,db.getIndustryRepository().store(warehouse).orElseThrow().reservedIncomingSpace());
+        assertEquals(2,count("local_shipments"));assertEquals(1,count("farm_tool_purchases"));assertEquals(15000,cash());
+        assertEquals(0,db.getIndustryRepository().store(farm).orElseThrow().hundredths());
+        sql("UPDATE industry_stores SET capacity=2 WHERE business_id='"+farm+"'");
+        assertFalse(new LocalIndustryDemand(db.getConnection(),industryPolicy,BusinessOperationPolicy.disabled()).review(town,Set.of(world),16).complete());
+        runtime.pulse(3000,Set.of(world));
+        try(var s=db.getConnection().prepareStatement("SELECT COUNT(*) FROM local_shipments WHERE buyer_id=?")){s.setString(1,warehouse.toString());try(var r=s.executeQuery()){r.next();assertEquals(1,r.getLong(1));}}
+        health();
+    }
     @Test void earnedSpareCashFundsOnlyInvoiceShortfallAndConservesMoneyAcrossRestartReplay()throws Exception {
         earnSupplierCash();var receipt=purchases().purchase(request,policy(),Set.of(world),UpkeepContributionPolicy.prototype());
         assertEquals(2500,cash());assertEquals(17500,db.getIndustryRepository().store(seller).orElseThrow().hundredths());

@@ -1,5 +1,41 @@
 # Development and recovery procedures
 
+## October 11, 2026: farm equipment no longer blocks warehouse restocking
+
+Fixed WarehouseSupplies producer discovery to exclude only an audited public farm
+kit store (farming, capacity1, zero private cash, exactly one tools commodity with
+unit space1, saved farm invoice). It matches existing input-demand safeguards and
+filters before bounded producer slots. Unfamiliar stores still defer; no general
+farming exemption, new stock, demand, grants or migration.
+
+Added a temporary SQLite regression proving actual mined iron is paid into warehouse
+cargo while a public farm kit store exists, then retaining the unknown-layout fence.
+Focused 38 passed; Windows .\mvnw.cmd clean verify passed 952 (950 unit/two packaged
+integration), zero failures/errors/skips, 4:27. First regression setup used duplicate
+site coordinates; corrected the test sites before verification.
+
+Final packaged JAR passed actual PopulationSession upkeep plus IndustryRuntime
+upstream purchase on isolated pinned Paper. Four manufactured kits and original
+30000 cash remain accounted for; warehouse paid100, producer received100, cargo
+contains one real iron unit and preserves an older independent paid toolkit.
+First native assertion expected only one pending space and overlooked that older
+cargo; corrected the test-only assertion to two and reran successfully without
+changing production code. Both retained synthetic saves pass integrity/FKs.
+
+Marked main fixture backed up before both runs. Across the pair, 79/91 tables
+unchanged; differences exactly one normal population month1724-to1725 (living age
+579-to580), one ordinary food period26-to27 (zero stock/output, existing food shortage
+20-to21, no other commodity use) and their needs/appeal/clock/world/ore bookkeeping.
+All treasury, business/assets, estate funds, prior receipts and identity retained;
+all farm/upkeep audits stay empty under legacy opt-out. Final rerun alone preserved
+88/91 tables, only civilization_time/economy_runtime/ore bookkeeping changed, no
+new population/food period. Normal shutdown, no forced chunks, exact settings
+restored and probe archived. Human server untouched; no push/main merge.
+
+Phase3 remains25% by complete groups. Next: automatic first qualified industries,
+suitable opportunity selection and genuine upstream demand; no completion claim
+for those systems. See WAREHOUSE_RESTOCKING.md.
+
 ## October 11, 2026: verified real spare-business farm upkeep contributions
 
 Implemented the approved cash feedback as an exact invoice-shortfall transfer

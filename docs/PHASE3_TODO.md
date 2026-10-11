@@ -28,6 +28,11 @@ Paper passed; schema55 adds empty audit. No blanket levy, minted cash or net-pro
 claim. Nonfood founders and specialization remain. Warehouse producer scanning
 needs a narrow audited-farm equipment exclusion; then public farm upstream demand.
 
+Verified warehouse compatibility: narrow audited farm kit-store exclusion lets
+actual upstream purchases proceed without hiding unknown stored industries.
+952 tests and actual PopulationSession/IndustryRuntime isolated Paper passed.
+No migration. Automatic first nonfood founders and specialization still remain.
+
 ## 1. Persistent businesses, owners, workers and sites — verified
 
 - [x] Save identities, founders, owners, workplace sites and employment history.

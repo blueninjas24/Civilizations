@@ -87,7 +87,15 @@ final class WarehouseSupplies {
     }
     private List<UUID> producerIds(UUID town,int limit)throws SQLException {
         var result=new ArrayList<UUID>();
-        try(var s=connection.prepareStatement("SELECT b.id,b.industry FROM businesses b JOIN industry_stores k ON k.business_id=b.id WHERE b.settlement_id=? AND b.industry<>'warehouse' ORDER BY b.id LIMIT ?")) {
+        try(var s=connection.prepareStatement("""
+            SELECT b.id,b.industry FROM businesses b JOIN industry_stores k ON k.business_id=b.id
+            WHERE b.settlement_id=? AND b.industry<>'warehouse'
+              AND NOT(b.industry='farming' AND k.capacity=1 AND k.hundredths=0
+                AND EXISTS(SELECT 1 FROM farm_tool_purchases f WHERE f.farm_id=b.id)
+                AND (SELECT COUNT(*) FROM industry_stock c WHERE c.business_id=b.id)=1
+                AND EXISTS(SELECT 1 FROM industry_stock c WHERE c.business_id=b.id AND c.commodity='tools' AND c.space_per_unit=1))
+            ORDER BY b.id LIMIT ?
+            """)) {
             s.setString(1,town.toString());s.setInt(2,limit+1);try(var r=s.executeQuery()){while(r.next()) {
                 String kind=r.getString(2);
                 if(!kind.equals("mining")&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");

@@ -68,3 +68,21 @@ tests cover deterministic bounded planning and strict configuration.
 inside marked disposable Paper, using synthetic firms in its own random database.
 It edits no blocks/entities or human server data. See DEVELOPMENT.md and DEVLOG.md
 for completed build and native results.
+
+## Public farm equipment compatibility
+
+A public farm tools-only store holds one toolkit and zero private cash, with an
+actual saved farm_tool_purchases receipt. This is equipment storage, not a raw
+material supplier. Warehouse producer discovery now excludes exactly that audited
+layout, matching the existing local input-demand exclusion. Without this guard,
+a valid public farm order could cause the warehouse's producer review to throw
+an unsupported-industry error and roll back unrelated real upstream purchases.
+
+Unknown farm stores, extra commodities, changed capacity or private cash remain
+explicitly unsupported. The exclusion happens before producer limits, so farm
+equipment stores cannot consume a bounded producer slot. It creates no demand,
+stock, grants or free tools; ordinary supplier/customer funding and paid deliveries
+remain unchanged. No migration. A regression exercises an actual mined-iron
+purchase with an audited farm present, then confirms a changed layout still defers.
+A test-only FarmWarehouseProbe repeats public upkeep and actual upstream purchase
+on disposable Paper. Verification results follow in PROJECT_STATUS and DEVLOG.

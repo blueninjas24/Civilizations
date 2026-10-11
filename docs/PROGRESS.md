@@ -2,6 +2,11 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: farm equipment storage no longer prevents warehouses buying real mined
+supplies. Unsupported stores still stay protected. All 952 tests and the final
+isolated Paper check passed. Your server is unchanged. Phase3 remains25% by
+completed groups; automatic first industries and specialization are next.
+
 Latest: an actual supplier can now help cover a farm tool bill from earned spare
 cash, keeping its operating reserve and the village's food money protected.
 Nothing is minted or collected when funds suffice. All 951 tests and isolated
