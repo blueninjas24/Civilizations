@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11, 2026: approved mine direction connected to real startup
+
+The automatic coal/iron adapter uses approved gradual skill requirements, finite
+exposed-ore evidence, protected actual village grants and real industry demand.
+It requires an existing funded staffed warehouse; it does not grant first founder
+skills or fabricate customers. Editable prototype range/yields/budgets are saved
+opening terms, not authority to excavate or occupy player structures. Source
+anchors are data-only and checked against saved workplace/bed coordinates.
+First warehouse/workshop opportunities and founder training remain subsequent work;
+physical fit, land protection and mine construction remain Phase4. No new locked
+principle or government/ownership rule was selected. See AUTOMATIC_MINES.md.
+
 ## October 11, 2026: gradual commerce qualifications approved
 
 The user answered yes to a separate editable commerce skill learned through gradual

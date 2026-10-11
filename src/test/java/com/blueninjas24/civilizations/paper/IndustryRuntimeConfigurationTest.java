@@ -7,6 +7,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void automaticMineSettingsAreEditableStrictAndLegacyOptIn()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readMineFounding(config).enabled());
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(MineFoundingPolicy.prototype(),EconomyConfiguration.readMineFounding(config));
+        config.set("automatic-mines.mineral-yield-per-batch.coal",4);assertEquals(4,EconomyConfiguration.readMineFounding(config).mineralYield().get(com.blueninjas24.civilizations.economy.Commodity.COAL));
+        config.set("automatic-mines.mineral-yield-per-batch.diamond",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readMineFounding(config));
+        config.set("automatic-mines.mineral-yield-per-batch.diamond",null);config.set("automatic-mines.founder-mining-experience",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readMineFounding(config));
+        config.set("automatic-mines.founder-mining-experience",10);config.set("automatic-mines.extra",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readMineFounding(config));
+    }
     @Test void contributionSettingsAreEditableStrictAndLegacyOptIn()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readUpkeepContributions(config).enabled());
         try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}

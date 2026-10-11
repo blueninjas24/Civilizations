@@ -1,5 +1,45 @@
 # Development and recovery procedures
 
+## October 11, 2026: demand-backed automatic coal/iron mine founding verified
+
+Current trusted exposed ore can now support an automatic finite mine when actual
+funded workshops need inputs and an operating staffed warehouse can buy them.
+A qualified unemployed local adult becomes owner/first worker; existing business
+ownership remains unlimited, while worker employment remains exclusive. Protected
+real village grants pay the recorded startup expense and working capital. Existing
+viable mine stock/capacity suppresses redundant founding; larger funded demand can
+support another operation. No free qualification, capital, inventory or hidden ore.
+
+Selection, source claims, empty store, job and grant save together. Final receipt
+failure or immediate mutation-trust loss rolls everything back. Latest-frame,
+world/freshness, range/occupied-anchor and food-protection checks remain. Seeded
+bounded pages choose resource patches; accepted coordinate IDs and opening terms
+survive restart. Automatic coal/iron yield is separately editable; configured
+byproducts remain without creating the other unobserved mineral. No construction,
+excavation or land rights. Old economy files without automatic-mines stay disabled.
+Schema remains 57; no migration or rewriting of existing sources/assets.
+
+Thirteen tests added (12 automatic founding/owner-flow cases and strict config).
+Focused48 passed, then owner-flow11 passed before the final trust-loss case. Initial
+fixtures reused a capture time and mismatched the persisted economy seed; corrected
+fixtures, no weakening of guards. Windows .\mvnw.cmd clean verify passed 990 tests
+(988 unit/two packaged integration), zero failures/errors/skips, 4:50. Initial
+sandbox clean could not remove target; normal-permission rerun succeeded.
+
+AutomaticMineFoundingProbe compiled before installation and passed on marked
+pinned disposable Paper through actual PopulationSession: one mine, actual 2500
+public outflow (500 expense/2000 business capital), eight finite batches/sixteen
+coal; absent-world pause and restart preserve assets. Native server stopped
+normally with no forced overworld chunks. Properties restored byte-exact, helper
+archived and all prior database tables compared: 90/96 unchanged. Six differences
+are one normal age-only month 1728-to1729 and associated clock/active-world/ore
+bookkeeping. Food period stayed 29; all prior assets, finances, courses, skills and
+history unchanged. Human server untouched; no push or main merge.
+
+Phase 3 remains 25% by complete milestone groups. First warehouse/workshop founding,
+first-founder career opportunities, wider industries and emergent specialization
+remain. Physical entrances/digging remain Phase 4. See AUTOMATIC_MINES.md.
+
 ## October 11, 2026: automatic real-vacancy career training verified
 
 Existing living-owner mines, smiths and warehouses can choose unemployed local

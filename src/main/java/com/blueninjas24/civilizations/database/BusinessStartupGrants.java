@@ -32,11 +32,14 @@ public final class BusinessStartupGrants {
     public BusinessStartupGrants(Connection connection){this.connection=Objects.requireNonNull(connection);}
     public Mine startMine(MiningStartupRepository.Request request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);
-        return transaction(()-> {
-            var receipt=prepare(request.founding(),request.workingCapital(),policy);
-            var started=new MiningStartupRepository(connection).startRows(request);
-            return new Mine(started,save(receipt));
-        });
+        return transaction(()->startMineRows(request,policy));
+    }
+    /** Caller rechecks current demand/resource/site evidence inside the same complete startup transaction. */
+    Mine startMineRows(MiningStartupRepository.Request request,StartupGrantPolicy policy)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Mine grant rows require owner transaction");
+        var receipt=prepare(request.founding(),request.workingCapital(),policy);
+        var started=new MiningStartupRepository(connection).startRows(request);
+        return new Mine(started,save(receipt));
     }
     public Workshop startWorkshop(WorkshopRequest request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);

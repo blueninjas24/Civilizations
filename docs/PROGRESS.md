@@ -2,15 +2,16 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
-Villages can now select adults to train for real job openings. Residents learn
-using actual materials and are hired only after becoming qualified. If the opening
-disappears, its training stops. All 977 tests and isolated Paper checks passed;
-your server has not been changed.
+Villages with real workshop customers and a funded staffed warehouse can now
+start a finite coal or iron mine from currently observed ore. They choose an
+already qualified resident, spend real protected funds and produce goods over
+time. Restart does not refill the mine. All 990 tests and isolated Paper checks
+passed; your playable server has not been changed.
 
-Phase 3 is still 25% by completed milestone groups. First business founders,
-suitable funded opportunities, wider industry and specialization remain. The next
-work connects current ore evidence and genuine demand to automatic mine startups.
-See VACANCY_CAREERS.md. No decision currently blocks this completed batch.
+Phase 3 remains 25% by complete milestone groups. This completes a narrow automatic
+mine adapter, not the whole industry chain: first-founder training, first
+warehouses/workshops, wider industries and specialization remain. Next: connect
+those first businesses to real opportunities and materials. See AUTOMATIC_MINES.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
@@ -215,7 +216,7 @@ historical; use the current summary and checklists above for today's status.
 
 Earlier update: farm equipment storage no longer prevents warehouses buying real mined
 supplies. Unsupported stores still stay protected. All 952 tests and the final
-isolated Paper check passed. Your server is unchanged. Phase3 remains25% by
+isolated Paper check passed. Your server is unchanged. Phase 3 remains 25% by
 completed groups; automatic first industries and specialization are next.
 
 Earlier update: an actual supplier can now help cover a farm tool bill from earned spare

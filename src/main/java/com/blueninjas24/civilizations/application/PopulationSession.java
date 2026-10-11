@@ -88,6 +88,10 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.MineFoundingPolicy mineFoundingPolicy=com.blueninjas24.civilizations.industry.MineFoundingPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.StartupGrantPolicy startupGrantPolicy=com.blueninjas24.civilizations.industry.StartupGrantPolicy.disabled();
+    private com.blueninjas24.civilizations.database.AutomaticMineFounding automaticMines;
+    private volatile String automaticMineDiagnostic="Automatic mine founding disabled";
     private com.blueninjas24.civilizations.industry.CareerStudyPolicy careerStudyPolicy=com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();
     private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessStaffingPolicy staffingPolicy=com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();
@@ -173,7 +177,7 @@ public final class PopulationSession implements AutoCloseable {
     }
     public String industryRuntimeDiagnostic() {
         return !industryPolicy.enabled()?"Timed industry disabled in economy.yml":industryFailure!=null
-                ?"Timed industry deferred: "+industryFailure:"Timed industry active for saved firms; automatic founding remains unfinished";
+                ?"Timed industry deferred: "+industryFailure:"Timed industry active for saved firms; "+automaticMineDiagnostic;
     }
     public void configureBusinessPurchases(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy policy) {
         if(started.get())throw new IllegalStateException("Configure business purchases before session starts");
@@ -186,6 +190,11 @@ public final class PopulationSession implements AutoCloseable {
     public void configureWorkLearning(com.blueninjas24.civilizations.industry.WorkLearningPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure work learning before session starts");
         learningPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureMineFounding(com.blueninjas24.civilizations.industry.MineFoundingPolicy policy,com.blueninjas24.civilizations.industry.StartupGrantPolicy grants) {
+        if(started.get())throw new IllegalStateException("Configure mine founding before session starts");
+        mineFoundingPolicy=java.util.Objects.requireNonNull(policy);startupGrantPolicy=java.util.Objects.requireNonNull(grants);
+        automaticMineDiagnostic=policy.enabled()?"Automatic mine founding awaiting actual eligible opportunities":"Automatic mine founding disabled";
     }
     public void configureCareerStudy(com.blueninjas24.civilizations.industry.CareerStudyPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure career study before session starts");
@@ -230,7 +239,7 @@ public final class PopulationSession implements AutoCloseable {
     public boolean oreDiscoveryReady() { return trackOres && oreHistoryHealthy.get() && status().ready(); }
     public String oreTrackingDiagnostic() {
         return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
-                ?"Ore mutation history: trusted; automatic mines still require opportunity adapters"
+                ?"Ore mutation history: trusted; mine startup also checks demand, skills, funding and resource anchors"
                 :"Ore discovery and coordinate-backed mining paused: "+oreHistoryIssue.get();
     }
     /** Main-thread adapters may mark a gap immediately; no JDBC access or world work occurs here. */
@@ -265,6 +274,7 @@ public final class PopulationSession implements AutoCloseable {
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
                 businesses.configureResale(resalePolicy,purchasePolicy,settings.seed());
                 businesses.configureStaffing(staffingPolicy);
+                automaticMines=new com.blueninjas24.civilizations.database.AutomaticMineFounding(database.getConnection(),mineFoundingPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||oreHistoryHealthy.get());
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||oreHistoryHealthy.get());
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
@@ -575,6 +585,13 @@ public final class PopulationSession implements AutoCloseable {
             catch (SQLException | RuntimeException failure) {
                 if (!java.util.Objects.equals(economyFailure, failure.getMessage())) logger.log(Level.SEVERE, "Economy update deferred; saved periods remain retryable", failure);
                 economyFailure = failure.getMessage();
+            }
+        }
+        if(mineFoundingPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null) {
+            try {automaticMineDiagnostic=automaticMines.pulse(status.get().completedMonths(),now.getAsLong(),loadedWorlds);}
+            catch(SQLException|RuntimeException failure) {
+                if(!java.util.Objects.equals(automaticMineDiagnostic,"Mine founding deferred: "+failure.getMessage()))logger.log(Level.SEVERE,"Automatic mine founding deferred; startup assets remain retryable",failure);
+                automaticMineDiagnostic="Mine founding deferred: "+failure.getMessage();
             }
         }
     }

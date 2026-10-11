@@ -474,3 +474,27 @@ automatic-career-study:
   candidates-per-review: 64
   enrollments-per-review: 1
   industries: [mining, blacksmith, warehouse]
+
+# Starts data-only coal/iron mines for current funded workshop needs, not fake buyers.
+# Requires current trusted exposed ore, a staffed affordable warehouse buyer, real
+# founder experience and protected shared startup grants. No digging/building/chunk loads.
+# Existing viable stock/extraction capacity suppresses redundant mines.
+# No first founder training or automatic warehouses/workshops in this adapter.
+# Per-resource output replaces coal/iron in industry.mining-bundle; its other
+# configured byproducts remain. Deposits save terms once; edits never refill old ore.
+automatic-mines:
+  enabled: true
+  settlements-per-pulse: 2
+  patches-per-review: 8
+  founders-per-review: 64
+  survey-lifetime-seconds: 60
+  horizontal-range: 96
+  vertical-range: 48
+  minimum-age-months: 216
+  founder-mining-experience: 10
+  worker-capacity: 2
+  startup-hundredths: 500
+  capital-hundredths: 2000
+  mineral-yield-per-batch:
+    coal: 2
+    iron: 1

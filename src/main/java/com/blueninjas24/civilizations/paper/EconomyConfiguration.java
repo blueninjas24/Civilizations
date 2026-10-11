@@ -33,6 +33,7 @@ public final class EconomyConfiguration {
         if (config.contains("business-operations")) rootKeys.add("business-operations");
         if (config.contains("automatic-business-resale")) rootKeys.add("automatic-business-resale");
         if (config.contains("resident-study")) rootKeys.add("resident-study");
+        if (config.contains("automatic-mines")) rootKeys.add("automatic-mines");
         if (config.contains("startup-grants")) rootKeys.add("startup-grants");
         if (config.contains("work-learning")) rootKeys.add("work-learning");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
@@ -58,6 +59,7 @@ public final class EconomyConfiguration {
         readWorkLearning(config);
         readStudy(config);
         readStartupGrants(config);
+        readMineFounding(config);
         readAutomaticResale(config);
         readFarms(config);
         readPriorities(config);
@@ -121,6 +123,13 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-tool-budget.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy(enabled,integer(s,"tool-trade-value-hundredths"),
                 integer(s,"per-period-limit-hundredths"),integer(s,"minimum-treasury-hundredths"),smallInteger(s,"food-reserve-periods"),integer(s,"food-unit-value-hundredths"));
+    }
+    public static com.blueninjas24.civilizations.industry.MineFoundingPolicy readMineFounding(ConfigurationSection config) {
+        if(!config.contains("automatic-mines"))return com.blueninjas24.civilizations.industry.MineFoundingPolicy.disabled();
+        var s=section(config,"automatic-mines");exactKeys(s,Set.of("enabled","settlements-per-pulse","patches-per-review","founders-per-review","survey-lifetime-seconds","horizontal-range","vertical-range","minimum-age-months","founder-mining-experience","worker-capacity","startup-hundredths","capital-hundredths","mineral-yield-per-batch"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("automatic-mines.enabled must be true or false");
+        var yield=new TreeMap<Commodity,Long>();var raw=section(s,"mineral-yield-per-batch");for(var key:raw.getKeys(false))yield.put(new Commodity(key),integer(raw,key));
+        return new com.blueninjas24.civilizations.industry.MineFoundingPolicy(enabled,smallInteger(s,"settlements-per-pulse"),smallInteger(s,"patches-per-review"),smallInteger(s,"founders-per-review"),Math.multiplyExact(integer(s,"survey-lifetime-seconds"),1000),smallInteger(s,"horizontal-range"),smallInteger(s,"vertical-range"),integer(s,"minimum-age-months"),integer(s,"founder-mining-experience"),smallInteger(s,"worker-capacity"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),yield);
     }
     public static com.blueninjas24.civilizations.industry.CareerStudyPolicy readCareerStudy(ConfigurationSection config) {
         if(!config.contains("automatic-career-study"))return com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();

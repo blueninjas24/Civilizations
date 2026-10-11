@@ -1,5 +1,11 @@
 # Phase 3 — businesses and industry checklist
 
+Verified current-evidence automatic coal/iron mine startup for existing actual
+funded workshop/warehouse demand: qualified founder, protected real shared grant,
+finite coordinate reserve, seeded bounded selection and existing-capacity guard.
+990 tests and actual SQL-owner Paper passed; schema57 unchanged. First warehouses,
+workshops and founder training remain. See AUTOMATIC_MINES.md.
+
 Verified actual-vacancy career study: saved bounded choices, real practice supplies,
 normal qualified hiring, vanished-opening cancellation, atomic rollback and
 restart/world-pause safety. 977 tests and native Paper passed; schema57 preserves
@@ -100,6 +106,9 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 - [x] Timed operation of existing funded/staffed mines/workshops through the live
       SQL owner, with atomic receipts/checkpoints, absent-world/downtime pause and
       unloaded data-only work; verify failure isolation and actual session on Paper.
+- [x] Narrow automatic mine founding for actual existing funded workshop needs and
+      staffed warehouse buyers; qualified owner/first worker, protected grant,
+      current observed ore, no refill or speculative stock. Verified on Paper.
 - [ ] Automatically select/fund/staff nonfood industries under editable settings.
       Automatic selection remains; guarded public startup funding is verified below.
 - [x] Approved limited configurable grants, current food-money protection, real
