@@ -38,7 +38,10 @@ history unchanged. Human server untouched; no push or main merge.
 
 Phase 3 remains 25% by complete milestone groups. First warehouse/workshop founding,
 first-founder career opportunities, wider industries and emergent specialization
-remain. Physical entrances/digging remain Phase 4. See AUTOMATIC_MINES.md.
+remain. Physical entrances/digging remain Phase 4. See AUTOMATIC_MINES.md. Next industry-bootstrap location
+choice is pending: configurable existing smithing-table/barrel markers versus
+admin-designated workplaces. No recognition or occupancy rule has been implemented;
+see DECISIONS_AND_OPEN_QUESTIONS.md.
 
 ## October 11, 2026: automatic real-vacancy career training verified
 

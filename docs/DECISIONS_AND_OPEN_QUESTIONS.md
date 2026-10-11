@@ -1,5 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
+## Pending: first workshop/warehouse locations before construction
+
+Asked the user whether nearby existing smithing tables/barrels may serve as
+configurable data-only workplace markers, or whether an admin must designate
+workplaces for now. This would not move blocks, draw from block inventories or
+confer ownership/permission to alter player buildings. It matters before automatic
+first workshop/warehouse founding; a resource-coordinate mine anchor does not
+establish a suitable indoor workshop or warehouse. Await the answer rather than
+silently inventing occupancy rights. AGENTS.md: "Never silently revise locked
+design principles or invent consequential gameplay decisions."
+
 ## October 11, 2026: approved mine direction connected to real startup
 
 The automatic coal/iron adapter uses approved gradual skill requirements, finite
