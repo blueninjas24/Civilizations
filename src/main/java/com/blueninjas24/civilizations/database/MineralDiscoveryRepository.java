@@ -93,6 +93,7 @@ public final class MineralDiscoveryRepository {
                 coordinate(s,observation.world(),position);s.setString(5,id.toString());s.setLong(6,observation.observedMillis());s.executeUpdate();added++;
             }
         }
+        new MineralSources(connection).ensureRows(id);
         return new Discovery(industry.deposit(id).orElseThrow(),created,added,created?"Finite deposit established from unique coordinates":
                 "Existing deposit retained; linked survey coordinates recorded without reserve refill or changed yields");
     }

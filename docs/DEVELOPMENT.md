@@ -289,3 +289,15 @@ It changes no world blocks/chunk tickets. This validates the application loop, n
 new crop snapshot behavior; the prior FarmBusinessProbe covers actual crop evidence.
 Stop normally, verify schema 45/backup snapshots read-only, restore exact settings,
 archive test JAR. See FARM_WORK_LEARNING.md.
+
+
+October 10 mineral-source extension: IndustryRuntimeProbe uses another separate
+random SQLite fixture to allocate 100 batches across four coordinates, mine 7,
+explicitly remove one share 23, reopen without repeated loss, mine 10 and verify
+reserve 60 plus coal 17/stone 34. This is packaged accounting, not native block-break
+capture. Compile against the current packaged JAR with an empty sourcepath. Back up
+the stopped marked fixture first, run only on localhost 25578 without players, stop
+normally, verify PRAGMA user_version 46/integrity/FKs and preexisting asset snapshots,
+restore original properties exactly and archive the probe. Production clocks may
+tick during the short server run; distinguish age/clock bookkeeping from changes
+to identity, goods, cash or history. See MINERAL_SOURCE_LEDGER.md.

@@ -2,6 +2,12 @@
 
 Updated October 10, 2026. Based on verified work, not planned features.
 
+Latest: finite ore now has a saved balance for each supporting block. Removing
+one through the accounting API loses only its remaining share; goods already mined
+stay safe. All 806 tests and the isolated packaged Paper check passed. Connecting
+real player block breaks is next; your server is unchanged. Phase 3 remains 25%
+because the complete industry-chain and specialization groups are unfinished.
+
 Latest: farmers now gain experience from actual productive work, keeping it through
 restart. Fewer fields mean fewer learning slots; idle/closed farms award nothing.
 All 792 tests and the isolated Paper session check passed. Your server is unchanged.
@@ -18,7 +24,7 @@ first mines/workshops remain before another complete group can be counted.
 Latest: unemployed adults now have saved, supply-funded training courses. Hungry
 villages wait; practice uses real supplies, and skills survive restart without
 repeating costs. All770 tests and the isolated Paper check passed. Career choice
-and automatic first mines/workshops remain next, so Phase3 still has one complete
+and automatic first mines/workshops remain next, so Phase 3 still has one complete
 reporting group out of four (25%). These changes are not installed on your server.
 
 Latest: employees can gradually learn through successful mining/workshop production.
@@ -69,7 +75,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 792 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 806 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

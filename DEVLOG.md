@@ -1,5 +1,43 @@
 # Civilizations Development Log
 
+## October 10, 2026 — approved per-block mineral reserve ledger
+
+Schema 46 records even allocation of legacy remaining reserves across saved ore
+coordinates without changing total reserve, goods, money or historical receipts.
+Actual mining drains positive shares evenly; explicit removal retires only the
+removed coordinate's remaining share. Replacement/replay cannot refill it. Later
+linked evidence gets zero extra reserve; coordinate-free legacy deposits keep
+aggregate accounting without invented evidence. Bounded batch retirement and
+mining update reserve, source balances and audits transactionally. A later failed
+coordinate rolls back the whole batch. Source inconsistency fails closed.
+
+Added 12 temporary-SQLite tests and two domain tests (500 seeded comparisons plus
+huge/zero/unequal balances). Initial focused 42 passed; after batch optimization and
+three added rollback/world/tiny-reserve cases, Windows `.\mvnw.cmd clean verify`
+passed 806 (804 unit/two packaged integration), zero failures/errors/skips, 5:40.
+Guarded packaged Paper probe passed actual reserve 100 -> extraction 7 -> reserve 93
+-> one-source loss 23 -> reserve 70 -> restart/replay -> extraction 10 -> reserve 60,
+with coal 17/stone 34 conserved. Prior farm/industry learning, study, resale,
+succession and closure probes passed. No world edits or forced chunks.
+
+Backed up the stopped marked disposable fixture before schema 45 -> 46. Normal stop
+exit0; integrity/FKs healthy, conversion totals conserved. Of 76 existing table
+snapshots, 70 unchanged; resident identities/status stayed fixed, with only bounded
+age ticks plus normal clocks/world-progress/ore-tracking timestamps changed.
+The first read-only check assumed a nonexistent schema-history table; corrected to
+actual PRAGMA user_version. The first age check incorrectly expected all residents
+(including deceased) to age; corrected the check, without application changes.
+Original server settings restored exactly and probe archived outside plugins.
+Human server/database/world untouched. Local feature branch only; no push/main merge.
+
+This is accounting only: live break/explosion/piston source retirement and trust
+fencing still require integration. First automatic mines/workshops and physical
+excavation remain unfinished. Phase 3 remains 1/4 complete reporting groups (25%).
+Next: bounded native removal capture on the main thread, SQL-owner recording and
+failure/unclean-stop protection before enabling safe automatic mine opportunities.
+No unresolved design choice for this batch. See MINERAL_SOURCE_LEDGER.md.
+
+
 
 
 
@@ -132,7 +170,7 @@ invented. Human server/database/world unchanged; local feature branch only.
 Internal backend does not yet select careers or automatically start mines/workshops.
 Connect suitable observed opportunities, funded founding and upstream/finished-goods
 demand next; farm work learning, automatic valuation/buyers and wider competition
-remain. Phase3 stays1/4 groups (25%). See RESIDENT_STUDY.md. No new design answer needed.
+remain. Phase 3 stays1/4 groups (25%). See RESIDENT_STUDY.md. No new design answer needed.
 
 
 ## October 10, 2026 — learning from actual productive work
@@ -202,7 +240,7 @@ staffed deceased-owner mine, finite output, absence/restart and conserved treasu
 8500/cash750/estate250. Consistent dev schema-39 backup first; original asset rows
 retained after upgrade, schema40 integrity/FKs healthy. Normal shutdown exit0,
 properties restored byte-for-byte and probe archived. User-server/world untouched.
-Docs/tracker updated; Phase3 still25%, no main merge/push or new decision needed.
+Docs/tracker updated; Phase 3 still25%, no main merge/push or new decision needed.
 
 ## October 9, 2026 — qualified staff continue after owner death
 

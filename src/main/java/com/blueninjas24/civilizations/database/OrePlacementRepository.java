@@ -38,7 +38,7 @@ public final class OrePlacementRepository {
     }
 
     public boolean excludes(UUID world, Position position) throws SQLException {
-        try (var statement = connection.prepareStatement("SELECT 1 FROM player_ore_placements WHERE world_id=? AND x=? AND y=? AND z=?")) {
+        try (var statement = connection.prepareStatement("SELECT 1 FROM (SELECT world_id,x,y,z FROM player_ore_placements UNION ALL SELECT world_id,x,y,z FROM ore_source_removals) WHERE world_id=? AND x=? AND y=? AND z=? LIMIT 1")) {
             bind(statement,world,position);
             try (var result = statement.executeQuery()) { return result.next(); }
         }
@@ -51,7 +51,7 @@ public final class OrePlacementRepository {
         int x = Math.multiplyExact(chunkX,16), z = Math.multiplyExact(chunkZ,16);
         int endX = Math.addExact(x,15), endZ = Math.addExact(z,15);
         try (var statement = connection.prepareStatement("""
-                SELECT x,y,z FROM player_ore_placements
+                SELECT x,y,z FROM (SELECT world_id,x,y,z FROM player_ore_placements UNION SELECT world_id,x,y,z FROM ore_source_removals)
                 WHERE world_id=? AND x BETWEEN ? AND ? AND z BETWEEN ? AND ?
                 ORDER BY x,y,z LIMIT ?
                 """)) {

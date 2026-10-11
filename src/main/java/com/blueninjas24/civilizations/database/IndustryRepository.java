@@ -148,6 +148,7 @@ public final class IndustryRepository {
         var d=deposit(deposit).orElseThrow(()->new SQLException("Unknown deposit"));
         if(!b.industry().equals("mining") || !b.siteId().equals(d.siteId()))throw new SQLException("Mining business must occupy the actual deposit site");
         var stock=store(business).orElseThrow(()->new SQLException("Missing business storage"));
+        var sources=new MineralSources(connection);sources.ensureRows(deposit);
         var plan=MineProduction.calculate(d.remainingBatches(),requested,businesses.currentWorkers(business).size(),perWorker,siteCapacity,
                 stock.freeSpace(),d.bundle(),stock.spacePerUnit());
         for(var output:plan.outputs().entrySet())changeStock(business,output.getKey(),output.getValue());
@@ -158,6 +159,7 @@ public final class IndustryRepository {
         try(var s=connection.prepareStatement("INSERT INTO industry_production(business_id,period,operation_id) VALUES(?,?,?)")) {
             s.setString(1,business.toString());s.setLong(2,period);s.setString(3,operation.toString());s.executeUpdate();
         }
+        sources.depleteRows(operation,deposit,plan.batches());
         return saved;
     }
 

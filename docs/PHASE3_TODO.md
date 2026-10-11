@@ -16,6 +16,10 @@ Updated October 10, 2026. Reporting progress remains one of four complete groups
 - [x] Paid local warehouse transactions and unavailable-until-delivered cargo.
 - [x] Workshop recipes consume owned inputs with saved conservative accounting.
 - [x] Permanent ore-coordinate identity and no restart/revisit refill.
+- [x] Approved even legacy reserve conversion, per-coordinate depletion and atomic
+      explicit retirement; verified conservation/rollback/restart and packaged Paper.
+- [ ] Connect native break/explosion/piston removal capture and fail-closed production
+      trust guards; backend retirement alone does not prove live player ore loss.
 - [x] Bounded exposed coal/iron scanner with supplied exclusion coordinates.
 - [x] Save player-placement exclusions and enforce them against stale discovery.
 - [x] Capture native placements with clean-stop/failure protection and verify on Paper.

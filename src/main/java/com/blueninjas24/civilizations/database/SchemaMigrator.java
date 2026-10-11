@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 45;
+    static final int CURRENT_VERSION = 46;
 
     @FunctionalInterface
     interface Migration {
@@ -579,6 +579,71 @@ final class SchemaMigrator {
                             FOREIGN KEY(settlement_id,period) REFERENCES farm_learning_reviews(settlement_id,period)
                         )
                         """);
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE mineral_source_adoptions (
+                            deposit_id TEXT PRIMARY KEY NOT NULL REFERENCES mineral_deposits(id),
+                            remaining_batches INTEGER NOT NULL CHECK(typeof(remaining_batches)='integer' AND remaining_batches>=0),
+                            source_count INTEGER NOT NULL CHECK(typeof(source_count)='integer' AND source_count BETWEEN 1 AND 65536),
+                            explanation TEXT NOT NULL CHECK(length(trim(explanation)) BETWEEN 1 AND 256)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE mineral_sources (
+                            world_id TEXT NOT NULL, x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                            deposit_id TEXT NOT NULL REFERENCES mineral_deposits(id),
+                            allocated_batches INTEGER NOT NULL CHECK(typeof(allocated_batches)='integer' AND allocated_batches>=0),
+                            remaining_batches INTEGER NOT NULL CHECK(typeof(remaining_batches)='integer' AND remaining_batches BETWEEN 0 AND allocated_batches),
+                            PRIMARY KEY(world_id,x,y,z),
+                            FOREIGN KEY(world_id,x,y,z) REFERENCES mineral_evidence(world_id,x,y,z)
+                        )
+                        """);
+                    execute(connection,"CREATE INDEX mineral_sources_by_deposit ON mineral_sources(deposit_id)");
+                    execute(connection,"""
+                        CREATE TABLE mineral_source_extraction (
+                            operation_id TEXT NOT NULL REFERENCES industry_operations(id),
+                            world_id TEXT NOT NULL,x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                            before_batches INTEGER NOT NULL CHECK(typeof(before_batches)='integer' AND before_batches>0),
+                            after_batches INTEGER NOT NULL CHECK(typeof(after_batches)='integer' AND after_batches>=0 AND after_batches<before_batches),
+                            PRIMARY KEY(operation_id,world_id,x,y,z),
+                            FOREIGN KEY(world_id,x,y,z) REFERENCES mineral_sources(world_id,x,y,z)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE ore_source_removals (
+                            world_id TEXT NOT NULL REFERENCES observed_worlds(id),x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                            observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                            reason TEXT NOT NULL CHECK(length(trim(reason)) BETWEEN 1 AND 256),
+                            PRIMARY KEY(world_id,x,y,z)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE mineral_source_retirements (
+                            world_id TEXT NOT NULL,x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                            removed_batches INTEGER NOT NULL CHECK(typeof(removed_batches)='integer' AND removed_batches>=0),
+                            PRIMARY KEY(world_id,x,y,z),
+                            FOREIGN KEY(world_id,x,y,z) REFERENCES mineral_sources(world_id,x,y,z),
+                            FOREIGN KEY(world_id,x,y,z) REFERENCES ore_source_removals(world_id,x,y,z)
+                        )
+                        """);
+                    try(var q=connection.createStatement();var r=q.executeQuery("SELECT 1 FROM mineral_evidence GROUP BY deposit_id HAVING COUNT(*)>65536 LIMIT 1")) {
+                        if(r.next())throw new SQLException("Legacy source count exceeds adoption budget; preserve save for review");
+                    }
+                    execute(connection,"""
+                        INSERT INTO mineral_source_adoptions
+                        SELECT d.id,d.remaining_batches,COUNT(*),'Schema 46: even allocation of saved remaining reserve; history retained'
+                        FROM mineral_deposits d JOIN mineral_evidence e ON e.deposit_id=d.id GROUP BY d.id
+                        """);
+                    execute(connection,"""
+                        INSERT INTO mineral_sources
+                        SELECT world_id,x,y,z,deposit_id,share,share FROM (
+                            SELECT e.*,d.remaining_batches / COUNT(*) OVER(PARTITION BY d.id) +
+                                CASE WHEN ROW_NUMBER() OVER(PARTITION BY d.id ORDER BY world_id,x,y,z)<=
+                                    d.remaining_batches % COUNT(*) OVER(PARTITION BY d.id) THEN 1 ELSE 0 END AS share
+                            FROM mineral_evidence e JOIN mineral_deposits d ON d.id=e.deposit_id
+                        )
+                        """);
                 }
         ));
     }
@@ -731,6 +796,13 @@ final class SchemaMigrator {
                 requireColumns(connection,"study_materials",Set.of("course_id","commodity","units"));
                 requireColumns(connection,"study_reviews",Set.of("course_id","settlement_id","period","before_experience","after_experience","reason"));
                 requireColumns(connection,"study_spending",Set.of("course_id","period","commodity","units"));
+            }
+            if(migrations.size()>=46) {
+                requireColumns(connection,"mineral_source_adoptions",Set.of("deposit_id","remaining_batches","source_count","explanation"));
+                requireColumns(connection,"mineral_sources",Set.of("world_id","x","y","z","deposit_id","allocated_batches","remaining_batches"));
+                requireColumns(connection,"mineral_source_extraction",Set.of("operation_id","world_id","x","y","z","before_batches","after_batches"));
+                requireColumns(connection,"ore_source_removals",Set.of("world_id","x","y","z","observed_millis","reason"));
+                requireColumns(connection,"mineral_source_retirements",Set.of("world_id","x","y","z","removed_batches"));
             }
             if(migrations.size()>=45) {
                 requireColumns(connection,"farm_learning_reviews",Set.of("settlement_id","period","commodity","business_id","field_slots","production","enabled","skill","gain","ceiling","worker_budget","explanation"));

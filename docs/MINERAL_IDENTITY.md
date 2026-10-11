@@ -88,3 +88,10 @@ initial/16 remaining batches unchanged, then exercises its paid workshop chain a
 restart. This tests packaged persistence on Paper, not actual ore snapshots or
 natural-resource discovery. It uses its own database/SQL thread, without world or
 entity modifications, and remains outside the shipped plugin JAR.
+
+
+October 10 source-accounting extension: schema 46 records per-coordinate shares
+and an audited even conversion of existing remaining reserves. Mining and explicit
+source retirement preserve aggregate totals and extracted goods transactionally.
+Native player block-removal capture is still separate integration work; this does
+not enable first automatic mines or physical excavation. See MINERAL_SOURCE_LEDGER.md.

@@ -118,3 +118,10 @@ backups together, especially when exchanges are pending. The subsequent approved
 pause batch stops new population/economy progress during server downtime and world
 absence; see ONLINE_WORLD_PAUSE.md. The mining batch itself performed no world
 switch/reset/restore and did not implement automatic industry scheduling.
+
+
+October 10 source-accounting extension: schema 46 records per-coordinate shares
+and an audited even conversion of existing remaining reserves. Mining and explicit
+source retirement preserve aggregate totals and extracted goods transactionally.
+Native player block-removal capture is still separate integration work; this does
+not enable first automatic mines or physical excavation. See MINERAL_SOURCE_LEDGER.md.

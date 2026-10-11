@@ -60,10 +60,10 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                             case 14 -> {check(4,6);checkClosure();now.set(10_001_000);pending=session.pulse();}
                             case 15 -> {
                                 check(5,5);checkSale();checkClosure();session.close();session=null;
-                                pending=CompletableFuture.runAsync(()->{try{checkAutomaticResale();checkFarmLearning();checkStudy();}catch(Exception failure){throw new CompletionException(failure);}},fixture);
+                                pending=CompletableFuture.runAsync(()->{try{checkMineralSources();checkAutomaticResale();checkFarmLearning();checkStudy();}catch(Exception failure){throw new CompletionException(failure);}},fixture);
                             }
                             case 16 -> {
-                                getLogger().info("NATIVE TIMED INDUSTRY PASS: farm employees learn once from real output, lost field slots limit awards, zero output/absence/restart retain skills; automatic funded resale, unlimited ownership, absent-world/restart conservation; supply-backed study consumes exact stone/timber, pauses without food, once-only skill completion survives absence/restart; eight actual employee awards, inheritance, conserved resale and retained closure verified; separate databases, no world writes");
+                                getLogger().info("NATIVE TIMED INDUSTRY PASS: mineral source shares drain evenly, individual removal preserves goods and survives restart without refill; farm employees learn once from real output, lost field slots limit awards, zero output/absence/restart retain skills; automatic funded resale, unlimited ownership, absent-world/restart conservation; supply-backed study consumes exact stone/timber, pauses without food, once-only skill completion survives absence/restart; eight actual employee awards, inheritance, conserved resale and retained closure verified; separate databases, no world writes");
                                 cancel();getServer().getPluginManager().disablePlugin(IndustryRuntimeProbe.this);
                             }
                             default -> throw new IllegalStateException("Unexpected probe stage");
@@ -72,6 +72,38 @@ public final class IndustryRuntimeProbe extends JavaPlugin {
                 }
             }.runTaskTimer(this,1,1);
         } catch(Exception failure){fail(failure);}
+    }
+    private void checkMineralSources()throws Exception {
+        var data=new java.io.File(getDataFolder(),"source-run-"+UUID.randomUUID());
+        var town=UUID.randomUUID();var resident=UUID.randomUUID();var site=UUID.randomUUID();var firm=UUID.randomUUID();var operation=UUID.randomUUID();
+        var coordinates=List.of(new VillageObservation.Position(0,40,0),new VillageObservation.Position(1,40,0),new VillageObservation.Position(2,40,0),new VillageObservation.Position(3,40,0));
+        UUID deposit;
+        var db=new DatabaseManager(data,getLogger());
+        try {
+            db.initialize();db.saveSettlement(new Settlement(town,"Source fixture","World",0,64,0,1,0,0));
+            db.getVillageIdentityRepository().observeWorld(world,"World");db.getVillageIdentityRepository().bindSettlement(town,world);
+            db.getPopulationRepository().insertResident(new Resident(resident,"Fixture",town,null,300,Resident.Status.ALIVE));
+            new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,10000,"Actual fixture capital");
+            var place=new BusinessSite(site,town,world,0,40,0,1,"Abstract explicit source fixture");
+            db.getBusinessRepository().found(new BusinessFounding(new Business(firm,town,"Mine",resident,resident,"mining",site,1,0),place,new JobRequirements(216,Map.of()),new JobRequirements(216,Map.of()),0,"Fixture opportunity"));
+            db.getBusinessRepository().hire(UUID.randomUUID(),firm,resident,0);
+            db.getIndustryRepository().openStore(firm,10000,Map.of(Commodity.COAL,1L,Commodity.STONE,1L),1000);
+            deposit=new MineralDiscoveryRepository(db.getConnection()).discover(site,new MineralObservation(world,1,true,Commodity.COAL,coordinates),25,Map.of(Commodity.COAL,1L,Commodity.STONE,2L)).deposit().id();
+            var sources=new MineralSources(db.getConnection());
+            db.getIndustryRepository().mine(operation,firm,deposit,7,1,100,100);
+            if(!sources.shares(deposit).stream().map(MineralSources.Share::remaining).toList().equals(List.of(23L,23L,23L,24L)))throw new IllegalStateException("Uneven extraction");
+            if(sources.remove(world,List.of(coordinates.getFirst()),2,"Explicit test removal")!=23||db.getIndustryRepository().deposit(deposit).orElseThrow().remainingBatches()!=70)throw new IllegalStateException("Whole vein lost or share mismatch");
+        }finally{db.close();}
+        db=new DatabaseManager(data,getLogger());
+        try {
+            db.initialize();var sources=new MineralSources(db.getConnection());
+            if(sources.remove(world,List.of(coordinates.getFirst()),3,"Repeat")!=0)throw new IllegalStateException("Repeated source loss");
+            db.getIndustryRepository().mine(operation,firm,deposit,7,1,100,100);
+            db.getIndustryRepository().mine(UUID.randomUUID(),firm,deposit,10,2,100,100);
+            var stock=db.getIndustryRepository().store(firm).orElseThrow();
+            if(!sources.shares(deposit).stream().map(MineralSources.Share::remaining).toList().equals(List.of(0L,19L,20L,21L))||db.getIndustryRepository().deposit(deposit).orElseThrow().remainingBatches()!=60||stock.units().get(Commodity.COAL)!=17||stock.units().get(Commodity.STONE)!=34)throw new IllegalStateException("Source restart or output conservation failed");
+            try(var q=db.getConnection().createStatement();var r=q.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("Source foreign keys failed");}
+        }finally{db.close();}
     }
     private void checkAutomaticResale()throws Exception {
         var data=new java.io.File(getDataFolder(),"auto-resale-run-"+UUID.randomUUID());
