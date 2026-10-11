@@ -33,6 +33,11 @@ actual upstream purchases proceed without hiding unknown stored industries.
 952 tests and actual PopulationSession/IndustryRuntime isolated Paper passed.
 No migration. Automatic first nonfood founders and specialization still remain.
 
+Verified bounded funded-supplier choice: a poor stocked supplier no longer delays
+an otherwise fundable actual farm purchase. 953 tests and actual PopulationSession
+Paper passed; no migration. Automatic merchants need a settled commerce ownership
+qualification; question recorded, no new commerce rule implemented pending answer.
+
 ## 1. Persistent businesses, owners, workers and sites — verified
 
 - [x] Save identities, founders, owners, workplace sites and employment history.

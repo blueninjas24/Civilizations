@@ -2,242 +2,16 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
-Latest: farm equipment storage no longer prevents warehouses buying real mined
-supplies. Unsupported stores still stay protected. All 952 tests and the final
-isolated Paper check passed. Your server is unchanged. Phase3 remains25% by
-completed groups; automatic first industries and specialization are next.
+Villages can now cover a genuine farm tool bill from a supplier's earned spare
+money, protecting food funds and business reserves. Warehouses keep buying real
+mined materials when farm equipment stores are present. Farms can choose another
+funded supplier when the first cannot afford to help. All 953 tests and isolated
+Paper checks passed; your server has not been changed.
 
-Latest: an actual supplier can now help cover a farm tool bill from earned spare
-cash, keeping its operating reserve and the village's food money protected.
-Nothing is minted or collected when funds suffice. All 951 tests and isolated
-Paper passed. Your server is unchanged. Automatic first industries/specialization
-remain; Phase 3 stays 25% by complete milestone groups. Next: fix warehouse
-restocking around farms' tools-only stores, then connect genuine upstream demand.
-
-Latest: working farms now wear out tools and buy real replacements from local
-suppliers using village money that protects food funds. Tools last through actual
-work, not downtime; farms without tools work more slowly. All 940 tests and the
-final rebuilt-JAR Paper check passed. Your server is unchanged. Automatic first mines/
-workshops and specialization remain; Phase 3 is still 25% by complete groups.
-
-Latest: the payment safeguards for village-funded farm tools are complete.
-They protect food money, pay a real supplier once and prevent duplicate deliveries.
-All 931 tests passed. Automatic farm wear/orders are next; food ownership and your
-server are unchanged. Phase 3 remains 25% by completed groups, with automatic first
-industries and specialization still unfinished.
-
-Latest: qualified villagers can now fill vacancies at existing mines, workshops
-and warehouses, without abandoning another job. Worker replacement, restart and
-world pause passed the isolated Paper check; all 917 automated tests passed.
-Your server is unchanged. Phase 3 remains 25% by completed groups; automatic
-first industries and specialization remain. Next: approved village-funded farm
-tools with food money protected.
-
-Latest: warehouses can receive limited startup funds from the same village budget
-as mines and workshops. Food money stays protected, and retries cannot pay twice.
-All 908 tests and the isolated Paper funding check passed. Your server is unchanged.
-Automatic first industries and specialization remain; Phase 3 is 25% by complete
-groups. Next: qualified residents filling vacancies at existing businesses.
-
-Latest: mines and workshops buy replacement tools using their own money.
-Tools wear through actual work; missing tools slow work, giving blacksmiths real
-customers. Rates and startup grace are editable. All 902 tests and both isolated
-Paper checks passed. Your server is unchanged. Phase 3 remains 25% by complete
-groups; automatic first industries and specialization remain. Next: approved
-warehouse startup funding under the shared protected village grant budget.
-
-Latest: existing warehouses can now stock themselves by paying real local mines.
-Blacksmiths buy the delivered materials and make tools; money and goods cannot
-duplicate through restart. All 886 tests and the isolated Paper chain check passed.
-Your server is unchanged. Automatic new industry and genuine finished-goods needs
-remain before the connected-production group is complete. Phase 3 remains 25% by
-complete groups. You approved business tool upkeep; that is the next scoped batch.
-
-Latest: the mine planner can now check what existing workshops actually need and
-can afford. Goods already owned, deliveries on the way and shared warehouse stock
-reduce that need; nearby coal is ignored if only iron is missing. This is a checked
-planning step, not automatic mine opening yet. All 872 tests and isolated Paper
-paid-goods/restart checks passed. Your server is unchanged. Phase 3 remains 25% by
-complete groups; real customer needs, trained founders and automatic industry are next.
-
-Latest: villages now distinguish ore they currently see from ore they saw earlier.
-A new empty scan clears startup candidates without deleting history; old scans and
-restart cannot bring those candidates back. Expired evidence, absent worlds and
-removed/claimed ore wait for safe revalidation. All 857 tests and the isolated
-Paper restart check passed. Your server is unchanged. Phase 3 remains 25% by complete
-groups; actual demand, career choice and automatically funded industries are next.
-
-Latest: mines/workshops now have checked startup funding that protects food money,
-respects editable village limits and cannot pay twice after restart. The funding
-backend is ready; automatic business selection still needs connecting. All 844
-tests and the isolated Paper funding check passed. Your server is unchanged.
-Phase 3 remains 25% by complete groups. Next: qualified residents, suitable resource
-opportunities and the first automatically funded businesses with real demand.
-
-Latest: villages now remember observed coal/iron locations after restart. Revisits
-do not duplicate them, and placed/removed ore stays excluded. A shutdown save race
-was found and fixed. All 828 tests and the isolated live scanner check passed.
-Your server is unchanged. You approved limited startup grants that protect food
-money; those grants and automatic mine/workshop founding are next. Phase 3 remains
-25% by complete reporting groups; connected production and specialization remain.
-
-Latest: supporting ore now responds to successful block breaks, explosions and
-piston movement. Only the removed block's remaining share is lost; existing goods
-stay safe. If saving fails, mining pauses instead of silently using stale sources.
-All 819 tests and isolated Paper event checks passed; your server is unchanged.
-Older saved veins need a reviewed baseline under the stronger tracking contract.
-Phase 3 remains 25% by complete groups. Automatic first mines/workshops and connected
-production chains are next.
-
-Latest: finite ore now has a saved balance for each supporting block. Removing
-one through the accounting API loses only its remaining share; goods already mined
-stay safe. All 806 tests and the isolated packaged Paper check passed. Connecting
-real player block breaks is next; your server is unchanged. Phase 3 remains 25%
-because the complete industry-chain and specialization groups are unfinished.
-
-Latest: farmers now gain experience from actual productive work, keeping it through
-restart. Fewer fields mean fewer learning slots; idle/closed farms award nothing.
-All 792 tests and the isolated Paper session check passed. Your server is unchanged.
-Phase 3 still has 1/4 complete groups (25%): automatic career choice, first mines/
-workshops and wider competition remain. This advances the unfinished skills gate.
-
-Latest: businesses now find qualified buyers automatically after inheritance fails.
-A villager may own unlimited firms, but purchases need real money and each resident
-still holds one worker job. Prices/deadlines are editable and survive restart.
-All 783 tests and the isolated Paper check passed; your server is unchanged.
-Phase 3 remains 1/4 groups (25%): broader skill/investment/competition and automatic
-first mines/workshops remain before another complete group can be counted.
-
-Latest: unemployed adults now have saved, supply-funded training courses. Hungry
-villages wait; practice uses real supplies, and skills survive restart without
-repeating costs. All770 tests and the isolated Paper check passed. Career choice
-and automatic first mines/workshops remain next, so Phase 3 still has one complete
-reporting group out of four (25%). These changes are not installed on your server.
-
-Latest: employees can gradually learn through successful mining/workshop production.
-They keep their skills after restart; idle or closed businesses award nothing.
-All 756 tests and the isolated Paper check passed. Unemployed-adult training and
-automatic first mines/workshops are next. Phase 3 remains 25% because the broader
-milestone groups are unfinished. Your server still has its earlier playtest build.
-
-Latest: an unsold business now closes after its saved deadline. Workers can look
-for other jobs; the business keeps its goods, money, remaining ore and history.
-Restarting cannot bring it back accidentally. All 744 tests and the real Paper
-check passed. Automatic prices/buyers and wider industry founding still remain,
-so Phase 3 is still one fully finished reporting group out of four (25%).
-You approved gradual skill learning; that is the next development work, not yet live.
-
-Latest: a business sale offer now remembers its price and deadline. Time away from
-the server or world does not use up that deadline; a sale saves the payment and
-new owner together. All 734 tests and the real Paper check passed. Choosing buyers
-automatically and closing an unsold business are still next. Phase 3 remains 25%
-because the full business lifecycle group is unfinished.
-
-Latest: your approved rule now lets qualified existing staff keep a business working
-after its owner dies, while ownership is resolved. Admins can choose to pause it
-instead. Actual workers, supplies, storage and finite resources still limit output.
-All 725 tests and a real Paper check passed. Automatic listings/deadlines/closure
-remain next; Phase 3 still has one complete milestone group out of four (25%).
-
-Latest: qualified buyers can pay for a business with real business cash and family
-estate money. Payments and ownership save together and cannot repeat after restart.
-Admins can edit spending limits. All 715 tests and a real Paper check passed.
-Automatic sale listings, paused deadlines and closure are next; Phase 3 stays 25%
-because the whole lifecycle/competition group is not finished.
-
-Latest: a deceased business owner's qualified family member can inherit; otherwise
-a qualified employee can take over. Children/unqualified relatives cannot bypass
-requirements, and workers do not silently change industries. The business keeps its
-founder, money, supplies and history. Automated tests and a real Paper mine/restart
-check passed. Business sales, estate funds, closure and competition are next; the
-lifecycle group is still incomplete, so Phase 3 remains 25%.
-
-Human playtest passed: villages register residents, bread donations remove the right
-items, food sales pay the agreed emeralds, and villagers remain saved after restart.
-The reported slow trade confirmation now has a tested shorter polling interval;
-the updated JAR is installed, with actual human response-time recheck pending. Normal food
-speed has been restored after the accelerated test. Inheritance, resale, vacant
-building reuse and individual ore-source loss now have approved rules; implementation
-is next. These approvals do not complete another Phase 3 milestone.
-
-Latest foundation safeguard: villages pause while their world is absent or the
-server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 819 tests.
-See ONLINE_WORLD_PAUSE.md for the pause policy.
-
-Latest safeguard: changing industry speed no longer makes yesterday's shipments
-use up today's transport allowance. Paid deliveries keep their goods, money and
-original timing. Automated checks and a copied old database upgrade passed on
-Paper. The updated local player test build is installed; Phase 3 still has one
-complete reporting group, with connected industry work partly implemented.
-
-Villages can now look for exposed coal/iron in nearby already-loaded chunks,
-instead of just the home chunk. Bounded observation preserves capture time and
-keeps the last result readable. Actual Paper checks passed. This does not start
-mines yet; per-block resource loss is now approved, while funded opportunity
-selection and safe source-retirement implementation remain unfinished.
-The current player build is ready for farms, families and food trade testing.
-
-Latest industry step: an existing workshop can pay a local warehouse for actual
-materials, wait for delivery and make tool supplies. It cannot spend money twice
-after a restart or use goods still in transit. The real Paper application check
-passed. Automatic creation of these nonfood businesses and upstream supply are
-still unfinished, so Phase 3 remains one of four complete groups (25%). Settings
-are editable; old files opt in. See WORKSHOP_SUPPLIES.md.
-
-Latest Phase 3 step: villages can automatically start a funded farm, hire real
-residents and produce food from their observed fields. Owners, workers and sites
-persist across restarts. The real Paper fixture verified founding, output, once-only
-spending and world pause. Old owner settings explicitly opt in. See AUTOMATIC_FARMS.md.
-
-Latest connected-industry work: a blacksmith recipe can turn actual delivered iron
-and coal into tool supplies, bounded by workers and storage. Paid mine/warehouse/
-workshop chains, restart and material/money conservation are tested. Automatic
-nonfood discovery/operation is still unfinished, so this is partial progress toward
-the next milestone, not another completed group. See WORKSHOP_PRODUCTION.md.
-
-Latest mining safeguard: permanent ore coordinates stop alternate sites and repeat
-surveys from creating another reserve pool from the same resource. Depletion and
-identity survive restart and tuning. You approved using exposed existing ore; the
-scanner now detects exposed coal/iron with bounded work and supplied exclusions.
-Placement exclusions now save across restarts and reject stale discovery evidence;
-real Paper snapshot/exclusion checks passed with all fixture blocks restored.
-Native player placements now save automatically, with crash/failure discovery
-pauses and a verified clean restart. Piston movement now retains conservative
-exclusions without cancelling movement or loading chunks. Bulk-editor coverage and connecting real
-observation/founding/operation are next. Automatic mining is still unfinished.
-See MINERAL_IDENTITY.md, LIVE_ORE_TRACKING.md and PHASE3_TODO.md. This advances a partial milestone;
-Phase 3 stays 25% until the complete gameplay group is verified.
-
-Observed ore can now be separated into connected patches instead of treating
-every ore block in a chunk as one deposit. Separate patches retain their finite
-reserves through mining and restart tests. This is another component toward live
-resource opportunities; it does not automatically start mines. See RESOURCE_PATCHES.md.
-
-Live read-only ore surveys now run in bounded steps around saved village homes,
-checking placed/moved ore exclusions and old deposits. The actual scheduled Paper
-pipeline passed with fixture blocks restored. Existing owner files explicitly opt
-in through economy.yml. Automatic nonfood funding/operation remains unfinished.
-See LIVE_RESOURCE_SURVEYS.md; this still advances part of the second reporting group.
-
-Mine startup now saves the business, finite reserves, storage, funding and first
-worker together. Failed startup leaves no partial business or missing money;
-retries preserve depleted ore and existing stock. Automated and packaged Paper
-checks passed. Automatic mine selection and production are still unfinished.
-See ATOMIC_MINE_STARTUP.md.
-
-Unsupported recognized world editors now pause new ore discovery instead of
-allowing bulk-placed ore to create reserves. Admins can add other editor names in
-economy.yml. Existing villages and saved deposits remain; restart retains warnings.
-The actual Paper enable event and recovery checks passed. This does not certify
-unknown editors or enable automatic mines. See ORE_EDITOR_GUARD.md.
-
-Existing funded mines and workshops now work over time using their real workers,
-finite resources, delivered ingredients and available storage. Saved clocks pause
-for server/world absence; failed work can retry without duplicating goods. Automated
-and Paper session checks passed. Automatic founding and local customers remain
-unfinished, so this is still partial progress toward the second group.
-See TIMED_INDUSTRY.md and TONIGHT_PLAYTEST.md.
+Phase 3 is still 25% by completed milestone groups. Automatic first mines/workshops,
+merchant qualifications, wider industry and specialization remain. The next
+needed decision is whether merchants learn an editable commerce skill through
+training and actual transactions; see DECISIONS_AND_OPEN_QUESTIONS.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
@@ -433,3 +207,248 @@ ore scans and automatic nonfood businesses are still unfinished; progress remain
 For detailed requirements see ROADMAP.md. For exact tests, limitations and code
 status see PROJECT_STATUS.md. Future batches update this checklist from verified
 implementation; planning or a synthetic test alone does not complete gameplay.
+
+<details>
+<summary>Earlier verified development updates (historical)</summary>
+
+These snapshots describe earlier builds. Their "next" tasks and test totals are
+historical; use the current summary and checklists above for today's status.
+
+Earlier update: farm equipment storage no longer prevents warehouses buying real mined
+supplies. Unsupported stores still stay protected. All 952 tests and the final
+isolated Paper check passed. Your server is unchanged. Phase3 remains25% by
+completed groups; automatic first industries and specialization are next.
+
+Earlier update: an actual supplier can now help cover a farm tool bill from earned spare
+cash, keeping its operating reserve and the village's food money protected.
+Nothing is minted or collected when funds suffice. All 951 tests and isolated
+Paper passed. Your server is unchanged. Automatic first industries/specialization
+remain; Phase 3 stays 25% by complete milestone groups. Next: fix warehouse
+restocking around farms' tools-only stores, then connect genuine upstream demand.
+
+Earlier update: working farms now wear out tools and buy real replacements from local
+suppliers using village money that protects food funds. Tools last through actual
+work, not downtime; farms without tools work more slowly. All 940 tests and the
+final rebuilt-JAR Paper check passed. Your server is unchanged. Automatic first mines/
+workshops and specialization remain; Phase 3 is still 25% by complete groups.
+
+Earlier update: the payment safeguards for village-funded farm tools are complete.
+They protect food money, pay a real supplier once and prevent duplicate deliveries.
+All 931 tests passed. Automatic farm wear/orders are next; food ownership and your
+server are unchanged. Phase 3 remains 25% by completed groups, with automatic first
+industries and specialization still unfinished.
+
+Earlier update: qualified villagers can now fill vacancies at existing mines, workshops
+and warehouses, without abandoning another job. Worker replacement, restart and
+world pause passed the isolated Paper check; all 917 automated tests passed.
+Your server is unchanged. Phase 3 remains 25% by completed groups; automatic
+first industries and specialization remain. Next: approved village-funded farm
+tools with food money protected.
+
+Earlier update: warehouses can receive limited startup funds from the same village budget
+as mines and workshops. Food money stays protected, and retries cannot pay twice.
+All 908 tests and the isolated Paper funding check passed. Your server is unchanged.
+Automatic first industries and specialization remain; Phase 3 is 25% by complete
+groups. Next: qualified residents filling vacancies at existing businesses.
+
+Earlier update: mines and workshops buy replacement tools using their own money.
+Tools wear through actual work; missing tools slow work, giving blacksmiths real
+customers. Rates and startup grace are editable. All 902 tests and both isolated
+Paper checks passed. Your server is unchanged. Phase 3 remains 25% by complete
+groups; automatic first industries and specialization remain. Next: approved
+warehouse startup funding under the shared protected village grant budget.
+
+Earlier update: existing warehouses can now stock themselves by paying real local mines.
+Blacksmiths buy the delivered materials and make tools; money and goods cannot
+duplicate through restart. All 886 tests and the isolated Paper chain check passed.
+Your server is unchanged. Automatic new industry and genuine finished-goods needs
+remain before the connected-production group is complete. Phase 3 remains 25% by
+complete groups. You approved business tool upkeep; that is the next scoped batch.
+
+Earlier update: the mine planner can now check what existing workshops actually need and
+can afford. Goods already owned, deliveries on the way and shared warehouse stock
+reduce that need; nearby coal is ignored if only iron is missing. This is a checked
+planning step, not automatic mine opening yet. All 872 tests and isolated Paper
+paid-goods/restart checks passed. Your server is unchanged. Phase 3 remains 25% by
+complete groups; real customer needs, trained founders and automatic industry are next.
+
+Earlier update: villages now distinguish ore they currently see from ore they saw earlier.
+A new empty scan clears startup candidates without deleting history; old scans and
+restart cannot bring those candidates back. Expired evidence, absent worlds and
+removed/claimed ore wait for safe revalidation. All 857 tests and the isolated
+Paper restart check passed. Your server is unchanged. Phase 3 remains 25% by complete
+groups; actual demand, career choice and automatically funded industries are next.
+
+Earlier update: mines/workshops now have checked startup funding that protects food money,
+respects editable village limits and cannot pay twice after restart. The funding
+backend is ready; automatic business selection still needs connecting. All 844
+tests and the isolated Paper funding check passed. Your server is unchanged.
+Phase 3 remains 25% by complete groups. Next: qualified residents, suitable resource
+opportunities and the first automatically funded businesses with real demand.
+
+Earlier update: villages now remember observed coal/iron locations after restart. Revisits
+do not duplicate them, and placed/removed ore stays excluded. A shutdown save race
+was found and fixed. All 828 tests and the isolated live scanner check passed.
+Your server is unchanged. You approved limited startup grants that protect food
+money; those grants and automatic mine/workshop founding are next. Phase 3 remains
+25% by complete reporting groups; connected production and specialization remain.
+
+Earlier update: supporting ore now responds to successful block breaks, explosions and
+piston movement. Only the removed block's remaining share is lost; existing goods
+stay safe. If saving fails, mining pauses instead of silently using stale sources.
+All 819 tests and isolated Paper event checks passed; your server is unchanged.
+Older saved veins need a reviewed baseline under the stronger tracking contract.
+Phase 3 remains 25% by complete groups. Automatic first mines/workshops and connected
+production chains are next.
+
+Earlier update: finite ore now has a saved balance for each supporting block. Removing
+one through the accounting API loses only its remaining share; goods already mined
+stay safe. All 806 tests and the isolated packaged Paper check passed. Connecting
+real player block breaks is next; your server is unchanged. Phase 3 remains 25%
+because the complete industry-chain and specialization groups are unfinished.
+
+Earlier update: farmers now gain experience from actual productive work, keeping it through
+restart. Fewer fields mean fewer learning slots; idle/closed farms award nothing.
+All 792 tests and the isolated Paper session check passed. Your server is unchanged.
+Phase 3 still has 1/4 complete groups (25%): automatic career choice, first mines/
+workshops and wider competition remain. This advances the unfinished skills gate.
+
+Earlier update: businesses now find qualified buyers automatically after inheritance fails.
+A villager may own unlimited firms, but purchases need real money and each resident
+still holds one worker job. Prices/deadlines are editable and survive restart.
+All 783 tests and the isolated Paper check passed; your server is unchanged.
+Phase 3 remains 1/4 groups (25%): broader skill/investment/competition and automatic
+first mines/workshops remain before another complete group can be counted.
+
+Earlier update: unemployed adults now have saved, supply-funded training courses. Hungry
+villages wait; practice uses real supplies, and skills survive restart without
+repeating costs. All770 tests and the isolated Paper check passed. Career choice
+and automatic first mines/workshops remain next, so Phase 3 still has one complete
+reporting group out of four (25%). These changes are not installed on your server.
+
+Earlier update: employees can gradually learn through successful mining/workshop production.
+They keep their skills after restart; idle or closed businesses award nothing.
+All 756 tests and the isolated Paper check passed. Unemployed-adult training and
+automatic first mines/workshops are next. Phase 3 remains 25% because the broader
+milestone groups are unfinished. Your server still has its earlier playtest build.
+
+Earlier update: an unsold business now closes after its saved deadline. Workers can look
+for other jobs; the business keeps its goods, money, remaining ore and history.
+Restarting cannot bring it back accidentally. All 744 tests and the real Paper
+check passed. Automatic prices/buyers and wider industry founding still remain,
+so Phase 3 is still one fully finished reporting group out of four (25%).
+You approved gradual skill learning; that is the next development work, not yet live.
+
+Earlier update: a business sale offer now remembers its price and deadline. Time away from
+the server or world does not use up that deadline; a sale saves the payment and
+new owner together. All 734 tests and the real Paper check passed. Choosing buyers
+automatically and closing an unsold business are still next. Phase 3 remains 25%
+because the full business lifecycle group is unfinished.
+
+Earlier update: your approved rule now lets qualified existing staff keep a business working
+after its owner dies, while ownership is resolved. Admins can choose to pause it
+instead. Actual workers, supplies, storage and finite resources still limit output.
+All 725 tests and a real Paper check passed. Automatic listings/deadlines/closure
+remain next; Phase 3 still has one complete milestone group out of four (25%).
+
+Earlier update: qualified buyers can pay for a business with real business cash and family
+estate money. Payments and ownership save together and cannot repeat after restart.
+Admins can edit spending limits. All 715 tests and a real Paper check passed.
+Automatic sale listings, paused deadlines and closure are next; Phase 3 stays 25%
+because the whole lifecycle/competition group is not finished.
+
+Earlier update: a deceased business owner's qualified family member can inherit; otherwise
+a qualified employee can take over. Children/unqualified relatives cannot bypass
+requirements, and workers do not silently change industries. The business keeps its
+founder, money, supplies and history. Automated tests and a real Paper mine/restart
+check passed. Business sales, estate funds, closure and competition are next; the
+lifecycle group is still incomplete, so Phase 3 remains 25%.
+
+Human playtest passed: villages register residents, bread donations remove the right
+items, food sales pay the agreed emeralds, and villagers remain saved after restart.
+The reported slow trade confirmation now has a tested shorter polling interval;
+the updated JAR is installed, with actual human response-time recheck pending. Normal food
+speed has been restored after the accelerated test. Inheritance, resale, vacant
+building reuse and individual ore-source loss now have approved rules; implementation
+is next. These approvals do not complete another Phase 3 milestone.
+
+Latest foundation safeguard: villages pause while their world is absent or the
+server is stopped. They keep their people, supplies and history. Worlds with
+unloaded chunks still simulate. Latest Wrapper verification passed 819 tests.
+See ONLINE_WORLD_PAUSE.md for the pause policy.
+
+Latest safeguard: changing industry speed no longer makes yesterday's shipments
+use up today's transport allowance. Paid deliveries keep their goods, money and
+original timing. Automated checks and a copied old database upgrade passed on
+Paper. The updated local player test build is installed; Phase 3 still has one
+complete reporting group, with connected industry work partly implemented.
+
+Villages can now look for exposed coal/iron in nearby already-loaded chunks,
+instead of just the home chunk. Bounded observation preserves capture time and
+keeps the last result readable. Actual Paper checks passed. This does not start
+mines yet; per-block resource loss is now approved, while funded opportunity
+selection and safe source-retirement implementation remain unfinished.
+The current player build is ready for farms, families and food trade testing.
+
+Latest industry step: an existing workshop can pay a local warehouse for actual
+materials, wait for delivery and make tool supplies. It cannot spend money twice
+after a restart or use goods still in transit. The real Paper application check
+passed. Automatic creation of these nonfood businesses and upstream supply are
+still unfinished, so Phase 3 remains one of four complete groups (25%). Settings
+are editable; old files opt in. See WORKSHOP_SUPPLIES.md.
+
+Latest Phase 3 step: villages can automatically start a funded farm, hire real
+residents and produce food from their observed fields. Owners, workers and sites
+persist across restarts. The real Paper fixture verified founding, output, once-only
+spending and world pause. Old owner settings explicitly opt in. See AUTOMATIC_FARMS.md.
+
+Latest connected-industry work: a blacksmith recipe can turn actual delivered iron
+and coal into tool supplies, bounded by workers and storage. Paid mine/warehouse/
+workshop chains, restart and material/money conservation are tested. Automatic
+nonfood discovery/operation is still unfinished, so this is partial progress toward
+the next milestone, not another completed group. See WORKSHOP_PRODUCTION.md.
+
+Latest mining safeguard: permanent ore coordinates stop alternate sites and repeat
+surveys from creating another reserve pool from the same resource. Depletion and
+identity survive restart and tuning. You approved using exposed existing ore; the
+scanner now detects exposed coal/iron with bounded work and supplied exclusions.
+Placement exclusions now save across restarts and reject stale discovery evidence;
+real Paper snapshot/exclusion checks passed with all fixture blocks restored.
+Native player placements now save automatically, with crash/failure discovery
+pauses and a verified clean restart. Piston movement now retains conservative
+exclusions without cancelling movement or loading chunks. Bulk-editor coverage and connecting real
+observation/founding/operation are next. Automatic mining is still unfinished.
+See MINERAL_IDENTITY.md, LIVE_ORE_TRACKING.md and PHASE3_TODO.md. This advances a partial milestone;
+Phase 3 stays 25% until the complete gameplay group is verified.
+
+Observed ore can now be separated into connected patches instead of treating
+every ore block in a chunk as one deposit. Separate patches retain their finite
+reserves through mining and restart tests. This is another component toward live
+resource opportunities; it does not automatically start mines. See RESOURCE_PATCHES.md.
+
+Live read-only ore surveys now run in bounded steps around saved village homes,
+checking placed/moved ore exclusions and old deposits. The actual scheduled Paper
+pipeline passed with fixture blocks restored. Existing owner files explicitly opt
+in through economy.yml. Automatic nonfood funding/operation remains unfinished.
+See LIVE_RESOURCE_SURVEYS.md; this still advances part of the second reporting group.
+
+Mine startup now saves the business, finite reserves, storage, funding and first
+worker together. Failed startup leaves no partial business or missing money;
+retries preserve depleted ore and existing stock. Automated and packaged Paper
+checks passed. Automatic mine selection and production are still unfinished.
+See ATOMIC_MINE_STARTUP.md.
+
+Unsupported recognized world editors now pause new ore discovery instead of
+allowing bulk-placed ore to create reserves. Admins can add other editor names in
+economy.yml. Existing villages and saved deposits remain; restart retains warnings.
+The actual Paper enable event and recovery checks passed. This does not certify
+unknown editors or enable automatic mines. See ORE_EDITOR_GUARD.md.
+
+Existing funded mines and workshops now work over time using their real workers,
+finite resources, delivered ingredients and available storage. Saved clocks pause
+for server/world absence; failed work can retry without duplicating goods. Automated
+and Paper session checks passed. Automatic founding and local customers remain
+unfinished, so this is still partial progress toward the second group.
+See TIMED_INDUSTRY.md and TONIGHT_PLAYTEST.md.
+
+</details>

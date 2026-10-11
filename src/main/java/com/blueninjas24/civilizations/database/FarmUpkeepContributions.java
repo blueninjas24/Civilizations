@@ -20,7 +20,7 @@ final class FarmUpkeepContributions {
         long businessSpent=total("SELECT COALESCE(SUM(amount),0) FROM upkeep_contributions WHERE business_id=? AND period=?",seller,request.foodPeriod());
         long villageSpent=total("SELECT COALESCE(SUM(amount),0) FROM upkeep_contributions WHERE settlement_id=? AND period=?",town,request.foodPeriod());
         if(needed<1||policy.available(before,capital,sales,contributed,businessSpent,villageSpent)<needed)
-            throw new FarmToolPurchases.Declined("Supplier cannot fund upkeep without exceeding earned cash, operating reserve or contribution limits");
+            throw new FarmToolPurchases.Declined("Supplier cannot fund upkeep without exceeding earned cash, operating reserve or contribution limits",policy.enabled());
         long keep=Math.addExact(capital,policy.operatingReserve());
         UUID operation=id("civilizations:farm-upkeep-contribution-v1:"+request.operation());
         long treasuryBefore=new TreasuryRepository(connection).load(town).orElseThrow().hundredths();

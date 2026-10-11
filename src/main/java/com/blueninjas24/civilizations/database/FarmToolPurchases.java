@@ -6,7 +6,12 @@ import java.util.*;
 
 /** Explicit SQL-owner farm equipment purchase. Scheduling/wear are separate adapters; no free stock or private income. */
 public final class FarmToolPurchases {
-    public static final class Declined extends SQLException { public Declined(String reason){super(reason);} }
+    public static final class Declined extends SQLException {
+        private final boolean tryAnotherSupplier;
+        public Declined(String reason){this(reason,false);}
+        Declined(String reason,boolean tryAnotherSupplier){super(reason);this.tryAnotherSupplier=tryAnotherSupplier;}
+        boolean tryAnotherSupplier(){return tryAnotherSupplier;}
+    }
     public record Request(UUID operation,UUID farm,UUID seller,long foodPeriod,long delay,long haulCapacity) {
         public Request {
             Objects.requireNonNull(operation);Objects.requireNonNull(farm);Objects.requireNonNull(seller);

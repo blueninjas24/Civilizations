@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FarmToolsRuntimeTest {
     @TempDir Path directory;DatabaseManager db;EconomyRuntimeRepository runtime;
-    UUID town=UUID.randomUUID(),world=UUID.randomUUID(),farmer=new UUID(0,1),smith=new UUID(0,2),seller=UUID.randomUUID(),farm;
+    UUID town=UUID.randomUUID(),world=UUID.randomUUID(),farmer=new UUID(0,1),smith=new UUID(0,2),seller=new UUID(0,10),farm;
     final FarmToolUpkeepPolicy upkeep=new FarmToolUpkeepPolicy(true,1,2,50,8);
     EconomySettings settings;
     @BeforeEach void setup()throws Exception {
@@ -58,6 +58,27 @@ class FarmToolsRuntimeTest {
         runtime.pulse(3000,false);assertEquals(2,count("upkeep_contributions"));assertEquals(2500,cash());assertEquals(4,output(2));
         runtime.updateLoadedWorlds(3000,Set.of());runtime.pulse(100000,false);
         assertEquals(2,count("upkeep_contributions"));assertEquals(2,count("farm_tool_purchases"));assertEquals(30000,cash()+db.getIndustryRepository().store(seller).orElseThrow().hundredths());health();
+    }
+    @Test void boundedOrderReviewSkipsPoorSupplierAndPaysFundableStockedSupplierInSamePeriod()throws Exception {
+        UUID rich=new UUID(0,20),worker=new UUID(0,3),buyer=UUID.randomUUID();var requirements=new JobRequirements(216,Map.of());
+        db.getPopulationRepository().insertResident(new Resident(worker,"Fixture smith",town,null,300,Resident.Status.ALIVE));
+        var site=new BusinessSite(UUID.randomUUID(),town,world,20,64,0,1000,"Explicit second smith");
+        db.getBusinessRepository().found(new BusinessFounding(new Business(rich,town,"Funded smith",smith,smith,"blacksmith",site.id(),1,0),site,requirements,requirements,0,"Explicit fixture"));
+        db.getBusinessRepository().hire(UUID.randomUUID(),rich,worker,0);
+        db.getIndustryRepository().openStore(rich,100,Map.of(Commodity.IRON,1L,ToolUpkeepPolicy.TOOLS,1L),0);
+        sql("UPDATE industry_stock SET units=2 WHERE commodity='iron' AND business_id='"+rich+"'");
+        db.getIndustryRepository().process(UUID.randomUUID(),rich,new ProductionRecipe("fixture_funded_tools","blacksmith",Map.of(Commodity.IRON,1L),Map.of(ToolUpkeepPolicy.TOOLS,1L),2,2),2,0);
+        var buyerSite=new BusinessSite(UUID.randomUUID(),town,world,30,64,0,1000,"Explicit fixture warehouse");
+        db.getBusinessRepository().found(new BusinessFounding(new Business(buyer,town,"Buyer",smith,smith,"warehouse",buyerSite.id(),1,0),buyerSite,requirements,requirements,0,"Explicit fixture"));
+        db.getIndustryRepository().openStore(buyer,10,Map.of(ToolUpkeepPolicy.TOOLS,1L),26000);
+        db.getIndustryRepository().purchase(UUID.randomUUID(),rich,buyer,ToolUpkeepPolicy.TOOLS,1,26000,0,1,10);
+        create(upkeep);runtime.configureUpkeepContributions(UpkeepContributionPolicy.prototype());runtime.startOnline(1000,Set.of(world));
+        runtime.pulse(2000,false);assertEquals(1,count("farm_tool_purchases"));assertEquals(1,count("upkeep_contributions"));
+        assertEquals(2500,cash());assertEquals(0,db.getIndustryRepository().store(seller).orElseThrow().hundredths());
+        assertEquals(3,db.getIndustryRepository().store(seller).orElseThrow().units().get(ToolUpkeepPolicy.TOOLS));
+        assertEquals(27500,db.getIndustryRepository().store(rich).orElseThrow().hundredths());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT business_id FROM upkeep_contributions")){r.next();assertEquals(rich.toString(),r.getString(1));}
+        runtime.pulse(2000,false);assertEquals(1,count("upkeep_contributions"));health();
     }
     void sql(String sql)throws SQLException{try(var s=db.getConnection().createStatement()){s.execute(sql);}}
     @Test void actualFoodWorkPaysDeliversAndConsumesRealToolsWithoutDuplicateWearOrMoney()throws Exception {

@@ -94,7 +94,10 @@ final class FarmTools {
                         transport.localDeliveryPeriods(),transport.localHaulUnitsPerPeriod());
                 new FarmToolPurchases(connection,operations).purchase(request,budget,worlds,contributions);
                 reason="Actual public toolkit paid; delivery after food period "+Math.addExact(period,transport.localDeliveryPeriods());break;
-            }catch(FarmToolPurchases.Declined declined){reason="Farm equipment order waits: "+declined.getMessage();break;}
+            }catch(FarmToolPurchases.Declined declined){
+                reason="Farm equipment order waits: "+declined.getMessage();
+                if(!declined.tryAnotherSupplier())break;
+            }
         }
         suppliers.remove(town);suppliers.put(town,last);while(suppliers.size()>4096)suppliers.remove(suppliers.keySet().iterator().next());
         return reason+"; bounded supplier candidates "+candidates.size();

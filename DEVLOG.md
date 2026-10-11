@@ -1,5 +1,41 @@
 # Civilizations Development Log
 
+## October 11, 2026: bounded funded supplier selection verified
+
+An expected supplier-specific contribution refusal now permits the next stocked
+operating supplier in the current bounded page. The first failed offer fully rolls
+back before the next begins. Shared food/work/public budget/config refusals still
+stop and real SQL faults propagate. Successful payment stops search. Existing
+rotating cursors and supplier budgets remain; no new migration or financial rule.
+
+Added a deterministic temporary SQLite scenario with a poor first smith and a
+sales-funded second smith: same food review buys the second supplier's actual kit,
+first supplier retains cash/stock, repeated pulse creates no extra charge. Focused
+32 passed. Final Windows .\mvnw.cmd clean verify passed 953 (951 unit/two packaged
+integration), zero failures/errors/skips, 4:22. Test-only FundedSupplierProbe on
+pinned marked Paper confirmed actual PopulationSession same-review selection,
+paid arrival/use, repeated pulse, restart and absent-world pause. Total cash 30000
+remains 2500 village + 27500 funded supplier; poor supplier remains 0. Six actually
+manufactured kits = four retained by poor supplier + one warehouse pending + one
+used by farm after two food periods. Contribution 2500 saved exactly once; all
+integrity/FK checks healthy. No free stock or income.
+
+Before native run, stopped fixture schema 55 backed up; 85/91 original tables
+unchanged. Six differences exactly one normal population month 1725 to 1726 (resident
+age only) and its civilization/economy runtime, active-world and ore bookkeeping;
+no food period, treasury, industry assets, estates or identity/history changed.
+Legacy fixture contributions remain 0. Normal shutdown, no forced chunks, exact
+properties restored and native test JAR archived. Human server unchanged; no push
+or main merge. No source change after final full verification.
+
+Phase 3 remains 25% by complete groups. Automatic first nonfood industries and
+specialization remain. Asked the user to settle merchant/warehouse ownership
+qualification: proposed editable commerce study and real transaction experience
+avoids instant untrained miner-to-shopkeeper conversion. No commerce rule or
+automatic merchant founding implemented pending answer. Canonical roadmap unchanged.
+Progress tracker now puts the current summary and nine phase bars first, retaining
+prior verified updates in a clearly historical collapsible section.
+
 ## October 11, 2026: farm equipment no longer blocks warehouse restocking
 
 Fixed WarehouseSupplies producer discovery to exclude only an audited public farm

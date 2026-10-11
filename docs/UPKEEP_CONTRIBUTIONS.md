@@ -63,3 +63,12 @@ rollback, restart replay, stale food, absent worlds and transactional 54 upgrade
 A test-only UpkeepContributionsProbe exercises actual PopulationSession on marked
 disposable Paper with its own synthetic save, no block/entity edits or forced
 chunks. See PROJECT_STATUS.md and DEVLOG.md for completed validation results.
+
+## Bounded supplier selection
+
+An expected supplier-specific earned-cash/reserve refusal can now try the next
+stocked operating supplier in the same bounded page. Failed offers roll back
+before another begins; successful payment stops search. Shared food/current-work,
+public spending and configuration refusals still stop, and real SQL faults still
+propagate. Search budgets and rotating cursors remain unchanged. No poor business
+is charged merely because another supplier can fund the invoice.
