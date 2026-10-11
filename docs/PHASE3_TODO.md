@@ -77,8 +77,9 @@ Updated October 11, 2026. Reporting progress remains one of four complete groups
       and slower productive work without tools; record genuine maintenance demand.
       902 tests and actual Paper owner wear/cargo/restart checks passed. Farms'
       separate cycle remains. Real workshop output now supplies warehouses too.
-- [ ] Extend approved protected startup grants to warehouses under shared caps;
-      connect suitable sites, skilled founders and real startup opportunities.
+- [x] Extend approved protected startup grants to warehouses under shared caps;
+      real empty-store capital/qualified first worker, 908 tests and Paper passed.
+      Suitable sites, skilled founders and automatic startup opportunities remain.
 - [ ] Add suitable renewable forestry/fishing opportunities and finite stone/sand
       production as scoped catalog/observation work; do not infer resources from a
       biome alone or claim ores beyond the implemented coal/iron catalog.

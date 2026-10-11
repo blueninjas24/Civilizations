@@ -7,7 +7,7 @@
 # Starvation effects are not enabled.
 format-version: 1
 
-# Limited public startup funding for qualified mines/workshops. Trusted startup
+# Limited public startup funding for qualified mines/workshops/warehouses. Trusted startup
 # accounting is implemented; automatic founding/selection is still being connected.
 # These limits spend real village money, never grant personal wallets or wages.
 # 100 hundredths = 1 Trade Value. Startup cost AND working capital count together.
@@ -24,7 +24,7 @@ startup-grants:
   minimum-treasury-hundredths: 2500
   food-reserve-periods: 2
   hundredths-per-food-unit: 200
-  industries: [mining, blacksmith]
+  industries: [mining, blacksmith, warehouse]
 
 # Qualified EXISTING employees may keep working after an owner's death while the
 # business awaits succession/resale. No promotion, hiring authority, grants or wages.

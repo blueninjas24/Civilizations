@@ -6,7 +6,10 @@ The user approved warehouses sharing the already approved mine/workshop startup
 grant limits and food-budget protection. Their purchasing capital must be debited
 from actual village money, with no separate spending allowance or created money.
 This approval does not remove qualification, suitable-site or demand checks.
-The guarded warehouse startup adapter is the next scoped implementation.
+The guarded warehouse startup adapter now implements this rule; it opens empty
+stock, transfers real capital and assigns a qualified first worker atomically.
+Existing industry lists stay unchanged, with warehouse enabled only when listed.
+Automatic opportunity selection/founding remains unfinished. See STARTUP_GRANTS.md.
 
 ## October 11, 2026 — business tool upkeep approved
 

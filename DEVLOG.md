@@ -1,5 +1,28 @@
 # Civilizations Development Log
 
+## October 11, 2026 — warehouses share protected startup funding
+
+Added explicit WarehouseRequest/startWarehouse composition, reusing the existing
+grant review and stocked-business startup transaction. Village startup expense,
+real purchasing capital and qualified first employment roll back together. Empty
+stock only; no production recipe, physical building or automatic opportunity.
+New bundled industry list includes warehouse; saved lists and all numerical caps
+remain unchanged. Mine/workshop/warehouse grants share actual period/lifetime
+sums and food protection. No migration; schema 51 retained.
+
+Six added tests cover cash/empty stock/replay, combined caps, legacy lists, food
+protection, qualification/one job and receipt rollback. Focused 27 before final
+config case; full .\mvnw.cmd clean verify passed 908 (906 unit/two packaged IT),
+zero failures/errors/skips, 6:12. Extended standalone StartupGrantProbe passed on
+marked disposable Paper: refused shared-cap bypass, accepted two real grants,
+reopened disabled without extra cash/jobs. Own DB 9000 cash plus 1000 recorded
+startup expenses equals 10000; integrity/FKs healthy. Main 84/87 tables unchanged,
+only civilization/economy/ore tracking bookkeeping differed. No population month,
+asset/history change or probe world write. Backed up fixture stopped normally,
+no forced chunks, exact properties restored, probe archived. Human server untouched.
+Next scoped work: bounded live-owner vacancy hiring; broader career/startup
+opportunities remain. Phase 3 remains 25% by complete groups.
+
 ## October 11, 2026 — genuine business tool maintenance demand
 
 Added ToolUpkeepPolicy/ToolUpkeep and transactional BusinessTools. Existing timed

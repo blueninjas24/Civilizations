@@ -2,12 +2,16 @@
 
 User approval, October 10: qualified first mines/workshops may receive limited
 configurable startup funding from actual village treasury after food protection.
+October 11 approval includes warehouses under the same limits and protection.
 This is public investment in a privately owned business, not a personal wallet,
 salary, loan or automatic government mechanic.
 
 `BusinessStartupGrants` composes checked grant approval, existing startup debits,
 business/site registration, store creation and the first qualified worker in one
 transaction. Mine startup also establishes its finite coordinate-backed deposit.
+`startWarehouse` requires an explicit warehouse request, registers its qualified
+first worker and opens empty stock with real purchasing capital. It does not
+invent inventory, a production recipe, a building or a separate funding pool.
 One grant receipt per business is saved in schema 49. Failed funding, qualification,
 ore validation, storage, employment or receipt insertion rolls back the whole
 operation. Startup expense and working capital both count toward the grant; working
@@ -45,7 +49,7 @@ Missing legacy sections disable new grants. Bundled defaults are experimental:
 | minimum-treasury-hundredths | 2500 | Keep at least 25 Trade Value for village spending |
 | food-reserve-periods | 2 | Food demand periods used to calculate the protected cash buffer |
 | hundredths-per-food-unit | 200 | Conservative estimate of 2 Trade Value per abstract food unit |
-| industries | mining, blacksmith | Industry names eligible for this funding source |
+| industries | mining, blacksmith, warehouse | Industry names eligible for this funding source |
 
 100 hundredths equal 1 Trade Value. Periods are the village's saved food/economic
 period, not calendar years or wall-clock days. Lifetime spending survives closure,
@@ -53,7 +57,14 @@ owner changes, restart and retuning; raising a limit permits only future request
 These caps restrict public spending, not unlimited approved private ownership.
 The backend does not yet fund startup from private business/estate cash.
 
-Automatic opportunity selection, career choice and mine/workshop founding remain
+Existing industry lists are never rewritten: owners adding `warehouse` opt it in
+while stopped. Maximum, period, lifetime and food-protection defaults are unchanged.
+Warehouse and mine/workshop receipts count in the same village sums, including
+closed businesses. Replay retains actual stock, funds and original worker episode;
+changed storage/capital terms fail. This extension reuses schema 49 receipts and
+requires no migration beyond the current schema 51.
+
+Automatic opportunity selection, career choice and mine/workshop/warehouse founding remain
 unfinished. This trusted backend requires its caller to establish actual demand,
 current suitable evidence, qualification requirements and safe site/storage terms.
 It has no public grant command, scheduler, block edits or chunk loading. It does not

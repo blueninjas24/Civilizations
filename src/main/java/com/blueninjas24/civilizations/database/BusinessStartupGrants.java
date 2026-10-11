@@ -19,6 +19,15 @@ public final class BusinessStartupGrants {
         }
     }
     public record Workshop(BusinessFounding founding,IndustryRepository.Store store,Employment worker,Receipt grant) {}
+    public record WarehouseRequest(BusinessFounding founding,long capacity,Map<Commodity,Long> space,long capital,UUID worker) {
+        public WarehouseRequest {
+            Objects.requireNonNull(founding);Objects.requireNonNull(worker);space=Map.copyOf(space);
+            if(!founding.business().industry().equals("warehouse") || capacity<1 || capital<0 || space.isEmpty()
+                    || space.size()>64 || space.values().stream().anyMatch(weight->weight<1))
+                throw new IllegalArgumentException("Valid warehouse storage and capital required");
+        }
+    }
+    public record Warehouse(BusinessFounding founding,IndustryRepository.Store store,Employment worker,Receipt grant) {}
     private final Connection connection;
     public BusinessStartupGrants(Connection connection){this.connection=Objects.requireNonNull(connection);}
     public Mine startMine(MiningStartupRepository.Request request,StartupGrantPolicy policy)throws SQLException {
@@ -31,14 +40,23 @@ public final class BusinessStartupGrants {
     }
     public Workshop startWorkshop(WorkshopRequest request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);
+        return transaction(()->startStockedRows(request,policy,"workshop"));
+    }
+    /** Same village budget, qualification and transaction as other grants; no free warehouse stock. */
+    public Warehouse startWarehouse(WarehouseRequest request,StartupGrantPolicy policy)throws SQLException {
+        Objects.requireNonNull(request);Objects.requireNonNull(policy);
         return transaction(()-> {
-            var receipt=prepare(request.founding(),request.capital(),policy);
-            var businesses=new BusinessRepository(connection);var founding=businesses.foundRows(request.founding());
-            var store=new IndustryRepository(connection).openStoreRows(founding.business().id(),request.capacity(),request.space(),request.capital());
-            var job=UUID.nameUUIDFromBytes(("civilizations:workshop-first-worker-v1:"+founding.business().id()).getBytes(StandardCharsets.UTF_8));
-            var worker=businesses.hireRows(job,founding.business().id(),request.worker(),founding.business().foundedStep());
-            return new Workshop(founding,store,worker,save(receipt));
+            var stocked=startStockedRows(new WorkshopRequest(request.founding(),request.capacity(),request.space(),request.capital(),request.worker()),policy,"warehouse");
+            return new Warehouse(stocked.founding(),stocked.store(),stocked.worker(),stocked.grant());
         });
+    }
+    private Workshop startStockedRows(WorkshopRequest request,StartupGrantPolicy policy,String role)throws SQLException {
+        var receipt=prepare(request.founding(),request.capital(),policy);
+        var businesses=new BusinessRepository(connection);var founding=businesses.foundRows(request.founding());
+        var store=new IndustryRepository(connection).openStoreRows(founding.business().id(),request.capacity(),request.space(),request.capital());
+        var job=UUID.nameUUIDFromBytes(("civilizations:"+role+"-first-worker-v1:"+founding.business().id()).getBytes(StandardCharsets.UTF_8));
+        var worker=businesses.hireRows(job,founding.business().id(),request.worker(),founding.business().foundedStep());
+        return new Workshop(founding,store,worker,save(receipt));
     }
     private Receipt prepare(BusinessFounding founding,long capital,StartupGrantPolicy policy)throws SQLException {
         var business=founding.business();var old=find(business.id());

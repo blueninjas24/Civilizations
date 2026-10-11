@@ -2,6 +2,12 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: warehouses can receive limited startup funds from the same village budget
+as mines and workshops. Food money stays protected, and retries cannot pay twice.
+All 908 tests and the isolated Paper funding check passed. Your server is unchanged.
+Automatic first industries and specialization remain; Phase 3 is 25% by complete
+groups. Next: qualified residents filling vacancies at existing businesses.
+
 Latest: mines and workshops buy replacement tools using their own money.
 Tools wear through actual work; missing tools slow work, giving blacksmiths real
 customers. Rates and startup grace are editable. All 902 tests and both isolated

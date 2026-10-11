@@ -35,10 +35,11 @@ public final class StartupGrantProbe extends JavaPlugin {
             var pending=CompletableFuture.runAsync(()-> {
                 var db=new DatabaseManager(folder,getLogger());
                 try {
-                    db.initialize();var town=UUID.randomUUID();var person=UUID.randomUUID();
+                    db.initialize();var town=UUID.randomUUID();var person=UUID.randomUUID();var merchant=UUID.randomUUID();
                     db.saveSettlement(new Settlement(town,"Grant probe","Fixture",0,64,0,1,0,0));
                     db.getVillageIdentityRepository().observeWorld(world,"Fixture");db.getVillageIdentityRepository().bindSettlement(town,world);
                     db.getPopulationRepository().insertResident(new Resident(person,"Founder",town,null,300,Resident.Status.ALIVE));
+                    db.getPopulationRepository().insertResident(new Resident(merchant,"Warehouse founder",town,null,300,Resident.Status.ALIVE));
                     new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,10000,"Explicit disposable probe funds");
                     var economy=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216);
                     economy.observe(new FarmObservation(town,world,1000,true,0),1000);economy.startOnline(1000,Set.of(world));
@@ -61,6 +62,23 @@ public final class StartupGrantProbe extends JavaPlugin {
                     if(!saved.grant().equals(replay.grant()) || replay.startup().discovery().deposit().remainingBatches()!=8
                             || replay.startup().store().units().get(Commodity.COAL)!=2 || new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths()!=8500)
                         throw new IllegalStateException("Restart/disable repeated funding or extraction");
+                    var warehouseSite=new BusinessSite(UUID.randomUUID(),town,world,20,64,0,10,"Explicit synthetic warehouse site, no building edits");
+                    var warehouseBusiness=new Business(UUID.randomUUID(),town,"Warehouse",merchant,merchant,"warehouse",warehouseSite.id(),2,0);
+                    var warehouse=new BusinessStartupGrants.WarehouseRequest(new BusinessFounding(warehouseBusiness,warehouseSite,req,req,500,"Probe warehouse grant"),
+                            100,Map.of(Commodity.COAL,1L,ToolUpkeepPolicy.TOOLS,1L),1000,merchant);
+                    var sharedLimit=new StartupGrantPolicy(true,5000,2000,20000,2500,2,200,policy.industries());
+                    try {grants.startWarehouse(warehouse,sharedLimit);throw new IllegalStateException("Warehouse bypassed shared period budget");}
+                    catch(BusinessStartupGrants.Declined expected){if(!expected.getMessage().contains("period"))throw expected;}
+                    var warehouseSaved=grants.startWarehouse(warehouse,policy);
+                    if(warehouseSaved.store().hundredths()!=1000 || warehouseSaved.store().units().values().stream().anyMatch(units->units!=0)
+                            || new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths()!=7000)
+                        throw new IllegalStateException("Warehouse capital or stock invented");
+                    db.close();db=new DatabaseManager(folder,getLogger());db.initialize();
+                    if(!warehouseSaved.equals(new BusinessStartupGrants(db.getConnection()).startWarehouse(warehouse,StartupGrantPolicy.disabled())))
+                        throw new IllegalStateException("Warehouse replay changed accepted terms");
+                    try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT (SELECT SUM(hundredths) FROM treasuries)+(SELECT SUM(hundredths) FROM industry_stores)+(SELECT SUM(startup_hundredths) FROM startup_grants)")) {
+                        if(r.getLong(1)!=10000)throw new IllegalStateException("Warehouse/mine money conservation failed");
+                    }
                     try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA integrity_check")){if(!r.getString(1).equals("ok"))throw new IllegalStateException("Integrity failure");}
                     try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){if(r.next())throw new IllegalStateException("FK failure");}
                 } catch(Exception failure){throw new CompletionException(failure);}
@@ -69,7 +87,7 @@ public final class StartupGrantProbe extends JavaPlugin {
             new BukkitRunnable(){int ticks;public void run(){
                 if(!pending.isDone() && ++ticks<600)return;
                 cancel();try {if(!pending.isDone())throw new IllegalStateException("Grant probe timeout");pending.join();
-                    getLogger().info("NATIVE STARTUP GRANT PASS: packaged editable defaults, protected-food refusal, real startup/capital, empty store and worker, mining, restart/disabled replay and healthy SQLite; separate synthetic save, no automatic founding");
+                    getLogger().info("NATIVE STARTUP GRANT PASS: packaged defaults, protected-food refusal, mine and warehouse shared budgets, real capital/expenses, empty warehouse and qualified worker, restart/disabled replay and healthy SQLite; separate synthetic save, no automatic founding");
                 } catch(RuntimeException failure){getLogger().log(java.util.logging.Level.SEVERE,"NATIVE STARTUP GRANT FAIL",failure);}
                 getServer().getPluginManager().disablePlugin(StartupGrantProbe.this);
             }}.runTaskTimer(this,1,1);

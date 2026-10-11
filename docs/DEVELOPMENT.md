@@ -1,5 +1,13 @@
 # Development and recovery procedures
 
+October 11 warehouse grant extension: StartupGrantProbe reads packaged defaults,
+starts separate synthetic mine/warehouse firms, refuses a combined period-cap
+bypass and verifies actual cash/startup-expense conservation and disabled replay.
+Back up the stopped marked fixture; compile against the current packaged JAR with
+empty sourcepath, package the descriptor already in its classes directory. No
+world writes are needed. Stop normally, inspect both saves read-only, restore
+properties exactly and archive the test-only JAR. See STARTUP_GRANTS.md/DEVLOG.md.
+
 October 11 tool-upkeep extension: WarehouseSupplyProbe adds an independent
 tools-run database, real smith output and actual PopulationSession mine/tool
 periods. Check real cash conservation, only productive kit use, fractional slower

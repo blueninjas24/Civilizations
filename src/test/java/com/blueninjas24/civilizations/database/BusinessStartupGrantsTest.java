@@ -40,6 +40,52 @@ class BusinessStartupGrantsTest {
                 10,Map.of(Commodity.COAL,1L,Commodity.STONE,2L),100,Map.of(Commodity.COAL,1L,Commodity.STONE,1L),1000,owner);
     }
     StartupGrantPolicy policy(long one,long period,long lifetime,long keep){return new StartupGrantPolicy(true,one,period,lifetime,keep,2,200,Set.of("mining","blacksmith"));}
+    BusinessStartupGrants.WarehouseRequest warehouse(UUID founder,int x) {
+        var source=mine(founder,x).founding();var b=source.business();
+        var business=new Business(b.id(),town,"Warehouse",founder,founder,"warehouse",b.siteId(),2,0);
+        var founding=new BusinessFounding(business,source.site(),source.founderRequirements(),source.workerRequirements(),500,"Explicit warehouse opportunity");
+        return new BusinessStartupGrants.WarehouseRequest(founding,100,Map.of(Commodity.COAL,1L,ToolUpkeepPolicy.TOOLS,1L),1000,founder);
+    }
+    @Test void warehouseCapitalIsRealEmptyStockAndReplayCannotPayOrHireTwice()throws Exception {
+        var request=warehouse(person,20);var saved=grants().startWarehouse(request,StartupGrantPolicy.prototype());
+        assertEquals(8500,cash());assertEquals(1000,saved.store().hundredths());assertTrue(saved.store().units().values().stream().allMatch(units->units==0));
+        assertEquals(person,saved.worker().residentId());assertEquals(1,count("startup_grants"));assertEquals(0,count("mineral_deposits"));
+        db.close();open();assertEquals(saved,grants().startWarehouse(request,StartupGrantPolicy.disabled()));
+        assertEquals(8500,cash());assertEquals(1,count("business_employment"));assertEquals(3,count("treasury_entries"));
+        var changed=new BusinessStartupGrants.WarehouseRequest(request.founding(),100,request.space(),2000,person);
+        assertThrows(SQLException.class,()->grants().startWarehouse(changed,StartupGrantPolicy.prototype()));assertEquals(8500,cash());
+    }
+    @Test void warehouseAndMineUseOneSharedPeriodAndLifetimeBudget()throws Exception {
+        var other=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(other,"Other",town,null,300,Resident.Status.ALIVE));economy.pulse(3000,false);
+        var policy=new StartupGrantPolicy(true,1500,2000,2500,2500,2,200,Set.of("mining","warehouse"));
+        grants().startMine(request,policy);var warehouse=warehouse(other,20);
+        var period=assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWarehouse(warehouse,policy));assertTrue(period.getMessage().contains("period"));
+        assertEquals(8500,cash());assertEquals(1,count("startup_grants"));
+        economy.pulse(4000,false);
+        var lifetime=assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWarehouse(warehouse,policy));assertTrue(lifetime.getMessage().contains("lifetime"));
+        assertEquals(8500,cash());assertEquals(1,count("businesses"));
+        var raised=new StartupGrantPolicy(true,1500,2000,3000,2500,2,200,policy.industries());
+        grants().startWarehouse(warehouse,raised);assertEquals(7000,cash());assertEquals(2,count("startup_grants"));
+    }
+    @Test void warehouseCannotSpendFoodProtectionOrClaimItsOwnIndustryAllowance()throws Exception {
+        var warehouse=warehouse(person,20);
+        assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWarehouse(warehouse,policy(5000,5000,20000,2500)));unchanged();
+        var guarded=new StartupGrantPolicy(true,5000,5000,20000,8501,2,200,Set.of("warehouse"));
+        assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWarehouse(warehouse,guarded));unchanged();
+        sql("UPDATE needs_periods SET fulfilled=0");assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWarehouse(warehouse,StartupGrantPolicy.prototype()));unchanged();
+    }
+    @Test void warehouseGrantReceiptFailureRollsBackCashSiteStockAndFirstJob()throws Exception {
+        var warehouse=warehouse(person,20);sql("CREATE TRIGGER reject_warehouse_grant BEFORE INSERT ON startup_grants BEGIN SELECT RAISE(ABORT,'fixture failure'); END");
+        assertThrows(SQLException.class,()->grants().startWarehouse(warehouse,StartupGrantPolicy.prototype()));unchanged();
+        sql("DROP TRIGGER reject_warehouse_grant");grants().startWarehouse(warehouse,StartupGrantPolicy.prototype());assertEquals(8500,cash());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+    }
+    @Test void warehouseRequiresQualifiedLivingFounderAndDoesNotOverrideExistingJob()throws Exception {
+        var warehouse=warehouse(person,20);db.getPopulationRepository().updateResident(new Resident(person,"Founder",town,null,100,Resident.Status.ALIVE));
+        assertThrows(SQLException.class,()->grants().startWarehouse(warehouse,StartupGrantPolicy.prototype()));unchanged();
+        db.getPopulationRepository().updateResident(new Resident(person,"Founder",town,null,300,Resident.Status.ALIVE));grants().startMine(request,StartupGrantPolicy.prototype());
+        assertThrows(SQLException.class,()->grants().startWarehouse(warehouse,StartupGrantPolicy.prototype()));assertEquals(8500,cash());assertEquals(1,count("startup_grants"));assertEquals(1,count("businesses"));
+    }
     void sql(String sql)throws SQLException{try(var s=db.getConnection().createStatement()){s.execute(sql);}}
     long count(String table)throws SQLException{try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){return r.getLong(1);}}
     long cash()throws SQLException{return new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths();}

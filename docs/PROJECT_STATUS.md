@@ -1,5 +1,25 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026 — shared warehouse startup grants verified
+
+Approved warehouses now have an explicit transactional startup adapter sharing
+mine/workshop food protection and period/lifetime caps. Real treasury funds become
+recorded startup expense and empty-store purchasing capital; a qualified first
+worker is required. Existing configs keep their saved industry lists. New defaults
+include warehouse without changing any numerical cap. No automatic firms/buildings
+or new migration; schema remains 51. See STARTUP_GRANTS.md.
+
+Six added tests; focused 27 before the final config case, full Windows Wrapper
+clean verify passed 908 (906 unit/two integration), zero failures/errors/skips,
+6:12. Packaged Paper grant probe passed shared-budget refusal, empty warehouse,
+real funding, qualification and restart/disabled replay. Own DB has two grants,
+9000 cash + 1000 recorded startup expenses = 10000 original funding; integrity/FKs
+healthy. Main 84/87 tables unchanged; only clocks/ore bookkeeping differed, no
+population month or asset/history changes. Fixture stopped normally, exact
+properties restored, test JAR archived, no forced chunks. Human server untouched.
+Next: bounded vacancy hiring at existing live-owner businesses, then opportunity
+training/automatic nonfood founding. Phase 3 remains 25% by complete groups.
+
 ## October 11, 2026 — business tool upkeep verified
 
 Existing timed mines/workshops buy real replacement tools with business money;

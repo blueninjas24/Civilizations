@@ -7,6 +7,17 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void warehouseGrantsShareBundledLimitsAndLegacyIndustryListsStayExplicit()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readStartupGrants(config).enabled());
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)) {
+            config.load(reader);
+        }
+        var bundled=EconomyConfiguration.readStartupGrants(config);
+        assertEquals(StartupGrantPolicy.prototype(),bundled);assertTrue(bundled.industries().contains("warehouse"));
+        config.set("startup-grants.industries",List.of("mining","blacksmith"));
+        var old=EconomyConfiguration.readStartupGrants(config);assertFalse(old.industries().contains("warehouse"));
+        assertEquals(bundled.maximumGrant(),old.maximumGrant());assertEquals(bundled.perPeriodLimit(),old.perPeriodLimit());assertEquals(bundled.lifetimeLimit(),old.lifetimeLimit());
+    }
     @Test void toolsAreExplicitEditableAndDoNotRequireFreeVillageStocks()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readToolUpkeep(config).enabled());
         config.loadFromString("business-tools:\n  enabled: true\n  startup-grace-periods: 3\n  work-periods-per-tool: 8\n  missing-tools-output-percent: 50\n  tool-value-hundredths: 4000\n  industries: [mining, blacksmith]\n");
