@@ -137,4 +137,13 @@ class AutomaticMineFoundingTest {
         var session=new com.blueninjas24.civilizations.application.PopulationSession(directory.toFile(),Logger.getLogger("AutomaticMineTest"),com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype(),clock::get,economySettings,FarmObservation.Policy.prototype());
         session.configureOreTracking();session.configureIndustryRuntime(industry());session.configureMineFounding(founding,StartupGrantPolicy.prototype());return session;
     }
+    @Test void protectedBudgetIsExplainedBeforeMissingFounderWithoutSpendingOrClaimingOre()throws Exception {
+        sql("UPDATE resident_skills SET experience=0 WHERE skill='mining'");
+        new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,-67500,"Explicit fixture prior spending");
+        var message=review();assertTrue(message.contains("protected food"),message);assertFalse(message.contains("no qualified"),message);
+        assertEquals(2500,cash());assertEquals(0,mines());assertEquals(0,scalar("SELECT COUNT(*) FROM startup_grants"));assertEquals(0,scalar("SELECT COUNT(*) FROM mineral_deposits"));
+        new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,67500,"Explicit fixture refund");
+        assertTrue(review().contains("no qualified"));unchanged();
+    }
+
 }

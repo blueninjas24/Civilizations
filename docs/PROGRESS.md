@@ -4,13 +4,14 @@ Updated October 11, 2026. Based on verified work, not planned features.
 
 Villages can now recognize nearby barrels and smithing tables as possible
 workplaces, while leaving blocks and their contents alone. Saved evidence survives
-restart; removed markers stop being candidates. All 1,003 tests and the disposable
+restart; removed markers stop being candidates. All 1,009 tests and the disposable
 Paper check passed. Your playable server has not been changed.
 
 Phase 3 remains 25% by complete milestone groups. Finite automatic mines for
 existing real customers are implemented; first-founder training and automatic
 warehouse/workshop opening remain. These markers provide locations for that
-next step. Wider industries and specialization remain too. See WORKPLACE_MARKERS.md.
+next step; villages can now also check real startup affordability without spending
+or reserving money. Wider industries and specialization remain too. See WORKPLACE_MARKERS.md.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project

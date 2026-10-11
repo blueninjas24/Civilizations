@@ -1,5 +1,10 @@
 # Phase 3 — businesses and industry checklist
 
+Verified read-only real startup affordability, shared acceptance evidence and
+funding-before-founder mine diagnostics. Six tests added; 1,009 Wrapper tests and
+updated native Paper probe passed. No migration or new grant settings. First
+warehouse/workshop founder opportunities remain next; see STARTUP_GRANTS.md.
+
 Verified approved barrel/smithing-table workplace observation: bounded loaded
 snapshots, current candidates and retained history, removal/conflict/occupation
 guards, schema58 migration and legacy opt-out. 1,003 tests plus scheduled Paper

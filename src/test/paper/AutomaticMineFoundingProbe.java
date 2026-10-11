@@ -77,7 +77,16 @@ public final class AutomaticMineFoundingProbe extends JavaPlugin {
     }
     void runChecks() {
         try {
-            setup();new OreTrackingRepository(db.getConnection()).finish(2000,true);db.close();db=null;
+            setup();
+            var grants=new BusinessStartupGrants(db.getConnection());
+            var preview=grants.preview(town,"mining",founding.startupHundredths(),founding.capitalHundredths(),StartupGrantPolicy.prototype());
+            assertTrue(preview.eligible());assertEquals(70000,cash());assertEquals(0,mines());assertEquals(0,scalar("SELECT COUNT(*) FROM startup_grants"));
+            assertTrue(!grants.preview(town,"mining",founding.startupHundredths(),founding.capitalHundredths(),StartupGrantPolicy.disabled()).eligible());
+            new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,-67500,"Explicit isolated preview spending");
+            assertTrue(!grants.preview(town,"mining",founding.startupHundredths(),founding.capitalHundredths(),StartupGrantPolicy.prototype()).eligible());
+            assertTrue(review().contains("protected food"));assertEquals(2500,cash());assertEquals(0,mines());assertEquals(0,scalar("SELECT COUNT(*) FROM startup_grants"));
+            new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,67500,"Explicit isolated preview refund");
+            new OreTrackingRepository(db.getConnection()).finish(2000,true);db.close();db=null;
             var clock=new AtomicLong(2000);
             try(var s=session(clock)) {
                 s.start(false,Set.of(world)).get(10,TimeUnit.SECONDS);s.pulse().get(10,TimeUnit.SECONDS);s.pulse().get(10,TimeUnit.SECONDS);
@@ -94,7 +103,7 @@ public final class AutomaticMineFoundingProbe extends JavaPlugin {
             db=new DatabaseManager(directory.toFile(),getLogger());db.initialize();assertEquals(1,mines());assertEquals(remaining,scalar("SELECT SUM(remaining_batches) FROM mineral_deposits"));assertEquals(stock,scalar("SELECT SUM(units) FROM industry_stock WHERE commodity='coal'"));
             try(var q=db.getConnection().createStatement();var r=q.executeQuery("PRAGMA integrity_check")){assertTrue(r.getString(1).equals("ok"));}
             try(var q=db.getConnection().createStatement();var r=q.executeQuery("PRAGMA foreign_key_check")){assertTrue(!r.next());}
-            getLogger().info("NATIVE AUTOMATIC MINE PASS: actual SQL owner founds one funded qualified mine; 2500 real grant, 500 expense, 2000 capital; eight finite batches produce sixteen coal; absent-world pause and restart conserve assets; no physical world changes");
+            getLogger().info("NATIVE AUTOMATIC MINE PASS: read-only startup budget preview and protected-cash refusal verified; actual SQL owner founds one funded qualified mine; 2500 real grant, 500 expense, 2000 capital; eight finite batches produce sixteen coal; absent-world pause and restart conserve assets; no physical world changes");
         }catch(Exception failure){throw new CompletionException(failure);}finally{if(db!=null){db.close();db=null;}}
     }
     @Override public void onEnable() {

@@ -1,5 +1,42 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026: read-only startup affordability and funding-first diagnosis verified
+
+Industry opportunity checks can now inspect actual startup affordability without
+inventing a business or reserving funds. Preview and acceptance share the current
+food/population assessment, real treasury, shared period/lifetime spending and
+editable grant policy. Ordinary shortages/missing evidence return blocked reasons;
+actual SQL faults propagate. Acceptance still rechecks everything atomically.
+Automatic mines check funding before founder selection, avoiding misleading skill
+obstacles when protected food money is the actual constraint. Existing accepted
+receipts/replay and grant defaults are preserved. Ore observation diagnostics no
+longer incorrectly claim all automatic founding is disabled. Schema stays 58.
+
+Six tests added, including all-table read-only comparisons, restart, missing/changed
+food evidence, disabled industry/caps, non-reservation and changed funds before
+acceptance, invalid terms and SQL failure recovery. Focused 34 passed. Windows
+.\mvnw.cmd clean verify passed 1,009 (1,007 unit/two packaged integration), zero
+failures/errors/skips, 4:59. Sandbox clean was denied; normal-permission rerun passed.
+
+Updated AutomaticMineFoundingProbe compiled and passed on the marked disposable
+Paper fixture: preview makes no assets/spending; protected-cash refusal prevents
+startup; restored real funding permits exactly one mine via actual SQL owner;
+eight finite batches yield sixteen coal; absent-world pause/restart preserve assets.
+Native setup first expected the wrong fixture JAR filename and stopped before
+launch; corrected to Civilizations.jar. This launch lacked an interactive console,
+so stop input was unavailable. A temporary guarded JDK attach helper verified the
+exact disposable world directory, dev marker, localhost port and no players, then
+scheduled Bukkit shutdown on the main thread. Normal world saves completed; no
+forced termination. Future launches must use an interactive terminal.
+
+Properties restored byte-exact, probe archived, full database audit: 93/99 existing
+tables unchanged; six differences are four ordinary age-only months 1729-to1733
+and clock/active-world/ore bookkeeping. Food period stayed 29. Original businesses,
+stock, treasury, grants, skills, courses, resident identity/status/history unchanged;
+legacy workplace tables remain empty. Human server untouched; no push/main merge.
+Phase 3 stays 25% by completed groups. Next: fundable first-founder opportunities,
+gradual real-supply training and automatic first warehouses/workshops.
+
 ## October 11, 2026: approved workplace marker observation verified
 
 Nearby loaded barrels and smithing tables can now be recognized as data-only

@@ -61,14 +61,32 @@ public final class BusinessStartupGrants {
         var worker=businesses.hireRows(job,founding.business().id(),request.worker(),founding.business().foundedStep());
         return new Workshop(founding,store,worker,save(receipt));
     }
+    /** Read-only current affordability, not a reservation or permission to found a business. */
+    public StartupGrantPolicy.Review preview(UUID town,String industry,long startup,long capital,StartupGrantPolicy policy)throws SQLException {
+        return transaction(()->previewRows(town,industry,startup,capital,policy));
+    }
+    /** Shares the caller's owner transaction; acceptance must still recheck all evidence. */
+    StartupGrantPolicy.Review previewRows(UUID town,String industry,long startup,long capital,StartupGrantPolicy policy)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Startup preview rows require owner transaction");
+        try{return budget(town,industry,startup,capital,policy).review();}
+        catch(Declined refusal){return new StartupGrantPolicy.Review(false,0,refusal.getMessage());}
+    }
+    private record Budget(long period,long cash,long demand,StartupGrantPolicy.Review review) {}
     private Receipt prepare(BusinessFounding founding,long capital,StartupGrantPolicy policy)throws SQLException {
         var business=founding.business();var old=find(business.id());
         if(old.isPresent())return old.orElseThrow(); // Accepted terms replay through the startup seam, never a new grant.
         if(new BusinessRepository(connection).findBusiness(business.id()).isPresent())throw new Declined("Existing business cannot claim a retroactive startup grant");
-        if(capital<0)throw new IllegalArgumentException("Negative working capital");
+        var budget=budget(business.settlementId(),business.industry(),founding.startupHundredths(),capital,policy);
+        if(!budget.review().eligible())throw new Declined(budget.review().reason());
         long amount=Math.addExact(founding.startupHundredths(),capital);
+        return new Receipt(business.id(),business.settlementId(),budget.period(),founding.startupHundredths(),capital,
+                budget.review().protectedHundredths(),budget.cash(),budget.cash()-amount,budget.demand(),policy.toString());
+    }
+    private Budget budget(UUID town,String industry,long startup,long capital,StartupGrantPolicy policy)throws SQLException {
+        Objects.requireNonNull(town);Objects.requireNonNull(policy);
+        if(industry==null||!industry.matches("[a-z][a-z0-9_-]{0,63}")||startup<0||capital<0)throw new IllegalArgumentException("Invalid startup preview terms");
+        long amount=Math.addExact(startup,capital);
         if(amount==0)throw new Declined("No public startup spending to fund");
-        var town=business.settlementId();
         var account=new CommodityRepository(connection).read(town).orElseThrow(()->new Declined("Food account not established"));
         long period=account.state().completedPeriods();long demand;
         try(var s=connection.prepareStatement("""
@@ -92,9 +110,7 @@ public final class BusinessStartupGrants {
             s.setLong(1,period);s.setString(2,town.toString());try(var r=s.executeQuery()){totalSpent=r.getLong(1);periodSpent=r.getLong(2);}
         }
         long cash=new TreasuryRepository(connection).load(town).orElseThrow(()->new Declined("Village treasury unknown")).hundredths();
-        var review=policy.review(business.industry(),cash,demand,amount,periodSpent,totalSpent);
-        if(!review.eligible())throw new Declined(review.reason());
-        return new Receipt(business.id(),town,period,founding.startupHundredths(),capital,review.protectedHundredths(),cash,cash-amount,demand,policy.toString());
+        return new Budget(period,cash,demand,policy.review(industry,cash,demand,amount,periodSpent,totalSpent));
     }
     private Receipt save(Receipt receipt)throws SQLException {
         var old=find(receipt.business());if(old.isPresent())return old.orElseThrow();

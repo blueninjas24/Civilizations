@@ -62,12 +62,38 @@ while stopped. Maximum, period, lifetime and food-protection defaults are unchan
 Warehouse and mine/workshop receipts count in the same village sums, including
 closed businesses. Replay retains actual stock, funds and original worker episode;
 changed storage/capital terms fail. This extension reuses schema 49 receipts and
-requires no migration beyond the current schema 51.
+introduced no additional migration in that extension; the current database also
+contains later independently versioned features.
 
-Automatic opportunity selection, career choice and mine/workshop/warehouse founding remain
-unfinished. This trusted backend requires its caller to establish actual demand,
+Automatic mines for current observed ore and real existing customers are implemented
+(see AUTOMATIC_MINES.md); first warehouse/workshop founding and first-founder
+career choice remain unfinished. This trusted backend requires its caller to establish actual demand,
 current suitable evidence, qualification requirements and safe site/storage terms.
 It has no public grant command, scheduler, block edits or chunk loading. It does not
 certify synthetic/old ore evidence or bypass provenance guards. Existing explicit
 startup APIs remain trusted test/composition seams; future automatic founding must
 use the guarded funding path. Old farm terms/operation remain unchanged.
+
+## Read-only startup affordability
+
+`preview` checks the same current food assessment, living population, treasury,
+shared period/lifetime grant spending and editable limits used by acceptance.
+It requires no hypothetical business ID or site and creates no receipt, account,
+stock, job or reservation. Repeated previews do not consume a grant allowance.
+Missing food evidence and ordinary policy refusals become explicit blocked reasons;
+actual SQL errors still propagate and restore the owner transaction state.
+
+An eligible preview is only current affordability. Demand, site, qualification and
+resource trust must still pass; actual acceptance rechecks money and saves all
+assets/payments atomically. Automatic mines now check funding before looking for
+a founder, so a food-protected village reports its real financial obstacle instead
+of suggesting that skill training alone would make the operation possible.
+Historic accepted receipts continue to replay original terms after grant retuning.
+No migration, cash creation, new public command or changed grant defaults.
+
+## Latest verification
+
+Six tests added; focused34 and full Wrapper1,009 passed with no failures/errors/skips.
+Updated native Paper mine probe passed affordability, protected-cash refusal, real
+startup, finite production, world pause and restart. Current schema58 unchanged;
+see PROJECT_STATUS.md for the complete isolation/restoration audit.

@@ -80,6 +80,8 @@ public final class AutomaticMineFounding {
             if(!industry.mining().storageSpacePerUnit().keySet().containsAll(bundle.keySet()))return "Mine founding waits: storage catalog lacks configured outputs";
             long neededSpace=0;for(var e:bundle.entrySet())neededSpace=Math.addExact(neededSpace,Math.multiplyExact(e.getValue(),industry.mining().storageSpacePerUnit().get(e.getKey())));
             if(neededSpace>industry.mining().storageCapacity())return "Mine founding waits: one extraction bundle cannot fit configured storage";
+            var funding=new BusinessStartupGrants(connection).previewRows(town,"mining",policy.startupHundredths(),policy.capitalHundredths(),grants);
+            if(!funding.eligible())return "Mine founding waits: "+funding.reason();
             UUID founder=founder(town);if(founder==null)return "Mine founding waits: bounded page has no qualified unemployed founder; no free skills";
             String key=town+":"+patch.world()+":"+mineral.id()+":"+origin.x()+":"+origin.y()+":"+origin.z();
             UUID siteId=id("civilizations:automatic-mine-site-v1:"+key),businessId=id("civilizations:automatic-mine-business-v1:"+key);

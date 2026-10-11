@@ -163,4 +163,59 @@ class BusinessStartupGrantsTest {
         grants().startMine(request,StartupGrantPolicy.prototype());
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
+    Map<String,List<String>> snapshot()throws SQLException {
+        var names=new ArrayList<String>();var result=new TreeMap<String,List<String>>();
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")){while(r.next())names.add(r.getString(1));}
+        for(var name:names) {
+            var rows=new ArrayList<String>();
+            try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT * FROM \""+name.replace("\"","\"\"")+"\"")) {
+                while(r.next()){var row=new ArrayList<Object>();for(int c=1;c<=r.getMetaData().getColumnCount();c++)row.add(r.getObject(c));rows.add(row.toString());}
+            }Collections.sort(rows);result.put(name,rows);
+        }return result;
+    }
+    @Test void repeatedAffordabilityPreviewLeavesEveryTableUnchangedAcrossRestart()throws Exception {
+        var before=snapshot();var p=StartupGrantPolicy.prototype();
+        var review=grants().preview(town,"warehouse",500,1000,p);assertTrue(review.eligible());assertEquals(2500,review.protectedHundredths());
+        for(int i=0;i<4;i++)assertEquals(review,grants().preview(town,"warehouse",500,1000,p));
+        assertEquals(before,snapshot());db.close();open();assertEquals(review,grants().preview(town,"warehouse",500,1000,p));assertEquals(before,snapshot());
+        assertTrue(db.getConnection().getAutoCommit());
+    }
+    @Test void previewsExplainDisabledIndustryFoodProtectionAndGrantCapsWithoutWrites()throws Exception {
+        var before=snapshot();var p=StartupGrantPolicy.prototype();
+        assertTrue(grants().preview(town,"warehouse",500,1000,StartupGrantPolicy.disabled()).reason().contains("disabled"));
+        assertFalse(grants().preview(town,"fishing",500,1000,p).eligible());
+        assertTrue(grants().preview(town,"warehouse",500,5000,p).reason().contains("single-grant"));
+        assertTrue(grants().preview(town,"mining",500,1000,policy(5000,5000,20000,8501)).reason().contains("protected food"));
+        assertTrue(grants().preview(town,"mining",500,1000,policy(5000,1499,20000,2500)).reason().contains("period"));
+        assertTrue(grants().preview(town,"mining",500,1000,policy(5000,5000,1499,2500)).reason().contains("lifetime"));
+        assertFalse(grants().preview(town,"mining",0,0,p).eligible());assertEquals(before,snapshot());
+    }
+    @Test void missingStaleOrShortageFoodAssessmentDefersWithoutMutatingAnyTables()throws Exception {
+        var p=StartupGrantPolicy.prototype();
+        sql("UPDATE needs_periods SET fulfilled=0");var before=snapshot();assertTrue(grants().preview(town,"mining",500,1000,p).reason().contains("shortage"));assertEquals(before,snapshot());
+        sql("UPDATE needs_periods SET fulfilled=demand");
+        db.getPopulationRepository().insertResident(new Resident(UUID.randomUUID(),"New arrival",town,null,300,Resident.Status.ALIVE));before=snapshot();
+        assertTrue(grants().preview(town,"mining",500,1000,p).reason().contains("Population changed"));assertEquals(before,snapshot());
+        sql("UPDATE economy_accounts SET completed_periods=2");before=snapshot();assertTrue(grants().preview(town,"mining",500,1000,p).reason().contains("assessment missing"));assertEquals(before,snapshot());
+        assertFalse(grants().preview(UUID.randomUUID(),"mining",500,1000,p).eligible());assertEquals(before,snapshot());
+    }
+    @Test void previewReservesNothingAndActualAcceptanceRechecksCashAndSharedGrantQuota()throws Exception {
+        var p=policy(5000,1500,20000,2500);assertTrue(grants().preview(town,"mining",500,1000,p).eligible());
+        new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,-7500,"Explicit fixture spending after preview");var before=snapshot();
+        assertThrows(BusinessStartupGrants.Declined.class,()->grants().startMine(request,p));assertEquals(before,snapshot());
+        new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,7500,"Explicit fixture refund");grants().startMine(request,p);
+        before=snapshot();assertTrue(grants().preview(town,"blacksmith",500,1000,p).reason().contains("period"));assertEquals(before,snapshot());
+        assertEquals(8500,cash());assertEquals(1,count("startup_grants"));
+    }
+    @Test void invalidPreviewTermsAndRealSqlFaultsPropagateAndRestoreOwnerTransactionState()throws Exception {
+        var before=snapshot();var p=StartupGrantPolicy.prototype();
+        assertThrows(IllegalArgumentException.class,()->grants().preview(town,"mining",-1,1000,p));
+        assertThrows(ArithmeticException.class,()->grants().preview(town,"mining",Long.MAX_VALUE,1,p));
+        assertThrows(IllegalArgumentException.class,()->grants().preview(town,"Not an industry",500,1000,p));
+        assertEquals(before,snapshot());assertTrue(db.getConnection().getAutoCommit());
+        sql("ALTER TABLE startup_grants RENAME TO unavailable_grants");
+        assertThrows(SQLException.class,()->grants().preview(town,"mining",500,1000,p));assertTrue(db.getConnection().getAutoCommit());
+        sql("ALTER TABLE unavailable_grants RENAME TO startup_grants");assertEquals(before,snapshot());
+    }
+
 }

@@ -73,4 +73,3 @@ clock/food-clock timestamps, current farm evidence and ore-trust bookkeeping.
 No calendar month or food period advanced; original business assets, finances,
 residents, skills, courses and history were unchanged. New main-fixture workplace
 tables stayed empty under legacy opt-out. Human server untouched; no push/merge.
-
