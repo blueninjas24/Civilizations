@@ -159,6 +159,21 @@ public final class EconomyRuntimeRepository {
             return study.enrollRows(operation,resident,town,skill,clock(town).anchor().targetSteps());
         });
     }
+    /** Actual existing job opportunities; no fake employer or enrollment into earned backlog. */
+    public String reviewCareerStudy(UUID business,com.blueninjas24.civilizations.industry.CareerStudyPolicy policy,long step,long now)throws SQLException {
+        if(step<0||now<0)throw new IllegalArgumentException("Invalid career observation time");
+        if(!policy.enabled()||!studyPolicy.enabled())return "Automatic career study disabled";
+        return transaction(()-> {
+            var founding=new BusinessRepository(connection).findFounding(business).orElseThrow();var town=founding.business().settlementId();
+            if(!hasRuntime(town)||!active(town))return "Career study waits for initialized present-world economy";
+            var evidence=farm(town);
+            if(evidence==null||!evidence.complete())return "Career study waits for complete food evidence";
+            long period=commodities.read(town).orElseThrow().state().completedPeriods();
+            if(period==0)return "Career study waits for first completed food assessment";
+            accrue(town,now,false);
+            return new AutomaticCareerStudy(connection,policy,studyPolicy,adulthood).reviewRows(business,step,period,clock(town).anchor().targetSteps());
+        });
+    }
     private boolean active(UUID town) throws SQLException {
         if (loadedWorlds == null) return true;
         try (var s = connection.prepareStatement("SELECT world_id FROM settlement_worlds WHERE settlement_id=?")) {

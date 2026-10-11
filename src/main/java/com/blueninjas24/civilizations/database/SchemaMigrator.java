@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 56;
+    static final int CURRENT_VERSION = 57;
 
     @FunctionalInterface
     interface Migration {
@@ -823,6 +823,30 @@ final class SchemaMigrator {
                             FOREIGN KEY(business_id,period) REFERENCES commerce_learning_reviews(business_id,period)
                         )
                         """);
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE career_study_reviews (
+                            business_id TEXT NOT NULL REFERENCES businesses(id),
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                            period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                            commodity TEXT NOT NULL CHECK(commodity='food'),
+                            after_resident TEXT NOT NULL,
+                            policy TEXT NOT NULL,
+                            explanation TEXT NOT NULL,
+                            PRIMARY KEY(business_id,period),
+                            FOREIGN KEY(settlement_id,period,commodity) REFERENCES economy_periods(settlement_id,period,commodity)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE career_study_enrollments (
+                            course_id TEXT PRIMARY KEY REFERENCES resident_courses(id),
+                            business_id TEXT NOT NULL REFERENCES businesses(id),
+                            period INTEGER NOT NULL,
+                            FOREIGN KEY(business_id,period) REFERENCES career_study_reviews(business_id,period) DEFERRABLE INITIALLY DEFERRED
+                        )
+                        """);
+                    execute(connection,"CREATE INDEX career_vacancy_courses ON career_study_enrollments(business_id,course_id)");
                 }
 
         ));
@@ -981,6 +1005,10 @@ final class SchemaMigrator {
             if(migrations.size()>=50) {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
+            if(migrations.size()>=57){
+                requireColumns(connection,"career_study_reviews",Set.of("business_id","settlement_id","period","commodity","after_resident","policy","explanation"));
+                requireColumns(connection,"career_study_enrollments",Set.of("course_id","business_id","period"));
             }
             if(migrations.size()>=56){
                 requireColumns(connection,"commerce_learning_reviews",Set.of("business_id","period","enabled","skill","gain","ceiling","worker_budget","explanation"));

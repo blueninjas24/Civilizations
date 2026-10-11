@@ -2,15 +2,15 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
-Villagers now have a gradual, editable commerce skill. Real warehouse supply orders
-can teach their employees; idle time and ownership alone cannot. Commerce study
-uses real village materials. All 963 tests and isolated Paper checks passed; your
-server has not been changed.
+Villages can now select adults to train for real job openings. Residents learn
+using actual materials and are hired only after becoming qualified. If the opening
+disappears, its training stops. All 977 tests and isolated Paper checks passed;
+your server has not been changed.
 
-Phase 3 is still 25% by completed milestone groups. Automatic first mines/workshops,
-career selection, wider industry and specialization remain. Commerce training is
-approved; no decision is currently needed for this completed batch. See
-COMMERCE_LEARNING.md for what is implemented and what remains.
+Phase 3 is still 25% by completed milestone groups. First business founders,
+suitable funded opportunities, wider industry and specialization remain. The next
+work connects current ore evidence and genuine demand to automatic mine startups.
+See VACANCY_CAREERS.md. No decision currently blocks this completed batch.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project

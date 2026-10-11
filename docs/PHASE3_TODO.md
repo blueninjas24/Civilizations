@@ -1,5 +1,10 @@
 # Phase 3 — businesses and industry checklist
 
+Verified actual-vacancy career study: saved bounded choices, real practice supplies,
+normal qualified hiring, vanished-opening cancellation, atomic rollback and
+restart/world-pause safety. 977 tests and native Paper passed; schema57 preserves
+old course/history. First founders remain; see VACANCY_CAREERS.md.
+
 Verified October11 commerce batch: editable supply-backed courses and actual paid
 warehouse-order experience, transactional schema56 audits, 963 passing tests and
 isolated Paper checks. Sales-only learning, career choice and first merchant
@@ -166,9 +171,11 @@ premises are preferred; physical building reuse remains Phase 4.
       observed productive slots; transaction rollback, pause/restart, retained
       ceilings verified in temporary SQLite and actual Paper PopulationSession;
       earned succession qualification covered in SQLite. Legacy adults do not learn.
+- [x] Automatic existing-vacancy study with real job requirements and later ordinary
+      hiring; cancellation, supplies, saved pages and actual Paper verified.
 - [ ] Bound broader skill development and investment; no manufactured profit or payroll.
       Actual employee learning and internal supply-backed adult study are verified;
-      automatic opportunity-based career selection and investment integration remain.
+      first-founder career opportunities and investment integration remain.
       No free skills, money or bypass of founder requirements.
 - [x] Saved explicit sale offers, immutable accepted price/deadline, online-only
       elapsed time and atomic paid completion; temp SQL failure/restart/migration

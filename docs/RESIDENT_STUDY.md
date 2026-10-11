@@ -2,8 +2,9 @@
 
 User approved gradual training with editable costs and limits. This implements
 saved courses and their execution inside actual village food periods. Enrollment
-is an internal trusted opportunity boundary; it does not yet automatically select
-careers, found mines/workshops, create teachers or provide a player training command.
+has an internal trusted boundary and an automatic actual-vacancy selector
+(VACANCY_CAREERS.md). It does not yet select first founders, create teachers,
+found mines/workshops or provide a player training command.
 
 A learner must be a living local adult without an open business job or operating
 owned business. One active course per person and a village enrollment budget prevent
@@ -85,5 +86,5 @@ behavior. Existing dev assets/skills/history retained; integrity/FKs passed. Tes
 server stopped normally and settings restored; human server unchanged.
 
 October 11: approved commerce course uses actual timber practice supplies with the
-same food/material protection, saved terms and eligibility. No automatic enrollment
-or instant mining-to-merchant career conversion. See COMMERCE_LEARNING.md.
+same food/material protection, saved terms and eligibility. Automatic actual-vacancy enrollment is supported separately; no instant
+mining-to-merchant career conversion. See COMMERCE_LEARNING.md.

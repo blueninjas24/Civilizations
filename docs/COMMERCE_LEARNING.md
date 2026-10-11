@@ -3,7 +3,8 @@
 Approved October 11, 2026. Commerce is a separate saved skill; mining or smithing
 experience does not automatically qualify a merchant. This first batch supports
 supply-backed study and experience from real new paid warehouse upstream orders.
-Automatic career selection and first warehouse/shop founding are not implemented.
+Automatic study for actual existing vacancies is described in VACANCY_CAREERS.md.
+First warehouse/shop founder selection remains unimplemented.
 
 ## Editable settings
 
@@ -19,8 +20,8 @@ per successful food period. The timber represents expendable handling/packing
 practice, not free stock or an accounting fee. Admins can change target, materials,
 gain, student budgets and reserves. Accepted courses retain their original terms;
 current food/material protection still applies. Enrollment uses the existing
-trusted internal opportunity boundary; no automatic course or player command is
-created. A course target is not yet a universal merchant founding threshold.
+trusted opportunity boundary, now used by the automatic actual-vacancy selector.
+No player training command is created. A course target is not yet a universal merchant founding threshold.
 
 ## Actual work and accounting
 
@@ -38,7 +39,7 @@ commit together or all roll back. Production audits remain separate: purchasing
 is not manufactured output. No new cash, salary, goods or ownership waiver.
 
 This batch does not yet award sales-only or delivery-only experience, train shop
-staff, select careers or build shops/warehouses. Those need their actual transaction
+staff, select first founders or build shops/warehouses. Those need their actual transaction
 and opportunity adapters. It does not invent fake customers or use old sales to
 train new hires. The canonical nine-phase roadmap remains unchanged.
 

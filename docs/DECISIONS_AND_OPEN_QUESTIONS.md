@@ -9,8 +9,9 @@ skill, automatic profession conversion or ownership cap is authorized.
 
 The first implementation connects actual new paid warehouse upstream orders to
 current employee experience. Supply-backed commerce courses use editable practice
-materials. Sales-only learning, automatic career enrollment, founder selection and
-first merchant opportunities remain subsequent scoped work. See COMMERCE_LEARNING.md.
+materials. Automatic existing-vacancy enrollment now connects the approved courses to real
+job requirements; see VACANCY_CAREERS.md. Sales-only learning, founder selection
+and first merchant opportunities remain subsequent scoped work. See COMMERCE_LEARNING.md.
 
 ## October 11, 2026: real spare-business upkeep contributions approved
 

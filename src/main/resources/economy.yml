@@ -464,3 +464,13 @@ upkeep-contributions:
   spare-cash-percent: 50
   per-business-period-limit-hundredths: 4000
   per-village-period-limit-hundredths: 4000
+
+# Train only for real vacancies at existing living-owner firms, never fake employers.
+# One saved review per business/food period; qualified residents use normal hiring.
+# Existing files opt in; accepted courses retain terms and spend actual practice goods.
+# Courses cancel if their linked job disappears. Automatic first founders are separate.
+automatic-career-study:
+  enabled: true
+  candidates-per-review: 64
+  enrollments-per-review: 1
+  industries: [mining, blacksmith, warehouse]

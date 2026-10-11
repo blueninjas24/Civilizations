@@ -1,5 +1,49 @@
 # Development and recovery procedures
 
+## October 11, 2026: automatic real-vacancy career training verified
+
+Existing living-owner mines, smiths and warehouses can choose unemployed local
+adults for actual skill-requiring vacancies. Ordinary qualified hiring runs first.
+Courses must be able to meet saved job requirements, share village student/course
+budgets and cannot overbook openings. Saved per-food-period reviews/candidate pages
+avoid duplicate enrollment and survive restart. Training spends real protected
+practice goods in future food periods; enrollment gives no skill, job or money.
+Filled/closed/unavailable-owner opportunities cancel before spending; manual
+courses remain independent. No first founders, imaginary employer or salary.
+
+Schema57 adds empty linked career review/enrollment tables without backfilling old
+courses or skills. Course, saved opportunity/cursor and time accrual commit together.
+Untimed status refreshes cannot enroll into previously unobserved earned time.
+Strict automatic-career-study settings opt legacy files out; owner files preserved.
+
+Fourteen tests added. Focused104 passed before the final saved-page test; final
+Windows .\mvnw.cmd clean verify passed977 (975 unit/two packaged integration), zero
+failures/errors/skips, 4:27. Initial tests had a wrong fixture column and assumed
+queued periods drain faster than the bounded runtime; corrected test expectations.
+Native helper initially used package-private constructors; fixed test-only code to
+read SQL. Launch mistakenly proceeded with the older plugin after helper compile
+failure; stopped that run, installed successful helper/current verified JAR, reran.
+No production source changed after full verification.
+
+CareerStudyProbe passed on marked pinned Paper with actual PopulationSession:
+one selected adult, two actual practice periods, two retained skill points, one
+normal hire, one saved course, four total practice units and unchanged10000 cash.
+Repeated pulse, world absence and restart neither spend nor award twice. Integrity
+and foreign keys healthy. Human server untouched; no push/main merge.
+
+Disposable fixture backed up before both native launches. Current schema57 healthy;
+81/94 original tables unchanged. Thirteen changes exactly one normal age-only month
+1727-to1728, one food period28-to29 (zero stock/output, shortage22-to23), one ordinary
+SEEK_FOOD decision and associated needs/appeal/clock/world/ore bookkeeping. All old
+reports/decisions, assets, finances and identity/history retained; new career audits
+empty under legacy opt-out. Both launches stopped normally with no forced chunks;
+original properties restored byte-exact and successful helper archived.
+
+Phase3 remains25% by complete milestone groups. Existing-job career response now
+works automatically; safe suitable funded first industries and broader industry
+mixes/long-run specialization still remain. Next: observed demand-backed mines.
+See VACANCY_CAREERS.md. No new consequential decision needed for this batch.
+
 ## October 11, 2026: approved gradual commerce learning verified
 
 Added editable commerce study and actual paid warehouse-order experience. Each

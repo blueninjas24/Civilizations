@@ -22,6 +22,11 @@ public final class BusinessRuntime {
     private String cursor = "";
     private AutomaticBusinessResale resale;
     private AutomaticBusinessStaffing staffing;
+    private EconomyRuntimeRepository economy;
+    private com.blueninjas24.civilizations.industry.CareerStudyPolicy careerPolicy=com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();
+    public void configureCareerStudy(EconomyRuntimeRepository economy,com.blueninjas24.civilizations.industry.CareerStudyPolicy policy) {
+        this.economy=Objects.requireNonNull(economy);careerPolicy=Objects.requireNonNull(policy);
+    }
     public void configureStaffing(com.blueninjas24.civilizations.industry.BusinessStaffingPolicy policy) {
         staffing=new AutomaticBusinessStaffing(connection,policy);
     }
@@ -36,9 +41,12 @@ public final class BusinessRuntime {
         resale=new AutomaticBusinessResale(connection,policy,funding,seed);
     }
     public Snapshot refresh(long completedMonth, Set<UUID> loadedWorlds) throws SQLException {
-        return refresh(completedMonth,loadedWorlds,0,false);
+        return refresh(completedMonth,loadedWorlds,0,false,false);
     }
     public Snapshot refresh(long completedMonth,Set<UUID> loadedWorlds,long now,boolean allowSales)throws SQLException {
+        return refresh(completedMonth,loadedWorlds,now,allowSales,true);
+    }
+    private Snapshot refresh(long completedMonth,Set<UUID> loadedWorlds,long now,boolean allowSales,boolean allowCareers)throws SQLException {
         if(!connection.getAutoCommit())throw new SQLException("Business runtime requires idle SQL owner");
         long total;
         try(var s=connection.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM businesses")) { total=r.getLong(1); }
@@ -62,6 +70,7 @@ public final class BusinessRuntime {
                 new BusinessClosure(connection).closeIfExpired(id,completedMonth);
                 if(allowSales&&resale!=null){resale.review(id,completedMonth,now);b=businesses.findBusiness(id).orElseThrow();}
                 if(staffing!=null)hiring=staffing.review(id,completedMonth);
+                if(allowCareers&&economy!=null&&careerPolicy.enabled())hiring+="; "+economy.reviewCareerStudy(id,careerPolicy,completedMonth,now);
             }
             int open;
             String separation;

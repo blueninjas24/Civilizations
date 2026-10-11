@@ -27,6 +27,7 @@ public final class EconomyConfiguration {
         if (config.contains("upkeep-contributions")) rootKeys.add("upkeep-contributions");
         if (config.contains("farm-tools")) rootKeys.add("farm-tools");
         if (config.contains("farm-tool-budget")) rootKeys.add("farm-tool-budget");
+        if (config.contains("automatic-career-study")) rootKeys.add("automatic-career-study");
         if (config.contains("automatic-business-staffing")) rootKeys.add("automatic-business-staffing");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("business-operations")) rootKeys.add("business-operations");
@@ -48,6 +49,7 @@ public final class EconomyConfiguration {
         readWarehouseSupply(config);
         readToolUpkeep(config);
         readBusinessStaffing(config);
+        readCareerStudy(config);
         readFarmToolBudget(config);
         readFarmTools(config);
         readUpkeepContributions(config);
@@ -119,6 +121,15 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-tool-budget.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy(enabled,integer(s,"tool-trade-value-hundredths"),
                 integer(s,"per-period-limit-hundredths"),integer(s,"minimum-treasury-hundredths"),smallInteger(s,"food-reserve-periods"),integer(s,"food-unit-value-hundredths"));
+    }
+    public static com.blueninjas24.civilizations.industry.CareerStudyPolicy readCareerStudy(ConfigurationSection config) {
+        if(!config.contains("automatic-career-study"))return com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();
+        var s=section(config,"automatic-career-study");exactKeys(s,Set.of("enabled","candidates-per-review","enrollments-per-review","industries"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("automatic-career-study.enabled must be true or false");
+        if(!(s.get("industries") instanceof List<?> raw)||raw.size()>32||raw.stream().anyMatch(x->!(x instanceof String))||new HashSet<>(raw).size()!=raw.size())
+            throw new IllegalArgumentException("automatic-career-study.industries must be a distinct bounded list");
+        var kinds=new HashSet<String>();raw.forEach(x->kinds.add((String)x));
+        return new com.blueninjas24.civilizations.industry.CareerStudyPolicy(enabled,smallInteger(s,"candidates-per-review"),smallInteger(s,"enrollments-per-review"),kinds);
     }
     public static com.blueninjas24.civilizations.industry.BusinessStaffingPolicy readBusinessStaffing(ConfigurationSection config) {
         if(!config.contains("automatic-business-staffing"))return com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();

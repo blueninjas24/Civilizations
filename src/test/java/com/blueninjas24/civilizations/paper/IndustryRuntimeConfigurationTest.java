@@ -97,4 +97,13 @@ class IndustryRuntimeConfigurationTest {
         config.set("work-learning.industry-skills.warehouse",null);assertFalse(EconomyConfiguration.readWorkLearning(config).industrySkills().containsKey("warehouse"));
     }
 
+    @Test void automaticCareerSettingsAreStrictEditableAndLegacyOptIn()throws Exception {
+        var config=new YamlConfiguration();assertEquals(CareerStudyPolicy.disabled(),EconomyConfiguration.readCareerStudy(config));
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(CareerStudyPolicy.prototype(),EconomyConfiguration.readCareerStudy(config));assertDoesNotThrow(()->EconomyConfiguration.read(config));
+        config.set("automatic-career-study.candidates-per-review",513);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readCareerStudy(config));
+        config.set("automatic-career-study.candidates-per-review",1);config.set("automatic-career-study.industries",List.of("mining","mining"));assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readCareerStudy(config));
+        config.set("automatic-career-study.industries",List.of("mining"));config.set("automatic-career-study.extra",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readCareerStudy(config));
+    }
+
 }

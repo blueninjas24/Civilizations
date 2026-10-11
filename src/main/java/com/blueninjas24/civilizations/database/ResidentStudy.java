@@ -63,6 +63,7 @@ public final class ResidentStudy {
             long experience=experience(course.resident(),course.skill()),after=experience;String status="ACTIVE",reason;
             var person=new PopulationRepository(connection).findResident(course.resident()).orElseThrow();
             if(!eligible(person,town)){status="CANCELLED";reason="Resident no longer a living local unemployed adult";}
+            else if(!AutomaticCareerStudy.opportunityAvailable(connection,course.id())){status="CANCELLED";reason="Linked business vacancy no longer available; practice supplies retained";}
             else if(experience>=course.target()){status="COMPLETED";reason="Target already reached; no supplies spent";}
             else if(!policy.enabled()||!policy.skills().containsKey(course.skill()))reason="Study disabled; supplies retained";
             else if(!laborAvailable)reason="Legacy field output counts all adults; study deferred to avoid double labor";
