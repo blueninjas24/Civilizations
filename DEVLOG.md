@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## October 11, 2026 — paid upstream warehouse restocking
+
+Added WarehouseSupplyPolicy, deterministic WarehouseInputPlan and owner-transaction
+WarehouseSupplies. Existing warehouse clocks buy only available local mine output
+against real funded workshop gaps; operating warehouses' pending imports cover
+future orders once across the village. Qualified staff, own funds, finite space,
+receipt budgets and shared hauling constrain purchases. Existing tagged delivery
+and checkpoint transactions preserve paid cargo on restart/disable/owner loss.
+No production learning is awarded for purchasing. Strict optional economy.yml
+settings enable new files, keep older files opted out. Schema unchanged at 50.
+
+14 new tests, focused 38 passed; full Windows Wrapper clean verify passed 886
+(884 unit + two packaged integration), zero failures/errors/skips, 6:13.
+WarehouseSupplyProbe verified real PopulationSession two-leg paid transport,
+delayed tools, once-only payments, shared haul cap, world absence and clean reopen
+with restocking disabled. Final own DB: four shipments, one tool, reserve eight,
+10000 total cash. Integrity/FKs healthy. Main 82/85 tables unchanged; only
+civilization_time/economy_runtime/ore_tracking bookkeeping updated, all real assets
+and historical identities preserved. Marked fixture backed up, stopped, original
+properties restored byte-for-byte, probe archived; no forced chunks/world writes.
+Initial javac path escaping and missing foreign-key pragma on the probe's read-only
+validator were corrected before native PASS; production code did not require repair.
+Existing Windows OSHI counter warning remains environmental. Human server untouched.
+
+User approved configurable business-paid tool wear/replacements, startup grace
+and slower work without tools. Recorded for the next scoped implementation;
+no tools are consumed or imaginary finished-goods customers created by this batch.
+
 ## October 11, 2026 — funded local industry input demand
 
 Added plain-Java complete input-buffer estimates and bounded read-only village

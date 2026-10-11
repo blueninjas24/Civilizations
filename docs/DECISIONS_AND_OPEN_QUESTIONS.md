@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11, 2026 — business tool upkeep approved
+
+The user approved gradual tool wear at productive businesses, replacement
+purchases paid from their own business money, configurable rates and a startup
+grace period. Missing tools should slow work. This establishes actual maintenance
+demand for blacksmith output; it does not authorize fake consumers, new money,
+individual payroll or public treasury subsidies. Implementation and numerical
+prototype settings are the next scoped batch, not yet implemented by the
+warehouse restocking change. Existing settings must opt in explicitly.
+
 ## October 10, 2026 — limited village startup grants approved
 
 The user approved configurable village startup grants for first privately owned

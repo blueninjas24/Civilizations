@@ -348,6 +348,15 @@ industry-supply:
   input-periods: 2
   warehouses-per-review: 16
 
+# Existing staffed warehouses buy actual extracted mine goods for funded workshop
+# input needs. Uses the same base prices, cargo delay and shared hauling quota.
+# No grant, automatic warehouse founding, markup or imaginary finished-goods buyers.
+# Older files opt in by adding this section; paid cargo survives later disable.
+warehouse-supply:
+  enabled: true
+  customers-per-review: 16
+  producers-per-review: 16
+
 # Gradual practice by unemployed adults selected for actual opportunities.
 # Courses are persistent; this backend does not automatically choose careers yet.
 # Real village supplies are consumed per successful study period; food comes first.

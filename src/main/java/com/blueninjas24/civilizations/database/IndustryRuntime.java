@@ -85,7 +85,7 @@ public final class IndustryRuntime {
             return null;
         });
     }
-    private boolean supported(String kind) {return kind.equals("mining") || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
+    private boolean supported(String kind) {return kind.equals("mining") || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
     private List<Clock> clocks() throws SQLException {
         var result=new ArrayList<Clock>();
         try(var s=connection.createStatement();var r=s.executeQuery("SELECT c.*,b.industry,p.world_id FROM industry_runtime c JOIN businesses b ON b.id=c.business_id JOIN business_sites p ON p.id=b.site_id ORDER BY c.business_id LIMIT 4097")) {
@@ -120,6 +120,8 @@ public final class IndustryRuntime {
                     reason="Paused: ore mutation history requires reviewed recovery; reserve and goods retained";
                 else reason=industry.mineRows(operation,id,deposits.getFirst(),policy.mining().siteBatchCapacity(),period,
                         policy.mining().batchesPerWorker(),policy.mining().siteBatchCapacity()).explanation();
+            } else if(clock.industry().equals("warehouse")) {
+                reason=new WarehouseSupplies(connection,policy,operations).acquireRows(id,clock.world(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod());
             } else {
                 var recipe=policy.recipes().values().stream().filter(r->r.industry().equals(clock.industry())).findFirst();
                 if(recipe.isEmpty())reason="Paused: no configured industry recipe";

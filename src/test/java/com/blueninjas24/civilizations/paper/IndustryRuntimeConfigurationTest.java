@@ -7,6 +7,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void warehouseRestockingIsExplicitEditableAndStrict()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readWarehouseSupply(config).enabled());
+        config.loadFromString("warehouse-supply:\n  enabled: true\n  customers-per-review: 8\n  producers-per-review: 12\n");
+        assertEquals(new WarehouseSupplyPolicy(true,8,12),EconomyConfiguration.readWarehouseSupply(config));
+        config.set("warehouse-supply.customers-per-review",65);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWarehouseSupply(config));
+        config.set("warehouse-supply.customers-per-review",8);config.set("warehouse-supply.enabled","yes");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWarehouseSupply(config));
+        config.set("warehouse-supply.enabled",true);config.set("warehouse-supply.unknown",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWarehouseSupply(config));
+    }
     @Test void supplyReusesEditablePricesAndAbsentOldSectionDoesNotOptIn() throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readWorkshopSupply(config).enabled());
         config.loadFromString("industry-supply:\n  enabled: true\n  input-periods: 2\n  warehouses-per-review: 16\nprices:\n  base-trade-value:\n    iron: 12.25\n    coal: 6\n");

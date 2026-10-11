@@ -1,5 +1,26 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026 — upstream warehouse restocking verified
+
+Existing staffed warehouses now buy actual extracted local mine goods for funded
+workshop input gaps. Real business cash/stock transfer, delayed delivery, shared
+hauling and village-wide pending coverage connect mine → warehouse → blacksmith
+without manual stocking. Qualified staff, bounded complete reviews and storage
+are required. No new firms, money, markup or finished-goods buyers are invented;
+missing old warehouse-supply settings stay disabled. Schema remains 50.
+See WAREHOUSE_RESTOCKING.md. Business tool upkeep was approved during this batch
+and is the next implementation, not a feature of this build.
+
+14 tests added; focused 38 and Windows `.\mvnw.cmd clean verify` passed all 886
+(884 unit/two packaged integration), zero failures/errors/skips, 6:13. Packaged
+Paper actual PopulationSession chain/replay/world-pause/restart/disable passed:
+four paid shipments, one tool, finite reserve eight, total cash 10000 conserved.
+Both SQLite saves healthy. Only main clock/ore-tracking bookkeeping changed;
+all main businesses, goods, finances, resources, residents and history unchanged.
+Fixture stopped normally, exact settings restored, probe archived, no forced
+chunks. Human server untouched. Automatic nonfood founding, actual finished-tool
+needs, wider industries and specialization still prevent the next Phase 3 gate.
+
 ## October 11, 2026 — funded industry input review verified
 
 Existing workshops now have a read-only input-demand review using actual qualified

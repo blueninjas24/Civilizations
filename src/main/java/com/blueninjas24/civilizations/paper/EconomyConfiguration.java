@@ -22,6 +22,7 @@ public final class EconomyConfiguration {
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
+        if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("business-operations")) rootKeys.add("business-operations");
         if (config.contains("automatic-business-resale")) rootKeys.add("automatic-business-resale");
@@ -39,6 +40,7 @@ public final class EconomyConfiguration {
         readAdditionalOreEditors(config);
         readIndustryRuntime(config);
         readWorkshopSupply(config);
+        readWarehouseSupply(config);
         readBusinessPurchasePolicy(config);
         readBusinessOperations(config);
         readWorkLearning(config);
@@ -308,7 +310,14 @@ public final class EconomyConfiguration {
         exactKeys(runtime,Set.of("enabled","real-millis-per-period","businesses-per-pulse"));
         if(!(runtime.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("industry-runtime.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.IndustryRuntimePolicy(enabled,integer(runtime,"real-millis-per-period"),
-                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config),readWorkshopSupply(config));
+                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config),readWorkshopSupply(config),readWarehouseSupply(config));
+    }
+    public static com.blueninjas24.civilizations.industry.WarehouseSupplyPolicy readWarehouseSupply(ConfigurationSection config) {
+        if(!config.contains("warehouse-supply"))return com.blueninjas24.civilizations.industry.WarehouseSupplyPolicy.disabled();
+        var supply=section(config,"warehouse-supply");
+        exactKeys(supply,Set.of("enabled","customers-per-review","producers-per-review"));
+        if(!(supply.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("warehouse-supply.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.WarehouseSupplyPolicy(enabled,smallInteger(supply,"customers-per-review"),smallInteger(supply,"producers-per-review"));
     }
     /** Reuse editable base prices; no second currency, grant or invented supplier. */
     public static com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy readWorkshopSupply(ConfigurationSection config) {

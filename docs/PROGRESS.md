@@ -2,6 +2,13 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: existing warehouses can now stock themselves by paying real local mines.
+Blacksmiths buy the delivered materials and make tools; money and goods cannot
+duplicate through restart. All 886 tests and the isolated Paper chain check passed.
+Your server is unchanged. Automatic new industry and genuine finished-goods needs
+remain before the connected-production group is complete. Phase 3 remains 25% by
+complete groups. You approved business tool upkeep; that is the next scoped batch.
+
 Latest: the mine planner can now check what existing workshops actually need and
 can afford. Goods already owned, deliveries on the way and shared warehouse stock
 reduce that need; nearby coal is ignored if only iron is missing. This is a checked

@@ -68,7 +68,13 @@ Updated October 11, 2026. Reporting progress remains one of four complete groups
 - [x] Existing workshops automatically buy complete affordable recipe inputs from
       actual local warehouse stock; verify payments, delayed cargo, input work,
       rollback, legacy clock isolation, world pause and restart on real Paper.
-      Upstream warehouse stocking and actual finished-goods demand remain.
+      Upstream stocking is verified below; actual finished-goods demand remains.
+- [x] Existing staffed warehouses buy real extracted local mine output for funded
+      workshop needs; shared available/pending stock, real funds, delayed deliveries,
+      hauling, rollback/restart/disable verified in SQLite and actual Paper owner.
+      No automatic founding, markup or imaginary finished-goods consumers.
+- [ ] Approved configurable business-paid tool wear/replacements, startup grace
+      and slower productive work without tools; record genuine maintenance demand.
 - [ ] Add suitable renewable forestry/fishing opportunities and finite stone/sand
       production as scoped catalog/observation work; do not infer resources from a
       biome alone or claim ores beyond the implemented coal/iron catalog.

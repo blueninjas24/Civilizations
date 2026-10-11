@@ -1,5 +1,23 @@
 # Development and recovery procedures
 
+## Warehouse restocking smoke test
+
+WarehouseSupplyProbe is a separate test-only plugin, name
+CivilizationsWarehouseSupplyProbe, main WarehouseSupplyProbe, API 1.21,
+dependency Civilizations. Require the marked localhost disposable fixture,
+port 25578 and no players. Back up the stopped DB/JAR/properties and compile
+separately against the verified packaged JAR/cached dependencies, with empty
+sourcepath. Never deploy the probe to a human server.
+
+It creates synthetic firms/reserves in its own random database, then runs actual
+PopulationSession pulses for paid mine → warehouse → workshop deliveries and tools.
+Check replay, shared hauling, absence, clean restart and disabled new restocking
+without losing already paid cargo. Require NATIVE WAREHOUSE SUPPLY PASS. It edits
+no world blocks/entities and adds no tickets. Stop normally, check both saves
+read-only, restore exact properties and archive the probe outside plugins.
+Schema remains 50. This is not automatic founding or natural customer/site proof.
+See WAREHOUSE_RESTOCKING.md and DEVLOG.md for completed results.
+
 ## Funded industry demand smoke test
 
 IndustryDemandProbe is a separate test-only plugin, name
