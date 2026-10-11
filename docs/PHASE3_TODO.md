@@ -34,6 +34,10 @@ Updated October 10, 2026. Reporting progress remains one of four complete groups
 - [x] Split complete observed coal/iron evidence into deterministic connected patches;
       retain coordinate identity and finite reserves on replay.
 - [ ] Connect safe loaded-chunk observation and coherent resource opportunities.
+- [x] Retain validated positive coal/iron evidence by town/world/coordinate across
+      restart with capture times, atomic rollback, live mutation exclusions and
+      bounded diagnostics; 828 tests and scheduled packaged Paper persistence passed.
+      Fresh suitability, demand, funding and automatic selection remain.
 - [x] Register bounded read-only saved-home ore observation with SQL-owner identity
       and mutation checks; verify the scheduled pipeline on disposable Paper.
       Wider coverage, suitability, durable opportunity selection and funding remain.
@@ -47,6 +51,8 @@ Updated October 10, 2026. Reporting progress remains one of four complete groups
       SQL owner, with atomic receipts/checkpoints, absent-world/downtime pause and
       unloaded data-only work; verify failure isolation and actual session on Paper.
 - [ ] Automatically select/fund/staff nonfood industries under editable settings.
+      October 10 approval: limited configurable village startup grants paid from
+      actual treasury after protecting food funds; implementation still pending.
 - [ ] Connect real local customers and recipes; demand-based reserves, no fake buyers.
 - [x] Existing workshops automatically buy complete affordable recipe inputs from
       actual local warehouse stock; verify payments, delayed cargo, input work,

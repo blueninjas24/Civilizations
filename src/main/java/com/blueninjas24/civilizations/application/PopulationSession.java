@@ -391,10 +391,19 @@ public final class PopulationSession implements AutoCloseable {
             List<com.blueninjas24.civilizations.industry.MineralObservation> observations) {
         var frozen=List.copyOf(observations);
         return submit(()-> {
-            requireReady();if(!oreDiscoveryReady())throw new SQLException("Live ore tracking is not ready; survey paused");
+            // Accepted owner work drains during close; public readiness becomes false immediately.
+            requireReady();if(!trackOres || !oreHistoryHealthy.get())throw new SQLException("Live ore tracking is not ready; survey paused");
             if(loadedWorlds!=null && frozen.stream().anyMatch(o->!loadedWorlds.contains(o.world())))
                 throw new SQLException("Survey world is absent; no live resource observation");
-            return new com.blueninjas24.civilizations.database.MineralSurveyReader(database.getConnection()).read(town,frozen);
+            return new com.blueninjas24.civilizations.database.MineralOpportunities(database.getConnection()).observe(town,frozen);
+        });
+    }
+
+    /** Diagnostic evidence only; a saved observation never authorizes extraction or founding. */
+    public CompletableFuture<List<com.blueninjas24.civilizations.database.MineralOpportunities.Evidence>> mineralOpportunities(UUID town, int limit) {
+        return submit(() -> {
+            requireReady();
+            return new com.blueninjas24.civilizations.database.MineralOpportunities(database.getConnection()).read(town,limit);
         });
     }
 

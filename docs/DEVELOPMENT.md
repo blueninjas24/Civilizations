@@ -163,6 +163,9 @@ No actual villagers or inventories are changed.
 It runs the production PaperOreObserver with explicit small test budgets, saves
 one known placement exclusion in its own DB, and verifies the actual scheduled
 snapshot/SQL-owner pipeline reaches the nearby chunk and reports one admitted patch.
+The schema48 opportunity batch also reads the resulting saved coordinate and capture
+timestamp through the SQL owner, then reopens its separate stopped SQLite DB to
+confirm durable positive evidence, no new business/deposit and healthy integrity/FKs.
 Its injected clock advances during traversal; diagnostics must retain capture time.
 Disable cancels observation,
 closes the owner and restores/checks every fixture block. No mine is founded.

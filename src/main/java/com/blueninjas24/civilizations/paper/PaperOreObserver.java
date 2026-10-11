@@ -49,7 +49,7 @@ public final class PaperOreObserver extends BukkitRunnable {
                     // Callback touches only this volatile text; never world/entity/chunk APIs.
                     completed="Ore survey: "+patches.size()+" observed patches; "+patches.stream().filter(p->p.savedDeposit()!=null).count()
                             +" linked to saved deposits; snapshot captured at "+evidence.getFirst().observedMillis()+"; town "+capturedTarget.town()
-                            +"; chunk "+capturedTarget.chunk().x()+","+capturedTarget.chunk().z()+"; automatic founding still disabled";
+                            +"; chunk "+capturedTarget.chunk().x()+","+capturedTarget.chunk().z()+"; positive evidence saved; automatic founding still disabled";
                 });
                 diagnostic="Ore survey awaiting owner validation";return;
             }

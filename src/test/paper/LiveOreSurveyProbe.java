@@ -55,11 +55,21 @@ public final class LiveOreSurveyProbe extends JavaPlugin {
                 String lastDiagnostic;
                 String completedResult;
                 long expectedSnapshot;
+                CompletableFuture<java.util.List<com.blueninjas24.civilizations.database.MineralOpportunities.Evidence>> savedEvidence;
                 public void run() {
                     try {
                         if(++attempts>600)throw new IllegalStateException("Live observer fixture timed out: "+(observer==null?"owner readiness "+ready.isDone():observer.diagnostic()));
                         if(!ready.isDone())return;ready.join();
                         if(observer==null){observer=new PaperOreObserver(session,new OreObserverPolicy(true,1,64,20,1),observationClock::get);observer.runTaskTimer(LiveOreSurveyProbe.this,1,1);return;}
+                        if(savedEvidence!=null) {
+                            if(!savedEvidence.isDone())return;
+                            var rows=savedEvidence.join();
+                            if(rows.size()!=1 || rows.getFirst().position().x()!=22 || rows.getFirst().excluded()
+                                    || rows.getFirst().lastSeenMillis()!=expectedSnapshot || rows.getFirst().savedDeposit()!=null)
+                                throw new IllegalStateException("Saved live opportunity differs from admitted snapshot: "+rows);
+                            getLogger().info("NATIVE LIVE ORE SURVEY PASS: scheduled nearby snapshot, original capture timestamp, placement exclusion and durable SQL-owner evidence; no automatic founding");
+                            cancel();getServer().getPluginManager().disablePlugin(LiveOreSurveyProbe.this);return;
+                        }
                         if(!observer.diagnostic().equals(lastDiagnostic)){lastDiagnostic=observer.diagnostic();getLogger().info("Survey fixture progress: "+lastDiagnostic);}
                         if(observer.diagnostic().startsWith("Ore survey scanning nearby loaded chunk") && !observer.diagnostic().equals(scanning)) {
                             if(completedResult!=null && !observer.diagnostic().contains("last completed: "+completedResult))throw new IllegalStateException("Next scan hid the previous completed result");
@@ -70,8 +80,8 @@ public final class LiveOreSurveyProbe extends JavaPlugin {
                         if(!observer.diagnostic().contains("snapshot captured at "+expectedSnapshot+";"))throw new IllegalStateException("Snapshot timestamp was rewritten after traversal: "+observer.diagnostic());
                         if(observer.diagnostic().contains("0 observed patches; "))return;
                         if(!observer.diagnostic().contains("1 observed patches; 0 linked"))throw new IllegalStateException("Unexpected live evidence: "+observer.diagnostic());
-                        getLogger().info("NATIVE LIVE ORE SURVEY PASS: nearby loaded chunk beyond empty home, main-thread snapshot/tick budgets, original capture timestamp after clock advance, owner placement exclusion and positive patch; synthetic homes, no automatic founding");
-                        cancel();getServer().getPluginManager().disablePlugin(LiveOreSurveyProbe.this);
+                        observer.cancel();
+                        savedEvidence=session.mineralOpportunities(session.settlementNames().keySet().iterator().next(),512);
                     } catch(RuntimeException failure){cancel();getLogger().log(java.util.logging.Level.SEVERE,"NATIVE LIVE ORE SURVEY FAIL",failure);getServer().getPluginManager().disablePlugin(LiveOreSurveyProbe.this);}
                 }
             }.runTaskTimer(this,1,1);

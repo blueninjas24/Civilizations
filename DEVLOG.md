@@ -1,5 +1,49 @@
 # Civilizations Development Log
 
+## October 10, 2026 — durable mineral opportunities
+
+Schema 48 adds positive coal/iron observation evidence by settlement/world UUID
+and coordinate, with first accepted and latest capture times. The live scheduled
+scanner now saves through the SQL owner in one validation/write transaction.
+Revisit/restart/older scans do not duplicate rows or move latest evidence backward;
+empty or partial observations cannot erase history. Saved claims and sticky native
+placement/removal exclusions are derived at diagnostic read time. This creates no
+business, reserve, money or land permission. Automatic founding still needs fresh
+revalidation, demand, qualification, real funding and storage. A bounded immutable
+owner diagnostic page is available internally, without a new player command.
+
+Nine tests added: eight temporary-SQLite cases and one actual owner/restart case,
+covering replay/timestamps, exclusions, conflict/write rollback, tracking gaps,
+bounds, additive migration failure/retry and shutdown. Initial focused 33 passed.
+The first full run exposed an existing shutdown race: public readiness flips false
+before already accepted survey work drains. Owner work now checks initialized state
+and healthy tracking directly, preserving close rejection of new submissions and
+gap guards. Corrected focused 29 passed. Final Windows `.\mvnw.cmd clean verify`
+passed 828 (826 unit/two packaged integration), zero failures/errors/skips, 5:38.
+The initial full run failed with that one error; it is not counted as a pass.
+
+Packaged guarded LiveOreSurveyProbe passed on marked disposable Paper: scheduled
+nearby loaded-chunk snapshot, original capture time despite clock advancement,
+known placement exclusion, actual durable coordinate 22/capture 8000 and retained
+diagnostic. Reopened probe SQLite confirmed exactly one coal opportunity and no
+business/deposit, healthy integrity/FKs. Blocks restored exactly on disable.
+Console-only fixture chunk tickets removed and absence verified, normal stop exit0.
+
+Backed up the stopped schema47 fixture first. Main upgrade schema48 healthy; 67 of
+81 old tables identical. Fourteen differences are ordinary clock/age/world progress,
+one food/needs/priority period and observation timestamps; no business identity,
+business inventory/cash, mineral reserve, skill, family, trade receipt or treasury
+changes. Main opportunities
+remain zero; only the separate probe save has the synthetic ore evidence. Exact
+server settings restored, test-only JAR archived. Human server/world/DB untouched.
+
+User approved limited configurable village startup grants from real treasury with
+food-budget protection. Recorded approval; grants are next work, not implemented
+by the opportunity table. Phase 3 remains 1/4 complete groups (25%); funded career
+choice, automatic first mines/workshops and connected customers remain. Source,
+schema, observer diagnostic, tests/probe and docs changed on the local feature
+branch. No merge/push. See docs/MINERAL_OPPORTUNITIES.md.
+
 ## October 10, 2026 — native ore-source removal and production trust protection
 
 The registered Paper tracker now records successful ore breaks, destructive

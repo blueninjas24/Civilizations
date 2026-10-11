@@ -5,6 +5,40 @@
 
 
 
+## October 10, 2026 — durable mineral opportunities
+
+The live coal/iron survey now retains positive evidence across restart in schema48:
+settlement/world UUID, coordinate, mineral and first/latest capture timestamps.
+Repeat and older evidence do not duplicate observations; incomplete/empty scans
+do not erase history. Validation and saving are atomic. Current saved deposit links
+and placement/removal exclusions explain historical evidence at read time, without
+refilling reserves or granting a mine/site. A bounded immutable SQL-owner diagnostic
+page supports the next opportunity-selection work; no new player command yet.
+
+Nine added tests cover temporary SQLite rollback/replay/restart/exclusions/gaps,
+bounded diagnostics, migration failure/retry and accepted owner work during shutdown.
+The first full build exposed a readiness/shutdown race in the existing survey seam;
+fixed accepted work to drain using owner initialization/healthy tracking, while new
+submissions still reject and gaps still pause. Focused 33 before the final owner test,
+then corrected focused 29. Final Windows `.\mvnw.cmd clean verify` passed 828
+(826 unit/two packaged integration), zero failures/errors/skips, 5:38.
+
+Guarded packaged Paper scheduled snapshot/exclusion/SQL-owner persistence passed.
+Reopened probe DB retained exactly one expected coal coordinate/capture time and
+no business/deposit; integrity/FKs healthy. Fixture blocks restored, temporary
+console chunk tickets removed and verified absent, normal stop exit0. Main dev
+schema47 backup upgraded to48 with 67/81 old tables identical; normal age/time/world,
+one food period and observation updates explain the rest. Business goods/cash,
+mineral reserves, family/skills, trade receipts and treasury stayed unchanged.
+Main opportunity table empty; synthetic evidence remains in a separate probe DB.
+Settings restored exactly and probe archived; human server/world/DB untouched.
+
+Limited configurable village startup grants with food-budget protection explicitly
+approved and recorded, not yet implemented. Next: grant eligibility/accounting,
+funded career choice and automatic mine/workshop selection with actual demand.
+Phase 3 remains 1/4 complete groups (25%). Local feature-branch work only; no push
+or main merge. See MINERAL_OPPORTUNITIES.md and root DEVLOG.md for full verification.
+
 ## October 10, 2026 — native ore-source removal and production trust protection
 
 The registered Paper tracker now records successful ore breaks, destructive

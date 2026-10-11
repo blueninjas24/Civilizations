@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 47;
+    static final int CURRENT_VERSION = 48;
 
     @FunctionalInterface
     interface Migration {
@@ -653,6 +653,19 @@ final class SchemaMigrator {
                         SELECT 1,1,0,0 WHERE EXISTS(SELECT 1 FROM mineral_sources)
                         ON CONFLICT(id) DO UPDATE SET trusted=0
                         """);
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE mineral_opportunities (
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                            world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                            x INTEGER NOT NULL, y INTEGER NOT NULL, z INTEGER NOT NULL,
+                            mineral TEXT NOT NULL CHECK(mineral IN ('coal','iron')),
+                            first_seen_millis INTEGER NOT NULL CHECK(typeof(first_seen_millis)='integer' AND first_seen_millis>=0),
+                            last_seen_millis INTEGER NOT NULL CHECK(typeof(last_seen_millis)='integer' AND last_seen_millis>=first_seen_millis),
+                            PRIMARY KEY(settlement_id,world_id,x,y,z)
+                        )
+                        """);
                 }
         ));
     }
@@ -806,6 +819,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"study_reviews",Set.of("course_id","settlement_id","period","before_experience","after_experience","reason"));
                 requireColumns(connection,"study_spending",Set.of("course_id","period","commodity","units"));
             }
+            if(migrations.size()>=48)requireColumns(connection,"mineral_opportunities",Set.of("settlement_id","world_id","x","y","z","mineral","first_seen_millis","last_seen_millis"));
             if(migrations.size()>=46) {
                 requireColumns(connection,"mineral_source_adoptions",Set.of("deposit_id","remaining_batches","source_count","explanation"));
                 requireColumns(connection,"mineral_sources",Set.of("world_id","x","y","z","deposit_id","allocated_batches","remaining_batches"));

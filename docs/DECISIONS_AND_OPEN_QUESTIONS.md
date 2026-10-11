@@ -1,5 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 10, 2026 — limited village startup grants approved
+
+The user approved configurable village startup grants for first privately owned
+mines/workshops, paid from actual village money after protecting the food budget.
+This permits new industry without inventing personal bank accounts, estate funds
+or free capital. Grant amounts, limits and food protection must be editable, with
+recorded conservation and rechecked qualification/demand/site prerequisites.
+It does not authorize an unlimited subsidy, a loan/debt system or government
+mechanics ahead of Phase 6. Automatic grant selection/accounting remains to be
+implemented; saved mineral evidence alone creates no business or money.
+
 
 ## October 10, 2026 — approved legacy per-block reserve accounting choice
 

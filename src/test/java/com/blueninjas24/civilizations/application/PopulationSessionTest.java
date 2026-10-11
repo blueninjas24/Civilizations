@@ -74,6 +74,20 @@ class PopulationSessionTest {
             await(session.updateLoadedWorlds(java.util.Set.of(world)));assertTrue(await(session.surveyMinerals(town,pair)).isEmpty());
         }
     }
+    @Test void savedOpportunityDrainsAtShutdownAndReturnsWithRemovalExclusionAfterRestart()throws Exception {
+        var world=observed().worldId();var position=new VillageObservation.Position(0,40,0);UUID town;
+        var session=session(settings(2,12));session.configureOreTracking();await(session.start(false));await(session.observe(observed()));
+        town=session.settlementNames().keySet().iterator().next();
+        var evidence=List.of(new com.blueninjas24.civilizations.industry.MineralObservation(world,1000,true,com.blueninjas24.civilizations.economy.Commodity.COAL,List.of(position)),
+                new com.blueninjas24.civilizations.industry.MineralObservation(world,1000,true,com.blueninjas24.civilizations.economy.Commodity.IRON,List.of()));
+        var saved=session.surveyMinerals(town,evidence);session.close();assertEquals(1,await(saved).size());
+        try(var reopened=session(settings(2,12))) {
+            reopened.configureOreTracking();await(reopened.start(false));assertTrue(reopened.oreDiscoveryReady());
+            var row=await(reopened.mineralOpportunities(town,512)).getFirst();assertEquals(position,row.position());assertEquals(1000,row.lastSeenMillis());assertFalse(row.excluded());
+            await(reopened.recordOreMutations(world,"test-world",List.of(),List.of(position),1001,"Fixture break"));
+            assertTrue(await(reopened.mineralOpportunities(town,512)).getFirst().excluded());assertTrue(await(reopened.surveyMinerals(town,evidence)).isEmpty());
+        }
+    }
     @Test void captureGapBeforeStartupCannotBeOverwrittenBySuccessfulInitialization() throws Exception {
         try(var session=session(settings(2,12))) {
             session.configureOreTracking();session.invalidateOreTracking("early capture gap");await(session.start(false));

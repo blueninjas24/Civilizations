@@ -2,6 +2,13 @@
 
 Updated October 10, 2026. Based on verified work, not planned features.
 
+Latest: villages now remember observed coal/iron locations after restart. Revisits
+do not duplicate them, and placed/removed ore stays excluded. A shutdown save race
+was found and fixed. All 828 tests and the isolated live scanner check passed.
+Your server is unchanged. You approved limited startup grants that protect food
+money; those grants and automatic mine/workshop founding are next. Phase 3 remains
+25% by complete reporting groups; connected production and specialization remain.
+
 Latest: supporting ore now responds to successful block breaks, explosions and
 piston movement. Only the removed block's remaining share is lost; existing goods
 stay safe. If saving fails, mining pauses instead of silently using stale sources.
