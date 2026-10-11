@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void farmWorkSettingsAreStrictAndLegacyFilesStayOptedOut()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readFarmTools(config).enabled());
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(FarmToolUpkeepPolicy.prototype(),EconomyConfiguration.readFarmTools(config));
+        config.set("farm-tools.missing-tools-output-percent",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readFarmTools(config));
+        config.set("farm-tools.missing-tools-output-percent",50);config.set("farm-tools.suppliers-per-review",65);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readFarmTools(config));
+    }
     @Test void farmEquipmentBudgetIsStrictAndMissingLegacySectionIsDisabled()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readFarmToolBudget(config).enabled());
         try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}

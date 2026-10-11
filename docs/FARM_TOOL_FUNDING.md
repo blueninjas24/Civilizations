@@ -45,11 +45,10 @@ businesses, with a village/period budget index. No old stock, cash or employment
 is backfilled. Audited one-tool public equipment stores are recognized separately
 by the nonfood input planner; other unsupported catalogs still defer its review.
 
-This milestone does **not** schedule automatic farm orders, consume tools, slow
-food production, create a new blacksmith, or create warehouse demand. The next
-adapter must tie tool use and wear to actual farm work in the food transaction,
-deliver accepted equipment under the farm clock, and then schedule bounded
-funded replacements. Existing food behavior is unchanged until that work is
-implemented and verified. Temporary SQLite tests verify current payment,
-delivery, restart, conservation, refusal, rollback and migration behavior;
+The funding adapter itself does not produce goods or open a blacksmith. The
+subsequent FARM_TOOLS.md adapter now ties real tool use/service to the food
+transaction, delivers accepted cargo under that clock and schedules bounded
+funded replacements. Automatic first nonfood businesses and wider upstream
+opportunity planning remain unfinished. Temporary SQLite tests verify current
+payment, delivery, restart, conservation, refusal, rollback and migration;
 DEVLOG.md records completed verification.

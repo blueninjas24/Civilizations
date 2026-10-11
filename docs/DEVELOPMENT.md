@@ -1,5 +1,15 @@
 # Development and recovery procedures
 
+October 11 actual farm work: FarmToolsProbe uses a separate synthetic save and
+actual PopulationSession food owners. Verify real recipe-made tools, protected
+public payments, paid arrival/use/service, four food periods, absence/restart and
+conservation. Enable foreign_keys on read-only verification connections before
+repository construction. Back up the stopped marked fixture before schema 54;
+compile against the verified packaged JAR using empty sourcepath. Stop normally,
+compare all original identities/assets and explain ordinary calendar advancement;
+restore properties exactly and archive the test JAR. No probe world edits, forced
+chunks or human server access. DEVLOG.md records completed results.
+
 October 11 public farm equipment seam: FarmToolPurchasesTest uses @TempDir databases,
 real farm food periods, actual workshop recipes and conserved supplier/payment
 receipts. Cover held/incoming kits, food/qualification/world/budget refusal,

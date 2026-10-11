@@ -2,6 +2,12 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: working farms now wear out tools and buy real replacements from local
+suppliers using village money that protects food funds. Tools last through actual
+work, not downtime; farms without tools work more slowly. All 940 tests and the
+final rebuilt-JAR Paper check passed. Your server is unchanged. Automatic first mines/
+workshops and specialization remain; Phase 3 is still 25% by complete groups.
+
 Latest: the payment safeguards for village-funded farm tools are complete.
 They protect food money, pay a real supplier once and prevent duplicate deliveries.
 All 931 tests passed. Automatic farm wear/orders are next; food ownership and your

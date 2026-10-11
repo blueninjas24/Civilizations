@@ -1,5 +1,23 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11, 2026 — village upkeep income decision pending
+
+The actual farm-tool loop is verified, but it transfers village money into private
+supplier accounts. Current opening funds are once-only; player food purchases are
+also village outflows, and cancelled-payment refunds only return reserved funds.
+No recurring treasury income exists. The native example starts with 30000 cash
+and ends with 18000 village / 12000 supplier cash after three real tool invoices;
+nothing is created, but the public budget cannot sustain indefinite replacements.
+
+Asked whether to introduce editable contributions from actual spare business cash
+toward village upkeep, protecting operating reserves, or retain finite budgets
+pending later revenue work. Contribution limits/defaults would be configurable;
+no household wallets, free cash or detailed government system is implied. This
+is a consequential redistribution choice, not permission to invent tax/revenue
+rules. No contribution policy is selected or implemented yet. Player-funded
+village sales are also not implemented; do not claim current food trading refills
+treasury. Automatic founders/careers and broader industry remain unfinished.
+
 ## October 11, 2026 — public farm equipment funding approved
 
 The user approved village treasury payment for needed farm tools under a small,
@@ -10,7 +28,10 @@ created cash, household payroll or tax system is implied. Recurring upkeep is
 separate from the approved shared startup grants. The explicit payment adapter
 is implemented and verified: real toolkit, actual public cash, current farm work
 and food proof, one-space equipment store, paid delivery and saved budget receipt.
-Automatic wear/replacement scheduling remains next. See FARM_TOOL_FUNDING.md.
+Actual food-clock wear, paid arrivals and bounded replacement orders are now
+implemented and verified. Zero output causes no tool use or wear; service is saved
+and absent worlds pause. Missing legacy settings opt out. See FARM_TOOL_FUNDING.md
+and FARM_TOOLS.md. Automatic first nonfood industries remain unfinished.
 
 ## October 11, 2026 — warehouse startup grants approved
 

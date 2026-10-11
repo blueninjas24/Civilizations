@@ -1,5 +1,56 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026 — actual farm tool work and replacements verified
+
+Added FarmTools/FarmToolUpkeepPolicy and food-runtime/session/Paper configuration
+wiring. Actual field/employee-backed food uses editable productive grace, kit
+service and fractional slower output without tools. Zero output never consumes
+or wears a kit or awards work experience. Paid arrivals, actual kit consumption,
+service/fraction, food, learning and checkpoint share the food transaction.
+After committed food, a bounded rotating supplier page can pay an actual local
+smith/warehouse from the approved protected public budget. Held/pending equipment
+prevents duplicates; missing/stale food proof, staff, world or budget defers orders.
+Legacy sections stay opted out and unfamiliar stores are preserved. Disabling
+keeps service/history and permits already-paid arrivals; retuning is forward-only.
+Schema 54 adds empty actual food-work audit; no free kit or state backfill.
+See docs/FARM_TOOLS.md and FARM_TOOL_FUNDING.md.
+
+Nine added tests (eight SQLite runtime and one strict configuration). Initial
+focused 50 passed; final focused 17 and final Windows .\mvnw.cmd clean verify
+passed 940 (938 unit/two packaged integration), zero failures/errors/skips, 4:28.
+The initial full 939 run passed before review added stable scalar-only farm
+transport fingerprints and a regression case: unrelated mining maps/settings
+cannot cause a false farm retune across Java processes. Actual PopulationSession on pinned
+isolated Paper passed four productive periods, three real invoices, two kit uses,
+restart, world absence and repeated-pulse idempotence. Save: 16 food units,
+18000 village cash + 12000 supplier cash = 30000 original funding; three manufactured
+kits = two used + one paid incoming. Saved service (4 productive periods, one service
+period, zero remainder); integrity/FKs healthy. First native check failed because
+the test-only read connection omitted foreign-key enforcement; fixed the probe
+and reran successfully. Production code was unchanged by that repair.
+
+Stopped marked main fixture migrated 52→54. 82/88 original tables unchanged;
+six differences were exactly one normal population month (1722→1723, living age
+577→578) and its active-world/clock/ore bookkeeping. No food period advanced;
+assets, prior history and identities retained. Both new audits empty because
+old fixture configs opt out. Both synthetic saves healthy, including the retained
+partial first probe. Server stopped normally, no forced chunks, exact properties
+restored and test JAR archived. Final rebuilt-JAR Paper check also passed with
+identical synthetic conservation. Before that final run, the stopped 54 save was
+backed up: 84/90 tables unchanged, six differences exactly one additional ordinary
+month (1723→1724, age 578→579) and clock/world/ore bookkeeping. No food period or
+asset/history change; all three synthetic saves healthy (two complete and the
+retained partial reader-failure run). Final settings restored and probe archived.
+Human server/worlds/database untouched.
+
+Phase 3 remains 25% by completed groups. This supplies a genuine recurring farm
+equipment customer; automatic qualified first nonfood founders, upstream opportunity
+selection, broader industries and specialization remain. No push/main merge. A consequential treasury-feedback choice is now pending:
+current village funds are finite, food trades are outflows, and business sales
+keep money privately. Proposed editable contributions from actual spare business
+cash would protect operating reserves; no recurring income/levy is implemented
+without the user's direction. See DECISIONS_AND_OPEN_QUESTIONS.md.
+
 ## October 11, 2026 — protected public farm equipment invoices verified
 
 Implemented FarmToolPurchases and FarmToolBudgetPolicy: a real working village

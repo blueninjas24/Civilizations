@@ -91,6 +91,12 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessStaffingPolicy staffingPolicy=com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessResalePolicy resalePolicy=com.blueninjas24.civilizations.industry.BusinessResalePolicy.disabled();
+    private com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy farmToolsPolicy=com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy farmToolsBudget=com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy.disabled();
+    public void configureFarmTools(com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy policy,com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy budget) {
+        if(started.get())throw new IllegalStateException("Configure farm tools before start");
+        farmToolsPolicy=java.util.Objects.requireNonNull(policy);farmToolsBudget=java.util.Objects.requireNonNull(budget);
+    }
     private boolean listingClockSuspended;
     private volatile String listingClockFailure;
     private volatile String industryFailure;
@@ -268,6 +274,7 @@ public final class PopulationSession implements AutoCloseable {
                 if (economySettings != null) {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
                     economy.configureFarmBusinesses(farmBusinessPolicy,operationPolicy);
+                    economy.configureFarmTools(farmToolsPolicy,farmToolsBudget,industryPolicy.mining());
                     economy.configureStudy(studyPolicy);
                     economy.configureWorkLearning(learningPolicy);
                     if (loadedWorlds == null) economy.start(now.getAsLong());

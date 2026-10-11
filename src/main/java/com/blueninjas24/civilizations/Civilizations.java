@@ -96,6 +96,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureWorkLearning(EconomyConfiguration.readWorkLearning(economyConfig));
             population.configureStudy(EconomyConfiguration.readStudy(economyConfig));
             population.configureBusinessStaffing(EconomyConfiguration.readBusinessStaffing(economyConfig));
+            population.configureFarmTools(EconomyConfiguration.readFarmTools(economyConfig),EconomyConfiguration.readFarmToolBudget(economyConfig));
             population.configureAutomaticResale(EconomyConfiguration.readAutomaticResale(economyConfig));
             var editorGuard = new com.blueninjas24.civilizations.paper.OreEditorGuard(population, getLogger(),
                     EconomyConfiguration.readAdditionalOreEditors(economyConfig));

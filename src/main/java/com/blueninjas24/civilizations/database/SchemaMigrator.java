@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 53;
+    static final int CURRENT_VERSION = 54;
 
     @FunctionalInterface
     interface Migration {
@@ -751,7 +751,23 @@ final class SchemaMigrator {
                         )
                         """);
                     execute(connection,"CREATE INDEX village_farm_tool_budget ON farm_tool_purchases(settlement_id,period)");
-                }
+                },
+                connection -> execute(connection,"""
+                    CREATE TABLE farm_tool_work (
+                        settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                        period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=1),
+                        commodity TEXT NOT NULL CHECK(commodity='food'),
+                        farm_id TEXT NOT NULL REFERENCES businesses(id),
+                        output INTEGER NOT NULL CHECK(typeof(output)='integer' AND output>=0),
+                        requested INTEGER NOT NULL CHECK(typeof(requested)='integer' AND requested>=output),
+                        tools_used INTEGER NOT NULL CHECK(tools_used IN(0,1)),
+                        policy TEXT NOT NULL,
+                        explanation TEXT NOT NULL,
+                        PRIMARY KEY(settlement_id,period),
+                        FOREIGN KEY(settlement_id,period,commodity) REFERENCES economy_periods(settlement_id,period,commodity)
+                    )
+                    """)
+
         ));
     }
 
@@ -909,6 +925,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
             }
+            if(migrations.size()>=54)requireColumns(connection,"farm_tool_work",Set.of("settlement_id","period","commodity","farm_id","output","requested","tools_used","policy","explanation"));
             if(migrations.size()>=53)requireColumns(connection,"farm_tool_purchases",Set.of("operation_id","farm_id","settlement_id","period","price","protected_cash","before_cash","after_cash","policy","terms"));
             if(migrations.size()>=52)requireColumns(connection,"business_hiring_reviews",Set.of("employment_id","policy","explanation"));
             if(migrations.size()>=51) {

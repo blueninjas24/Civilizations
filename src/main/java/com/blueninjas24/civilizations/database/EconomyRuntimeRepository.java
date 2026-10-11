@@ -35,6 +35,21 @@ public final class EconomyRuntimeRepository {
     private com.blueninjas24.civilizations.industry.FarmBusinessPolicy farmBusinesses=com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
     private FarmEnterprises enterprises;
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy farmToolPolicy=com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy farmToolBudget=com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.IndustryPolicy farmToolTransport=com.blueninjas24.civilizations.industry.IndustryPolicy.prototype();
+    private com.blueninjas24.civilizations.industry.BusinessOperationPolicy farmOperations=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
+    private FarmTools farmTools;
+    private boolean farmToolConfiguration;
+    private FarmTools farmTools(){if(farmTools==null)farmTools=new FarmTools(connection,farmToolPolicy,farmToolBudget,farmOperations,farmToolTransport);return farmTools;}
+    public void configureFarmTools(com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy policy,
+                                   com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy budget,
+                                   com.blueninjas24.civilizations.industry.IndustryPolicy transport) {
+        if(inUse||farmTools!=null||farmToolConfiguration)throw new IllegalStateException("Configure farm tools once before economy use");
+        farmToolPolicy=Objects.requireNonNull(policy);farmToolBudget=Objects.requireNonNull(budget);farmToolTransport=Objects.requireNonNull(transport);
+        farmToolConfiguration=true;
+        if(policy.enabled())signature+="|farm-tools-v1:"+policy+"|budget:"+budget+"|delivery:"+transport.localDeliveryPeriods()+"|haul:"+transport.localHaulUnitsPerPeriod();
+    }
     private boolean inUse;
     private final Map<UUID,String> enterpriseReasons=new HashMap<>();
     private final OpeningFunds openingFunds;
@@ -116,7 +131,7 @@ public final class EconomyRuntimeRepository {
     }
     public void configureFarmBusinesses(com.blueninjas24.civilizations.industry.FarmBusinessPolicy policy,com.blueninjas24.civilizations.industry.BusinessOperationPolicy operations) throws SQLException {
         if(inUse || enterprises!=null)throw new IllegalStateException("Configure farm businesses once before using runtime");
-        farmBusinesses=Objects.requireNonNull(policy);enterprises=new FarmEnterprises(connection,policy,adulthood,operations);
+        farmOperations=Objects.requireNonNull(operations);farmBusinesses=Objects.requireNonNull(policy);enterprises=new FarmEnterprises(connection,policy,adulthood,operations);
         if(policy.enabled())signature+="|farm-business-v1:"+policy;
         if(operations.enabled())signature+="|business-operations-v1:"+operations;
     }
@@ -387,7 +402,13 @@ public final class EconomyRuntimeRepository {
             var town = towns.get(Math.floorMod(cursor++, towns.size()));
             if(farmBusinesses.enabled() && active(town) && clock(town).completed()<clock(town).anchor().targetSteps())
                 enterpriseReasons.put(town,enterprises.prepare(farm(town),farms.cropsPerWorker()));
-            if (transaction(() -> step(town))) processed++;
+            if (transaction(() -> step(town))) {
+                processed++;
+                if(farmBusinesses.enabled()&&farmToolPolicy.enabled()) {
+                    String order=farmTools().reviewPurchase(town,clock(town).completed(),loadedWorlds);
+                    enterpriseReasons.put(town,enterpriseReasons.getOrDefault(town,"Farm work reviewed")+"; "+order);
+                }
+            }
         }
         return processed;
     }
@@ -399,13 +420,18 @@ public final class EconomyRuntimeRepository {
         long adults = living(town, false), children = living(town, true);
         long labor=farmBusinesses.enabled()?enterprises.workers(town):adults;
         long output = settings.foodProduction(labor, OptionalLong.of(farm.plantedCrops() / farms.cropsPerWorker()));
-        long nextPeriod=Math.incrementExact(clock.completed());var deliveries=new FoodDeliveryRepository(connection);
+        long nextPeriod=Math.incrementExact(clock.completed());
+        farmTools().deliverRows(town,nextPeriod);
+        var toolWork=farmBusinesses.enabled()?farmTools().prepareRows(town,output):null;
+        if(toolWork!=null)output=toolWork.requested();
+        var deliveries=new FoodDeliveryRepository(connection);
         var incoming=deliveries.eligible(town,nextPeriod);
         var flows = new TreeMap<Commodity, Flow>(); account.state().stocks().keySet().forEach(commodity -> flows.put(commodity, Flow.idle()));
         flows.put(Commodity.FOOD, new Flow(output, FoodDeliveryRepository.units(incoming), settings.foodDemand(adults, children), 0, 0, 0, 0));
         var study=new ResidentStudy(connection,studyPolicy,adulthood);
         var studyPlan=study.planRows(town,nextPeriod,account.state(),flows,farmBusinesses.enabled()||output==0);
         var period = commodities.advanceRows(town, nextPeriod, studyPlan.flows(), settings.shortages());
+        farmTools().finishRows(town,nextPeriod,toolWork,period.reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().production());
         study.applyRows(town,nextPeriod,studyPlan,period);
         if(farmBusinesses.enabled())new FarmLearning(connection,learningPolicy).reviewRows(town,nextPeriod,farm.plantedCrops()/farms.cropsPerWorker());
         var needs = new HouseholdNeedsRepository(connection);
@@ -439,7 +465,8 @@ public final class EconomyRuntimeRepository {
                       new HouseholdWellbeingRepository(connection).load(town,account.state().completedPeriods()),
                       new FoodResponseRepository(connection).load(town,account.state().completedPeriods()).orElse(null),
                       farmBusinesses.enabled()?enterpriseReasons.getOrDefault(town,"Farm business enabled; awaiting eligible economic period")
-                              +new FarmLearning(connection,learningPolicy).explanation(town,account.state().completedPeriods()).map(reason->"; "+reason).orElse(""):
+                              +new FarmLearning(connection,learningPolicy).explanation(town,account.state().completedPeriods()).map(reason->"; "+reason).orElse("")
+                              +farmTools().explanation(town,account.state().completedPeriods()).map(reason->"; "+reason).orElse(""):
                               "Automatic farm businesses disabled; legacy field accounting",
                       new ResidentStudy(connection,studyPolicy,adulthood).summary(town)));
         }

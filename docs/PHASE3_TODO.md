@@ -15,6 +15,12 @@ rollback/replay and preserved legacy catalogs. 931 tests passed. Actual wear,
 food-clock deliveries, automatic replacements and funded upstream pressure remain;
 this seam does not complete the connected-production group.
 
+Verified actual public farm upkeep: food-clock delivery/use/service, fractional
+slow work, zero-output protection and bounded real funded replacements. 940 tests
+and actual PopulationSession on isolated Paper passed. Recurring farm equipment
+customers are now real; automatic first qualified industries/opportunity selection
+and wider specialization remain.
+
 ## 1. Persistent businesses, owners, workers and sites — verified
 
 - [x] Save identities, founders, owners, workplace sites and employment history.
@@ -85,6 +91,9 @@ this seam does not complete the connected-production group.
       workshop needs; shared available/pending stock, real funds, delayed deliveries,
       hauling, rollback/restart/disable verified in SQLite and actual Paper owner.
       No automatic founding, markup or imaginary finished-goods consumers.
+- [x] Approved public farm equipment upkeep, actual work/service, protected real
+      treasury, paid cargo and automatic bounded replacement purchases; verify
+      rollback, zero work, disable, absence/restart and actual session on Paper.
 - [x] Approved configurable business-paid tool wear/replacements, startup grace
       and slower productive work without tools; record genuine maintenance demand.
       902 tests and actual Paper owner wear/cargo/restart checks passed. Farms'
