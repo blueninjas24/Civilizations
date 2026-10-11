@@ -446,3 +446,14 @@ automatic-business-resale:
     coal: 200
     livestock_products: 300
     tools: 800
+
+# Only the cash shortage for a verified public farm toolkit invoice is funded.
+# Supplier keeps its original village-funded capital PLUS this operating reserve.
+# No collection while village funds suffice; no household wallets or minted cash.
+# Missing section in existing owner files disables new contributions.
+upkeep-contributions:
+  enabled: true
+  operating-reserve-hundredths: 8000
+  spare-cash-percent: 50
+  per-business-period-limit-hundredths: 4000
+  per-village-period-limit-hundredths: 4000

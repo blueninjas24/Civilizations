@@ -139,6 +139,73 @@ class FarmToolPurchasesTest {
         purchases().purchase(request,policy(),Set.of(world));assertEquals(16000,cash());
     }
     long stock(UUID business)throws SQLException{return db.getIndustryRepository().store(business).orElseThrow().units().getOrDefault(ToolUpkeepPolicy.TOOLS,0L);}
+    void earnSupplierCash()throws Exception {
+        UUID buyer=UUID.randomUUID();var businesses=new BusinessRepository(db.getConnection());var requirements=new JobRequirements(216,Map.of());
+        var site=new BusinessSite(UUID.randomUUID(),town,world,20,64,0,1000,"Explicit disposable warehouse");
+        businesses.found(new BusinessFounding(new Business(buyer,town,"Fixture buyer",merchant,merchant,"warehouse",site.id(),1,0),site,requirements,requirements,0,"Explicit fixture"));
+        db.getIndustryRepository().openStore(buyer,10,Map.of(ToolUpkeepPolicy.TOOLS,1L),16000);
+        db.getIndustryRepository().purchase(UUID.randomUUID(),seller,buyer,ToolUpkeepPolicy.TOOLS,1,16000,0,1,10);
+        assertEquals(4000,cash());assertEquals(16000,db.getIndustryRepository().store(seller).orElseThrow().hundredths());
+    }
+    @Test void earnedSpareCashFundsOnlyInvoiceShortfallAndConservesMoneyAcrossRestartReplay()throws Exception {
+        earnSupplierCash();var receipt=purchases().purchase(request,policy(),Set.of(world),UpkeepContributionPolicy.prototype());
+        assertEquals(2500,cash());assertEquals(17500,db.getIndustryRepository().store(seller).orElseThrow().hundredths());
+        assertEquals(1,count("upkeep_contributions"));assertEquals(0,stock(seller));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT * FROM upkeep_contributions")) {
+            assertTrue(r.next());assertEquals(2500,r.getLong("amount"));assertEquals(8000,r.getLong("protected_cash"));
+            assertEquals(16000,r.getLong("business_before"));assertEquals(13500,r.getLong("business_after"));
+            assertEquals(4000,r.getLong("treasury_before"));assertEquals(6500,r.getLong("treasury_after"));
+        }
+        db.close();open();assertEquals(receipt,purchases().purchase(request,FarmToolBudgetPolicy.disabled(),Set.of(),UpkeepContributionPolicy.disabled()));
+        assertEquals(2500,cash());assertEquals(1,count("upkeep_contributions"));health();
+    }
+    @Test void sufficientVillageMoneyNeverCollectsContribution()throws Exception {
+        purchases().purchase(request,policy(),Set.of(world),UpkeepContributionPolicy.prototype());
+        assertEquals(0,count("upkeep_contributions"));assertEquals(16000,cash());
+    }
+    @Test void savedPeriodLimitsSurviveRestartAndNewInvoiceIds()throws Exception {
+        earnSupplierCash();purchases().purchase(request,policy(),Set.of(world),UpkeepContributionPolicy.prototype());
+        db.getIndustryRepository().deliver(request.operation(),2);
+        db.getIndustryRepository().consume(UUID.randomUUID(),farm,ToolUpkeepPolicy.TOOLS,1,IndustryRepository.Use.MAINTENANCE,"Explicit fixture actual kit use");
+        sql("UPDATE industry_stock SET units=1 WHERE commodity='iron'");
+        db.getIndustryRepository().process(UUID.randomUUID(),seller,new ProductionRecipe("fixture_more_tools","blacksmith",Map.of(Commodity.IRON,1L),Map.of(ToolUpkeepPolicy.TOOLS,1L),1,1),1,1);
+        db.close();open();var another=new FarmToolPurchases.Request(UUID.randomUUID(),farm,seller,1,1,10);
+        assertThrows(FarmToolPurchases.Declined.class,()->purchases().purchase(another,generous(),Set.of(world),UpkeepContributionPolicy.prototype()));
+        assertEquals(2500,cash());assertEquals(1,count("upkeep_contributions"));assertEquals(1,stock(seller));health();
+    }
+    @Test void disabledContributionAbsentWorldAndStaleFoodCannotMoveCash()throws Exception {
+        earnSupplierCash();
+        assertThrows(FarmToolPurchases.Declined.class,()->purchases().purchase(request,policy(),Set.of(world)));
+        assertThrows(FarmToolPurchases.Declined.class,()->purchases().purchase(request,policy(),Set.of(),UpkeepContributionPolicy.prototype()));
+        sql("DELETE FROM farm_learning_reviews");
+        assertThrows(FarmToolPurchases.Declined.class,()->purchases().purchase(request,policy(),Set.of(world),UpkeepContributionPolicy.prototype()));
+        assertEquals(4000,cash());assertEquals(16000,db.getIndustryRepository().store(seller).orElseThrow().hundredths());assertEquals(0,count("upkeep_contributions"));health();
+    }
+    @Test void reservesAndContributionLimitsNeverOverrideActualSpendingLimits()throws Exception {
+        earnSupplierCash();
+        for(var contribution:List.of(new UpkeepContributionPolicy(true,15000,50,4000,4000),new UpkeepContributionPolicy(true,8000,50,2499,4000),new UpkeepContributionPolicy(true,8000,50,4000,2499)))
+            assertThrows(FarmToolPurchases.Declined.class,()->purchases().purchase(request,policy(),Set.of(world),contribution));
+        var capped=new FarmToolBudgetPolicy(true,4000,3999,2500,2,200);
+        assertThrows(FarmToolPurchases.Declined.class,()->purchases().purchase(request,capped,Set.of(world),UpkeepContributionPolicy.prototype()));
+        assertEquals(4000,cash());assertEquals(0,count("upkeep_contributions"));health();
+    }
+    @Test void failedInvoiceOrContributionAuditRollsBackBothMoneyTransfersAndCargo()throws Exception {
+        earnSupplierCash();
+        for(var table:List.of("upkeep_contributions","farm_tool_purchases")) {
+            sql("CREATE TRIGGER reject_upkeep BEFORE INSERT ON "+table+" BEGIN SELECT RAISE(ABORT,'fixture audit failure'); END");
+            assertThrows(SQLException.class,()->purchases().purchase(request,policy(),Set.of(world),UpkeepContributionPolicy.prototype()));
+            assertEquals(4000,cash());assertEquals(16000,db.getIndustryRepository().store(seller).orElseThrow().hundredths());
+            assertEquals(0,count("upkeep_contributions"));assertEquals(1,stock(seller));assertTrue(db.getIndustryRepository().store(farm).isEmpty());
+            sql("DROP TRIGGER reject_upkeep");health();
+        }
+    }
+    @Test void migration54AddsOnlyEmptyAuditAndRollsBackOnIndexConflict()throws Exception {
+        SchemaFixtures.rewind(db.getConnection(),54);sql("CREATE INDEX village_upkeep_budget ON residents(name)");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){r.next();assertEquals(54,r.getInt(1));}
+        assertEquals(20000,cash());assertEquals(2,stock(seller));sql("DROP INDEX village_upkeep_budget");
+        new SchemaMigrator().migrate(db.getConnection());assertEquals(0,count("upkeep_contributions"));unchanged();health();
+    }
     long cash()throws SQLException{return new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths();}
     long count(String table)throws SQLException{try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){r.next();return r.getLong(1);}}
     void sql(String sql)throws SQLException{try(var s=db.getConnection().createStatement()){s.execute(sql);}}

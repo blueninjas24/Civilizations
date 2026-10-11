@@ -46,7 +46,19 @@ class FarmToolsRuntimeTest {
     long output(long period)throws SQLException{try(var s=db.getConnection().prepareStatement("SELECT production FROM economy_periods WHERE settlement_id=? AND period=? AND commodity='food'")){s.setString(1,town.toString());s.setLong(2,period);try(var r=s.executeQuery()){r.next();return r.getLong(1);}}}
     long count(String table)throws SQLException{try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){r.next();return r.getLong(1);}}
     long cash()throws SQLException{return new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths();}
-    ToolUpkeep.State state()throws SQLException{return new FarmTools(db.getConnection(),upkeep,FarmToolBudgetPolicy.prototype(),BusinessOperationPolicy.prototype(),IndustryPolicy.prototype()).state(farm);}
+    ToolUpkeep.State state()throws SQLException{return new FarmTools(db.getConnection(),upkeep,FarmToolBudgetPolicy.prototype(),BusinessOperationPolicy.prototype(),IndustryPolicy.prototype(),UpkeepContributionPolicy.disabled()).state(farm);}
+    @Test void actualFoodRuntimeRecyclesOnlyRealSupplierSurplusAndPausesWithAbsentWorld()throws Exception {
+        UUID buyer=UUID.randomUUID();var requirements=new JobRequirements(216,Map.of());
+        var site=new BusinessSite(UUID.randomUUID(),town,world,20,64,0,1000,"Explicit fixture warehouse");
+        db.getBusinessRepository().found(new BusinessFounding(new Business(buyer,town,"Fixture buyer",smith,smith,"warehouse",site.id(),1,0),site,requirements,requirements,0,"Explicit fixture"));
+        db.getIndustryRepository().openStore(buyer,10,Map.of(ToolUpkeepPolicy.TOOLS,1L),26000);
+        db.getIndustryRepository().purchase(UUID.randomUUID(),seller,buyer,ToolUpkeepPolicy.TOOLS,1,26000,0,1,10);
+        create(upkeep);runtime.configureUpkeepContributions(UpkeepContributionPolicy.prototype());runtime.startOnline(1000,Set.of(world));
+        runtime.pulse(2000,false);assertEquals(1,count("upkeep_contributions"));assertEquals(2500,cash());assertEquals(27500,db.getIndustryRepository().store(seller).orElseThrow().hundredths());
+        runtime.pulse(3000,false);assertEquals(2,count("upkeep_contributions"));assertEquals(2500,cash());assertEquals(4,output(2));
+        runtime.updateLoadedWorlds(3000,Set.of());runtime.pulse(100000,false);
+        assertEquals(2,count("upkeep_contributions"));assertEquals(2,count("farm_tool_purchases"));assertEquals(30000,cash()+db.getIndustryRepository().store(seller).orElseThrow().hundredths());health();
+    }
     void sql(String sql)throws SQLException{try(var s=db.getConnection().createStatement()){s.execute(sql);}}
     @Test void actualFoodWorkPaysDeliversAndConsumesRealToolsWithoutDuplicateWearOrMoney()throws Exception {
         for(long now=2000;now<=5000;now+=1000)runtime.pulse(now,false);

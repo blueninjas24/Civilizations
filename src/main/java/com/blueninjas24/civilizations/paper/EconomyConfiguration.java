@@ -24,6 +24,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-tools")) rootKeys.add("business-tools");
+        if (config.contains("upkeep-contributions")) rootKeys.add("upkeep-contributions");
         if (config.contains("farm-tools")) rootKeys.add("farm-tools");
         if (config.contains("farm-tool-budget")) rootKeys.add("farm-tool-budget");
         if (config.contains("automatic-business-staffing")) rootKeys.add("automatic-business-staffing");
@@ -49,6 +50,7 @@ public final class EconomyConfiguration {
         readBusinessStaffing(config);
         readFarmToolBudget(config);
         readFarmTools(config);
+        readUpkeepContributions(config);
         readBusinessPurchasePolicy(config);
         readBusinessOperations(config);
         readWorkLearning(config);
@@ -96,6 +98,14 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    public static com.blueninjas24.civilizations.industry.UpkeepContributionPolicy readUpkeepContributions(ConfigurationSection config) {
+        if(!config.contains("upkeep-contributions"))return com.blueninjas24.civilizations.industry.UpkeepContributionPolicy.disabled();
+        var s=section(config,"upkeep-contributions");
+        exactKeys(s,Set.of("enabled","operating-reserve-hundredths","spare-cash-percent","per-business-period-limit-hundredths","per-village-period-limit-hundredths"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("upkeep-contributions.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.UpkeepContributionPolicy(enabled,integer(s,"operating-reserve-hundredths"),smallInteger(s,"spare-cash-percent"),
+                integer(s,"per-business-period-limit-hundredths"),integer(s,"per-village-period-limit-hundredths"));
     }
     public static com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy readFarmTools(ConfigurationSection config) {
         if(!config.contains("farm-tools"))return com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy.disabled();

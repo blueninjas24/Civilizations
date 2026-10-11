@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void contributionSettingsAreEditableStrictAndLegacyOptIn()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readUpkeepContributions(config).enabled());
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(UpkeepContributionPolicy.prototype(),EconomyConfiguration.readUpkeepContributions(config));
+        config.set("upkeep-contributions.spare-cash-percent",101);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readUpkeepContributions(config));
+        config.set("upkeep-contributions.spare-cash-percent",50);config.set("upkeep-contributions.extra",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readUpkeepContributions(config));
+    }
     @Test void farmWorkSettingsAreStrictAndLegacyFilesStayOptedOut()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readFarmTools(config).enabled());
         try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}

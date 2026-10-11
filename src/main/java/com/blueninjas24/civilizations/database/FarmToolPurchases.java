@@ -23,6 +23,10 @@ public final class FarmToolPurchases {
     }
     /** Existing accepted payment can replay while paused/disabled; a new one requires a present world and current food proof. */
     public Receipt purchase(Request request,FarmToolBudgetPolicy policy,Set<UUID> loadedWorlds)throws SQLException {
+        return purchase(request,policy,loadedWorlds,UpkeepContributionPolicy.disabled());
+    }
+    public Receipt purchase(Request request,FarmToolBudgetPolicy policy,Set<UUID> loadedWorlds,UpkeepContributionPolicy contributions)throws SQLException {
+        Objects.requireNonNull(contributions);
         Objects.requireNonNull(request);Objects.requireNonNull(policy);loadedWorlds=Set.copyOf(loadedWorlds);
         if(!connection.getAutoCommit())throw new SQLException("Farm tool funding requires idle SQL owner");
         connection.setAutoCommit(false);
@@ -78,10 +82,20 @@ public final class FarmToolPurchases {
                 s.setString(1,town.toString());s.setLong(2,period);try(var r=s.executeQuery()){r.next();spent=r.getLong(1);}
             }
             long cash=new TreasuryRepository(connection).load(town).orElseThrow(()->new Declined("Village treasury missing")).hundredths();
-            var review=policy.review(cash,demand,spent);if(!review.eligible())throw new Declined(review.reason());
+            var review=policy.review(cash,demand,spent);
             var seller=businesses.findBusiness(request.seller()).orElseThrow(()->new Declined("Actual local supplier required"));
             if(!seller.settlementId().equals(town)||(!seller.industry().equals("warehouse")&&!seller.industry().equals("blacksmith")))
                 throw new Declined("Farm tools require a local warehouse or blacksmith");
+            if(!review.eligible()) {
+                // Contributions cannot override disabled spending, a period cap or an unsupported food reserve.
+                if(!policy.enabled()||review.protectedHundredths()==Long.MAX_VALUE||spent>policy.perPeriodLimit()
+                        ||policy.toolHundredths()>policy.perPeriodLimit()-spent)throw new Declined(review.reason());
+                if(!new BusinessOperations(connection,operations).evaluate(seller.id()).permitted())throw new Declined("Operating supplier required for upkeep contribution");
+                long target=Math.addExact(review.protectedHundredths(),policy.toolHundredths());
+                new FarmUpkeepContributions(connection).fundRows(request,town,Math.subtractExact(target,cash),contributions);
+                cash=new TreasuryRepository(connection).load(town).orElseThrow().hundredths();
+                review=policy.review(cash,demand,spent);if(!review.eligible())throw new Declined(review.reason());
+            }
             var saved=industry.store(request.farm());
             if(saved.isPresent()) {
                 var store=saved.orElseThrow();

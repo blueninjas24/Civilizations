@@ -63,7 +63,7 @@ funding, conserved manufactured tools, rollback, restart, absence and disabling.
 The probe operates through actual PopulationSession owners on the marked disposable
 Paper fixture, without world/entity edits or forced chunks. See DEVLOG.md for results.
 
-Long-run funding remains an open decision: existing treasury is finite and private
-suppliers keep actual payments. Current player food trading is a public outflow.
-Spare-business-cash upkeep contributions are proposed, not implemented, pending
-user direction. No hidden recurring income is credited to maintain this loop.
+Approved real spare-business contributions cover genuine invoice cash shortfalls
+from the actual supplier under editable reserves and caps. Contribution and real
+goods/payment share one transaction; no income is minted. This does not guarantee
+unlimited work or net profit. See UPKEEP_CONTRIBUTIONS.md for scope and verification.

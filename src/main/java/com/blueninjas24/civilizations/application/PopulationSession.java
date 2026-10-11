@@ -97,6 +97,11 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure farm tools before start");
         farmToolsPolicy=java.util.Objects.requireNonNull(policy);farmToolsBudget=java.util.Objects.requireNonNull(budget);
     }
+    private com.blueninjas24.civilizations.industry.UpkeepContributionPolicy upkeepContributions=com.blueninjas24.civilizations.industry.UpkeepContributionPolicy.disabled();
+    public void configureUpkeepContributions(com.blueninjas24.civilizations.industry.UpkeepContributionPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure contributions before start");
+        upkeepContributions=java.util.Objects.requireNonNull(policy);
+    }
     private boolean listingClockSuspended;
     private volatile String listingClockFailure;
     private volatile String industryFailure;
@@ -275,6 +280,7 @@ public final class PopulationSession implements AutoCloseable {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
                     economy.configureFarmBusinesses(farmBusinessPolicy,operationPolicy);
                     economy.configureFarmTools(farmToolsPolicy,farmToolsBudget,industryPolicy.mining());
+                    economy.configureUpkeepContributions(upkeepContributions);
                     economy.configureStudy(studyPolicy);
                     economy.configureWorkLearning(learningPolicy);
                     if (loadedWorlds == null) economy.start(now.getAsLong());

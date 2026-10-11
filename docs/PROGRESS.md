@@ -2,6 +2,13 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: an actual supplier can now help cover a farm tool bill from earned spare
+cash, keeping its operating reserve and the village's food money protected.
+Nothing is minted or collected when funds suffice. All 951 tests and isolated
+Paper passed. Your server is unchanged. Automatic first industries/specialization
+remain; Phase 3 stays 25% by complete milestone groups. Next: fix warehouse
+restocking around farms' tools-only stores, then connect genuine upstream demand.
+
 Latest: working farms now wear out tools and buy real replacements from local
 suppliers using village money that protects food funds. Tools last through actual
 work, not downtime; farms without tools work more slowly. All 940 tests and the

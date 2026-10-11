@@ -1,22 +1,20 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October 11, 2026 — village upkeep income decision pending
+## October 11, 2026: real spare-business upkeep contributions approved
 
-The actual farm-tool loop is verified, but it transfers village money into private
-supplier accounts. Current opening funds are once-only; player food purchases are
-also village outflows, and cancelled-payment refunds only return reserved funds.
-No recurring treasury income exists. The native example starts with 30000 cash
-and ends with 18000 village / 12000 supplier cash after three real tool invoices;
-nothing is created, but the public budget cannot sustain indefinite replacements.
+The user approved configurable upkeep contributions from actual spare business
+cash, with operating funds protected. Opening funds remain once-only; player food
+purchases are public outflows and refunds are not income. No household wallets,
+minted cash or government/tax system is authorized here.
 
-Asked whether to introduce editable contributions from actual spare business cash
-toward village upkeep, protecting operating reserves, or retain finite budgets
-pending later revenue work. Contribution limits/defaults would be configurable;
-no household wallets, free cash or detailed government system is implied. This
-is a consequential redistribution choice, not permission to invent tax/revenue
-rules. No contribution policy is selected or implemented yet. Player-funded
-village sales are also not implemented; do not claim current food trading refills
-treasury. Automatic founders/careers and broader industry remain unfinished.
+Implementation is scoped to a verified public farm-tool invoice whose village
+cash falls short after food protection. Its operating local supplier may fund
+that exact shortage from saved sales-backed cash. Original village-funded capital
+plus an editable reserve, spare-cash percentage and saved business/village period
+caps stay protected. Contribution and actual goods invoice commit together or
+both roll back. Gross sales are not claimed to be net profit. Existing owner files
+opt in. See UPKEEP_CONTRIBUTIONS.md for settings, limits and verification.
+Automatic first industries, careers and broader specialization remain unfinished.
 
 ## October 11, 2026 — public farm equipment funding approved
 

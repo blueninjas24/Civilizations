@@ -39,9 +39,15 @@ public final class EconomyRuntimeRepository {
     private com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy farmToolBudget=com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy.disabled();
     private com.blueninjas24.civilizations.industry.IndustryPolicy farmToolTransport=com.blueninjas24.civilizations.industry.IndustryPolicy.prototype();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy farmOperations=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.UpkeepContributionPolicy upkeepContributions=com.blueninjas24.civilizations.industry.UpkeepContributionPolicy.disabled();
+    public void configureUpkeepContributions(com.blueninjas24.civilizations.industry.UpkeepContributionPolicy policy) {
+        if(inUse||farmTools!=null)throw new IllegalStateException("Configure contributions before economy use");
+        upkeepContributions=Objects.requireNonNull(policy);
+        if(policy.enabled())signature+="|upkeep-contributions-v1:"+policy;
+    }
     private FarmTools farmTools;
     private boolean farmToolConfiguration;
-    private FarmTools farmTools(){if(farmTools==null)farmTools=new FarmTools(connection,farmToolPolicy,farmToolBudget,farmOperations,farmToolTransport);return farmTools;}
+    private FarmTools farmTools(){if(farmTools==null)farmTools=new FarmTools(connection,farmToolPolicy,farmToolBudget,farmOperations,farmToolTransport,upkeepContributions);return farmTools;}
     public void configureFarmTools(com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy policy,
                                    com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy budget,
                                    com.blueninjas24.civilizations.industry.IndustryPolicy transport) {

@@ -1,5 +1,41 @@
 # Development and recovery procedures
 
+## October 11, 2026: verified real spare-business farm upkeep contributions
+
+Implemented the approved cash feedback as an exact invoice-shortfall transfer
+from the actual operating local supplier. Original village-funded store capital
+plus editable operating reserve, percentage of spare cash, sales-backed cumulative
+limit and saved business/village food-period caps stay protected. No collection
+when public funds suffice; no partial transfer, household wallets, free money or
+net-profit claim. Contribution, public payment, real stock/cargo and both audits
+share one transaction. Existing files opt out; accepted invoices replay safely
+while disabled/absent. Session/Paper config uses forward food-tuning rules.
+
+Schema 55 adds empty upkeep_contributions and budget/supplier-sales indexes;
+no asset/history backfill. Eleven tests added: actual sales/invoice conservation,
+reserve/quota guards, rollback, current food/world proof, replay/restart, runtime
+pause, strict config, numeric bounds and failed schema54 upgrade/retry.
+Focused 40 passed. Windows .\mvnw.cmd clean verify passed 951 (949 unit/two packaged
+integration), zero failures/errors/skips, 4:23. Initial focused compilation needed
+test constructor/signature updates; corrected before successful verification.
+
+Final packaged JAR passed test-only UpkeepContributionsProbe on pinned marked
+localhost Paper: actual PopulationSession four food periods, three invoices,
+10500 total supplier contributions, two used manufactured kits, restart/absence
+and repeated pulse. Four original kits = two used + one farm pending + one warehouse
+pending; cash remains 30000 (2500 village + 27500 supplier). Integrity/FKs healthy.
+Stopped main fixture backed up before migration54-to55: 87/90 original tables
+unchanged, only civilization_time/economy_runtime/ore_tracking bookkeeping changed;
+no population month, food period, assets or history changed. New audit empty under
+legacy opt-out settings. Normal server exit, no forced chunks, exact properties
+restored and probe archived. Human server unchanged. No push/main merge.
+
+Phase 3 remains 25% by complete groups; automatic qualified nonfood founding,
+resource opportunity selection and specialization remain. See UPKEEP_CONTRIBUTIONS.md.
+Review found a related pre-existing warehouse producer-query omission: audited
+public farm equipment stores can be mistaken for unsupported producers. Narrow
+restocking regression fix is next; unfamiliar stores must remain explicitly fenced.
+
 October 11 actual farm work: FarmToolsProbe uses a separate synthetic save and
 actual PopulationSession food owners. Verify real recipe-made tools, protected
 public payments, paid arrival/use/service, four food periods, absence/restart and

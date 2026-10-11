@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 54;
+    static final int CURRENT_VERSION = 55;
 
     @FunctionalInterface
     interface Migration {
@@ -766,7 +766,28 @@ final class SchemaMigrator {
                         PRIMARY KEY(settlement_id,period),
                         FOREIGN KEY(settlement_id,period,commodity) REFERENCES economy_periods(settlement_id,period,commodity)
                     )
-                    """)
+                    """),
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE upkeep_contributions (
+                            operation_id TEXT PRIMARY KEY REFERENCES treasury_entries(operation_id),
+                            invoice_id TEXT NOT NULL UNIQUE REFERENCES farm_tool_purchases(operation_id) DEFERRABLE INITIALLY DEFERRED,
+                            business_id TEXT NOT NULL REFERENCES industry_stores(business_id),
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                            period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=1),
+                            amount INTEGER NOT NULL CHECK(typeof(amount)='integer' AND amount>0),
+                            protected_cash INTEGER NOT NULL CHECK(typeof(protected_cash)='integer' AND protected_cash>=0),
+                            business_before INTEGER NOT NULL CHECK(typeof(business_before)='integer' AND business_before>=0),
+                            business_after INTEGER NOT NULL CHECK(typeof(business_after)='integer' AND business_after>=protected_cash AND business_after=business_before-amount),
+                            treasury_before INTEGER NOT NULL CHECK(typeof(treasury_before)='integer' AND treasury_before>=0),
+                            treasury_after INTEGER NOT NULL CHECK(typeof(treasury_after)='integer' AND treasury_after=treasury_before+amount),
+                            policy TEXT NOT NULL
+                        )
+                        """);
+                    execute(connection,"CREATE INDEX village_upkeep_budget ON upkeep_contributions(settlement_id,period)");
+                    execute(connection,"CREATE INDEX business_upkeep_budget ON upkeep_contributions(business_id,period)");
+                    execute(connection,"CREATE INDEX local_supplier_sales ON local_shipments(seller_id)");
+                }
 
         ));
     }
@@ -925,6 +946,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
             }
+            if(migrations.size()>=55)requireColumns(connection,"upkeep_contributions",Set.of("operation_id","invoice_id","business_id","settlement_id","period","amount","protected_cash","business_before","business_after","treasury_before","treasury_after","policy"));
             if(migrations.size()>=54)requireColumns(connection,"farm_tool_work",Set.of("settlement_id","period","commodity","farm_id","output","requested","tools_used","policy","explanation"));
             if(migrations.size()>=53)requireColumns(connection,"farm_tool_purchases",Set.of("operation_id","farm_id","settlement_id","period","price","protected_cash","before_cash","after_cash","policy","terms"));
             if(migrations.size()>=52)requireColumns(connection,"business_hiring_reviews",Set.of("employment_id","policy","explanation"));

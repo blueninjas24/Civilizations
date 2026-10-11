@@ -12,10 +12,11 @@ final class FarmTools {
     private final FarmToolBudgetPolicy budget;
     private final BusinessOperationPolicy operations;
     private final IndustryPolicy transport;
+    private final UpkeepContributionPolicy contributions;
     private final LinkedHashMap<UUID,String> suppliers=new LinkedHashMap<>();
     FarmTools(Connection connection,FarmToolUpkeepPolicy policy,FarmToolBudgetPolicy budget,
-              BusinessOperationPolicy operations,IndustryPolicy transport) {
-        this.connection=connection;this.policy=policy;this.budget=budget;this.operations=operations;this.transport=transport;
+              BusinessOperationPolicy operations,IndustryPolicy transport,UpkeepContributionPolicy contributions) {
+        this.connection=connection;this.policy=policy;this.budget=budget;this.operations=operations;this.transport=transport;this.contributions=contributions;
     }
     ToolUpkeep.State state(UUID farm)throws SQLException {
         try(var s=connection.prepareStatement("SELECT productive_periods,service_periods,remainder_percent FROM business_tools WHERE business_id=?")) {
@@ -91,7 +92,7 @@ final class FarmTools {
             try {
                 var request=new FarmToolPurchases.Request(id("civilizations:farm-tool-order-v1:"+town+":"+period+":"+seller),farm,seller,period,
                         transport.localDeliveryPeriods(),transport.localHaulUnitsPerPeriod());
-                new FarmToolPurchases(connection,operations).purchase(request,budget,worlds);
+                new FarmToolPurchases(connection,operations).purchase(request,budget,worlds,contributions);
                 reason="Actual public toolkit paid; delivery after food period "+Math.addExact(period,transport.localDeliveryPeriods());break;
             }catch(FarmToolPurchases.Declined declined){reason="Farm equipment order waits: "+declined.getMessage();break;}
         }

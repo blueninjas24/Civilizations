@@ -21,6 +21,13 @@ and actual PopulationSession on isolated Paper passed. Recurring farm equipment
 customers are now real; automatic first qualified industries/opportunity selection
 and wider specialization remain.
 
+Verified approved supplier upkeep contributions: exact actual invoice shortfall,
+sales-backed surplus after original capital + editable reserve, saved caps,
+transactional conservation/replay and active-world pause. 951 tests + isolated
+Paper passed; schema55 adds empty audit. No blanket levy, minted cash or net-profit
+claim. Nonfood founders and specialization remain. Warehouse producer scanning
+needs a narrow audited-farm equipment exclusion; then public farm upstream demand.
+
 ## 1. Persistent businesses, owners, workers and sites — verified
 
 - [x] Save identities, founders, owners, workplace sites and employment history.
