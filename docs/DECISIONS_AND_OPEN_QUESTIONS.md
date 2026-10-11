@@ -1,5 +1,25 @@
 # Civilizations — locked decisions and unresolved questions
 
+
+## October 10, 2026 — pending legacy per-block reserve accounting choice
+
+Inspection after farm learning: mineral_deposits stores a shared remaining batch
+balance. Saved coordinate evidence has no per-coordinate depletion ledger; later
+overlapping evidence can add identity without adding reserves. Supporting block
+loss is approved, but how to allocate a legacy vein's remaining balance is unresolved.
+
+Question sent to the user: may remaining resources in existing veins be divided
+evenly across their saved supporting ore coordinates, with subsequent abstract
+mining draining those shares evenly? Removing one coordinate would retire only
+its remaining share. Conversion must preserve total remaining batches, extracted
+goods, payments and immutable discovery/production history, with an adoption audit
+and deterministic remainder handling. Alternative: preserve existing aggregate
+veins and introduce per-block accounting only for newly created veins.
+
+This is a proposal, not an approved rule or implemented migration. No reserve,
+source, break listener or production behavior changed. Automatic first mines remain
+unfinished; the completed schema 45 farm-learning batch is independent of this choice.
+
 ## October 10, 2026 — unlimited private ownership approved
 
 The user chose unlimited business ownership where private ownership applies.

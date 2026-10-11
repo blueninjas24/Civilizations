@@ -3,6 +3,18 @@
 
 
 
+
+## October 10, 2026 — source-loss accounting decision requested
+
+Read-only inspection confirmed that existing mineral reserves are aggregate;
+coordinate claims do not save a per-block depletion history. Asked whether to
+allocate existing remaining reserves evenly across supporting coordinates or
+leave legacy veins unchanged and apply the ledger only to future discoveries.
+The approved one-block-loss rule needs this legacy allocation choice before
+implementation. Recorded both paths in DECISIONS_AND_OPEN_QUESTIONS.md; no source,
+world, reserve or database change made by this follow-on inspection. Farm learning
+remains committed and verified at 792 passing tests/Paper; Phase 3 remains 25%.
+
 ## October 10, 2026 — farm employees learn through actual food production
 
 Automatic field-enterprise employees now gain configurable farming experience in
