@@ -9,6 +9,12 @@ world-pause checks. 917 tests and isolated Paper passed. Farm equipment funding
 is approved; its protected public-budget adapter is next. This does not complete
 automatic careers/founding or specialization.
 
+Verified public farm equipment funding seam: actual working fields/current food
+proof, one real toolkit, protected actual treasury/period budget, paid cargo,
+rollback/replay and preserved legacy catalogs. 931 tests passed. Actual wear,
+food-clock deliveries, automatic replacements and funded upstream pressure remain;
+this seam does not complete the connected-production group.
+
 ## 1. Persistent businesses, owners, workers and sites — verified
 
 - [x] Save identities, founders, owners, workplace sites and employment history.

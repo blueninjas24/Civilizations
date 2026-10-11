@@ -7,7 +7,10 @@ editable upkeep budget protecting food funds. Preserve worker-backed food going
 straight into village supplies; farms need not become private food sellers.
 Real tool goods and actual payments must be conserved and audited; no free tools,
 created cash, household payroll or tax system is implied. Recurring upkeep is
-separate from the approved shared startup grants. Implementation is next.
+separate from the approved shared startup grants. The explicit payment adapter
+is implemented and verified: real toolkit, actual public cash, current farm work
+and food proof, one-space equipment store, paid delivery and saved budget receipt.
+Automatic wear/replacement scheduling remains next. See FARM_TOOL_FUNDING.md.
 
 ## October 11, 2026 — warehouse startup grants approved
 

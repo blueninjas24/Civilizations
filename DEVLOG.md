@@ -1,5 +1,34 @@
 # Civilizations Development Log
 
+## October 11, 2026 — protected public farm equipment invoices verified
+
+Implemented FarmToolPurchases and FarmToolBudgetPolicy: a real working village
+farm can receive one actual local toolkit paid by village treasury, after current
+food/population proof and editable reserve/period-budget checks. Exact invoice
+funds leave no farm cash; supplier goods/cash, paid cargo, new empty equipment
+store and budget receipt commit or roll back together. Held/incoming equipment
+prevents another order. Accepted payments replay after restart/disable without
+spending again. Unfamiliar old farm catalogs/cash are preserved. The nonfood
+planner recognizes audited public equipment stores without ignoring other unknown
+catalogs. Config is strict and missing legacy sections stay disabled.
+Schema 53 adds an empty payment audit and village-period index; no asset backfill.
+See docs/FARM_TOOL_FUNDING.md.
+
+14 tests added (12 temporary-SQLite payment cases, one budget and one config case).
+Initial focused 18 passed; final focused 29 passed before the final eligibility
+case. Final Windows .\mvnw.cmd clean verify passed 931 (929 unit/two packaged
+integration), zero failures/errors/skips, 4:51. Earlier full run passed before
+review added farm-work proof, public-store compatibility and qualification guards;
+the final full run includes all changes. Rollback/upgrade/restart, real recipe
+output, payment/stock conservation and food ownership are covered. No Paper/server
+launch or deployment for this explicit database adapter; Minecraft-facing runtime
+wiring is not introduced. Human server, worlds and database remain untouched.
+
+This is a verified funding seam, not automatic tool consumption, repeat orders,
+new blacksmiths or warehouse demand. Next: actual farm work/wear and paid deliveries
+under the food clock, then bounded funded replacements and first-industry planning.
+Phase 3 remains 25% by complete groups; no canonical roadmap changes.
+
 ## October 11, 2026 — bounded business vacancy hiring verified
 
 Existing live-owner mines, workshops and warehouses now fill saved vacancies

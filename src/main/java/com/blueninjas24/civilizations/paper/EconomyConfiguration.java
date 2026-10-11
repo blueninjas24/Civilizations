@@ -24,6 +24,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-tools")) rootKeys.add("business-tools");
+        if (config.contains("farm-tool-budget")) rootKeys.add("farm-tool-budget");
         if (config.contains("automatic-business-staffing")) rootKeys.add("automatic-business-staffing");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("business-operations")) rootKeys.add("business-operations");
@@ -45,6 +46,7 @@ public final class EconomyConfiguration {
         readWarehouseSupply(config);
         readToolUpkeep(config);
         readBusinessStaffing(config);
+        readFarmToolBudget(config);
         readBusinessPurchasePolicy(config);
         readBusinessOperations(config);
         readWorkLearning(config);
@@ -92,6 +94,13 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    public static com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy readFarmToolBudget(ConfigurationSection config) {
+        if(!config.contains("farm-tool-budget"))return com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy.disabled();
+        var s=section(config,"farm-tool-budget");exactKeys(s,Set.of("enabled","tool-trade-value-hundredths","per-period-limit-hundredths","minimum-treasury-hundredths","food-reserve-periods","food-unit-value-hundredths"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-tool-budget.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy(enabled,integer(s,"tool-trade-value-hundredths"),
+                integer(s,"per-period-limit-hundredths"),integer(s,"minimum-treasury-hundredths"),smallInteger(s,"food-reserve-periods"),integer(s,"food-unit-value-hundredths"));
     }
     public static com.blueninjas24.civilizations.industry.BusinessStaffingPolicy readBusinessStaffing(ConfigurationSection config) {
         if(!config.contains("automatic-business-staffing"))return com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();

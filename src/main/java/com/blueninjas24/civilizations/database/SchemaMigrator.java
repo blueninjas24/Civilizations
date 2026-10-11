@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 52;
+    static final int CURRENT_VERSION = 53;
 
     @FunctionalInterface
     interface Migration {
@@ -734,7 +734,24 @@ final class SchemaMigrator {
                         policy TEXT NOT NULL,
                         explanation TEXT NOT NULL
                     )
-                    """)
+                    """),
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE farm_tool_purchases (
+                            operation_id TEXT PRIMARY KEY NOT NULL REFERENCES local_shipments(id),
+                            farm_id TEXT NOT NULL REFERENCES businesses(id),
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                            period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=1),
+                            price INTEGER NOT NULL CHECK(typeof(price)='integer' AND price>0),
+                            protected_cash INTEGER NOT NULL CHECK(typeof(protected_cash)='integer' AND protected_cash>=0),
+                            before_cash INTEGER NOT NULL CHECK(typeof(before_cash)='integer' AND before_cash>=0),
+                            after_cash INTEGER NOT NULL CHECK(typeof(after_cash)='integer' AND after_cash>=protected_cash AND after_cash=before_cash-price),
+                            policy TEXT NOT NULL,
+                            terms TEXT NOT NULL
+                        )
+                        """);
+                    execute(connection,"CREATE INDEX village_farm_tool_budget ON farm_tool_purchases(settlement_id,period)");
+                }
         ));
     }
 
@@ -892,6 +909,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
             }
+            if(migrations.size()>=53)requireColumns(connection,"farm_tool_purchases",Set.of("operation_id","farm_id","settlement_id","period","price","protected_cash","before_cash","after_cash","policy","terms"));
             if(migrations.size()>=52)requireColumns(connection,"business_hiring_reviews",Set.of("employment_id","policy","explanation"));
             if(migrations.size()>=51) {
                 requireColumns(connection,"business_tools",Set.of("business_id","productive_periods","service_periods","remainder_percent"));

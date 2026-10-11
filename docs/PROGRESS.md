@@ -2,6 +2,12 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: the payment safeguards for village-funded farm tools are complete.
+They protect food money, pay a real supplier once and prevent duplicate deliveries.
+All 931 tests passed. Automatic farm wear/orders are next; food ownership and your
+server are unchanged. Phase 3 remains 25% by completed groups, with automatic first
+industries and specialization still unfinished.
+
 Latest: qualified villagers can now fill vacancies at existing mines, workshops
 and warehouses, without abandoning another job. Worker replacement, restart and
 world pause passed the isolated Paper check; all 917 automated tests passed.

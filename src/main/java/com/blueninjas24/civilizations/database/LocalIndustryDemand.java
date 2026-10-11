@@ -46,7 +46,12 @@ public final class LocalIndustryDemand {
         var workshops=new ArrayList<UUID>();var warehouses=new ArrayList<UUID>();
         try(var s=connection.prepareStatement("""
             SELECT b.id,b.industry FROM businesses b JOIN industry_stores k ON k.business_id=b.id
-            WHERE b.settlement_id=? AND (b.industry<>'mining' OR ?=1) ORDER BY b.id LIMIT ?
+            WHERE b.settlement_id=? AND (b.industry<>'mining' OR ?=1)
+              AND NOT(b.industry='farming' AND k.capacity=1 AND k.hundredths=0
+                AND EXISTS(SELECT 1 FROM farm_tool_purchases f WHERE f.farm_id=b.id)
+                AND (SELECT COUNT(*) FROM industry_stock c WHERE c.business_id=b.id)=1
+                AND EXISTS(SELECT 1 FROM industry_stock c WHERE c.business_id=b.id AND c.commodity='tools' AND c.space_per_unit=1))
+            ORDER BY b.id LIMIT ?
             """)) {
             s.setString(1,town.toString());s.setInt(2,policy.tools().applies("mining")?1:0);s.setInt(3,businessLimit+policy.supply().warehousesPerReview()+1);
             try(var r=s.executeQuery()) {

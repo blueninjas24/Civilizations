@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void farmEquipmentBudgetIsStrictAndMissingLegacySectionIsDisabled()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readFarmToolBudget(config).enabled());
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(FarmToolBudgetPolicy.prototype(),EconomyConfiguration.readFarmToolBudget(config));
+        config.set("farm-tool-budget.food-reserve-periods",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readFarmToolBudget(config));
+        config.set("farm-tool-budget.food-reserve-periods",2);config.set("farm-tool-budget.extra",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readFarmToolBudget(config));
+    }
     @Test void staffingIsOptInForOldFilesAndBudgetsAreStrict()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readBusinessStaffing(config).enabled());
         config.loadFromString("automatic-business-staffing:\n  enabled: true\n  candidates-per-review: 64\n  hires-per-review: 2\n  industries: [mining, blacksmith, warehouse]\n");

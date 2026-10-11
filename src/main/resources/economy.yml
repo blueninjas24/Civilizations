@@ -7,6 +7,17 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# Public farm equipment invoice policy; explicit funding adapter, not yet automatic wear/purchasing.
+# Food still goes straight into village supplies; no private farm cash or paid food sale.
+# One actual toolkit per invoice; recurring cap is separate from startup grants.
+farm-tool-budget:
+  enabled: true
+  tool-trade-value-hundredths: 4000
+  per-period-limit-hundredths: 4000
+  minimum-treasury-hundredths: 2500
+  food-reserve-periods: 2
+  food-unit-value-hundredths: 200
+
 # EXISTING firms fill real vacancies with qualified, unemployed local residents.
 # Living local owner required; deceased owners' firms retain existing staff only.
 # No poaching, free skills, wage wallets or new businesses. Farms use their own adapter.

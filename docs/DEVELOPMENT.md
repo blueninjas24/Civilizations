@@ -1,5 +1,13 @@
 # Development and recovery procedures
 
+October 11 public farm equipment seam: FarmToolPurchasesTest uses @TempDir databases,
+real farm food periods, actual workshop recipes and conserved supplier/payment
+receipts. Cover held/incoming kits, food/qualification/world/budget refusal,
+rollback, old catalogs, schema 52→53 and failed migration retry. Run Wrapper clean
+verify; no human server/database or Paper probe is needed for this explicit
+unwired database adapter. Validate actual PopulationSession/Paper wiring when
+farm work/wear and replacement scheduling are introduced. See FARM_TOOL_FUNDING.md.
+
 October 11 vacancy hiring check: BusinessStaffingProbe uses its own synthetic
 SQLite save and actual PopulationSession. Verify unqualified owner exclusion,
 qualified hiring, finite output, saved death/replacement, once-only audit,
