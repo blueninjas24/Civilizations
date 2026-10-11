@@ -49,6 +49,10 @@ resident-study:
       practice-supplies:
         stone: 1
         timber: 1
+    commerce:
+      target-experience: 10
+      practice-supplies:
+        timber: 1
     smithing:
       target-experience: 10
       practice-supplies:
@@ -79,3 +83,7 @@ was corrected to read old stock directly. Isolated Paper confirmed hungry pause,
 exact two stone/timber consumption, skill0→1→2 and completed/restart/world-pause
 behavior. Existing dev assets/skills/history retained; integrity/FKs passed. Test
 server stopped normally and settings restored; human server unchanged.
+
+October 11: approved commerce course uses actual timber practice supplies with the
+same food/material protection, saved terms and eligibility. No automatic enrollment
+or instant mining-to-merchant career conversion. See COMMERCE_LEARNING.md.

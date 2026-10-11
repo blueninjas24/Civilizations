@@ -119,4 +119,11 @@ class ResidentStudyTest {
         runtime=runtime(policy(2,2,2));runtime.startOnline(2000,Set.of(world));runtime.pulse(3000,false);assertEquals(1,xp(person));assertEquals(1,xp(other));
         runtime=runtime(StudyPolicy.disabled());runtime.startOnline(3000,Set.of());assertEquals("ACTIVE",runtime.enrollStudy(course,person,town,"mining",3000).status());
     }
+    @Test void commerceStudyUsesRealPracticeMaterialsAndCannotInstantlyChangeCareers()throws Exception {
+        runtime=runtime(StudyPolicy.prototype());runtime.startOnline(1000,Set.of(world));runtime.enrollStudy(course,person,town,"commerce",1000);
+        runtime.pulse(2000,false);assertEquals(1,db.getPopulationRepository().findWorkProfile(person).orElseThrow().experience().getOrDefault("commerce",0L));
+        assertEquals(19,stock(Commodity.TIMBER));assertEquals(20,stock(Commodity.STONE));assertEquals("ACTIVE",saved().status());assertEquals(10,saved().target());
+        runtime.pulse(2000,false);assertEquals(19,stock(Commodity.TIMBER));assertEquals(0,count("businesses"));
+    }
+
 }

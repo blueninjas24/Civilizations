@@ -1,5 +1,42 @@
 # Civilizations Development Log
 
+## October 11, 2026: approved gradual commerce learning verified
+
+Added editable commerce study and actual paid warehouse-order experience. Each
+productive review awards a current living local qualified employee at most one
+configured gain, regardless of order count. Ownership alone, idle/delivery-only
+periods, absent worlds, old receipts and retries award nothing. Courses consume
+real protected village practice materials; prototype commerce target10/timber1
+remains editable. No automatic career enrollment or first merchant founding.
+
+Schema56 transactionally adds three empty commerce audit tables linked to actual
+purchase receipts and industry checkpoints. No asset/history/skill backfill or
+phantom production. Failure rolls back goods, money, experience and audit together.
+Existing owner files require explicit commerce settings; they are not overwritten.
+
+Ten tests added: actual new orders, one gain for multiple orders, owner exclusion,
+idle/restart/absence, disabled/unmapped/budget/over-ceiling behavior, checkpoint and
+audit rollback, failed schema55 upgrade/retry, real course supplies and editable
+config. Focused47 passed. Windows .\mvnw.cmd clean verify passed963 (961 unit/two
+packaged integration), zero failures/errors/skips, 4:35. Final packaged JAR passed
+CommerceLearningProbe on marked pinned localhost Paper using actual PopulationSession:
+two actual paid orders, one employee gain, 10000 total cash, delayed goods/real
+workshop output, no extra awards after idle/restart/absence. Integrity/FKs healthy.
+
+Stopped disposable fixture backed up before schema55-to56; 79/91 original tables
+unchanged. Twelve differences are exactly one ordinary age-only population month
+1726-to1727, one food period27-to28 (zero stock/output; prior shortage21-to22), and
+associated needs/appeal/clocks/world/ore bookkeeping. Old reports retained; business
+assets, treasury, estate and identity/history preserved. New commerce audits remain
+empty in the legacy fixture. Normal shutdown/no forced chunks; exact original
+properties restored and native helper archived. Human server untouched. No push or
+main merge. No production source change after full verification.
+
+Phase3 remains25% (one complete group/four), not inflated by partial backend work.
+Approved commerce now unblocks subsequent career/opportunity selection. Sales-only
+learning, automatic first qualified industries and broader specialization remain.
+See COMMERCE_LEARNING.md. No new design question needed for this batch.
+
 ## October 11, 2026: bounded funded supplier selection verified
 
 An expected supplier-specific contribution refusal now permits the next stocked

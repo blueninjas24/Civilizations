@@ -1,5 +1,10 @@
 # Phase 3 — businesses and industry checklist
 
+Verified October11 commerce batch: editable supply-backed courses and actual paid
+warehouse-order experience, transactional schema56 audits, 963 passing tests and
+isolated Paper checks. Sales-only learning, career choice and first merchant
+founding remain. Reporting remains25% by complete groups.
+
 Updated October 11, 2026. Reporting progress remains one of four complete groups
 (25%). Completed backend components do not complete live gameplay milestones.
 
@@ -35,8 +40,9 @@ No migration. Automatic first nonfood founders and specialization still remain.
 
 Verified bounded funded-supplier choice: a poor stocked supplier no longer delays
 an otherwise fundable actual farm purchase. 953 tests and actual PopulationSession
-Paper passed; no migration. Automatic merchants need a settled commerce ownership
-qualification; question recorded, no new commerce rule implemented pending answer.
+Paper passed; no migration. Gradual commerce study and real transaction learning are now approved; the verified
+first batch supports paid warehouse upstream orders. Automatic founders remain
+unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 
 ## 1. Persistent businesses, owners, workers and sites — verified
 

@@ -1,18 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October 11, 2026: automatic merchant qualifications pending
+## October 11, 2026: gradual commerce qualifications approved
 
-Mining/smithing gradual training and real work learning are approved. Automatic
-warehouse/shop founders do not yet have canonical commerce qualifications;
-existing startup tests supply explicit fixture requirements, not a gameplay rule.
-The user wants qualified ownership and no instant miner-to-shopkeeper conversion.
-Asked whether a separate editable commerce skill should grow through slow study
-and actual transactions, or only existing Minecraft merchant professions qualify.
-No new commerce rule, free experience or automatic merchant founding implemented
-pending an answer. This blocks selecting first merchant founders, not verified
-public upkeep, actual goods transfers or current industry operation. Continue
-independent testing/review while pending.
+The user answered yes to a separate editable commerce skill learned through gradual
+study and actual business transactions. Ownership must remain qualified: mining
+experience alone does not become commerce experience. No free initial merchant
+skill, automatic profession conversion or ownership cap is authorized.
 
+The first implementation connects actual new paid warehouse upstream orders to
+current employee experience. Supply-backed commerce courses use editable practice
+materials. Sales-only learning, automatic career enrollment, founder selection and
+first merchant opportunities remain subsequent scoped work. See COMMERCE_LEARNING.md.
 
 ## October 11, 2026: real spare-business upkeep contributions approved
 

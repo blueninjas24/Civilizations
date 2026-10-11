@@ -127,7 +127,7 @@ public final class IndustryRuntime {
                     reason=supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
                 }
             } else if(clock.industry().equals("warehouse")) {
-                reason=new WarehouseSupplies(connection,policy,operations,mutationHealthy).acquireRows(id,clock.world(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod());
+                reason=new WarehouseSupplies(connection,policy,operations,mutationHealthy).acquireRows(id,clock.world(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),learning);
             } else {
                 var recipe=policy.recipes().values().stream().filter(r->r.industry().equals(clock.industry())).findFirst();
                 if(recipe.isEmpty())reason="Paused: no configured industry recipe";

@@ -105,4 +105,64 @@ class WarehouseSuppliesTest {
         var runtime=runtime(true,128,1);runtime.pulse(2000,Set.of());assertEquals(0,count("industry_auto_shipments"));
         sql("UPDATE industry_stock SET units=0 WHERE business_id='"+mine+"'");runtime.pulse(3000,Set.of(world));assertEquals(0,count("industry_auto_shipments"));assertEquals(1000,store(warehouse).hundredths());assertEquals(8,db.getIndustryRepository().deposit(deposit).orElseThrow().remainingBatches());
     }
+    IndustryRuntime commerce(WorkLearningPolicy learning)throws Exception {
+        var r=new IndustryRuntime(db.getConnection(),policy(true,128,1),BusinessOperationPolicy.prototype(),learning);r.start(1000);return r;
+    }
+    long commerceExperience(UUID person)throws Exception {
+        return db.getPopulationRepository().findWorkProfile(person).orElseThrow().experience().getOrDefault("commerce",0L);
+    }
+    @Test void actualPaidOrdersTrainEmployeesOnceNotOwnersIdlePeriodsOrAbsentWorlds()throws Exception {
+        var r=commerce(WorkLearningPolicy.prototype());r.pulse(2000,Set.of(world));
+        assertEquals(1,commerceExperience(warehouseWorker));assertEquals(0,commerceExperience(owner));
+        assertEquals(1,count("commerce_learning_reviews"));assertEquals(2,count("commerce_learning_receipts"));assertEquals(1,count("commerce_learning_entries"));
+        r.pulse(2000,Set.of(world));r.pulse(3000,Set.of(world));r.pulse(100000,Set.of());
+        assertEquals(1,commerceExperience(warehouseWorker));assertEquals(1,count("commerce_learning_reviews"));
+        db.close();open();r=new IndustryRuntime(db.getConnection(),policy(true,128,1),BusinessOperationPolicy.prototype(),WorkLearningPolicy.prototype());r.start(100000);
+        r.pulse(100000,Set.of(world));assertEquals(1,commerceExperience(warehouseWorker));
+        assertEquals(2000,store(mine).hundredths()+store(warehouse).hundredths()+store(smith).hundredths());
+        try(var q=db.getConnection().prepareStatement("SELECT COUNT(*) FROM industry_learning_reviews WHERE business_id=?")){q.setString(1,warehouse.toString());try(var rows=q.executeQuery()){assertEquals(0,rows.getLong(1));}} // No phantom warehouse production.
+    }
+    @Test void commerceCheckpointFailureRollsBackSkillPaymentsAndReceiptsTogether()throws Exception {
+        var r=commerce(WorkLearningPolicy.prototype());sql("CREATE TRIGGER fail_commerce BEFORE UPDATE OF completed ON industry_runtime WHEN NEW.business_id='"+warehouse+"' BEGIN SELECT RAISE(ABORT,'injected'); END");
+        assertThrows(SQLException.class,()->r.pulse(2000,Set.of(world)));
+        assertEquals(0,commerceExperience(warehouseWorker));assertEquals(0,count("commerce_learning_reviews"));assertEquals(0,count("commerce_learning_receipts"));assertEquals(0,count("local_shipments"));assertEquals(1000,store(warehouse).hundredths());
+        sql("DROP TRIGGER fail_commerce");r.pulse(2000,Set.of(world));assertEquals(1,commerceExperience(warehouseWorker));assertEquals(2,count("commerce_learning_receipts"));
+    }
+    @Test void failedCommerceAuditRollsBackActualTradeAndRetriesOnce()throws Exception {
+        var r=commerce(WorkLearningPolicy.prototype());sql("CREATE TRIGGER fail_commerce_audit BEFORE INSERT ON commerce_learning_entries BEGIN SELECT RAISE(ABORT,'injected'); END");
+        assertThrows(SQLException.class,()->r.pulse(2000,Set.of(world)));assertEquals(0,commerceExperience(warehouseWorker));assertEquals(0,count("local_shipments"));assertEquals(0,count("commerce_learning_reviews"));
+        sql("DROP TRIGGER fail_commerce_audit");r.pulse(2000,Set.of(world));r.pulse(2000,Set.of(world));assertEquals(1,commerceExperience(warehouseWorker));
+    }
+    @Test void disabledCommerceNeverBackfillsAwards()throws Exception {
+        var r=commerce(WorkLearningPolicy.disabled());r.pulse(2000,Set.of(world));assertEquals(0,commerceExperience(warehouseWorker));assertEquals(2,count("commerce_learning_receipts"));
+        r=new IndustryRuntime(db.getConnection(),policy(true,128,1),BusinessOperationPolicy.prototype(),WorkLearningPolicy.prototype());r.pulse(3000,Set.of(world));assertEquals(0,commerceExperience(warehouseWorker));
+        // No genuine replacement orders exist yet. A fresh fixture is not required to prove no backfill.
+        assertEquals(0,count("commerce_learning_entries"));
+    }
+    @Test void workerLimitDefersAllCommerceAwardsButPreservesPaidOrders()throws Exception {
+        UUID second=worker(warehouse);var r=commerce(new WorkLearningPolicy(true,1,100,1,Map.of("warehouse","commerce")));r.pulse(2000,Set.of(world));
+        assertEquals(0,commerceExperience(warehouseWorker));assertEquals(0,commerceExperience(second));assertEquals(2,count("commerce_learning_receipts"));assertEquals(500,store(warehouse).hundredths());
+    }
+    @Test void failedSchema55CommerceUpgradePreservesAssetsAndRetriesWithoutHistoricalAwards()throws Exception {
+        var r=runtime(true,128,1);r.pulse(2000,Set.of(world));SchemaFixtures.rewind(db.getConnection(),55);sql("CREATE TABLE commerce_learning_entries(id TEXT)");db.close();
+        db=new DatabaseManager(directory.toFile(),Logger.getLogger("CommerceMigration"));assertThrows(SQLException.class,db::initialize);db.close();
+        try(var c=java.sql.DriverManager.getConnection("jdbc:sqlite:"+directory.resolve("civilizations.db"));var s=c.createStatement()) {
+            try(var rows=s.executeQuery("PRAGMA user_version")){assertEquals(55,rows.getInt(1));}
+            try(var rows=s.executeQuery("SELECT COUNT(*) FROM sqlite_master WHERE name='commerce_learning_reviews'")){assertEquals(0,rows.getInt(1));}
+            s.execute("DROP TABLE commerce_learning_entries");
+        }
+        open();assertEquals(0,count("commerce_learning_reviews"));assertEquals(500,store(warehouse).hundredths());assertEquals(3,store(warehouse).reservedIncomingSpace());
+        r=new IndustryRuntime(db.getConnection(),policy(true,128,1),BusinessOperationPolicy.prototype(),WorkLearningPolicy.prototype());r.start(100000);r.pulse(101000,Set.of(world));assertEquals(0,commerceExperience(warehouseWorker));
+    }
+
+    @Test void unmappedCommerceAndSavedCeilingNeverInventOrEraseSkills()throws Exception {
+        db.getPopulationRepository().recordSkillExperience(warehouseWorker,"commerce",7);
+        var r=commerce(new WorkLearningPolicy(true,1,5,64,Map.of("warehouse","commerce")));r.pulse(2000,Set.of(world));assertEquals(7,commerceExperience(warehouseWorker));assertEquals(0,count("commerce_learning_entries"));
+        assertEquals(2,count("commerce_learning_receipts"));
+    }
+    @Test void unrelatedIndustryMappingCannotTrainWarehouseStaff()throws Exception {
+        var r=commerce(new WorkLearningPolicy(true,1,100,64,Map.of("mining","mining")));r.pulse(2000,Set.of(world));
+        assertEquals(0,commerceExperience(warehouseWorker));assertEquals(0,count("commerce_learning_entries"));assertEquals(2,count("commerce_learning_receipts"));
+    }
+
 }

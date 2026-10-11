@@ -21,6 +21,9 @@ final class WarehouseSupplies {
         this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
     String acquireRows(UUID buyer,UUID world,long period,long haulWindow)throws SQLException {
+        return acquireRows(buyer,world,period,haulWindow,null);
+    }
+    String acquireRows(UUID buyer,UUID world,long period,long haulWindow,WorkLearningPolicy learning)throws SQLException {
         if(connection.getAutoCommit())throw new SQLException("Warehouse purchases require active SQL owner transaction");
         if(!policy.warehouseSupply().enabled())return "New warehouse restocking disabled";
         var businesses=new BusinessRepository(connection);var founding=businesses.findFounding(buyer).orElseThrow();
@@ -71,12 +74,19 @@ final class WarehouseSupplies {
         var store=industry.store(buyer).orElseThrow();
         var orders=WarehouseInputPlan.choose(demand.uncovered(),pending,store.hundredths(),store.freeSpace(),
                 Math.max(0,policy.mining().localHaulUnitsPerPeriod()-hauled),128-incoming,store.spacePerUnit(),sources,policy.purchasingSupply().unitHundredths());
+        var fresh=new ArrayList<UUID>();
         for(var order:orders) {
             var operation=UUID.nameUUIDFromBytes(("civilizations:warehouse-input-v1:"+buyer+":"+period+":"+order.seller()+":"+order.commodity().id()).getBytes(StandardCharsets.UTF_8));
+            boolean exists;
+            try(var s=connection.prepareStatement("SELECT 1 FROM local_shipments WHERE id=?")) {
+                s.setString(1,operation.toString());try(var r=s.executeQuery()){exists=r.next();}
+            }
             industry.purchaseRows(operation,order.seller(),buyer,order.commodity(),order.units(),order.price(),period,
                     policy.mining().localDeliveryPeriods(),policy.mining().localHaulUnitsPerPeriod(),haulWindow,policy.millisPerPeriod());
+            if(!exists)fresh.add(operation);
         }
-        return "Warehouse restocking: "+orders.size()+" paid purchases from actual local producer output; shared pending cargo covers future orders only";
+        String experience=learning==null?"Commerce learning not requested":new CommerceLearning(connection,learning).reviewRows(buyer,period,fresh);
+        return experience+"; Warehouse restocking: "+orders.size()+" paid purchases from actual local producer output; shared pending cargo covers future orders only";
     }
     private List<UUID> ids(UUID town,String kind,int limit)throws SQLException {
         var result=new ArrayList<UUID>();

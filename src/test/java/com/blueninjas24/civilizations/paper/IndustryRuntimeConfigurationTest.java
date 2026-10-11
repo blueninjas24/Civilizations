@@ -88,4 +88,13 @@ class IndustryRuntimeConfigurationTest {
         assertThrows(IllegalArgumentException.class,()->new IndustryRuntimePolicy(true,1000,1,IndustryPolicy.prototype(),Map.of(a.id(),a,b.id(),b)));
         assertThrows(IllegalArgumentException.class,()->new IndustryRuntimePolicy(true,1000,1,IndustryPolicy.prototype(),Map.of("wrong_key",a)));
     }
+    @Test void bundledCommerceSettingsMatchEditablePrototypes()throws Exception {
+        var config=new YamlConfiguration();
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(StudyPolicy.prototype(),EconomyConfiguration.readStudy(config));
+        assertEquals(WorkLearningPolicy.prototype(),EconomyConfiguration.readWorkLearning(config));
+        config.set("resident-study.skills.commerce.target-experience",6);assertEquals(6,EconomyConfiguration.readStudy(config).skills().get("commerce").targetExperience());
+        config.set("work-learning.industry-skills.warehouse",null);assertFalse(EconomyConfiguration.readWorkLearning(config).industrySkills().containsKey("warehouse"));
+    }
+
 }

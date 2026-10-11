@@ -2,16 +2,15 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
-Villages can now cover a genuine farm tool bill from a supplier's earned spare
-money, protecting food funds and business reserves. Warehouses keep buying real
-mined materials when farm equipment stores are present. Farms can choose another
-funded supplier when the first cannot afford to help. All 953 tests and isolated
-Paper checks passed; your server has not been changed.
+Villagers now have a gradual, editable commerce skill. Real warehouse supply orders
+can teach their employees; idle time and ownership alone cannot. Commerce study
+uses real village materials. All 963 tests and isolated Paper checks passed; your
+server has not been changed.
 
 Phase 3 is still 25% by completed milestone groups. Automatic first mines/workshops,
-merchant qualifications, wider industry and specialization remain. The next
-needed decision is whether merchants learn an editable commerce skill through
-training and actual transactions; see DECISIONS_AND_OPEN_QUESTIONS.md.
+career selection, wider industry and specialization remain. Commerce training is
+approved; no decision is currently needed for this completed batch. See
+COMMERCE_LEARNING.md for what is implemented and what remains.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project

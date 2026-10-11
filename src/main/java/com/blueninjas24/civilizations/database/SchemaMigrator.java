@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 55;
+    static final int CURRENT_VERSION = 56;
 
     @FunctionalInterface
     interface Migration {
@@ -787,6 +787,42 @@ final class SchemaMigrator {
                     execute(connection,"CREATE INDEX village_upkeep_budget ON upkeep_contributions(settlement_id,period)");
                     execute(connection,"CREATE INDEX business_upkeep_budget ON upkeep_contributions(business_id,period)");
                     execute(connection,"CREATE INDEX local_supplier_sales ON local_shipments(seller_id)");
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE commerce_learning_reviews (
+                            business_id TEXT NOT NULL REFERENCES businesses(id),
+                            period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                            enabled INTEGER NOT NULL CHECK(enabled IN(0,1)),
+                            skill TEXT CHECK(skill IS NULL OR length(trim(skill)) BETWEEN 1 AND 64),
+                            gain INTEGER NOT NULL CHECK(typeof(gain)='integer' AND gain BETWEEN 1 AND 1000),
+                            ceiling INTEGER NOT NULL CHECK(typeof(ceiling)='integer' AND ceiling BETWEEN 1 AND 1000000000),
+                            worker_budget INTEGER NOT NULL CHECK(typeof(worker_budget)='integer' AND worker_budget BETWEEN 1 AND 1000),
+                            explanation TEXT NOT NULL,
+                            PRIMARY KEY(business_id,period),
+                            FOREIGN KEY(business_id,period) REFERENCES industry_runtime_history(business_id,period) DEFERRABLE INITIALLY DEFERRED
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE commerce_learning_receipts (
+                            business_id TEXT NOT NULL,
+                            period INTEGER NOT NULL,
+                            shipment_id TEXT NOT NULL UNIQUE REFERENCES local_shipments(id),
+                            PRIMARY KEY(business_id,period,shipment_id),
+                            FOREIGN KEY(business_id,period) REFERENCES commerce_learning_reviews(business_id,period)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE commerce_learning_entries (
+                            business_id TEXT NOT NULL,
+                            period INTEGER NOT NULL,
+                            resident_id TEXT NOT NULL REFERENCES residents(id),
+                            before_experience INTEGER NOT NULL CHECK(typeof(before_experience)='integer' AND before_experience>=0),
+                            after_experience INTEGER NOT NULL CHECK(typeof(after_experience)='integer' AND after_experience>before_experience),
+                            PRIMARY KEY(business_id,period,resident_id),
+                            FOREIGN KEY(business_id,period) REFERENCES commerce_learning_reviews(business_id,period)
+                        )
+                        """);
                 }
 
         ));
@@ -945,6 +981,11 @@ final class SchemaMigrator {
             if(migrations.size()>=50) {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
+            if(migrations.size()>=56){
+                requireColumns(connection,"commerce_learning_reviews",Set.of("business_id","period","enabled","skill","gain","ceiling","worker_budget","explanation"));
+                requireColumns(connection,"commerce_learning_receipts",Set.of("business_id","period","shipment_id"));
+                requireColumns(connection,"commerce_learning_entries",Set.of("business_id","period","resident_id","before_experience","after_experience"));
             }
             if(migrations.size()>=55)requireColumns(connection,"upkeep_contributions",Set.of("operation_id","invoice_id","business_id","settlement_id","period","amount","protected_cash","business_before","business_after","treasury_before","treasury_after","policy"));
             if(migrations.size()>=54)requireColumns(connection,"farm_tool_work",Set.of("settlement_id","period","commodity","farm_id","output","requested","tools_used","policy","explanation"));

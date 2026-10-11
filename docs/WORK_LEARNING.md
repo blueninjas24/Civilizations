@@ -35,6 +35,7 @@ work-learning:
     mining: mining
     blacksmith: smithing
     farming: farming
+    warehouse: commerce
 ```
 
 These are prototype rates, not years of experience. Period speed follows the
@@ -72,3 +73,8 @@ periods. Nine new temporary-DB cases and real Paper session verification passed;
 full Wrapper clean verify passed 792 tests (790 unit/two integration), no failures/
 errors/skips. Old files need the explicit farming mapping; they are not rewritten.
 No new skill-based production bonus or automatic career/founding policy is added.
+
+October 11 commerce extension: actual new paid warehouse upstream orders can train
+current qualified employees once per work period. Separate schema56 audits preserve
+real purchase identity; no phantom production or past-sale backfill. Sales/delivery
+alone do not yet award experience. See COMMERCE_LEARNING.md.
