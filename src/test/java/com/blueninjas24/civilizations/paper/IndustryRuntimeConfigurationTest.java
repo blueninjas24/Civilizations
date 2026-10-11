@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void staffingIsOptInForOldFilesAndBudgetsAreStrict()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readBusinessStaffing(config).enabled());
+        config.loadFromString("automatic-business-staffing:\n  enabled: true\n  candidates-per-review: 64\n  hires-per-review: 2\n  industries: [mining, blacksmith, warehouse]\n");
+        assertTrue(EconomyConfiguration.readBusinessStaffing(config).enabled());
+        config.set("automatic-business-staffing.candidates-per-review",513);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readBusinessStaffing(config));
+        config.set("automatic-business-staffing.candidates-per-review",64);config.set("automatic-business-staffing.industries",List.of("farming"));assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readBusinessStaffing(config));
+    }
     @Test void warehouseGrantsShareBundledLimitsAndLegacyIndustryListsStayExplicit()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readStartupGrants(config).enabled());
         try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)) {

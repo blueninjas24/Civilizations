@@ -3,7 +3,7 @@ package com.blueninjas24.civilizations.database;
 import java.sql.*;
 import java.util.*;
 
-/** SQL-owner bounded staffing maintenance and immutable diagnostics. Does not found/hire/produce. */
+/** SQL-owner bounded staffing/lifecycle maintenance and immutable diagnostics. Does not found or produce. */
 public final class BusinessRuntime {
     public record View(UUID id, UUID settlement, UUID world, String name, String industry,
                        String founder, String owner, boolean ownerAvailable, int capacity,
@@ -21,6 +21,10 @@ public final class BusinessRuntime {
     private final LinkedHashMap<UUID,View> cache = new LinkedHashMap<>();
     private String cursor = "";
     private AutomaticBusinessResale resale;
+    private AutomaticBusinessStaffing staffing;
+    public void configureStaffing(com.blueninjas24.civilizations.industry.BusinessStaffingPolicy policy) {
+        staffing=new AutomaticBusinessStaffing(connection,policy);
+    }
     public BusinessRuntime(Connection connection, int batchSize, int cacheSize) throws SQLException {
         if(batchSize<1 || batchSize>64 || cacheSize<batchSize || cacheSize>4096)
             throw new IllegalArgumentException("Invalid business runtime budgets");
@@ -46,6 +50,7 @@ public final class BusinessRuntime {
             var founding=businesses.findFounding(id).orElseThrow(()->new SQLException("Business disappeared during owner refresh"));
             var b=businesses.findBusiness(id).orElseThrow();var site=founding.site();
             boolean paused=loadedWorlds!=null && !loadedWorlds.contains(site.worldId());
+            String hiring=paused?"Vacancy hiring paused with world":"Automatic vacancy hiring not configured";
             if(!paused) {
                 businesses.reconcileBusiness(id,completedMonth);
                 if(completedMonth>=b.foundedStep()) {
@@ -56,6 +61,7 @@ public final class BusinessRuntime {
                 }
                 new BusinessClosure(connection).closeIfExpired(id,completedMonth);
                 if(allowSales&&resale!=null){resale.review(id,completedMonth,now);b=businesses.findBusiness(id).orElseThrow();}
+                if(staffing!=null)hiring=staffing.review(id,completedMonth);
             }
             int open;
             String separation;
@@ -76,7 +82,7 @@ public final class BusinessRuntime {
             var view=new View(id,b.settlementId(),site.worldId(),b.name(),b.industry(),founder,owner,available,b.workerCapacity(),
                     businesses.currentWorkers(id).size(),open,separation,b.foundedStep(),site.x(),site.y(),site.z(),paused,lastProduction(id),
                     new BusinessClosure(connection).find(id).map(c->"Closed at administrative month "+c.step()+": "+c.reason()).orElse(
-                            resale==null?"Open; ownership/lifecycle requirements still apply":resale.explanation(id).orElse("Open; qualified succession before resale")));
+                            resale==null?"Open; ownership/lifecycle requirements still apply":resale.explanation(id).orElse("Open; qualified succession before resale"))+"; "+hiring);
             cache.remove(id);cache.put(id,view);cursor=id.toString();
             while(cache.size()>cacheSize)cache.remove(cache.keySet().iterator().next());
         }

@@ -1,5 +1,14 @@
 # Development and recovery procedures
 
+October 11 vacancy hiring check: BusinessStaffingProbe uses its own synthetic
+SQLite save and actual PopulationSession. Verify unqualified owner exclusion,
+qualified hiring, finite output, saved death/replacement, once-only audit,
+absent-world pause and restart. Back up the stopped marked fixture before schema
+52 deployment. Ordinary food periods may advance on the main fixture: compare
+all prior history/assets and explain each period separately. Stop normally,
+inspect integrity/FKs read-only, restore properties exactly and archive the
+probe JAR. Never deploy probes to human servers. See DEVLOG.md for results.
+
 October 11 warehouse grant extension: StartupGrantProbe reads packaged defaults,
 starts separate synthetic mine/warehouse firms, refuses a combined period-cap
 bypass and verifies actual cash/startup-expense conservation and disabled replay.

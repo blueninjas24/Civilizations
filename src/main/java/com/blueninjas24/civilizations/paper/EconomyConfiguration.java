@@ -24,6 +24,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-tools")) rootKeys.add("business-tools");
+        if (config.contains("automatic-business-staffing")) rootKeys.add("automatic-business-staffing");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("business-operations")) rootKeys.add("business-operations");
         if (config.contains("automatic-business-resale")) rootKeys.add("automatic-business-resale");
@@ -43,6 +44,7 @@ public final class EconomyConfiguration {
         readWorkshopSupply(config);
         readWarehouseSupply(config);
         readToolUpkeep(config);
+        readBusinessStaffing(config);
         readBusinessPurchasePolicy(config);
         readBusinessOperations(config);
         readWorkLearning(config);
@@ -90,6 +92,15 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    public static com.blueninjas24.civilizations.industry.BusinessStaffingPolicy readBusinessStaffing(ConfigurationSection config) {
+        if(!config.contains("automatic-business-staffing"))return com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();
+        var s=section(config,"automatic-business-staffing");exactKeys(s,Set.of("enabled","candidates-per-review","hires-per-review","industries"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("automatic-business-staffing.enabled must be true or false");
+        if(!(s.get("industries") instanceof List<?> raw)||raw.size()>32||raw.stream().anyMatch(x->!(x instanceof String))||new HashSet<>(raw).size()!=raw.size())
+            throw new IllegalArgumentException("automatic-business-staffing.industries must be a distinct bounded list");
+        var kinds=new HashSet<String>();raw.forEach(x->kinds.add((String)x));
+        return new com.blueninjas24.civilizations.industry.BusinessStaffingPolicy(enabled,smallInteger(s,"candidates-per-review"),smallInteger(s,"hires-per-review"),kinds);
     }
     public static com.blueninjas24.civilizations.industry.StartupGrantPolicy readStartupGrants(ConfigurationSection config) {
         if(!config.contains("startup-grants"))return com.blueninjas24.civilizations.industry.StartupGrantPolicy.disabled();

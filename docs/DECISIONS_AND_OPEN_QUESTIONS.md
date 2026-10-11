@@ -1,5 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11, 2026 — public farm equipment funding approved
+
+The user approved village treasury payment for needed farm tools under a small,
+editable upkeep budget protecting food funds. Preserve worker-backed food going
+straight into village supplies; farms need not become private food sellers.
+Real tool goods and actual payments must be conserved and audited; no free tools,
+created cash, household payroll or tax system is implied. Recurring upkeep is
+separate from the approved shared startup grants. Implementation is next.
+
 ## October 11, 2026 — warehouse startup grants approved
 
 The user approved warehouses sharing the already approved mine/workshop startup

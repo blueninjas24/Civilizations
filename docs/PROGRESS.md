@@ -2,6 +2,13 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: qualified villagers can now fill vacancies at existing mines, workshops
+and warehouses, without abandoning another job. Worker replacement, restart and
+world pause passed the isolated Paper check; all 917 automated tests passed.
+Your server is unchanged. Phase 3 remains 25% by completed groups; automatic
+first industries and specialization remain. Next: approved village-funded farm
+tools with food money protected.
+
 Latest: warehouses can receive limited startup funds from the same village budget
 as mines and workshops. Food money stays protected, and retries cannot pay twice.
 All 908 tests and the isolated Paper funding check passed. Your server is unchanged.

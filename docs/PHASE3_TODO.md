@@ -3,6 +3,12 @@
 Updated October 11, 2026. Reporting progress remains one of four complete groups
 (25%). Completed backend components do not complete live gameplay milestones.
 
+Verified vacancy hiring: bounded, qualified unemployed local workers at existing
+live-owner nonfarm firms; saved employment/audit, death replacement, restart and
+world-pause checks. 917 tests and isolated Paper passed. Farm equipment funding
+is approved; its protected public-budget adapter is next. This does not complete
+automatic careers/founding or specialization.
+
 ## 1. Persistent businesses, owners, workers and sites — verified
 
 - [x] Save identities, founders, owners, workplace sites and employment history.

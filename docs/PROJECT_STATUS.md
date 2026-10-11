@@ -1,5 +1,31 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026 — bounded business vacancy hiring verified
+
+Existing live-owner mines, workshops and warehouses now fill saved vacancies
+with qualified unemployed local residents. Candidate/hire budgets are editable;
+current workers are never poached, skill is not invented, and each employment
+and its explanation audit commit together. Death reconciliation permits a real
+replacement; repeated reviews/restart cannot duplicate jobs. Legacy configuration
+stays disabled. Farms retain their existing separate staffing adapter.
+Schema 52 adds an empty hiring-audit table; existing jobs/assets are not backfilled.
+See docs/BUSINESS_VACANCY_HIRING.md.
+
+Nine tests added. Final focused run passed 21; Windows .\mvnw.cmd clean verify
+passed 917 (915 unit, two packaged integration), zero failures/errors/skips,
+6:04. Initial test compilation used a private listing API; corrected the test
+before the successful final run. Disposable Paper actual PopulationSession passed
+qualified hiring, death/replacement, restart and absent-world pause. Probe save:
+two employment episodes/two audits, one active replacement, reserve eight,
+coal two and total cash 10000; integrity/FKs healthy.
+Main save schema 51→52: 78/87 old tables unchanged; the other nine differences
+were exactly one ordinary food period (25→26), its stock/needs/appeal receipts,
+and clock/tracking bookkeeping. All earlier history remained; population,
+business assets and identities unchanged; new hiring audit empty. Fixture stopped
+normally, exact properties restored, probe archived, no forced chunks or human
+server changes. Phase 3 remains 25% by complete groups. Next: approved public
+farm-tool upkeep, then opportunity training/automatic first industries.
+
 ## October 11, 2026 — shared warehouse startup grants verified
 
 Approved warehouses now have an explicit transactional startup adapter sharing

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 51;
+    static final int CURRENT_VERSION = 52;
 
     @FunctionalInterface
     interface Migration {
@@ -727,7 +727,14 @@ final class SchemaMigrator {
                             explanation TEXT NOT NULL
                         )
                         """);
-                }
+                },
+                connection -> execute(connection,"""
+                    CREATE TABLE business_hiring_reviews (
+                        employment_id TEXT PRIMARY KEY NOT NULL REFERENCES business_employment(id),
+                        policy TEXT NOT NULL,
+                        explanation TEXT NOT NULL
+                    )
+                    """)
         ));
     }
 
@@ -885,6 +892,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
             }
+            if(migrations.size()>=52)requireColumns(connection,"business_hiring_reviews",Set.of("employment_id","policy","explanation"));
             if(migrations.size()>=51) {
                 requireColumns(connection,"business_tools",Set.of("business_id","productive_periods","service_periods","remainder_percent"));
                 requireColumns(connection,"business_tool_reviews",Set.of("operation_id","business_id","period","tools_used","policy","explanation"));

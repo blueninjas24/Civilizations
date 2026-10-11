@@ -89,6 +89,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.BusinessStaffingPolicy staffingPolicy=com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessResalePolicy resalePolicy=com.blueninjas24.civilizations.industry.BusinessResalePolicy.disabled();
     private boolean listingClockSuspended;
     private volatile String listingClockFailure;
@@ -182,6 +183,10 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure automatic resale before session starts");
         resalePolicy=java.util.Objects.requireNonNull(policy);
     }
+    public void configureBusinessStaffing(com.blueninjas24.civilizations.industry.BusinessStaffingPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure staffing before session starts");
+        staffingPolicy=java.util.Objects.requireNonNull(policy);
+    }
     /** Internal acquisition boundary; listing/valuation/buyer selection are separate lifecycle work. */
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessSales.Request> sellBusiness(com.blueninjas24.civilizations.database.BusinessSales.Request request) {
         return submit(()->{
@@ -243,6 +248,7 @@ public final class PopulationSession implements AutoCloseable {
                 }
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
                 businesses.configureResale(resalePolicy,purchasePolicy,settings.seed());
+                businesses.configureStaffing(staffingPolicy);
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||oreHistoryHealthy.get());
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
