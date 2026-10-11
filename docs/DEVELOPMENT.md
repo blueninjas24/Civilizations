@@ -1,5 +1,24 @@
 # Development and recovery procedures
 
+## Funded industry demand smoke test
+
+IndustryDemandProbe is a separate test-only plugin, name
+CivilizationsIndustryDemandProbe, main IndustryDemandProbe, API 1.21,
+dependency Civilizations. Require the marked localhost disposable fixture,
+port 25578 and no players. Back up stopped DB/JAR/properties; compile separately
+against the verified packaged JAR/cached dependencies with an empty sourcepath.
+Never install this probe in a human/production server.
+
+It uses the actual Paper world UUID with synthetic explicit firms/reserve/evidence
+in its own random SQLite folder. Check actual workshop funds/labor/input gaps,
+paid mine-to-warehouse goods, warehouse coverage, paid pending workshop cargo,
+conserved treasury/business cash and a real PopulationSession reopen/world pause.
+The review must create no orders or firms itself. No block/entity changes or tickets.
+Require NATIVE FUNDED INDUSTRY DEMAND PASS; stop normally, verify both saves
+read-only, restore exact properties and archive the probe outside plugins.
+Schema remains 50; this does not test natural startup or finished-goods customers.
+See INDUSTRY_DEMAND.md for the read-only boundary.
+
 ## Current mineral survey smoke test
 
 CurrentMineralSurveyProbe is a separate test-only plugin, name

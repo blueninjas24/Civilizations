@@ -2,6 +2,13 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: the mine planner can now check what existing workshops actually need and
+can afford. Goods already owned, deliveries on the way and shared warehouse stock
+reduce that need; nearby coal is ignored if only iron is missing. This is a checked
+planning step, not automatic mine opening yet. All 872 tests and isolated Paper
+paid-goods/restart checks passed. Your server is unchanged. Phase 3 remains 25% by
+complete groups; real customer needs, trained founders and automatic industry are next.
+
 Latest: villages now distinguish ore they currently see from ore they saw earlier.
 A new empty scan clears startup candidates without deleting history; old scans and
 restart cannot bring those candidates back. Expired evidence, absent worlds and

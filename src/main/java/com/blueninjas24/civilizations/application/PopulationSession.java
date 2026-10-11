@@ -417,6 +417,16 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
 
+    /** Existing funded input pressure and current observed minerals; no startup or asset mutation. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.LocalIndustryDemand.MiningReview> miningInputDemand(UUID town,long maximumAgeMillis,int businessLimit) {
+        return submit(()-> {
+            requireReady();
+            if(!trackOres||!oreHistoryHealthy.get())throw new SQLException("Live ore tracking is not ready; mining demand review paused");
+            return new com.blueninjas24.civilizations.database.LocalIndustryDemand(database.getConnection(),industryPolicy,operationPolicy)
+                .reviewMining(town,now.getAsLong(),maximumAgeMillis,loadedWorlds,businessLimit);
+        });
+    }
+
     public CompletableFuture<Void> observeFarms(FarmObservation observation) {
         return submit(() -> {
             requireReady(); if (economy == null) throw new IllegalStateException("Economy not enabled in this session");

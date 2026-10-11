@@ -1,5 +1,52 @@
 # Civilizations Development Log
 
+## October 11, 2026 — funded local industry input demand
+
+Added plain-Java complete input-buffer estimates and bounded read-only village
+reviews from actual saved workshops. Eligible staff, real business cash, saved
+capacity, owned goods and paid pending cargo constrain demand using existing
+editable recipe/buffer/base-price settings. Shared available warehouse stock is
+counted once across customers in deterministic UUID order. No imaginary sellers,
+finished-goods customers, purchase orders, reservation, consumption or profit.
+
+The SQL-owner bridge matches only positively uncovered input demand to current
+fresh unclaimed/unexcluded coal/iron sightings. Disabled/unknown/absent or incomplete
+reviews defer rather than inventing zero demand. Existing owner-death operation and
+qualified labor rules apply; budget overflow does not invent a shortage from partial
+pages. This is not a startup decision: producer/transport alternatives, coherent
+permitted sites, qualified founders and actual funding still require connection.
+Initial finished-goods demand/workshop founding remain unfinished. No migration;
+schema stays 50. Existing operation, trade, source balances and settings unchanged.
+
+Added 15 tests: six pure demand cases and nine temporary SQLite/owner cases. Focused
+21 passed before adding the final mineral-specific selection case. Initial focused
+compile failed because a test fixture omitted the existing clean-stop health
+argument; corrected before the passing run. Final Windows `.\mvnw.cmd clean verify`
+passed 872 (870 unit/two packaged integration), zero failures/errors/skips, 5:43.
+No application/test changes after the full build; standalone probe excluded from JAR.
+
+Guarded packaged Paper 26.2 build 129 probe compiled and passed on its first run.
+Actual world UUID but synthetic explicit firms/reserve/evidence in a separate DB:
+funded input gap, paid finite-mine goods to warehouse, warehouse coverage, paid
+undelivered workshop cargo, conserved money, actual PopulationSession reopen and
+world pause. Reopened integrity/FKs healthy: three firms, reserve eight, treasury
+8000 plus business cash 2000, four paid shipments/two pending with three goods,
+zero tools/grants. This does not prove natural automatic startup or customers.
+
+Marked stopped schema-50 dev fixture backed up first; no schema change. Initial
+comparison assumed only clock/tracking updates, but the running fixture also earned
+one normal food period. Read-only follow-up verified exact month 1720→1721, food
+period 24→25, one living age increment, one shortage increment and append-only prior
+needs/reports/appeals. 74/86 tables identical; all business/resource/financial/skill/
+family/identity history preserved. No source/stock/payment reset. Normal stop exit 0,
+no forced chunks reported, exact settings restored and probe archived outside plugins.
+Human server/world/DB untouched. Existing Windows OSHI warning remains environmental.
+
+Updated INDUSTRY_DEMAND, development/checklist/status/progress docs. Phase 3 remains
+1/4 complete groups (25%); next actual finished-goods needs, qualified career choice,
+existing producer/transport comparison and automatically funded suitable industry.
+Local branch codex/phase3-funded-industry-demand; no push or main merge.
+
 ## October 11, 2026 — current mineral survey evidence
 
 Closed an automatic-startup prerequisite: positive sighting history did not say

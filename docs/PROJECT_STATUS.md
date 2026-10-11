@@ -1,5 +1,33 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026 — funded industry input review verified
+
+Existing workshops now have a read-only input-demand review using actual qualified
+staff, business money, storage, owned/pending goods, configured recipes and editable
+input buffers/base prices. Available warehouse goods cover village gaps once across
+customers. No purchase, reservation, production, new consumer or money is generated.
+The SQL-owner bridge matches only uncovered mineral demand to current valid evidence;
+partial/disabled/absent-world reviews defer. No new automatic scheduler or setting
+default; schema remains 50. This is candidate pressure, not startup authorization or
+finished-goods demand. Suitable sites, career/founder choice, existing producer/
+transport alternatives and automatic investment still need connecting.
+
+15 added tests; focused 21 before the final selection case, full Windows
+`.\mvnw.cmd clean verify` passed 872 (870 unit/two packaged integration), zero
+failures/errors/skips, 5:43. Guarded packaged Paper paid-stock/pending-cargo/money/
+actual-owner-reopen/world-pause probe passed. Reopened synthetic DB integrity/FKs
+healthy, conserved total 10000 cash, finite reserve eight, two paid pending shipments
+with three goods, no tools/grants. Not natural startup/client/customer proof.
+
+Stopped disposable fixture backed up; main remains schema 50. 74/86 tables unchanged;
+remaining changes verified as exactly one normal month/food period with prior history
+retained. Business assets, financial, skill, family and identity data unchanged.
+Normal stop, exact settings restored, probe archived, no forced chunks reported.
+Human server untouched; local feature branch only, no push or main merge. See
+INDUSTRY_DEMAND.md and root DEVLOG.md for scope and corrected test/setup assumptions.
+Phase 3 remains 1/4 complete groups (25%); actual customer needs and automatic careers/
+funded opportunity selection remain next.
+
 ## October 11, 2026 — current mineral surveys verified
 
 Schema 50 distinguishes the latest complete coal/iron survey from retained positive

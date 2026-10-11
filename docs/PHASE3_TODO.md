@@ -61,6 +61,10 @@ Updated October 11, 2026. Reporting progress remains one of four complete groups
       first-worker receipts; 844 tests and packaged Paper restart/accounting passed.
       No ownership cap or automatic startup; missing old settings remain disabled.
 - [ ] Connect real local customers and recipes; demand-based reserves, no fake buyers.
+- [x] Read actual staffed funded workshop input gaps using editable recipe/buffer/
+      prices, owned/pending goods, finite storage and once-counted warehouse stock;
+      match only currently observed needed minerals. This is a read-only review,
+      not finished-goods demand, orders, production or automatically founded mines.
 - [x] Existing workshops automatically buy complete affordable recipe inputs from
       actual local warehouse stock; verify payments, delayed cargo, input work,
       rollback, legacy clock isolation, world pause and restart on real Paper.
