@@ -209,8 +209,8 @@ public final class PopulationSession implements AutoCloseable {
     public boolean oreDiscoveryReady() { return trackOres && oreHistoryHealthy.get() && status().ready(); }
     public String oreTrackingDiagnostic() {
         return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
-                ?"Ore placement history: trusted; automatic mines still require opportunity/operation adapters"
-                :"Ore discovery paused: "+oreHistoryIssue.get();
+                ?"Ore mutation history: trusted; automatic mines still require opportunity adapters"
+                :"Ore discovery and coordinate-backed mining paused: "+oreHistoryIssue.get();
     }
     /** Main-thread adapters may mark a gap immediately; no JDBC access or world work occurs here. */
     public void invalidateOreTracking(String reason) {
@@ -239,11 +239,11 @@ public final class PopulationSession implements AutoCloseable {
                     var fence=new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection()).begin(now.getAsLong());
                     oreHistoryHealthy.set(fence.trusted() && !oreCaptureGap.get());
                     if(oreCaptureGap.get())new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection()).markGap(now.getAsLong());
-                    if(!fence.trusted())oreHistoryIssue.set("unclean stop or prior capture gap; reviewed recovery required");
+                    if(!fence.trusted())oreHistoryIssue.set("unclean stop, capture gap or upgraded source coverage; reviewed recovery required");
                 }
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
                 businesses.configureResale(resalePolicy,purchasePolicy,settings.seed());
-                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy);
+                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||oreHistoryHealthy.get());
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
                 var demographic = database.getDemographicRepository();
@@ -368,6 +368,24 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
 
+    /** One native mutation: immutable placements and actual removed origins share one transaction. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.OreMutationRepository.Result> recordOreMutations(UUID world,String name,
+            java.util.Collection<VillageObservation.Position> placements,java.util.Collection<VillageObservation.Position> removals,long millis,String reason) {
+        var placed=List.copyOf(placements);var removed=List.copyOf(removals);
+        java.util.Objects.requireNonNull(world);java.util.Objects.requireNonNull(name);
+        return submit(()-> {
+            requireReady();
+            try {
+                database.getVillageIdentityRepository().observeWorld(world,name);
+                return new com.blueninjas24.civilizations.database.OreMutationRepository(database.getConnection()).record(world,placed,removed,millis,reason);
+            }catch(SQLException|RuntimeException failure) {
+                if(trackOres)try {new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection()).markGap(now.getAsLong());}
+                catch(SQLException|RuntimeException fenceFailure){failure.addSuppressed(fenceFailure);}
+                throw failure;
+            }
+        }).whenComplete((result,failure)->{if(trackOres&&failure!=null)invalidateOreTracking("mutation save failed; reviewed recovery required");});
+    }
+
     /** Provisional immutable observations only. New founding must independently revalidate saved coordinate claims. */
     public CompletableFuture<List<com.blueninjas24.civilizations.database.MineralSurveyReader.Patch>> surveyMinerals(UUID town,
             List<com.blueninjas24.civilizations.industry.MineralObservation> observations) {
@@ -478,6 +496,7 @@ public final class PopulationSession implements AutoCloseable {
     }
 
     private void pulseOnOwner() throws SQLException {
+        if(trackOres&&oreCaptureGap.get())new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection()).markGap(now.getAsLong());
         var clock = database.getCivilizationClockRepository();
         var queuedTime = loadedWorlds == null ? clock.accrue(now.getAsLong(), settings.millisPerMonth(), Long.MAX_VALUE)
                 : clock.accrueOnline(now.getAsLong(), settings.millisPerMonth(), loadedWorlds);

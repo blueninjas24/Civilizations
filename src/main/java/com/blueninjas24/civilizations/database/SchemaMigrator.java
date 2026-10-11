@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 46;
+    static final int CURRENT_VERSION = 47;
 
     @FunctionalInterface
     interface Migration {
@@ -643,6 +643,15 @@ final class SchemaMigrator {
                                     d.remaining_batches % COUNT(*) OVER(PARTITION BY d.id) THEN 1 ELSE 0 END AS share
                             FROM mineral_evidence e JOIN mineral_deposits d ON d.id=e.deposit_id
                         )
+                        """);
+                },
+                connection -> {
+                    // Older capture certified placements, not removal of saved supporting blocks.
+                    // Never silently certify old coordinate reserves under the stronger contract.
+                    execute(connection,"""
+                        INSERT INTO ore_tracking(id,clean_stop,trusted,observed_millis)
+                        SELECT 1,1,0,0 WHERE EXISTS(SELECT 1 FROM mineral_sources)
+                        ON CONFLICT(id) DO UPDATE SET trusted=0
                         """);
                 }
         ));

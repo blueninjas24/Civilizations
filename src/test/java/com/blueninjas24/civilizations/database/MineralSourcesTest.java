@@ -105,4 +105,36 @@ class MineralSourcesTest {
         mine(UUID.randomUUID(),98,1);SchemaFixtures.rewind(db.getConnection(),45);new SchemaMigrator().migrate(db.getConnection());
         assertEquals(List.of(1L,1L,0L,0L),balances());assertEquals(2,reserve());
     }
+    @Test void pistonMutationCommitsPlacementExclusionsAndOnlyOriginLossTogether()throws Exception {
+        var mutations=new OreMutationRepository(db.getConnection());
+        var result=mutations.record(world,coordinates.subList(0,3),List.of(coordinates.get(1)),2,"Piston origin");
+        assertEquals(3,result.placements());assertEquals(25,result.retiredBatches());assertEquals(List.of(25L,0L,25L,25L),balances());
+        assertEquals(new OreMutationRepository.Result(0,0),mutations.record(world,coordinates.subList(0,3),List.of(coordinates.get(1)),3,"Replay"));
+    }
+    @Test void failedCombinedMutationDoesNotLeavePlacementsWithoutRetirement()throws Exception {
+        sql("CREATE TRIGGER reject_retire BEFORE INSERT ON mineral_source_retirements BEGIN SELECT RAISE(ABORT,'mutation failure'); END");
+        assertThrows(SQLException.class,()->new OreMutationRepository(db.getConnection()).record(world,coordinates.subList(0,3),List.of(coordinates.get(1)),2,"Piston origin"));
+        assertEquals(0,count("player_ore_placements"));assertEquals(0,count("ore_source_removals"));assertEquals(100,reserve());
+    }
+    @Test void captureGapBlocksNewMiningButHistoricReplayAndSourceRetirementStillWork()throws Exception {
+        var operation=UUID.randomUUID();mine(operation,7,1);new OreTrackingRepository(db.getConnection()).begin(2);new OreTrackingRepository(db.getConnection()).markGap(3);
+        assertThrows(SQLException.class,()->mine(UUID.randomUUID(),7,2));assertEquals(93,reserve());assertEquals(7,mine(operation,7,1).quantity());
+        assertEquals(23,sources().remove(world,List.of(coordinates.getFirst()),4,"Capture recovery evidence"));assertEquals(70,reserve());
+        assertFalse(db.getIndustryRepository().sourceHistoryTrusted(deposit));
+    }
+    @Test void schema47FencesOlderSupportingCoordinatesWithoutTouchingGoodsOrTotals()throws Exception {
+        mine(UUID.randomUUID(),7,1);new OreTrackingRepository(db.getConnection()).begin(2);new OreTrackingRepository(db.getConnection()).finish(3,true);
+        SchemaFixtures.rewind(db.getConnection(),46);new SchemaMigrator().migrate(db.getConnection());
+        assertFalse(new OreTrackingRepository(db.getConnection()).load().orElseThrow().trusted());assertEquals(93,reserve());assertEquals(List.of(23L,23L,23L,24L),balances());
+        assertEquals(7,db.getIndustryRepository().store(mine).orElseThrow().units().get(Commodity.COAL));assertThrows(SQLException.class,()->mine(UUID.randomUUID(),7,2));
+        new SchemaMigrator().migrate(db.getConnection());assertEquals(93,reserve());
+    }
+    @Test void failedCoverageUpgradeRollsBackVersionAndTrustThenRetryFencesOnce()throws Exception {
+        new OreTrackingRepository(db.getConnection()).begin(2);new OreTrackingRepository(db.getConnection()).finish(3,true);
+        SchemaFixtures.rewind(db.getConnection(),46);
+        sql("CREATE TRIGGER reject_fence BEFORE UPDATE ON ore_tracking BEGIN SELECT RAISE(ABORT,'coverage failure'); END");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));assertTrue(new OreTrackingRepository(db.getConnection()).load().orElseThrow().trusted());assertEquals(100,reserve());
+        try(var q=db.getConnection().createStatement();var r=q.executeQuery("PRAGMA user_version")){assertEquals(46,r.getInt(1));}
+        sql("DROP TRIGGER reject_fence");new SchemaMigrator().migrate(db.getConnection());assertFalse(new OreTrackingRepository(db.getConnection()).load().orElseThrow().trusted());assertEquals(100,reserve());
+    }
 }

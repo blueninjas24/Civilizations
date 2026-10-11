@@ -31,13 +31,12 @@ than rescanning an entire vein for every removed block.
 
 ## Scope and next integration
 
-This batch implements persistence and accounting only. The Paper placement
-tracker is not yet connected to source retirement for player breaks, explosions
-or piston movement. No automatic first-mine founding or physical excavation is
-enabled. Native block-removal capture, queue failure/unclean-stop protection and
-production trust checks must be verified before advertising live source loss.
-Unsupported editors and offline world edits remain outside mutation guarantees.
-The human development server has not been upgraded by this batch.
+The original schema-46 batch implemented persistence/accounting only. The follow-on
+schema-47 batch now connects native player breaks, destructive explosions and
+piston origins to atomic retirement, with production trust fencing. See
+LIVE_ORE_REMOVAL.md for verified scope and older-save recovery limits. No automatic
+first-mine founding or physical excavation is enabled. Unsupported editors and
+offline edits remain outside mutation guarantees; the human server is unchanged.
 
 Tests use temporary SQLite databases and explicit saved geological evidence.
 They cover allocation, even extraction, single/batch retirement, restart/replay,

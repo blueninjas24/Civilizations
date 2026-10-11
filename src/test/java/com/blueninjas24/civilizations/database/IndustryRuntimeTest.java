@@ -162,6 +162,30 @@ class IndustryRuntimeTest {
         var session=new PopulationSession(directory.toFile(),Logger.getLogger("IndustrySessionTest"),settings,now::get);
         session.configureIndustryRuntime(policy(1000,8));return session;
     }
+    @Test void actualOwnerSavesMutationBeforeNextProductionAndGapPersistsThroughRestart()throws Exception {
+        db.close();var now=new AtomicLong(1000);
+        try(var session=session(now)) {
+            session.configureOreTracking();session.start(false,Set.of(world)).get(5,TimeUnit.SECONDS);
+            now.set(2000);session.pulse().get(5,TimeUnit.SECONDS);
+            var origin=new VillageObservation.Position(0,40,0);
+            var result=session.recordOreMutations(world,"Fixture",List.of(),List.of(origin),2100,"Player break").get(5,TimeUnit.SECONDS);
+            assertEquals(9,result.retiredBatches());now.set(3000);session.pulse().get(5,TimeUnit.SECONDS);
+            session.invalidateOreTracking("Injected capture failure");now.set(4000);session.pulse().get(5,TimeUnit.SECONDS);assertFalse(session.oreDiscoveryReady());
+        }
+        open();assertEquals(0,remaining());assertEquals(1,stock(Commodity.COAL));assertFalse(new OreTrackingRepository(db.getConnection()).load().orElseThrow().trusted());db.close();
+        try(var session=session(now)) {
+            session.configureOreTracking();session.start(false,Set.of(world)).get(5,TimeUnit.SECONDS);assertFalse(session.oreDiscoveryReady());
+        }
+        open();assertEquals(1,stock(Commodity.COAL));
+    }
+    @Test void persistedAndImmediateCaptureGapsPauseCoordinateMiningWithSavedExplanation()throws Exception {
+        var healthy=new java.util.concurrent.atomic.AtomicBoolean(true);
+        var runtime=new IndustryRuntime(db.getConnection(),policy(1000,8),BusinessOperationPolicy.disabled(),WorkLearningPolicy.disabled(),healthy::get);
+        runtime.start(1000);healthy.set(false);runtime.pulse(2000,Set.of(world));assertEquals(10,remaining());assertEquals(0,stock(Commodity.COAL));
+        try(var q=db.getConnection().createStatement();var r=q.executeQuery("SELECT explanation FROM industry_runtime_history")){assertTrue(r.getString(1).contains("reviewed recovery"));}
+        new OreTrackingRepository(db.getConnection()).begin(2100);new OreTrackingRepository(db.getConnection()).markGap(2200);healthy.set(true);
+        runtime.pulse(3000,Set.of(world));assertEquals(10,remaining());assertEquals(0,count("industry_production"));
+    }
     @Test void failedProductionDoesNotBlockPopulationWorldPauseAndRemainsDiagnosed() throws Exception {
         sql("CREATE TRIGGER fail_progress BEFORE UPDATE OF completed ON industry_runtime BEGIN SELECT RAISE(ABORT,'injected progress'); END");
         db.close();var now=new AtomicLong(1000);

@@ -5,6 +5,56 @@
 
 
 
+## October 10, 2026 — native ore-source removal and production trust protection
+
+The registered Paper tracker now records successful ore breaks, destructive
+block/entity explosions and actual piston origins. Cancelled events, non-ore
+blocks and keep/trigger explosions do not retire sources. Immutable coordinates
+cross the bounded SQL-owner queue; placements and source losses from one event
+commit together. Piston destination exclusions never drain neighboring sources.
+The plugin changes no drops, cancels no world action, loads no chunks and performs
+no physical excavation. Capture/save/queue failure pauses new discovery and
+coordinate-backed mining immediately and durably; healthy close cannot repair a
+gap. Direct mining checks saved trust, and accepted historic receipts still replay.
+Paused periods explain themselves without creating goods or a later windfall.
+
+Schema 47 fences older saved coordinate reserves because placement-only tracking
+cannot certify their continued supporting blocks. It preserves goods, money,
+identity and receipts; an empty save has no automatic coverage gap. Explicit
+reviewed baseline/recovery tooling remains unfinished. No trust reset, database
+reset or human-server upgrade was performed. Other village/workshop simulation
+continues; unsupported commands/editors/direct block writes remain outside coverage.
+
+Thirteen tests added across event adapters, temporary SQLite and actual owner
+queues: cancellation/destructive lists, piston origins/destinations, combined
+rollback/replay, immediate/persisted gaps, shutdown drain, coverage migration and
+failure/retry. Focused 86 passed before the final three tests; Windows
+`.\mvnw.cmd clean verify` passed 819 (817 unit/two packaged integration), zero
+failures/errors/skips, 5:36. Guarded packaged Paper synthetic native events on real
+loaded blocks passed reserve 93 -> cancelled break 93 -> break 70 -> piston 47 -> block
+explosion 24 -> immediate/restart gap 24 -> entity explosion 0; coal 7/stone 14 stayed
+unchanged. All four source retirements totaled 93, with no repeated production.
+Prior packaged farm/industry learning, study, resale, succession and closure passed.
+This verifies actual registered event/owner wiring, not a human client or physical
+piston/explosion engine. Probe blocks were restored exactly. A console-only
+chunk ticket in the disposable fixture was removed and absence verified before
+normal stop (exit0). Production code and probe itself add no chunk tickets.
+
+Backed up the stopped marked schema 46 fixture first. Schema 47 integrity/FKs healthy;
+72 of 81 old table snapshots unchanged. Differences were normal ages/clocks/world
+progress, ore/farm observation timestamps and deliberate test mutation evidence.
+The first snapshot check omitted the normal farm observation timestamp refresh;
+read-only comparison confirmed no crop/capacity changes and corrected the check.
+Existing identities, assets and history stayed fixed. Exact original settings
+restored and both test JARs archived. Human server/world/database untouched.
+
+Source/application/listener, tests, guarded probe and docs updated on the local
+feature branch; no push/main merge. Phase 3 remains one of four complete reporting
+groups (25%): safe native source loss finishes a resource prerequisite, not the
+whole connected production/specialization gate. Next: durable suitable resource
+opportunities, funded career choice and automatic first mines/workshops. No
+blocking gameplay question. See LIVE_ORE_REMOVAL.md and MINERAL_SOURCE_LEDGER.md.
+
 ## October 10, 2026 — approved per-block mineral reserve ledger
 
 Schema 46 records even allocation of legacy remaining reserves across saved ore

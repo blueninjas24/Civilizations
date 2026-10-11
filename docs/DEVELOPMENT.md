@@ -153,7 +153,7 @@ restoring server data has not been performed by this development batch.
 ## Manual automatic-farm native fixture
 
 LiveOreSurveyProbe is a separate guarded test-only plugin, name
-CivilizationsLiveSurveyProbe/main LiveOreSurveyProbe, API1.21, dependency
+CivilizationsLiveSurveyProbe/main LiveOreSurveyProbe, API 1.21, dependency
 Civilizations. Its latest guard requires the marked localhost/no-player dev server
 on port 25578, leaving the player-test address 25577 free. Back up server.properties
 while stopped, change only that port, and restore it after a normal stop. It uses a separate random
@@ -301,3 +301,22 @@ normally, verify PRAGMA user_version 46/integrity/FKs and preexisting asset snap
 restore original properties exactly and archive the probe. Production clocks may
 tick during the short server run; distinguish age/clock bookkeeping from changes
 to identity, goods, cash or history. See MINERAL_SOURCE_LEDGER.md.
+
+
+October 10 native removal probe: src/test/paper/OreRemovalProbe.java is a separate
+test-only plugin, name CivilizationsOreRemovalProbe, main OreRemovalProbe, version 1,
+API 1.21, depend Civilizations. Compile against the packaged JAR/cached binary
+dependencies with empty sourcepath. It requires the marked localhost no-player
+fixture on port 25578 and an already loaded chunk. While guarded on this disposable
+server only, the console may temporarily `execute in minecraft:overworld run
+forceload add 0 0`; remove that same ticket and query no forced chunks before stop.
+The probe itself adds none. It saves/restores four real blocks and dispatches
+synthetic native break, piston and explosion events through production listeners
+registered for a separate SQL-owner database. The main fixture also records the
+unknown-coordinate exclusions from dispatched events, intentionally. It verifies
+cancelled break, individual loss, piston origin versus destination, immediate/
+restart failure fence, retained goods and further recording while fenced. This is
+not a physical piston/explosion-engine or human client test. Re-run the separate
+IndustryRuntimeProbe alongside it for prior application regression checks. Back up
+the stopped fixture before deployment, stop normally, verify schema 47/integrity/FKs
+and old assets/history, restore exact properties and archive both test JARs.

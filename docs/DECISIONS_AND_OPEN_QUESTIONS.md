@@ -18,8 +18,11 @@ veins and introduce per-block accounting only for newly created veins.
 
 The user approved even division with recorded conversion. Schema 46 ledger and
 explicit retirement are now verified by 806 tests and the packaged Paper probe.
-Connect and verify native break capture before enabling automatic first mines. No runtime source
-loss has been deployed to the human server. The schema 45 farm batch is independent
+Native break/explosion/piston capture and production trust protection are now
+verified by 819 tests and registered Paper listener checks (schema 47). Older
+coordinate saves require reviewed coverage recovery; no automatic trust reset.
+First automatic mines remain unfinished. No runtime source loss has been deployed
+to the human server. The schema 45 farm batch is independent
 of this approval.
 
 ## October 10, 2026 — unlimited private ownership approved
@@ -98,8 +101,8 @@ October 9 playtest decisions, with implementation boundaries:
 - Player-mined supporting ore loses only that coordinate's source, not the whole
   connected vein. Future work must preserve already extracted goods and history,
   avoid double loss, and prevent removal/replacement/revisit from refilling reserves.
-  Per-source reserve attribution and break capture need implementation and tests;
-  current reserve behavior has not yet changed under this approval.
+  Per-source attribution and native removal are now verified in schemas 46/47;
+  the human server has not been upgraded. Reviewed older-save recovery is pending.
 
 Schema 37's cadence-aware hauling is an engineering correction under the approved
 editable economy authority. Rate/window identify different actual transport times;

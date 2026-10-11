@@ -18,8 +18,11 @@ Updated October 10, 2026. Reporting progress remains one of four complete groups
 - [x] Permanent ore-coordinate identity and no restart/revisit refill.
 - [x] Approved even legacy reserve conversion, per-coordinate depletion and atomic
       explicit retirement; verified conservation/rollback/restart and packaged Paper.
-- [ ] Connect native break/explosion/piston removal capture and fail-closed production
-      trust guards; backend retirement alone does not prove live player ore loss.
+- [x] Connect native break/explosion/piston removal capture and immediate/persisted
+      production trust guards; verified cancelled/destructive events and actual
+      registered listener/SQL-owner wiring on disposable Paper with restored blocks.
+- [ ] Add reviewed recovery/baseline tooling for old coordinate saves or capture gaps;
+      do not silently certify missing mutation history or reset reserves.
 - [x] Bounded exposed coal/iron scanner with supplied exclusion coordinates.
 - [x] Save player-placement exclusions and enforce them against stale discovery.
 - [x] Capture native placements with clean-stop/failure protection and verify on Paper.

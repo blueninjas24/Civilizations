@@ -15,6 +15,21 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PopulationSessionTest {
+    @Test void nativeMutationFreezesInputAndDrainsAcceptedWorkAtShutdown()throws Exception {
+        var world=UUID.randomUUID();var position=new VillageObservation.Position(-1,40,-1);
+        var removals=new java.util.ArrayList<>(List.of(position));var session=session(settings(2,12));session.configureOreTracking();await(session.start(false));
+        var accepted=session.recordOreMutations(world,"Unenrolled fixture",List.of(),removals,1000,"Native removal");removals.clear();session.close();assertEquals(0,await(accepted).retiredBatches());
+        try(var reopened=session(settings(2,12))) {
+            reopened.configureOreTracking();await(reopened.start(false));assertTrue(reopened.oreDiscoveryReady());
+            assertEquals(java.util.Set.of(position),await(reopened.orePlacementsInChunk(world,-1,-1,512)));
+        }
+    }
+    @Test void rejectedNativeMutationPersistsGapAndHealthyCloseCannotRepairIt()throws Exception {
+        var session=session(settings(2,12));session.configureOreTracking();await(session.start(false));
+        assertThrows(ExecutionException.class,()->await(session.recordOreMutations(UUID.randomUUID(),"Fixture",List.of(),List.of(),1000,"Empty mutation")));
+        assertFalse(session.oreDiscoveryReady());session.close();
+        try(var reopened=session(settings(2,12))) {reopened.configureOreTracking();await(reopened.start(false));assertFalse(reopened.oreDiscoveryReady());}
+    }
     @TempDir Path directory;
     private final AtomicLong now = new AtomicLong(1000);
     private PopulationSession.Settings settings(int budget, int offline) {

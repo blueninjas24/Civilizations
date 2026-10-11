@@ -19,22 +19,30 @@ public final class OrePlacementRepository {
         if (!connection.getAutoCommit()) throw new SQLException("Placement recording requires idle SQL owner");
         connection.setAutoCommit(false);
         try {
-            int added = 0;
-            try (var statement = connection.prepareStatement("""
-                    INSERT INTO player_ore_placements(world_id,x,y,z,observed_millis) VALUES(?,?,?,?,?)
-                    ON CONFLICT(world_id,x,y,z) DO NOTHING
-                    """)) {
-                for (var position : evidence) {
-                    bind(statement,world,position); statement.setLong(5,observedMillis);
-                    added += statement.executeUpdate();
-                }
-            }
+            int added = recordRows(world,evidence,observedMillis);
             connection.commit(); connection.setAutoCommit(true); return added;
         } catch (SQLException | RuntimeException failure) {
             try { connection.rollback(); connection.setAutoCommit(true); }
             catch (SQLException rollback) { failure.addSuppressed(rollback); }
             throw failure;
         }
+    }
+
+    int recordRows(UUID world,Collection<Position> positions,long observedMillis)throws SQLException {
+        Objects.requireNonNull(world);var evidence=List.copyOf(positions);
+        if(observedMillis<0||evidence.isEmpty()||evidence.size()>512||new HashSet<>(evidence).size()!=evidence.size())throw new IllegalArgumentException("Invalid bounded placement observation");
+        if(connection.getAutoCommit())throw new SQLException("Placement rows require owner transaction");
+        int added = 0;
+        try (var statement = connection.prepareStatement("""
+                INSERT INTO player_ore_placements(world_id,x,y,z,observed_millis) VALUES(?,?,?,?,?)
+                ON CONFLICT(world_id,x,y,z) DO NOTHING
+                """)) {
+            for (var position : evidence) {
+                bind(statement,world,position); statement.setLong(5,observedMillis);
+                added += statement.executeUpdate();
+            }
+        }
+        return added;
     }
 
     public boolean excludes(UUID world, Position position) throws SQLException {

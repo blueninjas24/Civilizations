@@ -14,6 +14,7 @@ public final class IndustryRuntime {
     private final IndustryRuntimePolicy policy;
     private final BusinessOperationPolicy operations;
     private final WorkLearningPolicy learning;
+    private final java.util.function.BooleanSupplier mutationHealthy;
     private String cursor = "";
     public IndustryRuntime(Connection connection, IndustryRuntimePolicy policy) {
         this(connection,policy,BusinessOperationPolicy.disabled());
@@ -22,9 +23,13 @@ public final class IndustryRuntime {
         this(connection,policy,operations,WorkLearningPolicy.disabled());
     }
     public IndustryRuntime(Connection connection, IndustryRuntimePolicy policy,BusinessOperationPolicy operations,WorkLearningPolicy learning) {
+        this(connection,policy,operations,learning,()->true);
+    }
+    public IndustryRuntime(Connection connection, IndustryRuntimePolicy policy,BusinessOperationPolicy operations,WorkLearningPolicy learning,java.util.function.BooleanSupplier mutationHealthy) {
         this.connection=Objects.requireNonNull(connection); this.policy=Objects.requireNonNull(policy);
         this.operations=Objects.requireNonNull(operations);
         this.learning=Objects.requireNonNull(learning);
+        this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
     /** Restart preserves earned work/fractions but earns no downtime. */
     public void start(long now) throws SQLException {
@@ -111,6 +116,8 @@ public final class IndustryRuntime {
                     s.setString(1,id.toString());try(var r=s.executeQuery()){while(r.next())deposits.add(UUID.fromString(r.getString(1)));}
                 }
                 if(deposits.size()!=1)reason="Paused: one unambiguous saved finite deposit required";
+                else if(!industry.sourceHistoryTrusted(deposits.getFirst())||(!mutationHealthy.getAsBoolean()&&industry.hasCoordinateSources(deposits.getFirst())))
+                    reason="Paused: ore mutation history requires reviewed recovery; reserve and goods retained";
                 else reason=industry.mineRows(operation,id,deposits.getFirst(),policy.mining().siteBatchCapacity(),period,
                         policy.mining().batchesPerWorker(),policy.mining().siteBatchCapacity()).explanation();
             } else {

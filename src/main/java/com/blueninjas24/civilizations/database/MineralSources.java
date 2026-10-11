@@ -87,42 +87,49 @@ public final class MineralSources {
         if(!connection.getAutoCommit())throw new SQLException("Removal requires idle SQL owner");
         connection.setAutoCommit(false);
         try {
-            long removed=0;
-            var expected=new HashMap<UUID,Long>();
-            for(var position:frozen) {
-                int fresh;
-                try(var s=connection.prepareStatement("INSERT INTO ore_source_removals VALUES(?,?,?,?,?,?) ON CONFLICT(world_id,x,y,z) DO NOTHING")) {
-                    coordinate(s,1,world,position);s.setLong(5,observedMillis);s.setString(6,reason);fresh=s.executeUpdate();
-                }
-                if(fresh==0)continue;
-                var deposit=new MineralDiscoveryRepository(connection).findAt(world,position);
-                if(deposit.isEmpty())continue;
-                var saved=deposit.orElseThrow();
-                if(!expected.containsKey(saved.id())) {
-                    ensureRows(saved.id());
-                    expected.put(saved.id(),saved.remainingBatches());
-                }
-                Share share;
-                try(var s=connection.prepareStatement("SELECT deposit_id,allocated_batches,remaining_batches FROM mineral_sources WHERE world_id=? AND x=? AND y=? AND z=?")) {
-                    coordinate(s,1,world,position);
-                    try(var r=s.executeQuery()) {
-                        if(!r.next())throw new SQLException("Missing mineral source coordinate");
-                        share=new Share(world,position,UUID.fromString(r.getString(1)),r.getLong(2),r.getLong(3));
-                    }
-                }
-                update(share,0);
-                try(var s=connection.prepareStatement("UPDATE mineral_deposits SET remaining_batches=remaining_batches-? WHERE id=? AND remaining_batches>=?")) {
-                    s.setLong(1,share.remaining());s.setString(2,share.deposit().toString());s.setLong(3,share.remaining());if(s.executeUpdate()!=1)throw new SQLException("Source retirement exceeds deposit");
-                }
-                try(var s=connection.prepareStatement("INSERT INTO mineral_source_retirements VALUES(?,?,?,?,?)")) {
-                    coordinate(s,1,world,position);s.setLong(5,share.remaining());s.executeUpdate();
-                }
-                expected.put(share.deposit(),Math.subtractExact(expected.get(share.deposit()),share.remaining()));
-                removed=Math.addExact(removed,share.remaining());
-            }
-            for(var entry:expected.entrySet())if(sum(entry.getKey())!=entry.getValue())throw new SQLException("Retirement/source mismatch");
+            long removed=removeRows(world,frozen,observedMillis,reason);
             connection.commit();connection.setAutoCommit(true);return removed;
         }catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
+    }
+    /** Bounded row work shared by the native mutation transaction. */
+    long removeRows(UUID world,Collection<Position> positions,long observedMillis,String reason)throws SQLException {
+        transactionRequired();Objects.requireNonNull(world);var frozen=List.copyOf(positions);
+        if(observedMillis<0||frozen.isEmpty()||frozen.size()>512||new HashSet<>(frozen).size()!=frozen.size()||reason==null||reason.isBlank()||reason.length()>256)throw new IllegalArgumentException("Invalid bounded source removal");
+        long removed=0;
+        var expected=new HashMap<UUID,Long>();
+        for(var position:frozen) {
+            int fresh;
+            try(var s=connection.prepareStatement("INSERT INTO ore_source_removals VALUES(?,?,?,?,?,?) ON CONFLICT(world_id,x,y,z) DO NOTHING")) {
+                coordinate(s,1,world,position);s.setLong(5,observedMillis);s.setString(6,reason);fresh=s.executeUpdate();
+            }
+            if(fresh==0)continue;
+            var deposit=new MineralDiscoveryRepository(connection).findAt(world,position);
+            if(deposit.isEmpty())continue;
+            var saved=deposit.orElseThrow();
+            if(!expected.containsKey(saved.id())) {
+                ensureRows(saved.id());
+                expected.put(saved.id(),saved.remainingBatches());
+            }
+            Share share;
+            try(var s=connection.prepareStatement("SELECT deposit_id,allocated_batches,remaining_batches FROM mineral_sources WHERE world_id=? AND x=? AND y=? AND z=?")) {
+                coordinate(s,1,world,position);
+                try(var r=s.executeQuery()) {
+                    if(!r.next())throw new SQLException("Missing mineral source coordinate");
+                    share=new Share(world,position,UUID.fromString(r.getString(1)),r.getLong(2),r.getLong(3));
+                }
+            }
+            update(share,0);
+            try(var s=connection.prepareStatement("UPDATE mineral_deposits SET remaining_batches=remaining_batches-? WHERE id=? AND remaining_batches>=?")) {
+                s.setLong(1,share.remaining());s.setString(2,share.deposit().toString());s.setLong(3,share.remaining());if(s.executeUpdate()!=1)throw new SQLException("Source retirement exceeds deposit");
+            }
+            try(var s=connection.prepareStatement("INSERT INTO mineral_source_retirements VALUES(?,?,?,?,?)")) {
+                coordinate(s,1,world,position);s.setLong(5,share.remaining());s.executeUpdate();
+            }
+            expected.put(share.deposit(),Math.subtractExact(expected.get(share.deposit()),share.remaining()));
+            removed=Math.addExact(removed,share.remaining());
+        }
+        for(var entry:expected.entrySet())if(sum(entry.getKey())!=entry.getValue())throw new SQLException("Retirement/source mismatch");
+        return removed;
     }
     private void update(Share row,long remaining)throws SQLException {
         try(var s=connection.prepareStatement("UPDATE mineral_sources SET remaining_batches=? WHERE world_id=? AND x=? AND y=? AND z=? AND remaining_batches=?")) {

@@ -138,6 +138,7 @@ public final class IndustryRepository {
         if(requested<0 || period<0 || perWorker<1 || siteCapacity<1)throw new IllegalArgumentException("Invalid production request");
         String terms=terms("mine",business,deposit,requested,period,perWorker,siteCapacity);
         var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
+        if(!sourceHistoryTrusted(deposit))throw new SQLException("Coordinate-backed mining paused: ore mutation history requires reviewed recovery");
         BusinessClosure.requireOpen(connection,business);
         try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
             s.setString(1,business.toString());try(var r=s.executeQuery()) {
@@ -161,6 +162,15 @@ public final class IndustryRepository {
         }
         sources.depleteRows(operation,deposit,plan.batches());
         return saved;
+    }
+
+    public boolean hasCoordinateSources(UUID deposit)throws SQLException {
+        try(var s=connection.prepareStatement("SELECT 1 FROM mineral_sources WHERE deposit_id=? LIMIT 1")) {
+            s.setString(1,deposit.toString());try(var r=s.executeQuery()){return r.next();}
+        }
+    }
+    public boolean sourceHistoryTrusted(UUID deposit)throws SQLException {
+        return !hasCoordinateSources(deposit)||new OreTrackingRepository(connection).load().map(OreTrackingRepository.State::trusted).orElse(true);
     }
 
     /** Complete processing batches atomically consume delivered inputs and add outputs; no new money. */

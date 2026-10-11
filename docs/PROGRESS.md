@@ -2,6 +2,14 @@
 
 Updated October 10, 2026. Based on verified work, not planned features.
 
+Latest: supporting ore now responds to successful block breaks, explosions and
+piston movement. Only the removed block's remaining share is lost; existing goods
+stay safe. If saving fails, mining pauses instead of silently using stale sources.
+All 819 tests and isolated Paper event checks passed; your server is unchanged.
+Older saved veins need a reviewed baseline under the stronger tracking contract.
+Phase 3 remains 25% by complete groups. Automatic first mines/workshops and connected
+production chains are next.
+
 Latest: finite ore now has a saved balance for each supporting block. Removing
 one through the accounting API loses only its remaining share; goods already mined
 stay safe. All 806 tests and the isolated packaged Paper check passed. Connecting
@@ -75,7 +83,7 @@ is next. These approvals do not complete another Phase 3 milestone.
 
 Latest foundation safeguard: villages pause while their world is absent or the
 server is stopped. They keep their people, supplies and history. Worlds with
-unloaded chunks still simulate. Latest Wrapper verification passed 806 tests.
+unloaded chunks still simulate. Latest Wrapper verification passed 819 tests.
 See ONLINE_WORLD_PAUSE.md for the pause policy.
 
 Latest safeguard: changing industry speed no longer makes yesterday's shipments

@@ -102,3 +102,11 @@ the positive run. Calendar/history were retained. This is not an automatic recov
 feature or permission to rearm an unknown production interval. Subsequent launches
 used interactive consoles and normal stop. Actual piston physics, external plugin
 ordering and bulk-editor mutations are not certified by synthetic events.
+
+
+October 10 extension: registered break/explosion/piston-origin capture and atomic
+placement/source-loss saves are now verified. The stronger fence also protects
+coordinate-backed mining. Schema 47 requires reviewed coverage for older saved
+coordinate reserves, without changing assets/history. New empty saves retain the
+existing approved baseline. See LIVE_ORE_REMOVAL.md; first automatic mines remain
+unfinished and no recovery reset command has been introduced.
