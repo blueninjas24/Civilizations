@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 48;
+    static final int CURRENT_VERSION = 49;
 
     @FunctionalInterface
     interface Migration {
@@ -666,6 +666,26 @@ final class SchemaMigrator {
                             PRIMARY KEY(settlement_id,world_id,x,y,z)
                         )
                         """);
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE startup_grants (
+                            business_id TEXT PRIMARY KEY REFERENCES businesses(id),
+                            settlement_id TEXT NOT NULL REFERENCES economy_accounts(settlement_id),
+                            period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                            startup_hundredths INTEGER NOT NULL CHECK(typeof(startup_hundredths)='integer' AND startup_hundredths>=0),
+                            capital_hundredths INTEGER NOT NULL CHECK(typeof(capital_hundredths)='integer' AND capital_hundredths>=0),
+                            protected_hundredths INTEGER NOT NULL CHECK(typeof(protected_hundredths)='integer' AND protected_hundredths>=0),
+                            before_cash INTEGER NOT NULL CHECK(typeof(before_cash)='integer' AND before_cash>=0),
+                            after_cash INTEGER NOT NULL CHECK(typeof(after_cash)='integer' AND after_cash>=protected_hundredths),
+                            food_demand INTEGER NOT NULL CHECK(typeof(food_demand)='integer' AND food_demand>=0),
+                            policy TEXT NOT NULL CHECK(length(policy) BETWEEN 1 AND 4096),
+                            CHECK(typeof(startup_hundredths+capital_hundredths)='integer' AND startup_hundredths+capital_hundredths>0),
+                            CHECK(before_cash-after_cash=startup_hundredths+capital_hundredths),
+                            FOREIGN KEY(settlement_id,period) REFERENCES needs_periods(settlement_id,period)
+                        )
+                        """);
+                    execute(connection,"CREATE INDEX village_startup_grants ON startup_grants(settlement_id,period)");
                 }
         ));
     }
@@ -819,6 +839,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"study_reviews",Set.of("course_id","settlement_id","period","before_experience","after_experience","reason"));
                 requireColumns(connection,"study_spending",Set.of("course_id","period","commodity","units"));
             }
+            if(migrations.size()>=49)requireColumns(connection,"startup_grants",Set.of("business_id","settlement_id","period","startup_hundredths","capital_hundredths","protected_hundredths","before_cash","after_cash","food_demand","policy"));
             if(migrations.size()>=48)requireColumns(connection,"mineral_opportunities",Set.of("settlement_id","world_id","x","y","z","mineral","first_seen_millis","last_seen_millis"));
             if(migrations.size()>=46) {
                 requireColumns(connection,"mineral_source_adoptions",Set.of("deposit_id","remaining_batches","source_count","explanation"));

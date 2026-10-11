@@ -1,6 +1,13 @@
 # Civilizations progress tracker
 
-Updated October 10, 2026. Based on verified work, not planned features.
+Updated October 11, 2026. Based on verified work, not planned features.
+
+Latest: mines/workshops now have checked startup funding that protects food money,
+respects editable village limits and cannot pay twice after restart. The funding
+backend is ready; automatic business selection still needs connecting. All 844
+tests and the isolated Paper funding check passed. Your server is unchanged.
+Phase 3 remains 25% by complete groups. Next: qualified residents, suitable resource
+opportunities and the first automatically funded businesses with real demand.
 
 Latest: villages now remember observed coal/iron locations after restart. Revisits
 do not duplicate them, and placed/removed ore stays excluded. A shutdown save race

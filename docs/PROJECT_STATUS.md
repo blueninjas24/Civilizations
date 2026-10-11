@@ -5,6 +5,38 @@
 
 
 
+## October 10–11, 2026 — guarded village startup grants
+
+Approved public startup funding now has editable settings and atomic mine/workshop
+startup composition. Schema 49 retains one receipt/business with actual expense/cash
+allocation, protected food money, food evidence, before/after treasury and policy.
+Current unmet/missing/stale food assessment or changed living population defers
+startup. Single/current-food-period/lifetime budgets survive restart; accepted terms
+replay after disable without new money, quota, stock or ore refill. Failed startup
+or receipt insertion rolls back the whole operation; no retroactive grants.
+
+Defaults: mining/blacksmith requests,50 Trade Value single/current village food
+period and 200 lifetime, keeping max(25 Trade Value, two assessed food-demand periods
+estimated at 2 Trade Value/unit). Caps limit public spending, not private ownership.
+Old files remain disabled until opted in. No automatic caller, public command,
+private-startup funding, loan/payroll or world modification added. Caller still
+establishes actual demand/current suitable evidence. Automatic career/founding next.
+
+Sixteen added tests; focused 83 and Windows `.\mvnw.cmd clean verify` passed 844
+(842 unit/two packaged integration), zero failures/errors/skips,6:12. Guarded
+packaged Paper defaults/refusal/conserved startup/mining/disabled restart replay
+passed in a separate synthetic DB, with healthy reopened integrity/FKs and original
+receipt/cash/job/stock/reserve. It is not natural ore/automatic founding/client proof.
+Test-only compilation issues corrected before successful runs; application source
+unchanged after full build. See root DEVLOG.md for exact failures/corrections.
+
+Stopped marked dev schema 48 backed up; upgrade 49 healthy and 76/82 old tables
+unchanged. Only normal age/clock/runtime/world/tracking elsewhere; existing assets,
+food/trade/financial/identity/skill/opportunity history preserved, main grant table
+empty. No world edits/tickets, no forced chunks verified, normal stop exit 0, exact
+settings restored and probe archived. Human server/world/DB untouched. Local feature
+branch only; no push/main merge. Phase 3 remains 1/4 groups(25%). See STARTUP_GRANTS.md.
+
 ## October 10, 2026 — durable mineral opportunities
 
 The live coal/iron survey now retains positive evidence across restart in schema48:

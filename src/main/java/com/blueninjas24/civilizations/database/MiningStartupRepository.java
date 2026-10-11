@@ -26,16 +26,21 @@ public final class MiningStartupRepository {
         if(!connection.getAutoCommit())throw new SQLException("Mine startup requires idle SQL owner");
         connection.setAutoCommit(false);
         try {
+            var result=startRows(request);
+            connection.commit();connection.setAutoCommit(true);return result;
+        } catch(SQLException|RuntimeException failure) {
+            try {connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;
+        }
+    }
+    /** Composition with checked grant accounting; caller owns the complete transaction. */
+    Started startRows(Request request)throws SQLException {
+            if(connection.getAutoCommit())throw new SQLException("Mine startup rows require owner transaction");
             var businesses=new BusinessRepository(connection);var industry=new IndustryRepository(connection);
             var founding=businesses.foundRows(request.founding());var business=founding.business();
             var discovery=new MineralDiscoveryRepository(connection).discoverRows(business.siteId(),request.evidence(),request.batchesPerOre(),request.bundle());
             var store=industry.openStoreRows(business.id(),request.storageCapacity(),request.spacePerUnit(),request.workingCapital());
             var hire=UUID.nameUUIDFromBytes(("civilizations:mine-first-worker-v1:"+business.id()).getBytes(StandardCharsets.UTF_8));
             var employment=businesses.hireRows(hire,business.id(),request.worker(),business.foundedStep());
-            var result=new Started(founding,discovery,store,employment);
-            connection.commit();connection.setAutoCommit(true);return result;
-        } catch(SQLException|RuntimeException failure) {
-            try {connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;
-        }
+            return new Started(founding,discovery,store,employment);
     }
 }

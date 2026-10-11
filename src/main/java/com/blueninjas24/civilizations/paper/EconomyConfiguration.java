@@ -26,6 +26,7 @@ public final class EconomyConfiguration {
         if (config.contains("business-operations")) rootKeys.add("business-operations");
         if (config.contains("automatic-business-resale")) rootKeys.add("automatic-business-resale");
         if (config.contains("resident-study")) rootKeys.add("resident-study");
+        if (config.contains("startup-grants")) rootKeys.add("startup-grants");
         if (config.contains("work-learning")) rootKeys.add("work-learning");
         if (config.contains("aid-preview")) rootKeys.add("aid-preview");
         if (config.contains("donations")) rootKeys.add("donations");
@@ -42,6 +43,7 @@ public final class EconomyConfiguration {
         readBusinessOperations(config);
         readWorkLearning(config);
         readStudy(config);
+        readStartupGrants(config);
         readAutomaticResale(config);
         readFarms(config);
         readPriorities(config);
@@ -84,6 +86,16 @@ public final class EconomyConfiguration {
                 integer(config, "food.units-per-worker"), smallInteger(config, "food.output-percent"),
                 new Policy(basisPoints(config, "shortages.severe-coverage-percent"), basisPoints(config, "shortages.surplus-coverage-percent"),
                         basisPoints(config, "shortages.abundant-coverage-percent"), integer(config, "shortages.severe-after-periods")), stocks, values, percentages);
+    }
+    public static com.blueninjas24.civilizations.industry.StartupGrantPolicy readStartupGrants(ConfigurationSection config) {
+        if(!config.contains("startup-grants"))return com.blueninjas24.civilizations.industry.StartupGrantPolicy.disabled();
+        var s=section(config,"startup-grants");
+        exactKeys(s,Set.of("enabled","maximum-grant-hundredths","per-period-limit-hundredths","lifetime-limit-hundredths","minimum-treasury-hundredths","food-reserve-periods","hundredths-per-food-unit","industries"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("startup-grants.enabled must be true or false");
+        if(!(s.get("industries") instanceof List<?> raw) || raw.stream().anyMatch(v->!(v instanceof String)) || new HashSet<>(raw).size()!=raw.size())
+            throw new IllegalArgumentException("startup-grants.industries must be a unique text list");
+        var kinds=new HashSet<String>();raw.forEach(v->kinds.add((String)v));
+        return new com.blueninjas24.civilizations.industry.StartupGrantPolicy(enabled,integer(s,"maximum-grant-hundredths"),integer(s,"per-period-limit-hundredths"),integer(s,"lifetime-limit-hundredths"),integer(s,"minimum-treasury-hundredths"),smallInteger(s,"food-reserve-periods"),integer(s,"hundredths-per-food-unit"),kinds);
     }
     public static com.blueninjas24.civilizations.industry.BusinessResalePolicy readAutomaticResale(ConfigurationSection config) {
         if(!config.contains("automatic-business-resale"))return com.blueninjas24.civilizations.industry.BusinessResalePolicy.disabled();

@@ -1,5 +1,23 @@
 # Development and recovery procedures
 
+## Startup-grant smoke test
+
+StartupGrantProbe is a separate test-only plugin, name CivilizationsStartupGrantProbe,
+main StartupGrantProbe, API 1.21, dependency Civilizations. Require marked localhost
+disposable fixture, port 25578, no players. Back up stopped DB/JAR/properties first;
+temporarily change only the test port and restore exact original bytes afterward.
+Compile separately against verified packaged JAR/cached binary dependencies with an
+empty sourcepath. Never install this probe in a human/production server.
+
+It parses actual bundled economy.yml and uses its own executor/random SQLite save,
+synthetic resident and explicit synthetic ore evidence. Check protected-food refusal,
+real startup/capital/worker receipt, mining and disabled-policy restart replay.
+This is not automatic career/founding, natural ore or client validation. No block/
+entity edits or chunk tickets. Require NATIVE STARTUP GRANT PASS, stop normally,
+verify both saves read-only, no forced chunks, archive probe outside plugins and
+restore settings. Schema 49 must add no main grant receipts/retroactive payments.
+See STARTUP_GRANTS.md and DEVLOG.md for exact verified results.
+
 Adult-study probe follow-up: schema 43, a separate study-run DB with 0→1→2 skill,
 COMPLETED course, stone/timber8 remaining from10 each, four material spending rows.
 Hungry first review must spend nothing; absence/restart/replay add no experience.

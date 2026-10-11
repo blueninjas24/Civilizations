@@ -8,8 +8,14 @@ This permits new industry without inventing personal bank accounts, estate funds
 or free capital. Grant amounts, limits and food protection must be editable, with
 recorded conservation and rechecked qualification/demand/site prerequisites.
 It does not authorize an unlimited subsidy, a loan/debt system or government
-mechanics ahead of Phase 6. Automatic grant selection/accounting remains to be
-implemented; saved mineral evidence alone creates no business or money.
+mechanics ahead of Phase 6. Guarded startup accounting now implements this rule;
+automatic opportunity selection/founding remains unfinished. Editable prototype
+defaults are 50 Trade Value per grant/current village food period, 200 total per
+village, and protection of max(25 Trade Value, two food-demand periods estimated at
+2 Trade Value per food unit). Food shortage/missing current assessment or a changed
+living population makes startup wait. Limits constrain public spending, not private
+ownership. Old files opt in; no loans, payroll or government behavior added. Saved
+mineral evidence alone creates no business or money. See STARTUP_GRANTS.md.
 
 
 ## October 10, 2026 — approved legacy per-block reserve accounting choice

@@ -1,5 +1,46 @@
 # Civilizations Development Log
 
+## October 10–11, 2026 — guarded village startup grants
+
+Implemented approved public startup funding for mines/workshops with strict editable
+economy.yml settings. Defaults: 50 Trade Value single/current food-period and 200
+lifetime village caps; keep max(25 Trade Value, two assessed food-demand periods
+estimated at 2 Trade Value/unit). Unmet/missing/stale food assessment or changed living
+population makes startup wait. Limits constrain spending, not unlimited ownership.
+Old files remain disabled until opt-in. No server configuration rewritten.
+
+BusinessStartupGrants joins real startup/working-capital debits, registration, empty
+storage, first qualified worker and finite mine discovery in one transaction.
+Schema 49 stores one receipt/business with policy, food evidence, protected cash and
+before/after balances. Refusal/failure rolls back everything. Accepted terms replay
+after restart/disable without money, quota, goods or ore refill; changed terms still
+reject. Existing firms receive no retroactive grants. Existing mine transaction rows
+extracted for composition, without changing legacy terms. Automatic choice/founding,
+private startup funding, public commands and world edits remain outside this batch.
+
+Sixteen tests added (11 temporary SQLite, three domain, two config); focused 83 passed.
+Windows `.\mvnw.cmd clean verify` passed 844 (842 unit/two packaged integration), zero
+failures/errors/skips, 6:12. Initial focused compile caught a reassigned test-lambda
+variable; corrected before focused verification. Standalone native probe initially
+needed a FarmObservation import; corrected and separately compiled against the final
+JAR. No application source changed after the successful full build.
+
+Guarded packaged Paper StartupGrantProbe passed using actual bundled YAML and its
+own executor/random synthetic DB: protected-food refusal, real startup/capital/job,
+mining and restart replay after disabling new grants. Reopened SQLite retained one
+receipt (startup 500/capital 1000, cash 10000->8500), business cash 1000, remaining ore 8,
+coal 2, one job/three treasury entries; integrity/FKs healthy. This is not automatic
+founding, natural ore or human client validation. No block/entity/chunk-ticket edits;
+no forced chunks verified, normal stop exit 0, settings restored byte-exact, probe
+archived outside plugins. Human server/world/DB untouched.
+
+Stopped marked schema 48 dev fixture backed up first; upgrade 49 healthy,76/82 old
+tables identical. Only normal age/clock/runtime/world/tracking changed. Existing
+business/resource/skill/family/food/trade/treasury/opportunity data preserved, main
+grant table empty. Local feature-branch work only; no merge/push. Phase 3 stays 1/4
+complete groups (25%). Next: actual opportunity/career selection and automatic
+first funded mines/workshops. No blocking design question. See docs/STARTUP_GRANTS.md.
+
 ## October 10, 2026 — durable mineral opportunities
 
 Schema 48 adds positive coal/iron observation evidence by settlement/world UUID

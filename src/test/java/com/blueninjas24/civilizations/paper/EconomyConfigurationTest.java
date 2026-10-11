@@ -13,6 +13,18 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void startupGrantLimitsAreEditableAndAbsentLegacySectionIsDisabled()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.StartupGrantPolicy.prototype(),EconomyConfiguration.readStartupGrants(config));
+        config.set("startup-grants.maximum-grant-hundredths",1234);EconomyConfiguration.read(config);assertEquals(1234,EconomyConfiguration.readStartupGrants(config).maximumGrant());
+        config.set("startup-grants",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readStartupGrants(config).enabled());
+    }
+    @Test void invalidGrantBudgetsFoodProtectionKindsAndUnknownKeysFailBeforeDatabaseStartup()throws Exception {
+        for(Object bad:List.of(0,-1,1.5,"lots")) {
+            var config=defaults();config.set("startup-grants.food-reserve-periods",bad);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("startup-grants.industries",List.of("mining","mining"));assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var invalid=defaults();invalid.set("startup-grants.unlimited",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(invalid));
+    }
     @Test void automaticResaleDefaultsAreEditableAndOldFilesRemainDisabled()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.BusinessResalePolicy.prototype(),EconomyConfiguration.readAutomaticResale(config));
         config.set("automatic-business-resale.sale-deadline-seconds",1200);EconomyConfiguration.read(config);assertEquals(1200000,EconomyConfiguration.readAutomaticResale(config).deadlineMillis());

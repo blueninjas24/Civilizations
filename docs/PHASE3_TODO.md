@@ -51,8 +51,11 @@ Updated October 10, 2026. Reporting progress remains one of four complete groups
       SQL owner, with atomic receipts/checkpoints, absent-world/downtime pause and
       unloaded data-only work; verify failure isolation and actual session on Paper.
 - [ ] Automatically select/fund/staff nonfood industries under editable settings.
-      October 10 approval: limited configurable village startup grants paid from
-      actual treasury after protecting food funds; implementation still pending.
+      Automatic selection remains; guarded public startup funding is verified below.
+- [x] Approved limited configurable grants, current food-money protection, real
+      treasury, shared economic-period/lifetime quotas and atomic startup/capital/
+      first-worker receipts; 844 tests and packaged Paper restart/accounting passed.
+      No ownership cap or automatic startup; missing old settings remain disabled.
 - [ ] Connect real local customers and recipes; demand-based reserves, no fake buyers.
 - [x] Existing workshops automatically buy complete affordable recipe inputs from
       actual local warehouse stock; verify payments, delayed cargo, input work,
