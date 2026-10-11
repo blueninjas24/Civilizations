@@ -1,5 +1,24 @@
 # Development and recovery procedures
 
+## Current mineral survey smoke test
+
+CurrentMineralSurveyProbe is a separate test-only plugin, name
+CivilizationsCurrentSurveyProbe, main CurrentMineralSurveyProbe, API 1.21,
+dependency Civilizations. Use only the marked localhost disposable fixture on
+port 25578 without players, after backing up its stopped DB/JAR/properties.
+Compile separately against the verified packaged JAR and cached dependencies
+with an empty sourcepath. Never install in a human or production server.
+
+The probe uses the actual Paper world UUID, synthetic bed/person/ore observations
+and an accelerated clock in its own random PopulationSession SQLite save. It checks
+fresh candidates, absent-world pause, expiry, newer empty replacement, older replay,
+retained historical sightings and a clean owner restart. It edits no blocks/entities,
+adds no tickets and claims no natural discovery or automatically founded business.
+Require NATIVE CURRENT MINERAL SURVEY PASS; stop normally, verify both SQLite saves
+read-only, restore exact properties, check no forced chunks and archive the probe
+outside plugins. Schema 50 adds empty current survey tables, without fabricating
+current evidence from legacy sightings. See MINERAL_OPPORTUNITIES.md.
+
 ## Startup-grant smoke test
 
 StartupGrantProbe is a separate test-only plugin, name CivilizationsStartupGrantProbe,

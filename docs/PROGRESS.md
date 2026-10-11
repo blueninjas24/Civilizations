@@ -2,6 +2,13 @@
 
 Updated October 11, 2026. Based on verified work, not planned features.
 
+Latest: villages now distinguish ore they currently see from ore they saw earlier.
+A new empty scan clears startup candidates without deleting history; old scans and
+restart cannot bring those candidates back. Expired evidence, absent worlds and
+removed/claimed ore wait for safe revalidation. All 857 tests and the isolated
+Paper restart check passed. Your server is unchanged. Phase 3 remains 25% by complete
+groups; actual demand, career choice and automatically funded industries are next.
+
 Latest: mines/workshops now have checked startup funding that protects food money,
 respects editable village limits and cannot pay twice after restart. The funding
 backend is ready; automatic business selection still needs connecting. All 844

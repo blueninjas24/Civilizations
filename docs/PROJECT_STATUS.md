@@ -1,5 +1,31 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026 — current mineral surveys verified
+
+Schema 50 distinguishes the latest complete coal/iron survey from retained positive
+sighting history. Existing observer saves both atomically. Newer empty/smaller frames
+replace current membership without erasing history; older scans cannot restore it.
+Same capture replay is immutable, conflicting raw coordinates roll back. Legacy
+sightings receive no fabricated current frame. No business/resource/cash rewrite.
+
+The SQL-owner review now gates candidate coordinates on known world availability,
+healthy mutation tracking, caller-supplied freshness, nonfuture capture, exclusions
+and global deposit claims. It cannot authorize a mine, infer hidden ore or establish
+real demand/site permission/qualifications. Automatic founding remains unfinished.
+
+13 new tests; focused 42 and Windows `.\mvnw.cmd clean verify` passed 857 (855 unit,
+two packaged integration), zero failures/errors/skips, 6:02. Isolated packaged Paper
+owner/world-pause/expiry/empty-frame/older-replay/history/restart check passed; reopened
+probe retained capture 2000, no current members and one historical sighting, no money
+or businesses. Main migration integrity/FKs healthy, 81/84 old tables unchanged;
+only normal time/runtime/tracking updates. All existing business, resident, resource,
+financial and identity history preserved. Fixture stopped; exact properties restored,
+probe archived, no forced chunks reported. Human server untouched, no push/main merge.
+See root DEVLOG.md for setup corrections and MINERAL_OPPORTUNITIES.md for contracts.
+
+Phase 3 remains 1/4 complete groups (25%). Next: actual demand, qualified careers,
+coherent suitable resource patches and funded automatic industry selection.
+
 **Verified against local source, Git, Wrapper and disposable Paper on October 10, 2026.** Phase 1 prototype gate passed (10/10 milestones). Phase 2 prototype gate passed (4/4 reporting milestones). Implemented features include live field-backed food, household allocations, saved priorities and appeals, verified donations, once-only opening funds, budget-backed emerald food purchases, saved emerald bargaining, finite-stock player barter and resident-linked food/housing welfare. Bounded food-priority learning and saved feasible donation/emerald/material/wait response comparisons are verified, with actual confirmed trade receipts and exact food outcomes. Phase 3 now has automatic funded field enterprises, persistent owners/sites, qualified staffing and worker-backed food; its first reporting group is verified (1/4, 25%). Existing funded mines/workshops now run timed worker-backed production. Workshops can automatically purchase actual local warehouse inputs. Automatic nonfood founding, upstream warehouse supply, finished-goods customers, wider competition and specialization remain unfinished. Qualified succession, paid resale, retained unsold closure, actual mine/workshop/farm employee work learning, supply-backed study and automatic funded resale are verified. Phases 4–9 remain planned. A human client verified recognition, donations, emerald sales and resident restart persistence; broader inventory-plugin compatibility, barter/bargaining client coverage and survival balancing remain validation limits. This is not a balanced release.
 
 

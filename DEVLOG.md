@@ -1,5 +1,52 @@
 # Civilizations Development Log
 
+## October 11, 2026 — current mineral survey evidence
+
+Closed an automatic-startup prerequisite: positive sighting history did not say
+which ore belonged to the latest complete scan. Schema 50 adds a current header
+and bounded membership, atomically saved by the existing observer/SQL owner with
+historical evidence. Newer smaller/empty frames replace current candidates only;
+older frames cannot restore them. Identical captures replay, conflicting raw
+evidence at the same timestamp rolls back, and original capture time is retained.
+Legacy history is preserved without a fabricated current frame.
+
+Read-only owner reviews require caller-supplied freshness and known active-world
+identity, healthy mutation history, nonfuture capture and current global claims/
+placement/removal exclusions. Missing/expired/unavailable evidence produces no
+candidates. Candidate coordinates are not a viable patch or a mine authorization:
+real demand, suitable permitted site, qualifications, capital and coherent patch
+selection remain. No world edits, automatic careers/founding, goods or money added.
+
+Added 13 tests: 12 temporary SQLite survey/migration cases and one session case.
+Focused CurrentMineralSurveyTest,MineralOpportunitiesTest,PopulationSessionTest
+passed 42; Windows `.\mvnw.cmd clean verify` passed 857 (855 unit/two packaged
+integration), zero failures/errors/skips, 6:02. No application changes after that
+build. Test-only probe review corrected its synthetic population to the existing
+two-villager recognition minimum before its first run.
+
+Guarded packaged Paper 26.2 build 129 check passed: own synthetic observations/DB,
+actual world UUID, fresh candidate, world absence, expiry, newer empty frame, older
+replay, retained historical sighting and actual owner restart. Read-only reopened
+probe: capture 2000, zero current members, one historical sighting and no firms,
+deposits, treasury or grants. This is not natural discovery or automatic founding.
+
+Setup corrections: initial preflight used the wrong Paper filename; backup succeeded
+but no server started. A later mistyped checksum literal stopped staging; corrected
+the filename/hash and verified the pinned file before staging/start. Native probe
+compiled and passed on its first run. Existing Windows OSHI performance-counter
+warning remains environmental. No application/test failures remain.
+
+Stopped marked schema 49 fixture backed up before upgrade. Schema 50 integrity/FKs
+healthy; 81/84 old tables byte-value identical, only civilization_time,economy_runtime
+and ore_tracking changed through normal runtime. New main survey tables empty; all
+resident/business/resource/food/finance/identity/skill history preserved. No forced
+chunks reported, normal stop exit 0, exact original properties restored, probe
+archived outside plugins. Human server/world/DB untouched; no push or main merge.
+
+Updated mineral evidence/development/checklist/status/progress docs. Phase 3 remains
+one of four complete groups (25%); next connect real demand and qualified career/
+funded opportunity selection. Local feature branch codex/phase3-current-mineral-surveys.
+
 ## October 10–11, 2026 — guarded village startup grants
 
 Implemented approved public startup funding for mines/workshops with strict editable

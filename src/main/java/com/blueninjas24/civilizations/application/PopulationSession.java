@@ -407,6 +407,16 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
 
+    /** Read-only current evidence review on the SQL owner, with immediate mutation and world availability guards. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.MineralOpportunities.Review> currentMineralOpportunities(UUID town,long maximumAgeMillis) {
+        return submit(()-> {
+            requireReady();
+            if(!trackOres || !oreHistoryHealthy.get())throw new SQLException("Live ore tracking is not ready; candidate review paused");
+            return new com.blueninjas24.civilizations.database.MineralOpportunities(database.getConnection())
+                .review(town,now.getAsLong(),maximumAgeMillis,loadedWorlds);
+        });
+    }
+
     public CompletableFuture<Void> observeFarms(FarmObservation observation) {
         return submit(() -> {
             requireReady(); if (economy == null) throw new IllegalStateException("Economy not enabled in this session");

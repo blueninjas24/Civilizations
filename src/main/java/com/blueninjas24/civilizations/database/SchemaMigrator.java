@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 49;
+    static final int CURRENT_VERSION = 50;
 
     @FunctionalInterface
     interface Migration {
@@ -686,6 +686,27 @@ final class SchemaMigrator {
                         )
                         """);
                     execute(connection,"CREATE INDEX village_startup_grants ON startup_grants(settlement_id,period)");
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE mineral_surveys (
+                            settlement_id TEXT PRIMARY KEY NOT NULL,
+                            world_id TEXT NOT NULL,
+                            captured_millis INTEGER NOT NULL CHECK(typeof(captured_millis)='integer' AND captured_millis>=0),
+                            fingerprint TEXT NOT NULL CHECK(length(fingerprint)=64),
+                            UNIQUE(settlement_id,world_id),
+                            FOREIGN KEY(settlement_id,world_id) REFERENCES settlement_worlds(settlement_id,world_id)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE mineral_survey_members (
+                            settlement_id TEXT NOT NULL, world_id TEXT NOT NULL,
+                            x INTEGER NOT NULL, y INTEGER NOT NULL, z INTEGER NOT NULL,
+                            PRIMARY KEY(settlement_id,world_id,x,y,z),
+                            FOREIGN KEY(settlement_id,world_id) REFERENCES mineral_surveys(settlement_id,world_id),
+                            FOREIGN KEY(settlement_id,world_id,x,y,z) REFERENCES mineral_opportunities(settlement_id,world_id,x,y,z)
+                        )
+                        """);
                 }
         ));
     }
@@ -840,6 +861,10 @@ final class SchemaMigrator {
                 requireColumns(connection,"study_spending",Set.of("course_id","period","commodity","units"));
             }
             if(migrations.size()>=49)requireColumns(connection,"startup_grants",Set.of("business_id","settlement_id","period","startup_hundredths","capital_hundredths","protected_hundredths","before_cash","after_cash","food_demand","policy"));
+            if(migrations.size()>=50) {
+                requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
+                requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
             if(migrations.size()>=48)requireColumns(connection,"mineral_opportunities",Set.of("settlement_id","world_id","x","y","z","mineral","first_seen_millis","last_seen_millis"));
             if(migrations.size()>=46) {
                 requireColumns(connection,"mineral_source_adoptions",Set.of("deposit_id","remaining_batches","source_count","explanation"));

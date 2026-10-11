@@ -8,6 +8,7 @@ final class SchemaFixtures {
     private SchemaFixtures() {}
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<50){statement.execute("DROP TABLE mineral_survey_members");statement.execute("DROP TABLE mineral_surveys");}
             if(version<49)statement.execute("DROP TABLE startup_grants");
             if(version<48)statement.execute("DROP TABLE mineral_opportunities");
             if(version<46){for(var table:new String[]{"mineral_source_retirements","mineral_source_extraction","mineral_sources","mineral_source_adoptions","ore_source_removals"})statement.execute("DROP TABLE "+table);}

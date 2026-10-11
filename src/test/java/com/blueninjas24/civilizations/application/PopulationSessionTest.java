@@ -15,6 +15,31 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PopulationSessionTest {
+    @Test void currentSurveyReviewUsesOwnerClockAndWorldAvailabilityThenRetainsEmptyFrame()throws Exception {
+        var world=observed().worldId();UUID town;
+        try(var session=session(settings(2,12))) {
+            session.configureOreTracking();await(session.start(false,java.util.Set.of(world)));await(session.observe(observed()));
+            town=session.settlementNames().keySet().iterator().next();
+            var position=new VillageObservation.Position(0,40,0);
+            var coal=new com.blueninjas24.civilizations.industry.MineralObservation(world,1000,true,com.blueninjas24.civilizations.economy.Commodity.COAL,List.of(position));
+            var iron=new com.blueninjas24.civilizations.industry.MineralObservation(world,1000,true,com.blueninjas24.civilizations.economy.Commodity.IRON,List.of());
+            await(session.surveyMinerals(town,List.of(coal,iron)));
+            assertEquals(1,await(session.currentMineralOpportunities(town,10)).candidates().size());
+            await(session.updateLoadedWorlds(java.util.Set.of()));
+            assertEquals(com.blueninjas24.civilizations.database.MineralOpportunities.Status.INACTIVE_WORLD,await(session.currentMineralOpportunities(town,10)).status());
+            await(session.updateLoadedWorlds(java.util.Set.of(world)));now.set(1011);
+            assertEquals(com.blueninjas24.civilizations.database.MineralOpportunities.Status.STALE,await(session.currentMineralOpportunities(town,10)).status());
+            await(session.surveyMinerals(town,List.of(new com.blueninjas24.civilizations.industry.MineralObservation(world,1011,true,coal.mineral(),List.of()),
+                new com.blueninjas24.civilizations.industry.MineralObservation(world,1011,true,iron.mineral(),List.of()))));
+            assertTrue(await(session.currentMineralOpportunities(town,10)).candidates().isEmpty());
+        }
+        try(var session=session(settings(2,12))) {
+            session.configureOreTracking();await(session.start(false,java.util.Set.of(world)));
+            assertEquals(1011,await(session.currentMineralOpportunities(town,10)).capturedMillis());
+            assertTrue(await(session.currentMineralOpportunities(town,10)).candidates().isEmpty());
+            session.invalidateOreTracking("Fixture gap");assertThrows(ExecutionException.class,()->await(session.currentMineralOpportunities(town,10)));
+        }
+    }
     @Test void nativeMutationFreezesInputAndDrainsAcceptedWorkAtShutdown()throws Exception {
         var world=UUID.randomUUID();var position=new VillageObservation.Position(-1,40,-1);
         var removals=new java.util.ArrayList<>(List.of(position));var session=session(settings(2,12));session.configureOreTracking();await(session.start(false));

@@ -1,6 +1,6 @@
 # Phase 3 — businesses and industry checklist
 
-Updated October 10, 2026. Reporting progress remains one of four complete groups
+Updated October 11, 2026. Reporting progress remains one of four complete groups
 (25%). Completed backend components do not complete live gameplay milestones.
 
 ## 1. Persistent businesses, owners, workers and sites — verified
@@ -34,6 +34,10 @@ Updated October 10, 2026. Reporting progress remains one of four complete groups
 - [x] Split complete observed coal/iron evidence into deterministic connected patches;
       retain coordinate identity and finite reserves on replay.
 - [ ] Connect safe loaded-chunk observation and coherent resource opportunities.
+- [x] Save latest complete survey membership separately from historical sightings;
+      newer empty frames clear candidates, older frames never restore them, and
+      read-only owner reviews fence stale/future/absent-world/claimed/excluded ore.
+      Demand, permitted site assessment and connected funded selection remain.
 - [x] Retain validated positive coal/iron evidence by town/world/coordinate across
       restart with capture times, atomic rollback, live mutation exclusions and
       bounded diagnostics; 828 tests and scheduled packaged Paper persistence passed.
