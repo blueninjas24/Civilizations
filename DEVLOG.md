@@ -1,5 +1,35 @@
 # Civilizations Development Log
 
+## October 12, 2026: scheduled first-workshop startup verified
+
+Normal Paper startup now runs bounded rotating first-workshop reviews for towns
+with saved living residents. One proposal/acceptance is outstanding at a time;
+completed futures are polled on the main thread, and at most one already loaded
+smithing-table point is checked per pass. Current SQL qualification, real customer,
+protected funding, paid surplus, storage and jobs are rechecked before acceptance.
+Unknown/missing markers spend nothing; changed facts retry without partial startup.
+Expected refusals are diagnostic; unexpected faults are logged. Disable cancels the
+adapter before closing SQL. No new settings, behavior rates or migration; schema61.
+
+Added WorkshopStartupCycle, PaperWorkshopStartup and startup/debug/shutdown wiring.
+Four coordinator tests and two actual temporary SQLite cases cover asynchronous
+bounds, rotating towns, failures, missing/unknown blocks, changed funds, paid startup
+and no duplicate investment. Windows .\mvnw.cmd clean verify passed 1,085 tests
+(1,083 unit + 2 integration), zero failures/errors/skips, 5:39. Native updated
+WorkshopInvestmentProbe used the actual scheduled Paper adapter, then retained
+marker pause/restoration, absence/restart and real workers/money/cargo/history.
+It explicitly seeds qualified fixture experience; automatic training is not claimed.
+
+Disposable server stopped normally; no force-loaded chunks, temporary air block
+restored, helper ticket released, helper archived, exact server.properties restored.
+99/106 original save tables unchanged; seven normal clock/tracking/world-mask,
+resident age_steps and farm observed_millis changes only. Identity/assets/cash/history
+unchanged, schema/integrity/FK healthy; consistent backup retained. Human server
+untouched. Phase3 broad checklist counts stay about66%, with ordinary first-owner
+training, warehouses, broader resources/competition/specialization still unfinished.
+Next: supply-backed first-workshop founder study; no new question blocks it.
+See AUTOMATIC_WORKSHOPS.md. No main merge or push.
+
 ## October 12, 2026: qualified first-workshop investment acceptance verified
 
 The existing real opportunity review now prepares a deterministic proposal with a

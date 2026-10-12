@@ -59,6 +59,26 @@ class WorkshopInvestmentTest {
     WorkshopInvestment engine(){return engine(WorkshopFoundingPolicy.prototype());}
     WorkshopInvestment engine(WorkshopFoundingPolicy policy){return new WorkshopInvestment(db.getConnection(),review(WorkshopOpportunityPolicy.prototype(),StartupGrantPolicy.prototype(),starter),policy,WorkshopOpportunityPolicy.prototype(),industry,StartupGrantPolicy.prototype(),starter,216,73);}
     void qualified()throws SQLException{db.getPopulationRepository().recordSkillExperience(prospect,"smithing",10);}
+    @Test void automaticCycleUsesActualPaidStartupAndDoesNotRepeatAcceptedInvestment()throws Exception {
+        qualified();var accepted=new int[1];var pending=new java.util.concurrent.CompletableFuture<Void>();
+        var cycle=new com.blueninjas24.civilizations.application.WorkshopStartupCycle(t->{try{return java.util.concurrent.CompletableFuture.completedFuture(engine().prepare(t,0,3000,Set.of(world)));}catch(SQLException e){return java.util.concurrent.CompletableFuture.failedFuture(e);}},
+            d->Optional.of(proof(d)),(d,e)->{try{engine().accept(d,e,3000,Set.of(world));accepted[0]++;return pending;}catch(SQLException failure){return java.util.concurrent.CompletableFuture.failedFuture(failure);}});
+        cycle.tick(List.of(town));cycle.tick(List.of(town));for(int n=0;n<10;n++)cycle.tick(List.of(town));assertEquals(1,accepted[0]);
+        pending.complete(null);cycle.tick(List.of(town));var before=snapshot();for(int n=0;n<10;n++)cycle.tick(List.of(town));
+        assertEquals(1,accepted[0]);assertEquals(before,snapshot());assertEquals(28500,new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths());
+    }
+    @Test void automaticCycleDoesNotSpendForUnknownOrMissingMarkerAndRechecksChangedFunds()throws Exception {
+        qualified();var mode=new int[1];var accepted=new int[1];
+        var cycle=new com.blueninjas24.civilizations.application.WorkshopStartupCycle(t->{try{return java.util.concurrent.CompletableFuture.completedFuture(engine().prepare(t,0,3000,Set.of(world)));}catch(SQLException e){return java.util.concurrent.CompletableFuture.failedFuture(e);}},
+            d->mode[0]==0?Optional.empty():Optional.of(new WorkplaceOperations.Confirmation(d.anchor(),mode[0]>1,3000)),
+            (d,e)->{try{accepted[0]++;return java.util.concurrent.CompletableFuture.completedFuture(engine().accept(d,e,3000,Set.of(world)));}catch(SQLException failure){return java.util.concurrent.CompletableFuture.failedFuture(failure);}});
+        var before=snapshot();cycle.tick(List.of(town));cycle.tick(List.of(town));assertEquals(before,snapshot());assertEquals(0,accepted[0]);
+        mode[0]=1;cycle.tick(List.of(town));cycle.tick(List.of(town));assertEquals(before,snapshot());assertEquals(0,accepted[0]);
+        mode[0]=2;cycle.tick(List.of(town));sql("UPDATE treasuries SET hundredths=2500");before=snapshot();cycle.tick(List.of(town));cycle.tick(List.of(town));
+        assertEquals(before,snapshot());assertEquals(1,accepted[0]);assertTrue(cycle.diagnostic().contains("deferred"));
+        sql("UPDATE treasuries SET hundredths=30000");cycle.tick(List.of(town));cycle.tick(List.of(town));cycle.tick(List.of(town));assertEquals(2,accepted[0]);
+        assertEquals(28500,new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths());
+    }
     WorkshopInvestment.Draft draft()throws Exception{return engine().prepare(town,0,3000,Set.of(world)).draft().orElseThrow();}
     WorkplaceOperations.Confirmation proof(WorkshopInvestment.Draft draft){return new WorkplaceOperations.Confirmation(draft.anchor(),true,3000);}
     @Test void unqualifiedAdultsNeverReceiveFreeExperienceAndPreparationCreatesNoAssets()throws Exception {

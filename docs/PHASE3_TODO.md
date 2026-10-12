@@ -1,5 +1,11 @@
 # Phase 3 — businesses and industry checklist
 
+Verified October12: ordinary scheduled first-workshop startup for genuinely qualified
+owners, one pending SQL task/loaded point per pass, real protected paid startup,
+no duplicate investment. 1,085 Wrapper tests and actual scheduled Paper passed.
+Schema61 unchanged; first-owner training remains next. Broad counts unchanged.
+See AUTOMATIC_WORKSHOPS.md.
+
 October12 verified next batch: qualified first-workshop proposal and current-fact
 atomic acceptance, actual paid toolkit production/farm purchase, SQL-owner/Paper
 handoff and restart/pause/replay guards. Wrapper: 1,079 tests, zero failures; native

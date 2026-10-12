@@ -20,6 +20,7 @@ import java.util.concurrent.*;
 public final class WorkshopInvestmentProbe extends JavaPlugin {
     private PopulationSession session;
     private PaperWorkplaceOperations observer;
+    private com.blueninjas24.civilizations.paper.PaperWorkshopStartup startupObserver;
     private ExecutorService executor;
     private World world;
     private Chunk chunk;
@@ -93,10 +94,9 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
                     }
                     if(stage==10) {
                         if(!prepared.isDone())return;var result=prepared.join();var draft=result.draft().orElseThrow(()->new IllegalStateException(result.explanation()));business=draft.anchor().business();
-                        var p=draft.anchor().position();require(world.isChunkLoaded(Math.floorDiv(p.x(),16),Math.floorDiv(p.z(),16))&&world.getBlockAt(p.x(),p.y(),p.z()).getType()==Material.SMITHING_TABLE,"Actual loaded table proof missing");
-                        pending=session.acceptWorkshopInvestment(draft,new WorkplaceOperations.Confirmation(draft.anchor(),true,System.currentTimeMillis()));stage=11;return;
+                        startupObserver=new com.blueninjas24.civilizations.paper.PaperWorkshopStartup(session,getLogger());startupObserver.runTaskTimer(WorkshopInvestmentProbe.this,1,1);stage=11;return;
                     }
-                    if(stage==11){observer=new PaperWorkplaceOperations(session,getLogger());observer.runTaskTimer(WorkshopInvestmentProbe.this,1,1);world.getBlockAt(4,y,4).setType(Material.AIR,false);stage=2;return;}
+                    if(stage==11){if(scalar("SELECT COUNT(*) FROM business_workplace_anchors")==0)return;startupObserver.cancel();startupObserver=null;observer=new PaperWorkplaceOperations(session,getLogger());observer.runTaskTimer(WorkshopInvestmentProbe.this,1,1);world.getBlockAt(4,y,4).setType(Material.AIR,false);stage=2;return;}
                     if(availability==null){availability=session.currentBusinessAvailability(business);return;}
                     if(!availability.isDone())return;boolean permitted=availability.join().permitted();availability=null;
                     if(stage==2){if(permitted)return;world.getBlockAt(4,y,4).setType(Material.BARREL,false);waitUntil=ticks+10;stage=3;return;}
@@ -118,5 +118,5 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
             }.runTaskTimer(this,1,1);
         }catch(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"Workplace operation fixture refused",failure);getServer().getPluginManager().disablePlugin(this);}
     }
-    @Override public void onDisable(){if(observer!=null)observer.cancel();if(session!=null)session.close();if(placed){world.getBlockAt(4,y,4).setBlockData(original,false);placed=false;}if(ticket){chunk.removePluginChunkTicket(this);ticket=false;}if(executor!=null)executor.shutdown();}
+    @Override public void onDisable(){if(startupObserver!=null)startupObserver.cancel();if(observer!=null)observer.cancel();if(session!=null)session.close();if(placed){world.getBlockAt(4,y,4).setBlockData(original,false);placed=false;}if(ticket){chunk.removePluginChunkTicket(this);ticket=false;}if(executor!=null)executor.shutdown();}
 }
