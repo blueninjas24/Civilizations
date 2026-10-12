@@ -7,6 +7,7 @@ public record Commodity(String id) implements Comparable<Commodity> {
     public static final Commodity FOOD = new Commodity("food");
     public static final Commodity TIMBER = new Commodity("timber");
     public static final Commodity STONE = new Commodity("stone");
+    public static final Commodity SAND = new Commodity("sand");
     public static final Commodity IRON = new Commodity("iron");
     public static final Commodity COAL = new Commodity("coal");
     public static final Commodity LIVESTOCK_PRODUCTS = new Commodity("livestock_products");

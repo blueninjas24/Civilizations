@@ -81,6 +81,21 @@ startup-grants:
   # Eligibility alone does not create a business or certify resource evidence.
   industries: [mining, blacksmith, warehouse, logging, fishing, quarry, sandpit]
 
+quarry-resources:
+  # Opening/extraction terms for the finite backend. Automatic founding is not connected yet.
+  # Abundance and work speed are independent; existing reserves/yields stay saved.
+  enabled: true
+  stone:
+    reserve-batches-per-block: 64
+    units-per-batch: 3
+    batches-per-worker: 6
+    site-batch-capacity: 32
+  sand:
+    reserve-batches-per-block: 64
+    units-per-batch: 4
+    batches-per-worker: 12
+    site-batch-capacity: 32
+
 # Qualified EXISTING employees may keep working after an owner's death while the
 # business awaits succession/resale. No promotion, hiring authority, grants or wages.
 # Real supplies, finite deposits, storage and online-world limits still apply.

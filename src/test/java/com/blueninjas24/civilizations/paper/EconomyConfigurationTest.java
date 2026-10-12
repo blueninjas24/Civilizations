@@ -13,6 +13,16 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void finiteQuarryTermsAreEditableAndLegacySettingsOptOut()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.QuarryPolicy.prototype(),EconomyConfiguration.readQuarryResources(config));
+        config.set("quarry-resources.sand.units-per-batch",7);EconomyConfiguration.read(config);assertEquals(7,EconomyConfiguration.readQuarryResources(config).sand().unitsPerBatch());
+        config.set("quarry-resources",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readQuarryResources(config).enabled());
+    }
+    @Test void malformedQuarryTermsFailBeforeOpeningDatabase()throws Exception {
+        for(Object value:List.of(0,-1,1.5,"lots")){var config=defaults();config.set("quarry-resources.stone.reserve-batches-per-block",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));}
+        var config=defaults();config.set("quarry-resources.enabled","yes");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var extra=defaults();extra.set("quarry-resources.sand.free-respawn",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(extra));
+    }
     @Test void existingIndustryOptInsArePreservedWithoutAddingBroaderGrants()throws Exception {
         var config=defaults();config.set("startup-grants.industries",List.of("mining","blacksmith","warehouse"));
         EconomyConfiguration.read(config);

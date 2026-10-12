@@ -1,5 +1,34 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — finite stone/sand persistence and extraction verified
+
+Recorded approval for existing exposed stone/sand, excluding recorded placements;
+non-1:1 finite coordinate reserves, no refills and no Phase3 block changes. Added
+QuarryPolicy/economy.yml terms, Commodity.SAND and bounded quarry scan mode while
+retaining default coal/iron scanning. Existing trusted startup/grant/extraction
+seams accept matching quarry/stone or sandpit/sand and conserve real cash/output.
+Worker/site/storage limits, per-coordinate depletion/removal, replay and retained
+old yields/reserves use the existing tested calculations/history. This is backend
+support, not automatically founded/live-observed quarries or a block-rights grant.
+
+Schema64 widens mineral_discovery's resource constraint via transactional parent
+rebuild. Old data unchanged; enforcement temporarily off before required upgrade
+transaction, all FKs checked before commit, original enforcement restored. Both
+pre-rebuild failure and post-rebuild invalid-FK failure roll back DDL/version/rows;
+healthy retry preserves all assets/history. New15 tests: nine temporary SQL cases,
+four scan/production cases and two config cases.134 focused passed; full Windows
+.\mvnw.cmd clean verify passed1,163 tests (1,161 unit +2 packaged integration), zero
+failures/errors/skips,6:11 at14:34:42. No Paper-facing world/entity change in this
+batch, so no additional native server run; human server/config/DB untouched.
+
+Updated FINITE_QUARRIES, decisions, status, progress and checklist. Counts remain
+4/4,27/33,14/15,0/5 (~69% partial): broader renewable/catalog/live acceptance remains.
+Next: bounded live observations/mutations (including falling sand), current demand
+and qualified founding; asked whether public food/training needs may buy actual
+local output with real bounded village money and food protection. That economic
+rule is pending; no new customer/payment enabled. Local branch
+codex/phase3-finite-quarry-sources; no merge/push/deploy.
+
 ## October12, 2026: broader startup grants approved and verified
 
 Logging, fishing, quarry and sandpit now appear in the bundled startup-grant
@@ -16,7 +45,8 @@ The old fishing-disabled assertion now uses unapproved bakery instead.
 No Paper-facing change, so no new native server run; human server/DB untouched.
 
 Phase3 counts remain4/4,27/33,14/15,0/5 (~69% partial). Next resource baseline choice
-for exposed existing stone/sand is awaiting the user; known placements must remain
+for exposed existing stone/sand was pending at this checkpoint and is now approved;
+known placements must remain
 excluded, finite sources must never refill and Phase3 must not change blocks.
 Feature branch codex/phase3-broader-startup-grants; human server untouched.
 

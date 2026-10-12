@@ -1,5 +1,12 @@
 # Phase 3 — businesses and industry checklist
 
+Verified October12: approved stone/sand baseline, bounded pure quarry scan,
+matching real-grant startup and finite non-1:1 coordinate-backed extraction;
+transactional schema64 parent upgrade/FK checks/rollback/retry preserve old assets.
+1,163 full Wrapper tests passed. No live quarry observer/mutation adapter/automatic
+founding/customer path yet. Broad catalog entry remains unchecked; counts unchanged.
+See FINITE_QUARRIES.md. Needs-based public customer funding decision pending.
+
 Verified October12: logging/fishing/quarry/sandpit grant eligibility under unchanged
 shared food-protected limits, preserved installed opt-ins and transactional/restart
 regressions. Full Wrapper1,148 passed plus final29 grant cases. No new resource or

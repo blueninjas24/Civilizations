@@ -18,6 +18,7 @@ public final class EconomyConfiguration {
         if (config.contains("priorities")) rootKeys.add("priorities");
         if (config.contains("responses")) rootKeys.add("responses");
         if (config.contains("industry")) rootKeys.add("industry");
+        if (config.contains("quarry-resources")) rootKeys.add("quarry-resources");
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
@@ -53,6 +54,7 @@ public final class EconomyConfiguration {
         exactKeys(config, rootKeys);
         readAdditionalOreEditors(config);
         readIndustryRuntime(config);
+        readQuarryResources(config);
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
         readWorkshopOpportunities(config);
@@ -478,6 +480,17 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("warehouse-opportunities.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy(enabled,smallInteger(s,"markers-per-review"),integer(s,"evidence-lifetime-millis"),
                 smallInteger(s,"horizontal-range"),smallInteger(s,"vertical-range"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),integer(s,"storage-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.QuarryPolicy readQuarryResources(ConfigurationSection config) {
+        if(!config.contains("quarry-resources"))return com.blueninjas24.civilizations.industry.QuarryPolicy.disabled();
+        var s=section(config,"quarry-resources");exactKeys(s,Set.of("enabled","stone","sand"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("quarry-resources.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.QuarryPolicy(enabled,quarryTerms(section(s,"stone")),quarryTerms(section(s,"sand")));
+    }
+    private static com.blueninjas24.civilizations.industry.QuarryPolicy.Terms quarryTerms(ConfigurationSection s) {
+        exactKeys(s,Set.of("reserve-batches-per-block","units-per-batch","batches-per-worker","site-batch-capacity"));
+        return new com.blueninjas24.civilizations.industry.QuarryPolicy.Terms(integer(s,"reserve-batches-per-block"),
+            integer(s,"units-per-batch"),integer(s,"batches-per-worker"),integer(s,"site-batch-capacity"));
     }
     public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
         if (!config.contains("ore-provenance")) return List.of();

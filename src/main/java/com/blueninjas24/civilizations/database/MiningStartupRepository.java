@@ -13,8 +13,12 @@ public final class MiningStartupRepository {
         public Request {
             Objects.requireNonNull(founding);Objects.requireNonNull(evidence);Objects.requireNonNull(worker);
             bundle=Map.copyOf(bundle);spacePerUnit=Map.copyOf(spacePerUnit);
-            if(!founding.business().industry().equals("mining") || !spacePerUnit.keySet().containsAll(bundle.keySet()))
-                throw new IllegalArgumentException("Mining industry and storage for every extraction product required");
+            String kind=founding.business().industry();
+            boolean matching=kind.equals("mining")&&Set.of(Commodity.COAL,Commodity.IRON).contains(evidence.mineral())
+                ||kind.equals("quarry")&&evidence.mineral().equals(Commodity.STONE)
+                ||kind.equals("sandpit")&&evidence.mineral().equals(Commodity.SAND);
+            if(!matching || !spacePerUnit.keySet().containsAll(bundle.keySet()))
+                throw new IllegalArgumentException("Matching extraction industry/resource and storage for every product required");
         }
     }
     public record Started(BusinessFounding founding,MineralDiscoveryRepository.Discovery discovery,

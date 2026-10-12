@@ -24,15 +24,35 @@ real customers remain necessary. Stable configuration industry keys are logging,
 fishing, quarry and sandpit. Existing installed lists are preserved; admins opt in
 while stopped. Eligibility is not automatic discovery, production or construction.
 
-## October12: first quarry/sandpit resource baseline — awaiting user decision
+## October12: first quarry/sandpit resource baseline — approved
 
-Asked whether exposed existing stone/sand may supply finite evidence while recorded
-player placements are excluded, or whether explicit approved extraction areas are
-required. Old block origins cannot be proven; the earlier exposed-existing-ore
-approval specifically covered coal/iron. Proposed fixed per-coordinate reserves,
-no rediscovery refill, configurable eligibility and no Phase3 block changes.
-No new stone/sand discovery or extraction path is enabled pending the answer.
-AGENTS.md requires confirmation before choosing this consequential resource rule.
+User agreed with the recommendation: discover exposed existing stone/sand
+naturally, excluding recorded player placements. Old block origins cannot be
+proven. Each admitted coordinate represents a finite abstract reserve, not one
+item per block; gradual extraction is bounded by workers, material work rate,
+site and storage. Restart/rediscovery never refill it; removal loses only that
+coordinate's remaining share. Eligibility and numeric prototype terms are editable.
+Phase3 makes no block changes or property claims; actual digging remains Phase4.
+
+Initial editable quarry-resources prototype: stone64 reserve batches/block,
+3 units/batch,6 batches/worker,32 site batches; sand64 reserve batches/block,
+4 units/batch,12 batches/worker,32 site batches. Abundance and work speed are
+separate; these terms are not canonical permanent balance. Missing old sections
+opt out. Persistence/scan seams alone do not enable automatic quarries/pits.
+Future loaded-world observation/placement capture, real customers, qualified
+founders and shared protected funding must be connected before live automation.
+
+## October12: real village customers for food and training — awaiting decision
+
+Proposed needs-based purchases from actual local firms using real village cash:
+fishing food supplies actual village food shortages; logging/quarry output supplies
+actual supply-backed training needs. Configurable prices/caps, delivered owned goods
+before use, material purchases protect food funds; food purchases use a separately
+bounded food budget. No fake shopper, wealth creation, automatic disposal or personal
+payroll. Existing player food payments and public farm toolkit purchases do not
+implicitly authorize this broader cash/material transfer. Asked under AGENTS.md
+before connecting the new economic rule. Finite resource persistence continues
+independently; no new public customer/payment is enabled pending the answer.
 
 ## October12: first-warehouse qualification prototype connected
 

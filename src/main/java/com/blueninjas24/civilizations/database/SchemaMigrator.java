@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 63;
+    static final int CURRENT_VERSION = 64;
 
     @FunctionalInterface
     interface Migration {
@@ -906,7 +906,8 @@ final class SchemaMigrator {
                 SchemaMigrator::createWorkshopStarterSupplies,
                 SchemaMigrator::createWorkplaceOperations,
                 SchemaMigrator::createWorkshopFounderStudy,
-                SchemaMigrator::createWarehouseFounderStudy
+                SchemaMigrator::createWarehouseFounderStudy,
+                SchemaMigrator::extendFiniteResourceKinds
 
 
         ));
@@ -934,6 +935,13 @@ final class SchemaMigrator {
                     + "; maximum supported is " + migrations.size());
         }
 
+        // SQLite's documented parent-table rebuild requires FK enforcement off BEFORE
+        // the transaction. Validate all foreign keys before commit and restore enforcement.
+        boolean restoreForeignKeys=false;
+        if(version>=32 && version<64 && migrations.size()>=64) {
+            try(var s=connection.createStatement();var r=s.executeQuery("PRAGMA foreign_keys")){restoreForeignKeys=r.next()&&r.getInt(1)==1;}
+            if(restoreForeignKeys)execute(connection,"PRAGMA foreign_keys=OFF");
+        }
         connection.setAutoCommit(false);
         try {
             for (int index = version; index < migrations.size(); index++) {
@@ -1136,6 +1144,9 @@ final class SchemaMigrator {
             if (migrations.size() >= 23) requireColumns(connection,"food_bargains",Set.of("sequence","operation_id","player_id","settlement_id","units","item","item_count","requested","offered","rate","status","failed_attempts","observed_millis","expires_millis","cooldown_until","maximum_attempts","cooldown_seconds","offer_seconds"));
             if (migrations.size() >= 24) requireColumns(connection,"food_barters",Set.of("operation_id","player_id","settlement_id","food_units","food_item","food_count","commodity","payment_item","payment_count","units_per_item","status","accepted_period"));
             if (migrations.size() >= 24) requireColumns(connection,"barter_stock_moves",Set.of("sequence","operation_id","phase","after_period","before_units","after_units"));
+            if(migrations.size()>=64)try(var s=connection.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")) {
+                if(r.next())throw new SQLException("Schema upgrade leaves invalid foreign keys in "+r.getString(1));
+            }
             connection.commit();
         } catch (SQLException | RuntimeException failure) {
             try {
@@ -1144,9 +1155,26 @@ final class SchemaMigrator {
             } catch (SQLException rollbackFailure) {
                 failure.addSuppressed(rollbackFailure);
             }
+            if(restoreForeignKeys)try{execute(connection,"PRAGMA foreign_keys=ON");}catch(SQLException restore){failure.addSuppressed(restore);}
             throw failure;
         }
         connection.setAutoCommit(true);
+        if(restoreForeignKeys)execute(connection,"PRAGMA foreign_keys=ON");
+    }
+
+    static void extendFiniteResourceKinds(Connection connection)throws SQLException {
+        execute(connection,"""
+            CREATE TABLE mineral_discovery_v64 (
+                deposit_id TEXT PRIMARY KEY NOT NULL REFERENCES mineral_deposits(id),
+                world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                mineral TEXT NOT NULL CHECK(mineral IN ('coal','iron','stone','sand')),
+                observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                UNIQUE(deposit_id,world_id)
+            )
+            """);
+        execute(connection,"INSERT INTO mineral_discovery_v64 SELECT * FROM mineral_discovery");
+        execute(connection,"DROP TABLE mineral_discovery");
+        execute(connection,"ALTER TABLE mineral_discovery_v64 RENAME TO mineral_discovery");
     }
 
     private static void addColumnIfMissing(Connection connection, String column) throws SQLException {

@@ -155,7 +155,15 @@ public final class IndustryRepository {
         }
         var b=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown business"));
         var d=deposit(deposit).orElseThrow(()->new SQLException("Unknown deposit"));
-        if(!b.industry().equals("mining") || !b.siteId().equals(d.siteId()))throw new SQLException("Mining business must occupy the actual deposit site");
+        if(!Set.of("mining","quarry","sandpit").contains(b.industry()) || !b.siteId().equals(d.siteId()))throw new SQLException("Extraction business must occupy the actual deposit site");
+        if(!b.industry().equals("mining")) {
+            String required=b.industry().equals("quarry")?"stone":"sand";
+            try(var s=connection.prepareStatement("SELECT mineral FROM mineral_discovery WHERE deposit_id=?")) {
+                s.setString(1,deposit.toString());try(var r=s.executeQuery()) {
+                    if(!r.next()||!required.equals(r.getString(1)))throw new SQLException("Quarry/pit needs its matching coordinate-backed resource");
+                }
+            }
+        }
         var stock=store(business).orElseThrow(()->new SQLException("Missing business storage"));
         var sources=new MineralSources(connection);sources.ensureRows(deposit);
         var plan=MineProduction.calculate(d.remainingBatches(),requested,businesses.currentWorkers(business).size(),perWorker,siteCapacity,

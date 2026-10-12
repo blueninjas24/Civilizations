@@ -2,6 +2,13 @@
 
 Updated October 12, 2026. Based on verified work, not planned features.
 
+Stone and sand now have tested finite production foundations: each source holds
+more than one unit, workers extract gradually, and removing one supporting block
+loses only its remaining supply. Restart never refills it. Admins can edit abundance
+and work speed separately. All1,163 tests passed. Automatic quarry discovery/founding
+and real customers remain unfinished; checklist counts stay unchanged. Your server
+has not been changed.
+
 You approved logging, fishing, stone quarries and sand pits sharing the existing
 startup budget. Their funding eligibility is connected, with no extra village
 money or weaker food protection. Their resource and production adapters are still
