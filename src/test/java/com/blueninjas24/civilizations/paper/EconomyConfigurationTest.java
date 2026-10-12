@@ -13,6 +13,17 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void starterSupplyDefaultsAreEditablePricesReusedAndLegacyDisabled()throws Exception {
+        var config=defaults();var policy=EconomyConfiguration.readWorkshopStarterSupplies(config);
+        assertTrue(policy.enabled());assertEquals(1,policy.maximumBatches());assertEquals(4000,policy.maximumHundredths());assertEquals(2,policy.reserveUnits());assertFalse(policy.prices().containsKey(Commodity.FOOD));
+        config.set("prices.base-trade-value.iron",17.25);assertEquals(1725,EconomyConfiguration.readWorkshopStarterSupplies(config).prices().get(Commodity.IRON));
+        config.set("workshop-starter-supplies",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readWorkshopStarterSupplies(config).enabled());
+    }
+    @Test void malformedStarterSupplySettingsFailBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of(0,17,1.5,"one")) {var config=defaults();config.set("workshop-starter-supplies.maximum-recipe-batches",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));}
+        var config=defaults();config.set("workshop-starter-supplies.protected-units-per-material",-1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var malformed=defaults();malformed.set("workshop-starter-supplies.extra",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(malformed));
+    }
     @Test void startupGrantLimitsAreEditableAndAbsentLegacySectionIsDisabled()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.StartupGrantPolicy.prototype(),EconomyConfiguration.readStartupGrants(config));
         config.set("startup-grants.maximum-grant-hundredths",1234);EconomyConfiguration.read(config);assertEquals(1234,EconomyConfiguration.readStartupGrants(config).maximumGrant());

@@ -34,6 +34,9 @@ public final class AutomaticBusinessResale {
             long cargo=0;try(var s=connection.prepareStatement("SELECT price FROM local_shipments WHERE buyer_id=? AND delivered_period IS NULL")) {
                 s.setString(1,id.toString());try(var r=s.executeQuery()){while(r.next())cargo=Math.addExact(cargo,r.getLong(1));}
             }
+            try(var s=connection.prepareStatement("SELECT price FROM workshop_starter_orders WHERE business_id=? AND delivered_period IS NULL")) {
+                s.setString(1,id.toString());try(var r=s.executeQuery()){while(r.next())cargo=Math.addExact(cargo,r.getLong(1));}
+            }
             long price;
             try {price=policy.price(firms.findFounding(id).orElseThrow().startupHundredths(),store==null?0:store.hundredths(),cargo,store==null?Map.of():store.units());}
             catch(IllegalArgumentException|ArithmeticException refusal){return save(id,business.ownerId(),"",step,now,"Sale valuation deferred: "+refusal.getMessage());}

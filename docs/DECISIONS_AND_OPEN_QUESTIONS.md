@@ -1,6 +1,6 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October 11: first workshop starter supply decision — pending
+## October 11: first workshop starter supply decision — approved
 
 Current code has a bootstrap dependency: WorkshopSupplies buys real inputs only
 from existing warehouse stock; WarehouseSupplies buys existing producer output;
@@ -9,7 +9,7 @@ workshop demand. A new village has no private producer, warehouse or workshop.
 The tested connected chain explicitly seeds these businesses; it does not solve
 automatic first founding. Public startup grants supply money, not raw materials.
 
-Proposed rule, awaiting user approval: permit a limited one-time purchase of actual
+User approved “Allow limited paid starter supplies.” Permit a limited one-time purchase of actual
 surplus village starter materials by a newly founded workshop, using that firm's
 real grant-funded capital. Goods leave the saved public commodity reserve and
 payment returns to the village treasury. Use configurable prices, purchase caps
@@ -20,10 +20,14 @@ This is starter support, not an unlimited ongoing public supplier that bypasses
 mines or warehouses. Delivery/ownership/storage and replay must be accounted for
 and tested before enabling the rule. Existing files must explicitly opt in.
 
-If village materials must remain separate, an alternative first-industry investment
-rule needs approval; do not silently weaken the current actual-customer checks.
-No application code, database, server files or canonical roadmap changed while
-this decision is pending. Last full verification remains 1,028 passing tests.
+Prototype policy: one recipe batch, at most 4,000 hundredths, leave two units of
+every purchased material, reuse editable base trade prices, never sell food.
+Accepted purchases remain buyer-owned delayed cargo; one entitlement per business
+UUID. Startup, payment and inventory changes share one transaction. Gross grant
+limits remain consumed despite payment returning to the village. Existing files
+without the explicit section keep this rule disabled. Automatic first-workshop
+opportunity selection/training is separate work; this approval does not waive
+real customer, qualified founder or workplace evidence checks.
 
 ## October 11: approved farm upkeep now drives warehouse restocking
 

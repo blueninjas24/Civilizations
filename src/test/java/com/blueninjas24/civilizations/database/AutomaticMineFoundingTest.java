@@ -206,7 +206,7 @@ class AutomaticMineFoundingTest {
     @Test void schema59EmptyUpgradeAndFailedDdlPreserveOldDataAndRecover()throws Exception {
         SchemaFixtures.rewind(db.getConnection(),58);sql("CREATE VIEW mine_founder_courses AS SELECT id FROM residents");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));assertEquals(58,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE name='mine_founder_reviews'"));
-        sql("DROP VIEW mine_founder_courses");new SchemaMigrator().migrate(db.getConnection());assertEquals(59,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM mine_founder_courses"));unchanged();
+        sql("DROP VIEW mine_founder_courses");new SchemaMigrator().migrate(db.getConnection());assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM mine_founder_courses"));unchanged();
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
 

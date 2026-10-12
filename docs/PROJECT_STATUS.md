@@ -1,5 +1,38 @@
 # Civilizations — implementation status and handoff
 
+## October 11, 2026: approved paid workshop starter supplies
+
+A new publicly funded workshop can buy one real recipe bundle from village
+surplus. Actual business cash returns to the treasury; food is never sold and
+editable material reserves remain. Grant, founding, first job, purchase and cargo
+are atomic. New IDs cannot refill the one-per-business entitlement. Paid incoming
+goods reserve storage, suppress duplicate demand and retain their resale value;
+normal timed delivery/production survives restart and absent-world pause.
+
+Added WorkshopStarterPolicy, WorkshopStarterSupplies and the transactional startup
+composition, strict optional economy.yml settings and two empty schema60 audit
+tables. Extended storage, purchasing/demand and resale accounting for this cargo.
+Older stores remain readable after failed upgrades; a migration test now compares
+successful upgrade with CURRENT_VERSION rather than a hardcoded previous version.
+13 temporary SQLite tests and two configuration tests cover real conservation,
+limits/food proof, replay, delayed work, sale assets and migration/write failures.
+Final Wrapper clean verify passed 1,043 tests (1,041 unit + 2 integration), zero
+failures/errors/skips, 6:08. Earlier verification exposed legacy inspection/test
+assumptions; corrected and rerun fully. Native WorkshopStarterProbe passed under
+pinned disposable Paper: real starter purchase, restart/absence, one toolkit,
+no duplicate or minted money, SQLite integrity/FK. Stopped normally; no forced
+chunks. 95/101 original tables unchanged; six normal clock/tracking/aging tables
+changed, residents only in age_steps. Two new main-save audit tables are empty.
+Exact properties restored, helper archived, all backups retained.
+
+Automatic first-workshop opportunity selection/training and first warehouse startup
+remain next. This persistence seam does not automatically create firms, establish
+property rights or complete fresh-village acceptance. Phase3 counts remain 26/33
+in connected production and about66% across partial groups; no whole group newly
+complete. No human-server, main, push or canonical-roadmap change. See
+WORKSHOP_STARTER_SUPPLIES.md. Current feature branch:
+codex/phase3-workshop-starter-supplies.
+
 ## October 11, 2026: connected finite industry endurance regression
 
 Added a normal PopulationSession scenario spanning 50 economic periods: a finite

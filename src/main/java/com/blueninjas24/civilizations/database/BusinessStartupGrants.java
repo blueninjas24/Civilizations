@@ -45,6 +45,17 @@ public final class BusinessStartupGrants {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);
         return transaction(()->startStockedRows(request,policy,"workshop"));
     }
+    /** One atomic first-workshop investment; failed supply checks leave no grant, site or firm. */
+    public Workshop startWorkshopWithSupplies(WorkshopRequest request,StartupGrantPolicy grantPolicy,
+            WorkshopStarterSupplies.Request supplies,WorkshopStarterPolicy supplyPolicy,Set<UUID> worlds)throws SQLException {
+        if(!request.founding().business().id().equals(supplies.business()))throw new IllegalArgumentException("Starter business mismatch");
+        return transaction(()-> {
+            var started=startStockedRows(request,grantPolicy,"workshop");
+            new WorkshopStarterSupplies(connection).purchaseRows(supplies,supplyPolicy,worlds);
+            var id=request.founding().business().id();
+            return new Workshop(started.founding(),new IndustryRepository(connection).store(id).orElseThrow(),started.worker(),started.grant());
+        });
+    }
     /** Same village budget, qualification and transaction as other grants; no free warehouse stock. */
     public Warehouse startWarehouse(WarehouseRequest request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);

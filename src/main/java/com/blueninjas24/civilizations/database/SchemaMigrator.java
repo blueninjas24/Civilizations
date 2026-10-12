@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 59;
+    static final int CURRENT_VERSION = 60;
 
     @FunctionalInterface
     interface Migration {
@@ -902,7 +902,8 @@ final class SchemaMigrator {
                         )
                         """);
                     execute(connection,"CREATE INDEX active_mine_founders ON mine_founder_courses(settlement_id,course_id)");
-                }
+                },
+                SchemaMigrator::createWorkshopStarterSupplies
 
 
         ));
@@ -1061,6 +1062,10 @@ final class SchemaMigrator {
             if(migrations.size()>=50) {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
+            if(migrations.size()>=60){
+                requireColumns(connection,"workshop_starter_orders",Set.of("operation_id","business_id","settlement_id","food_period","due_period","price","before_cash","after_cash","terms","policy","delivered_period"));
+                requireColumns(connection,"workshop_starter_goods",Set.of("operation_id","commodity","units","unit_price","protected_units","before_units","after_units"));
             }
             if(migrations.size()>=59){
                 requireColumns(connection,"mine_founder_reviews",Set.of("settlement_id","period","opportunity","after_resident","policy","explanation"));
@@ -1664,6 +1669,36 @@ final class SchemaMigrator {
         execute(connection,"CREATE INDEX estate_sale_history ON business_sale_entries(source_kind,source_id,operation_id)");
     }
 
+    private static void createWorkshopStarterSupplies(Connection connection)throws SQLException {
+        execute(connection,"""
+            CREATE TABLE workshop_starter_orders (
+                operation_id TEXT PRIMARY KEY NOT NULL,
+                business_id TEXT NOT NULL UNIQUE REFERENCES industry_stores(business_id),
+                settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                food_period INTEGER NOT NULL CHECK(typeof(food_period)='integer' AND food_period>=1),
+                due_period INTEGER NOT NULL CHECK(typeof(due_period)='integer' AND due_period>=1),
+                price INTEGER NOT NULL CHECK(typeof(price)='integer' AND price>0),
+                before_cash INTEGER NOT NULL CHECK(typeof(before_cash)='integer' AND before_cash>=price),
+                after_cash INTEGER NOT NULL CHECK(typeof(after_cash)='integer' AND after_cash=before_cash-price),
+                terms TEXT NOT NULL,policy TEXT NOT NULL,
+                delivered_period INTEGER CHECK(delivered_period IS NULL OR (typeof(delivered_period)='integer' AND delivered_period>=due_period)),
+                FOREIGN KEY(settlement_id,food_period) REFERENCES needs_periods(settlement_id,period)
+            )
+            """);
+        execute(connection,"""
+            CREATE TABLE workshop_starter_goods (
+                operation_id TEXT NOT NULL REFERENCES workshop_starter_orders(operation_id),
+                commodity TEXT NOT NULL CHECK(commodity<>'food'),
+                units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>0),
+                unit_price INTEGER NOT NULL CHECK(typeof(unit_price)='integer' AND unit_price>0),
+                protected_units INTEGER NOT NULL CHECK(typeof(protected_units)='integer' AND protected_units>=0),
+                before_units INTEGER NOT NULL CHECK(typeof(before_units)='integer' AND before_units>=units+protected_units),
+                after_units INTEGER NOT NULL CHECK(typeof(after_units)='integer' AND after_units=before_units-units),
+                PRIMARY KEY(operation_id,commodity)
+            )
+            """);
+        execute(connection,"CREATE INDEX pending_workshop_starters ON workshop_starter_orders(business_id,due_period) WHERE delivered_period IS NULL");
+    }
     private static void execute(Connection connection, String sql) throws SQLException {
         try (var statement = connection.createStatement()) {
             statement.execute(sql);

@@ -89,6 +89,9 @@ public final class LocalIndustryDemand {
                     while(r.next()){incoming++;pending.merge(new Commodity(r.getString(1)),r.getLong(2),Math::addExact);}
                 }
             }
+            var starter=new WorkshopStarterSupplies(connection).pending(id);
+            if(!starter.isEmpty())incoming++;
+            starter.forEach((good,units)->pending.merge(good,units,Math::addExact));
             if(incoming>128)return deferred("Pending cargo review budget exceeded; no partial shortage inferred");
             var store=industry.store(id).orElseThrow();
             long toolNeed=founding.business().industry().equals("mining")&&!mutationHealthy.getAsBoolean()?0

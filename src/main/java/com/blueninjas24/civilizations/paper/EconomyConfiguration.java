@@ -23,6 +23,7 @@ public final class EconomyConfiguration {
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
+        if (config.contains("workshop-starter-supplies")) rootKeys.add("workshop-starter-supplies");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-tools")) rootKeys.add("business-tools");
         if (config.contains("upkeep-contributions")) rootKeys.add("upkeep-contributions");
@@ -48,6 +49,7 @@ public final class EconomyConfiguration {
         readAdditionalOreEditors(config);
         readIndustryRuntime(config);
         readWorkshopSupply(config);
+        readWorkshopStarterSupplies(config);
         readWarehouseSupply(config);
         readToolUpkeep(config);
         readBusinessStaffing(config);
@@ -416,6 +418,22 @@ public final class EconomyConfiguration {
             catch(NumberFormatException|ArithmeticException invalid) {throw new IllegalArgumentException("Supply prices must be finite with at most two decimal places",invalid);}
         }
         return new com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy(enabled,smallInteger(supply,"input-periods"),smallInteger(supply,"warehouses-per-review"),values);
+    }
+    public static com.blueninjas24.civilizations.industry.WorkshopStarterPolicy readWorkshopStarterSupplies(ConfigurationSection config) {
+        if(!config.contains("workshop-starter-supplies"))return com.blueninjas24.civilizations.industry.WorkshopStarterPolicy.disabled();
+        var supply=section(config,"workshop-starter-supplies");
+        exactKeys(supply,Set.of("enabled","maximum-recipe-batches","maximum-purchase-hundredths","protected-units-per-material"));
+        if(!(supply.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("workshop-starter-supplies.enabled must be true or false");
+        var values=new TreeMap<Commodity,Long>();var prices=section(config,"prices.base-trade-value");
+        for(var id:prices.getKeys(false)) {
+            var good=new Commodity(id);if(good.equals(Commodity.FOOD))continue;
+            Object value=prices.get(id);
+            if(!(value instanceof Number))throw new IllegalArgumentException("Starter material prices must be numeric");
+            try{values.put(good,new BigDecimal(value.toString()).movePointRight(2).longValueExact());}
+            catch(NumberFormatException|ArithmeticException invalid){throw new IllegalArgumentException("Starter prices must be finite with at most two decimal places",invalid);}
+        }
+        return new com.blueninjas24.civilizations.industry.WorkshopStarterPolicy(enabled,smallInteger(supply,"maximum-recipe-batches"),
+            integer(supply,"maximum-purchase-hundredths"),integer(supply,"protected-units-per-material"),values);
     }
     public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
         if (!config.contains("ore-provenance")) return List.of();

@@ -1,5 +1,12 @@
 # Phase 3 — businesses and industry checklist
 
+Verified approved one-time paid workshop starter surplus: real stock/cash, protected
+reserves, atomic grant/startup/purchase, reserved delayed cargo, replay and sale
+value. 1,043 Wrapper tests plus disposable Paper passed; schema60 adds empty audit
+tables. This is a trusted startup seam; automatic workshop opportunities/training
+and first warehouse founding remain. Checklist counts are unchanged. See
+WORKSHOP_STARTER_SUPPLIES.md.
+
 Verified public farm upstream equipment demand: actual work/current food proof,
 real protected cash, owned/incoming kit guards, shared once-counted stock, bounded
 review and paid producer-to-warehouse-to-farm delivery/use. Eight new tests;

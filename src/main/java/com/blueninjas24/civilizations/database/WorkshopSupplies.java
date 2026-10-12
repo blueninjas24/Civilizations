@@ -19,7 +19,7 @@ final class WorkshopSupplies {
             s.setString(1,buyer.toString());s.setLong(2,period);try(var r=s.executeQuery()){while(r.next())arrivals.add(UUID.fromString(r.getString(1)));}
         }
         var industry=new IndustryRepository(connection);for(var id:arrivals)industry.deliverRows(id,period);
-        return arrivals.size();
+        return arrivals.size()+new WorkshopStarterSupplies(connection).deliverRows(buyer,period);
     }
     String acquireRows(UUID buyer,ProductionRecipe recipe,long period,long haulWindow,long haulCadence,WorkshopSupplyPolicy policy,IndustryPolicy transport)throws SQLException {
         requireTransaction();
@@ -33,6 +33,9 @@ final class WorkshopSupplies {
                 incoming++;pending.merge(new Commodity(r.getString(1)),r.getLong(2),Math::addExact);
             }}
         }
+        var starter=new WorkshopStarterSupplies(connection).pending(buyer);
+        if(!starter.isEmpty())incoming++;
+        starter.forEach((good,units)->pending.merge(good,units,Math::addExact));
         if(incoming>128)return "Supply deferred: pending cargo review budget exceeded; legacy deliveries require their original caller";
         var warehouses=new ArrayList<WorkshopInputPlan.Warehouse>();
         var candidates=new ArrayList<UUID>();

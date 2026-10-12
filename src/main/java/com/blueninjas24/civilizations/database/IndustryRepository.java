@@ -120,6 +120,14 @@ public final class IndustryRepository {
                         while(pending.next())reserved=Math.addExact(reserved,Math.multiplyExact(pending.getLong(1),pending.getLong(2)));
                     }
                 }
+                // Migration-failure inspection may read intact older stores before retrying upgrade.
+                boolean starterSchema;
+                try(var version=connection.createStatement();var saved=version.executeQuery("PRAGMA user_version")){starterSchema=saved.getInt(1)>=60;}
+                if(starterSchema)try(var q=connection.prepareStatement("SELECT g.units,k.space_per_unit FROM workshop_starter_orders o JOIN workshop_starter_goods g ON g.operation_id=o.operation_id JOIN industry_stock k ON k.business_id=o.business_id AND k.commodity=g.commodity WHERE o.business_id=? AND o.delivered_period IS NULL")) {
+                    q.setString(1,business.toString());try(var pending=q.executeQuery()) {
+                        while(pending.next())reserved=Math.addExact(reserved,Math.multiplyExact(pending.getLong(1),pending.getLong(2)));
+                    }
+                }
                 var result=new Store(business,r.getLong(1),r.getLong(2),readCatalog("SELECT commodity,units FROM industry_stock WHERE business_id=?",business),
                         readCatalog("SELECT commodity,space_per_unit FROM industry_stock WHERE business_id=?",business),reserved);
                 if(result.freeSpace()<0)throw new SQLException("Business storage exceeds saved capacity");
