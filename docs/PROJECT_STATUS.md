@@ -1,5 +1,29 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — bounded read-only water evidence
+
+Added WaterScan/PaperWaterSource and immutable complete-column snapshot metadata.
+Full world-height/absolute-Y traversal checks exposed surface and caller-selected
+consecutive depth under explicit cell budgets. Covered/shallow water differs from
+unknown; any unknown cell keeps its column unknown. Immutable source reads alone
+do not load chunks, change blocks/entities, save resource state or found businesses.
+Eight new domain/adapter cases; focused38 passed, zero failures/errors/skips,
+19.764s at17:38:13 ET. Full Windows Wrapper clean verify passed1,229 (1,227 unit/
+two packaged integration), zero failures/errors/skips,6:37 at17:46:19 ET. Native
+actual snapshot check passed at17:48:52:98,304 reads/256 reference columns,220 suitable,
+512 cells/tick, no helper block/entity changes; normal shutdown17:48:53. Read-only
+main-save audit108/115 tables exact; seven permitted clock/mask/ore/farm-freshness/
+resident-age-only changes, all identity/assets/cash/history preserved; empty fishery/
+public-order tables, schema67 integrity/FK healthy. Cleanup initially deferred when
+automatic approval review reached its usage limit. On user resume, approved audit/
+cleanup succeeded: exact original properties restored, helper archived, backups
+retained and fixture stopped. No human-server changes.
+User approved suitable player-built ponds alongside natural water. No live
+observation scheduler or automatic fishery startup enabled. Current evidence/SQL-owner
+submission and protected qualified founding remain next. See WATER_OBSERVATION.md.
+Phase3 counts unchanged:1/4 whole groups/~69% partial. No design decision pending;
+the execution-capacity blocker is resolved.
+
 ## October12, 2026 — approved confirmed fishery habitat transitions
 
 User approved the recommended loss/restoration rule. FishStock now represents dry

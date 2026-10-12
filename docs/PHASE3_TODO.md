@@ -1,5 +1,16 @@
 # Phase 3 — businesses and industry checklist
 
+October12: bounded full-height read-only WaterScan/PaperWaterSource evidence added;
+immutable world/chunk/time/depth/column status, absolute negative Y, unknown safety
+and explicit per-call budgets. Eight new tests; focused38/full1,229 passed. Native
+actual snapshot reference passed:220 suitable columns,512 reads/tick; normal shutdown.
+Read-only save audit passed. Cleanup initially deferred under approval-review usage
+limit; resumed approved audit/cleanup succeeded, original settings restored, helper
+archived and fixture stopped. No migration, scheduler,
+ownership claim or automatic fishery startup. Player ponds approved alongside natural
+water; no design choice pending. Live evidence/qualified funding integration
+remains next; broader renewable industry milestone and counts stay unchanged.
+
 October12: approved confirmed habitat-loss/restoration implemented in the explicit
 SQL-owner fishery transition. Schema67 preserves original footprint/abundance;
 reduced effective capacity loses excess only, restoration does not refill, dry

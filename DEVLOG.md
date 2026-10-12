@@ -1,5 +1,38 @@
 # Civilizations Development Log
 
+## October12, 2026 — water observation batch resumed and cleaned up
+
+User resumed after approval-review capacity was restored. The approved stopped-fixture
+audit/cleanup completed:108/115 old tables exact, only the previously reviewed normal
+bookkeeping/age/farm-freshness changes; schema67 integrity/FK healthy, all old assets/
+identity/cash/history retained. Exact original properties restored, helper archived,
+backups retained, fixture stopped; no human-server changes. Source remains the same
+as the1,229-test full Wrapper build and native actual-snapshot proof. Diff review/check
+passed. The earlier pending cleanup checkpoint below is historical and now resolved.
+
+## October12, 2026 — bounded water snapshot evidence
+
+Branch codex/phase3-water-observation. Added plain-Java WaterScan and snapshot-only
+PaperWaterSource, with full-height absolute-Y traversal, explicit budgets, exposed
+consecutive-depth classification and per-column unknown safety. Immutable evidence
+retains capture identity/time/bounds/depth; unfinished/forged empty observations
+reject. No live scanner scheduling, database changes, chunk loading, block/entity
+mutation or business founding in application code. Eight new domain/adapter tests;
+focused38 passed, zero failures/errors/skips,19.764s at17:38:13 ET. Full Windows
+Wrapper clean verify passed1,229 (1,227 unit/two packaged integration), zero failures/
+errors/skips,6:37 at17:46:19 ET. Native actual-snapshot reference passed17:48:52:
+98,304 reads,256 columns,220 suitable,512 cells/tick; no helper block/entity changes,
+normal shutdown17:48:53. Read-only main-save audit108/115 old tables exact, seven
+permitted clock/mask/ore/farm-freshness/resident-age-only changes, identities/assets/
+cash/history preserved, fishery/public-order tables empty, schema67 integrity/FK healthy.
+Automatic approval review failed from its usage limit before cleanup mutation;
+not executed, not an unsafe-action rejection. Fixture remains stopped/prepared on
+localhost25578 with helper present; backups retained. Exact properties restoration/
+helper archival/local commit pending approved execution; do not bypass review.
+Human server untouched, no merge/push. User approved player ponds alongside natural
+water (“Whatever you recommend”); no gameplay choice pending. Schema67/Phase3
+counts unchanged. Updated status/progress/checklist and water observation guide.
+
 ## October12, 2026 — confirmed fishery habitat capacity and loss
 
 Branch codex/phase3-fishery-habitat-loss. Recorded approved recommendation.

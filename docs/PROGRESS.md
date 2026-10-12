@@ -2,6 +2,14 @@
 
 Updated October 12, 2026. Based on verified work, not planned features.
 
+Water recognition now has a read-only scan that checks depth/cover in small batches
+and keeps unknown areas separate. It does not yet start a fishery or change your
+world. All1,229 full-build tests and the real Paper snapshot check passed. You
+approved suitable player-built ponds as well as natural water. Automatic fisheries
+remain next. The temporary approval-review limit is resolved: disposable-server
+cleanup finished after you resumed. Your playable server is unchanged.
+Phase3 milestone counts remain unchanged.
+
 You approved the water-loss rule. The saved-resource update now reduces fishery
 capacity when complete evidence confirms water loss, losing only excess fish.
 Restoring water allows gradual recovery without an instant refill. Unknown water
