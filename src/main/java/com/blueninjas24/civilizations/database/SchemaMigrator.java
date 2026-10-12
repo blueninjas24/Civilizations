@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 58;
+    static final int CURRENT_VERSION = 59;
 
     @FunctionalInterface
     interface Migration {
@@ -881,7 +881,29 @@ final class SchemaMigrator {
                         )
                         """);
                     execute(connection,"CREATE INDEX workplace_coordinate_members ON workplace_markers(world_id,x,y,z)");
+                },
+                connection -> {
+                    execute(connection,"""
+                        CREATE TABLE mine_founder_reviews (
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                            period INTEGER NOT NULL CHECK(period>=1),opportunity TEXT NOT NULL,
+                            after_resident TEXT NOT NULL,policy TEXT NOT NULL,explanation TEXT NOT NULL,
+                            PRIMARY KEY(settlement_id,period)
+                        )
+                        """);
+                    execute(connection,"""
+                        CREATE TABLE mine_founder_courses (
+                            course_id TEXT PRIMARY KEY REFERENCES resident_courses(id),
+                            settlement_id TEXT NOT NULL REFERENCES settlements(id),world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                            mineral TEXT NOT NULL CHECK(mineral IN('coal','iron')),x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                            enrolled_period INTEGER NOT NULL CHECK(enrolled_period>=1),
+                            FOREIGN KEY(settlement_id,world_id) REFERENCES settlement_worlds(settlement_id,world_id),
+                            FOREIGN KEY(settlement_id,enrolled_period) REFERENCES mine_founder_reviews(settlement_id,period) DEFERRABLE INITIALLY DEFERRED
+                        )
+                        """);
+                    execute(connection,"CREATE INDEX active_mine_founders ON mine_founder_courses(settlement_id,course_id)");
                 }
+
 
         ));
     }
@@ -1039,6 +1061,10 @@ final class SchemaMigrator {
             if(migrations.size()>=50) {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
+            if(migrations.size()>=59){
+                requireColumns(connection,"mine_founder_reviews",Set.of("settlement_id","period","opportunity","after_resident","policy","explanation"));
+                requireColumns(connection,"mine_founder_courses",Set.of("course_id","settlement_id","world_id","mineral","x","y","z","enrolled_period"));
             }
             if(migrations.size()>=58){
                 requireColumns(connection,"workplace_surveys",Set.of("settlement_id","world_id","chunk_x","chunk_z","captured_millis","complete","fingerprint"));

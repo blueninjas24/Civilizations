@@ -40,7 +40,7 @@ class AutomaticMineFoundingTest {
         new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,100000,"Explicit fixture funds");
         business(smith,"blacksmith",0,20000,smithWorker);business(warehouse,"warehouse",1,10000,warehouseWorker);
         var bands=new EnumMap<Condition,Integer>(Condition.class);for(var condition:Condition.values())bands.put(condition,100);
-        var settings=new EconomySettings(1,3,2,2,1,4,100,new Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,100L),Map.of(Commodity.FOOD,BigDecimal.ONE),bands);
+        var settings=new EconomySettings(1,3,2,2,1,4,100,new Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,100L,Commodity.STONE,20L,Commodity.TIMBER,20L),Map.of(Commodity.FOOD,BigDecimal.ONE,Commodity.STONE,BigDecimal.ONE,Commodity.TIMBER,BigDecimal.ONE),bands);
         economySettings=settings;
         var economy=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,VillagePriorities.Policy.prototype(),com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype().seed());
         economy.observe(new FarmObservation(town,world,1000,true,0),1000);economy.startOnline(1000,Set.of(world));economy.pulse(2000,false);
@@ -144,6 +144,90 @@ class AutomaticMineFoundingTest {
         assertEquals(2500,cash());assertEquals(0,mines());assertEquals(0,scalar("SELECT COUNT(*) FROM startup_grants"));assertEquals(0,scalar("SELECT COUNT(*) FROM mineral_deposits"));
         new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,67500,"Explicit fixture refund");
         assertTrue(review().contains("no qualified"));unchanged();
+    }
+
+    EconomyRuntimeRepository founderStudy(AutomaticMineFounding mines,long target)throws Exception {
+        var runtime=new EconomyRuntimeRepository(db.getConnection(),economySettings,FarmObservation.Policy.prototype(),216,VillagePriorities.Policy.prototype(),com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype().seed());
+        var study=new StudyPolicy(true,1,100,2,8,1,2,Map.of("mining",new StudyPolicy.Course(target,Map.of(Commodity.STONE,1L,Commodity.TIMBER,1L))));
+        runtime.configureStudy(study);runtime.configureMineFounderStudy(mines,CareerStudyPolicy.prototype(),founding);runtime.startOnline(2000,Set.of(world));return runtime;
+    }
+    void unqualified()throws Exception{sql("DELETE FROM resident_skills WHERE skill='mining'");}
+    long xp(UUID person)throws Exception{return db.getPopulationRepository().findWorkProfile(person).orElseThrow().experience().getOrDefault("mining",0L);}
+    long villageStock(String commodity)throws Exception{return scalar("SELECT units FROM economy_stocks WHERE commodity='"+commodity+"'");}
+    @Test void realOpportunityTrainsOneFounderOverFuturePeriodsThenOpensMineWithRealFunds()throws Exception {
+        unqualified();var engine=automation();var runtime=founderStudy(engine,10);
+        String initial=engine.review(town,1,2000,Set.of(world));assertTrue(initial.contains("prospective mining owner"),initial);
+        assertEquals(0,mines());assertEquals(70000,cash());assertEquals(0,xp(founder));assertEquals(1,scalar("SELECT COUNT(*) FROM mine_founder_courses"));
+        engine.review(town,1,2000,Set.of(world));assertEquals(1,scalar("SELECT COUNT(*) FROM resident_courses"));
+        for(int n=1;n<=10;n++){long now=2000+n*1000;runtime.pulse(now,false);assertEquals(n,xp(founder));engine.review(town,n,now,Set.of(world));assertEquals(n==10?1:0,mines());}
+        assertEquals(0,xp(other));assertEquals(90,villageStock("stone"));assertEquals(90,villageStock("timber"));assertEquals(20,scalar("SELECT COUNT(*) FROM study_spending"));
+        assertEquals(67500,cash());assertEquals(1,scalar("SELECT COUNT(*) FROM startup_grants"));assertEquals(1,scalar("SELECT COUNT(*) FROM mine_founder_courses"));
+        assertEquals(founder,db.getBusinessRepository().findBusiness(mine()).orElseThrow().ownerId());
+    }
+    @Test void vanishedOreCancelsLinkedFounderBeforeAnyPracticeGoodsOrSkillsAreSpent()throws Exception {
+        unqualified();var engine=automation();var runtime=founderStudy(engine,10);engine.review(town,1,2000,Set.of(world));survey(List.of());
+        runtime.pulse(3000,false);assertEquals(0,xp(founder));assertEquals(100,villageStock("stone"));assertEquals(0,scalar("SELECT COUNT(*) FROM study_spending"));
+        assertEquals(1,scalar("SELECT COUNT(*) FROM resident_courses WHERE status='CANCELLED'"));unchanged();
+    }
+    @Test void lostRealCustomersOrProtectedFundingCancelFounderStudyWithoutFreeProgress()throws Exception {
+        unqualified();var engine=automation();var runtime=founderStudy(engine,10);engine.review(town,1,2000,Set.of(world));
+        sql("UPDATE industry_stores SET hundredths=0 WHERE business_id='"+smith+"'");runtime.pulse(3000,false);assertEquals(0,xp(founder));assertEquals(1,scalar("SELECT COUNT(*) FROM resident_courses WHERE status='CANCELLED'"));
+        sql("UPDATE industry_stores SET hundredths=20000 WHERE business_id='"+smith+"'");engine.review(town,1,3000,Set.of(world));assertEquals(2,scalar("SELECT COUNT(*) FROM resident_courses"));
+        new TreasuryRepository(db.getConnection()).post(UUID.randomUUID(),town,-67500,"Explicit fixture spending");runtime.pulse(4000,false);
+        assertEquals(0,xp(founder));assertEquals(0,scalar("SELECT COUNT(*) FROM study_spending"));assertEquals(2,scalar("SELECT COUNT(*) FROM resident_courses WHERE status='CANCELLED'"));assertEquals(0,mines());assertEquals(2500,cash());
+    }
+    @Test void futureOnlyEnrollmentCannotLearnFromAlreadyEarnedFoodBacklog()throws Exception {
+        unqualified();var engine=automation();var runtime=founderStudy(engine,10);
+        engine.review(town,1,7000,Set.of(world));assertEquals(6,scalar("SELECT eligible_after FROM resident_courses"));
+        for(int n=0;n<5;n++)runtime.pulse(7000,false);assertEquals(6,scalar("SELECT completed_periods FROM economy_accounts"));assertEquals(0,xp(founder));assertEquals(0,scalar("SELECT COUNT(*) FROM study_spending"));
+        runtime.pulse(8000,false);assertEquals(1,xp(founder));assertEquals(99,villageStock("stone"));
+    }
+    @Test void founderEnrollmentAndLearningFailuresRollBackThenRetryExactlyOnce()throws Exception {
+        unqualified();var engine=automation();var runtime=founderStudy(engine,10);
+        sql("CREATE TRIGGER reject_founder BEFORE INSERT ON mine_founder_reviews BEGIN SELECT RAISE(ABORT,'fixture failure'); END");
+        assertThrows(SQLException.class,()->engine.review(town,1,2000,Set.of(world)));assertEquals(0,scalar("SELECT COUNT(*) FROM resident_courses"));assertEquals(0,scalar("SELECT COUNT(*) FROM mine_founder_courses"));unchanged();
+        sql("DROP TRIGGER reject_founder");engine.review(town,1,2000,Set.of(world));
+        sql("CREATE TRIGGER reject_learning BEFORE INSERT ON study_spending BEGIN SELECT RAISE(ABORT,'fixture failure'); END");
+        assertThrows(SQLException.class,()->runtime.pulse(3000,false));assertEquals(0,xp(founder));assertEquals(100,villageStock("stone"));assertEquals(1,scalar("SELECT completed_periods FROM economy_accounts"));
+        sql("DROP TRIGGER reject_learning");runtime.pulse(3000,false);runtime.pulse(3000,false);assertEquals(1,xp(founder));assertEquals(2,scalar("SELECT COUNT(*) FROM study_spending"));
+    }
+    @Test void absenceAndRestartRetainFounderCourseWithoutBackfillOrDuplicateSponsorship()throws Exception {
+        unqualified();var engine=automation();var runtime=founderStudy(engine,10);engine.review(town,1,2000,Set.of(world));runtime.pulse(3000,false);
+        runtime.updateLoadedWorlds(3000,Set.of());runtime.pulse(100000,false);assertEquals(1,xp(founder));assertEquals(99,villageStock("stone"));
+        db.close();db=new DatabaseManager(directory.toFile(),Logger.getLogger("AutomaticMineTest"));db.initialize();engine=automation();runtime=founderStudy(engine,10);
+        runtime.updateLoadedWorlds(100000,Set.of(world));runtime.pulse(100000,false);assertEquals(1,xp(founder));assertEquals(1,scalar("SELECT COUNT(*) FROM mine_founder_courses"));
+        survey(List.of(new VillageObservation.Position(12,40,0),new VillageObservation.Position(13,40,0)));capture=100000;new MineralOpportunities(db.getConnection()).observe(town,List.of(new MineralObservation(world,capture,true,Commodity.COAL,List.of(new VillageObservation.Position(12,40,0),new VillageObservation.Position(13,40,0))),new MineralObservation(world,capture,true,Commodity.IRON,List.of())));
+        runtime.pulse(101000,false);assertEquals(2,xp(founder));assertEquals(98,villageStock("stone"));
+    }
+    @Test void tooLowStudyTargetOrMissingSuppliesNeverEnrollFakeFounders()throws Exception {
+        unqualified();var engine=automation();founderStudy(engine,9);assertTrue(engine.review(town,1,2000,Set.of(world)).contains("cannot qualify"));assertEquals(0,scalar("SELECT COUNT(*) FROM resident_courses"));
+        engine=automation();founderStudy(engine,10);sql("UPDATE economy_stocks SET units=2 WHERE commodity='stone'");assertTrue(engine.review(town,1,2000,Set.of(world)).contains("practice supplies"));assertEquals(0,scalar("SELECT COUNT(*) FROM resident_courses"));unchanged();
+    }
+    @Test void schema59EmptyUpgradeAndFailedDdlPreserveOldDataAndRecover()throws Exception {
+        SchemaFixtures.rewind(db.getConnection(),58);sql("CREATE VIEW mine_founder_courses AS SELECT id FROM residents");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));assertEquals(58,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE name='mine_founder_reviews'"));
+        sql("DROP VIEW mine_founder_courses");new SchemaMigrator().migrate(db.getConnection());assertEquals(59,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM mine_founder_courses"));unchanged();
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+    }
+
+    @Test void actualSqlOwnerAutomaticallyTrainsThenFoundsWithoutInventedSkillsOrBackfill()throws Exception {
+        unqualified();new OreTrackingRepository(db.getConnection()).finish(2000,true);db.close();db=null;
+        var clock=new java.util.concurrent.atomic.AtomicLong(2000);
+        try(var session=ownerSession(clock)) {
+            session.configureStudy(StudyPolicy.prototype());session.configureCareerStudy(CareerStudyPolicy.prototype());
+            session.start(false,Set.of(world)).get(5,java.util.concurrent.TimeUnit.SECONDS);session.pulse().get(5,java.util.concurrent.TimeUnit.SECONDS);
+            for(int n=1;n<=10;n++){clock.set(2000+n*1000);session.pulse().get(5,java.util.concurrent.TimeUnit.SECONDS);}
+        }
+        db=new DatabaseManager(directory.toFile(),Logger.getLogger("AutomaticMineTest"));db.initialize();
+        assertEquals(1,mines());assertEquals(10,xp(founder));assertEquals(0,xp(other));assertEquals(1,scalar("SELECT COUNT(*) FROM mine_founder_courses"));
+        assertEquals(1,scalar("SELECT COUNT(*) FROM resident_courses WHERE status='COMPLETED'"));assertEquals(90,villageStock("stone"));assertEquals(90,villageStock("timber"));assertEquals(67500,cash());
+    }
+    @Test void actualSqlOwnerWithLegacyDisabledCareerSettingsCannotGrantFreeFounderTraining()throws Exception {
+        unqualified();new OreTrackingRepository(db.getConnection()).finish(2000,true);db.close();db=null;
+        var clock=new java.util.concurrent.atomic.AtomicLong(2000);
+        try(var session=ownerSession(clock)){session.start(false,Set.of(world)).get(5,java.util.concurrent.TimeUnit.SECONDS);session.pulse().get(5,java.util.concurrent.TimeUnit.SECONDS);clock.set(3000);session.pulse().get(5,java.util.concurrent.TimeUnit.SECONDS);}
+        db=new DatabaseManager(directory.toFile(),Logger.getLogger("AutomaticMineTest"));db.initialize();
+        assertEquals(0,mines());assertEquals(0,xp(founder));assertEquals(0,scalar("SELECT COUNT(*) FROM mine_founder_courses"));unchanged();
     }
 
 }

@@ -4,14 +4,28 @@ Updated October 11, 2026. Based on verified work, not planned features.
 
 Villages can now recognize nearby barrels and smithing tables as possible
 workplaces, while leaving blocks and their contents alone. Saved evidence survives
-restart; removed markers stop being candidates. All 1,009 tests and the disposable
+restart; removed markers stop being candidates. All 1,019 tests and the disposable
 Paper check passed. Your playable server has not been changed.
 
-Phase 3 remains 25% by complete milestone groups. Finite automatic mines for
-existing real customers are implemented; first-founder training and automatic
-warehouse/workshop opening remain. These markers provide locations for that
-next step; villages can now also check real startup affordability without spending
-or reserving money. Wider industries and specialization remain too. See WORKPLACE_MARKERS.md.
+Phase 3 has one of four major groups fully complete. The partial work inside the
+other groups is now shown here instead of being hidden behind a fixed25% bar:
+
+| Phase3 group | Completed checklist entries | Partial checklist progress |
+|---|---:|---:|
+| Businesses, owners, workers and sites |4/4|100%|
+| Resources and connected production |26/33|79%|
+| Business lifecycle and competition |13/15|87%|
+| Specialization and final acceptance |0/5|No complete entries yet|
+
+Equal weight per group gives about66% partial checklist completion. Entries differ
+substantially in size; this is not engineering effort, remaining time or a claim
+that an ordinary village can already start every industry. These counts come from
+PHASE3_TODO.md. The four-group phase-gate bar below still counts whole groups.
+
+First mining-owner training is now connected: real opportunities sponsor gradual
+practice using actual supplies, then a qualified graduate can found a funded mine.
+First warehouse/workshop founders, wider industries and specialization remain.
+See MINE_FOUNDER_TRAINING.md. Your playable server has not been changed.
 
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project

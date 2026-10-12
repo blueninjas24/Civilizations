@@ -1,5 +1,10 @@
 # Phase 3 — businesses and industry checklist
 
+Verified first mining founder training for current fundable real opportunities,
+future-only actual practice materials, cancellation, qualification and atomic
+startup. Schema59;1,019 tests and native Paper passed. Other first founders and
+industrial investment remain; see MINE_FOUNDER_TRAINING.md.
+
 Verified read-only real startup affordability, shared acceptance evidence and
 funding-before-founder mine diagnostics. Six tests added; 1,009 Wrapper tests and
 updated native Paper probe passed. No migration or new grant settings. First

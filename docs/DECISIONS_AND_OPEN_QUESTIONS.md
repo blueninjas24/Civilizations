@@ -1,5 +1,13 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11: approved gradual training connected to first mining founders
+
+The existing approval now supports a verified narrow mining-founder adapter: real
+current customers, observed ore and affordable protected grants precede sponsorship;
+actual supplies and future periods precede qualification. Opportunity loss cancels
+study without losing earned skills. No invented employer or startup reservation.
+Other first-founder careers remain next. See MINE_FOUNDER_TRAINING.md.
+
 ## October 11, 2026: existing workplace markers approved
 
 The user answered "Yes" to configurable recognition of existing nearby smithing

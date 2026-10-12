@@ -1,5 +1,49 @@
 # Development and recovery procedures
 
+## October 11, 2026: opportunity-backed first mining founder training verified
+
+When current observed ore, real funded workshop demand, a staffed warehouse buyer
+and protected startup funds are available, an unskilled village can now sponsor one
+prospective mining founder. Existing editable career/study/mine settings govern
+age, skills, supplies, pacing and budgets. Enrollment creates no business, cash,
+goods, job or skill; future food periods spend actual timber/stone under reserves.
+Current opportunity loss cancels linked study before practice goods are spent.
+Partial earned skills remain; absence pauses. A qualified graduate uses ordinary
+atomic mine founding and grant checks; no guaranteed ownership or reserved money.
+First warehouse/workshop founders remain next; no construction or hidden ore.
+
+Schema59 adds two empty source-linked founder review/course tables. Existing
+courses, assets and history remain. Ten tests added: gradual qualification/startup,
+source/customer/funding loss, future-only backlog, rollback/retry, restart/absence,
+settings/supplies, migration failure/recovery and actual SQL-owner opt-in/legacy
+opt-out. Focused46 passed, then all23 mine tests passed. Windows .\mvnw.cmd clean
+verify passed1,019 (1,017 unit/two packaged integration), zero failures/errors/skips,
+5:09. Test fixtures initially used the wrong world-update method, omitted new
+commodity prices and processed too few bounded backlog pulses; corrected fixtures.
+
+Updated standalone AutomaticMineFoundingProbe compiled and passed on pinned marked
+Paper: ten future supply-backed study periods, twenty practice-material spending
+entries, earned mining qualification, exactly one real funded mine and conserved
+absence/restart state. Existing finite-production/budget checks still passed.
+Probe compilation first used a package-private constructor; changed to the public
+DB accessor. The previous fixture was inadvertently launched after compilation
+failed, stopped normally, then setup/launch were made conditional on success.
+A subsequent fresh sub-fixture reused a future capture timestamp and correctly
+failed to found by its expected deadline; reset its fixture capture clock and reran.
+No production guards weakened. Probe compiled before the successful installation.
+
+Server stopped normally with no forced overworld chunks. Original properties
+restored byte-exact, helper archived, old99 tables compared:93 unchanged; six
+changes are two ordinary age-only months1733-to1735 and normal clock/active-world/
+ore bookkeeping. Food period29 unchanged; prior businesses, stock, money, grants,
+skills, courses and history unchanged. New main-fixture founder tables remain
+empty under legacy opt-out. Human server untouched; no push or main merge.
+
+Phase3 remains1/4 fully complete groups; partial checklist progress is now shown
+separately in PROGRESS.md (about66% on equal-group checklist arithmetic). That is
+not remaining-time or playability measurement. Next: real public-farm tool demand
+in warehouse purchasing, then first workshop/warehouse founder opportunities.
+
 ## October 11, 2026: read-only startup affordability and funding-first diagnosis verified
 
 Industry opportunity checks can now inspect actual startup affordability without

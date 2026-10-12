@@ -301,6 +301,7 @@ public final class PopulationSession implements AutoCloseable {
                     economy.configureFarmTools(farmToolsPolicy,farmToolsBudget,industryPolicy.mining());
                     economy.configureUpkeepContributions(upkeepContributions);
                     economy.configureStudy(studyPolicy);
+                    economy.configureMineFounderStudy(automaticMines,careerStudyPolicy,mineFoundingPolicy);
                     businesses.configureCareerStudy(economy,careerStudyPolicy);
                     economy.configureWorkLearning(learningPolicy);
                     if (loadedWorlds == null) economy.start(now.getAsLong());

@@ -22,6 +22,15 @@ public final class AutomaticMineFounding {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);this.industry=Objects.requireNonNull(industry);
         this.operations=Objects.requireNonNull(operations);this.grants=Objects.requireNonNull(grants);this.adulthood=adulthood;this.seed=seed;this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
+    public record Opportunity(UUID town,MineralObservation patch) {
+        public Opportunity {Objects.requireNonNull(town);Objects.requireNonNull(patch);if(patch.ore().isEmpty())throw new IllegalArgumentException("Observed patch required");}
+        public Position origin(){return patch.ore().getFirst();}
+        public String key(){var p=origin();return town+":"+patch.world()+":"+patch.mineral().id()+":"+p.x()+":"+p.y()+":"+p.z();}
+    }
+    record Selection(Opportunity opportunity,String explanation) {}
+    @FunctionalInterface public interface FounderTraining {String review(Opportunity opportunity,long now)throws SQLException;}
+    private FounderTraining training;
+    public void configureTraining(FounderTraining training){this.training=Objects.requireNonNull(training);}
     private String townCursor="";
     public String pulse(long step,long now,Set<UUID> worlds)throws SQLException {
         if(!policy.enabled())return "Automatic mine founding disabled";
@@ -52,10 +61,29 @@ public final class AutomaticMineFounding {
         }
     }
     private String reviewRows(UUID town,long step,long now,Set<UUID> worlds)throws SQLException {
+        var choice=opportunityRows(town,now,worlds,null);if(choice.opportunity()==null)return choice.explanation();
+        var opportunity=choice.opportunity();var patch=opportunity.patch();var mineral=patch.mineral();var origin=opportunity.origin();
+        UUID founder=founder(town);
+        if(founder==null)return "Mine founding waits: bounded page has no qualified unemployed founder; no free skills"
+                +(training==null?"":"; "+training.review(opportunity,now));
+        UUID siteId=id("civilizations:automatic-mine-site-v1:"+opportunity.key()),businessId=id("civilizations:automatic-mine-business-v1:"+opportunity.key());
+        String explanation="Automatic observed "+mineral.id()+" mine for actual funded local input demand; capture "+patch.observedMillis()+"; provisional resource anchor, no excavation rights; "+policy;
+        var site=new BusinessSite(siteId,town,patch.world(),origin.x(),origin.y(),origin.z(),patch.observedMillis(),explanation);
+        var business=new Business(businessId,town,mineral.id().equals("coal")?"Coal mine":"Iron mine",founder,founder,"mining",siteId,policy.workerCapacity(),step);
+        var owner=new JobRequirements(Math.max(adulthood,policy.minimumAgeSteps()),Map.of("mining",policy.founderExperience()));
+        var worker=new JobRequirements(Math.max(adulthood,policy.minimumAgeSteps()),Map.of());
+        var request=new MiningStartupRepository.Request(new BusinessFounding(business,site,owner,worker,policy.startupHundredths(),explanation),patch,
+                industry.mining().depositBatchesPerObservedOre(),policy.bundle(mineral,industry.mining()),industry.mining().storageCapacity(),industry.mining().storageSpacePerUnit(),policy.capitalHundredths(),founder);
+        new BusinessStartupGrants(connection).startMineRows(request,grants);
+        return "Founded one "+mineral.id()+" mine: real grant, qualified owner/first worker, "+patch.ore().size()+" observed supporting blocks; finite reserves and empty stock; no construction";
+    }
+    Selection opportunityRows(UUID town,long now,Set<UUID> worlds,Opportunity only)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Mine opportunity requires owner transaction");
+        if(!policy.enabled()||!mutationHealthy.getAsBoolean())return new Selection(null,"Mine founding disabled or mutation trust unavailable");
         var pressure=new LocalIndustryDemand(connection,industry,operations,mutationHealthy).reviewMining(town,now,policy.surveyLifetimeMillis(),worlds,64);
-        if(!pressure.demand().complete())return "Mine founding waits: "+pressure.demand().explanation();
-        if(pressure.survey().status()!=MineralOpportunities.Status.CURRENT)return "Mine founding waits: "+pressure.survey().explanation();
-        if(pressure.candidates().isEmpty())return "No current unclaimed ore matching actual funded customers";
+        if(!pressure.demand().complete())return new Selection(null,"Mine founding waits: "+pressure.demand().explanation());
+        if(pressure.survey().status()!=MineralOpportunities.Status.CURRENT)return new Selection(null,"Mine founding waits: "+pressure.survey().explanation());
+        if(pressure.candidates().isEmpty())return new Selection(null,"No current unclaimed ore matching actual funded customers");
         Position center;
         try(var s=connection.prepareStatement("SELECT center_x,center_y,center_z FROM settlements WHERE id=?")) {
             s.setString(1,town.toString());try(var r=s.executeQuery()){if(!r.next())throw new SQLException("Unknown mine settlement");center=new Position(r.getInt(1),r.getInt(2),r.getInt(3));}
@@ -72,31 +100,22 @@ public final class AutomaticMineFounding {
         Collections.shuffle(patches,new Random(seed^town.getMostSignificantBits()^town.getLeastSignificantBits()^period));
         int examined=0;
         for(var patch:patches) {
+            if(only!=null&&(!patch.world().equals(only.patch().world())||!patch.mineral().equals(only.patch().mineral())||!patch.ore().getFirst().equals(only.origin())))continue;
             if(++examined>policy.patchesPerReview())break;
             var mineral=patch.mineral();var origin=patch.ore().getFirst();
             if(!within(center,origin)||occupied(patch.world(),origin))continue;
             if(existingCapacity(town,mineral,pressure.demand().uncovered().getOrDefault(mineral,0L))||!fundedWarehouse(town,mineral))continue;
             var bundle=policy.bundle(mineral,industry.mining());
-            if(!industry.mining().storageSpacePerUnit().keySet().containsAll(bundle.keySet()))return "Mine founding waits: storage catalog lacks configured outputs";
+            if(!industry.mining().storageSpacePerUnit().keySet().containsAll(bundle.keySet()))return new Selection(null,"Mine founding waits: storage catalog lacks configured outputs");
             long neededSpace=0;for(var e:bundle.entrySet())neededSpace=Math.addExact(neededSpace,Math.multiplyExact(e.getValue(),industry.mining().storageSpacePerUnit().get(e.getKey())));
-            if(neededSpace>industry.mining().storageCapacity())return "Mine founding waits: one extraction bundle cannot fit configured storage";
+            if(neededSpace>industry.mining().storageCapacity())return new Selection(null,"Mine founding waits: one extraction bundle cannot fit configured storage");
             var funding=new BusinessStartupGrants(connection).previewRows(town,"mining",policy.startupHundredths(),policy.capitalHundredths(),grants);
-            if(!funding.eligible())return "Mine founding waits: "+funding.reason();
-            UUID founder=founder(town);if(founder==null)return "Mine founding waits: bounded page has no qualified unemployed founder; no free skills";
-            String key=town+":"+patch.world()+":"+mineral.id()+":"+origin.x()+":"+origin.y()+":"+origin.z();
-            UUID siteId=id("civilizations:automatic-mine-site-v1:"+key),businessId=id("civilizations:automatic-mine-business-v1:"+key);
-            if(new BusinessRepository(connection).findBusiness(businessId).isPresent())continue; // Never reopen or refill a retained firm.
-            String explanation="Automatic observed "+mineral.id()+" mine for actual funded local input demand; capture "+patch.observedMillis()+"; provisional resource anchor, no excavation rights; "+policy;
-            var site=new BusinessSite(siteId,town,patch.world(),origin.x(),origin.y(),origin.z(),patch.observedMillis(),explanation);
-            var business=new Business(businessId,town,mineral.id().equals("coal")?"Coal mine":"Iron mine",founder,founder,"mining",siteId,policy.workerCapacity(),step);
-            var owner=new JobRequirements(Math.max(adulthood,policy.minimumAgeSteps()),Map.of("mining",policy.founderExperience()));
-            var worker=new JobRequirements(Math.max(adulthood,policy.minimumAgeSteps()),Map.of());
-            var request=new MiningStartupRepository.Request(new BusinessFounding(business,site,owner,worker,policy.startupHundredths(),explanation),patch,
-                    industry.mining().depositBatchesPerObservedOre(),bundle,industry.mining().storageCapacity(),industry.mining().storageSpacePerUnit(),policy.capitalHundredths(),founder);
-            new BusinessStartupGrants(connection).startMineRows(request,grants);
-            return "Founded one "+mineral.id()+" mine: real grant, qualified owner/first worker, "+patch.ore().size()+" observed supporting blocks; finite reserves and empty stock; no construction";
+            if(!funding.eligible())return new Selection(null,"Mine founding waits: "+funding.reason());
+            var opportunity=new Opportunity(town,patch);
+            if(new BusinessRepository(connection).findBusiness(id("civilizations:automatic-mine-business-v1:"+opportunity.key())).isPresent())continue;
+            return new Selection(opportunity,"Current fundable mining opportunity with real customers");
         }
-        return "No viable new mine in bounded patch page: existing supply capacity, no funded warehouse buyer, or resource anchor outside range/occupied; no assets changed";
+        return new Selection(null,"No viable new mine in bounded patch page: existing supply capacity, no funded warehouse buyer, or resource anchor outside range/occupied; no assets changed");
     }
     private boolean within(Position center,Position p) {
         long dx=(long)p.x()-center.x(),dz=(long)p.z()-center.z();

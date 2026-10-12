@@ -19,6 +19,9 @@ public final class ResidentStudy {
     private final Connection connection;
     private final StudyPolicy policy;
     private final long adulthood;
+    @FunctionalInterface interface OpportunityCheck {boolean available(UUID course)throws SQLException;}
+    private OpportunityCheck founderOpportunity=course->true;
+    ResidentStudy withFounderOpportunity(OpportunityCheck check){founderOpportunity=Objects.requireNonNull(check);return this;}
     public ResidentStudy(Connection connection,StudyPolicy policy,long adulthood) {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);this.adulthood=adulthood;
         if(adulthood<1)throw new IllegalArgumentException("Invalid study adulthood");
@@ -64,6 +67,7 @@ public final class ResidentStudy {
             var person=new PopulationRepository(connection).findResident(course.resident()).orElseThrow();
             if(!eligible(person,town)){status="CANCELLED";reason="Resident no longer a living local unemployed adult";}
             else if(!AutomaticCareerStudy.opportunityAvailable(connection,course.id())){status="CANCELLED";reason="Linked business vacancy no longer available; practice supplies retained";}
+            else if(!founderOpportunity.available(course.id())){status="CANCELLED";reason="Linked mining founder opportunity no longer viable; practice supplies retained";}
             else if(experience>=course.target()){status="COMPLETED";reason="Target already reached; no supplies spent";}
             else if(!policy.enabled()||!policy.skills().containsKey(course.skill()))reason="Study disabled; supplies retained";
             else if(!laborAvailable)reason="Legacy field output counts all adults; study deferred to avoid double labor";

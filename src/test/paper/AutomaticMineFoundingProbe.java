@@ -44,7 +44,7 @@ public final class AutomaticMineFoundingProbe extends JavaPlugin {
         new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,100000,"Explicit fixture funds");
         business(smith,"blacksmith",0,20000,smithWorker);business(warehouse,"warehouse",1,10000,warehouseWorker);
         var bands=new EnumMap<Condition,Integer>(Condition.class);for(var condition:Condition.values())bands.put(condition,100);
-        var settings=new EconomySettings(1,3,2,2,1,4,100,new Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,100L),Map.of(Commodity.FOOD,BigDecimal.ONE),bands);
+        var settings=new EconomySettings(1,3,2,2,1,4,100,new Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,100L,Commodity.STONE,20L,Commodity.TIMBER,20L),Map.of(Commodity.FOOD,BigDecimal.ONE,Commodity.STONE,BigDecimal.ONE,Commodity.TIMBER,BigDecimal.ONE),bands);
         economySettings=settings;
         var economy=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216,VillagePriorities.Policy.prototype(),com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype().seed());
         economy.observe(new FarmObservation(town,world,1000,true,0),1000);economy.startOnline(1000,Set.of(world));economy.pulse(2000,false);
@@ -103,8 +103,28 @@ public final class AutomaticMineFoundingProbe extends JavaPlugin {
             db=new DatabaseManager(directory.toFile(),getLogger());db.initialize();assertEquals(1,mines());assertEquals(remaining,scalar("SELECT SUM(remaining_batches) FROM mineral_deposits"));assertEquals(stock,scalar("SELECT SUM(units) FROM industry_stock WHERE commodity='coal'"));
             try(var q=db.getConnection().createStatement();var r=q.executeQuery("PRAGMA integrity_check")){assertTrue(r.getString(1).equals("ok"));}
             try(var q=db.getConnection().createStatement();var r=q.executeQuery("PRAGMA foreign_key_check")){assertTrue(!r.next());}
-            getLogger().info("NATIVE AUTOMATIC MINE PASS: read-only startup budget preview and protected-cash refusal verified; actual SQL owner founds one funded qualified mine; 2500 real grant, 500 expense, 2000 capital; eight finite batches produce sixteen coal; absent-world pause and restart conserve assets; no physical world changes");
+            founderTrainingChecks();
+            getLogger().info("NATIVE AUTOMATIC MINE PASS: read-only startup budget preview, protected-cash refusal and gradual real-supply first-founder training verified; actual SQL owner founds one funded qualified mine; 2500 real grant, 500 expense, 2000 capital; eight finite batches produce sixteen coal; absent-world pause and restart conserve assets; no physical world changes");
         }catch(Exception failure){throw new CompletionException(failure);}finally{if(db!=null){db.close();db=null;}}
+    }
+    void founderTrainingChecks()throws Exception {
+        db.close();db=null;directory=directory.resolve("founder-training");capture=1999;setup();sql("DELETE FROM resident_skills WHERE skill='mining'");
+        new OreTrackingRepository(db.getConnection()).finish(2000,true);db.close();db=null;
+        var clock=new AtomicLong(2000);
+        try(var s=session(clock)) {
+            s.configureStudy(StudyPolicy.prototype());s.configureCareerStudy(CareerStudyPolicy.prototype());
+            s.start(false,Set.of(world)).get(10,TimeUnit.SECONDS);s.pulse().get(10,TimeUnit.SECONDS);
+            for(int n=1;n<=10;n++){clock.set(2000+n*1000);s.pulse().get(10,TimeUnit.SECONDS);}
+            s.updateLoadedWorlds(Set.of()).get(10,TimeUnit.SECONDS);clock.set(100000);s.pulse().get(10,TimeUnit.SECONDS);
+        }
+        db=new DatabaseManager(directory.toFile(),getLogger());db.initialize();assertEquals(1,mines());assertEquals(67500,cash());
+        assertEquals(10,db.getPopulationRepository().findWorkProfile(founder).orElseThrow().experience().getOrDefault("mining",0L));
+        assertEquals(0,db.getPopulationRepository().findWorkProfile(other).orElseThrow().experience().getOrDefault("mining",0L));
+        assertEquals(1,scalar("SELECT COUNT(*) FROM mine_founder_courses"));assertEquals(1,scalar("SELECT COUNT(*) FROM resident_courses WHERE status='COMPLETED'"));assertEquals(20,scalar("SELECT COUNT(*) FROM study_spending"));
+        assertEquals(90,scalar("SELECT units FROM economy_stocks WHERE commodity='stone'"));assertEquals(90,scalar("SELECT units FROM economy_stocks WHERE commodity='timber'"));
+        db.close();db=null;
+        try(var s=session(clock)) {s.configureStudy(StudyPolicy.prototype());s.configureCareerStudy(CareerStudyPolicy.prototype());s.start(false,Set.of(world)).get(10,TimeUnit.SECONDS);s.pulse().get(10,TimeUnit.SECONDS);}
+        db=new DatabaseManager(directory.toFile(),getLogger());db.initialize();assertEquals(1,mines());assertEquals(67500,cash());assertEquals(20,scalar("SELECT COUNT(*) FROM study_spending"));
     }
     @Override public void onEnable() {
         try {
