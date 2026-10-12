@@ -56,11 +56,46 @@ public final class BusinessStartupGrants {
             return new Workshop(started.founding(),new IndustryRepository(connection).store(id).orElseThrow(),started.worker(),started.grant());
         });
     }
+    /** Fresh loaded-block proof and binding commit with the paid startup. Caller still chooses real opportunity/qualified founder. */
+    public Workshop startMarkerWorkshopWithSupplies(WorkshopRequest request,StartupGrantPolicy grants,
+            WorkshopStarterSupplies.Request supplies,WorkshopStarterPolicy starter,Set<UUID> worlds,
+            WorkplaceOperations.Confirmation evidence,long now)throws SQLException {
+        if(!request.founding().business().id().equals(supplies.business())||!supplies.business().equals(evidence.anchor().business()))
+            throw new IllegalArgumentException("Marker startup identity mismatch");
+        if(now<0||!evidence.present()||evidence.capturedMillis()>now||now-evidence.capturedMillis()>60000
+                ||worlds==null||!worlds.contains(evidence.anchor().world()))throw new Declined("Fresh present loaded-world marker required");
+        return transaction(()-> {
+            var markers=new WorkplaceOperations(connection);
+            boolean existing=new BusinessRepository(connection).findBusiness(supplies.business()).isPresent();
+            if(existing) {
+                var saved=markers.matchesSavedAnchor(evidence.anchor());
+                if(!saved)throw new Declined("Existing legacy business cannot acquire a marker requirement through startup replay");
+            }
+            var started=startStockedRows(request,grants,"workshop");
+            new WorkshopStarterSupplies(connection).purchaseRows(supplies,starter,worlds);
+            if(!existing)markers.attachRows(evidence.anchor(),evidence.capturedMillis());
+            return new Workshop(started.founding(),new IndustryRepository(connection).store(supplies.business()).orElseThrow(),started.worker(),started.grant());
+        });
+    }
     /** Same village budget, qualification and transaction as other grants; no free warehouse stock. */
     public Warehouse startWarehouse(WarehouseRequest request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);
         return transaction(()-> {
             var stocked=startStockedRows(new WorkshopRequest(request.founding(),request.capacity(),request.space(),request.capital(),request.worker()),policy,"warehouse");
+            return new Warehouse(stocked.founding(),stocked.store(),stocked.worker(),stocked.grant());
+        });
+    }
+    public Warehouse startMarkerWarehouse(WarehouseRequest request,StartupGrantPolicy policy,Set<UUID> worlds,
+            WorkplaceOperations.Confirmation evidence,long now)throws SQLException {
+        if(!request.founding().business().id().equals(evidence.anchor().business()))throw new IllegalArgumentException("Marker warehouse identity mismatch");
+        if(now<0||!evidence.present()||evidence.capturedMillis()>now||now-evidence.capturedMillis()>60000
+                ||worlds==null||!worlds.contains(evidence.anchor().world()))throw new Declined("Fresh present loaded-world marker required");
+        return transaction(()-> {
+            var markers=new WorkplaceOperations(connection);
+            boolean existing=new BusinessRepository(connection).findBusiness(evidence.anchor().business()).isPresent();
+            if(existing&&!markers.matchesSavedAnchor(evidence.anchor()))throw new Declined("Legacy warehouse cannot acquire marker requirement through startup replay");
+            var stocked=startStockedRows(new WorkshopRequest(request.founding(),request.capacity(),request.space(),request.capital(),request.worker()),policy,"warehouse");
+            if(!existing)markers.attachRows(evidence.anchor(),evidence.capturedMillis());
             return new Warehouse(stocked.founding(),stocked.store(),stocked.worker(),stocked.grant());
         });
     }

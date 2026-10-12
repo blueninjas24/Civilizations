@@ -61,7 +61,11 @@ normal PopulationSession read-only opportunity checks under Paper 26.2-129.
 tables changed. Assets, money, residents and histories were preserved. No forced
 chunks; original settings restored and backups retained. Schema60 unchanged.
 
-Before automatic acceptance/operation, decide what confirmed removal of the
-smithing-table/barrel anchor does to a newly marker-founded business. Recognition
-approval does not define whether the marker remains necessary for production.
-No such operational rule has been implemented here.
+October 12 approved operational rule: newly marker-founded firms pause after a
+confirmed missing/wrong marker and resume after restoration at the same anchor.
+See WORKPLACE_OPERATIONS.md for the explicit startup binding and loaded point checks.
+Qualified founder preparation and automatic acceptance scheduling remain unfinished.
+
+October 12 update: marker removal policy is now approved: pause until restored at
+the saved spot. The explicit marker startup and point-confirmation seams are
+described in WORKPLACE_OPERATIONS.md; automatic founder selection/training remains.

@@ -73,3 +73,7 @@ clock/food-clock timestamps, current farm evidence and ore-trust bookkeeping.
 No calendar month or food period advanced; original business assets, finances,
 residents, skills, courses and history were unchanged. New main-fixture workplace
 tables stayed empty under legacy opt-out. Human server untouched; no push/merge.
+
+October 12 update: marker removal policy is now approved: pause until restored at
+the saved spot. The explicit marker startup and point-confirmation seams are
+described in WORKPLACE_OPERATIONS.md; automatic founder selection/training remains.

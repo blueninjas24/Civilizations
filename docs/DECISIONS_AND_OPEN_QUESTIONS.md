@@ -1,25 +1,22 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October 11: removal of a new workplace marker — decision needed
+## October 12: removal of a new workplace marker — approved
 
-Existing approval permits nearby smithing tables/barrels as provisional workplace
-markers, with configurable recognition, no inventory use, block moves or ownership
-rights. It does not specify operational behavior after confirmed marker removal.
-Before automatic marker-founded workshop/warehouse acceptance, choose whether
-confirmed removal pauses production/trading until the marker is restored at the
-same saved anchor, or whether the saved business keeps operating without it.
+User approved “Pause until restored.” Newly marker-founded workshops and warehouses
+pause production and new trades after an actual loaded-block read confirms their
+saved smithing table/barrel is missing or the wrong kind. Restore the required
+marker at the same saved anchor to resume. Preserve business/site UUIDs, workers,
+money, stocks, paid cargo and history. Unknown/unloaded chunks and absent worlds
+are not removal evidence. Existing downtime/absent-world time policy still applies.
+No closure, relocation, demolition, player property claim, renewed startup grant
+or starter entitlement follows from removal/restoration. Legacy manually founded
+firms acquire no marker requirement through migration or startup replay.
 
-Recommended proposal, not implemented: configurable pause on confirmed removal;
-retain business/site identity, jobs, money, goods, paid cargo and history. Restoration
-uses fresh main-thread evidence; no new startup grant or starter entitlement.
-Unknown/unloaded chunks are not evidence of removal. Absent-world/downtime pause
-continues under the approved time policy. Do not retroactively impose marker
-requirements on legacy manually founded businesses without a reviewed transition.
-Automatic closure, relocation, demolition and property rights are not implied.
-
-This matters to production, real paid investments and upstream customers; AGENTS.md
-requires asking before choosing consequential gameplay rules. Read-only investment
-preparation is fully verified; no removal rule was invented to enable live founding.
+Editable economy.yml `workplace-operations.pause-on-missing` defaults true; restart
+applies edits to existing marker-bound firms without erasing evidence/history.
+The narrow trusted startup seam attaches the requirement in the same transaction
+as the grant/job/paid supply order; this does not yet choose or train founders.
+Implementation and verification are recorded in WORKPLACE_OPERATIONS.md and status.
 
 ## October 11: first workshop starter supply decision — approved
 

@@ -1,5 +1,12 @@
 # Phase 3 — businesses and industry checklist
 
+October12 verified: approved new marker-founded business pause/restoration, atomic
+startup binding, real production/trade guards and retained assets/history. Full
+Wrapper verification: 1,067 tests, zero failures; actual disposable Paper scheduled
+point checks and restart passed. Schema61 migration/retry covered. First founder
+preparation and automatic acceptance remain next; no whole checklist milestone
+has newly completed. See WORKPLACE_OPERATIONS.md.
+
 Verified first-workshop investment preparation: actual farm toolkit need, current
 marker, real shared supply/grant/paid-starter feasibility, bounded read-only owner
 review, no free firms/skills/funds. 1,054 Wrapper tests plus disposable Paper passed;

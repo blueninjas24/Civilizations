@@ -18,6 +18,7 @@ public final class BusinessOperations {
     }
     public Availability evaluate(UUID id)throws SQLException {
         if(BusinessClosure.blocked(connection,id))return new Availability(false,"Closed or unsold deadline expired; assets/history retained");
+        if(WorkplaceOperations.paused(connection,id))return new Availability(false,"Paused: workplace marker missing; restore the same saved anchor; assets/history retained");
         var b=businesses.findBusiness(id).orElseThrow(()->new SQLException("Unknown operating business"));
         var owner=population.findResident(b.ownerId()).orElseThrow(()->new SQLException("Missing business owner"));
         if(owner.status()==Resident.Status.ALIVE&&owner.settlementId().equals(b.settlementId()))

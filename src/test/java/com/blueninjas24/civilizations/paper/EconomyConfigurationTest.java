@@ -371,6 +371,13 @@ class EconomyConfigurationTest {
         assertThrows(UnsupportedOperationException.class,()->recipes.clear());
         config.set("recipes",null);config.createSection("recipes");assertTrue(EconomyConfiguration.readRecipes(config).isEmpty());
     }
+    @Test void markerPauseIsEditableStrictAndDoesNotRequireLegacyConfigChanges()throws Exception {
+        var config=defaults();assertTrue(EconomyConfiguration.readWorkplaceOperations(config).pauseOnMissing());
+        config.set("workplace-operations.pause-on-missing",false);EconomyConfiguration.read(config);
+        assertFalse(EconomyConfiguration.readWorkplaceOperations(config).pauseOnMissing());
+        config.set("workplace-operations.pause-on-missing","true");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        config.set("workplace-operations",null);assertTrue(EconomyConfiguration.readWorkplaceOperations(config).pauseOnMissing());EconomyConfiguration.read(config);
+    }
     private Result scenario(EconomySettings settings) {
         var stocks = new TreeMap<Commodity, Stock>(); settings.startingReserves(4).forEach((commodity, units) -> stocks.put(commodity, new Stock(units, 0)));
         var state = new State(0, stocks); Result result = null;

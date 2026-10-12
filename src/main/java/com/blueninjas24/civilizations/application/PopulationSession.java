@@ -86,6 +86,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.IndustryRuntimePolicy industryPolicy=com.blueninjas24.civilizations.industry.IndustryRuntimePolicy.disabled();
     private com.blueninjas24.civilizations.database.IndustryRuntime industries;
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
+    private com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy workplaceOperationPolicy=com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private com.blueninjas24.civilizations.industry.MineFoundingPolicy mineFoundingPolicy=com.blueninjas24.civilizations.industry.MineFoundingPolicy.disabled();
@@ -194,6 +195,10 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure work learning before session starts");
         learningPolicy=java.util.Objects.requireNonNull(policy);
     }
+    public void configureWorkplaceOperations(com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure marker operation policy before startup");
+        workplaceOperationPolicy=java.util.Objects.requireNonNull(policy);
+    }
     public void configureWorkplaces(com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure workplaces before session starts");workplacePolicy=java.util.Objects.requireNonNull(policy);
     }
@@ -275,6 +280,7 @@ public final class PopulationSession implements AutoCloseable {
             try {
                 loadedWorlds = initial;
                 database.initialize();
+                new com.blueninjas24.civilizations.database.WorkplaceOperations(database.getConnection()).configure(workplaceOperationPolicy);
                 if(trackOres) {
                     var fence=new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection()).begin(now.getAsLong());
                     oreHistoryHealthy.set(fence.trusted() && !oreCaptureGap.get());
@@ -474,6 +480,16 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
 
+    public CompletableFuture<com.blueninjas24.civilizations.database.BusinessOperations.Availability> currentBusinessAvailability(UUID business) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.BusinessOperations(database.getConnection(),operationPolicy).evaluate(business);});
+    }
+    public CompletableFuture<java.util.List<com.blueninjas24.civilizations.database.WorkplaceOperations.Anchor>> workplaceOperationAnchors(UUID after) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.WorkplaceOperations(database.getConnection()).anchors(after,64);});
+    }
+    public CompletableFuture<Void> confirmWorkplaceOperations(java.util.List<com.blueninjas24.civilizations.database.WorkplaceOperations.Confirmation> evidence) {
+        var page=java.util.List.copyOf(evidence);
+        return submit(()->{requireReady();new com.blueninjas24.civilizations.database.WorkplaceOperations(database.getConnection()).confirm(page,now.getAsLong(),loadedWorlds);return null;});
+    }
     public CompletableFuture<Void> observeWorkplaces(UUID town,com.blueninjas24.civilizations.industry.WorkplaceObservation observation) {
         return submit(()->{requireReady();if(!workplacePolicy.enabled())throw new IllegalStateException("Workplace recognition disabled");new com.blueninjas24.civilizations.database.WorkplaceOpportunities(database.getConnection()).observe(town,observation);return null;});
     }

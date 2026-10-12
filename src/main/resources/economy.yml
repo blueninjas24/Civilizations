@@ -533,3 +533,8 @@ workplace-observer:
   interval-ticks: 400
   horizontal-radius-chunks: 1
   markers: [barrel, smithing_table]
+
+# Confirmed removal pauses newly marker-founded businesses. Unloaded blocks are unknown.
+# Set false and restart to allow those firms to operate despite a missing marker.
+workplace-operations:
+  pause-on-missing: true

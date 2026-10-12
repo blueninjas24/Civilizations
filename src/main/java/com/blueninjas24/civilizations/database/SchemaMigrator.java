@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 60;
+    static final int CURRENT_VERSION = 61;
 
     @FunctionalInterface
     interface Migration {
@@ -903,7 +903,8 @@ final class SchemaMigrator {
                         """);
                     execute(connection,"CREATE INDEX active_mine_founders ON mine_founder_courses(settlement_id,course_id)");
                 },
-                SchemaMigrator::createWorkshopStarterSupplies
+                SchemaMigrator::createWorkshopStarterSupplies,
+                SchemaMigrator::createWorkplaceOperations
 
 
         ));
@@ -1062,6 +1063,11 @@ final class SchemaMigrator {
             if(migrations.size()>=50) {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
+            if(migrations.size()>=61){
+                requireColumns(connection,"business_workplace_anchors",Set.of("business_id","world_id","x","y","z","kind","captured_millis","present"));
+                requireColumns(connection,"workplace_operation_history",Set.of("business_id","captured_millis","present"));
+                requireColumns(connection,"workplace_operation_settings",Set.of("singleton","pause_on_missing"));
             }
             if(migrations.size()>=60){
                 requireColumns(connection,"workshop_starter_orders",Set.of("operation_id","business_id","settlement_id","food_period","due_period","price","before_cash","after_cash","terms","policy","delivered_period"));
@@ -1698,6 +1704,29 @@ final class SchemaMigrator {
             )
             """);
         execute(connection,"CREATE INDEX pending_workshop_starters ON workshop_starter_orders(business_id,due_period) WHERE delivered_period IS NULL");
+    }
+    private static void createWorkplaceOperations(Connection connection)throws SQLException {
+        execute(connection,"""
+            CREATE TABLE business_workplace_anchors (
+                business_id TEXT PRIMARY KEY NOT NULL REFERENCES businesses(id),
+                world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                kind TEXT NOT NULL CHECK(kind IN ('BARREL','SMITHING_TABLE')),
+                captured_millis INTEGER NOT NULL CHECK(typeof(captured_millis)='integer' AND captured_millis>=0),
+                present INTEGER NOT NULL CHECK(present IN (0,1)),
+                UNIQUE(world_id,x,y,z)
+            )
+            """);
+        execute(connection,"""
+            CREATE TABLE workplace_operation_history (
+                business_id TEXT NOT NULL REFERENCES business_workplace_anchors(business_id),
+                captured_millis INTEGER NOT NULL CHECK(typeof(captured_millis)='integer' AND captured_millis>=0),
+                present INTEGER NOT NULL CHECK(present IN (0,1)),
+                PRIMARY KEY(business_id,captured_millis)
+            )
+            """);
+        execute(connection,"CREATE TABLE workplace_operation_settings (singleton INTEGER PRIMARY KEY CHECK(singleton=1),pause_on_missing INTEGER NOT NULL CHECK(pause_on_missing IN (0,1)))");
+        execute(connection,"INSERT INTO workplace_operation_settings VALUES(1,1)");
     }
     private static void execute(Connection connection, String sql) throws SQLException {
         try (var statement = connection.createStatement()) {

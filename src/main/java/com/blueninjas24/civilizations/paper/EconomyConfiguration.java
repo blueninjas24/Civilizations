@@ -12,6 +12,7 @@ public final class EconomyConfiguration {
     private EconomyConfiguration() {}
     public static EconomySettings read(ConfigurationSection config) {
         var rootKeys = new HashSet<>(Set.of("format-version", "pace", "food", "shortages", "starting-units-per-resident", "prices"));
+        if (config.contains("workplace-operations")) rootKeys.add("workplace-operations");
         if (config.contains("workplace-observer")) rootKeys.add("workplace-observer");
         if (config.contains("farms")) rootKeys.add("farms");
         if (config.contains("priorities")) rootKeys.add("priorities");
@@ -66,6 +67,7 @@ public final class EconomyConfiguration {
         readStartupGrants(config);
         readMineFounding(config);
         readWorkplaceObserver(config);
+        readWorkplaceOperations(config);
         readAutomaticResale(config);
         readFarms(config);
         readPriorities(config);
@@ -212,6 +214,12 @@ public final class EconomyConfiguration {
         exactKeys(s,Set.of("minimum-retained-business-cash-hundredths","maximum-spare-business-percent","maximum-estate-percent"));
         return new com.blueninjas24.civilizations.industry.BusinessPurchasePolicy(integer(s,"minimum-retained-business-cash-hundredths"),
                 smallInteger(s,"maximum-spare-business-percent"),smallInteger(s,"maximum-estate-percent"));
+    }
+    public static com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy readWorkplaceOperations(ConfigurationSection config) {
+        if(!config.contains("workplace-operations"))return com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();
+        var s=section(config,"workplace-operations");exactKeys(s,Set.of("pause-on-missing"));
+        if(!(s.get("pause-on-missing") instanceof Boolean pause))throw new IllegalArgumentException("workplace-operations.pause-on-missing must be true or false");
+        return new com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy(pause);
     }
     public static com.blueninjas24.civilizations.industry.BusinessOperationPolicy readBusinessOperations(ConfigurationSection config) {
         if(!config.contains("business-operations"))return com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();

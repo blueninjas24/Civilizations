@@ -94,7 +94,7 @@ public final class IndustryRepository {
                 if(r.next()) { if(!terms.equals(r.getString(1)))throw new SQLException("Store opening terms changed; explicit capacity transition required"); return store(business).orElseThrow(); }
             }
         }
-        BusinessClosure.requireOpen(connection,business);
+        BusinessClosure.requireOpen(connection,business);WorkplaceOperations.requirePermitted(connection,business);
         if(capital>0)new TreasuryRepository(connection).postRows(UUID.nameUUIDFromBytes(("civilizations:business-capital:"+business).getBytes(StandardCharsets.UTF_8)),
                 b.settlementId(),-capital,"Business working capital allocation");
         try(var s=connection.prepareStatement("INSERT INTO industry_stores(business_id,capacity,hundredths,terms) VALUES(?,?,?,?)")) {
@@ -147,7 +147,7 @@ public final class IndustryRepository {
         String terms=terms("mine",business,deposit,requested,period,perWorker,siteCapacity);
         var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
         if(!sourceHistoryTrusted(deposit))throw new SQLException("Coordinate-backed mining paused: ore mutation history requires reviewed recovery");
-        BusinessClosure.requireOpen(connection,business);
+        BusinessClosure.requireOpen(connection,business);WorkplaceOperations.requirePermitted(connection,business);
         try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
             s.setString(1,business.toString());try(var r=s.executeQuery()) {
                 if(r.next()) { long last=r.getLong(1);if(!r.wasNull() && period<=last)throw new SQLException("Mining period is stale or already completed"); }
@@ -194,7 +194,7 @@ public final class IndustryRepository {
         String operationTerms=terms("recipe-v1",business,recipe.id(),recipe.industry(),catalog(recipe.inputs()),catalog(recipe.outputs()),
                 recipe.batchesPerWorker(),recipe.siteCapacity(),requested,period);
         if(receipt(operation,operationTerms).isPresent())return recipeRun(operation).orElseThrow(()->new SQLException("Recipe receipt missing run"));
-        BusinessClosure.requireOpen(connection,business);
+        BusinessClosure.requireOpen(connection,business);WorkplaceOperations.requirePermitted(connection,business);
         var b=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown business"));
         if(!b.industry().equals(recipe.industry()))throw new SQLException("Recipe does not match business industry");
         try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
@@ -269,6 +269,7 @@ public final class IndustryRepository {
                 :terms("purchase-clock-v2",seller,buyer,commodity.id(),units,price,period,delay,haulCapacity,haulWindow,haulCadence);
         if(receipt(operation,terms).isPresent())return shipment(operation).orElseThrow();
         BusinessClosure.requireOpen(connection,seller);BusinessClosure.requireOpen(connection,buyer);
+        WorkplaceOperations.requirePermitted(connection,seller);WorkplaceOperations.requirePermitted(connection,buyer);
         var origin=businesses.findBusiness(seller).orElseThrow(()->new SQLException("Unknown seller"));
         var destination=businesses.findBusiness(buyer).orElseThrow(()->new SQLException("Unknown buyer"));
         if(!origin.settlementId().equals(destination.settlementId()))throw new SQLException("Local transport cannot cross settlements; regional routes belong to Phase 5");

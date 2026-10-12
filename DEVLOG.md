@@ -1,5 +1,45 @@
 # Civilizations Development Log
 
+## October 12, 2026: approved fixed-workplace pause and restoration verified
+
+New explicitly marker-founded workshops/warehouses keep a permanent required table/
+barrel anchor. Confirmed removal or wrong block type pauses production and new
+buying/selling; the right marker at the same spot resumes operation. Unknown chunks
+and absent worlds do not invent removal. Jobs, money, stocks, paid cargo, ownership
+and history remain; deliveries already paid for can arrive in a present world.
+No productive receipt means no free learning. Legacy firms acquire no requirement.
+Editable economy.yml pause-on-missing applies on restart without deleting evidence.
+
+Added WorkplaceOperationPolicy, WorkplaceOperations, bounded main-thread
+PaperWorkplaceOperations and SQL-owner APIs. BusinessOperations and direct industry
+production/purchase paths enforce the guard. New trusted marker startup composes
+binding atomically with actual workshop/warehouse grants, founding, staffing and
+paid workshop inputs. Accepted replay never resets pause or refills supplies.
+Schema61 adds two initially empty anchor/history tables plus one setting row;
+versioned transactional migration failure/retry preserves old assets.
+
+Final Windows Wrapper clean verify passed 1,067 tests (1,065 unit + 2 integration),
+zero failures/errors/skips, 5:25. Twelve temporary SQLite cases plus one strict
+configuration case cover state, replay, cargo, both trade endpoints, timed learning,
+SQL-owner/world guards, overrides, rollback and migration recovery. Earlier full run
+also passed; native helper was recompiled against the final packaged artifact.
+Native WorkplaceOperationProbe passed actual scheduled loaded-block reads, removal,
+wrong kind, exact restoration, absent-world guard and owner-session restart. One
+explicit temporary air-block fixture restored exactly, its helper ticket released;
+production performs no block/inventory writes or chunk loading/ticketing.
+
+Disposable Paper stopped normally, zero force-loaded chunks in all dimensions.
+96/103 original save tables unchanged. Seven changes are ordinary clocks/tracking,
+active-world masks, resident age_steps only and farm observed_millis only; identity,
+assets, money and histories unchanged. New main-save anchor/history tables empty;
+SQLite integrity/FK healthy. Exact server properties restored, helper archived and
+all backups retained. Human MinecraftDevServer untouched. No main merge or push.
+Phase3 partial checklist remains about66%; this does not yet finish automatic
+first-owner preparation or first workshop/warehouse selection/acceptance scheduling.
+Next: connect real first-workshop founder preparation and fresh-block acceptance.
+No additional design decision blocks that work. See WORKPLACE_OPERATIONS.md.
+Current branch: codex/phase3-workplace-operation-pause.
+
 ## October 11, 2026: first-workshop investment opportunities verified
 
 A read-only first blacksmith/toolkit review now joins current nearby smithing-table
