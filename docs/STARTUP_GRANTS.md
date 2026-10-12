@@ -3,6 +3,7 @@
 User approval, October 10: qualified first mines/workshops may receive limited
 configurable startup funding from actual village treasury after food protection.
 October 11 approval includes warehouses under the same limits and protection.
+October 12 approval adds logging, fishing, quarry and sandpit under those same caps.
 This is public investment in a privately owned business, not a personal wallet,
 salary, loan or automatic government mechanic.
 
@@ -49,7 +50,7 @@ Missing legacy sections disable new grants. Bundled defaults are experimental:
 | minimum-treasury-hundredths | 2500 | Keep at least 25 Trade Value for village spending |
 | food-reserve-periods | 2 | Food demand periods used to calculate the protected cash buffer |
 | hundredths-per-food-unit | 200 | Conservative estimate of 2 Trade Value per abstract food unit |
-| industries | mining, blacksmith, warehouse | Industry names eligible for this funding source |
+| industries | mining, blacksmith, warehouse, logging, fishing, quarry, sandpit | Industry names eligible for this funding source |
 
 100 hundredths equal 1 Trade Value. Periods are the village's saved food/economic
 period, not calendar years or wall-clock days. Lifetime spending survives closure,
@@ -57,8 +58,8 @@ owner changes, restart and retuning; raising a limit permits only future request
 These caps restrict public spending, not unlimited approved private ownership.
 The backend does not yet fund startup from private business/estate cash.
 
-Existing industry lists are never rewritten: owners adding `warehouse` opt it in
-while stopped. Maximum, period, lifetime and food-protection defaults are unchanged.
+Existing industry lists are never rewritten: owners adding the new industry keys
+opt them in while stopped. Maximum, period, lifetime and food-protection defaults are unchanged.
 Warehouse and mine/workshop receipts count in the same village sums, including
 closed businesses. Replay retains actual stock, funds and original worker episode;
 changed storage/capital terms fail. This extension reuses schema 49 receipts and
@@ -66,8 +67,9 @@ introduced no additional migration in that extension; the current database also
 contains later independently versioned features.
 
 Automatic mines for current observed ore and real existing customers are implemented
-(see AUTOMATIC_MINES.md); first warehouse/workshop founding and first-founder
-career choice remain unfinished. This trusted backend requires its caller to establish actual demand,
+(see AUTOMATIC_MINES.md); first warehouse/workshop founding and gradual first-founder
+training are now verified. Wider producer resource/startup adapters remain
+unfinished. This trusted backend requires its caller to establish actual demand,
 current suitable evidence, qualification requirements and safe site/storage terms.
 It has no public grant command, scheduler, block edits or chunk loading. It does not
 certify synthetic/old ore evidence or bypass provenance guards. Existing explicit
@@ -91,9 +93,26 @@ of suggesting that skill training alone would make the operation possible.
 Historic accepted receipts continue to replay original terms after grant retuning.
 No migration, cash creation, new public command or changed grant defaults.
 
-## Latest verification
+## Earlier affordability verification
 
 Six tests added; focused34 and full Wrapper1,009 passed with no failures/errors/skips.
 Updated native Paper mine probe passed affordability, protected-cash refusal, real
 startup, finite production, world pause and restart. Current schema58 unchanged;
 see PROJECT_STATUS.md for the complete isolation/restoration audit.
+
+## October12 broader producer eligibility
+
+All seven industries use the same persisted village sums, including previous mine,
+workshop and warehouse receipts. No migration or old grant rewrite: schema63 stays
+unchanged. Temporary SQLite tests exercise each new industry against an existing
+mine's period/lifetime spending, food shortage, empty paid capital, late receipt
+failure rollback and restart/disabled-policy replay. These are trusted composition
+tests with explicit fixture sites/owners; they do not certify natural terrain or
+claim automatic forestry/fishing/quarry/sandpit gameplay is implemented.
+
+Verification: 105 focused cases passed. Windows `.\mvnw.cmd clean verify` passed
+1,148 tests (1,146 unit +2 packaged integration), zero failures/errors/skips,
+6:09, October12 at14:13:03. Added final assertions prove new producer receipts
+also reduce later mine budgets; all29 grant tests passed after recompilation
+(14.524s). Application code unchanged after full build. No Paper-facing changes,
+so no additional native run; the human server and databases remain untouched.

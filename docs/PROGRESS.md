@@ -2,6 +2,12 @@
 
 Updated October 12, 2026. Based on verified work, not planned features.
 
+You approved logging, fishing, stone quarries and sand pits sharing the existing
+startup budget. Their funding eligibility is connected, with no extra village
+money or weaker food protection. Their resource and production adapters are still
+unfinished, so the Phase3 checklist counts have not increased. All1,148 tests
+passed, with the final shared-budget assertions also rechecked separately.
+
 Villages can now recognize nearby barrels and smithing tables as possible
 workplaces, while leaving blocks and their contents alone. Saved evidence survives
 restart; removed markers stop being candidates. All 1,138 tests and the disposable

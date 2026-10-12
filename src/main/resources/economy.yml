@@ -77,7 +77,9 @@ startup-grants:
   minimum-treasury-hundredths: 2500
   food-reserve-periods: 2
   hundredths-per-food-unit: 200
-  industries: [mining, blacksmith, warehouse]
+  # All listed industries share the SAME period/lifetime caps above.
+  # Eligibility alone does not create a business or certify resource evidence.
+  industries: [mining, blacksmith, warehouse, logging, fishing, quarry, sandpit]
 
 # Qualified EXISTING employees may keep working after an owner's death while the
 # business awaits succession/resale. No promotion, hiring authority, grants or wages.

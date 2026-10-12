@@ -1,5 +1,30 @@
 # Civilizations Development Log
 
+## October12, 2026 — broader producers share protected startup budgets
+
+Recorded explicit approval to include logging, fishing, quarry and sandpit under
+existing startup-grant limits. Changed StartupGrantPolicy and bundled economy.yml;
+all numeric budgets/food floors remain identical and installed industry lists are
+preserved. No new funds, migration, terrain certificate or automatic producer.
+
+Added eight parameterized temporary SQLite cases covering shared mine/new-producer
+period/lifetime caps, actual empty-store capital, food shortage, late SQL failure
+rollback and restart/disabled replay. Added domain budget/food boundary and installed
+configuration opt-in preservation cases. Updated an old fishing-disabled assertion
+to unapproved bakery.105 focused passed; full Windows Wrapper clean verify passed
+1,148 (1,146 unit +2 packaged integration), zero failures/errors/skips,6:09 at14:13:03.
+After that build, strengthened the reverse-budget assertions to ensure a new
+producer's receipt reduces later mine allowance too; recompiled29 grant tests passed
+at14:13:29,14.524s. No application changes after full build. No Paper-facing change,
+so no additional native run; human server/DB untouched. Schema63 unchanged.
+
+Updated decision/admin/status/progress/checklist documentation. Broad P3 counts
+4/4,27/33,14/15,0/5 (~69% partial) unchanged: granting eligibility does not complete
+new resource/catalog gameplay. Asked the exposed-existing stone/sand baseline
+question before enabling quarry/sandpit discovery. Known placement exclusions,
+fixed coordinate reserves/no refill and no Phase3 block edits remain safeguards.
+Local feature branch codex/phase3-broader-startup-grants; no merge/push/deploy.
+
 ## October12, 2026 — automatic first warehouses and earned merchant startup
 
 Added WarehouseFounderStudy, WarehouseStartupCycle/PaperWarehouseStartup, actual

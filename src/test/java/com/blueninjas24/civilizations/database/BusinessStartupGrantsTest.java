@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BusinessStartupGrantsTest {
@@ -20,6 +22,39 @@ class BusinessStartupGrantsTest {
     MiningStartupRepository.Request request;EconomySettings settings;
     void open()throws Exception{db=new DatabaseManager(directory.toFile(),Logger.getLogger("GrantTest"));db.initialize();}
     BusinessStartupGrants grants(){return new BusinessStartupGrants(db.getConnection());}
+    BusinessStartupGrants.WorkshopRequest producer(String industry,UUID founder,int x,long capital) {
+        var source=mine(founder,x).founding();var b=source.business();
+        var business=new Business(b.id(),town,"Fixture producer",founder,founder,industry,b.siteId(),2,0);
+        var founding=new BusinessFounding(business,source.site(),source.founderRequirements(),source.workerRequirements(),500,"Explicit tested producer opportunity");
+        return new BusinessStartupGrants.WorkshopRequest(founding,100,Map.of(Commodity.TIMBER,1L),capital,founder);
+    }
+    @ParameterizedTest @ValueSource(strings={"logging","fishing","quarry","sandpit"})
+    void broaderProducerSharesMinePeriodLifetimeAndRealCashAfterRestart(String industry)throws Exception {
+        var other=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(other,"Other",town,null,300,Resident.Status.ALIVE));economy.pulse(3000,false);
+        grants().startMine(request,StartupGrantPolicy.prototype());var producer=producer(industry,other,20,4000);
+        assertTrue(assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWorkshop(producer,StartupGrantPolicy.prototype())).getMessage().contains("period"));
+        assertEquals(8500,cash());assertEquals(1,count("startup_grants"));
+        economy.pulse(4000,false);
+        var limited=new StartupGrantPolicy(true,5000,5000,5000,2500,2,200,StartupGrantPolicy.prototype().industries());
+        assertTrue(assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWorkshop(producer,limited)).getMessage().contains("lifetime"));
+        var saved=grants().startWorkshop(producer,StartupGrantPolicy.prototype());
+        assertEquals(4000,cash());assertEquals(4000,saved.store().hundredths());assertTrue(saved.store().units().values().stream().allMatch(n->n==0));
+        assertEquals(2,count("startup_grants"));assertEquals(2,count("business_employment"));
+        assertTrue(grants().preview(town,"mining",501,0,StartupGrantPolicy.prototype()).reason().contains("period"));
+        assertTrue(grants().preview(town,"mining",1,0,limited).reason().contains("lifetime"));
+        db.close();open();assertEquals(saved,grants().startWorkshop(producer,StartupGrantPolicy.disabled()));
+        assertEquals(4000,cash());assertEquals(2,count("startup_grants"));
+    }
+    @ParameterizedTest @ValueSource(strings={"logging","fishing","quarry","sandpit"})
+    void broaderProducerCannotBypassFoodOrPartialTransactionFailure(String industry)throws Exception {
+        var producer=producer(industry,person,20,1000);
+        sql("UPDATE needs_periods SET fulfilled=0");assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWorkshop(producer,StartupGrantPolicy.prototype()));unchanged();
+        sql("UPDATE needs_periods SET fulfilled=demand");
+        sql("CREATE TRIGGER reject_producer_grant BEFORE INSERT ON startup_grants BEGIN SELECT RAISE(ABORT,'fixture failure'); END");
+        assertThrows(SQLException.class,()->grants().startWorkshop(producer,StartupGrantPolicy.prototype()));unchanged();
+        sql("DROP TRIGGER reject_producer_grant");grants().startWorkshop(producer,StartupGrantPolicy.prototype());assertEquals(8500,cash());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+    }
     @BeforeEach void setup()throws Exception {
         open();db.saveSettlement(new Settlement(town,"Grant fixture","Fixture",0,64,0,1,0,0));
         db.getVillageIdentityRepository().observeWorld(world,"Fixture");db.getVillageIdentityRepository().bindSettlement(town,world);
@@ -183,7 +218,7 @@ class BusinessStartupGrantsTest {
     @Test void previewsExplainDisabledIndustryFoodProtectionAndGrantCapsWithoutWrites()throws Exception {
         var before=snapshot();var p=StartupGrantPolicy.prototype();
         assertTrue(grants().preview(town,"warehouse",500,1000,StartupGrantPolicy.disabled()).reason().contains("disabled"));
-        assertFalse(grants().preview(town,"fishing",500,1000,p).eligible());
+        assertFalse(grants().preview(town,"bakery",500,1000,p).eligible());
         assertTrue(grants().preview(town,"warehouse",500,5000,p).reason().contains("single-grant"));
         assertTrue(grants().preview(town,"mining",500,1000,policy(5000,5000,20000,8501)).reason().contains("protected food"));
         assertTrue(grants().preview(town,"mining",500,1000,policy(5000,1499,20000,2500)).reason().contains("period"));

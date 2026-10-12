@@ -13,6 +13,12 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void existingIndustryOptInsArePreservedWithoutAddingBroaderGrants()throws Exception {
+        var config=defaults();config.set("startup-grants.industries",List.of("mining","blacksmith","warehouse"));
+        EconomyConfiguration.read(config);
+        assertEquals(Set.of("mining","blacksmith","warehouse"),EconomyConfiguration.readStartupGrants(config).industries());
+        assertFalse(EconomyConfiguration.readStartupGrants(config).review("logging",10000,2,1000,0,0).eligible());
+    }
     @Test void warehouseFoundingQualificationIsEditableAndLegacyDisabled()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy.prototype(),EconomyConfiguration.readWarehouseFounding(config));
         config.set("warehouse-founding.founder-commerce-experience",20);EconomyConfiguration.read(config);assertEquals(20,EconomyConfiguration.readWarehouseFounding(config).founderExperience());

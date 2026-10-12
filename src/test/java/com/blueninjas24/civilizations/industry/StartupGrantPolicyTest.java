@@ -5,6 +5,17 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StartupGrantPolicyTest {
+    @Test void broaderProducersShareUnchangedCapsAndFoodProtection() {
+        var p=StartupGrantPolicy.prototype();
+        for(var industry:Set.of("logging","fishing","quarry","sandpit")) {
+            assertTrue(p.review(industry,6000,10,2000,0,0).eligible(),industry);
+            assertFalse(p.review(industry,5999,10,2000,0,0).eligible(),industry);
+            assertFalse(p.review(industry,10000,2,1500,4000,4000).eligible(),industry);
+            assertFalse(p.review(industry,10000,2,1500,0,19000).eligible(),industry);
+        }
+        assertEquals(5000,p.maximumGrant());assertEquals(5000,p.perPeriodLimit());
+        assertEquals(20000,p.lifetimeLimit());assertEquals(2500,p.minimumTreasury());
+    }
     @Test void protectsFoodDemandBudgetEvenWhenItExceedsFixedTreasuryFloor() {
         var p=StartupGrantPolicy.prototype();assertEquals(4000,p.review("mining",6000,10,2000,0,0).protectedHundredths());
         assertTrue(p.review("mining",6000,10,2000,0,0).eligible());assertFalse(p.review("mining",5999,10,2000,0,0).eligible());

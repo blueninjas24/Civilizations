@@ -1,12 +1,19 @@
 # Phase 3 — businesses and industry checklist
 
+Verified October12: logging/fishing/quarry/sandpit grant eligibility under unchanged
+shared food-protected limits, preserved installed opt-ins and transactional/restart
+regressions. Full Wrapper1,148 passed plus final29 grant cases. No new resource or
+producer adapter, no migration and no new checklist entry complete; counts unchanged.
+Stone/sand source-baseline decision pending. See STARTUP_GRANTS.md.
+
 Verified October12: ordinary automatic warehouse startup and real first-merchant
 commerce study/current prospect reassessment; schema63 transactional links and
 rollback/retry. 1,138 full Wrapper tests plus final packaged positive Paper startup/
 marker/restart check passed. Current coal/iron/toolkit catalog automatic first
 nonfood founding and bounded founder investment entries now complete. Counts
 4/4,27/33,14/15,0/5 (~69% partial); broader catalogs/competition/specialization remain.
-See AUTOMATIC_WAREHOUSES.md. Wider-industry startup grant decision remains pending.
+See AUTOMATIC_WAREHOUSES.md. Wider-industry startup funding is now approved under
+unchanged shared caps; resource adapters remain unfinished. Counts unchanged.
 
 Verified October12: qualified first-warehouse preparation/current acceptance,
 real protected grant/capital/empty store/job/fixed barrel and atomic rollback/replay.

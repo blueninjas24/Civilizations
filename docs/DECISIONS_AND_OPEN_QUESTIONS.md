@@ -10,21 +10,29 @@ saved course/policy links and normal fresh-barrel acceptance are verified. Unkno
 opportunities wait; another first warehouse taking the opportunity releases the
 unfinished learner. Schema63 preserves identities and old terms/assets/history.
 Ordinary Paper scheduler/SQL timer and marker pause/restart passed. Broader producer
-funding question below remains open, not approved by this implementation. See
+funding was subsequently approved below. See
 AUTOMATIC_WAREHOUSES.md and PROJECT_STATUS for exact limits/results.
 
-## October12: broader industry's first startup funding — awaiting user decision
+## October12: broader industry startup funding — approved
 
-Existing approvals explicitly cover mines/workshops and warehouses sharing the
-same real village grants, caps and food protection. Logging, fishing and finite
-stone/sand extraction are the next Phase3 catalog work; their startup funding has
-not yet been approved. Proposal: include their first businesses under those same
-shared limits, with real money, qualified owners, suitable observed resources and
-actual customers. Do not enlarge the public budget or create funds. Alternative:
-require private business/family-estate funding, which can defer first producers
-in new villages. Asked before extending this consequential economic rule under
-AGENTS.md; current warehouse work continues independently. No new grants or
-broader industry are enabled by this proposal.
+User approved: “Include them in the same protected grant limits.” Logging, fishing,
+finite stone quarries and sand pits join mines/workshops/warehouses in the same
+real village startup-grant budget. No increase in maximum, period or lifetime caps,
+no separate industry allowance and no new funds. Current food/population assessment,
+protected treasury, actual cash, qualifications, suitable resource evidence and
+real customers remain necessary. Stable configuration industry keys are logging,
+fishing, quarry and sandpit. Existing installed lists are preserved; admins opt in
+while stopped. Eligibility is not automatic discovery, production or construction.
+
+## October12: first quarry/sandpit resource baseline — awaiting user decision
+
+Asked whether exposed existing stone/sand may supply finite evidence while recorded
+player placements are excluded, or whether explicit approved extraction areas are
+required. Old block origins cannot be proven; the earlier exposed-existing-ore
+approval specifically covered coal/iron. Proposed fixed per-coordinate reserves,
+no rediscovery refill, configurable eligibility and no Phase3 block changes.
+No new stone/sand discovery or extraction path is enabled pending the answer.
+AGENTS.md requires confirmation before choosing this consequential resource rule.
 
 ## October12: first-warehouse qualification prototype connected
 

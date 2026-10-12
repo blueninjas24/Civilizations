@@ -1,5 +1,25 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026: broader startup grants approved and verified
+
+Logging, fishing, quarry and sandpit now appear in the bundled startup-grant
+industry list and domain prototype. All numeric limits/food protection are unchanged;
+existing installed configuration lists and historic receipts are never rewritten.
+No migration: schema63 unchanged. Wider automatic producers are not implemented
+by this policy change. Focused105 tests passed, including eight new temporary
+SQLite cases plus policy/configuration preservation tests. Full Windows
+.\mvnw.cmd clean verify passed1,148 tests (1,146 unit +2 packaged integration),
+zero failures/errors/skips,6:09 at14:13:03. Final added reverse-budget assertions
+were recompiled and verified with all29 BusinessStartupGrantsTest cases passing
+at14:13:29 (14.524s); application code did not change after the full build.
+The old fishing-disabled assertion now uses unapproved bakery instead.
+No Paper-facing change, so no new native server run; human server/DB untouched.
+
+Phase3 counts remain4/4,27/33,14/15,0/5 (~69% partial). Next resource baseline choice
+for exposed existing stone/sand is awaiting the user; known placements must remain
+excluded, finite sources must never refill and Phase3 must not change blocks.
+Feature branch codex/phase3-broader-startup-grants; human server untouched.
+
 ## October12, 2026: automatic first warehouses and real merchant study verified
 
 Ordinary bounded Paper warehouse startup now polls one SQL preparation/acceptance
@@ -22,8 +42,9 @@ Workshop and warehouse course checks coexist without disabling each other.
 Schema63 transactionally adds two initially empty warehouse review/course-link
 tables and an index. Existing identity/assets/skills/course terms/history survive.
 Failure/retry preserves every old row. Legacy missing optional settings opt out;
-files are not overwritten. Broader industry grants are pending the user's answer,
-not implicitly enabled. See AUTOMATIC_WAREHOUSES.md and WAREHOUSE_INVESTMENT.md.
+files are not overwritten. Broader industry grants were pending at this checkpoint;
+they were subsequently approved in the newer entry above. See
+AUTOMATIC_WAREHOUSES.md and WAREHOUSE_INVESTMENT.md.
 
 Ten temporary SQLite study/cycle cases +four bounded-cycle cases added;48 scoped
 checks passed. Full Windows .\mvnw.cmd clean verify passed1,138 tests (1,136 unit
@@ -51,8 +72,9 @@ investment. Those two scoped checklist entries are complete; broader resource
 catalogs and competition/specialization stay open. Counts4/4,27/33,14/15,0/5 (~69%
 partial), one of four whole gates complete. Not100% or multi-year acceptance.
 Next: forestry/fishing/finite stone/sand and investment comparison/reassessment,
-then multi-seed long-run acceptance. Waiting only on the asked wider-industry grant
-rule before enabling those first startups. No main merge/push/deploy. Feature
+then multi-seed long-run acceptance. The wider-industry grant rule was pending
+at this checkpoint and is now approved;
+resource/production adapters still remain. No main merge/push/deploy. Feature
 branch codex/phase3-automatic-warehouses; only coherent tested local commits.
 
 ## October12, 2026: qualified first-warehouse investment verified
