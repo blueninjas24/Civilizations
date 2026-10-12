@@ -7,6 +7,22 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# Prices and money budgets are hundredths of an emerald. Real owned goods only.
+# Food customers require recorded shortages; materials require active practice needs.
+# Incoming cargo cannot be used before its due food period. Older files opt out.
+village-supply-purchases:
+  enabled: true
+  food-budget-per-period: 2000
+  material-budget-per-period: 1000
+  minimum-treasury: 2500
+  food-reserve-periods: 2
+  delivery-periods: 1
+  haul-units-per-period: 32
+  prices:
+    food: 200
+    stone: 100
+    timber: 150
+
 # One paid recipe bundle for a new publicly funded workshop, not ongoing supply.
 # Uses prices.base-trade-value below. Food is never sold by this rule.
 # Leave this many units of EVERY purchased material for public/training needs.

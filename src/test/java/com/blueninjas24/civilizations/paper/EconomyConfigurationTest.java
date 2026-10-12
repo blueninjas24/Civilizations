@@ -13,6 +13,16 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void villageSupplyBudgetsAreStrictEditableAndOldFilesOptOut()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.VillageSupplyPolicy.prototype(),EconomyConfiguration.readVillageSupplies(config));
+        config.set("village-supply-purchases.prices.timber",175);EconomyConfiguration.read(config);assertEquals(175,EconomyConfiguration.readVillageSupplies(config).prices().get(Commodity.TIMBER));
+        config.set("village-supply-purchases",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readVillageSupplies(config).enabled());
+    }
+    @Test void malformedVillageSpendingRulesFailBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of(0,-1,1.5,"free")){var config=defaults();config.set("village-supply-purchases.prices.food",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));}
+        var config=defaults();config.set("village-supply-purchases.food-budget-per-period",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var invalid=defaults();invalid.set("village-supply-purchases.enabled","yes");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(invalid));
+    }
     @Test void finiteQuarryTermsAreEditableAndLegacySettingsOptOut()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.QuarryPolicy.prototype(),EconomyConfiguration.readQuarryResources(config));
         config.set("quarry-resources.sand.units-per-batch",7);EconomyConfiguration.read(config);assertEquals(7,EconomyConfiguration.readQuarryResources(config).sand().unitsPerBatch());

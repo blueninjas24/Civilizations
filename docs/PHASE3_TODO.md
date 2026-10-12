@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+October12: approved real village food/practice-material customer path connected,
+with real treasury/supplier goods, shared budgets, protected food cash, owned
+delayed imports, normal SQL-owner scheduling and read-only funded demand. Schema65;
+focused114 and full1,181 passed; isolated normal-session arrival/practice/absence/
+restart passed, exact save audit/restoration completed. Broader live industry
+observation/founding/production still incomplete; checklist counts unchanged.
+See VILLAGE_SUPPLY_CUSTOMERS.md. Earlier pending-customer/source notes below are
+historical checkpoints; these decisions have now been approved.
+
 Verified October12: approved stone/sand baseline, bounded pure quarry scan,
 matching real-grant startup and finite non-1:1 coordinate-backed extraction;
 transactional schema64 parent upgrade/FK checks/rollback/retry preserve old assets.

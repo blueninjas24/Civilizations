@@ -19,6 +19,7 @@ public final class EconomyConfiguration {
         if (config.contains("responses")) rootKeys.add("responses");
         if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("quarry-resources")) rootKeys.add("quarry-resources");
+        if (config.contains("village-supply-purchases")) rootKeys.add("village-supply-purchases");
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
@@ -55,6 +56,7 @@ public final class EconomyConfiguration {
         readAdditionalOreEditors(config);
         readIndustryRuntime(config);
         readQuarryResources(config);
+        readVillageSupplies(config);
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
         readWorkshopOpportunities(config);
@@ -491,6 +493,16 @@ public final class EconomyConfiguration {
         exactKeys(s,Set.of("reserve-batches-per-block","units-per-batch","batches-per-worker","site-batch-capacity"));
         return new com.blueninjas24.civilizations.industry.QuarryPolicy.Terms(integer(s,"reserve-batches-per-block"),
             integer(s,"units-per-batch"),integer(s,"batches-per-worker"),integer(s,"site-batch-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.VillageSupplyPolicy readVillageSupplies(ConfigurationSection config) {
+        if(!config.contains("village-supply-purchases"))return com.blueninjas24.civilizations.industry.VillageSupplyPolicy.disabled();
+        var s=section(config,"village-supply-purchases");
+        exactKeys(s,Set.of("enabled","food-budget-per-period","material-budget-per-period","minimum-treasury","food-reserve-periods","delivery-periods","haul-units-per-period","prices"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("village-supply-purchases.enabled must be true or false");
+        var p=section(s,"prices");var prices=new TreeMap<Commodity,Long>();
+        for(var good:p.getKeys(false))prices.put(new Commodity(good),integer(p,good));
+        return new com.blueninjas24.civilizations.industry.VillageSupplyPolicy(enabled,integer(s,"food-budget-per-period"),integer(s,"material-budget-per-period"),
+            integer(s,"minimum-treasury"),Math.toIntExact(integer(s,"food-reserve-periods")),Math.toIntExact(integer(s,"delivery-periods")),integer(s,"haul-units-per-period"),prices);
     }
     public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
         if (!config.contains("ore-provenance")) return List.of();

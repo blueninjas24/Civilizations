@@ -42,17 +42,17 @@ opt out. Persistence/scan seams alone do not enable automatic quarries/pits.
 Future loaded-world observation/placement capture, real customers, qualified
 founders and shared protected funding must be connected before live automation.
 
-## October12: real village customers for food and training — awaiting decision
+## October12: real village customers for food and training — approved
 
-Proposed needs-based purchases from actual local firms using real village cash:
+User approved: “Yes to your decision needed. Keep goimg.” Needs-based purchases from actual local firms using real village cash:
 fishing food supplies actual village food shortages; logging/quarry output supplies
 actual supply-backed training needs. Configurable prices/caps, delivered owned goods
 before use, material purchases protect food funds; food purchases use a separately
 bounded food budget. No fake shopper, wealth creation, automatic disposal or personal
 payroll. Existing player food payments and public farm toolkit purchases do not
 implicitly authorize this broader cash/material transfer. Asked under AGENTS.md
-before connecting the new economic rule. Finite resource persistence continues
-independently; no new public customer/payment is enabled pending the answer.
+before connecting the new economic rule; approval received. Editable numeric
+prototype budgets/prices may be chosen under the existing configuration approval.
 
 ## October12: first-warehouse qualification prototype connected
 

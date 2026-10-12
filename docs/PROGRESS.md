@@ -2,6 +2,12 @@
 
 Updated October 12, 2026. Based on verified work, not planned features.
 
+Approved next step: villages buy real food when hungry and practice materials
+when current trainees need them. Payments use existing village money, with
+editable spending limits; deliveries arrive before use. All 1,181 tests and the
+isolated server check passed, including pause/restart. Broader industry
+recognition/founding still needs work, so milestone counts have not changed.
+
 Stone and sand now have tested finite production foundations: each source holds
 more than one unit, workers extract gradually, and removing one supporting block
 loses only its remaining supply. Restart never refills it. Admins can edit abundance

@@ -101,6 +101,11 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.WorkshopStarterPolicy workshopStarterPolicy=com.blueninjas24.civilizations.industry.WorkshopStarterPolicy.disabled();
     private com.blueninjas24.civilizations.industry.CareerStudyPolicy careerStudyPolicy=com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();
     private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.VillageSupplyPolicy villageSupplyPolicy=com.blueninjas24.civilizations.industry.VillageSupplyPolicy.disabled();
+    public void configureVillageSupplies(com.blueninjas24.civilizations.industry.VillageSupplyPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure village supplies before session starts");
+        villageSupplyPolicy=java.util.Objects.requireNonNull(policy);
+    }
     private com.blueninjas24.civilizations.industry.BusinessStaffingPolicy staffingPolicy=com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessResalePolicy resalePolicy=com.blueninjas24.civilizations.industry.BusinessResalePolicy.disabled();
     private com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy farmToolsPolicy=com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy.disabled();
@@ -329,6 +334,7 @@ public final class PopulationSession implements AutoCloseable {
                     economy.configureFarmTools(farmToolsPolicy,farmToolsBudget,industryPolicy.mining());
                     economy.configureUpkeepContributions(upkeepContributions);
                     economy.configureStudy(studyPolicy);
+                    economy.configureVillageSupplies(villageSupplyPolicy);
                     economy.configureWorkshopFounderStudy(new com.blueninjas24.civilizations.database.WorkshopOpportunities(database.getConnection(),workshopOpportunityPolicy,industryPolicy,
                         operationPolicy,startupGrantPolicy,workshopStarterPolicy,farmToolsPolicy,farmToolsBudget),workshopFoundingPolicy,careerStudyPolicy);
                     economy.configureWarehouseFounderStudy(new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,

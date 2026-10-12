@@ -62,6 +62,12 @@ public final class EconomyRuntimeRepository {
     private final HouseholdWellbeing.Policy wellbeing;
     private final FoodResponses.Settings responses;
     private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.VillageSupplyPolicy villageSupplies=com.blueninjas24.civilizations.industry.VillageSupplyPolicy.disabled();
+    public void configureVillageSupplies(com.blueninjas24.civilizations.industry.VillageSupplyPolicy policy) {
+        if(inUse)throw new IllegalStateException("Configure village supplies before economy use");
+        villageSupplies=Objects.requireNonNull(policy);
+    }
+    private VillageSupplyPurchases villagePurchases(){return new VillageSupplyPurchases(connection,villageSupplies,studyPolicy,farmOperations);}
     private int cursor;
     private Set<UUID> loadedWorlds;
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood) {
@@ -495,6 +501,12 @@ public final class EconomyRuntimeRepository {
         var incoming=deliveries.eligible(town,nextPeriod);
         var flows = new TreeMap<Commodity, Flow>(); account.state().stocks().keySet().forEach(commodity -> flows.put(commodity, Flow.idle()));
         flows.put(Commodity.FOOD, new Flow(output, FoodDeliveryRepository.units(incoming), settings.foodDemand(adults, children), 0, 0, 0, 0));
+        var supplyOrders=villagePurchases();
+        for(var entry:supplyOrders.incomingRows(town,nextPeriod).entrySet()) {
+            var flow=flows.get(entry.getKey());
+            if(flow==null)throw new SQLException("Paid village cargo missing from saved supply catalog");
+            flows.put(entry.getKey(),new Flow(flow.production(),Math.addExact(flow.imports(),entry.getValue()),flow.households(),flow.industry(),flow.construction(),flow.exports(),flow.events()));
+        }
         var study=new ResidentStudy(connection,studyPolicy,adulthood);
         if(mineFounderStudy!=null)study.withFounderOpportunity(course->mineFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds));
         if(workshopFounderStudy!=null||warehouseFounderStudy!=null)study.withFounderPractice(course->{
@@ -516,8 +528,10 @@ public final class EconomyRuntimeRepository {
         var food=period.reports().stream().filter(report->report.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow();
         appeals.save(FoodAppeals.observe(assessment,decisions.latest(town).orElseThrow(),food,appeals.load(town,nextPeriod-1).orElse(null)));
         deliveries.apply(incoming,nextPeriod);
+        supplyOrders.applyRows(town,nextPeriod);
+        if(nextPeriod==clock.anchor().targetSteps())supplyOrders.reviewRows(town,nextPeriod,loadedWorlds);
         if(responses.policy().enabled()) {
-            long pending=Math.addExact(deliveries.pendingUnits(town),Math.addExact(new FoodPurchaseRepository(connection).reservedUnits(town),new FoodBarterRepository(connection).reservedFood(town)));
+            long pending=Math.addExact(supplyOrders.pending(town,Commodity.FOOD),Math.addExact(deliveries.pendingUnits(town),Math.addExact(new FoodPurchaseRepository(connection).reservedUnits(town),new FoodBarterRepository(connection).reservedFood(town))));
             var budget=new TreasuryRepository(connection).load(town).orElse(null);
             new FoodResponseRepository(connection).save(FoodResponses.assess(town,nextPeriod,seed,decisions.latest(town).orElseThrow(),assessment,
                     nextPeriod==clock.anchor().targetSteps(),pending,budget==null?null:budget.hundredths(),period,settings,responses));
@@ -541,7 +555,7 @@ public final class EconomyRuntimeRepository {
                               +new FarmLearning(connection,learningPolicy).explanation(town,account.state().completedPeriods()).map(reason->"; "+reason).orElse("")
                               +farmTools().explanation(town,account.state().completedPeriods()).map(reason->"; "+reason).orElse(""):
                               "Automatic farm businesses disabled; legacy field accounting",
-                      new ResidentStudy(connection,studyPolicy,adulthood).summary(town)));
+                      new ResidentStudy(connection,studyPolicy,adulthood).summary(town)+"; "+villagePurchases().summary(town)));
         }
         return Collections.unmodifiableMap(result);
     }

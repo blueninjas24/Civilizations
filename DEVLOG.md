@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## October12, 2026 — real village supply customer implementation
+
+Recorded public food/training customer approval. Added separate editable budgets,
+food-protected material funding, actual local qualified supplier checks, owned
+delayed cargo and exact receipt identities. Connected automatic current-period
+orders, atomic imports/consumption and food-response incoming commitments through
+the normal SQL owner; read-only demand evidence shares real budgets/cash/hauling.
+Schema65 adds an empty order ledger/index without new assets or rewritten history.
+
+Fourteen new temporary SQLite purchasing/demand tests, two policy tests and two
+configuration tests. Fixed only test catalog/ended-job fixture mistakes; delivery
+rollback assertion now distinguishes the existing separately retained earned clock
+from period effects. The first full run reported70 old-schema fixture errors due
+to the rewind helper retaining the new table; corrected that helper without
+weakening migration checks. Focused114 passed; Windows .\mvnw.cmd clean verify
+passed 1,181 (1,179 unit/two packaged integration), zero failures/errors/skips,
+6:14 at15:38:37 ET. Guarded native normal-session scheduling passed at15:39:21:
+paid materials, actual arrival/practice, conserved money, absent-world pause and
+restart/new-order opt-out. No blocks/entities/chunks changed. Normal shutdown,
+107/110 original main-fixture tables exact; three normal time/ore bookkeeping
+changes, assets/history exact, new public orders empty. Schema65 integrity/FK
+healthy; original properties restored, helper archived, backup retained.
+Human server unchanged, no merge or push.
+
 ## October12, 2026 — finite stone/sand persistence and extraction verified
 
 Recorded approval for existing exposed stone/sand, excluding recorded placements;

@@ -1,5 +1,43 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — approved real village supply customers connected
+
+User approved needs-based public food/training purchases from real local firms.
+Added VillageSupplyPolicy, strict optional economy.yml configuration, SQL-owner
+VillageSupplyPurchases and normal PopulationSession/food-period wiring. Current
+recorded food shortages or active productive/supply-starved courses create need;
+public stocks, player commitments and owned incoming cargo count first. Qualified
+operating local suppliers receive real treasury payments for their actual stock.
+Food/material period budgets are separate; materials preserve assessed food cash.
+Public cargo is owned once, delayed and imported before consumption in one period
+transaction. Current food-response planning includes it; diagnostics show orders.
+Read-only funded demand shares real cash/caps/hauling without reserving money or
+inventing a business. New supplier founding remains a separate next milestone.
+
+Schema65 adds one empty audit/cargo table and index; retains all old assets and
+history. Exact retry terms, unrelated payment-ID refusal, restart, absence,
+backlog, cancelled course, late payment/arrival failure and migration recovery
+have dedicated temporary SQLite coverage. Missing old configuration opts out;
+disabled new orders still deliver owned old cargo. No human server deployment,
+world edit, merge or push. See VILLAGE_SUPPLY_CUSTOMERS.md for prototype terms.
+
+Verification: Windows .\mvnw.cmd clean verify passed 1,181 tests (1,179 unit/two
+packaged integration), zero failures/errors/skips, 6:14 at15:38:37 ET. Focused114
+passed. Guarded isolated Paper normal-session test passed at15:39:21: real paid
+practice goods, conserved money, owned arrivals/consumption, absence pause and
+restart with new orders disabled. No world operations. Normal shutdown; main
+fixture107/110 old tables unchanged, three normal clock/ore bookkeeping changes;
+old identity/assets/cash/history exact, new public orders empty under old config.
+Schema65 integrity/FK healthy; exact properties restored, helper archived, backups
+retained. The first full run exposed70 historical-schema fixture errors:
+the rewind helper left the new table present. Corrected that helper, preserving
+strict application migration guards; final full verification passed.
+
+Roadmap counts remain1/4 whole Phase3 groups/~69% partial: this customer seam does
+not complete automatic broader industries or their live acceptance. Next: resource
+observation/provenance, suitable sites, qualified founders and actual timed output
+for logging/fishing/quarries, using genuine funded village demand.
+
 ## October12, 2026 — finite stone/sand persistence and extraction verified
 
 Recorded approval for existing exposed stone/sand, excluding recorded placements;

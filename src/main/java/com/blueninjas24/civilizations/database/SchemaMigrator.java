@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 64;
+    static final int CURRENT_VERSION = 65;
 
     @FunctionalInterface
     interface Migration {
@@ -907,7 +907,8 @@ final class SchemaMigrator {
                 SchemaMigrator::createWorkplaceOperations,
                 SchemaMigrator::createWorkshopFounderStudy,
                 SchemaMigrator::createWarehouseFounderStudy,
-                SchemaMigrator::extendFiniteResourceKinds
+                SchemaMigrator::extendFiniteResourceKinds,
+                SchemaMigrator::createVillageSupplyOrders
 
 
         ));
@@ -1162,6 +1163,25 @@ final class SchemaMigrator {
         if(restoreForeignKeys)execute(connection,"PRAGMA foreign_keys=ON");
     }
 
+    static void createVillageSupplyOrders(Connection connection)throws SQLException {
+        execute(connection,"""
+            CREATE TABLE village_supply_orders (
+                operation_id TEXT PRIMARY KEY NOT NULL REFERENCES treasury_entries(operation_id),
+                settlement_id TEXT NOT NULL REFERENCES economy_runtime(settlement_id),
+                seller_id TEXT NOT NULL REFERENCES businesses(id),
+                commodity TEXT NOT NULL CHECK(length(trim(commodity)) BETWEEN 1 AND 64),
+                units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>0),
+                price INTEGER NOT NULL CHECK(typeof(price)='integer' AND price>0),
+                period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>0),
+                due_period INTEGER NOT NULL CHECK(typeof(due_period)='integer' AND due_period>period),
+                applied_period INTEGER CHECK(applied_period IS NULL OR (typeof(applied_period)='integer' AND applied_period>=due_period)),
+                policy TEXT NOT NULL,
+                FOREIGN KEY(settlement_id,period) REFERENCES needs_periods(settlement_id,period),
+                FOREIGN KEY(settlement_id,applied_period) REFERENCES needs_periods(settlement_id,period)
+            )
+            """);
+        execute(connection,"CREATE INDEX pending_village_supplies ON village_supply_orders(settlement_id,due_period) WHERE applied_period IS NULL");
+    }
     static void extendFiniteResourceKinds(Connection connection)throws SQLException {
         execute(connection,"""
             CREATE TABLE mineral_discovery_v64 (
