@@ -1,5 +1,13 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11: approved farm upkeep now drives warehouse restocking
+
+Existing public farm equipment approval now supplies genuine local customer
+pressure. Actual productive wear/current food proof and protected funds precede
+warehouse orders; existing goods/cargo cover needs. No new revenue rule, taxes,
+prices, reserves, fake customers or funding reservations. See
+PUBLIC_FARM_INDUSTRY_DEMAND.md. First warehouse/workshop founders remain next.
+
 ## October 11: approved gradual training connected to first mining founders
 
 The existing approval now supports a verified narrow mining-founder adapter: real

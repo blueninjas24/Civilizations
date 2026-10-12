@@ -790,3 +790,16 @@ not a physical piston/explosion-engine or human client test. Re-run the separate
 IndustryRuntimeProbe alongside it for prior application regression checks. Back up
 the stopped fixture before deployment, stop normally, verify schema 47/integrity/FKs
 and old assets/history, restore exact properties and archive both test JARs.
+
+
+October 11 public farm demand verification: FarmWarehouseProbe now includes a
+separate synthetic save for the paid producer-to-warehouse-to-public-farm chain.
+Compile independently against the packaged JAR with an empty sourcepath; never
+ship the helper. It uses actual PopulationSession owners, real cash and one
+explicit fixture toolkit, repeated pulses, absent-world restart and fresh farm
+evidence on return. It retains prior farm upkeep/contribution/upstream checks.
+Use only the marked no-player localhost fixture on25578; back up the stopped
+DB/JAR/properties and snapshot every old table before launch. Stop normally,
+compare assets/history versus ordinary clock changes, restore exact original
+properties and archive the helper. Current schema59;1,027 Wrapper tests and
+this native run passed. No real server files were changed.

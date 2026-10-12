@@ -1,5 +1,12 @@
 # Phase 3 — businesses and industry checklist
 
+Verified public farm upstream equipment demand: actual work/current food proof,
+real protected cash, owned/incoming kit guards, shared once-counted stock, bounded
+review and paid producer-to-warehouse-to-farm delivery/use. Eight new tests;
+1,027 total + disposable Paper passed. Schema59 unchanged. This narrows the real
+customer gap; first nonfood founding/wider recipes still remain. See
+PUBLIC_FARM_INDUSTRY_DEMAND.md.
+
 Verified first mining founder training for current fundable real opportunities,
 future-only actual practice materials, cancellation, qualification and atomic
 startup. Schema59;1,019 tests and native Paper passed. Other first founders and
