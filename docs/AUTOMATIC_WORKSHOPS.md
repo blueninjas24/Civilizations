@@ -21,8 +21,9 @@ control feasibility. No new configuration or migration is introduced; schema61 i
 unchanged. Cadence is one pass each second, with separate SQL/point/acceptance passes.
 Different towns share that bounded rotating review rather than parallel SQL jobs.
 
-This batch connects already-qualified owners. Automatic first-workshop founder
-training remains separate next work. It does not grant existing villagers skills,
+Follow-up WORKSHOP_FOUNDER_TRAINING.md connects opportunity-backed gradual study.
+The automatic review can enroll a real future-only course; read-only preparation
+stays read-only. It does not grant existing villagers free skills,
 found warehouses, build premises, or claim completion of Phase3 specialization.
 
 Validation: 1,085 full Wrapper tests passed, zero failures/errors/skips; actual

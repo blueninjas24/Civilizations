@@ -1,5 +1,47 @@
 # Civilizations — implementation status and handoff
 
+## October 12, 2026: automatic supply-backed first-workshop owner training verified
+
+Ordinary scheduled workshop reviews can now sponsor one eligible unemployed adult
+for a real viable first-workshop opportunity, using saved smithing courses and
+actual practice goods in future food periods. No skills, firm, funds, site rights
+or goods are created at enrollment. Existing editable study/career/qualification
+limits apply; food and material reserves take priority. Saved rotating reviews,
+course/marker links and future eligibility survive restart. Current opportunity
+is rechecked each period: unknown/stale/disabled/unfunded/lost demand pauses study;
+a different blacksmith taking the first opportunity releases the learner through
+cancellation. Existing learning/history remains. Qualified graduates flow through
+normal Paper point evidence and atomic paid startup; read-only preparation stays
+read-only. Automatic diagnostics now explain disabled recognition, population
+backlog and economy failures separately.
+
+Added WorkshopFounderStudy, SQL-owner automatic review and economy practice wiring.
+Schema62 adds empty review/course link tables and index with transactional upgrade.
+Ten temporary SQLite cases cover gradual real spending/qualification/startup,
+unknown/missing/funds pauses and restoration, earned-backlog exclusion, transaction
+rollback/retry, absence/restart, disabled settings, insufficient targets/supplies,
+taken opportunity, migration failure/recovery and actual PopulationSession calls.
+86 targeted tests passed; final Windows .\mvnw.cmd clean verify passed 1,095 tests
+(1,093 unit + 2 integration), zero failures/errors/skips, 5:42. Initial test fixture
+food/population/seed mismatches were corrected without relaxing app safeguards.
+
+Native WorkshopInvestmentProbe passed with an initially unskilled adult: ten real
+two-material practice periods through normal SQL timer, automatic loaded-table
+review/paid startup, marker removal/wrong-kind/restoration and absence/restart.
+Real synthetic working-farm customer and explicit fixture funds/supplies; no seeded
+skills. Conserved money/jobs/cargo/history, temporary air block restored and helper
+ticket released. Disposable Paper stopped normally; zero force-loaded chunks.
+99/106 prior main-save tables unchanged; seven normal clock/tracking/world masks,
+resident age_steps and farm capture timestamp/completeness changes only. A normal
+farm scan completed from0 to1; crops/location/world unchanged. New schema62 tables
+empty; integrity/FK healthy, exact properties restored, helper archived/backups kept.
+Human MinecraftDevServer untouched. No main merge or push.
+
+Phase3 remains about66% partial checklist: this closes the first-workshop training
+connection, not the broader nonfood founding/specialization gate. Next: current
+first-warehouse opportunities and real merchant startup/training. No new question
+blocks that scoped work. See WORKSHOP_FOUNDER_TRAINING.md and AUTOMATIC_WORKSHOPS.md.
+
 ## October 12, 2026: scheduled first-workshop startup verified
 
 Normal Paper startup now runs bounded rotating first-workshop reviews for towns

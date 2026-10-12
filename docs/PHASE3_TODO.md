@@ -1,5 +1,11 @@
 # Phase 3 — businesses and industry checklist
 
+Verified October12: automatic first-workshop owner study using real future-period
+practice supplies, current opportunity pause/reassessment and normal paid startup.
+1,095 full Wrapper tests plus unskilled-owner normal timer/automatic Paper startup
+passed; schema62 transactional migration verified. First warehouses and broader
+industries remain; broad counts unchanged. See WORKSHOP_FOUNDER_TRAINING.md.
+
 Verified October12: ordinary scheduled first-workshop startup for genuinely qualified
 owners, one pending SQL task/loaded point per pass, real protected paid startup,
 no duplicate investment. 1,085 Wrapper tests and actual scheduled Paper passed.

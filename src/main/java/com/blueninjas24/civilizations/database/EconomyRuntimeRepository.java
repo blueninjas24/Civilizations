@@ -150,6 +150,22 @@ public final class EconomyRuntimeRepository {
         studyPolicy=Objects.requireNonNull(policy);
     }
     private MineFounderStudy mineFounderStudy;
+    private WorkshopFounderStudy workshopFounderStudy;
+    public void configureWorkshopFounderStudy(WorkshopOpportunities opportunities,com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy founding,
+            com.blueninjas24.civilizations.industry.CareerStudyPolicy careers) {
+        if(inUse)throw new IllegalStateException("Configure workshop founder study before economy use");
+        workshopFounderStudy=new WorkshopFounderStudy(connection,opportunities,founding,careers,studyPolicy,adulthood);
+    }
+    public String reviewWorkshopFounderStudy(UUID town,long now)throws SQLException {
+        return transaction(()-> {
+            if(workshopFounderStudy==null)return "Workshop founder study not configured";
+            if(!hasRuntime(town)||!active(town))return "Workshop founder study waits for present-world food economy";
+            long period=commodities.read(town).orElseThrow().state().completedPeriods();
+            if(period==0)return "Workshop founder study waits for first food assessment";
+            accrue(town,now,false);
+            return workshopFounderStudy.reviewRows(town,now,loadedWorlds,period,clock(town).anchor().targetSteps());
+        });
+    }
     public void configureMineFounderStudy(AutomaticMineFounding mines,com.blueninjas24.civilizations.industry.CareerStudyPolicy careers,
                                          com.blueninjas24.civilizations.industry.MineFoundingPolicy founding) {
         if(inUse)throw new IllegalStateException("Configure mine founder study before economy use");
@@ -465,6 +481,7 @@ public final class EconomyRuntimeRepository {
         flows.put(Commodity.FOOD, new Flow(output, FoodDeliveryRepository.units(incoming), settings.foodDemand(adults, children), 0, 0, 0, 0));
         var study=new ResidentStudy(connection,studyPolicy,adulthood);
         if(mineFounderStudy!=null)study.withFounderOpportunity(course->mineFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds));
+        if(workshopFounderStudy!=null)study.withFounderPractice(course->workshopFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds));
         var studyPlan=study.planRows(town,nextPeriod,account.state(),flows,farmBusinesses.enabled()||output==0);
         var period = commodities.advanceRows(town, nextPeriod, studyPlan.flows(), settings.shortages());
         farmTools().finishRows(town,nextPeriod,toolWork,period.reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().production());

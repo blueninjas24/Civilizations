@@ -40,8 +40,8 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
         upkeep=new FarmToolUpkeepPolicy(true,1,2,50,8);var budget=FarmToolBudgetPolicy.prototype();
         starter=new WorkshopStarterPolicy(true,1,4000,2,Map.of(Commodity.IRON,1200L,Commodity.COAL,600L));
         var bands=new EnumMap<Condition,Integer>(Condition.class);for(var c:Condition.values())bands.put(c,100);
-        settings=new EconomySettings(1,3,2,2,1,4,100,new Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,12L,Commodity.IRON,10L,Commodity.COAL,10L),
-            Map.of(Commodity.FOOD,BigDecimal.valueOf(2),Commodity.IRON,BigDecimal.valueOf(12),Commodity.COAL,BigDecimal.valueOf(6)),bands);
+        settings=new EconomySettings(1,3,2,2,1,4,100,new Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,100L,Commodity.IRON,10L,Commodity.COAL,10L,Commodity.STONE,10L,Commodity.TIMBER,10L),
+            Map.of(Commodity.FOOD,BigDecimal.valueOf(2),Commodity.IRON,BigDecimal.valueOf(12),Commodity.COAL,BigDecimal.valueOf(6),Commodity.STONE,BigDecimal.valueOf(2),Commodity.TIMBER,BigDecimal.valueOf(4)),bands);
         var db=new DatabaseManager(folder,getLogger());
         try {
             db.initialize();db.saveSettlement(new Settlement(town,"Workshop prospect fixture","Fixture",0,y,0,2,0,0));
@@ -55,7 +55,6 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
             economy.startOnline(1000,Set.of(world));economy.pulse(2000,false);economy.pulse(3000,false);
             new WorkplaceOpportunities(db.getConnection()).observe(town,new WorkplaceObservation(world,0,0,System.currentTimeMillis(),true,List.of(
                 new WorkplaceObservation.Marker(new com.blueninjas24.civilizations.settlement.VillageObservation.Position(4,y,4),WorkplaceObservation.Kind.SMITHING_TABLE))));
-            db.getPopulationRepository().recordSkillExperience(prospect,"smithing",10); // Explicit test-fixture qualification, not plugin-awarded experience.
         }finally{db.close();}
         var mining=new IndustryPolicy(150,8,32,1024,1,128,Map.of(Commodity.COAL,1L,Commodity.STONE,3L),Map.of(Commodity.COAL,1L,Commodity.STONE,1L,Commodity.IRON,1L,ToolUpkeepPolicy.TOOLS,1L));
         var recipe=ProductionRecipe.smithTools();industry=new IndustryRuntimePolicy(true,1000,8,mining,Map.of(recipe.id(),recipe),new WorkshopSupplyPolicy(true,1,16,starter.prices()));
@@ -65,6 +64,7 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
         var session=new PopulationSession(folder.toFile(),getLogger(),population,System::currentTimeMillis,settings,FarmObservation.Policy.prototype());
         session.configureFarmBusinesses(new FarmBusinessPolicy(true,1,0,216,0));session.configureFarmTools(upkeep,FarmToolBudgetPolicy.prototype());session.configureWorkLearning(WorkLearningPolicy.prototype());
         session.configureBusinessOperations(BusinessOperationPolicy.prototype());session.configureIndustryRuntime(industry);session.configureWorkplaces(WorkplaceObserverPolicy.prototype());
+        session.configureStudy(StudyPolicy.prototype());session.configureCareerStudy(CareerStudyPolicy.prototype());
         session.configureWorkshopOpportunities(WorkshopOpportunityPolicy.prototype(),starter);session.configureWorkshopFounding(WorkshopFoundingPolicy.prototype());session.configureMineFounding(MineFoundingPolicy.disabled(),StartupGrantPolicy.prototype());
         return session;
     }
@@ -84,16 +84,13 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
             CompletableFuture<Void> startup=CompletableFuture.runAsync(()->{try{setup(id);}catch(Exception failure){throw new CompletionException(failure);}},executor);
             new BukkitRunnable() {
                 CompletableFuture<?> pending=startup;CompletableFuture<BusinessOperations.Availability> availability;
-                int ticks,stage,waitUntil;CompletableFuture<WorkshopInvestment.Preparation> prepared;
+                int ticks,stage,waitUntil;
                 public void run(){try {
                     if(++ticks>800)throw new IllegalStateException("Workplace operation probe timeout");
                     if(pending!=null){if(!pending.isDone())return;pending.join();pending=null;}
-                    if(stage==0){session=owner();pending=session.start(false,Set.of(id));stage=1;return;}
+                    if(stage==0){session=owner();pending=session.start(true,Set.of(id));stage=1;return;}
                     if(stage==1) {
-                        prepared=session.prepareWorkshopInvestment(town);stage=10;return;
-                    }
-                    if(stage==10) {
-                        if(!prepared.isDone())return;var result=prepared.join();var draft=result.draft().orElseThrow(()->new IllegalStateException(result.explanation()));business=draft.anchor().business();
+                        business=UUID.nameUUIDFromBytes(("civilizations:first-workshop-business-v1:"+town+":"+id+":4:"+y+":4").getBytes(java.nio.charset.StandardCharsets.UTF_8));
                         startupObserver=new com.blueninjas24.civilizations.paper.PaperWorkshopStartup(session,getLogger());startupObserver.runTaskTimer(WorkshopInvestmentProbe.this,1,1);stage=11;return;
                     }
                     if(stage==11){if(scalar("SELECT COUNT(*) FROM business_workplace_anchors")==0)return;startupObserver.cancel();startupObserver=null;observer=new PaperWorkplaceOperations(session,getLogger());observer.runTaskTimer(WorkshopInvestmentProbe.this,1,1);world.getBlockAt(4,y,4).setType(Material.AIR,false);stage=2;return;}
@@ -108,11 +105,12 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
                     if(stage==8){require(!permitted,"Restart erased marker pause");world.getBlockAt(4,y,4).setType(Material.SMITHING_TABLE,false);observer=new PaperWorkplaceOperations(session,getLogger());observer.runTaskTimer(WorkshopInvestmentProbe.this,1,1);pending=session.updateLoadedWorlds(Set.of(id));stage=9;return;}
                     if(!permitted)return;
                     require(scalar("SELECT COUNT(*) FROM business_workplace_anchors")==1&&scalar("SELECT COUNT(*) FROM workplace_operation_history")==5,"Anchor/history not retained");
-                    require(scalar("SELECT hundredths FROM treasuries")==28500&&scalar("SELECT hundredths FROM industry_stores WHERE business_id='"+business+"'")==1000,"Marker changes lost real money");
-                    require(scalar("SELECT COUNT(*) FROM business_employment WHERE ended_step IS NULL")==2&&scalar("SELECT COUNT(*) FROM workshop_starter_orders WHERE delivered_period IS NULL")==1,"Marker changes lost workers or cargo");
+                    require(scalar("SELECT hundredths FROM treasuries")+scalar("SELECT hundredths FROM industry_stores WHERE business_id='"+business+"'")==29500,"Training/startup/marker changes lost real money");
+                    require(scalar("SELECT COUNT(*) FROM business_employment WHERE ended_step IS NULL")==2&&scalar("SELECT COUNT(*) FROM workshop_starter_orders")==1,"Marker changes lost workers or cargo");
+                    require(scalar("SELECT COUNT(*) FROM resident_courses WHERE status='COMPLETED'")==1&&scalar("SELECT COUNT(*) FROM study_spending")==20,"First owner did not earn ten actual two-material practice periods");
                     observer.cancel();observer=null;world.getBlockAt(4,y,4).setBlockData(original,false);placed=false;
                     require(world.getBlockAt(4,y,4).getBlockData().getAsString().equals(original.getAsString()),"Temporary block not exactly restored");
-                    getLogger().info("NATIVE WORKSHOP INVESTMENT PASS: qualified-owner SQL preparation, actual loaded table proof, atomic paid startup for synthetic working-farm customer; scheduled removed/wrong/restored marker, absence/restart, conserved money/jobs/cargo/history; temporary block restored");
+                    getLogger().info("NATIVE WORKSHOP INVESTMENT PASS: unskilled fixture adult earned ten supply-backed practice periods through normal SQL timer, automatic Paper review/table proof/paid startup for real farm customer; scheduled marker lifecycle, absence/restart, conserved money/jobs/cargo/history; temporary block restored");
                     cancel();getServer().getPluginManager().disablePlugin(WorkshopInvestmentProbe.this);
                 }catch(Exception failure){cancel();getLogger().log(java.util.logging.Level.SEVERE,"NATIVE WORKSHOP INVESTMENT FAIL",failure);getServer().getPluginManager().disablePlugin(WorkshopInvestmentProbe.this);}}
             }.runTaskTimer(this,1,1);

@@ -319,6 +319,8 @@ public final class PopulationSession implements AutoCloseable {
                     economy.configureFarmTools(farmToolsPolicy,farmToolsBudget,industryPolicy.mining());
                     economy.configureUpkeepContributions(upkeepContributions);
                     economy.configureStudy(studyPolicy);
+                    economy.configureWorkshopFounderStudy(new com.blueninjas24.civilizations.database.WorkshopOpportunities(database.getConnection(),workshopOpportunityPolicy,industryPolicy,
+                        operationPolicy,startupGrantPolicy,workshopStarterPolicy,farmToolsPolicy,farmToolsBudget),workshopFoundingPolicy,careerStudyPolicy);
                     economy.configureMineFounderStudy(automaticMines,careerStudyPolicy,mineFoundingPolicy);
                     businesses.configureCareerStudy(economy,careerStudyPolicy);
                     economy.configureWorkLearning(learningPolicy);
@@ -531,6 +533,20 @@ public final class PopulationSession implements AutoCloseable {
             if(!workplacePolicy.enabled()||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE))
                 return new com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation(java.util.Optional.empty(),"Smithing workplace recognition disabled");
             return workshopInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);
+        });
+    }
+    /** Automatic review may sponsor one real future-only course; read-only preparation remains separate. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation> reviewAutomaticWorkshopInvestment(UUID town) {
+        return submit(()-> {
+            requireReady();
+            String waiting=economy==null?"Food economy disabled":economyFailure!=null?"Food economy deferred: "+economyFailure
+                    :status.get().remainingMonths()>0?"Population backlog must finish":!workplacePolicy.enabled()
+                    ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE)?"Smithing workplace recognition disabled":null;
+            if(waiting!=null)return new com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation(java.util.Optional.empty(),"Automatic workshop waits: "+waiting);
+            var result=workshopInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);
+            if(result.draft().isPresent())return result;
+            String training=economy.reviewWorkshopFounderStudy(town,now.getAsLong());
+            return new com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation(java.util.Optional.empty(),result.explanation()+"; "+training);
         });
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessStartupGrants.Workshop> acceptWorkshopInvestment(

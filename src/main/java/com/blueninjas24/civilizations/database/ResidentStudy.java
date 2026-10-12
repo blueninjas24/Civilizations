@@ -22,6 +22,10 @@ public final class ResidentStudy {
     @FunctionalInterface interface OpportunityCheck {boolean available(UUID course)throws SQLException;}
     private OpportunityCheck founderOpportunity=course->true;
     ResidentStudy withFounderOpportunity(OpportunityCheck check){founderOpportunity=Objects.requireNonNull(check);return this;}
+    enum FounderState {READY,WAIT,CANCEL}
+    @FunctionalInterface interface FounderCheck {FounderState state(UUID course)throws SQLException;}
+    private FounderCheck founderPractice=course->FounderState.READY;
+    ResidentStudy withFounderPractice(FounderCheck check){founderPractice=Objects.requireNonNull(check);return this;}
     public ResidentStudy(Connection connection,StudyPolicy policy,long adulthood) {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);this.adulthood=adulthood;
         if(adulthood<1)throw new IllegalArgumentException("Invalid study adulthood");
@@ -65,10 +69,13 @@ public final class ResidentStudy {
             if(period<=course.eligibleAfter())continue;
             long experience=experience(course.resident(),course.skill()),after=experience;String status="ACTIVE",reason;
             var person=new PopulationRepository(connection).findResident(course.resident()).orElseThrow();
+            var founderState=founderPractice.state(course.id());
             if(!eligible(person,town)){status="CANCELLED";reason="Resident no longer a living local unemployed adult";}
             else if(!AutomaticCareerStudy.opportunityAvailable(connection,course.id())){status="CANCELLED";reason="Linked business vacancy no longer available; practice supplies retained";}
             else if(!founderOpportunity.available(course.id())){status="CANCELLED";reason="Linked mining founder opportunity no longer viable; practice supplies retained";}
             else if(experience>=course.target()){status="COMPLETED";reason="Target already reached; no supplies spent";}
+            else if(founderState==FounderState.CANCEL){status="CANCELLED";reason="First-workshop opportunity already taken; practice supplies retained";}
+            else if(founderState==FounderState.WAIT)reason="First-workshop opportunity unavailable or unknown; study paused, supplies retained";
             else if(!policy.enabled()||!policy.skills().containsKey(course.skill()))reason="Study disabled; supplies retained";
             else if(!laborAvailable)reason="Legacy field output counts all adults; study deferred to avoid double labor";
             else if(!foodSafe)reason="Food needs/reserve take priority; study paused";

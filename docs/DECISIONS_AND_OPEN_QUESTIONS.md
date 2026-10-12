@@ -1,5 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October12: approved first-workshop training direction connected
+
+Existing approval for gradual supply-backed unemployed-adult training now applies
+to actual viable first-workshop prospects. Existing resident-study/career-study and
+workshop-founding settings supply all numeric prototype terms; no new gameplay
+rate, free skill or funding rule. Unknown/stale/unavailable opportunities pause
+practice and retain courses; another blacksmith taking the first-firm opportunity
+releases the learner. New schema62 link/audit tables retain course identity. Normal
+Paper scheduling and actual SQL timer verified; warehouses remain next. See
+WORKSHOP_FOUNDER_TRAINING.md and PROJECT_STATUS for exact scope/results.
+
 ## October 12: first-workshop qualification prototype — implemented application path
 
 Under the approved editable economy/training direction, the narrow first-toolkit
