@@ -10,8 +10,12 @@ import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.EquipmentSlot;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OrePlacementTrackerTest {
@@ -27,6 +31,48 @@ class OrePlacementTrackerTest {
     }
     private static BlockPlaceEvent placed(Block block,boolean canBuild) {
         return new BlockPlaceEvent(block,null,block,null,null,canBuild,EquipmentSlot.HAND);
+    }
+    private static BlockData data(Material material) {
+        return (BlockData)Proxy.newProxyInstance(BlockData.class.getClassLoader(),new Class<?>[]{BlockData.class},(p,m,a)->{
+            if(m.getName().equals("getMaterial"))return material;throw new AssertionError(m.getName());
+        });
+    }
+    @ParameterizedTest @EnumSource(value=Material.class,names={"STONE","DEEPSLATE","SAND","RED_SAND"})
+    void finiteQuarryBlocksCapturePlacementsLossesAndConservativePistonDestinations(Material material) {
+        var placed=new AtomicReference<Collection<Position>>();var removed=new AtomicReference<Collection<Position>>();
+        var tracker=new OrePlacementTracker((w,n,p,r,t,reason)->{placed.set(p);removed.set(r);return CompletableFuture.completedFuture(0);},r->fail(r),Logger.getLogger("QuarryMutationTest"));
+        var source=block(material,3);tracker.onPlace(placed(source,true));assertEquals(List.of(new Position(3,-60,-1)),placed.get());assertTrue(removed.get().isEmpty());
+        tracker.onBreak(new BlockBreakEvent(source,null));assertTrue(placed.get().isEmpty());assertEquals(List.of(new Position(3,-60,-1)),removed.get());
+        tracker.onExtend(new BlockPistonExtendEvent(block(Material.PISTON,2),List.of(source),BlockFace.EAST));
+        assertEquals(Set.of(new Position(2,-60,-1),new Position(3,-60,-1),new Position(4,-60,-1)),new HashSet<>(placed.get()));
+        assertEquals(List.of(new Position(3,-60,-1)),removed.get());
+    }
+    @Test void fallingSandAndOtherEntityMovesLoseOriginAndExcludeNewDestination() {
+        var placed=new AtomicReference<Collection<Position>>();var removed=new AtomicReference<Collection<Position>>();
+        var tracker=new OrePlacementTracker((w,n,p,r,t,reason)->{placed.set(p);removed.set(r);return CompletableFuture.completedFuture(0);},r->fail(r),Logger.getLogger("EntitySourceTest"));
+        tracker.onEntityChange(new EntityChangeBlockEvent(null,block(Material.SAND,1),data(Material.AIR)));
+        assertTrue(placed.get().isEmpty());assertEquals(List.of(new Position(1,-60,-1)),removed.get());
+        tracker.onEntityChange(new EntityChangeBlockEvent(null,block(Material.AIR,4),data(Material.SAND)));
+        assertEquals(List.of(new Position(4,-60,-1)),placed.get());assertTrue(removed.get().isEmpty());
+        tracker.onEntityChange(new EntityChangeBlockEvent(null,block(Material.STONE,4),data(Material.RED_SAND)));
+        assertEquals(placed.get(),removed.get());assertThrows(UnsupportedOperationException.class,()->placed.get().clear());
+        placed.set(null);var cancelled=new EntityChangeBlockEvent(null,block(Material.AIR,5),data(Material.SAND));cancelled.setCancelled(true);tracker.onEntityChange(cancelled);
+        tracker.onEntityChange(new EntityChangeBlockEvent(null,block(Material.STONE,5),data(Material.STONE)));assertNull(placed.get());
+    }
+    @Test void generatedStoneCannotBecomeANewNaturalReserveAndCancelledFormationDoesNothing() {
+        var placed=new AtomicReference<Collection<Position>>();
+        var tracker=new OrePlacementTracker((w,n,p,r,t,reason)->{assertTrue(r.isEmpty());placed.set(p);return CompletableFuture.completedFuture(0);},r->fail(r),Logger.getLogger("GeneratedStoneTest"));
+        var state=(BlockState)Proxy.newProxyInstance(BlockState.class.getClassLoader(),new Class<?>[]{BlockState.class},(p,m,a)->{
+            if(m.getName().equals("getType"))return Material.STONE;throw new AssertionError(m.getName());
+        });
+        var event=new BlockFormEvent(block(Material.LAVA,7),state);tracker.onForm(event);assertEquals(List.of(new Position(7,-60,-1)),placed.get());
+        placed.set(null);event.setCancelled(true);tracker.onForm(event);assertNull(placed.get());
+    }
+    @Test void entityMutationSaveFailuresFenceResourcesWithoutCancellingPhysics() {
+        var issue=new AtomicReference<String>();var saved=new CompletableFuture<Integer>();
+        var tracker=new OrePlacementTracker((w,n,p,r,t,reason)->saved,issue::set,Logger.getLogger("EntityMutationFailureTest"));
+        var event=new EntityChangeBlockEvent(null,block(Material.SAND,1),data(Material.AIR));tracker.onEntityChange(event);assertTrue(tracker.diagnostic().contains("pending: 1"));
+        saved.completeExceptionally(new IllegalStateException("Injected failed source loss"));assertNotNull(issue.get());assertFalse(event.isCancelled());assertTrue(tracker.diagnostic().contains("pending: 0"));
     }
     @Test void successfulPlacementCapturesOnlyImmutableCoordinatesAndExpandedOreCatalog() {
         var captured=new AtomicReference<Collection<Position>>();
@@ -45,7 +91,7 @@ class OrePlacementTrackerTest {
     @Test void cancelledForbiddenAndNonOrePlacementsDoNotQueueWrites() {
         var tracker=new OrePlacementTracker((w,n,p,removed,t,reason)-> {throw new AssertionError("Unexpected write");},r->fail(r),Logger.getLogger("PlacementTrackerTest"));
         var cancelled=placed(block(Material.COAL_ORE,0),true);cancelled.setCancelled(true);tracker.onPlace(cancelled);
-        tracker.onPlace(placed(block(Material.COAL_ORE,0),false));tracker.onPlace(placed(block(Material.STONE,0),true));
+        tracker.onPlace(placed(block(Material.COAL_ORE,0),false));tracker.onPlace(placed(block(Material.DIRT,0),true));
     }
     @Test void multiPlacementDeduplicatesCurrentOreBlocksRatherThanOldAirStates() {
         var ore=block(Material.IRON_ORE,0);var state=(BlockState)Proxy.newProxyInstance(BlockState.class.getClassLoader(),
@@ -92,7 +138,7 @@ class OrePlacementTrackerTest {
         var piston=block(Material.PISTON,0);var ore=block(Material.COAL_ORE,1);
         var extend=new BlockPistonExtendEvent(piston,List.of(ore),BlockFace.EAST);extend.setCancelled(true);tracker.onExtend(extend);
         var retract=new BlockPistonRetractEvent(piston,List.of(ore),BlockFace.EAST);retract.setCancelled(true);tracker.onRetract(retract);
-        tracker.onExtend(new BlockPistonExtendEvent(piston,List.of(block(Material.STONE,1)),BlockFace.UP));
+        tracker.onExtend(new BlockPistonExtendEvent(piston,List.of(block(Material.DIRT,1)),BlockFace.UP));
         tracker.onRetract(new BlockPistonRetractEvent(piston,List.of(),BlockFace.WEST));
     }
     @Test void overlappingMovedOresDeduplicateAndKeepBounds() {
@@ -118,18 +164,18 @@ class OrePlacementTrackerTest {
         future.completeExceptionally(new IllegalStateException("injected"));
         assertNotNull(issue.get());assertFalse(event.isCancelled());assertTrue(tracker.diagnostic().contains("pending: 0"));
     }
-    @Test void breakQueuesOnlyActualOreOriginAndCancelledOrStoneBreaksDoNothing() {
+    @Test void breakQueuesOnlyActualSourceOriginAndCancelledOrDirtBreaksDoNothing() {
         var removed=new AtomicReference<Collection<Position>>();
         var tracker=new OrePlacementTracker((w,n,p,r,t,reason)->{assertTrue(p.isEmpty());removed.set(r);return CompletableFuture.completedFuture(0);},r->fail(r),Logger.getLogger("BreakTrackerTest"));
         tracker.onBreak(new BlockBreakEvent(block(Material.DIAMOND_ORE,7),null));
         assertEquals(List.of(new Position(7,-60,-1)),removed.get());assertThrows(UnsupportedOperationException.class,()->removed.get().clear());
         removed.set(null);var cancelled=new BlockBreakEvent(block(Material.COAL_ORE,8),null);cancelled.setCancelled(true);tracker.onBreak(cancelled);
-        tracker.onBreak(new BlockBreakEvent(block(Material.STONE,9),null));assertNull(removed.get());
+        tracker.onBreak(new BlockBreakEvent(block(Material.DIRT,9),null));assertNull(removed.get());
     }
     @Test void destructiveExplosionsUseFinalDeduplicatedListAndNonDestructiveOrCancelledEventsDoNothing() {
         var removed=new AtomicReference<Collection<Position>>();
         var tracker=new OrePlacementTracker((w,n,p,r,t,reason)->{assertTrue(p.isEmpty());removed.set(r);return CompletableFuture.completedFuture(0);},r->fail(r),Logger.getLogger("ExplosionTrackerTest"));
-        var ore=block(Material.COAL_ORE,2);var list=new ArrayList<>(List.of(ore,ore,block(Material.STONE,3)));
+        var ore=block(Material.COAL_ORE,2);var list=new ArrayList<>(List.of(ore,ore,block(Material.DIRT,3)));
         tracker.onBlockExplosion(new BlockExplodeEvent(block(Material.TNT,0),null,list,1,ExplosionResult.DESTROY));
         assertEquals(List.of(new Position(2,-60,-1)),removed.get());
         removed.set(null);var keep=new BlockExplodeEvent(ore,null,list,1,ExplosionResult.KEEP);tracker.onBlockExplosion(keep);

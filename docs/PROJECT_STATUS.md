@@ -1,5 +1,35 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — native stone/sand provenance and source-loss safety verified
+
+OrePlacementTracker now captures raw stone/deepslate/sand/red sand placement,
+break/piston/explosion, entity changes and new formation through its existing
+bounded immutable-coordinate/atomic SQL seam. Confirmed removal retires only the
+original remaining share; moved/generated destinations cannot create fresh
+reserves. Cancelled/unchanged events do nothing; queue/save failures retain the
+existing fail-closed fence. PaperOreSource has explicit quarry snapshot mode;
+default coal/iron scanning is unchanged. No automatic quarry observer/founder,
+new extraction timer or construction was enabled. Old origins remain unknowable.
+
+Eight new adapter tests; focused33 passed. Windows .\mvnw.cmd clean verify passed
+1,189 (1,187 unit/two packaged integration), zero failures/errors/skips, 6:16 at
+15:53:56 ET. Guarded native synthetic handler/real-block/snapshot probe passed at
+15:56:20: reserve54 ->36 ->18 ->0, extracted6 retained, moved/generated coordinates
+excluded, three temporary blocks restored and fixture ticket released. Normal
+shutdown. The first probe omitted FK enablement on its read-only check connection;
+the application correctly rejected it. Corrected only the probe and reran after
+normal restoration/audit, with separate fresh backups. Final main-save107/111
+tables exact; four normal clock/farm-freshness/ore bookkeeping changes, all old
+identity/assets/cash/history exact; schema65 integrity/FK healthy. Properties
+restored byte-exact, helper archived, both backups retained. Human server untouched.
+
+Same Phase3 milestone counts:1/4 complete groups/~69% partial; source safeguards
+do not finish broader live industries. Next: coherent current quarry evidence,
+founder/consumer/operation wiring and renewable industries. Asked whether fishing
+uses habitat-backed saved fish supplies with gradual recovery/temporary depletion;
+that consequential resource rule remains pending, with no fish recovery enabled.
+See FINITE_QUARRIES.md and DECISIONS_AND_OPEN_QUESTIONS.md.
+
 ## October12, 2026 — approved real village supply customers connected
 
 User approved needs-based public food/training purchases from real local firms.

@@ -8,6 +8,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PaperOreSourceTest {
+    @Test void optionalQuarrySnapshotRecognizesNaturalStoneAndSandWhileDefaultOreModeStaysUnchanged() {
+        var type=new AtomicReference<>(Material.STONE);
+        var snapshot=(ChunkSnapshot)Proxy.newProxyInstance(ChunkSnapshot.class.getClassLoader(),new Class<?>[]{ChunkSnapshot.class},(p,m,a)->type.get());
+        var quarry=PaperOreSource.quarries(snapshot,-64,320);var ore=new PaperOreSource(snapshot,-64,320);
+        for(var material:java.util.List.of(Material.STONE,Material.DEEPSLATE)){type.set(material);assertEquals(OreScan.Kind.STONE,quarry.kind(4,64,5));assertEquals(OreScan.Kind.SOLID,ore.kind(4,64,5));}
+        for(var material:java.util.List.of(Material.SAND,Material.RED_SAND)){type.set(material);assertEquals(OreScan.Kind.SAND,quarry.kind(4,64,5));assertEquals(OreScan.Kind.SOLID,ore.kind(4,64,5));}
+        type.set(Material.COBBLESTONE);assertEquals(OreScan.Kind.SOLID,quarry.kind(4,64,5));
+        assertEquals(OreScan.Kind.UNKNOWN,quarry.kind(-1,64,5));
+    }
     @Test void snapshotUsesAbsoluteNegativeYAndRecognizesBothOreVariants() {
         var material = new AtomicReference<>(Material.COAL_ORE);
         var snapshot = (ChunkSnapshot)Proxy.newProxyInstance(ChunkSnapshot.class.getClassLoader(),

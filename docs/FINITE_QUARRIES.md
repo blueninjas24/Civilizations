@@ -5,6 +5,32 @@ excluding recorded player placements. Minecraft cannot prove old block origins.
 These are abstract finite deposits, not one item per physical block. Phase3 does
 not dig, move blocks or grant rights over buildings.
 
+## October12: native finite-source provenance connected
+
+Existing bounded OrePlacementTracker now includes raw STONE, DEEPSLATE, SAND and
+RED_SAND in native placement/break/piston/explosion capture. Entity block changes
+(including falling or carried sand) retire confirmed original shares and exclude
+new destinations; newly formed stone is excluded from natural discovery, so a
+generator cannot create fresh quarry reserves. Cancelled/unchanged events do
+nothing. Existing immutable coordinate transfer, atomic SQL mutation, pending
+queue cap and fail-closed gap protection are retained. No reserve is transferred
+or refilled by movement; other coordinates and extracted goods remain unchanged.
+This extends the existing coordinate-bound removal/no-refill rule, not physical
+quarry development. Old block origins still cannot be proven retrospectively.
+
+PaperOreSource.quarries supplies an explicit immutable snapshot mode for raw
+stone/deepslate and sand/red sand; default coal/iron behavior stays unchanged.
+This classifier is not a live scheduled quarry survey or startup. Automatic
+observation still needs known neighbor coverage, bounded current family-specific
+evidence, real customer/site/founder checks and timed orchestration.
+
+Eight new adapter tests; focused33 and full1,189 Wrapper tests passed. Guarded
+native real-block/snapshot and synthetic event-handler checks proved share loss,
+moved/generated exclusions and preserved extracted stock. Three temporary blocks
+were restored exactly and the fixture ticket released; normal shutdown and save
+audit passed. This does not claim real piston/falling-block physics simulation or
+automatic resource opportunity selection. See PROJECT_STATUS for exact results.
+
 The trusted `MiningStartupRepository`/`BusinessStartupGrants.startMine` composition
 now accepts matching quarry/stone and sandpit/sand requests, as well as existing
 mining/coal/iron. Startup needs the normal actual food assessment, protected
@@ -43,7 +69,8 @@ spread over work periods and limited storage. Numbers are prototype settings;
 abundance and work speed differ from prices. Saved deposit reserves/yields survive
 retuning. The policy supplies terms to future orchestration; trusted explicit
 startup/production APIs still take explicit terms. No automatic quarry scheduler
-or live stone/sand placement tracker is connected by this backend batch.
+was connected by the initial backend batch. Native placement/source-loss coverage
+was subsequently added as described above; automatic quarry scheduling remains absent.
 
 ## Migration and verification
 
@@ -62,8 +89,8 @@ tests cover scan bounds, exclusion, unknown/overflow, unchanged ore mode and sep
 labor/storage/abundance. Configuration tests cover edits, legacy opt-out and strict
 errors. Exact full verification is recorded in PROJECT_STATUS/DEVLOG.
 
-Next: live main-thread loaded snapshots, complete bounded survey persistence and
-native placement/removal coverage (including falling sand), then current-fact
+Next: scheduled main-thread loaded snapshots and complete bounded survey persistence,
+then current-fact
 qualified automatic startup for genuinely funded customers. Household/public
 material customers require the separate needs-based purchasing decision. No
 warehouse catalog rewrite, fictional shoppers, physical digging or forced chunks.

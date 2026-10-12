@@ -2,6 +2,13 @@
 
 Updated October 12, 2026. Based on verified work, not planned features.
 
+Stone/sand safeguards now recognize player placements, removal and movement,
+including falling sand and newly generated stone. They prevent fresh-resource
+duplication and preserve goods already extracted. All 1,189 tests and the isolated
+Paper block/snapshot check passed. Automatic broader industries remain incomplete,
+so milestone percentages are unchanged. Fishing recovery is the next pending
+gameplay choice. Your playable server has not been changed.
+
 Approved next step: villages buy real food when hungry and practice materials
 when current trainees need them. Payments use existing village money, with
 editable spending limits; deliveries arrive before use. All 1,181 tests and the

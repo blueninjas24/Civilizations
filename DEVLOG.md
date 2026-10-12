@@ -1,5 +1,26 @@
 # Civilizations Development Log
 
+## October12, 2026 — native quarry source safeguards verified
+
+Extended existing bounded native mutation capture to raw stone/deepslate and
+sand/red sand. Breaks/pistons/explosions and entity source changes retire only
+confirmed original coordinate shares; moved or newly formed destinations remain
+excluded from natural discovery. Added explicit quarry snapshot classification,
+preserving old coal/iron mode. Eight new adapter tests; no migration beyond65.
+Automatic quarry surveying/founding/timed orchestration remain next.
+
+Focused33 passed; Windows .\mvnw.cmd clean verify passed1,189 (1,187 unit/two
+packaged integration), zero failures/errors/skips, 6:16 at15:53:56 ET. Native
+synthetic event-entry/real Paper block/snapshot test passed at15:56:20:54 ->36 ->18
+->0 remaining shares, extracted6 retained, moved/generated exclusions, exact three
+temporary block restoration and ticket release. First trial's read-only checking
+connection omitted FK enablement and correctly failed the application guard;
+fixed only that probe, restored/audited and retried with fresh backups. Normal
+shutdown, final main-save107/111 tables exact, four normal clock/farm freshness/ore
+changes; identity/assets/cash/history exact, schema65 integrity/FK healthy.
+Original properties restored, helper archived, backups retained. Human server
+unchanged. Fishing recovery decision asked; no new fishing resource rule enabled.
+
 ## October12, 2026 — real village supply customer implementation
 
 Recorded public food/training customer approval. Added separate editable budgets,

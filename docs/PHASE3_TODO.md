@@ -1,5 +1,13 @@
 # Phase 3 — businesses and industry checklist
 
+October12 verified: native stone/deepslate/sand/red-sand placement/removal/movement
+and formation safeguards, bounded SQL mutation queue and explicit quarry snapshot
+classification. Eight new tests; focused33/full1,189 passed. Native real-block/
+snapshot and synthetic event-handler proof passed; extracted stock preserved,
+exact temporary block restoration/ticket release, main save audited. Schema65
+unchanged. Current quarry surveys/opportunities/founding/runtime remain open;
+no whole checklist milestone completed. Fishing supply recovery decision pending.
+
 October12: approved real village food/practice-material customer path connected,
 with real treasury/supplier goods, shared budgets, protected food cash, owned
 delayed imports, normal SQL-owner scheduling and read-only funded demand. Schema65;
