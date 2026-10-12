@@ -1,5 +1,30 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11: first workshop starter supply decision — pending
+
+Current code has a bootstrap dependency: WorkshopSupplies buys real inputs only
+from existing warehouse stock; WarehouseSupplies buys existing producer output;
+AutomaticMineFounding requires a staffed funded warehouse and actual existing
+workshop demand. A new village has no private producer, warehouse or workshop.
+The tested connected chain explicitly seeds these businesses; it does not solve
+automatic first founding. Public startup grants supply money, not raw materials.
+
+Proposed rule, awaiting user approval: permit a limited one-time purchase of actual
+surplus village starter materials by a newly founded workshop, using that firm's
+real grant-funded capital. Goods leave the saved public commodity reserve and
+payment returns to the village treasury. Use configurable prices, purchase caps
+and protected material reserves; preserve food and training supplies. No invented
+stock, free tools, hidden ore, personal wallets or new money. Normal qualification,
+workplace evidence and food-protected shared grant checks remain mandatory.
+This is starter support, not an unlimited ongoing public supplier that bypasses
+mines or warehouses. Delivery/ownership/storage and replay must be accounted for
+and tested before enabling the rule. Existing files must explicitly opt in.
+
+If village materials must remain separate, an alternative first-industry investment
+rule needs approval; do not silently weaken the current actual-customer checks.
+No application code, database, server files or canonical roadmap changed while
+this decision is pending. Last full verification remains 1,028 passing tests.
+
 ## October 11: approved farm upkeep now drives warehouse restocking
 
 Existing public farm equipment approval now supplies genuine local customer
