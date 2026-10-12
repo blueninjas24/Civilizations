@@ -24,6 +24,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("workshop-starter-supplies")) rootKeys.add("workshop-starter-supplies");
+        if (config.contains("workshop-opportunities")) rootKeys.add("workshop-opportunities");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-tools")) rootKeys.add("business-tools");
         if (config.contains("upkeep-contributions")) rootKeys.add("upkeep-contributions");
@@ -50,6 +51,7 @@ public final class EconomyConfiguration {
         readIndustryRuntime(config);
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
+        readWorkshopOpportunities(config);
         readWarehouseSupply(config);
         readToolUpkeep(config);
         readBusinessStaffing(config);
@@ -434,6 +436,14 @@ public final class EconomyConfiguration {
         }
         return new com.blueninjas24.civilizations.industry.WorkshopStarterPolicy(enabled,smallInteger(supply,"maximum-recipe-batches"),
             integer(supply,"maximum-purchase-hundredths"),integer(supply,"protected-units-per-material"),values);
+    }
+    public static com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy readWorkshopOpportunities(ConfigurationSection config) {
+        if(!config.contains("workshop-opportunities"))return com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy.disabled();
+        var s=section(config,"workshop-opportunities");
+        exactKeys(s,Set.of("enabled","markers-per-review","evidence-lifetime-millis","horizontal-range","vertical-range","startup-hundredths","capital-hundredths","storage-capacity"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("workshop-opportunities.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy(enabled,smallInteger(s,"markers-per-review"),integer(s,"evidence-lifetime-millis"),
+            smallInteger(s,"horizontal-range"),smallInteger(s,"vertical-range"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),integer(s,"storage-capacity"));
     }
     public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
         if (!config.contains("ore-provenance")) return List.of();

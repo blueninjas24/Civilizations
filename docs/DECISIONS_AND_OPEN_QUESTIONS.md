@@ -1,5 +1,26 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 11: removal of a new workplace marker — decision needed
+
+Existing approval permits nearby smithing tables/barrels as provisional workplace
+markers, with configurable recognition, no inventory use, block moves or ownership
+rights. It does not specify operational behavior after confirmed marker removal.
+Before automatic marker-founded workshop/warehouse acceptance, choose whether
+confirmed removal pauses production/trading until the marker is restored at the
+same saved anchor, or whether the saved business keeps operating without it.
+
+Recommended proposal, not implemented: configurable pause on confirmed removal;
+retain business/site identity, jobs, money, goods, paid cargo and history. Restoration
+uses fresh main-thread evidence; no new startup grant or starter entitlement.
+Unknown/unloaded chunks are not evidence of removal. Absent-world/downtime pause
+continues under the approved time policy. Do not retroactively impose marker
+requirements on legacy manually founded businesses without a reviewed transition.
+Automatic closure, relocation, demolition and property rights are not implied.
+
+This matters to production, real paid investments and upstream customers; AGENTS.md
+requires asking before choosing consequential gameplay rules. Read-only investment
+preparation is fully verified; no removal rule was invented to enable live founding.
+
 ## October 11: first workshop starter supply decision — approved
 
 Current code has a bootstrap dependency: WorkshopSupplies buys real inputs only

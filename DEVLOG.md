@@ -1,5 +1,39 @@
 # Civilizations Development Log
 
+## October 11, 2026: first-workshop investment opportunities verified
+
+A read-only first blacksmith/toolkit review now joins current nearby smithing-table
+markers, actual productive farm replacement demand, shared existing warehouse
+stock, current food-protected real grant affordability, complete storage and the
+approved paid surplus bundle. Existing workshop identities, stale/partial/future/
+absent evidence, changed population, budgets and missing materials defer. Repeated
+reviews do not spend, reserve, found, hire or award skills. Acceptance and planning
+share WorkshopStarterPlan rather than separate surplus/price/storage calculations.
+
+Added WorkshopOpportunities, WorkshopOpportunityPolicy and WorkshopStarterPlan;
+connected strict optional economy.yml settings, startup configuration and the
+normal PopulationSession SQL-owner read API. Updated the purchase seam to use the
+shared calculation. Nine temporary SQLite cases plus two configuration cases
+cover real evidence, denial/no-write conditions and restart/world guards.
+Final Wrapper clean verify passed 1,054 tests (1,052 unit + 2 integration), zero
+failures/errors/skips, 5:40. Updated disposable Paper probe passed both the earlier
+paid starter case and actual SQL-owner opportunity review: current synthetic
+marker, real working farm/customer, affordable surplus, repeated reads and world
+pause, no spending/founding/free skill. Stopped normally; all dimensions have zero
+forced chunks. 100/103 original fixture tables unchanged; only civilization_time,
+economy_runtime and ore_tracking changed. Assets, money, residents and histories
+unchanged; exact properties restored and helper archived. All backups retained.
+
+Schema60 unchanged. This is trusted read-only preparation, not automatic first
+workshop/warehouse founding, completed skill training, a player command or current
+block acceptance. Qualified founder preparation and Paper revalidation remain
+next. Need the operational rule for confirmed removal of a new workplace marker
+before enabling that live lifecycle. No rule has been silently chosen. Wider
+industries/specialization remain; partial checklist stays about66%, one whole
+Phase3 group complete. No human-server or main/push changes. See
+WORKSHOP_OPPORTUNITIES.md. Current branch:
+codex/phase3-first-workshop-opportunities.
+
 ## October 11, 2026: approved paid workshop starter supplies
 
 A new publicly funded workshop can buy one real recipe bundle from village

@@ -13,6 +13,15 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void workshopOpportunityPrototypeIsEditableAndLegacyDisabled()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy.prototype(),EconomyConfiguration.readWorkshopOpportunities(config));
+        config.set("workshop-opportunities.capital-hundredths",3500);EconomyConfiguration.read(config);assertEquals(3500,EconomyConfiguration.readWorkshopOpportunities(config).capitalHundredths());
+        config.set("workshop-opportunities",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readWorkshopOpportunities(config).enabled());
+    }
+    @Test void malformedWorkshopOpportunityBudgetsFailBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of(0,65,1.5,"many")) {var config=defaults();config.set("workshop-opportunities.markers-per-review",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));}
+        var config=defaults();config.set("workshop-opportunities.extra",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     @Test void starterSupplyDefaultsAreEditablePricesReusedAndLegacyDisabled()throws Exception {
         var config=defaults();var policy=EconomyConfiguration.readWorkshopStarterSupplies(config);
         assertTrue(policy.enabled());assertEquals(1,policy.maximumBatches());assertEquals(4000,policy.maximumHundredths());assertEquals(2,policy.reserveUnits());assertFalse(policy.prices().containsKey(Commodity.FOOD));

@@ -1,5 +1,12 @@
 # Phase 3 — businesses and industry checklist
 
+Verified first-workshop investment preparation: actual farm toolkit need, current
+marker, real shared supply/grant/paid-starter feasibility, bounded read-only owner
+review, no free firms/skills/funds. 1,054 Wrapper tests plus disposable Paper passed;
+schema60 unchanged. Actual founder preparation/current-block acceptance and marker
+removal policy remain; automatic nonfood founding stays incomplete. See
+WORKSHOP_OPPORTUNITIES.md.
+
 Verified approved one-time paid workshop starter surplus: real stock/cash, protected
 reserves, atomic grant/startup/purchase, reserved delayed cargo, replay and sale
 value. 1,043 Wrapper tests plus disposable Paper passed; schema60 adds empty audit

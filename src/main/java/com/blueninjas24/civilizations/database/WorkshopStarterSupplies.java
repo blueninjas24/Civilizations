@@ -64,16 +64,10 @@ public final class WorkshopStarterSupplies {
         }
         var store=new IndustryRepository(connection).store(business.id()).orElseThrow();
         if(store.reservedIncomingSpace()!=0||store.units().values().stream().anyMatch(v->v!=0))throw new SQLException("Starter purchase requires newly empty workshop");
-        var goods=new TreeMap<Commodity,Long>();long price=0,weight=0,haul=0;
-        for(var input:new TreeMap<>(request.recipe().inputs()).entrySet()) {
-            var good=input.getKey();Long unitPrice=policy.prices().get(good),unitWeight=store.spacePerUnit().get(good);
-            if(good.equals(Commodity.FOOD)||unitPrice==null||unitWeight==null)throw new SQLException("Starter material unpriced, forbidden or absent from store catalog");
-            long units=Math.multiplyExact(input.getValue(),request.batches());goods.put(good,units);
-            var stock=account.state().stocks().get(good);
-            if(stock==null||stock.units()<Math.addExact(units,policy.reserveUnits()))throw new SQLException("Insufficient real surplus after protected material reserve");
-            price=Math.addExact(price,Math.multiplyExact(units,unitPrice));weight=Math.addExact(weight,Math.multiplyExact(units,unitWeight));haul=Math.addExact(haul,units);
-        }
-        if(price>policy.maximumHundredths()||price>store.hundredths()||weight>store.freeSpace()||haul>request.haulCapacity())throw new SQLException("Starter money, storage or haul limit exceeded");
+        var stockUnits=new TreeMap<Commodity,Long>();account.state().stocks().forEach((good,stock)->stockUnits.put(good,stock.units()));
+        var plan=WorkshopStarterPlan.review(request.recipe(),request.batches(),policy,store.hundredths(),store.freeSpace(),request.haulCapacity(),stockUnits,store.spacePerUnit());
+        if(!plan.eligible())throw new SQLException(plan.explanation());
+        var goods=plan.goods();long price=plan.price();
         try(var s=connection.prepareStatement("UPDATE industry_stores SET hundredths=? WHERE business_id=? AND hundredths=?")) {
             s.setLong(1,store.hundredths()-price);s.setString(2,business.id().toString());s.setLong(3,store.hundredths());if(s.executeUpdate()!=1)throw new SQLException("Starter capital changed");
         }

@@ -93,6 +93,8 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.database.AutomaticMineFounding automaticMines;
     private volatile String automaticMineDiagnostic="Automatic mine founding disabled";
     private com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy workplacePolicy=com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy workshopOpportunityPolicy=com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.WorkshopStarterPolicy workshopStarterPolicy=com.blueninjas24.civilizations.industry.WorkshopStarterPolicy.disabled();
     private com.blueninjas24.civilizations.industry.CareerStudyPolicy careerStudyPolicy=com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();
     private com.blueninjas24.civilizations.industry.StudyPolicy studyPolicy=com.blueninjas24.civilizations.industry.StudyPolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessStaffingPolicy staffingPolicy=com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();
@@ -194,6 +196,10 @@ public final class PopulationSession implements AutoCloseable {
     }
     public void configureWorkplaces(com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure workplaces before session starts");workplacePolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureWorkshopOpportunities(com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy policy,com.blueninjas24.civilizations.industry.WorkshopStarterPolicy starter) {
+        if(started.get())throw new IllegalStateException("Configure workshop review before session starts");
+        workshopOpportunityPolicy=java.util.Objects.requireNonNull(policy);workshopStarterPolicy=java.util.Objects.requireNonNull(starter);
     }
     public void configureMineFounding(com.blueninjas24.civilizations.industry.MineFoundingPolicy policy,com.blueninjas24.civilizations.industry.StartupGrantPolicy grants) {
         if(started.get())throw new IllegalStateException("Configure mine founding before session starts");
@@ -480,6 +486,16 @@ public final class PopulationSession implements AutoCloseable {
         return submit(() -> {
             requireReady(); if (economy == null) throw new IllegalStateException("Economy not enabled in this session");
             economy.observe(observation, now.getAsLong()); economyView.set(economy.views()); return null;
+        });
+    }
+    /** Trusted read-only investment preparation; no business, course or reserved money. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.WorkshopOpportunities.Review> currentWorkshopOpportunities(UUID town) {
+        return submit(()-> {
+            requireReady();
+            if(!workplacePolicy.enabled()||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE))
+                return new com.blueninjas24.civilizations.database.WorkshopOpportunities.Review(java.util.List.of(),"Smithing workplace recognition disabled");
+            return new com.blueninjas24.civilizations.database.WorkshopOpportunities(database.getConnection(),workshopOpportunityPolicy,industryPolicy,
+                operationPolicy,startupGrantPolicy,workshopStarterPolicy,farmToolsPolicy,farmToolsBudget).review(town,now.getAsLong(),loadedWorlds);
         });
     }
     /** Internal delivery bridge; source adapter must first establish the actual goods/consent. */

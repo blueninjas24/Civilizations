@@ -18,6 +18,19 @@ workshop-starter-supplies:
   maximum-purchase-hundredths: 4000
   protected-units-per-material: 2
 
+# Read-only first-tool-workshop investment checks; automatic founding remains separate.
+# Requires current smithing-table evidence, a real funded farm toolkit need,
+# protected startup funds and the paid surplus bundle above. No land ownership.
+workshop-opportunities:
+  enabled: true
+  markers-per-review: 8
+  evidence-lifetime-millis: 60000
+  horizontal-range: 96
+  vertical-range: 48
+  startup-hundredths: 500
+  capital-hundredths: 4000
+  storage-capacity: 1024
+
 # Public farm equipment invoices; actual treasury, food protection and saved budget.
 # Food still goes straight into village supplies; no private farm cash or paid food sale.
 # One actual toolkit per invoice; recurring cap is separate from startup grants.

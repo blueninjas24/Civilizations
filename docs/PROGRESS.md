@@ -4,7 +4,7 @@ Updated October 11, 2026. Based on verified work, not planned features.
 
 Villages can now recognize nearby barrels and smithing tables as possible
 workplaces, while leaving blocks and their contents alone. Saved evidence survives
-restart; removed markers stop being candidates. All 1,043 tests and the disposable
+restart; removed markers stop being candidates. All 1,054 tests and the disposable
 Paper check passed. Your playable server has not been changed.
 
 Phase 3 has one of four major groups fully complete. The partial work inside the
@@ -31,7 +31,10 @@ not finish multi-year specialization. First warehouse/workshop founders, wider
 industries and specialization remain.
 A new paid starter-material mechanism now protects village supplies, records real
 payment and delayed cargo, and prevents duplicate purchases after restart. It is
-verified in SQLite and Paper; automatic first-workshop founding is still next.
+verified in SQLite and Paper. First-workshop investment checks now also verify a
+real funded customer, current marker and supplies without spending or inventing
+skills. Automatic first-workshop founding is still next; confirmed marker removal
+behavior needs a decision before its live lifecycle is connected.
 See WORKSHOP_STARTER_SUPPLIES.md and MINE_FOUNDER_TRAINING.md. Your playable server has not been changed.
 
 Bars count completed milestones in the checklist below. Milestones differ in
