@@ -31,6 +31,9 @@ public final class IndustryRuntime {
         this.learning=Objects.requireNonNull(learning);
         this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
+    private FarmToolUpkeepPolicy farmUpkeep=FarmToolUpkeepPolicy.disabled();
+    private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
+    public void configureFarmToolDemand(FarmToolUpkeepPolicy upkeep,FarmToolBudgetPolicy budget){farmUpkeep=Objects.requireNonNull(upkeep);farmBudget=Objects.requireNonNull(budget);}
     /** Restart preserves earned work/fractions but earns no downtime. */
     public void start(long now) throws SQLException {
         if (!policy.enabled()) return;
@@ -127,7 +130,7 @@ public final class IndustryRuntime {
                     reason=supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
                 }
             } else if(clock.industry().equals("warehouse")) {
-                reason=new WarehouseSupplies(connection,policy,operations,mutationHealthy).acquireRows(id,clock.world(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),learning);
+                reason=new WarehouseSupplies(connection,policy,operations,mutationHealthy).withFarmTools(farmUpkeep,farmBudget).acquireRows(id,clock.world(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),learning);
             } else {
                 var recipe=policy.recipes().values().stream().filter(r->r.industry().equals(clock.industry())).findFirst();
                 if(recipe.isEmpty())reason="Paused: no configured industry recipe";

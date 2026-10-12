@@ -280,6 +280,7 @@ public final class PopulationSession implements AutoCloseable {
                 businesses.configureStaffing(staffingPolicy);
                 automaticMines=new com.blueninjas24.civilizations.database.AutomaticMineFounding(database.getConnection(),mineFoundingPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||oreHistoryHealthy.get());
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||oreHistoryHealthy.get());
+                industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
                 var demographic = database.getDemographicRepository();

@@ -20,6 +20,9 @@ final class WarehouseSupplies {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);this.operations=Objects.requireNonNull(operations);
         this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
+    private FarmToolUpkeepPolicy farmUpkeep=FarmToolUpkeepPolicy.disabled();
+    private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
+    WarehouseSupplies withFarmTools(FarmToolUpkeepPolicy upkeep,FarmToolBudgetPolicy budget){farmUpkeep=Objects.requireNonNull(upkeep);farmBudget=Objects.requireNonNull(budget);return this;}
     String acquireRows(UUID buyer,UUID world,long period,long haulWindow)throws SQLException {
         return acquireRows(buyer,world,period,haulWindow,null);
     }
@@ -35,7 +38,7 @@ final class WarehouseSupplies {
         }
         if(!staffed)return "Restocking deferred: qualified warehouse staff required";
         var town=founding.business().settlementId();
-        var demand=new LocalIndustryDemand(connection,policy,operations,mutationHealthy).review(town,Set.of(world),policy.warehouseSupply().customersPerReview());
+        var demand=new LocalIndustryDemand(connection,policy,operations,mutationHealthy).withFarmTools(farmUpkeep,farmBudget).review(town,Set.of(world),policy.warehouseSupply().customersPerReview());
         if(!demand.complete())return "Restocking deferred: "+demand.explanation();
         var availability=new BusinessOperations(connection,operations);var industry=new IndustryRepository(connection);
         var warehouses=ids(town,"warehouse",policy.supply().warehousesPerReview());

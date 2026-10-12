@@ -28,6 +28,9 @@ public final class LocalIndustryDemand {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);this.operations=Objects.requireNonNull(operations);
         this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
+    private FarmToolUpkeepPolicy farmUpkeep=FarmToolUpkeepPolicy.disabled();
+    private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
+    public LocalIndustryDemand withFarmTools(FarmToolUpkeepPolicy upkeep,FarmToolBudgetPolicy budget){farmUpkeep=Objects.requireNonNull(upkeep);farmBudget=Objects.requireNonNull(budget);return this;}
     public MiningReview reviewMining(UUID town,long now,long maximumAgeMillis,Set<UUID> worlds,int businessLimit)throws SQLException {
         var demand=review(town,worlds,businessLimit);var survey=new MineralOpportunities(connection).review(town,now,maximumAgeMillis,worlds);
         var candidates=demand.complete()&&survey.status()==MineralOpportunities.Status.CURRENT
@@ -104,7 +107,16 @@ public final class LocalIndustryDemand {
             }
             customers.add(new Customer(id,planned.batches(),missing,uncovered,Math.addExact(planned.estimatedCost(),toolCost),planned.explanation()+"; funded replacement tools "+toolNeed));
         }
-        return new Review(true,customers,total,"Fundable workshop input gaps after owned/pending goods and shared available warehouse stock; planning only, not orders or finished-goods demand");
+        var farmNeed=new FarmEquipmentDemand(connection,farmUpkeep,farmBudget,operations).review(town,worlds);
+        if(farmNeed.units()>0) {
+            if(customers.size()==businessLimit)return deferred("Local customer review budget exceeded; no partial farm need inferred");
+            long covered=Math.min(localStock.getOrDefault(ToolUpkeepPolicy.TOOLS,0L),farmNeed.units());
+            long gap=farmNeed.units()-covered;localStock.computeIfPresent(ToolUpkeepPolicy.TOOLS,(good,units)->units-covered);
+            var uncovered=gap==0?Map.<Commodity,Long>of():Map.of(ToolUpkeepPolicy.TOOLS,gap);
+            if(gap>0)total.merge(ToolUpkeepPolicy.TOOLS,gap,Math::addExact);
+            customers.add(new Customer(farmNeed.farm(),0,Map.of(ToolUpkeepPolicy.TOOLS,farmNeed.units()),uncovered,farmNeed.invoice(),farmNeed.explanation()));
+        }
+        return new Review(true,customers,total,"Fundable workshop input gaps after owned/pending goods and shared available warehouse stock; planning only, not orders; actual public farm tools "+farmNeed.units());
     }
     private Review deferred(String reason){return new Review(false,List.of(),Map.of(),reason);}
 }

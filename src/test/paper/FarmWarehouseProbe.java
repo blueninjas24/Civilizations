@@ -109,7 +109,61 @@ public final class FarmWarehouseProbe extends JavaPlugin {
                 session.pulse().get(10,TimeUnit.SECONDS);check(4,3,2);
             }
             restock();
+            publicFarmDemand();
         }catch(Exception failure){throw new CompletionException(failure);}
+    }
+    private void publicFarmDemand()throws Exception {
+        folder=new File(getDataFolder(),"public-demand-"+UUID.randomUUID());
+        var db=new DatabaseManager(folder,getLogger());
+        try {
+            db.initialize();db.saveSettlement(new Settlement(town,"Public demand fixture","Fixture",0,64,0,3,0,0));
+            db.getVillageIdentityRepository().observeWorld(world,"Fixture");db.getVillageIdentityRepository().bindSettlement(town,world);
+            UUID clerk=new UUID(0,3);for(var id:List.of(farmer,smith,clerk))db.getPopulationRepository().insertResident(new Resident(id,"Fixture worker",town,null,300,Resident.Status.ALIVE));
+            new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,30000,"Explicit fixture funds");
+            var requirements=new JobRequirements(216,Map.of());
+            for(var id:List.of(firm,buyer)) {
+                var owner=id.equals(firm)?smith:clerk;var site=new BusinessSite(UUID.randomUUID(),town,world,id.equals(firm)?10:20,64,0,1,"Explicit fixture site");
+                db.getBusinessRepository().found(new BusinessFounding(new Business(id,town,"Fixture business",owner,owner,id.equals(firm)?"blacksmith":"warehouse",site.id(),1,0),site,requirements,requirements,0,"Explicit fixture"));
+                db.getBusinessRepository().hire(UUID.randomUUID(),id,owner,0);db.getIndustryRepository().openStore(id,100,Map.of(Commodity.IRON,1L,ToolUpkeepPolicy.TOOLS,1L),id.equals(firm)?0:4000);
+            }
+            try(var s=db.getConnection().createStatement()){s.execute("UPDATE industry_stock SET units=1 WHERE commodity='iron' AND business_id='"+firm+"'");}
+            db.getIndustryRepository().process(UUID.randomUUID(),firm,new ProductionRecipe("fixture_tools","blacksmith",Map.of(Commodity.IRON,1L),Map.of(ToolUpkeepPolicy.TOOLS,1L),1,1),1,0);
+        }finally{db.close();}
+        var clock=new AtomicLong(1000);
+        try(var session=session(clock)) {
+            session.configureFarmTools(new FarmToolUpkeepPolicy(true,1,2,50,8),FarmToolBudgetPolicy.disabled());session.configureWorkLearning(WorkLearningPolicy.prototype());
+            session.start(false,Set.of(world)).get(10,TimeUnit.SECONDS);
+            session.observeFarms(new FarmObservation(town,world,1000,true,16,new com.blueninjas24.civilizations.settlement.VillageObservation.Position(0,64,0))).get(10,TimeUnit.SECONDS);
+            clock.set(2000);session.pulse().get(10,TimeUnit.SECONDS);
+        }
+        try(var session=demandSession(clock)) {
+            session.start(false,Set.of(world)).get(10,TimeUnit.SECONDS);clock.set(3000);session.pulse().get(10,TimeUnit.SECONDS);
+            session.updateLoadedWorlds(Set.of()).get(10,TimeUnit.SECONDS);clock.set(100000);session.pulse().get(10,TimeUnit.SECONDS);
+        }
+        clock.set(1000000);
+        try(var session=demandSession(clock)) {
+            session.start(false,Set.of()).get(10,TimeUnit.SECONDS);session.updateLoadedWorlds(Set.of(world)).get(10,TimeUnit.SECONDS);
+            session.observeFarms(new FarmObservation(town,world,clock.get(),true,16,new com.blueninjas24.civilizations.settlement.VillageObservation.Position(0,64,0))).get(10,TimeUnit.SECONDS);
+            clock.set(1001000);session.pulse().get(10,TimeUnit.SECONDS);clock.set(1002000);session.pulse().get(10,TimeUnit.SECONDS);session.pulse().get(10,TimeUnit.SECONDS);
+        }
+        db=new DatabaseManager(folder,getLogger());
+        try {
+            db.initialize();var industry=db.getIndustryRepository();var farm=FarmEnterprises.businessId(town);
+            require(new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths()==22000,"Public farm budget mismatch");
+            require(industry.store(buyer).orElseThrow().hundredths()==4000&&industry.store(firm).orElseThrow().hundredths()==4000,"Producer/warehouse payment mismatch");
+            try(var s=db.getConnection().createStatement()) {
+                for(var table:List.of("industry_auto_shipments","farm_tool_purchases"))try(var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){require(r.next()&&r.getLong(1)==1,"Duplicate or missing "+table);}
+                try(var r=s.executeQuery("SELECT service_periods FROM business_tools WHERE business_id='"+farm+"'")){require(r.next()&&r.getLong(1)>0,"Delivered tool not used");}
+                try(var r=s.executeQuery("PRAGMA integrity_check")){require(r.next()&&r.getString(1).equals("ok"),"Public demand integrity failure");}
+                try(var r=s.executeQuery("PRAGMA foreign_key_check")){require(!r.next(),"Public demand FK failure");}
+            }
+        }finally{db.close();}
+        getLogger().info("Public farm demand PASS: actual toolkit, paid producer/warehouse/farm chain, restart/absence, no duplicate or minted money");
+    }
+    private PopulationSession demandSession(AtomicLong clock) {
+        var session=session(clock);session.configureUpkeepContributions(UpkeepContributionPolicy.disabled());session.configureWorkLearning(WorkLearningPolicy.prototype());
+        var recipe=new ProductionRecipe("fixture_tools","blacksmith",Map.of(Commodity.IRON,1L),Map.of(ToolUpkeepPolicy.TOOLS,1L),1,1);
+        session.configureIndustryRuntime(new IndustryRuntimePolicy(true,1000,8,IndustryPolicy.prototype(),Map.of(recipe.id(),recipe),new WorkshopSupplyPolicy(true,1,16,Map.of(Commodity.IRON,100L)),new WarehouseSupplyPolicy(true,16,16),new ToolUpkeepPolicy(true,3,8,50,4000,Set.of())));return session;
     }
     @Override public void onEnable() {
         try {
