@@ -1,5 +1,28 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — approved renewable fishing calculation foundation
+
+Recorded the user's approval for fish stock to ebb and recover. Added plain-Java
+FishingPolicy/FishStock with habitat-limited opening stock, fractional capped
+recovery and catch limited by qualified labor/request/site/storage. Heavy harvesting
+can temporarily exhaust supply; disabled/absent-world transitions preserve exact
+state. Opening retunes do not refill an existing state. Strict optional commented
+economy.yml terms are validated before DB startup; older missing sections opt out.
+
+Nine domain and two configuration tests added, including seeded10,000-period
+conservation, exhaustion/rest recovery, fractional renewal, pause and invalid edits.
+Focused87 tests passed, zero failures/errors/skips,13.687s at16:40:35 ET.
+Windows .\mvnw.cmd clean verify passed1,200 tests (1,198 unit/two packaged
+integration), zero failures/errors/skips,6:48 at16:48:06 ET. Diff review/check passed.
+No migration: schema65 unchanged. No actual server/DB/world changes, native
+world adapter, automatic fishery, merge or push. The calculations do not themselves
+save stock or establish uptime; transactional resource/owned-food persistence,
+water observation/identity and normal business-clock integration remain next.
+
+See FISHING_RESOURCES.md. Phase3 stays1/4 whole groups/~69% partial, with the
+broader industries checklist open. The fishing recovery decision is now approved;
+older entries below preserve their original pending-decision checkpoint.
+
 ## October12, 2026 — native stone/sand provenance and source-loss safety verified
 
 OrePlacementTracker now captures raw stone/deepslate/sand/red sand placement,

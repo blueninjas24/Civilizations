@@ -1,5 +1,21 @@
 # Civilizations Development Log
 
+## October12, 2026 — approved renewable fish-stock calculation foundation
+
+Branch codex/phase3-renewable-fish-stocks. Recorded fish recovery approval in canonical
+decisions/master/rules. Added FishingPolicy/FishStock: habitat-limited opening stock,
+integer fractional renewal, capacity cap without banked growth, bounded catches,
+exact pause and preserved existing capacity under opening retunes. Configurable
+prototype defaults are documented/commented in economy.yml, strict startup validation,
+old missing sections disabled. Nine domain/two configuration cases added; focused87
+passed at16:40:35 ET,13.687s,zero failures/errors/skips. Windows .\mvnw.cmd clean
+verify passed1,200 (1,198 unit/two packaged integration), zero failures/errors/skips,
+6:48 at16:48:06 ET. Reviewed diff/check, schema65 unchanged, no native world
+adapter/server deployment/actual database writes, merge or push. No Paper smoke run
+for this calculation-only batch. Water observation, transactional saved resource/
+owned output and normal clocks are unfinished; no claim of in-game fishing.
+Updated status/progress/checklist/FISHING_RESOURCES. Phase3 counts unchanged.
+
 ## October12, 2026 — native quarry source safeguards verified
 
 Extended existing bounded native mutation capture to raw stone/deepslate and

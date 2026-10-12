@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+October12: fish-stock renewal approved. Added bounded immutable resource/catch
+calculations and strict editable fishing-resources terms: fractional recovery,
+temporary exhaustion, exact absent-world pause, no refill from opening retunes,
+qualified worker/site/storage limits. Eleven new tests; focused87/full1,200 passed,
+zero failures/errors/skips. Schema65 unchanged; no live fishing production or DB/world
+changes. Persistence, water evidence/identity, qualified founding and ordinary
+timed owned-food output remain next. The broader industry milestone remains open;
+counts unchanged. See FISHING_RESOURCES.md. Earlier pending choice below is historical.
+
 October12 verified: native stone/deepslate/sand/red-sand placement/removal/movement
 and formation safeguards, bounded SQL mutation queue and explicit quarry snapshot
 classification. Eight new tests; focused33/full1,189 passed. Native real-block/

@@ -97,6 +97,20 @@ startup-grants:
   # Eligibility alone does not create a business or certify resource evidence.
   industries: [mining, blacksmith, warehouse, logging, fishing, quarry, sandpit]
 
+fishing-resources:
+  # Calculation foundation only: water observation/founding/runtime are not connected yet.
+  # A column must represent distinct, suitable open water in a complete observation.
+  enabled: true
+  minimum-water-columns: 16
+  stock-per-water-column: 8
+  maximum-stock: 4096
+  initial-stock-percent: 75
+  # 200 basis points = 2% of saved capacity restored per earned industry period.
+  # Zero permits an admin's non-recovering/famine experiment. No offline recovery.
+  recovery-basis-points: 200
+  catch-per-worker: 4
+  site-catch-capacity: 16
+
 quarry-resources:
   # Opening/extraction terms for the finite backend. Automatic founding is not connected yet.
   # Abundance and work speed are independent; existing reserves/yields stay saved.

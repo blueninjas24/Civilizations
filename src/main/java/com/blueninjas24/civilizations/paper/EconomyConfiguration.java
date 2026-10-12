@@ -19,6 +19,7 @@ public final class EconomyConfiguration {
         if (config.contains("responses")) rootKeys.add("responses");
         if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("quarry-resources")) rootKeys.add("quarry-resources");
+        if (config.contains("fishing-resources")) rootKeys.add("fishing-resources");
         if (config.contains("village-supply-purchases")) rootKeys.add("village-supply-purchases");
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
         if (config.contains("recipes")) rootKeys.add("recipes");
@@ -56,6 +57,7 @@ public final class EconomyConfiguration {
         readAdditionalOreEditors(config);
         readIndustryRuntime(config);
         readQuarryResources(config);
+        readFishingResources(config);
         readVillageSupplies(config);
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
@@ -482,6 +484,17 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("warehouse-opportunities.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy(enabled,smallInteger(s,"markers-per-review"),integer(s,"evidence-lifetime-millis"),
                 smallInteger(s,"horizontal-range"),smallInteger(s,"vertical-range"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),integer(s,"storage-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.FishingPolicy readFishingResources(ConfigurationSection config) {
+        if (!config.contains("fishing-resources")) return com.blueninjas24.civilizations.industry.FishingPolicy.disabled();
+        var s = section(config, "fishing-resources");
+        exactKeys(s, Set.of("enabled", "minimum-water-columns", "stock-per-water-column", "maximum-stock",
+                "initial-stock-percent", "recovery-basis-points", "catch-per-worker", "site-catch-capacity"));
+        if (!(s.get("enabled") instanceof Boolean enabled))
+            throw new IllegalArgumentException("fishing-resources.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.FishingPolicy(enabled, smallInteger(s, "minimum-water-columns"),
+                integer(s, "stock-per-water-column"), integer(s, "maximum-stock"), smallInteger(s, "initial-stock-percent"),
+                smallInteger(s, "recovery-basis-points"), integer(s, "catch-per-worker"), integer(s, "site-catch-capacity"));
     }
     public static com.blueninjas24.civilizations.industry.QuarryPolicy readQuarryResources(ConfigurationSection config) {
         if(!config.contains("quarry-resources"))return com.blueninjas24.civilizations.industry.QuarryPolicy.disabled();

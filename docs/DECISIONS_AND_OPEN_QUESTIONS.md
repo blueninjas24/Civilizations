@@ -1,16 +1,19 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October12: fishing resource recovery — awaiting decision
+## October12: fishing resource recovery — approved
 
-Before enabling fishing production, proposed saved renewable fish supply tied to
+User approved: “Yes the fish stock should ebb and flow just like real life.”
+The approved model is saved renewable fish supply tied to
 actually observed suitable open water, with gradual recovery and temporary
 exhaustion from heavy harvesting. Editable capacity/catch/recovery; absent worlds
 and server downtime pause it. Visible Minecraft fish entities would not be needed
 for every abstract catch. This supplies a real habitat-backed resource rather
-than goods created from profession alone. Crop/tree renewal is already approved;
-the fish replenishment model is not yet specified, so asked under AGENTS.md.
-No fishing recovery/production has been enabled pending this answer. Quarry
-provenance and source-loss safeguards proceed under their existing approvals.
+than goods created from profession alone. Plain-Java resource calculations and
+strict editable prototype terms are now added; live observation, persistence,
+qualified founding and ordinary timed production still require integration.
+No Minecraft fishing production has been enabled. See FISHING_RESOURCES.md for
+defaults, recovery/catch conservation and remaining verification. Crop/tree renewal
+and quarry provenance/source-loss safeguards retain their existing approvals.
 
 ## October12: approved gradual merchant training and automatic startup connected
 

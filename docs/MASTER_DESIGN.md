@@ -48,6 +48,11 @@
 - Decisions create projects and historical events; prior outcomes influence future weights without machine learning.
 
 ## Industry and business
+- October 12 approved: fishing uses habitat-backed renewable stock, gradual
+  configurable recovery and temporary exhaustion under heavy harvesting. Catches
+  require actual qualified work and storage; server/world absence pauses both
+  recovery and harvesting. Visible fish entities are not required per abstract
+  food unit. See FISHING_RESOURCES.md for current implementation boundaries.
 - October 9 clarification: minerals are finite and non-renewable; discovery evidence
   represents a plausible deposit, not a one-block/one-item conversion. Ore and local
   rock byproducts share extraction work. Neither restart nor repeat discovery refills

@@ -2,12 +2,20 @@
 
 Updated October 12, 2026. Based on verified work, not planned features.
 
+You approved fish supplies that rise and fall. The new calculation lets heavy
+fishing empty a fishery and resting restore it, with editable catch/recovery rates.
+Eleven new tests cover these rules and settings; all1,200 full-build tests passed.
+Saving fisheries and connecting them to actual working
+villagers are still ahead, so Phase3 milestone percentages stay unchanged.
+Your playable server has not been changed. See FISHING_RESOURCES.md.
+
 Stone/sand safeguards now recognize player placements, removal and movement,
 including falling sand and newly generated stone. They prevent fresh-resource
 duplication and preserve goods already extracted. All 1,189 tests and the isolated
 Paper block/snapshot check passed. Automatic broader industries remain incomplete,
 so milestone percentages are unchanged. Fishing recovery is the next pending
-gameplay choice. Your playable server has not been changed.
+gameplay choice at that checkpoint; it has now been approved above.
+Your playable server has not been changed.
 
 Approved next step: villages buy real food when hungry and practice materials
 when current trainees need them. Payments use existing village money, with

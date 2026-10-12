@@ -13,6 +13,30 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void fishingTermsAreEditableAndMissingOldSectionOptsOut() throws Exception {
+        var config = defaults();
+        assertEquals(com.blueninjas24.civilizations.industry.FishingPolicy.prototype(), EconomyConfiguration.readFishingResources(config));
+        config.set("fishing-resources.recovery-basis-points", 0);
+        config.set("fishing-resources.initial-stock-percent", 0);
+        EconomyConfiguration.read(config);
+        assertEquals(0, EconomyConfiguration.readFishingResources(config).recoveryBasisPoints());
+        assertEquals(0, EconomyConfiguration.readFishingResources(config).initialStockPercent());
+        config.set("fishing-resources", null);
+        EconomyConfiguration.read(config);
+        assertFalse(EconomyConfiguration.readFishingResources(config).enabled());
+    }
+    @Test void invalidFishingEditsFailBeforeDatabaseStartup() throws Exception {
+        for (Object value : List.of(-1, 10001, 1.5, "fast")) {
+            var config = defaults(); config.set("fishing-resources.recovery-basis-points", value);
+            assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(config));
+        }
+        var config = defaults(); config.set("fishing-resources.maximum-stock", 100);
+        assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(config));
+        var extra = defaults(); extra.set("fishing-resources.offline-growth", true);
+        assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(extra));
+        var wrong = defaults(); wrong.set("fishing-resources.enabled", "yes");
+        assertThrows(IllegalArgumentException.class, () -> EconomyConfiguration.read(wrong));
+    }
     @Test void villageSupplyBudgetsAreStrictEditableAndOldFilesOptOut()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.VillageSupplyPolicy.prototype(),EconomyConfiguration.readVillageSupplies(config));
         config.set("village-supply-purchases.prices.timber",175);EconomyConfiguration.read(config);assertEquals(175,EconomyConfiguration.readVillageSupplies(config).prices().get(Commodity.TIMBER));
