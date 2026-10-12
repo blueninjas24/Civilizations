@@ -31,4 +31,3 @@ class WarehouseStartupCycleTest {
         assertThrows(IllegalStateException.class,()->cycle.tick(java.util.stream.LongStream.range(0,1025).mapToObj(n->new UUID(0,n)).toList()));
     }
 }
-
