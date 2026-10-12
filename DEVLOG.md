@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## October 11, 2026: connected finite industry endurance regression
+
+Added a normal PopulationSession scenario spanning 50 economic periods: a finite
+iron/stone source, staffed mine, warehouse and blacksmith, real productive farm
+replacement demand and approved earned-surplus upkeep contributions. The scenario
+checks source exhaustion, repeated farm payments, retained stone byproducts,
+conservation of the original 30,000 hundredths and all eleven available toolkits
+across use, ownership and paid cargo. Repeated pulses and absent-world restart
+must not create orders or refill the source. Integrity and foreign keys checked.
+Final Wrapper clean verify passed 1,028 tests (1,026 unit + 2 integration),
+zero failures/errors/skips, 5:11. The focused scenario also passed.
+
+This is test-only operation/depletion coverage, using explicit fixture businesses,
+supplies and controlled test ratios. The prior native Paper check already verified
+the unchanged application code and paid farm chain. This new 50-period scenario
+is not a multi-year specialization test or proof of automatic first founding.
+Schema59 unchanged; no migration, settings or human-server changes. Next: first
+warehouse/workshop viable opportunities and qualified founders, then wider
+resource operations and seeded specialization. See CONNECTED_INDUSTRY_SCENARIO.md.
+
 ## October 11, 2026: public farm equipment demand connected to warehouses
 
 A real productive farm can now drive warehouse restocking for its next toolkit.

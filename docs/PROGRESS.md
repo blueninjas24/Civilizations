@@ -4,7 +4,7 @@ Updated October 11, 2026. Based on verified work, not planned features.
 
 Villages can now recognize nearby barrels and smithing tables as possible
 workplaces, while leaving blocks and their contents alone. Saved evidence survives
-restart; removed markers stop being candidates. All 1,027 tests and the disposable
+restart; removed markers stop being candidates. All 1,028 tests and the disposable
 Paper check passed. Your playable server has not been changed.
 
 Phase 3 has one of four major groups fully complete. The partial work inside the
@@ -25,7 +25,9 @@ PHASE3_TODO.md. The four-group phase-gate bar below still counts whole groups.
 First mining-owner training is now connected: real opportunities sponsor gradual
 practice using actual supplies, then a qualified graduate can found a funded mine.
 Productive public farms now drive funded warehouse toolkit restocking, with
-real paid goods and delayed delivery. First warehouse/workshop founders, wider
+real paid goods and delayed delivery. A 50-period connected mine/tool/farm
+regression now checks finite depletion and money/goods conservation. This does
+not finish multi-year specialization. First warehouse/workshop founders, wider
 industries and specialization remain.
 See MINE_FOUNDER_TRAINING.md. Your playable server has not been changed.
 

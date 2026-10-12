@@ -139,12 +139,13 @@ class FarmToolsRuntimeTest {
     }
     void health()throws SQLException{try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}}
     @AfterEach void close(){if(db!=null)db.close();}
-    void makeUnfilledNeed()throws Exception {
+    void makeUnfilledNeed()throws Exception {makeUnfilledNeed(4);}
+    void makeUnfilledNeed(long expectedOutput)throws Exception {
         runtime=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216);
         runtime.configureFarmBusinesses(new FarmBusinessPolicy(true,1,0,216,0),BusinessOperationPolicy.prototype());
         runtime.configureFarmTools(upkeep,FarmToolBudgetPolicy.disabled(),IndustryPolicy.prototype());runtime.configureWorkLearning(WorkLearningPolicy.prototype());
         runtime.startOnline(1000,Set.of(world));runtime.pulse(2000,false);
-        assertEquals(0,count("farm_tool_purchases"));assertEquals(4,output(1));
+        assertEquals(0,count("farm_tool_purchases"));assertEquals(expectedOutput,output(1));
     }
     FarmEquipmentDemand demand(){return new FarmEquipmentDemand(db.getConnection(),upkeep,FarmToolBudgetPolicy.prototype(),BusinessOperationPolicy.prototype());}
     IndustryRuntimePolicy warehousePolicy() {
@@ -238,6 +239,49 @@ class FarmToolsRuntimeTest {
         var session=new PopulationSession(directory.toFile(),Logger.getLogger("FarmToolsRuntimeTest"),population,clock::get,settings,FarmObservation.Policy.prototype());
         session.configureFarmBusinesses(new FarmBusinessPolicy(true,1,0,216,0));session.configureFarmTools(upkeep,FarmToolBudgetPolicy.prototype());
         session.configureWorkLearning(WorkLearningPolicy.prototype());session.configureBusinessOperations(BusinessOperationPolicy.prototype());session.configureIndustryRuntime(warehousePolicy());return session;
+    }
+
+    @Test void repeatedMineWarehouseSmithAndFarmChainConservesCashGoodsAndExhaustsFiniteSource()throws Exception {
+        settings=settings(12);var buyer=warehouse(6000);
+        db.getIndustryRepository().consume(UUID.randomUUID(),seller,ToolUpkeepPolicy.TOOLS,2,IndustryRepository.Use.MAINTENANCE,"Explicit fixture prior maintenance");
+        db.getIndustryRepository().purchase(UUID.randomUUID(),seller,buyer,ToolUpkeepPolicy.TOOLS,1,4000,0,1,8);
+        UUID miner=new UUID(0,4),mine=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(miner,"Fixture miner",town,null,300,Resident.Status.ALIVE));
+        var site=new BusinessSite(UUID.randomUUID(),town,world,30,40,0,1000,"Explicit fixture exposed source");var req=new JobRequirements(216,Map.of());
+        var space=Map.of(Commodity.IRON,1L,Commodity.STONE,1L,ToolUpkeepPolicy.TOOLS,1L);
+        var started=new MiningStartupRepository(db.getConnection()).start(new MiningStartupRepository.Request(
+            new BusinessFounding(new Business(mine,town,"Fixture mine",miner,miner,"mining",site.id(),1,0),site,req,req,0,"Explicit fixture"),
+            new MineralObservation(world,1000,true,Commodity.IRON,List.of(new VillageObservation.Position(30,40,0))),10,Map.of(Commodity.IRON,1L,Commodity.STONE,1L),100,space,0,miner));
+        var deposit=started.discovery().deposit().id();makeUnfilledNeed(12);db.close();db=null;
+        var policy=warehousePolicy();var mining=new IndustryPolicy(10,1,1,100,1,8,Map.of(Commodity.IRON,1L,Commodity.STONE,1L),space);
+        var chain=new IndustryRuntimePolicy(true,1000,8,mining,policy.recipes(),policy.supply(),policy.warehouseSupply(),policy.tools());
+        var clock=new java.util.concurrent.atomic.AtomicLong(2000);
+        try(var session=session(clock)) {
+            session.configureIndustryRuntime(chain);session.configureUpkeepContributions(UpkeepContributionPolicy.prototype());
+            session.start(false,Set.of(world)).get(10,java.util.concurrent.TimeUnit.SECONDS);
+            for(long now=3000;now<=52000;now+=1000) {
+                clock.set(now);session.pulse().get(10,java.util.concurrent.TimeUnit.SECONDS);assertNull(session.economyFailure());
+            }
+            session.pulse().get(10,java.util.concurrent.TimeUnit.SECONDS);
+        }
+        open();assertEquals(0,db.getIndustryRepository().deposit(deposit).orElseThrow().remainingBatches());
+        assertTrue(count("farm_tool_purchases")>3,"Recurring farm customers must pay for multiple actual kits");
+        assertTrue(count("upkeep_contributions")>0,"Only earned real supplier surplus can sustain public upkeep");
+        try(var s=db.getConnection().createStatement()) {
+            try(var r=s.executeQuery("PRAGMA integrity_check")){r.next();assertEquals("ok",r.getString(1));}
+            try(var r=s.executeQuery("SELECT (SELECT SUM(hundredths) FROM treasuries)+(SELECT SUM(hundredths) FROM industry_stores)")){r.next();assertEquals(30000,r.getLong(1));}
+            try(var r=s.executeQuery("SELECT COALESCE(SUM(units),0) FROM industry_stock WHERE commodity='stone'")){r.next();assertEquals(10,r.getLong(1),"Extracted byproduct stays recorded, not discarded");}
+            try(var r=s.executeQuery("SELECT COALESCE(SUM(tools_used),0) FROM farm_tool_work")){r.next();long used=r.getLong(1);
+                long held;try(var q=db.getConnection().createStatement();var stock=q.executeQuery("SELECT COALESCE(SUM(units),0) FROM industry_stock WHERE commodity='tools'")){stock.next();held=stock.getLong(1);}
+                long incoming;try(var q=db.getConnection().createStatement();var stock=q.executeQuery("SELECT COALESCE(SUM(units),0) FROM local_shipments WHERE commodity='tools' AND delivered_period IS NULL")){stock.next();incoming=stock.getLong(1);}
+                assertEquals(11,used+held+incoming,"One retained starting kit + ten finitely mined/crafted kits");
+            }
+        }
+        health();long receipts=count("farm_tool_purchases");db.close();db=null;clock.set(1000000);
+        try(var session=session(clock)) {
+            session.configureIndustryRuntime(chain);session.configureUpkeepContributions(UpkeepContributionPolicy.prototype());session.start(false,Set.of()).get(10,java.util.concurrent.TimeUnit.SECONDS);
+            clock.set(2000000);session.pulse().get(10,java.util.concurrent.TimeUnit.SECONDS);
+        }
+        open();assertEquals(receipts,count("farm_tool_purchases"));assertEquals(0,db.getIndustryRepository().deposit(deposit).orElseThrow().remainingBatches());health();
     }
 
 }

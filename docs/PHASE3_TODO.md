@@ -165,6 +165,9 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
       production as scoped catalog/observation work; do not infer resources from a
       biome alone or claim ores beyond the implemented coal/iron catalog.
 - [ ] Verify live production chains, capacity/depletion and unloaded operation.
+      Current coal/iron/toolkit operations have focused native checks plus a
+      50-period connected SQLite depletion/accounting regression; wider catalogs
+      and full acceptance remain. See CONNECTED_INDUSTRY_SCENARIO.md.
 
 ## 3. Business lifecycle and competition — in progress
 
