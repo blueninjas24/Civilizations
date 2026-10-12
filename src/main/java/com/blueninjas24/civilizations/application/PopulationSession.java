@@ -86,6 +86,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.IndustryRuntimePolicy industryPolicy=com.blueninjas24.civilizations.industry.IndustryRuntimePolicy.disabled();
     private com.blueninjas24.civilizations.database.IndustryRuntime industries;
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
+    private com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy workshopFoundingPolicy=com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy workplaceOperationPolicy=com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
@@ -194,6 +195,10 @@ public final class PopulationSession implements AutoCloseable {
     public void configureWorkLearning(com.blueninjas24.civilizations.industry.WorkLearningPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure work learning before session starts");
         learningPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureWorkshopFounding(com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure workshop founding before startup");
+        workshopFoundingPolicy=java.util.Objects.requireNonNull(policy);
     }
     public void configureWorkplaceOperations(com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure marker operation policy before startup");
@@ -512,6 +517,30 @@ public final class PopulationSession implements AutoCloseable {
                 return new com.blueninjas24.civilizations.database.WorkshopOpportunities.Review(java.util.List.of(),"Smithing workplace recognition disabled");
             return new com.blueninjas24.civilizations.database.WorkshopOpportunities(database.getConnection(),workshopOpportunityPolicy,industryPolicy,
                 operationPolicy,startupGrantPolicy,workshopStarterPolicy,farmToolsPolicy,farmToolsBudget).review(town,now.getAsLong(),loadedWorlds);
+        });
+    }
+    private com.blueninjas24.civilizations.database.WorkshopInvestment workshopInvestment() {
+        var evidence=new com.blueninjas24.civilizations.database.WorkshopOpportunities(database.getConnection(),workshopOpportunityPolicy,industryPolicy,
+                operationPolicy,startupGrantPolicy,workshopStarterPolicy,farmToolsPolicy,farmToolsBudget);
+        return new com.blueninjas24.civilizations.database.WorkshopInvestment(database.getConnection(),evidence,workshopFoundingPolicy,workshopOpportunityPolicy,
+                industryPolicy,startupGrantPolicy,workshopStarterPolicy,settings.population().adulthoodSteps(),settings.seed());
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation> prepareWorkshopInvestment(UUID town) {
+        return submit(()-> {
+            requireReady();
+            if(!workplacePolicy.enabled()||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE))
+                return new com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation(java.util.Optional.empty(),"Smithing workplace recognition disabled");
+            return workshopInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);
+        });
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.BusinessStartupGrants.Workshop> acceptWorkshopInvestment(
+            com.blueninjas24.civilizations.database.WorkshopInvestment.Draft draft,com.blueninjas24.civilizations.database.WorkplaceOperations.Confirmation confirmation) {
+        return submit(()-> {
+            requireReady();
+            if(economy==null||economyFailure!=null||status.get().remainingMonths()>0||!workplacePolicy.enabled()
+                    ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE))
+                throw new com.blueninjas24.civilizations.database.BusinessStartupGrants.Declined("Workshop acceptance waits for enabled current food/population/marker evidence");
+            return workshopInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds);
         });
     }
     /** Internal delivery bridge; source adapter must first establish the actual goods/consent. */

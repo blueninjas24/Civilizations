@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 12: first-workshop qualification prototype — implemented application path
+
+Under the approved editable economy/training direction, the narrow first-toolkit
+workshop path uses saved owner smithing10, worker smithing1, age216 months (at least
+configured adulthood), capacity2 and qualified-page64. All are editable in
+workshop-founding. These are prototype settings, not new locked canon. Existing
+files without the section opt out. No ownership count limit; owners may hold many
+firms but cannot hold two employee jobs. No new skills, payroll, money or goods.
+Real funded farm need and paid starter/public grant/marker approvals still apply.
+Preparation and acceptance are verified; gradual first-owner training and the
+normal automatic scheduling adapter remain separate unfinished work. See
+WORKSHOP_INVESTMENT.md and PROJECT_STATUS for exact results and limits.
+
 ## October 12: removal of a new workplace marker — approved
 
 User approved “Pause until restored.” Newly marker-founded workshops and warehouses

@@ -69,3 +69,7 @@ Qualified founder preparation and automatic acceptance scheduling remain unfinis
 October 12 update: marker removal policy is now approved: pause until restored at
 the saved spot. The explicit marker startup and point-confirmation seams are
 described in WORKPLACE_OPERATIONS.md; automatic founder selection/training remains.
+
+October12 investment update: qualified-owner preparation and rechecked paid
+acceptance are described in WORKSHOP_INVESTMENT.md. Automatic first-owner training
+and the normal server startup scheduler remain unfinished.

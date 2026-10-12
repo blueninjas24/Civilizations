@@ -96,6 +96,7 @@ public final class Civilizations extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
             population.configureOreTracking();
             population.configureWorkplaces(workplaceSettings);
+            population.configureWorkshopFounding(EconomyConfiguration.readWorkshopFounding(economyConfig));
             population.configureWorkplaceOperations(EconomyConfiguration.readWorkplaceOperations(economyConfig));
             population.configureWorkshopOpportunities(EconomyConfiguration.readWorkshopOpportunities(economyConfig),EconomyConfiguration.readWorkshopStarterSupplies(economyConfig));
             population.configureIndustryRuntime(EconomyConfiguration.readIndustryRuntime(economyConfig));

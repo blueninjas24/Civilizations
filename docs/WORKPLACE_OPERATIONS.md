@@ -69,3 +69,7 @@ check passed and temporary block restored; stopped with zero forced chunks.
 96/103 original fixture tables unchanged; remaining changes only ordinary clocks,
 tracking, active-world masks, resident age and farm observation time. Schema61
 main-save attachment/history tables empty; integrity/FK healthy; properties restored.
+
+October12 investment update: qualified-owner preparation and rechecked paid
+acceptance are described in WORKSHOP_INVESTMENT.md. Automatic first-owner training
+and the normal server startup scheduler remain unfinished.

@@ -25,6 +25,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("workshop-starter-supplies")) rootKeys.add("workshop-starter-supplies");
+        if (config.contains("workshop-founding")) rootKeys.add("workshop-founding");
         if (config.contains("workshop-opportunities")) rootKeys.add("workshop-opportunities");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-tools")) rootKeys.add("business-tools");
@@ -53,6 +54,7 @@ public final class EconomyConfiguration {
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
         readWorkshopOpportunities(config);
+        readWorkshopFounding(config);
         readWarehouseSupply(config);
         readToolUpkeep(config);
         readBusinessStaffing(config);
@@ -214,6 +216,12 @@ public final class EconomyConfiguration {
         exactKeys(s,Set.of("minimum-retained-business-cash-hundredths","maximum-spare-business-percent","maximum-estate-percent"));
         return new com.blueninjas24.civilizations.industry.BusinessPurchasePolicy(integer(s,"minimum-retained-business-cash-hundredths"),
                 smallInteger(s,"maximum-spare-business-percent"),smallInteger(s,"maximum-estate-percent"));
+    }
+    public static com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy readWorkshopFounding(ConfigurationSection config) {
+        if(!config.contains("workshop-founding"))return com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy.disabled();
+        var s=section(config,"workshop-founding");exactKeys(s,Set.of("enabled","founders-per-review","minimum-age-months","founder-smithing-experience","worker-smithing-experience","worker-capacity"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("workshop-founding.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy(enabled,smallInteger(s,"founders-per-review"),integer(s,"minimum-age-months"),integer(s,"founder-smithing-experience"),integer(s,"worker-smithing-experience"),smallInteger(s,"worker-capacity"));
     }
     public static com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy readWorkplaceOperations(ConfigurationSection config) {
         if(!config.contains("workplace-operations"))return com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();

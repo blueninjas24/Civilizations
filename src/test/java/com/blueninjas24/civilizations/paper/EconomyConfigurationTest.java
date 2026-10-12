@@ -378,6 +378,17 @@ class EconomyConfigurationTest {
         config.set("workplace-operations.pause-on-missing","true");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
         config.set("workplace-operations",null);assertTrue(EconomyConfiguration.readWorkplaceOperations(config).pauseOnMissing());EconomyConfiguration.read(config);
     }
+    @Test void workshopFounderQualificationsAreEditableAndLegacyFilesOptOut()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy.prototype(),EconomyConfiguration.readWorkshopFounding(config));
+        config.set("workshop-founding.founder-smithing-experience",20);assertEquals(20,EconomyConfiguration.readWorkshopFounding(config).founderExperience());EconomyConfiguration.read(config);
+        config.set("workshop-founding",null);assertFalse(EconomyConfiguration.readWorkshopFounding(config).enabled());EconomyConfiguration.read(config);
+    }
+    @Test void invalidWorkshopFounderQualificationsFailBeforeStartup()throws Exception {
+        for(var key:List.of("founders-per-review","minimum-age-months","founder-smithing-experience","worker-smithing-experience","worker-capacity")) {
+            var config=defaults();config.set("workshop-founding."+key,0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        }
+        var config=defaults();config.set("workshop-founding.worker-smithing-experience",11);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+    }
     private Result scenario(EconomySettings settings) {
         var stocks = new TreeMap<Commodity, Stock>(); settings.startingReserves(4).forEach((commodity, units) -> stocks.put(commodity, new Stock(units, 0)));
         var state = new State(0, stocks); Result result = null;

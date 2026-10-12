@@ -1,0 +1,122 @@
+import com.blueninjas24.civilizations.application.PopulationSession;
+import com.blueninjas24.civilizations.database.*;
+import com.blueninjas24.civilizations.economy.*;
+import com.blueninjas24.civilizations.economy.CommodityAccounting.*;
+import com.blueninjas24.civilizations.industry.*;
+import com.blueninjas24.civilizations.population.*;
+import com.blueninjas24.civilizations.settlement.*;
+import com.blueninjas24.civilizations.paper.PaperWorkplaceOperations;
+import org.bukkit.*;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import java.math.BigDecimal;
+import java.nio.file.*;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+/** One air-block fixture under strict disposable guards. Production never loads chunks or touches inventory. */
+public final class WorkshopInvestmentProbe extends JavaPlugin {
+    private PopulationSession session;
+    private PaperWorkplaceOperations observer;
+    private ExecutorService executor;
+    private World world;
+    private Chunk chunk;
+    private Path folder;
+    private UUID business,town;
+    private EconomySettings settings;
+    private IndustryRuntimePolicy industry;
+    private FarmToolUpkeepPolicy upkeep;
+    private WorkshopStarterPolicy starter;
+    private int y;
+    private BlockData original;
+    private boolean placed,ticket;
+    private void require(boolean okay,String message){if(!okay)throw new IllegalStateException(message);}
+    private void setup(UUID world)throws Exception {
+        var folder=this.folder.toFile();
+        town=UUID.randomUUID();var farmer=new UUID(0,1);var prospect=new UUID(0,2);
+        upkeep=new FarmToolUpkeepPolicy(true,1,2,50,8);var budget=FarmToolBudgetPolicy.prototype();
+        starter=new WorkshopStarterPolicy(true,1,4000,2,Map.of(Commodity.IRON,1200L,Commodity.COAL,600L));
+        var bands=new EnumMap<Condition,Integer>(Condition.class);for(var c:Condition.values())bands.put(c,100);
+        settings=new EconomySettings(1,3,2,2,1,4,100,new Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,12L,Commodity.IRON,10L,Commodity.COAL,10L),
+            Map.of(Commodity.FOOD,BigDecimal.valueOf(2),Commodity.IRON,BigDecimal.valueOf(12),Commodity.COAL,BigDecimal.valueOf(6)),bands);
+        var db=new DatabaseManager(folder,getLogger());
+        try {
+            db.initialize();db.saveSettlement(new Settlement(town,"Workshop prospect fixture","Fixture",0,y,0,2,0,0));
+            db.getVillageIdentityRepository().observeWorld(world,"Fixture");db.getVillageIdentityRepository().bindSettlement(town,world);
+            for(var resident:List.of(farmer,prospect))db.getPopulationRepository().insertResident(new Resident(resident,"Fixture resident",town,null,300,Resident.Status.ALIVE));
+            new TreasuryRepository(db.getConnection()).initialize(UUID.randomUUID(),town,30000,"Explicit fixture funds");
+            var economy=new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216);
+            economy.configureFarmBusinesses(new FarmBusinessPolicy(true,1,0,216,0),BusinessOperationPolicy.prototype());
+            economy.configureFarmTools(upkeep,budget,IndustryPolicy.prototype());economy.configureWorkLearning(WorkLearningPolicy.prototype());
+            economy.observe(new FarmObservation(town,world,1000,true,16,new com.blueninjas24.civilizations.settlement.VillageObservation.Position(0,y,0)),1000);
+            economy.startOnline(1000,Set.of(world));economy.pulse(2000,false);economy.pulse(3000,false);
+            new WorkplaceOpportunities(db.getConnection()).observe(town,new WorkplaceObservation(world,0,0,System.currentTimeMillis(),true,List.of(
+                new WorkplaceObservation.Marker(new com.blueninjas24.civilizations.settlement.VillageObservation.Position(4,y,4),WorkplaceObservation.Kind.SMITHING_TABLE))));
+            db.getPopulationRepository().recordSkillExperience(prospect,"smithing",10); // Explicit test-fixture qualification, not plugin-awarded experience.
+        }finally{db.close();}
+        var mining=new IndustryPolicy(150,8,32,1024,1,128,Map.of(Commodity.COAL,1L,Commodity.STONE,3L),Map.of(Commodity.COAL,1L,Commodity.STONE,1L,Commodity.IRON,1L,ToolUpkeepPolicy.TOOLS,1L));
+        var recipe=ProductionRecipe.smithTools();industry=new IndustryRuntimePolicy(true,1000,8,mining,Map.of(recipe.id(),recipe),new WorkshopSupplyPolicy(true,1,16,starter.prices()));
+    }
+    private PopulationSession owner() {
+        var d=PopulationSession.Settings.prototype();var population=new PopulationSession.Settings(0,d.millisPerMonth(),d.maximumOfflineMonths(),d.monthsPerBatch(),d.population(),d.migration(),d.recognition(),d.enrollment());
+        var session=new PopulationSession(folder.toFile(),getLogger(),population,System::currentTimeMillis,settings,FarmObservation.Policy.prototype());
+        session.configureFarmBusinesses(new FarmBusinessPolicy(true,1,0,216,0));session.configureFarmTools(upkeep,FarmToolBudgetPolicy.prototype());session.configureWorkLearning(WorkLearningPolicy.prototype());
+        session.configureBusinessOperations(BusinessOperationPolicy.prototype());session.configureIndustryRuntime(industry);session.configureWorkplaces(WorkplaceObserverPolicy.prototype());
+        session.configureWorkshopOpportunities(WorkshopOpportunityPolicy.prototype(),starter);session.configureWorkshopFounding(WorkshopFoundingPolicy.prototype());session.configureMineFounding(MineFoundingPolicy.disabled(),StartupGrantPolicy.prototype());
+        return session;
+    }
+    private long scalar(String sql)throws Exception {
+        try(var c=DriverManager.getConnection("jdbc:sqlite:file:"+folder.resolve("civilizations.db").toAbsolutePath().toString().replace('\\','/')+"?mode=ro");var s=c.createStatement();var r=s.executeQuery(sql)){require(r.next(),"Missing fixture row");return r.getLong(1);}
+    }
+    @Override public void onEnable() {
+        try {
+            var root=getServer().getWorldContainer().toPath().toRealPath();
+            require(Files.readString(root.resolve("civilizations-dev-marker.txt")).trim().equals("Disposable Civilizations Phase 1 test environment")&&getServer().getIp().equals("127.0.0.1")&&getServer().getPort()==25578&&getServer().getOnlinePlayers().isEmpty(),"Marked isolated localhost fixture required");
+            world=getServer().getWorlds().getFirst();y=world.getMaxHeight()-4;
+            // Explicit fixture setup only; production adapter never loads or tickets chunks.
+            chunk=world.getChunkAt(0,0);ticket=chunk.addPluginChunkTicket(this);
+            original=world.getBlockAt(4,y,4).getBlockData().clone();require(original.getMaterial().isAir(),"Refuse to replace terrain or containers");
+            placed=true;world.getBlockAt(4,y,4).setType(Material.SMITHING_TABLE,false);
+            folder=getDataFolder().toPath().resolve("run-"+UUID.randomUUID());executor=Executors.newSingleThreadExecutor();var id=world.getUID();
+            CompletableFuture<Void> startup=CompletableFuture.runAsync(()->{try{setup(id);}catch(Exception failure){throw new CompletionException(failure);}},executor);
+            new BukkitRunnable() {
+                CompletableFuture<?> pending=startup;CompletableFuture<BusinessOperations.Availability> availability;
+                int ticks,stage,waitUntil;CompletableFuture<WorkshopInvestment.Preparation> prepared;
+                public void run(){try {
+                    if(++ticks>800)throw new IllegalStateException("Workplace operation probe timeout");
+                    if(pending!=null){if(!pending.isDone())return;pending.join();pending=null;}
+                    if(stage==0){session=owner();pending=session.start(false,Set.of(id));stage=1;return;}
+                    if(stage==1) {
+                        prepared=session.prepareWorkshopInvestment(town);stage=10;return;
+                    }
+                    if(stage==10) {
+                        if(!prepared.isDone())return;var result=prepared.join();var draft=result.draft().orElseThrow(()->new IllegalStateException(result.explanation()));business=draft.anchor().business();
+                        var p=draft.anchor().position();require(world.isChunkLoaded(Math.floorDiv(p.x(),16),Math.floorDiv(p.z(),16))&&world.getBlockAt(p.x(),p.y(),p.z()).getType()==Material.SMITHING_TABLE,"Actual loaded table proof missing");
+                        pending=session.acceptWorkshopInvestment(draft,new WorkplaceOperations.Confirmation(draft.anchor(),true,System.currentTimeMillis()));stage=11;return;
+                    }
+                    if(stage==11){observer=new PaperWorkplaceOperations(session,getLogger());observer.runTaskTimer(WorkshopInvestmentProbe.this,1,1);world.getBlockAt(4,y,4).setType(Material.AIR,false);stage=2;return;}
+                    if(availability==null){availability=session.currentBusinessAvailability(business);return;}
+                    if(!availability.isDone())return;boolean permitted=availability.join().permitted();availability=null;
+                    if(stage==2){if(permitted)return;world.getBlockAt(4,y,4).setType(Material.BARREL,false);waitUntil=ticks+10;stage=3;return;}
+                    if(stage==3){require(!permitted,"Wrong kind restored the workplace");if(ticks<waitUntil)return;world.getBlockAt(4,y,4).setType(Material.SMITHING_TABLE,false);stage=4;return;}
+                    if(stage==4){if(!permitted)return;pending=session.updateLoadedWorlds(Set.of());stage=5;return;}
+                    if(stage==5){world.getBlockAt(4,y,4).setType(Material.AIR,false);waitUntil=ticks+10;stage=6;return;}
+                    if(stage==6){require(permitted,"Absent-world marker read changed state");if(ticks<waitUntil)return;pending=session.updateLoadedWorlds(Set.of(id));stage=7;return;}
+                    if(stage==7){if(permitted)return;observer.cancel();observer=null;session.close();session=owner();pending=session.start(false,Set.of());stage=8;return;}
+                    if(stage==8){require(!permitted,"Restart erased marker pause");world.getBlockAt(4,y,4).setType(Material.SMITHING_TABLE,false);observer=new PaperWorkplaceOperations(session,getLogger());observer.runTaskTimer(WorkshopInvestmentProbe.this,1,1);pending=session.updateLoadedWorlds(Set.of(id));stage=9;return;}
+                    if(!permitted)return;
+                    require(scalar("SELECT COUNT(*) FROM business_workplace_anchors")==1&&scalar("SELECT COUNT(*) FROM workplace_operation_history")==5,"Anchor/history not retained");
+                    require(scalar("SELECT hundredths FROM treasuries")==28500&&scalar("SELECT hundredths FROM industry_stores WHERE business_id='"+business+"'")==1000,"Marker changes lost real money");
+                    require(scalar("SELECT COUNT(*) FROM business_employment WHERE ended_step IS NULL")==2&&scalar("SELECT COUNT(*) FROM workshop_starter_orders WHERE delivered_period IS NULL")==1,"Marker changes lost workers or cargo");
+                    observer.cancel();observer=null;world.getBlockAt(4,y,4).setBlockData(original,false);placed=false;
+                    require(world.getBlockAt(4,y,4).getBlockData().getAsString().equals(original.getAsString()),"Temporary block not exactly restored");
+                    getLogger().info("NATIVE WORKSHOP INVESTMENT PASS: qualified-owner SQL preparation, actual loaded table proof, atomic paid startup for synthetic working-farm customer; scheduled removed/wrong/restored marker, absence/restart, conserved money/jobs/cargo/history; temporary block restored");
+                    cancel();getServer().getPluginManager().disablePlugin(WorkshopInvestmentProbe.this);
+                }catch(Exception failure){cancel();getLogger().log(java.util.logging.Level.SEVERE,"NATIVE WORKSHOP INVESTMENT FAIL",failure);getServer().getPluginManager().disablePlugin(WorkshopInvestmentProbe.this);}}
+            }.runTaskTimer(this,1,1);
+        }catch(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"Workplace operation fixture refused",failure);getServer().getPluginManager().disablePlugin(this);}
+    }
+    @Override public void onDisable(){if(observer!=null)observer.cancel();if(session!=null)session.close();if(placed){world.getBlockAt(4,y,4).setBlockData(original,false);placed=false;}if(ticket){chunk.removePluginChunkTicket(this);ticket=false;}if(executor!=null)executor.shutdown();}
+}

@@ -538,3 +538,13 @@ workplace-observer:
 # Set false and restart to allow those firms to operate despite a missing marker.
 workplace-operations:
   pause-on-missing: true
+
+# First-workshop proposal/acceptance requirements. No free skill from a workstation.
+# The live founder training/automatic scheduling adapter is still being connected.
+workshop-founding:
+  enabled: true
+  founders-per-review: 64
+  minimum-age-months: 216
+  founder-smithing-experience: 10
+  worker-smithing-experience: 1
+  worker-capacity: 2

@@ -1,5 +1,12 @@
 # Phase 3 — businesses and industry checklist
 
+October12 verified next batch: qualified first-workshop proposal and current-fact
+atomic acceptance, actual paid toolkit production/farm purchase, SQL-owner/Paper
+handoff and restart/pause/replay guards. Wrapper: 1,079 tests, zero failures; native
+actual table proof/acceptance and marker lifecycle passed. Schema61 unchanged.
+Automatic founder training and normal scheduling remain next; broad milestones
+and partial counts unchanged. See WORKSHOP_INVESTMENT.md.
+
 October12 verified: approved new marker-founded business pause/restoration, atomic
 startup binding, real production/trade guards and retained assets/history. Full
 Wrapper verification: 1,067 tests, zero failures; actual disposable Paper scheduled

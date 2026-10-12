@@ -1,5 +1,51 @@
 # Civilizations — implementation status and handoff
 
+## October 12, 2026: qualified first-workshop investment acceptance verified
+
+The existing real opportunity review now prepares a deterministic proposal with a
+qualified available smithing owner, permanent marker/site/business/order IDs and
+exact editable investment terms. Preparation saves/spends/reserves nothing.
+After a fresh loaded Paper table check, SQL acceptance rechecks current customer,
+food/population proof, protected funds, real surplus, recipe/storage, marker survey
+and owner age/skills/jobs/study before one atomic funded startup. Changed facts or
+late SQL failures leave no partial business/payment/job/order/attachment. Accepted
+replay after restart cannot charge again, refill cargo or reset confirmed pause.
+Ownership remains unlimited; one employee job still constrains worker availability.
+
+Added WorkshopInvestment and WorkshopFoundingPolicy, strict optional economy.yml
+qualification settings, startup configuration and normal PopulationSession owner
+preparation/acceptance APIs. Extracted the existing marker startup rows so the
+current recheck and complete paid startup share one transaction. No new migration;
+schema61 unchanged. Qualification filtering precedes the bounded candidate page,
+then domain eligibility checks and stable seeded selection among feasible options.
+Prototype owner smithing10, employee smithing1, age216 months or configured adulthood,
+capacity2 and page64 are editable; existing files without the section opt out.
+
+Final Windows Wrapper clean verify passed 1,079 tests (1,077 unit + 2 integration),
+zero failures/errors/skips, 6:34. Ten temporary SQLite cases and two configuration
+cases cover qualification/determinism, real budgets/customers/stocks, changed facts,
+study/jobs, rollback, restart/replay/pause and actual SQL-owner calls. A complete
+accepted-workshop scenario produces one real toolkit from paid inputs and sells it
+to the actual productive farm with protected real funds and delayed owned cargo.
+Initial targeted fixture issues (a full farm and insufficient food money for a
+larger test population) were corrected without relaxing application behavior.
+
+Native WorkshopInvestmentProbe passed SQL-owner preparation, actual loaded table
+confirmation and atomic acceptance for an explicitly qualified synthetic fixture
+resident/working farm, then real marker removal/wrong-kind/restoration, world pause,
+restart and retained money/jobs/cargo/history. It does not claim automatic ordinary
+villager training. Temporary air block restored, test ticket released, normal stop,
+zero force-loaded chunks. 99/106 original main-save tables unchanged; seven changes
+only normal clocks/tracking/world masks, resident age_steps and farm observed_millis.
+Identity, assets, cash and histories unchanged; integrity/FK healthy. Exact server
+properties restored, helper archived and all backups retained. Human server untouched.
+
+This is tested preparation/acceptance, not the ordinary automatic first-founder
+training/scheduling loop or finished warehouse startup. Those remain next, followed
+by wider industries, specialization and long-run acceptance. Phase3 partial checklist
+stays about66%; no whole gate is falsely completed. No main merge or push. Current
+branch: codex/phase3-workshop-investment-acceptance. See WORKSHOP_INVESTMENT.md.
+
 ## October 12, 2026: approved fixed-workplace pause and restoration verified
 
 New explicitly marker-founded workshops/warehouses keep a permanent required table/
