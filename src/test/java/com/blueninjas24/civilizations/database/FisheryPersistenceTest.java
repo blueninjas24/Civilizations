@@ -37,6 +37,82 @@ class FisheryPersistenceTest {
         var p=new IndustryRuntimePolicy(true,1000,1,IndustryPolicy.prototype(),Map.of());
         var runtime=new IndustryRuntime(fixture.db.getConnection(),p);runtime.configureFishing(policy);runtime.start(now);return runtime;
     }
+    FisheryHabitatObservation habitat(long time,int suitable) {
+        return new FisheryHabitatObservation(fixture.world,time,true,java.util.stream.IntStream.range(0,40)
+                .mapToObj(x->new FisheryHabitatObservation.Support(new FisheryObservation.Column(x,0),
+                        x<suitable?FisheryHabitatObservation.State.SUITABLE:FisheryHabitatObservation.State.ABSENT)).toList());
+    }
+    @Test void confirmedLossRestorationRestartAndReplayPreserveOriginalTermsAndOwnedGoods()throws Exception {
+        industry().fish(UUID.randomUUID(),business,100,1,policy);var original=fisheries().find(site).orElseThrow();
+        var op=UUID.randomUUID();var evidence=habitat(20,20);var change=fisheries().habitat(op,site,evidence);
+        assertEquals(82,change.lost());assertEquals(new FishStock(160,160,0),stock());assertEquals(4,food());
+        fixture.db.close();fixture.open();assertEquals(change,fisheries().habitat(op,site,evidence));
+        assertThrows(SQLException.class,()->fisheries().habitat(op,site,habitat(20,40)));
+        fisheries().habitat(UUID.randomUUID(),site,habitat(30,40));assertEquals(new FishStock(320,160,0),stock());
+        assertEquals(change,fisheries().habitat(op,site,evidence));assertEquals(new FishStock(320,160,0),stock());
+        assertEquals(40,fisheries().columns(site).size());assertEquals(original.openingTerms(),fisheries().find(site).orElseThrow().openingTerms());
+        assertEquals(2,fixture.count("fishery_habitat_changes"));assertEquals(4,food());assertEquals(8500,fixture.cash());
+    }
+    @Test void unknownIncompleteWrongWorldStaleAndMissingSupportsCannotDestroyFish()throws Exception {
+        var before=fixture.snapshot();var valid=habitat(20,0);
+        var unknown=new ArrayList<>(valid.supports());unknown.set(0,new FisheryHabitatObservation.Support(unknown.getFirst().column(),FisheryHabitatObservation.State.UNKNOWN));
+        for(var bad:List.of(new FisheryHabitatObservation(fixture.world,20,false,valid.supports()),
+                new FisheryHabitatObservation(fixture.world,20,true,unknown),
+                new FisheryHabitatObservation(UUID.randomUUID(),20,true,valid.supports()),habitat(10,0),
+                new FisheryHabitatObservation(fixture.world,20,true,valid.supports().subList(0,39)))) {
+            assertThrows(SQLException.class,()->fisheries().habitat(UUID.randomUUID(),site,bad));assertEquals(before,fixture.snapshot());
+        }
+        var shifted=new ArrayList<>(valid.supports());shifted.set(0,new FisheryHabitatObservation.Support(new FisheryObservation.Column(-1,0),FisheryHabitatObservation.State.ABSENT));
+        assertThrows(SQLException.class,()->fisheries().habitat(UUID.randomUUID(),site,new FisheryHabitatObservation(fixture.world,20,true,shifted)));
+        assertEquals(before,fixture.snapshot());
+    }
+    @Test void dryHabitatNormalClockCannotCatchOrRecoverAndRestorationRecoversGradually()throws Exception {
+        fisheries().habitat(UUID.randomUUID(),site,habitat(20,0));var runtime=runtime(1000);
+        for(int i=2;i<=8;i++)assertEquals(1,runtime.pulse(i*1000L,Set.of(fixture.world)));
+        assertEquals(new FishStock(0,0,0),stock());assertEquals(0,food());
+        fixture.db.close();fixture.open();assertEquals(new FishStock(0,0,0),stock());
+        fisheries().habitat(UUID.randomUUID(),site,habitat(30,40));assertEquals(new FishStock(320,0,0),stock());
+        assertEquals(4,industry().fish(UUID.randomUUID(),business,100,8,policy).quantity());assertEquals(new FishStock(320,2,4000),stock());
+    }
+    @Test void lateHabitatAuditFailureRollsBackAllStateThenExactRetrySucceeds()throws Exception {
+        fixture.sql("CREATE TRIGGER reject_habitat BEFORE INSERT ON fishery_habitat_changes BEGIN SELECT RAISE(ABORT,'late fixture failure'); END");
+        var before=fixture.snapshot();var op=UUID.randomUUID();var evidence=habitat(20,0);
+        assertThrows(SQLException.class,()->fisheries().habitat(op,site,evidence));assertEquals(before,fixture.snapshot());
+        assertTrue(fixture.db.getConnection().getAutoCommit());fixture.sql("DROP TRIGGER reject_habitat");
+        assertEquals(240,fisheries().habitat(op,site,evidence).lost());assertEquals(1,fixture.count("fishery_habitat_changes"));
+    }
+    @Test void reducedCapacityWithStockBelowLimitLosesNothingAndRetunesCannotRestoreIt()throws Exception {
+        fixture.sql("UPDATE fishery_resources SET available=10,remainder=4000");
+        assertEquals(0,fisheries().habitat(UUID.randomUUID(),site,habitat(20,20)).lost());assertEquals(new FishStock(160,10,4000),stock());
+        var retuned=new FishingPolicy(true,1,100,10000,100,200,4,16);
+        assertEquals(stock(),fisheries().open(site,observation(fixture.world,0),retuned).stock());
+        industry().fish(UUID.randomUUID(),business,0,1,retuned);assertEquals(new FishStock(160,13,6000),stock());
+        assertThrows(SQLException.class,()->fixture.sql("UPDATE fishery_resources SET available=161"));
+        assertThrows(SQLException.class,()->fixture.sql("UPDATE fishery_resources SET habitat_capacity=321"));
+    }
+    @Test void migration67FailureRollsBackColumnAndRetryPreservesStockIdentityAndHistory()throws Exception {
+        industry().fish(UUID.randomUUID(),business,100,1,policy);var stock=stock();var columns=fisheries().columns(site);
+        SchemaFixtures.rewind(fixture.db.getConnection(),66);fixture.sql("PRAGMA user_version=66");var before=fixture.snapshot();
+        fixture.sql("CREATE VIEW fishery_habitat_changes AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));
+        assertEquals(before,fixture.snapshot());assertTrue(fixture.db.getConnection().getAutoCommit());
+        try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("SELECT * FROM fishery_resources")) {
+            assertEquals(7,r.getMetaData().getColumnCount());
+        }
+        fixture.sql("DROP VIEW fishery_habitat_changes");new SchemaMigrator().migrate(fixture.db.getConnection());
+        var after=fixture.snapshot();assertEquals(List.of(),after.remove("fishery_habitat_changes"));
+        after.remove("fishery_resources");var originalRows=before.remove("fishery_resources");assertEquals(before,after);
+        var preservedRows=new ArrayList<String>();
+        try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("SELECT * FROM fishery_resources")) {
+            while(r.next()) {
+                var row=new ArrayList<Object>();for(int c=1;c<=7;c++)row.add(r.getObject(c));preservedRows.add(row.toString());
+                assertNull(r.getObject("habitat_capacity"));
+            }
+        }
+        Collections.sort(preservedRows);assertEquals(originalRows,preservedRows);
+        assertEquals(stock,stock());assertEquals(columns,fisheries().columns(site));assertEquals(1,fixture.count("fishery_work"));assertEquals(4,food());
+        assertEquals(0,fixture.count("fishery_habitat_changes"));
+        try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+    }
     @Test void initializationCatchRestartAndRevisitConserveStockFoodCashAndIdentity()throws Exception {
         var before=fisheries().find(site).orElseThrow();var op=UUID.randomUUID();
         var receipt=industry().fish(op,business,100,1,policy);
@@ -131,7 +207,7 @@ class FisheryPersistenceTest {
         fixture.sql("CREATE VIEW fishery_columns AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));
         assertEquals(before,fixture.snapshot());assertTrue(fixture.db.getConnection().getAutoCommit());
         fixture.sql("DROP VIEW fishery_columns");new SchemaMigrator().migrate(fixture.db.getConnection());var after=fixture.snapshot();
-        for(var table:List.of("fishery_resources","fishery_columns","fishery_work"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
+        for(var table:List.of("fishery_resources","fishery_columns","fishery_work","fishery_habitat_changes"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
         try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
 }

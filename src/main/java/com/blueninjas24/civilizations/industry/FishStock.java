@@ -5,13 +5,27 @@ import java.util.Objects;
 /** Immutable renewable habitat stock. Capacity survives retuning; earned periods are supplied by the owner clock. */
 public record FishStock(long capacity, long available, int recoveryRemainder) {
     public FishStock {
-        if (capacity < 1 || capacity > 1_000_000_000L || available < 0 || available > capacity
+        if (capacity < 0 || capacity > 1_000_000_000L || available < 0 || available > capacity
                 || recoveryRemainder < 0 || recoveryRemainder >= 10_000
                 || (available == capacity && recoveryRemainder != 0))
             throw new IllegalArgumentException("Invalid fish stock");
     }
 
     public record Period(FishStock stock, long recovered, long caught, long storageSpace, String explanation) {}
+
+    public record HabitatChange(FishStock before, FishStock after, long lost) {}
+
+    /** Complete support evidence only. Original terms, not current opening settings, determine capacity. */
+    public HabitatChange habitat(long originalCapacity, int originalColumns, int suitableColumns) {
+        if (originalCapacity < 1 || originalCapacity > 1_000_000_000L || capacity > originalCapacity
+                || originalColumns < 1 || originalColumns > 4096 || suitableColumns < 0
+                || suitableColumns > originalColumns)
+            throw new IllegalArgumentException("Invalid confirmed fish habitat");
+        long limit = Math.multiplyExact(originalCapacity, suitableColumns) / originalColumns;
+        long retained = Math.min(available, limit);
+        var after = new FishStock(limit, retained, retained == limit ? 0 : recoveryRemainder);
+        return new HabitatChange(this, after, available - retained);
+    }
 
     /** One earned online/present-world period; recovery precedes catch. No elapsed wall-clock catch-up. */
     public Period advance(FishingPolicy policy, boolean activeWorld, long requestedCatch, int qualifiedWorkers,
@@ -21,6 +35,8 @@ public record FishStock(long capacity, long available, int recoveryRemainder) {
             throw new IllegalArgumentException("Invalid fishing work limits");
         if (!policy.enabled() || !activeWorld)
             return new Period(this, 0, 0, 0, "Fishing paused: " + (!activeWorld ? "world absent/no earned period" : "resource policy disabled"));
+        if (capacity == 0)
+            return new Period(this, 0, 0, 0, "Fishing paused: confirmed habitat has no remaining capacity");
 
         long fractionalRecovery = Math.addExact(Math.multiplyExact(capacity, policy.recoveryBasisPoints()), recoveryRemainder);
         long recovered = Math.min(capacity - available, fractionalRecovery / 10_000);

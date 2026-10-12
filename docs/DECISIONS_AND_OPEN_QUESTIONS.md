@@ -1,16 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October12: confirmed fishery habitat loss — awaiting decision
+## October12: confirmed fishery habitat loss — approved
 
-Before automatic fisheries are enabled, asked how supporting water removal should
-affect saved resources. Recommended: reduce capacity with confirmed suitable-water
-loss, retire only stock exceeding that reduced limit, and recover gradually after
-water is restored without an instant refill. No suitable habitat pauses work and
-recovery; incomplete/unloaded evidence never establishes loss. Alternative: pause
-work/recovery while preserving old stock until supporting habitat is restored.
-This is consequential renewable-resource behavior under AGENTS.md, separate from
-approved ordinary catch/recovery. No automatic habitat-loss behavior is enabled
-pending the user's answer. Read-only suitability evidence can be developed separately.
+User approved: “Go with your recommended answer.” Confirmed suitable-water loss
+reduces capacity, retiring only fish above the new limit. Restoring water restores
+capacity without refilling stock; normal recovery is gradual. No remaining habitat
+capacity pauses catch and recovery. Incomplete/unloaded evidence cannot establish
+loss. Original supports and opening terms stay saved; changes cannot create new
+resources or reset extracted goods. The explicit SQL-owner transition and schema67
+audit implement this rule; automatic live water observation remains unfinished.
+Effective capacity is the floor of original saved capacity times remaining suitable
+supports divided by original support count. This preserves capped opening abundance
+under admin retunes. Existing catch/recovery settings remain editable.
 
 ## October12: fishing resource recovery — approved
 

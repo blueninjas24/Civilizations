@@ -7,6 +7,55 @@ import static org.junit.jupiter.api.Assertions.*;
 class FishStockTest {
     private static final FishingPolicy POLICY = FishingPolicy.prototype();
 
+    @Test void habitatLossRetiresOnlyExcessAndRestorationDoesNotRefill() {
+        var change = new FishStock(320,240,4000).habitat(320,40,20);
+        assertEquals(80,change.lost()); assertEquals(new FishStock(160,160,0),change.after());
+        var restored = change.after().habitat(320,40,40);
+        assertEquals(0,restored.lost()); assertEquals(new FishStock(320,160,0),restored.after());
+        assertEquals(new FishStock(320,166,4000),restored.after().advance(POLICY,true,0,0,0,1).stock());
+        assertEquals(new FishStock(160,10,4000),new FishStock(320,10,4000).habitat(320,40,20).after());
+    }
+
+    @Test void dryHabitatPausesBothRecoveryAndCatchUntilRestored() {
+        var dry = new FishStock(320,240,9999).habitat(320,40,0);
+        assertEquals(240,dry.lost()); assertEquals(new FishStock(0,0,0),dry.after());
+        for(int i=0;i<1000;i++) assertEquals(dry.after(),dry.after().advance(POLICY,true,100,10,1000,1).stock());
+        var restored = dry.after().habitat(320,40,40).after();
+        assertEquals(new FishStock(320,0,0),restored);
+        assertEquals(6,restored.advance(POLICY,true,0,0,0,1).recovered());
+    }
+
+    @Test void habitatCapacityUsesOriginalCappedTermsWithConservativeIntegerRounding() {
+        assertEquals(new FishStock(1,1,0),new FishStock(5,3,0).habitat(5,3,1).after());
+        assertEquals(2048,new FishStock(4096,0,0).habitat(4096,4096,2048).after().capacity());
+        assertThrows(IllegalArgumentException.class,()->new FishStock(5,3,0).habitat(4,3,1));
+        assertThrows(IllegalArgumentException.class,()->new FishStock(5,3,0).habitat(5,3,4));
+        assertThrows(IllegalArgumentException.class,()->new FishStock(0,0,1));
+    }
+
+    @Test void seededHabitatChangesNeverInventFishOrExceedOriginalCapacity() {
+        var random=new Random(817);var stock=POLICY.opening(40,true);
+        for(int i=0;i<10000;i++) {
+            int columns=random.nextInt(41);var change=stock.habitat(320,40,columns);
+            assertEquals(stock.available()-change.lost(),change.after().available());
+            assertTrue(change.lost()>=0);assertEquals(columns*8L,change.after().capacity());
+            stock=change.after().advance(POLICY,true,random.nextInt(20),random.nextInt(5),100,1).stock();
+        }
+    }
+
+    @Test void habitatEvidenceDistinguishesConfirmedAbsenceFromUnknownAndSortsIdentity() {
+        var a=new FisheryObservation.Column(1,2);var b=new FisheryObservation.Column(3,4);
+        var known=new FisheryHabitatObservation(java.util.UUID.randomUUID(),10,true,java.util.List.of(
+                new FisheryHabitatObservation.Support(b,FisheryHabitatObservation.State.ABSENT),
+                new FisheryHabitatObservation.Support(a,FisheryHabitatObservation.State.SUITABLE)));
+        assertTrue(known.authoritative());assertEquals(1,known.suitableColumns());assertEquals(a,known.supports().getFirst().column());
+        assertFalse(new FisheryHabitatObservation(known.world(),10,false,known.supports()).authoritative());
+        assertFalse(new FisheryHabitatObservation(known.world(),10,true,java.util.List.of(
+                new FisheryHabitatObservation.Support(a,FisheryHabitatObservation.State.UNKNOWN))).authoritative());
+        assertThrows(IllegalArgumentException.class,()->new FisheryHabitatObservation(known.world(),10,true,
+                java.util.List.of(known.supports().getFirst(),known.supports().getFirst())));
+    }
+
     @Test void openingNeedsCompleteSuitableHabitatAndHasBoundedAbstractCapacity() {
         assertEquals(new FishStock(320, 240, 0), POLICY.opening(40, true));
         assertEquals(4096, POLICY.opening(4096, true).capacity());

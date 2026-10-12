@@ -1,5 +1,33 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — approved confirmed fishery habitat transitions
+
+User approved the recommended loss/restoration rule. FishStock now represents dry
+habitats and proportional effective capacity from original saved abundance/supports.
+Only excess fish are lost; restoring capacity never refills. Explicit complete
+FisheryHabitatObservation covers every original coordinate, distinguishing absent
+from unknown. FisheryRepository validates world/coverage/freshness and commits
+effective capacity/stock/fraction/time with an idempotent before/after/loss audit.
+Original supports/terms, owned food, cash, workers and business history survive.
+Schema67 adds one nullable column and one initially empty history table/index;
+old resources retain original capacity without backfill or table rebuild.
+
+Five domain and six temporary-SQL cases added: deterministic 10,000 transitions,
+excess-only loss/restoration, dry normal timers, unknown/stale/omitted evidence,
+restart/replay/retunes, late audit rollback and schema66 migration failure/retry
+with all old rows preserved. Focused53 passed, zero failures/errors/skips,24.444s
+at17:22:26 ET. Full Windows .\mvnw.cmd clean verify passed1,221 (1,219 unit/two
+packaged integration), zero failures/errors/skips,6:57 at17:29:57 ET. Guarded native
+normal-owner dry/restoration/pause/restart check passed at17:31:19 and stopped
+normally. Evidence was explicit fixture support status, not a native water survey;
+no world mutations. Main disposable save111/114 old tables exact; three ordinary
+clock/economy/ore bookkeeping changes, all old identities/assets/cash/history
+preserved, fishery tables empty and schema67 integrity/FK healthy. Original
+properties restored byte-exact, helper archived, consistent backups retained.
+No human server/world/DB changes. Automatic live water
+observation/founding remains unfinished. Phase3 stays1/4 whole groups/~69% partial.
+The earlier pending habitat question below is answered by this approval.
+
 ## October12, 2026 — persistent fisheries and ordinary timed catches
 
 Added FisheryObservation/FisheryRepository and schema66: three initially empty

@@ -48,6 +48,9 @@
 - Decisions create projects and historical events; prior outcomes influence future weights without machine learning.
 
 ## Industry and business
+- October 12 approved: confirmed loss of supporting fishery water reduces habitat
+  capacity and loses only fish above the reduced limit. Restoration permits gradual
+  recovery without an instant refill; unknown evidence never establishes loss.
 - October 12 approved: fishing uses habitat-backed renewable stock, gradual
   configurable recovery and temporary exhaustion under heavy harvesting. Catches
   require actual qualified work and storage; server/world absence pauses both

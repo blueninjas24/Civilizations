@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+October12: approved confirmed habitat-loss/restoration implemented in the explicit
+SQL-owner fishery transition. Schema67 preserves original footprint/abundance;
+reduced effective capacity loses excess only, restoration does not refill, dry
+timers cannot catch/recover, unknown/stale/incomplete evidence cannot remove fish.
+Five domain/six temporary-SQL cases added; focused53/full1,221 passed, zero failures/
+errors/skips. Guarded native dry/restoration/normal-timer/pause/restart passed;
+main save audited, settings restored and helper archived. Automatic water observation/qualified founding remains next;
+the broader renewable-industry milestone and all counts remain unchanged.
+
 October12: persistent habitat stocks/column identity, atomic qualified catches/
 owned food and ordinary industry clocks added in schema66. Ten new temporary SQL
 cases passed, including real public food purchase/arrival/consumption, rollback,
@@ -8,7 +17,7 @@ owner-timer/pause/restart check passed; main save audited, fixture properties re
 Automatic water
 observation/qualified startup remains unfinished, so broad renewable catalog
 milestone and counts are unchanged. See FISHING_RESOURCES.md.
-Confirmed habitat-loss behavior awaits the user's choice before automatic startup.
+The habitat-loss choice recorded at that checkpoint has now been approved above.
 
 October12: fish-stock renewal approved. Added bounded immutable resource/catch
 calculations and strict editable fishing-resources terms: fractional recovery,

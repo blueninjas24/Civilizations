@@ -6,6 +6,46 @@ rest allows gradual recovery, and heavy harvesting can temporarily exhaust it.
 Abstract catches do not require one visible Minecraft fish entity per food unit.
 Server downtime and absent worlds must earn no recovery or fishing work.
 
+## Confirmed habitat changes
+
+The approved habitat-loss rule has an explicit SQL-owner API, not an automatic
+world observer. FisheryHabitatObservation must include the status of every saved
+original support in its permanent world: suitable, confirmed absent or unknown.
+Incomplete/unknown, wrong-world, omitted/changed supports and stale timestamps
+reject without altering resource state. Unloaded water is unknown, never absent.
+
+Capacity uses original saved abundance: floor(original capacity × suitable supports
+/ original support count). A 320-unit habitat with 40 original supports falls to
+160 capacity when 20 remain suitable. If 240 fish remain, 80 are lost; if only ten
+remain, none are lost. Restoring all 40 supports restores 320 capacity but retains
+the current fish count. Ordinary editable recovery then replenishes it gradually.
+No capacity pauses both recovery and catching, including normal industry timers.
+This can mean zero capacity after conservative rounding for tiny capped habitats.
+The opening minimum applies to founding, not an extra mortality threshold afterward.
+
+Original coordinate claims remain reserved through loss/restoration. Already caught
+owned food, cash, jobs and business identity are unaffected. Fractional recovery
+is preserved below the new cap and discarded at a full/dry cap, preventing banked
+renewal. Admin opening edits cannot restore habitat or increase original abundance.
+
+Schema67 adds nullable effective habitat_capacity (NULL retains old capacity)
+and an initially empty fishery_habitat_changes audit table/index. It requires no
+resource backfill or table rebuild. Capacity, stock, fraction and observation time
+change atomically with the audit. Operation IDs replay the saved before/after/loss
+even after later transitions; conflicting reuse rejects. Migration failure rolls
+back the added column as well as history; old rows and work remain unchanged.
+
+Live loaded-water classification and automatic fishery founding remain next work.
+This API does not yet react to a player draining water on your installed server.
+
+Verified: five new domain and six @TempDir SQL cases; focused53 and full Windows
+Wrapper clean verify1,221 tests passed with zero failures/errors/skips. Guarded
+native ordinary-owner timer probe passed for dry pause, restoration without refill,
+gradual catches, loss/food/cash conservation and absence/downtime/disabled restart.
+It used explicit support evidence, not native water classification. Normal shutdown,
+healthy schema67, old-save audit, exact setting restoration and helper archival
+completed. The human playable server/database was untouched.
+
 ## Persistence and owner-clock integration
 
 Schema66 adds initially empty `fishery_resources`, `fishery_columns` and
@@ -84,7 +124,7 @@ automatic live discovery/founding remains unfinished.
 | `stock-per-water-column` | 8 | Abstract capacity per suitable column |
 | `maximum-stock` | 4096 | Maximum capacity of one new fishery |
 | `initial-stock-percent` | 75 | Initial percentage of new capacity, 0–100 |
-| `recovery-basis-points` | 200 | 2% of saved capacity per earned period, 0–10000 |
+| `recovery-basis-points` | 200 | 2% of saved effective capacity per earned period, 0–10000 |
 | `catch-per-worker` | 4 | Maximum food units per qualified worker/period |
 | `site-catch-capacity` | 16 | Maximum food units caught at the site/period |
 
@@ -106,7 +146,8 @@ coverage. Full Windows Wrapper verify passed1,210 tests; guarded native normal
 SQL-owner timer check passed with absence/downtime/disabled restart safety, healthy
 schema66 and audited main-save preservation. Native water suitability scanning was
 not tested: the helper used explicit fixture columns and changed no world blocks.
-Confirmed habitat-loss behavior awaits a user decision before automatic startup.
+Confirmed habitat loss/restoration has now been approved and implemented through
+the explicit complete-support transition above; live observation remains next.
 No human server deployment. Construction/docks and
 visible work points remain Phase 4. Phase 3's broader industry milestone remains
 incomplete; resource arithmetic alone does not close it.

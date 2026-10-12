@@ -15,6 +15,10 @@ These are design contracts, **not finalized numeric tuning values**. Avoid hardc
   world merely because a different world is loaded.
 
 ## Resources and production
+- Approved October 12: confirmed fishery habitat loss lowers effective capacity;
+  retained fish = min(previous fish, new capacity). Restored capacity creates no
+  fish immediately. Original support identity/abundance remain saved. Zero capacity
+  pauses both catches and recovery; incomplete or unknown evidence leaves state intact.
 - Approved October 12: suitable observed open water supports a renewable fish
   stock. Catches reduce it; gradual configurable recovery can restore an exhausted
   fishery. Actual staffed work, site/storage limits and real demand still apply.

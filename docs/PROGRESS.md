@@ -2,14 +2,21 @@
 
 Updated October 12, 2026. Based on verified work, not planned features.
 
+You approved the water-loss rule. The saved-resource update now reduces fishery
+capacity when complete evidence confirms water loss, losing only excess fish.
+Restoring water allows gradual recovery without an instant refill. Unknown water
+cannot delete fish. All1,221 full-build tests and the isolated Paper dry/recovery/
+restart check passed. Automatic water recognition remains next, so your server is unchanged
+and Phase3 milestone counts remain unchanged.
+
 Fishing now has saved resource supplies and a timed catch path for a registered,
 qualified business. Catching fish lowers its supply and adds owned food together;
 restarts preserve both. Tests also show a hungry village can pay for that real food
 and consume it after delivery. All1,210 full-build tests and the isolated Paper
 timer/pause/restart check passed. Automatic water recognition/founding still
 needs work, so the broader Phase3 milestone remains open. Your server is unchanged.
-The next gameplay choice is how fish supplies respond when players remove their
-supporting water; this is pending in DECISIONS_AND_OPEN_QUESTIONS.md.
+The supporting-water choice at that checkpoint has now been approved and its
+saved transition implemented above; automatic live observation remains unfinished.
 
 You approved fish supplies that rise and fall. The new calculation lets heavy
 fishing empty a fishery and resting restore it, with editable catch/recovery rates.

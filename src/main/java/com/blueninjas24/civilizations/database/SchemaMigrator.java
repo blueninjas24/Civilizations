@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 66;
+    static final int CURRENT_VERSION = 67;
 
     @FunctionalInterface
     interface Migration {
@@ -909,7 +909,8 @@ final class SchemaMigrator {
                 SchemaMigrator::createWarehouseFounderStudy,
                 SchemaMigrator::extendFiniteResourceKinds,
                 SchemaMigrator::createVillageSupplyOrders,
-                SchemaMigrator::createFisheries
+                SchemaMigrator::createFisheries,
+                SchemaMigrator::createFisheryHabitatChanges
 
 
         ));
@@ -1162,6 +1163,35 @@ final class SchemaMigrator {
         }
         connection.setAutoCommit(true);
         if(restoreForeignKeys)execute(connection,"PRAGMA foreign_keys=ON");
+    }
+
+    static void createFisheryHabitatChanges(Connection connection) throws SQLException {
+        // NULL preserves the original capacity in all old saves, without a resource backfill/refill.
+        execute(connection, """
+                ALTER TABLE fishery_resources ADD COLUMN habitat_capacity INTEGER
+                CHECK(habitat_capacity IS NULL OR (typeof(habitat_capacity)='integer'
+                    AND habitat_capacity BETWEEN 0 AND capacity AND available<=habitat_capacity
+                    AND (available<habitat_capacity OR remainder=0)))
+                """);
+        execute(connection, """
+                CREATE TABLE fishery_habitat_changes (
+                    operation_id TEXT PRIMARY KEY NOT NULL,
+                    site_id TEXT NOT NULL REFERENCES fishery_resources(site_id),
+                    evidence TEXT NOT NULL,
+                    observed_ms INTEGER NOT NULL CHECK(typeof(observed_ms)='integer' AND observed_ms>=0),
+                    before_capacity INTEGER NOT NULL CHECK(typeof(before_capacity)='integer' AND before_capacity BETWEEN 0 AND 1000000000),
+                    after_capacity INTEGER NOT NULL CHECK(typeof(after_capacity)='integer' AND after_capacity BETWEEN 0 AND 1000000000),
+                    opening_units INTEGER NOT NULL CHECK(typeof(opening_units)='integer' AND opening_units BETWEEN 0 AND before_capacity),
+                    lost INTEGER NOT NULL CHECK(typeof(lost)='integer' AND lost>=0),
+                    closing_units INTEGER NOT NULL CHECK(typeof(closing_units)='integer' AND closing_units BETWEEN 0 AND after_capacity),
+                    before_remainder INTEGER NOT NULL CHECK(typeof(before_remainder)='integer' AND before_remainder BETWEEN 0 AND 9999),
+                    after_remainder INTEGER NOT NULL CHECK(typeof(after_remainder)='integer' AND after_remainder BETWEEN 0 AND 9999),
+                    CHECK(closing_units=opening_units-lost),
+                    CHECK(opening_units<before_capacity OR before_remainder=0),
+                    CHECK(closing_units<after_capacity OR after_remainder=0)
+                )
+                """);
+        execute(connection, "CREATE INDEX fishery_habitat_history ON fishery_habitat_changes(site_id,observed_ms)");
     }
 
     static void createFisheries(Connection connection) throws SQLException {

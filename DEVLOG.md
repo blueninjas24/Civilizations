@@ -1,5 +1,27 @@
 # Civilizations Development Log
 
+## October12, 2026 — confirmed fishery habitat capacity and loss
+
+Branch codex/phase3-fishery-habitat-loss. Recorded approved recommendation.
+Added explicit complete original-support health evidence and pure capacity/loss
+calculation, including zero-capacity pause. FisheryRepository conserves original
+claims/terms and owned assets, atomically persists effective stock/time with replay
+audit; stale/unknown/incomplete/wrong-world/changed-footprint evidence rejects.
+Schema67 is an additive nullable-capacity column/history table/index, retaining
+all old rows without refill/backfill. Historical schema fixtures updated for67.
+Five domain/six @TempDir SQL cases added. Focused53 passed, zero failures/errors/
+skips,24.444s at17:22:26 ET. Full Windows .\mvnw.cmd clean verify passed1,221
+(1,219 unit/two packaged integration), zero failures/errors/skips,6:57 at17:29:57.
+Extended guarded Paper probe passed at17:31:19, normal shutdown: dry normal timer
+pause, restored capacity without refill, gradual recovery/catches, conserved loss
+audit/owned food/cash and absent-world/downtime/disabled restart safety. Explicit
+fixture support evidence, not native water classification; no world mutations.
+Main save111/114 old tables exact; three normal clock/economy/ore changes, old
+identity/assets/cash/history preserved, fishery tables empty, schema67 integrity/FK
+healthy. Exact properties restored, helper archived, consistent backups retained.
+Diff review/check passed. No live water
+classifier/automatic founding, human-server changes, merge or push. Counts unchanged.
+
 ## October12, 2026 — persistent renewable fisheries and timed owned catches
 
 Branch codex/phase3-persistent-fisheries. Schema66 adds initially empty resource,
