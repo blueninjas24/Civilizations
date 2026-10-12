@@ -1,5 +1,53 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026: read-only first mineral-chain warehouse prospects verified
+
+The SQL owner can now review a first warehouse for actual staffed/funded workshop
+input gaps after owned/incoming goods, a current unclaimed nearby barrel, trusted
+suitable coal/iron for every input and protected public grant feasibility. Whole
+initial purchases must fit real warehouse capital/storage/haul. Whole startup
+cash and remaining lifetime grants must cover warehouse plus one needed mineral
+supplier per input, without guessing future public income. Each source needs
+sufficient finite potential in a connected patch; disconnected deposits cannot
+be pooled into one affordable mine. Current-period grants remain shared: a paid
+workshop can exhaust the allowance until a real later food period. No review
+creates/reserves funds, stock, employment, sites, deposits, courses or businesses.
+Existing warehouse identity, including closed firms, prevents first-firm bypass.
+
+Added WarehouseOpportunities/WarehouseOpportunityPolicy, strict optional editable
+economy.yml section, startup configuration and read-only PopulationSession API.
+Schema62 unchanged; missing legacy section disables review. Updated stale bundled
+comments and workshop integration docs. This is prospect evidence, not automatic
+warehouse founder study, final fresh-block acceptance or scheduling. Wider catalogs,
+competition and specialization remain. Prototype terms reuse approved grant/
+marker/economy direction; no new payment, ownership or resource regeneration rule.
+
+Thirteen temporary SQLite tests and two config cases verify actual paid toolkit
+sale leading to raw input need, no-write determinism/restart, shared budgets,
+whole-chain cash/lifetime limits, finite connected potential, missing/unsafe/
+placed/range-excluded/stale/future/absent sources, changed customers, retained
+warehouse identity, whole-page bounds, legacy opt-out and actual SQL-owner calls.
+92 targeted tests passed. Final Windows .\mvnw.cmd clean verify passed 1,110 tests
+(1,108 unit + 2 integration), zero failures/errors/skips, 6:22. Earlier full run
+also passed before the additional whole-chain guards. Initial fixture/API call
+issues were corrected; real period-budget refusal was retained, not bypassed.
+
+Final packaged native probe repeated unskilled-owner timed study/automatic
+workshop startup plus marker/absence/restart/conservation. It also called the new
+warehouse API and checked a disabled upstream chain produces no prospect; positive
+warehouse prospect verification is SQLite/actual SQL-owner, not native founding.
+Disposable Paper stopped normally; no force-loaded chunks, temporary block/ticket
+restored/released. 101/108 original main-save tables unchanged; seven normal
+clock/tracking/world-mask, resident age and farm observation changes only. Identity,
+assets, money/history and empty schema62 founder tables preserved, integrity/FK
+healthy. Exact properties restored, helper archived and backups retained. Human
+server untouched. No main merge or push. Current branch: codex/phase3-warehouse-opportunities.
+
+Phase3 partial checklist stays about66%; no broad gate is falsely completed.
+Next: eligible merchant preparation/training, fresh barrel acceptance and ordinary
+warehouse startup, then connected first mining chain and wider industries. No new
+user decision blocks that scoped work. See WAREHOUSE_OPPORTUNITIES.md.
+
 ## October 12, 2026: automatic supply-backed first-workshop owner training verified
 
 Ordinary scheduled workshop reviews can now sponsor one eligible unemployed adult

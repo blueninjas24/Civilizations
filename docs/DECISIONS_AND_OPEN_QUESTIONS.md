@@ -1,5 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October12: provisional first mineral-chain warehouse review
+
+Under approved configurable economy/startup-grant/marker direction, read-only
+warehouse prospects use editable500 startup/4000 capital hundredths, capacity1024,
+page8, evidence60 seconds, range96 horizontal/48 vertical. Whole-chain current
+cash/lifetime allowance and finite connected sources are checked conservatively;
+no future public income or deposit pooling is assumed. These checks are planning
+evidence, not a new automatic startup rule, guarantee of sales/profit or creation
+of assets/skills. Existing files opt in. Actual qualification/training and final
+point/SQL acceptance remain next. See WAREHOUSE_OPPORTUNITIES.md and status.
+
 ## October12: approved first-workshop training direction connected
 
 Existing approval for gradual supply-backed unemployed-adult training now applies

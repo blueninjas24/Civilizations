@@ -27,6 +27,7 @@ public final class EconomyConfiguration {
         if (config.contains("workshop-starter-supplies")) rootKeys.add("workshop-starter-supplies");
         if (config.contains("workshop-founding")) rootKeys.add("workshop-founding");
         if (config.contains("workshop-opportunities")) rootKeys.add("workshop-opportunities");
+        if (config.contains("warehouse-opportunities")) rootKeys.add("warehouse-opportunities");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-tools")) rootKeys.add("business-tools");
         if (config.contains("upkeep-contributions")) rootKeys.add("upkeep-contributions");
@@ -54,6 +55,7 @@ public final class EconomyConfiguration {
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
         readWorkshopOpportunities(config);
+        readWarehouseOpportunities(config);
         readWorkshopFounding(config);
         readWarehouseSupply(config);
         readToolUpkeep(config);
@@ -460,6 +462,14 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("workshop-opportunities.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy(enabled,smallInteger(s,"markers-per-review"),integer(s,"evidence-lifetime-millis"),
             smallInteger(s,"horizontal-range"),smallInteger(s,"vertical-range"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),integer(s,"storage-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy readWarehouseOpportunities(ConfigurationSection config) {
+        if(!config.contains("warehouse-opportunities"))return com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy.disabled();
+        var s=section(config,"warehouse-opportunities");
+        exactKeys(s,Set.of("enabled","markers-per-review","evidence-lifetime-millis","horizontal-range","vertical-range","startup-hundredths","capital-hundredths","storage-capacity"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("warehouse-opportunities.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy(enabled,smallInteger(s,"markers-per-review"),integer(s,"evidence-lifetime-millis"),
+                smallInteger(s,"horizontal-range"),smallInteger(s,"vertical-range"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),integer(s,"storage-capacity"));
     }
     public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
         if (!config.contains("ore-provenance")) return List.of();

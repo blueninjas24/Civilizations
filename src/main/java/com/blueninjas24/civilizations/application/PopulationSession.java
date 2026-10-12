@@ -87,6 +87,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.database.IndustryRuntime industries;
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy workshopFoundingPolicy=com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy warehouseOpportunityPolicy=com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy workplaceOperationPolicy=com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
@@ -199,6 +200,10 @@ public final class PopulationSession implements AutoCloseable {
     public void configureWorkshopFounding(com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure workshop founding before startup");
         workshopFoundingPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureWarehouseOpportunities(com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure warehouse opportunities before startup");
+        warehouseOpportunityPolicy=java.util.Objects.requireNonNull(policy);
     }
     public void configureWorkplaceOperations(com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure marker operation policy before startup");
@@ -526,6 +531,16 @@ public final class PopulationSession implements AutoCloseable {
                 operationPolicy,startupGrantPolicy,workshopStarterPolicy,farmToolsPolicy,farmToolsBudget);
         return new com.blueninjas24.civilizations.database.WorkshopInvestment(database.getConnection(),evidence,workshopFoundingPolicy,workshopOpportunityPolicy,
                 industryPolicy,startupGrantPolicy,workshopStarterPolicy,settings.population().adulthoodSteps(),settings.seed());
+    }
+    /** Read-only mineral-chain warehouse prospects; never claims a marker or pays a grant. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.WarehouseOpportunities.Review> currentWarehouseOpportunities(UUID town) {
+        return submit(()-> {
+            requireReady();
+            if(!workplacePolicy.enabled()||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL))
+                return new com.blueninjas24.civilizations.database.WarehouseOpportunities.Review(java.util.List.of(),"Barrel recognition disabled");
+            return new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
+                operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get()).review(town,now.getAsLong(),loadedWorlds);
+        });
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation> prepareWorkshopInvestment(UUID town) {
         return submit(()-> {

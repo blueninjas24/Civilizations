@@ -1,5 +1,11 @@
 # Phase 3 — businesses and industry checklist
 
+Verified October12: first mineral-chain warehouse prospect review for actual paid
+workshop needs, complete suitable finite sources and protected whole-chain budgets.
+1,110 Wrapper tests + packaged Paper regression passed; schema62 unchanged.
+Read-only evidence/API only; merchant preparation/training/acceptance/scheduling
+remain next. Broad counts unchanged. See WAREHOUSE_OPPORTUNITIES.md.
+
 Verified October12: automatic first-workshop owner study using real future-period
 practice supplies, current opportunity pause/reassessment and normal paid startup.
 1,095 full Wrapper tests plus unskilled-owner normal timer/automatic Paper startup

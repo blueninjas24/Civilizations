@@ -13,6 +13,16 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void warehouseOpportunityPrototypeIsEditableAndLegacyDisabled()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy.prototype(),EconomyConfiguration.readWarehouseOpportunities(config));
+        config.set("warehouse-opportunities.capital-hundredths",3500);EconomyConfiguration.read(config);assertEquals(3500,EconomyConfiguration.readWarehouseOpportunities(config).capitalHundredths());
+        config.set("warehouse-opportunities",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readWarehouseOpportunities(config).enabled());
+    }
+    @Test void malformedWarehouseOpportunitySettingsFailBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of(0,65,1.5,"many")){var config=defaults();config.set("warehouse-opportunities.markers-per-review",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));}
+        var config=defaults();config.set("warehouse-opportunities.enabled","yes");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var invalid=defaults();invalid.set("warehouse-opportunities.extra",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(invalid));
+    }
     @Test void workshopOpportunityPrototypeIsEditableAndLegacyDisabled()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy.prototype(),EconomyConfiguration.readWorkshopOpportunities(config));
         config.set("workshop-opportunities.capital-hundredths",3500);EconomyConfiguration.read(config);assertEquals(3500,EconomyConfiguration.readWorkshopOpportunities(config).capitalHundredths());

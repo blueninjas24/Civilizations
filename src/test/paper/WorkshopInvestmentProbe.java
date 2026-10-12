@@ -65,6 +65,7 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
         session.configureFarmBusinesses(new FarmBusinessPolicy(true,1,0,216,0));session.configureFarmTools(upkeep,FarmToolBudgetPolicy.prototype());session.configureWorkLearning(WorkLearningPolicy.prototype());
         session.configureBusinessOperations(BusinessOperationPolicy.prototype());session.configureIndustryRuntime(industry);session.configureWorkplaces(WorkplaceObserverPolicy.prototype());
         session.configureStudy(StudyPolicy.prototype());session.configureCareerStudy(CareerStudyPolicy.prototype());
+        session.configureWarehouseOpportunities(WarehouseOpportunityPolicy.prototype());
         session.configureWorkshopOpportunities(WorkshopOpportunityPolicy.prototype(),starter);session.configureWorkshopFounding(WorkshopFoundingPolicy.prototype());session.configureMineFounding(MineFoundingPolicy.disabled(),StartupGrantPolicy.prototype());
         return session;
     }
@@ -85,6 +86,7 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
             new BukkitRunnable() {
                 CompletableFuture<?> pending=startup;CompletableFuture<BusinessOperations.Availability> availability;
                 int ticks,stage,waitUntil;
+                CompletableFuture<WarehouseOpportunities.Review> warehouseReview;
                 public void run(){try {
                     if(++ticks>800)throw new IllegalStateException("Workplace operation probe timeout");
                     if(pending!=null){if(!pending.isDone())return;pending.join();pending=null;}
@@ -104,6 +106,8 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
                     if(stage==7){if(permitted)return;observer.cancel();observer=null;session.close();session=owner();pending=session.start(false,Set.of());stage=8;return;}
                     if(stage==8){require(!permitted,"Restart erased marker pause");world.getBlockAt(4,y,4).setType(Material.SMITHING_TABLE,false);observer=new PaperWorkplaceOperations(session,getLogger());observer.runTaskTimer(WorkshopInvestmentProbe.this,1,1);pending=session.updateLoadedWorlds(Set.of(id));stage=9;return;}
                     if(!permitted)return;
+                    if(warehouseReview==null){warehouseReview=session.currentWarehouseOpportunities(town);return;}
+                    if(!warehouseReview.isDone())return;require(warehouseReview.join().candidates().isEmpty(),"Disabled upstream chain invented a warehouse prospect");
                     require(scalar("SELECT COUNT(*) FROM business_workplace_anchors")==1&&scalar("SELECT COUNT(*) FROM workplace_operation_history")==5,"Anchor/history not retained");
                     require(scalar("SELECT hundredths FROM treasuries")+scalar("SELECT hundredths FROM industry_stores WHERE business_id='"+business+"'")==29500,"Training/startup/marker changes lost real money");
                     require(scalar("SELECT COUNT(*) FROM business_employment WHERE ended_step IS NULL")==2&&scalar("SELECT COUNT(*) FROM workshop_starter_orders")==1,"Marker changes lost workers or cargo");

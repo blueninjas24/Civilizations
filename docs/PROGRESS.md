@@ -4,7 +4,7 @@ Updated October 12, 2026. Based on verified work, not planned features.
 
 Villages can now recognize nearby barrels and smithing tables as possible
 workplaces, while leaving blocks and their contents alone. Saved evidence survives
-restart; removed markers stop being candidates. All 1,095 tests and the disposable
+restart; removed markers stop being candidates. All 1,110 tests and the disposable
 Paper check passed. Your playable server has not been changed.
 
 New marker-founded firms now pause if their table/barrel is confirmed missing and
@@ -17,6 +17,10 @@ food funds, materials and actual table are checked again before spending. Tests
 also verify the resulting toolkit can be bought by a working farm. Automatic first
 owner training and the ordinary startup scheduler are now connected and verified.
 An unemployed adult learns gradually using real supplies before the business can open.
+
+Warehouse planning can now check real workshop input needs, observed ore, a nearby
+barrel and enough protected money for the whole starter chain. This creates
+nothing yet; merchant training and automatic warehouse opening remain next.
 
 Phase 3 has one of four major groups fully complete. The partial work inside the
 other groups is now shown here instead of being hidden behind a fixed25% bar:

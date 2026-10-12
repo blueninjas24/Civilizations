@@ -2,8 +2,9 @@
 
 This is a trusted SQL-owner application path, not a new gameplay command or an
 automatic scheduler. It connects current first-workshop opportunities to a genuinely
-qualified owner, fresh Paper block evidence and one atomic paid startup. First-owner
-training and the ordinary server scheduling adapter are still separate work.
+qualified owner, fresh Paper block evidence and one atomic paid startup. The
+ordinary server adapter and gradual first-owner study now invoke this path; see
+AUTOMATIC_WORKSHOPS.md and WORKSHOP_FOUNDER_TRAINING.md for verified integration.
 
 ## Qualification and configuration
 

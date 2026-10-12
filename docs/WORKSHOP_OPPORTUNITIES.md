@@ -3,8 +3,11 @@
 `WorkshopOpportunities` reviews a narrow first blacksmith/toolkit investment.
 It does not create a firm, hire anyone, enroll a course, reserve money or claim
 blocks. `PopulationSession.currentWorkshopOpportunities` runs it on the normal
-SQL owner. The plugin reads the optional policy at startup; there is no automatic
-founding scheduler or player command for this review yet.
+SQL owner. The plugin reads the optional policy at startup. The normal automatic
+workshop path now consumes this evidence, sponsors real first-owner study and
+requires final loaded-table/SQL acceptance. See AUTOMATIC_WORKSHOPS.md and
+WORKSHOP_FOUNDER_TRAINING.md. The read-only API remains an internal review, without
+a player command or direct spending.
 
 Candidate evidence requires all of the following:
 

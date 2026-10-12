@@ -430,7 +430,7 @@ business-tools:
   industries: [mining, blacksmith]
 
 # Gradual practice by unemployed adults selected for actual opportunities.
-# Courses are persistent; this backend does not automatically choose careers yet.
+# Courses are persistent; actual vacancies and viable first-owner prospects sponsor study.
 # Real village supplies are consumed per successful study period; food comes first.
 # Missing old sections leave study disabled. Edit while stopped, then restart.
 resident-study:
@@ -503,7 +503,7 @@ automatic-career-study:
 # Requires current trusted exposed ore, a staffed affordable warehouse buyer, real
 # founder experience and protected shared startup grants. No digging/building/chunk loads.
 # Existing viable stock/extraction capacity suppresses redundant mines.
-# No first founder training or automatic warehouses/workshops in this adapter.
+# Supply-backed first mining-owner study is connected; broader industry founding is separate.
 # Per-resource output replaces coal/iron in industry.mining-bundle; its other
 # configured byproducts remain. Deposits save terms once; edits never refill old ore.
 automatic-mines:
@@ -524,7 +524,7 @@ automatic-mines:
     iron: 1
 
 # Read-only existing markers around one saved home per village. Never opens an
-# inventory, moves blocks or grants property rights. Not automatic founding yet.
+# inventory, moves blocks or grants property rights. Current-block proof still gates startup.
 # Legacy files without this section stay disabled; select either/both marker types.
 workplace-observer:
   enabled: true
@@ -540,7 +540,7 @@ workplace-operations:
   pause-on-missing: true
 
 # First-workshop proposal/acceptance requirements. No free skill from a workstation.
-# The live founder training/automatic scheduling adapter is still being connected.
+# Gradual supply-backed founder study and bounded Paper startup are connected.
 workshop-founding:
   enabled: true
   founders-per-review: 64
@@ -548,3 +548,16 @@ workshop-founding:
   founder-smithing-experience: 10
   worker-smithing-experience: 1
   worker-capacity: 2
+
+# Read-only first mineral-chain warehouse prospects, not automatic warehouse startup.
+# Requires real funded workshop gaps and current suitable coal/iron for every input.
+# No stock, mine, money or property rights are created/reserved by this review.
+warehouse-opportunities:
+  enabled: true
+  markers-per-review: 8
+  evidence-lifetime-millis: 60000
+  horizontal-range: 96
+  vertical-range: 48
+  startup-hundredths: 500
+  capital-hundredths: 4000
+  storage-capacity: 1024
