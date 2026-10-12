@@ -4,13 +4,14 @@ Updated October 12, 2026. Based on verified work, not planned features.
 
 Villages can now recognize nearby barrels and smithing tables as possible
 workplaces, while leaving blocks and their contents alone. Saved evidence survives
-restart; removed markers stop being candidates. All 1,124 tests and the disposable
+restart; removed markers stop being candidates. All 1,138 tests and the disposable
 Paper check passed. Your playable server has not been changed.
 
 New marker-founded firms now pause if their table/barrel is confirmed missing and
 resume when it returns to the same spot. Their workers, money, supplies and history
 survive. Unknown/unloaded blocks are left alone. This is verified startup/operation
-support; qualified first workshops now start automatically. Their first-owner training is now connected and verified.
+support; qualified first workshops and warehouses now start automatically.
+Their gradual first-owner training is connected and verified.
 
 A qualified workshop owner can now go through a tested paid startup: real customer,
 food funds, materials and actual table are checked again before spending. Tests
@@ -21,7 +22,9 @@ An unemployed adult learns gradually using real supplies before the business can
 Warehouse planning can now check real workshop input needs, observed ore, a nearby
 barrel and enough protected money for the whole starter chain. This creates
 no assets by itself. Qualified merchants can now pass tested paid warehouse startup;
-merchant training and automatic opening remain next.
+merchant training and automatic opening are now connected and verified.
+An unemployed adult earns real commerce experience before opening a funded empty
+warehouse; mines must still produce actual stock for it.
 
 Phase 3 has one of four major groups fully complete. The partial work inside the
 other groups is now shown here instead of being hidden behind a fixed25% bar:
@@ -29,11 +32,11 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |26/33|79%|
-| Business lifecycle and competition |13/15|87%|
+| Resources and connected production |27/33|82%|
+| Business lifecycle and competition |14/15|93%|
 | Specialization and final acceptance |0/5|No complete entries yet|
 
-Equal weight per group gives about66% partial checklist completion. Entries differ
+Equal weight per group gives about69% partial checklist completion. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from
 PHASE3_TODO.md. The four-group phase-gate bar below still counts whole groups.
@@ -43,8 +46,8 @@ practice using actual supplies, then a qualified graduate can found a funded min
 Productive public farms now drive funded warehouse toolkit restocking, with
 real paid goods and delayed delivery. A 50-period connected mine/tool/farm
 regression now checks finite depletion and money/goods conservation. This does
-not finish multi-year specialization. First warehouse training/scheduling, wider
-industries and specialization remain.
+not finish multi-year specialization. First warehouse training/scheduling is now verified; wider
+industries, general competition and specialization remain.
 A new paid starter-material mechanism now protects village supplies, records real
 payment and delayed cargo, and prevents duplicate purchases after restart. It is
 verified in SQLite and Paper. First-workshop investment checks now also verify a

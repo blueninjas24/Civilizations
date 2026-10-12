@@ -1,5 +1,60 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026: automatic first warehouses and real merchant study verified
+
+Ordinary bounded Paper warehouse startup now polls one SQL preparation/acceptance
+at a time, rotates saved towns and reads one proposed loaded barrel on the main
+thread. No chunk loading/tickets, inventory access, block changes or building
+ownership. Startup diagnostics are included in debug observation; adapter cancels
+before the SQL owner closes. Expected economic declines defer/retry and unexpected
+failures log. Qualified preparation/acceptance remains the atomic tested path.
+
+If no available merchant qualifies, a current genuinely fundable mineral-chain
+prospect can sponsor one unemployed adult's commerce course, under existing study/
+career/founding budgets and qualifications. Default practice uses real timber,
+one XP per actual future food period toward10, retaining saved terms/reserves.
+No enrollment XP, assets, site/funding reservation, free goods or personal payroll.
+Current opportunity checks pause unavailable/unknown/unsafe/unfunded prospects;
+a taken first warehouse releases unfinished learners. Death/migration/employment
+still cancel normally. Previously earned backlog cannot teach a new learner.
+Workshop and warehouse course checks coexist without disabling each other.
+
+Schema63 transactionally adds two initially empty warehouse review/course-link
+tables and an index. Existing identity/assets/skills/course terms/history survive.
+Failure/retry preserves every old row. Legacy missing optional settings opt out;
+files are not overwritten. Broader industry grants are pending the user's answer,
+not implicitly enabled. See AUTOMATIC_WAREHOUSES.md and WAREHOUSE_INVESTMENT.md.
+
+Ten temporary SQLite study/cycle cases +four bounded-cycle cases added;48 scoped
+checks passed. Full Windows .\mvnw.cmd clean verify passed1,138 tests (1,136 unit
++2 packaged integration), zero failures/errors/skips,6:15. Corrected initial
+fixture coal expectations for an already-paid workshop starter and respected the
+saved once-per-food-period review before retrying. A final cosmetic warehouse
+budget diagnostic correction was compiled/packaged with four cycle +two packaged
+integration checks passing (17.565s); no economic behavior changed after full run.
+
+Final packaged WarehouseStartupProbe passed on pinned disposable Paper26.2-129 at
+11:52:51: explicitly unskilled merchant earned ten real prototype timber-practice
+periods via normal SQL timer; scheduled Paper barrel proof opened a paid empty
+warehouse for an actual paid toolkit customer/observed mineral chain. Removal,
+wrong marker, restoration and restart retained real money/jobs/history. Four
+original air blocks restored exactly; helper ticket/executor/owner closed; normal
+shutdown saved all worlds, exit0. Initial JVM option quoting was corrected before
+server startup. Main-save audit104/108 old tables unchanged, four normal clock/
+economy/farm freshness/tracking changes only; two new tables empty, schema63
+integrity/FK healthy, exact properties restored and helper archived. Originals,
+consistent backups, isolated course DBs and logs retained. Human server untouched.
+
+Current core coal/iron/toolkit catalog now has automatically selected/funded/
+staffed first mines/workshops/warehouses and bounded real first-founder skills/
+investment. Those two scoped checklist entries are complete; broader resource
+catalogs and competition/specialization stay open. Counts4/4,27/33,14/15,0/5 (~69%
+partial), one of four whole gates complete. Not100% or multi-year acceptance.
+Next: forestry/fishing/finite stone/sand and investment comparison/reassessment,
+then multi-seed long-run acceptance. Waiting only on the asked wider-industry grant
+rule before enabling those first startups. No main merge/push/deploy. Feature
+branch codex/phase3-automatic-warehouses; only coherent tested local commits.
+
 ## October12, 2026: qualified first-warehouse investment verified
 
 Added read-only qualified commerce-founder preparation and current-fact atomic

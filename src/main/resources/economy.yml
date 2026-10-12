@@ -563,8 +563,9 @@ warehouse-opportunities:
   storage-capacity: 1024
 
 # Qualification for the first mineral-chain warehouse. No free commerce experience.
-# This enables internal qualified preparation/acceptance; automatic merchant training
-# and the ordinary warehouse-startup scheduler remain separate work.
+# Enables qualified preparation/acceptance and ordinary automatic startup. Merchant
+# training uses resident-study plus automatic-career-study, real available supplies,
+# and a current fully fundable observed mineral-chain opportunity.
 warehouse-founding:
   enabled: true
   founders-per-review: 64

@@ -31,6 +31,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperWorkplaceObserver workplaces;
     private com.blueninjas24.civilizations.paper.PaperWorkplaceOperations workplaceOperations;
     private com.blueninjas24.civilizations.paper.PaperWorkshopStartup workshopStartup;
+    private com.blueninjas24.civilizations.paper.PaperWarehouseStartup warehouseStartup;
     private com.blueninjas24.civilizations.paper.OrePlacementTracker orePlacements;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
     private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
@@ -72,7 +73,8 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
                             + "; " + (workplaces==null?"Workplace observer not started":workplaces.diagnostic())
                             + "; " + (workplaceOperations==null?"Workplace operation checks not started":workplaceOperations.diagnostic())
-                            + "; " + (workshopStartup==null?"Automatic workshop startup not started":workshopStartup.diagnostic()));
+                            + "; " + (workshopStartup==null?"Automatic workshop startup not started":workshopStartup.diagnostic())
+                            + "; " + (warehouseStartup==null?"Automatic warehouse startup not started":warehouseStartup.diagnostic()));
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
             var previewPolicy = EconomyConfiguration.readAidPreview(economyConfig);
             var bargainingPolicy=EconomyConfiguration.readBargaining(economyConfig);
@@ -137,6 +139,7 @@ public final class Civilizations extends JavaPlugin {
                         workplaces=new com.blueninjas24.civilizations.paper.PaperWorkplaceObserver(population,workplaceSettings);workplaces.runTaskTimer(Civilizations.this,1,1);
                         workplaceOperations=new com.blueninjas24.civilizations.paper.PaperWorkplaceOperations(population,getLogger());workplaceOperations.runTaskTimer(Civilizations.this,1,20);
                         workshopStartup=new com.blueninjas24.civilizations.paper.PaperWorkshopStartup(population,getLogger());workshopStartup.runTaskTimer(Civilizations.this,1,20);
+                        warehouseStartup=new com.blueninjas24.civilizations.paper.PaperWarehouseStartup(population,getLogger());warehouseStartup.runTaskTimer(Civilizations.this,1,20);
                         lifecycle = new ManagedVillagerLifecycle(population, getLogger());
                         getServer().getPluginManager().registerEvents(lifecycle, Civilizations.this);
                         lifecycle.runTaskTimer(Civilizations.this, 1, 1);
@@ -154,6 +157,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(warehouseStartup!=null)warehouseStartup.cancel();
         if(workshopStartup!=null)workshopStartup.cancel();
         if(workplaceOperations!=null)workplaceOperations.cancel();
         if(barterCommand!=null)barterCommand.close();

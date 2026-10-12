@@ -1,5 +1,36 @@
 # Civilizations Development Log
 
+## October12, 2026 — automatic first warehouses and earned merchant startup
+
+Added WarehouseFounderStudy, WarehouseStartupCycle/PaperWarehouseStartup, actual
+SQL-owner automatic review, independent course-state composition, startup/stop
+wiring and observation diagnostics. Schema63 adds empty durable course/review
+links, deferred FK and index; rollback/retry/exact old-row preservation covered.
+Uses approved gradual commerce study and existing protected whole-chain prospects,
+real grants, fresh barrel proof, qualification and one-job rules. Missing legacy
+sections opt out. No free skills/goods, financial redesign or block ownership.
+
+Ten temporary SQLite study/actual-cycle cases +four polling cases added;48 scoped
+checks passed. Fixture expectations corrected for already-consumed starter coal
+and saved period review before proceeding. Full Wrapper clean verify1,138 tests
+(1,136 unit +2 integration), zero failures/errors/skips,6:15. Final cosmetic budget
+message correction rebuilt/rechecked: four cycle +two packaged integration passed.
+Native final packaged WarehouseStartupProbe passed at11:52:51: normal SQL timer,
+real ten-period timber practice, automatic loaded-barrel founding for an actual
+funded customer/observed mineral chain, no free inventory, removal/wrong block/
+restoration and restart retained real cash/jobs/history. Four temporary air blocks
+restored exactly. JVM terminal-option quoting corrected before startup; helper
+requested normal shutdown, all worlds saved and exit0. Audit104/108 original
+main tables unchanged, four normal simulation/observation updates, two new tables
+empty. Schema63 integrity/FK healthy, exact properties restored, helper archived,
+backups/source/test databases/worlds retained. Playable server untouched.
+
+Updated automatic/investment/opportunity/status/progress docs. Completed current
+catalog automatic nonfood founding and bounded first-founder skill/investment
+entries:4/4,27/33,14/15,0/5 (~69% partial); wider industries/general competition/
+specialization remain. Awaited grant extension is recorded/asked, not assumed.
+Local feature commit only; no merge/push to main or installation on human server.
+
 ## October12, 2026 — qualified warehouse preparation and atomic acceptance
 
 Built WarehouseInvestment/WarehouseFoundingPolicy, strict optional configuration

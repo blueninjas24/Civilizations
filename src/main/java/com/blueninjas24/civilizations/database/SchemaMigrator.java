@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 62;
+    static final int CURRENT_VERSION = 63;
 
     @FunctionalInterface
     interface Migration {
@@ -905,7 +905,8 @@ final class SchemaMigrator {
                 },
                 SchemaMigrator::createWorkshopStarterSupplies,
                 SchemaMigrator::createWorkplaceOperations,
-                SchemaMigrator::createWorkshopFounderStudy
+                SchemaMigrator::createWorkshopFounderStudy,
+                SchemaMigrator::createWarehouseFounderStudy
 
 
         ));
@@ -1064,6 +1065,10 @@ final class SchemaMigrator {
             if(migrations.size()>=50) {
                 requireColumns(connection,"mineral_surveys",Set.of("settlement_id","world_id","captured_millis","fingerprint"));
                 requireColumns(connection,"mineral_survey_members",Set.of("settlement_id","world_id","x","y","z"));
+            }
+            if(migrations.size()>=63){
+                requireColumns(connection,"warehouse_founder_reviews",Set.of("settlement_id","period","after_resident","policy","explanation"));
+                requireColumns(connection,"warehouse_founder_courses",Set.of("course_id","settlement_id","world_id","x","y","z","enrolled_period"));
             }
             if(migrations.size()>=62){
                 requireColumns(connection,"workshop_founder_reviews",Set.of("settlement_id","period","after_resident","policy","explanation"));
@@ -1732,6 +1737,25 @@ final class SchemaMigrator {
             """);
         execute(connection,"CREATE TABLE workplace_operation_settings (singleton INTEGER PRIMARY KEY CHECK(singleton=1),pause_on_missing INTEGER NOT NULL CHECK(pause_on_missing IN (0,1)))");
         execute(connection,"INSERT INTO workplace_operation_settings VALUES(1,1)");
+    }
+    private static void createWarehouseFounderStudy(Connection connection)throws SQLException {
+        execute(connection,"""
+            CREATE TABLE warehouse_founder_reviews (
+                settlement_id TEXT NOT NULL REFERENCES settlements(id),period INTEGER NOT NULL CHECK(period>=1),
+                after_resident TEXT NOT NULL,policy TEXT NOT NULL,explanation TEXT NOT NULL,
+                PRIMARY KEY(settlement_id,period)
+            )
+            """);
+        execute(connection,"""
+            CREATE TABLE warehouse_founder_courses (
+                course_id TEXT PRIMARY KEY REFERENCES resident_courses(id),settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                world_id TEXT NOT NULL REFERENCES observed_worlds(id),x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                enrolled_period INTEGER NOT NULL CHECK(enrolled_period>=1),
+                FOREIGN KEY(settlement_id,world_id) REFERENCES settlement_worlds(settlement_id,world_id),
+                FOREIGN KEY(settlement_id,enrolled_period) REFERENCES warehouse_founder_reviews(settlement_id,period) DEFERRABLE INITIALLY DEFERRED
+            )
+            """);
+        execute(connection,"CREATE INDEX active_warehouse_founders ON warehouse_founder_courses(settlement_id,course_id)");
     }
     private static void createWorkshopFounderStudy(Connection connection)throws SQLException {
         execute(connection,"""

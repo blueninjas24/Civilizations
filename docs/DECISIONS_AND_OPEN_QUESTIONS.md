@@ -1,5 +1,31 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October12: approved gradual merchant training and automatic startup connected
+
+Existing commerce-study/startup-grant/marker approvals now drive actual first
+warehouse opportunities. Existing editable study/founding settings define rates,
+materials and qualification; no new economic rule or free skill. One prospective
+merchant, real future-period protected supplies, current whole-chain feasibility,
+saved course/policy links and normal fresh-barrel acceptance are verified. Unknown
+opportunities wait; another first warehouse taking the opportunity releases the
+unfinished learner. Schema63 preserves identities and old terms/assets/history.
+Ordinary Paper scheduler/SQL timer and marker pause/restart passed. Broader producer
+funding question below remains open, not approved by this implementation. See
+AUTOMATIC_WAREHOUSES.md and PROJECT_STATUS for exact limits/results.
+
+## October12: broader industry's first startup funding — awaiting user decision
+
+Existing approvals explicitly cover mines/workshops and warehouses sharing the
+same real village grants, caps and food protection. Logging, fishing and finite
+stone/sand extraction are the next Phase3 catalog work; their startup funding has
+not yet been approved. Proposal: include their first businesses under those same
+shared limits, with real money, qualified owners, suitable observed resources and
+actual customers. Do not enlarge the public budget or create funds. Alternative:
+require private business/family-estate funding, which can defer first producers
+in new villages. Asked before extending this consequential economic rule under
+AGENTS.md; current warehouse work continues independently. No new grants or
+broader industry are enabled by this proposal.
+
 ## October12: first-warehouse qualification prototype connected
 
 Under approved configurable economy, gradual skill and public-grant direction,

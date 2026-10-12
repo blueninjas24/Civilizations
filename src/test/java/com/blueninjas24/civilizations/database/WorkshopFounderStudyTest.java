@@ -83,7 +83,7 @@ class WorkshopFounderStudyTest {
     @Test void schema62FailureRollsBackAndPreservesAllExistingRowsThenRetries()throws Exception {
         var before=fixture.snapshot();SchemaFixtures.rewind(fixture.db.getConnection(),61);fixture.sql("CREATE VIEW workshop_founder_courses AS SELECT 1");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));assertEquals(61,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='workshop_founder_reviews'"));
-        fixture.sql("DROP VIEW workshop_founder_courses");new SchemaMigrator().migrate(fixture.db.getConnection());assertEquals(62,scalar("PRAGMA user_version"));assertEquals(before,fixture.snapshot());
+        fixture.sql("DROP VIEW workshop_founder_courses");new SchemaMigrator().migrate(fixture.db.getConnection());assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(before,fixture.snapshot());
         try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     @Test void disabledFoundingRetainsExistingCourseButDoesNotAwardOrEnroll()throws Exception {

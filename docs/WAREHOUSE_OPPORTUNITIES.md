@@ -2,8 +2,8 @@
 
 The SQL owner can now review a narrow first-warehouse prospect without creating,
 reserving or spending anything. This connects investment evidence, not automatic
-merchant training/ordinary scheduling; qualified acceptance is now implemented
-separately in WAREHOUSE_INVESTMENT.md. It is deliberately limited to the existing coal/iron
+merchant training/ordinary scheduling, now separately implemented in
+AUTOMATIC_WAREHOUSES.md; qualified acceptance is in WAREHOUSE_INVESTMENT.md. It is deliberately limited to the existing coal/iron
 workshop chain; broader producer catalogs and business competition remain later work.
 
 A prospect requires:
@@ -49,13 +49,14 @@ Terms are editable prototypes under the approved configurable economy/grant
 direction. Missing old sections disable the review; invalid types, missing/extra
 keys and bounds fail before database startup. No settings file is overwritten.
 Other industry/mine policies still supply prices, yields, observation bounds,
-storage weights, transport and upstream grant terms. No migration: schema62.
+storage weights, transport and upstream grant terms. No migration for this review; subsequent merchant links use schema63.
 
 `PopulationSession.currentWarehouseOpportunities(town)` is a read-only internal
-API. No ordinary warehouse-founding scheduler invokes it yet. A positive prospect
+API. The ordinary warehouse scheduler now uses the same opportunity checks through
+qualified preparation/acceptance and prospective merchant training. A positive prospect
 does not guarantee later skilled merchants/miners, affordable successive grants,
 production, sales or profit. Qualified current-block acceptance is now implemented; real course/ordinary
-scheduler integration remains next; no invisible inventory or new construction is claimed.
+scheduler integration is now verified in AUTOMATIC_WAREHOUSES.md; no invisible inventory or new construction is claimed.
 
 Tests follow the actual paid workshop-to-farm toolkit transaction, then review its
 funded raw-material gap. They use temporary SQLite, explicit observed ore and a

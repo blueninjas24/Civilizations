@@ -12,7 +12,7 @@ awards no experience. Living local age/one-job/active-course/open-owner checks,
 bounded candidate pages and the existing course budget apply. Qualified residents
 are filtered out of the training page. Reviews and cursor survive restart.
 
-Training uses the existing editable `resident-study` and `career-study` policies,
+Training uses the existing editable `resident-study` and `automatic-career-study` policies,
 and `workshop-founding` qualifications. The career industry is `blacksmith`; the
 course skill is `smithing`. Prototype study gains one experience per productive
 food period toward ten, consuming one actual stone and one actual timber unit per

@@ -2,8 +2,8 @@
 
 The SQL owner can prepare a first mineral-chain warehouse for a genuinely
 qualified adult merchant, then accept it using fresh loaded-barrel proof. This is
-an internal preparation/acceptance path; automatic merchant training and the
-ordinary startup scheduler remain separate work.
+the preparation/acceptance path used by automatic merchant training and the
+ordinary startup scheduler, now connected in AUTOMATIC_WAREHOUSES.md.
 
 Preparation uses WAREHOUSE_OPPORTUNITIES.md's actual customer, current trusted
 finite-source evidence and protected complete-chain budget. It filters living
@@ -46,7 +46,8 @@ warehouse-founding:
 These are configurable prototype terms under the approved gradual qualification
 and grant rules. Missing older sections disable founding; invalid types, unknown
 keys and inconsistent/bounded values fail before database startup. Settings are
-never overwritten. There is no schema migration in this batch: schema62 remains.
+never overwritten. This investment batch introduced no migration; subsequent merchant course
+links use schema63 (see AUTOMATIC_WAREHOUSES.md).
 
 `PopulationSession.prepareWarehouseInvestment(town)` is read-only;
 `acceptWarehouseInvestment(draft, confirmation)` runs on the SQL owner and waits

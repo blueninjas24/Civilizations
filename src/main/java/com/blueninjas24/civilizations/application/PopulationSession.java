@@ -331,6 +331,8 @@ public final class PopulationSession implements AutoCloseable {
                     economy.configureStudy(studyPolicy);
                     economy.configureWorkshopFounderStudy(new com.blueninjas24.civilizations.database.WorkshopOpportunities(database.getConnection(),workshopOpportunityPolicy,industryPolicy,
                         operationPolicy,startupGrantPolicy,workshopStarterPolicy,farmToolsPolicy,farmToolsBudget),workshopFoundingPolicy,careerStudyPolicy);
+                    economy.configureWarehouseFounderStudy(new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
+                        operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get()),warehouseFoundingPolicy,careerStudyPolicy);
                     economy.configureMineFounderStudy(automaticMines,careerStudyPolicy,mineFoundingPolicy);
                     businesses.configureCareerStudy(economy,careerStudyPolicy);
                     economy.configureWorkLearning(learningPolicy);
@@ -560,6 +562,20 @@ public final class PopulationSession implements AutoCloseable {
             if(!workplacePolicy.enabled()||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL))
                 return new com.blueninjas24.civilizations.database.WarehouseInvestment.Preparation(java.util.Optional.empty(),"Barrel recognition disabled");
             return warehouseInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);
+        });
+    }
+    /** May sponsor one supply-backed future-only merchant course; read-only prepare remains separate. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.WarehouseInvestment.Preparation> reviewAutomaticWarehouseInvestment(UUID town) {
+        return submit(()-> {
+            requireReady();
+            String waiting=economy==null?"Food economy disabled":economyFailure!=null?"Food economy deferred: "+economyFailure
+                    :status.get().remainingMonths()>0?"Population backlog must finish":!workplacePolicy.enabled()
+                    ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL)?"Barrel recognition disabled":null;
+            if(waiting!=null)return new com.blueninjas24.civilizations.database.WarehouseInvestment.Preparation(java.util.Optional.empty(),"Automatic warehouse waits: "+waiting);
+            var result=warehouseInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);
+            if(result.draft().isPresent())return result;
+            String training=economy.reviewWarehouseFounderStudy(town,now.getAsLong());
+            return new com.blueninjas24.civilizations.database.WarehouseInvestment.Preparation(java.util.Optional.empty(),result.explanation()+"; "+training);
         });
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessStartupGrants.Warehouse> acceptWarehouseInvestment(

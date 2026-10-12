@@ -1,5 +1,13 @@
 # Phase 3 — businesses and industry checklist
 
+Verified October12: ordinary automatic warehouse startup and real first-merchant
+commerce study/current prospect reassessment; schema63 transactional links and
+rollback/retry. 1,138 full Wrapper tests plus final packaged positive Paper startup/
+marker/restart check passed. Current coal/iron/toolkit catalog automatic first
+nonfood founding and bounded founder investment entries now complete. Counts
+4/4,27/33,14/15,0/5 (~69% partial); broader catalogs/competition/specialization remain.
+See AUTOMATIC_WAREHOUSES.md. Wider-industry startup grant decision remains pending.
+
 Verified October12: qualified first-warehouse preparation/current acceptance,
 real protected grant/capital/empty store/job/fixed barrel and atomic rollback/replay.
 1,124 Wrapper tests passed; schema62 unchanged. Automatic merchant study and normal
@@ -183,8 +191,11 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 - [x] Narrow automatic mine founding for actual existing funded workshop needs and
       staffed warehouse buyers; qualified owner/first worker, protected grant,
       current observed ore, no refill or speculative stock. Verified on Paper.
-- [ ] Automatically select/fund/staff nonfood industries under editable settings.
-      Automatic selection remains; guarded public startup funding is verified below.
+- [x] Automatically select/fund/staff nonfood industries under editable settings.
+      Current coal/iron/toolkit catalog: real-demand mines, funded toolkit workshops
+      and mineral-chain warehouses now have normal qualification, gradual first
+      owners, protected grants and observed-site acceptance. Wider resource catalogs
+      remain a separate unchecked entry; no universal industry or profit guarantee.
 - [x] Approved limited configurable grants, current food-money protection, real
       treasury, shared economic-period/lifetime quotas and atomic startup/capital/
       first-worker receipts; 844 tests and packaged Paper restart/accounting passed.
@@ -259,10 +270,12 @@ premises are preferred; physical building reuse remains Phase 4.
       earned succession qualification covered in SQLite. Legacy adults do not learn.
 - [x] Automatic existing-vacancy study with real job requirements and later ordinary
       hiring; cancellation, supplies, saved pages and actual Paper verified.
-- [ ] Bound broader skill development and investment; no manufactured profit or payroll.
-      Actual employee learning and internal supply-backed adult study are verified;
-      first-founder career opportunities and investment integration remain.
-      No free skills, money or bypass of founder requirements.
+- [x] Bound broader skill development and investment; no manufactured profit or payroll.
+      Current farm/mining/smithing/commerce catalog has saved actual work learning,
+      bounded supply-backed courses, current first-founder opportunities and real
+      qualified investment integration. Gradual first mine/workshop/warehouse
+      founders verified; no free skills, money or bypass of requirements. Wider
+      new industry catalogs and general competition remain separate work.
 - [x] Saved explicit sale offers, immutable accepted price/deadline, online-only
       elapsed time and atomic paid completion; temp SQL failure/restart/migration
       cases and actual Paper passed. Automatic valuation/buyers and retained closure now verified below.
