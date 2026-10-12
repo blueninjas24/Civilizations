@@ -561,3 +561,14 @@ warehouse-opportunities:
   startup-hundredths: 500
   capital-hundredths: 4000
   storage-capacity: 1024
+
+# Qualification for the first mineral-chain warehouse. No free commerce experience.
+# This enables internal qualified preparation/acceptance; automatic merchant training
+# and the ordinary warehouse-startup scheduler remain separate work.
+warehouse-founding:
+  enabled: true
+  founders-per-review: 64
+  minimum-age-months: 216
+  founder-commerce-experience: 10
+  worker-commerce-experience: 1
+  worker-capacity: 2

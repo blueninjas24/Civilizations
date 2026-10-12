@@ -1,5 +1,10 @@
 # Phase 3 — businesses and industry checklist
 
+Verified October12: qualified first-warehouse preparation/current acceptance,
+real protected grant/capital/empty store/job/fixed barrel and atomic rollback/replay.
+1,124 Wrapper tests passed; schema62 unchanged. Automatic merchant study and normal
+scheduler remain next. Broad counts unchanged. See WAREHOUSE_INVESTMENT.md.
+
 Verified October12: first mineral-chain warehouse prospect review for actual paid
 workshop needs, complete suitable finite sources and protected whole-chain budgets.
 1,110 Wrapper tests + packaged Paper regression passed; schema62 unchanged.

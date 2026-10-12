@@ -1,5 +1,44 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026: qualified first-warehouse investment verified
+
+Added read-only qualified commerce-founder preparation and current-fact atomic
+warehouse acceptance on the SQL owner. Real customer/complete finite-source and
+whole-chain food/grant budgets are rechecked with exact terms, qualifications,
+one worker job, no active course and fresh matching loaded-barrel proof. The
+transaction creates a paid empty store, first worker and fixed marker binding;
+no goods, mine, shipment or free skill. Stable town/world/coordinate identities
+survive retries. Late binding failure rolls back every debit/asset/job; accepted
+replay preserves pause/history and cannot bind a legacy firm or change store terms.
+Unlimited ownership remains; one employee job remains. Optional strictly validated
+warehouse-founding uses editable commerce10/1, age216, capacity2 and page64; missing
+old sections disable founding. No migration: schema62. No ordinary warehouse
+scheduler or automatic merchant study is claimed by this batch.
+
+Twelve temporary SQLite tests plus two configuration tests added. Scoped129 tests
+passed; .\mvnw.cmd clean verify passed1,124 tests (1,122 unit +2 integration), zero
+failures/errors/skips,6:02. Initial fixture enum/config-root and manual assessment
+errors were corrected; the fixture now uses the genuine next food assessment,
+without relaxing application guards. SQL-owner/restart, real assets/cash, changed
+customer/source/food/funds/qualification/course/job/point evidence, edited terms,
+late SQL rollback, legacy replay and unlimited ownership covered. See
+WAREHOUSE_INVESTMENT.md. The packaged Paper workshop-training/startup/marker regression passed at11:32:43.
+It also rechecked the disabled upstream warehouse prospect, not positive native
+warehouse acceptance. After the console stdin closed, a temporary guarded attach
+helper verified exact JVM directory/marked root/localhost25578/zero players and
+scheduled the normal Paper shutdown; all worlds saved at11:35:03, no forced kill.
+The save audit found101/108 original tables unchanged; the remaining seven changed
+only normal clock/tracking/mask/resident-age/farm freshness/completeness fields.
+An initial one-way farm completeness assertion rejected normal1-to0 partial
+observation; every crop/site/world field was inspected unchanged before allowing
+that normal transition. SQLite integrity/FK healthy; exact properties restored,
+helper archived, originals/backups retained. Human server untouched.
+
+Next: gradual commerce-founder study and the ordinary automatic warehouse startup
+adapter, then connected first mines and broader industries. Broad Phase3 counts
+remain4/4,26/33,13/15,0/5 (~66% partial), not complete specialization. Feature branch
+codex/phase3-warehouse-investment; no merge/push/deploy or playable-server changes.
+
 ## October12, 2026: read-only first mineral-chain warehouse prospects verified
 
 The SQL owner can now review a first warehouse for actual staffed/funded workshop

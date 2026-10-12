@@ -91,17 +91,21 @@ public final class BusinessStartupGrants {
     }
     public Warehouse startMarkerWarehouse(WarehouseRequest request,StartupGrantPolicy policy,Set<UUID> worlds,
             WorkplaceOperations.Confirmation evidence,long now)throws SQLException {
+        return transaction(()->startMarkerWarehouseRows(request,policy,worlds,evidence,now));
+    }
+    /** Shares opportunity revalidation and paid startup in one complete SQL-owner transaction. */
+    Warehouse startMarkerWarehouseRows(WarehouseRequest request,StartupGrantPolicy policy,Set<UUID> worlds,
+            WorkplaceOperations.Confirmation evidence,long now)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Marker warehouse rows require complete owner transaction");
         if(!request.founding().business().id().equals(evidence.anchor().business()))throw new IllegalArgumentException("Marker warehouse identity mismatch");
         if(now<0||!evidence.present()||evidence.capturedMillis()>now||now-evidence.capturedMillis()>60000
                 ||worlds==null||!worlds.contains(evidence.anchor().world()))throw new Declined("Fresh present loaded-world marker required");
-        return transaction(()-> {
             var markers=new WorkplaceOperations(connection);
             boolean existing=new BusinessRepository(connection).findBusiness(evidence.anchor().business()).isPresent();
             if(existing&&!markers.matchesSavedAnchor(evidence.anchor()))throw new Declined("Legacy warehouse cannot acquire marker requirement through startup replay");
             var stocked=startStockedRows(new WorkshopRequest(request.founding(),request.capacity(),request.space(),request.capital(),request.worker()),policy,"warehouse");
             if(!existing)markers.attachRows(evidence.anchor(),evidence.capturedMillis());
             return new Warehouse(stocked.founding(),stocked.store(),stocked.worker(),stocked.grant());
-        });
     }
     private Workshop startStockedRows(WorkshopRequest request,StartupGrantPolicy policy,String role)throws SQLException {
         var receipt=prepare(request.founding(),request.capital(),policy);

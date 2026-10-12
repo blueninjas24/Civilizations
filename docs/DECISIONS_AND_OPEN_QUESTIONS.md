@@ -1,5 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October12: first-warehouse qualification prototype connected
+
+Under approved configurable economy, gradual skill and public-grant direction,
+warehouse-founding uses editable commerce10 owner/1 worker, age216 (at least
+adulthood), page64 and capacity2. Unlimited ownership/one worker job remain. No
+new wealth, payroll, property claim or free experience. Qualified preparation and
+fresh-barrel/current-SQL acceptance verified; first merchant study/scheduler remain
+next. Missing old sections opt out. See WAREHOUSE_INVESTMENT.md and status.
+
 ## October12: provisional first mineral-chain warehouse review
 
 Under approved configurable economy/startup-grant/marker direction, read-only

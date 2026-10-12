@@ -88,6 +88,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy workshopFoundingPolicy=com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy warehouseOpportunityPolicy=com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy warehouseFoundingPolicy=com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy workplaceOperationPolicy=com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
@@ -200,6 +201,10 @@ public final class PopulationSession implements AutoCloseable {
     public void configureWorkshopFounding(com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure workshop founding before startup");
         workshopFoundingPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureWarehouseFounding(com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure warehouse founding before startup");
+        warehouseFoundingPolicy=java.util.Objects.requireNonNull(policy);
     }
     public void configureWarehouseOpportunities(com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure warehouse opportunities before startup");
@@ -540,6 +545,31 @@ public final class PopulationSession implements AutoCloseable {
                 return new com.blueninjas24.civilizations.database.WarehouseOpportunities.Review(java.util.List.of(),"Barrel recognition disabled");
             return new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
                 operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get()).review(town,now.getAsLong(),loadedWorlds);
+        });
+    }
+    private com.blueninjas24.civilizations.database.WarehouseInvestment warehouseInvestment() {
+        var evidence=new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
+                operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get());
+        return new com.blueninjas24.civilizations.database.WarehouseInvestment(database.getConnection(),evidence,warehouseFoundingPolicy,warehouseOpportunityPolicy,
+                industryPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed());
+    }
+    /** Read-only qualified merchant preparation; does not train, schedule, reserve or spend. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.WarehouseInvestment.Preparation> prepareWarehouseInvestment(UUID town) {
+        return submit(()-> {
+            requireReady();
+            if(!workplacePolicy.enabled()||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL))
+                return new com.blueninjas24.civilizations.database.WarehouseInvestment.Preparation(java.util.Optional.empty(),"Barrel recognition disabled");
+            return warehouseInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);
+        });
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.BusinessStartupGrants.Warehouse> acceptWarehouseInvestment(
+            com.blueninjas24.civilizations.database.WarehouseInvestment.Draft draft,com.blueninjas24.civilizations.database.WorkplaceOperations.Confirmation confirmation) {
+        return submit(()-> {
+            requireReady();
+            if(economy==null||economyFailure!=null||status.get().remainingMonths()>0||!workplacePolicy.enabled()
+                    ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL))
+                throw new com.blueninjas24.civilizations.database.BusinessStartupGrants.Declined("Warehouse acceptance waits for enabled current food/population/barrel evidence");
+            return warehouseInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds);
         });
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation> prepareWorkshopInvestment(UUID town) {

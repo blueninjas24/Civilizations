@@ -13,6 +13,17 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void warehouseFoundingQualificationIsEditableAndLegacyDisabled()throws Exception {
+        var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy.prototype(),EconomyConfiguration.readWarehouseFounding(config));
+        config.set("warehouse-founding.founder-commerce-experience",20);EconomyConfiguration.read(config);assertEquals(20,EconomyConfiguration.readWarehouseFounding(config).founderExperience());
+        config.set("warehouse-founding",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readWarehouseFounding(config).enabled());
+    }
+    @Test void malformedWarehouseFoundingQualificationFailsBeforeDatabaseStartup()throws Exception {
+        for(Object value:List.of(0,513,1.5,"many")){var config=defaults();config.set("warehouse-founding.founders-per-review",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));}
+        var config=defaults();config.set("warehouse-founding.enabled","yes");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var invalid=defaults();invalid.set("warehouse-founding.extra",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        var mismatch=defaults();mismatch.set("warehouse-founding.worker-commerce-experience",11);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(mismatch));
+    }
     @Test void warehouseOpportunityPrototypeIsEditableAndLegacyDisabled()throws Exception {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy.prototype(),EconomyConfiguration.readWarehouseOpportunities(config));
         config.set("warehouse-opportunities.capital-hundredths",3500);EconomyConfiguration.read(config);assertEquals(3500,EconomyConfiguration.readWarehouseOpportunities(config).capitalHundredths());

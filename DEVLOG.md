@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## October12, 2026 — qualified warehouse preparation and atomic acceptance
+
+Built WarehouseInvestment/WarehouseFoundingPolicy, strict optional configuration
+and PopulationSession prepare/accept APIs. Extracted a transaction-sharing warehouse
+grant seam so current prospect revalidation commits with real funding, empty
+storage, worker and fixed barrel. No free stock, site reservation, skills, payroll,
+ownership count limit or legacy rebinding. Schema62 unchanged. Tests cover real
+paid customer, current budgets/sources, eligibility/study/job changes, exact fresh
+point, rollback/retry, restart/pause/replay, terms and unlimited ownership. Initial
+fixture compilation/assessment and configuration-root omissions corrected before
+passing checks, using normal food assessment rather than bypassing invariants.
+
+129 scoped tests and1,124 full Wrapper tests (1,122 unit +2 integration) passed,
+zero failures/errors/skips,6:02. Native packaged workshop/disabled-chain regression passed at11:32:43;
+not positive warehouse native acceptance. Closed stdin required a guarded
+temporary JVM-directory/marker/localhost/zero-player checked attach helper to
+schedule main-thread Paper shutdown; all worlds saved normally at11:35:03.
+Audit101/108 tables unchanged, seven normal simulation/observation tables only.
+Reviewed normal complete1-to0 farm observation against unchanged crop/site/world
+fields before permitting it in the audit. Integrity/FK healthy, exact properties
+restored and helper archived; originals/backups retained. Updated investment/opportunity/status/progress docs. First merchant
+study and ordinary warehouse scheduler remain next; broader checklist unchanged.
+Local feature branch only; human server untouched, no main merge/push.
+
 ## October12, 2026: read-only first mineral-chain warehouse prospects verified
 
 The SQL owner can now review a first warehouse for actual staffed/funded workshop

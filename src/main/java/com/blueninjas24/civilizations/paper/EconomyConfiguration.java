@@ -28,6 +28,7 @@ public final class EconomyConfiguration {
         if (config.contains("workshop-founding")) rootKeys.add("workshop-founding");
         if (config.contains("workshop-opportunities")) rootKeys.add("workshop-opportunities");
         if (config.contains("warehouse-opportunities")) rootKeys.add("warehouse-opportunities");
+        if (config.contains("warehouse-founding")) rootKeys.add("warehouse-founding");
         if (config.contains("warehouse-supply")) rootKeys.add("warehouse-supply");
         if (config.contains("business-tools")) rootKeys.add("business-tools");
         if (config.contains("upkeep-contributions")) rootKeys.add("upkeep-contributions");
@@ -56,6 +57,7 @@ public final class EconomyConfiguration {
         readWorkshopStarterSupplies(config);
         readWorkshopOpportunities(config);
         readWarehouseOpportunities(config);
+        readWarehouseFounding(config);
         readWorkshopFounding(config);
         readWarehouseSupply(config);
         readToolUpkeep(config);
@@ -218,6 +220,12 @@ public final class EconomyConfiguration {
         exactKeys(s,Set.of("minimum-retained-business-cash-hundredths","maximum-spare-business-percent","maximum-estate-percent"));
         return new com.blueninjas24.civilizations.industry.BusinessPurchasePolicy(integer(s,"minimum-retained-business-cash-hundredths"),
                 smallInteger(s,"maximum-spare-business-percent"),smallInteger(s,"maximum-estate-percent"));
+    }
+    public static com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy readWarehouseFounding(ConfigurationSection config) {
+        if(!config.contains("warehouse-founding"))return com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy.disabled();
+        var s=section(config,"warehouse-founding");exactKeys(s,Set.of("enabled","founders-per-review","minimum-age-months","founder-commerce-experience","worker-commerce-experience","worker-capacity"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("warehouse-founding.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy(enabled,smallInteger(s,"founders-per-review"),integer(s,"minimum-age-months"),integer(s,"founder-commerce-experience"),integer(s,"worker-commerce-experience"),smallInteger(s,"worker-capacity"));
     }
     public static com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy readWorkshopFounding(ConfigurationSection config) {
         if(!config.contains("workshop-founding"))return com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy.disabled();

@@ -4,7 +4,7 @@ Updated October 12, 2026. Based on verified work, not planned features.
 
 Villages can now recognize nearby barrels and smithing tables as possible
 workplaces, while leaving blocks and their contents alone. Saved evidence survives
-restart; removed markers stop being candidates. All 1,110 tests and the disposable
+restart; removed markers stop being candidates. All 1,124 tests and the disposable
 Paper check passed. Your playable server has not been changed.
 
 New marker-founded firms now pause if their table/barrel is confirmed missing and
@@ -20,7 +20,8 @@ An unemployed adult learns gradually using real supplies before the business can
 
 Warehouse planning can now check real workshop input needs, observed ore, a nearby
 barrel and enough protected money for the whole starter chain. This creates
-nothing yet; merchant training and automatic warehouse opening remain next.
+no assets by itself. Qualified merchants can now pass tested paid warehouse startup;
+merchant training and automatic opening remain next.
 
 Phase 3 has one of four major groups fully complete. The partial work inside the
 other groups is now shown here instead of being hidden behind a fixed25% bar:
@@ -42,14 +43,14 @@ practice using actual supplies, then a qualified graduate can found a funded min
 Productive public farms now drive funded warehouse toolkit restocking, with
 real paid goods and delayed delivery. A 50-period connected mine/tool/farm
 regression now checks finite depletion and money/goods conservation. This does
-not finish multi-year specialization. First warehouse/workshop founders, wider
+not finish multi-year specialization. First warehouse training/scheduling, wider
 industries and specialization remain.
 A new paid starter-material mechanism now protects village supplies, records real
 payment and delayed cargo, and prevents duplicate purchases after restart. It is
 verified in SQLite and Paper. First-workshop investment checks now also verify a
 real funded customer, current marker and supplies without spending or inventing
-skills. Automatic first-workshop founding is still next; confirmed marker removal
-behavior needs a decision before its live lifecycle is connected.
+skills. Automatic first-workshop training/startup and approved marker removal
+pause/restoration are now connected and verified.
 See WORKSHOP_STARTER_SUPPLIES.md and MINE_FOUNDER_TRAINING.md. Your playable server has not been changed.
 
 Bars count completed milestones in the checklist below. Milestones differ in
