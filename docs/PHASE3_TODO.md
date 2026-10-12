@@ -1,5 +1,15 @@
 # Phase 3 — businesses and industry checklist
 
+October12: persistent habitat stocks/column identity, atomic qualified catches/
+owned food and ordinary industry clocks added in schema66. Ten new temporary SQL
+cases passed, including real public food purchase/arrival/consumption, rollback,
+absence/restart and retune/no-refill. Full1,210 tests and the guarded native normal
+owner-timer/pause/restart check passed; main save audited, fixture properties restored.
+Automatic water
+observation/qualified startup remains unfinished, so broad renewable catalog
+milestone and counts are unchanged. See FISHING_RESOURCES.md.
+Confirmed habitat-loss behavior awaits the user's choice before automatic startup.
+
 October12: fish-stock renewal approved. Added bounded immutable resource/catch
 calculations and strict editable fishing-resources terms: fractional recovery,
 temporary exhaustion, exact absent-world pause, no refill from opening retunes,

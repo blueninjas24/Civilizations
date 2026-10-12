@@ -106,6 +106,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureWorkplaceOperations(EconomyConfiguration.readWorkplaceOperations(economyConfig));
             population.configureWorkshopOpportunities(EconomyConfiguration.readWorkshopOpportunities(economyConfig),EconomyConfiguration.readWorkshopStarterSupplies(economyConfig));
             population.configureIndustryRuntime(EconomyConfiguration.readIndustryRuntime(economyConfig));
+            population.configureFishing(EconomyConfiguration.readFishingResources(economyConfig));
             population.configureBusinessPurchases(EconomyConfiguration.readBusinessPurchasePolicy(economyConfig));
             population.configureBusinessOperations(EconomyConfiguration.readBusinessOperations(economyConfig));
             population.configureWorkLearning(EconomyConfiguration.readWorkLearning(economyConfig));

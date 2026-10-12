@@ -1,0 +1,137 @@
+package com.blueninjas24.civilizations.database;
+
+import com.blueninjas24.civilizations.economy.Commodity;
+import com.blueninjas24.civilizations.industry.*;
+import com.blueninjas24.civilizations.population.*;
+import java.nio.file.Path;
+import java.sql.SQLException;
+import java.util.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.*;
+
+class FisheryPersistenceTest {
+    @TempDir Path directory;
+    BusinessStartupGrantsTest fixture;
+    UUID business,site;
+    FishingPolicy policy=FishingPolicy.prototype();
+    @BeforeEach void setup() throws Exception {
+        fixture=new BusinessStartupGrantsTest();fixture.directory=directory;fixture.setup();
+        fixture.db.getPopulationRepository().recordSkillExperience(fixture.person,"fishing",10);
+        var original=fixture.mine(fixture.person,0).founding();var b=original.business();site=b.siteId();business=b.id();
+        var requirements=new JobRequirements(216,Map.of("fishing",1L));
+        var firm=new Business(b.id(),b.settlementId(),"Fixture fishery",b.founderId(),b.ownerId(),"fishing",b.siteId(),2,0);
+        fixture.grants().startWorkshop(new BusinessStartupGrants.WorkshopRequest(
+                new BusinessFounding(firm,original.site(),requirements,requirements,500,"Explicit suitable fishery fixture"),
+                100,Map.of(Commodity.FOOD,1L),1000,fixture.person),StartupGrantPolicy.prototype());
+        fisheries().open(site,observation(fixture.world,0),policy);
+    }
+    @AfterEach void close(){fixture.close();}
+    FisheryObservation observation(UUID world,int offset){return new FisheryObservation(world,10,true,
+            java.util.stream.IntStream.range(0,40).mapToObj(x->new FisheryObservation.Column(x+offset,0)).toList());}
+    FisheryRepository fisheries(){return new FisheryRepository(fixture.db.getConnection());}
+    IndustryRepository industry()throws SQLException{return fixture.db.getIndustryRepository();}
+    FishStock stock()throws Exception{return fisheries().find(site).orElseThrow().stock();}
+    long food()throws Exception{return industry().store(business).orElseThrow().units().get(Commodity.FOOD);}
+    IndustryRuntime runtime(long now)throws Exception{
+        var p=new IndustryRuntimePolicy(true,1000,1,IndustryPolicy.prototype(),Map.of());
+        var runtime=new IndustryRuntime(fixture.db.getConnection(),p);runtime.configureFishing(policy);runtime.start(now);return runtime;
+    }
+    @Test void initializationCatchRestartAndRevisitConserveStockFoodCashAndIdentity()throws Exception {
+        var before=fisheries().find(site).orElseThrow();var op=UUID.randomUUID();
+        var receipt=industry().fish(op,business,100,1,policy);
+        assertEquals(4,receipt.quantity());assertEquals(4,food());assertEquals(new FishStock(320,242,4000),stock());assertEquals(8500,fixture.cash());
+        fixture.db.close();fixture.open();var saved=stock();
+        assertEquals(receipt,industry().fish(op,business,100,1,policy));assertEquals(saved,stock());assertEquals(4,food());
+        var retuned=new FishingPolicy(true,1,100,10000,100,200,4,16);
+        var revisit=fisheries().open(site,observation(fixture.world,0),retuned);
+        assertEquals(saved,revisit.stock());assertEquals(before.openingTerms(),revisit.openingTerms());
+        assertThrows(SQLException.class,()->industry().fish(op,business,99,1,policy));
+        assertThrows(SQLException.class,()->industry().fish(UUID.randomUUID(),business,100,1,policy));
+        assertEquals(1,fixture.count("fishery_work"));assertEquals(40,fixture.count("fishery_columns"));
+    }
+    @Test void lateHistoryFailureRollsBackResourceFoodReceiptThenExactRetrySucceeds()throws Exception {
+        var before=fixture.snapshot();fixture.sql("CREATE TRIGGER reject_fish BEFORE INSERT ON fishery_work BEGIN SELECT RAISE(ABORT,'fixture late failure'); END");
+        var op=UUID.randomUUID();assertThrows(SQLException.class,()->industry().fish(op,business,100,1,policy));assertEquals(before,fixture.snapshot());
+        assertTrue(fixture.db.getConnection().getAutoCommit());fixture.sql("DROP TRIGGER reject_fish");
+        assertEquals(4,industry().fish(op,business,100,1,policy).quantity());assertEquals(1,fixture.count("fishery_work"));
+    }
+    @Test void unknownPartialOverlappingAndChangedWaterCannotMintAnotherResource()throws Exception {
+        var before=fixture.snapshot();
+        assertThrows(SQLException.class,()->fisheries().open(site,observation(UUID.randomUUID(),0),policy));
+        assertThrows(SQLException.class,()->fisheries().open(site,new FisheryObservation(fixture.world,20,false,observation(fixture.world,0).columns()),policy));
+        assertThrows(SQLException.class,()->fisheries().open(site,observation(fixture.world,1),policy));
+        assertEquals(before,fixture.snapshot());
+        var otherFounding=fixture.mine(fixture.person,50).founding();var other=otherFounding.site();fixture.db.getBusinessRepository().found(otherFounding);
+        before=fixture.snapshot();assertThrows(SQLException.class,()->fisheries().open(other.id(),observation(fixture.world,-20),policy));
+        assertEquals(before,fixture.snapshot());assertEquals(1,fixture.count("fishery_resources"));
+        assertThrows(IllegalArgumentException.class,()->new FisheryObservation(fixture.world,1,true,List.of(new FisheryObservation.Column(0,0),new FisheryObservation.Column(0,0))));
+    }
+    @Test void depletedStockRecoversDuringRestButUnqualifiedWorkersCannotCatch()throws Exception {
+        fixture.sql("UPDATE fishery_resources SET available=0,remainder=0");
+        var intensive=new FishingPolicy(true,16,8,4096,75,200,16,16);
+        assertEquals(6,industry().fish(UUID.randomUUID(),business,100,1,intensive).quantity());assertEquals(0,stock().available());
+        // Explicit regression fixture: future qualification rules can invalidate an old job.
+        fixture.sql("UPDATE resident_skills SET experience=0 WHERE skill='fishing'");
+        assertEquals(0,industry().fish(UUID.randomUUID(),business,100,2,policy).quantity());
+        assertEquals(6,food());assertEquals(new FishStock(320,6,8000),stock());
+        for(int i=3;i<=52;i++)industry().fish(UUID.randomUUID(),business,0,i,policy);
+        assertEquals(new FishStock(320,320,0),stock());assertEquals(6,food());assertEquals(8500,fixture.cash());
+    }
+    @Test void fullOwnedStorageLimitsCatchAndUnavailableOwnerOnlyAllowsEcologicalRecovery()throws Exception {
+        fixture.sql("UPDATE industry_stock SET units=99 WHERE commodity='food'");
+        assertEquals(1,industry().fish(UUID.randomUUID(),business,100,1,policy).quantity());assertEquals(100,food());
+        assertEquals(0,industry().fish(UUID.randomUUID(),business,100,2,policy).quantity());
+        fixture.sql("UPDATE fishery_resources SET available=0,remainder=0");
+        fixture.db.getPopulationRepository().updateResident(new Resident(fixture.person,"Fixture",fixture.town,null,300,Resident.Status.DECEASED));
+        assertEquals(0,industry().fish(UUID.randomUUID(),business,100,3,policy).quantity());assertEquals(6,stock().available());assertEquals(100,food());
+    }
+    @Test void normalClockPausesAbsenceAndRestartRetainsFractionWithoutOfflineRecovery()throws Exception {
+        var runtime=runtime(1000);assertEquals(0,runtime.pulse(1500,Set.of(fixture.world)));
+        assertEquals(1,runtime.pulse(2000,Set.of(fixture.world)));assertEquals(4,food());var before=stock();
+        runtime.observeAvailability(2500,Set.of(fixture.world));assertEquals(0,runtime.pulse(100000,Set.of()));assertEquals(before,stock());
+        runtime.observeAvailability(100000,Set.of());assertEquals(0,runtime.pulse(100499,Set.of(fixture.world)));
+        assertEquals(1,runtime.pulse(100500,Set.of(fixture.world)));assertEquals(8,food());
+        runtime.pulse(101000,Set.of(fixture.world));fixture.db.close();fixture.open();runtime=runtime(1_000_000);
+        assertEquals(0,runtime.pulse(1_000_499,Set.of(fixture.world)));assertEquals(1,runtime.pulse(1_000_500,Set.of(fixture.world)));assertEquals(12,food());
+        assertEquals(3,fixture.count("fishery_work"));assertEquals(3,fixture.count("industry_runtime_history"));
+    }
+    @Test void clockCheckpointFailureRollsBackCatchAndRecoveryButRetainsEarnedWork()throws Exception {
+        var runtime=runtime(1000);var before=stock();
+        fixture.sql("CREATE TRIGGER reject_fish_clock BEFORE UPDATE OF completed ON industry_runtime BEGIN SELECT RAISE(ABORT,'fixture checkpoint'); END");
+        assertThrows(SQLException.class,()->runtime.pulse(2000,Set.of(fixture.world)));
+        assertEquals(before,stock());assertEquals(0,food());assertEquals(0,fixture.count("fishery_work"));assertEquals(0,fixture.count("industry_production"));
+        fixture.sql("DROP TRIGGER reject_fish_clock");assertEquals(1,runtime.pulse(2000,Set.of(fixture.world)));assertEquals(4,food());
+    }
+    @Test void disablingRecoveryPreservesResourceWithoutLaterDisabledPeriodCatchup()throws Exception {
+        var runtime=runtime(1000);runtime.pulse(2000,Set.of(fixture.world));var before=stock();
+        runtime.configureFishing(FishingPolicy.disabled());assertEquals(1,runtime.pulse(3000,Set.of(fixture.world)));
+        assertEquals(before,stock());assertEquals(4,food());
+        runtime.configureFishing(policy);runtime.pulse(4000,Set.of(fixture.world));assertEquals(8,food());
+        assertEquals(3,fixture.count("fishery_work"));
+    }
+    @Test void actualCatchCanFeedARealPaidVillageCustomerAndArriveBeforeConsumption()throws Exception {
+        industry().fish(UUID.randomUUID(),business,100,1,policy);assertEquals(4,food());
+        // Genuine accelerated public consumption exhausts opening reserves; no invented buyer or stock deletion.
+        for(int second=3;second<=52;second++)fixture.economy.pulse(second*1000L,false);
+        var buyers=new VillageSupplyPurchases(fixture.db.getConnection(),VillageSupplyPolicy.prototype(),StudyPolicy.disabled(),BusinessOperationPolicy.disabled());
+        buyers.purchase(new VillageSupplyPurchases.Request(UUID.randomUUID(),fixture.town,business,Commodity.FOOD,2,51),Set.of(fixture.world));
+        assertEquals(2,food());assertEquals(8100,fixture.cash());assertEquals(1400,industry().store(business).orElseThrow().hundredths());
+        var economy=new EconomyRuntimeRepository(fixture.db.getConnection(),fixture.settings,
+                com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype(),216);
+        economy.configureVillageSupplies(VillageSupplyPolicy.prototype());economy.startOnline(52000,Set.of(fixture.world));economy.pulse(53000,false);
+        try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("SELECT demand,fulfilled FROM needs_periods WHERE period=52")) {
+            assertTrue(r.next());assertEquals(2,r.getLong(1));assertEquals(2,r.getLong(2));
+        }
+        assertEquals(1,fixture.count("village_supply_orders"));assertEquals(2,food());assertEquals(8100,fixture.cash());
+    }
+    @Test void migration66FailureIsTransactionalAndRetryPreservesAllOldRows()throws Exception {
+        // Reconstruct schema65 only in this @TempDir database; no fishery existed in that schema.
+        SchemaFixtures.rewind(fixture.db.getConnection(),65);fixture.sql("PRAGMA user_version=65");var before=fixture.snapshot();
+        fixture.sql("CREATE VIEW fishery_columns AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));
+        assertEquals(before,fixture.snapshot());assertTrue(fixture.db.getConnection().getAutoCommit());
+        fixture.sql("DROP VIEW fishery_columns");new SchemaMigrator().migrate(fixture.db.getConnection());var after=fixture.snapshot();
+        for(var table:List.of("fishery_resources","fishery_columns","fishery_work"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
+        try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+    }
+}

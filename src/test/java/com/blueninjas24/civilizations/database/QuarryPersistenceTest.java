@@ -72,7 +72,7 @@ class QuarryPersistenceTest {
     }
     void oldSchema()throws Exception {
         fixture.sql("PRAGMA foreign_keys=OFF");
-        fixture.sql("DROP TABLE village_supply_orders");
+        SchemaFixtures.rewind(fixture.db.getConnection(),63);
         String ddl;try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("SELECT sql FROM sqlite_master WHERE name='mineral_discovery'")){ddl=r.getString(1);}
         fixture.sql(ddl.replace("mineral_discovery", "mineral_discovery_old").replace("'coal','iron','stone','sand'","'coal','iron'"));
         fixture.sql("INSERT INTO mineral_discovery_old SELECT * FROM mineral_discovery");fixture.sql("DROP TABLE mineral_discovery");
@@ -83,7 +83,7 @@ class QuarryPersistenceTest {
         var started=fixture.grants().startMine(fixture.request,StartupGrantPolicy.prototype());
         fixture.db.getIndustryRepository().mine(UUID.randomUUID(),fixture.request.founding().business().id(),started.startup().discovery().deposit().id(),2,1,8,8);
         oldSchema();var before=fixture.snapshot();new SchemaMigrator().migrate(fixture.db.getConnection());
-        var after=fixture.snapshot();assertEquals(List.of(),after.remove("village_supply_orders"));assertEquals(before,after);
+        var after=fixture.snapshot();for(var table:List.of("village_supply_orders","fishery_resources","fishery_columns","fishery_work"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
         assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(1,scalar("PRAGMA foreign_keys"));
         try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
@@ -93,7 +93,7 @@ class QuarryPersistenceTest {
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));assertEquals(before,fixture.snapshot());
         assertEquals(63,scalar("PRAGMA user_version"));assertEquals(1,scalar("PRAGMA foreign_keys"));assertTrue(fixture.db.getConnection().getAutoCommit());
         fixture.sql("DROP VIEW mineral_discovery_v64");new SchemaMigrator().migrate(fixture.db.getConnection());
-        var after=fixture.snapshot();assertEquals(List.of(),after.remove("village_supply_orders"));assertEquals(before,after);
+        var after=fixture.snapshot();for(var table:List.of("village_supply_orders","fishery_resources","fishery_columns","fishery_work"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
     }
     @Test void postRebuildForeignKeyFailureRollsBackDdlAndRestoresEnforcement()throws Exception {
         fixture.grants().startMine(fixture.request,StartupGrantPolicy.prototype());oldSchema();

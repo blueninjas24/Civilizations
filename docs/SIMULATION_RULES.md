@@ -19,8 +19,8 @@ These are design contracts, **not finalized numeric tuning values**. Avoid hardc
   stock. Catches reduce it; gradual configurable recovery can restore an exhausted
   fishery. Actual staffed work, site/storage limits and real demand still apply.
   No recovery or catch is earned during server downtime or world absence. This
-  direction is approved; FISHING_RESOURCES.md distinguishes calculation foundations
-  from unfinished persistence, observation and timed business integration.
+  direction is approved; FISHING_RESOURCES.md distinguishes saved stocks/timed
+  business work from unfinished automatic observation and founding.
 - Use abstract units of significant commodities, reserves and capacity. Supply = local output + imports + reserves released; demand = households + business inputs + construction + trade + events.
 - Labels Severe Shortage / Shortage / Balanced / Surplus / Abundant derive from quantitative ratios and persistence; exact thresholds are tunable.
 - Shortage consequences are causal, commodity-specific and time-dependent. Food shortages initially raise prices/import pressure; prolonged crises depress growth and may lead to mortality. Timber shortages defer building; iron shortages reduce tool/industry throughput.

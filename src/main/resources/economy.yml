@@ -98,7 +98,7 @@ startup-grants:
   industries: [mining, blacksmith, warehouse, logging, fishing, quarry, sandpit]
 
 fishing-resources:
-  # Calculation foundation only: water observation/founding/runtime are not connected yet.
+  # Saved-resource timers are connected; automatic water observation/founding remain unfinished.
   # A column must represent distinct, suitable open water in a complete observation.
   enabled: true
   minimum-water-columns: 16

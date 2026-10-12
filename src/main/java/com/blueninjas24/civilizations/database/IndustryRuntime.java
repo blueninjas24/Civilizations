@@ -32,6 +32,8 @@ public final class IndustryRuntime {
         this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
     private FarmToolUpkeepPolicy farmUpkeep=FarmToolUpkeepPolicy.disabled();
+    private FishingPolicy fishing=FishingPolicy.disabled();
+    public void configureFishing(FishingPolicy policy) { fishing=Objects.requireNonNull(policy); }
     private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
     public void configureFarmToolDemand(FarmToolUpkeepPolicy upkeep,FarmToolBudgetPolicy budget){farmUpkeep=Objects.requireNonNull(upkeep);farmBudget=Objects.requireNonNull(budget);}
     /** Restart preserves earned work/fractions but earns no downtime. */
@@ -88,7 +90,7 @@ public final class IndustryRuntime {
             return null;
         });
     }
-    private boolean supported(String kind) {return kind.equals("mining") || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
+    private boolean supported(String kind) {return kind.equals("mining") || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
     private List<Clock> clocks() throws SQLException {
         var result=new ArrayList<Clock>();
         try(var s=connection.createStatement();var r=s.executeQuery("SELECT c.*,b.industry,p.world_id FROM industry_runtime c JOIN businesses b ON b.id=c.business_id JOIN business_sites p ON p.id=b.site_id ORDER BY c.business_id LIMIT 4097")) {
@@ -113,7 +115,19 @@ public final class IndustryRuntime {
             try(var s=connection.prepareStatement("SELECT 1 FROM industry_operations WHERE id=?")) {
                 s.setString(1,operation.toString());try(var r=s.executeQuery()){freshProduction=!r.next();}
             }
-            if(!availability.permitted())reason=availability.explanation();
+            var firm=new BusinessRepository(connection).findBusiness(id).orElseThrow();
+            if(clock.industry().equals("fishing") && new FisheryRepository(connection).find(firm.siteId()).isPresent()) {
+                if(!fishing.enabled() || !availability.permitted())
+                    reason=industry.fishRows(operation,id,0,period,fishing,operations).explanation();
+                else {
+                    var supply=tools.acquireRows(id,clock.industry(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),operations);
+                    long maximum=Math.min(fishing.siteCatchCapacity(),Math.multiplyExact(new BusinessRepository(connection).currentWorkers(id).size(),fishing.catchPerWorker()));
+                    var wear=tools.prepare(id,clock.industry(),maximum);
+                    var receipt=industry.fishRows(operation,id,wear==null?fishing.siteCatchCapacity():wear.requested(),period,fishing,operations);
+                    reason=supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
+                }
+            }
+            else if(!availability.permitted())reason=availability.explanation();
             else if(clock.industry().equals("mining")) {
                 var deposits=new ArrayList<UUID>();
                 try(var s=connection.prepareStatement("SELECT d.id FROM mineral_deposits d JOIN businesses b ON b.site_id=d.site_id WHERE b.id=? ORDER BY d.id LIMIT 2")) {

@@ -135,10 +135,10 @@ class VillageSupplyPurchasesTest {
         fixture.economy.updateLoadedWorlds(100000,worlds());fixture.economy.pulse(101000,false);assertEquals(4,scalar("SELECT applied_period FROM village_supply_orders"));
     }
     @Test void migration65RetainsOldAssetsAndFailureLeavesVersion64Retryable()throws Exception {
-        fixture.sql("DROP TABLE village_supply_orders");fixture.sql("PRAGMA user_version=64");var before=fixture.snapshot();
+        SchemaFixtures.rewind(fixture.db.getConnection(),64);fixture.sql("PRAGMA user_version=64");var before=fixture.snapshot();
         fixture.sql("CREATE VIEW village_supply_orders AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));
         assertEquals(64,scalar("PRAGMA user_version"));assertEquals(before,fixture.snapshot());fixture.sql("DROP VIEW village_supply_orders");
-        new SchemaMigrator().migrate(fixture.db.getConnection());var after=fixture.snapshot();assertEquals(List.of(),after.remove("village_supply_orders"));assertEquals(before,after);
-        assertEquals(65,scalar("PRAGMA user_version"));try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+        new SchemaMigrator().migrate(fixture.db.getConnection());var after=fixture.snapshot();for(var table:List.of("village_supply_orders","fishery_resources","fishery_columns","fishery_work"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
+        assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
 }

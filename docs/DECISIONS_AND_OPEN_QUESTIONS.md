@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October12: confirmed fishery habitat loss — awaiting decision
+
+Before automatic fisheries are enabled, asked how supporting water removal should
+affect saved resources. Recommended: reduce capacity with confirmed suitable-water
+loss, retire only stock exceeding that reduced limit, and recover gradually after
+water is restored without an instant refill. No suitable habitat pauses work and
+recovery; incomplete/unloaded evidence never establishes loss. Alternative: pause
+work/recovery while preserving old stock until supporting habitat is restored.
+This is consequential renewable-resource behavior under AGENTS.md, separate from
+approved ordinary catch/recovery. No automatic habitat-loss behavior is enabled
+pending the user's answer. Read-only suitability evidence can be developed separately.
+
 ## October12: fishing resource recovery — approved
 
 User approved: “Yes the fish stock should ebb and flow just like real life.”
@@ -8,10 +20,11 @@ actually observed suitable open water, with gradual recovery and temporary
 exhaustion from heavy harvesting. Editable capacity/catch/recovery; absent worlds
 and server downtime pause it. Visible Minecraft fish entities would not be needed
 for every abstract catch. This supplies a real habitat-backed resource rather
-than goods created from profession alone. Plain-Java resource calculations and
-strict editable prototype terms are now added; live observation, persistence,
-qualified founding and ordinary timed production still require integration.
-No Minecraft fishing production has been enabled. See FISHING_RESOURCES.md for
+than goods created from profession alone. Plain-Java resource calculations,
+strict editable prototype terms, transactional saved stocks/owned catches and
+normal SQL-owner timed work are verified by1,210 full tests and a guarded native
+owner-timer check; automatic live water observation and qualified founding remain
+unfinished. No automatic fishing startup has been enabled. See FISHING_RESOURCES.md for
 defaults, recovery/catch conservation and remaining verification. Crop/tree renewal
 and quarry provenance/source-loss safeguards retain their existing approvals.
 

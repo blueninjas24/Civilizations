@@ -1,5 +1,31 @@
 # Civilizations Development Log
 
+## October12, 2026 — persistent renewable fisheries and timed owned catches
+
+Branch codex/phase3-persistent-fisheries. Schema66 adds initially empty resource,
+column-identity and work-audit tables/index. FisheryRepository preserves saved
+capacity/remainder/terms and rejects duplicate/changed-footprint claims atomically.
+IndustryRepository catch transaction validates actual staff/storage and conserves
+resource/owned food; receipt/period/work rows roll back together. Existing owner
+clock and plugin config wiring handle saved fisheries, with absence/downtime/
+disabled-period safety and supported existing upkeep/learning. No automatic water
+scanning or startup enabled. Ten temporary SQLite cases passed at16:59:24 ET,
+12.138s, including genuine public-food customer/import consumption. Corrected test
+helper API/declarations, actual one-worker cap and previous-world boundary-mask
+assumptions without changing existing behavior. Updated old-schema fixtures for66.
+Full .\mvnw.cmd clean verify passed1,210 (1,208 unit/two packaged integration),
+zero failures/errors/skips,6:44 at17:07:24 ET. Native guarded normal-owner timer proof
+passed at17:08:19, normal shutdown: real resource/catch/food/cash conservation,
+absence/downtime and disabled-policy restart freeze, resume without refill. Trusted
+explicit fixture columns, not native water observation; no world mutations. Main
+save105/111 old tables exact; six normal clock/mask/ore changes and resident age only,
+old assets/identity/cash/history preserved; three new main resource tables empty,
+schema66 integrity/FK healthy. Properties restored byte-exact, helper archived,
+backups retained. The isolated fixture stopped normally. Asked consequential habitat-loss
+rule before enabling automatic fisheries; answer pending, no loss behavior chosen.
+No human DB/server/world changes, merge or push. Updated resources, decisions,
+status/progress/checklist. Broader Phase3 counts unchanged.
+
 ## October12, 2026 — approved renewable fish-stock calculation foundation
 
 Branch codex/phase3-renewable-fish-stocks. Recorded fish recovery approval in canonical

@@ -1,5 +1,43 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — persistent fisheries and ordinary timed catches
+
+Added FisheryObservation/FisheryRepository and schema66: three initially empty
+resource/column/work tables plus an index, preserving all old identities/assets.
+Site/world identity, distinct column claims, late-overlap rollback and immutable
+opening terms prevent refill/duplicate resources. IndustryRepository now commits
+qualified actual catch, habitat recovery/remainder, owned food, receipt/period and
+work audit together. Old receipts replay exactly; changed/stale requests reject.
+Normal IndustryRuntime/PopulationSession clocks use the existing online/world
+availability contract; disabled periods do not later catch up. Resting/unavailable
+firms can recover habitat but cannot invent workers/catches. Existing optional
+tool upkeep/learning are retained; legacy habitat-free fishing recipes remain.
+
+Ten @TempDir SQLite tests added: restart/retune/replay, incomplete/wrong-world/
+overlap, unqualified labor, exhaustion/rest/storage, real paid village-food use,
+disabled policy, absence/downtime fractions, late history/checkpoint rollback,
+schema65 failure/retry preservation. Focused10 passed at16:59:24 ET (12.138s).
+First scoped run exposed two incorrect fixture assumptions: one fisher's four-unit
+work cap and observeAvailability's previous-world boundary mask. Corrected the
+fixtures, not the existing clock or production rules. Historical schema rewind
+helpers now remove new tables before reproducing older schemas.
+
+Full Windows .\mvnw.cmd clean verify passed1,210 (1,208 unit/two packaged
+integration), zero failures/errors/skips,6:44 at17:07:24 ET. Guarded Paper normal-owner
+probe passed at17:08:19 and stopped normally: conserved saved stock/owned catches/
+cash; exact absent-world pause, owner downtime and disabled-policy restart; resumed
+without refill. Explicit trusted fixture water evidence, not a native water survey;
+no world block/entity/chunk changes. Main disposable save105/111 old tables exact,
+six normal clock/mask/ore bookkeeping changes plus resident ages only; old identity/
+assets/cash/history retained. New three main fishery tables empty; schema66 integrity/
+FK healthy. Exact properties restored, helper archived, consistent backups retained.
+No human server/world/database change; no automatic suitable
+water observer/founders or new construction. Next: current bounded water evidence
+and atomic qualified/protected fishery startup. Asked how confirmed supporting-water
+loss should affect capacity/stock before enabling automatic fisheries; answer pending.
+Phase3 counts remain1/4 groups/
+~69% partial until broader live catalog acceptance completes. See FISHING_RESOURCES.
+
 ## October12, 2026 — approved renewable fishing calculation foundation
 
 Recorded the user's approval for fish stock to ebb and recover. Added plain-Java

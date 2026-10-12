@@ -180,6 +180,48 @@ public final class IndustryRepository {
         return saved;
     }
 
+    /** Trusted earned-period caller; actual employees and owned storage constrain every catch. */
+    public Receipt fish(UUID operation, UUID business, long requested, long period, FishingPolicy policy) throws SQLException {
+        return transaction(() -> fishRows(operation, business, requested, period, policy, BusinessOperationPolicy.disabled()));
+    }
+    Receipt fishRows(UUID operation, UUID business, long requested, long period, FishingPolicy policy,
+                     BusinessOperationPolicy operations) throws SQLException {
+        if (connection.getAutoCommit()) throw new SQLException("Fishing requires active SQL owner transaction");
+        if (requested < 0 || period < 0) throw new IllegalArgumentException("Invalid fishing work request");
+        String terms = terms("fish-v1", business, requested, period, policy);
+        var old = receipt(operation, terms); if (old.isPresent()) return old.orElseThrow();
+        var b = businesses.findBusiness(business).orElseThrow(() -> new SQLException("Unknown fishing business"));
+        if (!b.industry().equals("fishing")) throw new SQLException("Fishery work requires a fishing business");
+        try (var s = connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
+            s.setString(1, business.toString()); try (var r = s.executeQuery()) {
+                if (r.next()) { long last = r.getLong(1); if (!r.wasNull() && period <= last) throw new SQLException("Fishing period stale or already completed"); }
+            }
+        }
+        var fisheries = new FisheryRepository(connection);
+        var resource = fisheries.find(b.siteId()).orElseThrow(() -> new SQLException("Missing habitat-backed fishing resource"));
+        var store = store(business).orElseThrow(() -> new SQLException("Missing fishing storage"));
+        var size = store.spacePerUnit().get(Commodity.FOOD);
+        if (size == null) throw new SQLException("Fishing store must support food");
+        var availability = new BusinessOperations(connection, operations).evaluate(business);
+        int workers = 0;
+        var requirements = businesses.findFounding(business).orElseThrow().workerRequirements();
+        var people = new PopulationRepository(connection);
+        if (availability.permitted()) for (var job : businesses.currentWorkers(business)) {
+            var person = people.findResident(job.residentId()).orElseThrow();
+            if (com.blueninjas24.civilizations.population.WorkEligibility.evaluate(person,
+                    people.findWorkProfile(person.id()).orElseThrow(), requirements).eligible()) workers++;
+        }
+        // Ecology recovers while a present-world business rests; unavailable owners/staff never catch food.
+        var plan = resource.stock().advance(policy, true, requested, workers, store.freeSpace(), size);
+        changeStock(business, Commodity.FOOD, plan.caught());
+        var saved = save(operation, terms, plan.caught(), availability.explanation() + "; " + plan.explanation());
+        try (var s = connection.prepareStatement("INSERT INTO industry_production VALUES(?,?,?)")) {
+            s.setString(1, business.toString()); s.setLong(2, period); s.setString(3, operation.toString()); s.executeUpdate();
+        }
+        fisheries.saveWorkRows(operation, business, resource, period, plan, policy);
+        return saved;
+    }
+
     public boolean hasCoordinateSources(UUID deposit)throws SQLException {
         try(var s=connection.prepareStatement("SELECT 1 FROM mineral_sources WHERE deposit_id=? LIMIT 1")) {
             s.setString(1,deposit.toString());try(var r=s.executeQuery()){return r.next();}

@@ -84,6 +84,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.FarmBusinessPolicy farmBusinessPolicy=com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
     private com.blueninjas24.civilizations.database.BusinessRuntime businesses;
     private com.blueninjas24.civilizations.industry.IndustryRuntimePolicy industryPolicy=com.blueninjas24.civilizations.industry.IndustryRuntimePolicy.disabled();
+    private com.blueninjas24.civilizations.industry.FishingPolicy fishingPolicy=com.blueninjas24.civilizations.industry.FishingPolicy.disabled();
     private com.blueninjas24.civilizations.database.IndustryRuntime industries;
     private com.blueninjas24.civilizations.industry.BusinessPurchasePolicy purchasePolicy=com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy workshopFoundingPolicy=com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy.disabled();
@@ -186,6 +187,10 @@ public final class PopulationSession implements AutoCloseable {
     public void configureIndustryRuntime(com.blueninjas24.civilizations.industry.IndustryRuntimePolicy policy) {
         if(started.get())throw new IllegalStateException("Configure industry runtime before session starts");
         industryPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureFishing(com.blueninjas24.civilizations.industry.FishingPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure fishing before session starts");
+        fishingPolicy=java.util.Objects.requireNonNull(policy);
     }
     public String industryRuntimeDiagnostic() {
         return !industryPolicy.enabled()?"Timed industry disabled in economy.yml":industryFailure!=null
@@ -313,6 +318,7 @@ public final class PopulationSession implements AutoCloseable {
                 automaticMines=new com.blueninjas24.civilizations.database.AutomaticMineFounding(database.getConnection(),mineFoundingPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||oreHistoryHealthy.get());
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||oreHistoryHealthy.get());
                 industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
+                industries.configureFishing(fishingPolicy);
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
                 var demographic = database.getDemographicRepository();

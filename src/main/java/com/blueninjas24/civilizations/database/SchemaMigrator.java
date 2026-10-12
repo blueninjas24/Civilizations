@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 65;
+    static final int CURRENT_VERSION = 66;
 
     @FunctionalInterface
     interface Migration {
@@ -908,7 +908,8 @@ final class SchemaMigrator {
                 SchemaMigrator::createWorkshopFounderStudy,
                 SchemaMigrator::createWarehouseFounderStudy,
                 SchemaMigrator::extendFiniteResourceKinds,
-                SchemaMigrator::createVillageSupplyOrders
+                SchemaMigrator::createVillageSupplyOrders,
+                SchemaMigrator::createFisheries
 
 
         ));
@@ -1163,6 +1164,44 @@ final class SchemaMigrator {
         if(restoreForeignKeys)execute(connection,"PRAGMA foreign_keys=ON");
     }
 
+    static void createFisheries(Connection connection) throws SQLException {
+        execute(connection, """
+                CREATE TABLE fishery_resources (
+                    site_id TEXT PRIMARY KEY NOT NULL REFERENCES business_sites(id),
+                    world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                    capacity INTEGER NOT NULL CHECK(typeof(capacity)='integer' AND capacity BETWEEN 1 AND 1000000000),
+                    available INTEGER NOT NULL CHECK(typeof(available)='integer' AND available BETWEEN 0 AND capacity),
+                    remainder INTEGER NOT NULL CHECK(typeof(remainder)='integer' AND remainder BETWEEN 0 AND 9999),
+                    observed_ms INTEGER NOT NULL CHECK(typeof(observed_ms)='integer' AND observed_ms>=0),
+                    opening_terms TEXT NOT NULL,
+                    CHECK(available<capacity OR remainder=0), UNIQUE(site_id,world_id)
+                )
+                """);
+        execute(connection, """
+                CREATE TABLE fishery_columns (
+                    world_id TEXT NOT NULL,x INTEGER NOT NULL CHECK(typeof(x)='integer'),z INTEGER NOT NULL CHECK(typeof(z)='integer'),site_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id,x,z),
+                    FOREIGN KEY(site_id,world_id) REFERENCES fishery_resources(site_id,world_id)
+                )
+                """);
+        execute(connection, "CREATE INDEX fishery_site_columns ON fishery_columns(site_id,x,z)");
+        execute(connection, """
+                CREATE TABLE fishery_work (
+                    operation_id TEXT PRIMARY KEY NOT NULL REFERENCES industry_operations(id),
+                    site_id TEXT NOT NULL REFERENCES fishery_resources(site_id),business_id TEXT NOT NULL,
+                    period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=0),
+                    opening_units INTEGER NOT NULL CHECK(typeof(opening_units)='integer' AND opening_units>=0),
+                    recovered INTEGER NOT NULL CHECK(typeof(recovered)='integer' AND recovered>=0),
+                    caught INTEGER NOT NULL CHECK(typeof(caught)='integer' AND caught>=0),
+                    closing_units INTEGER NOT NULL CHECK(typeof(closing_units)='integer' AND closing_units>=0),
+                    before_remainder INTEGER NOT NULL CHECK(typeof(before_remainder)='integer' AND before_remainder BETWEEN 0 AND 9999),
+                    after_remainder INTEGER NOT NULL CHECK(typeof(after_remainder)='integer' AND after_remainder BETWEEN 0 AND 9999),
+                    policy_terms TEXT NOT NULL,
+                    CHECK(closing_units=opening_units+recovered-caught),
+                    FOREIGN KEY(business_id,period) REFERENCES industry_production(business_id,period)
+                )
+                """);
+    }
     static void createVillageSupplyOrders(Connection connection)throws SQLException {
         execute(connection,"""
             CREATE TABLE village_supply_orders (
