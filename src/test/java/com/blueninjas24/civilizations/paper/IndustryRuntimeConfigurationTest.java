@@ -7,6 +7,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndustryRuntimeConfigurationTest {
+    @Test void waterSettingsAreStrictEditableAndLegacyOptIn()throws Exception {
+        var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readWaterObserver(config).enabled());
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(WaterObserverPolicy.prototype(),EconomyConfiguration.readWaterObserver(config));
+        config.set("water-observer.minimum-depth",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWaterObserver(config));
+        config.set("water-observer.minimum-depth",3);assertEquals(3,EconomyConfiguration.readWaterObserver(config).minimumDepth());
+        config.set("water-observer.cells-per-tick",4097);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWaterObserver(config));
+        config.set("water-observer.cells-per-tick",512);config.set("water-observer.extra",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWaterObserver(config));
+    }
+
     @Test void workplaceMarkersAreEditableStrictAndLegacyOptIn()throws Exception {
         var config=new YamlConfiguration();assertFalse(EconomyConfiguration.readWorkplaceObserver(config).enabled());
         try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}

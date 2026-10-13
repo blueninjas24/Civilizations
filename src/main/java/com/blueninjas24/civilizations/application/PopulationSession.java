@@ -192,6 +192,22 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure fishing before session starts");
         fishingPolicy=java.util.Objects.requireNonNull(policy);
     }
+    private com.blueninjas24.civilizations.industry.WaterObserverPolicy waterPolicy=com.blueninjas24.civilizations.industry.WaterObserverPolicy.disabled();
+    public void configureWater(com.blueninjas24.civilizations.industry.WaterObserverPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure water recognition before session starts");
+        waterPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public CompletableFuture<Void> observeWater(UUID town,com.blueninjas24.civilizations.industry.WaterScan.Observation observation) {
+        return submit(()->{requireReady();
+            if(!waterPolicy.enabled())throw new IllegalStateException("Water recognition disabled");
+            if(observation.minimumDepth()!=waterPolicy.minimumDepth())throw new IllegalArgumentException("Water depth policy changed since capture");
+            new com.blueninjas24.civilizations.database.WaterOpportunities(database.getConnection()).observe(town,observation);return null;});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.WaterOpportunities.Review> currentWaterOpportunities(UUID town,long maximumAgeMillis,int limit) {
+        return submit(()->{requireReady();
+            if(!waterPolicy.enabled())return new com.blueninjas24.civilizations.database.WaterOpportunities.Review(java.util.List.of(),"Water recognition disabled");
+            return new com.blueninjas24.civilizations.database.WaterOpportunities(database.getConnection()).review(town,now.getAsLong(),maximumAgeMillis,loadedWorlds,waterPolicy.minimumDepth(),limit);});
+    }
     public String industryRuntimeDiagnostic() {
         return !industryPolicy.enabled()?"Timed industry disabled in economy.yml":industryFailure!=null
                 ?"Timed industry deferred: "+industryFailure:"Timed industry active for saved firms; "+automaticMineDiagnostic;

@@ -1,5 +1,11 @@
 # Phase 3 — businesses and industry checklist
 
+Water checks now run on the server and save fresh findings safely. All1,238
+full-build tests and the isolated Paper scanner/restart check passed. Water alone
+still creates no business or money: connected site selection, qualified owners
+and protected startup funding are next. Phase3 checklist counts stay unchanged.
+Your playable server has not been changed. See WATER_OBSERVATION.md.
+
 October12: bounded full-height read-only WaterScan/PaperWaterSource evidence added;
 immutable world/chunk/time/depth/column status, absolute negative Y, unknown safety
 and explicit per-call budgets. Eight new tests; focused38/full1,229 passed. Native

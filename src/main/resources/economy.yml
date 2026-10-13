@@ -97,8 +97,18 @@ startup-grants:
   # Eligibility alone does not create a business or certify resource evidence.
   industries: [mining, blacksmith, warehouse, logging, fishing, quarry, sandpit]
 
+water-observer:
+  # Read-only current habitat evidence; does not claim land or found a fishery.
+  # Natural water and player-built ponds use the same exposed-surface/depth check.
+  # Old files without this section stay disabled; edit while stopped, then restart.
+  enabled: true
+  minimum-depth: 2
+  cells-per-tick: 4096
+  interval-ticks: 400
+  horizontal-radius-chunks: 1
+
 fishing-resources:
-  # Saved-resource timers are connected; automatic water observation/founding remain unfinished.
+  # Saved-resource timers and current water evidence are connected; automatic founding remains unfinished.
   # A column must represent distinct, suitable open water in a complete observation.
   enabled: true
   minimum-water-columns: 16

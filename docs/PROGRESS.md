@@ -1,5 +1,11 @@
 # Civilizations progress tracker
 
+Water checks now run on the server and save fresh findings safely. All1,238
+full-build tests and the isolated Paper scanner/restart check passed. Water alone
+still creates no business or money: connected site selection, qualified owners
+and protected startup funding are next. Phase3 checklist counts stay unchanged.
+Your playable server has not been changed. See WATER_OBSERVATION.md.
+
 Updated October 12, 2026. Based on verified work, not planned features.
 
 Water recognition now has a read-only scan that checks depth/cover in small batches

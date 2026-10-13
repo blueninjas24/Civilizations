@@ -8,8 +8,8 @@ block changes or claim over player buildings. Historic origin need not be guesse
 from block types. Habitat recovery/loss, actual skill/work/storage/customer checks
 and the shared food-protected funding limits still apply. This approves eligibility,
 not free startup, block alteration or guaranteed businesses at every body of water.
-Read-only bounded snapshot evidence is verified; live submission/automatic founding
-remain unfinished. No new design answer blocks that next integration work.
+Bounded snapshot evidence and live SQL-owner submission are verified; contiguous
+selection and automatic founding remain unfinished. No new design answer blocks that next integration work.
 
 ## October12: confirmed fishery habitat loss — approved
 

@@ -22,13 +22,39 @@ look suitable. Complete empty results mean no qualifying columns in that snapsho
 they do not by themselves retire a fishery. Saved habitat loss still requires fresh
 complete evidence for every original support through FisheryRepository.habitat.
 
-Minimum depth is an explicit caller argument (1–64); tests use two. No installed
-admin file is rewritten and no automatic survey policy/default is enabled. The
-classifier is evidence infrastructure, not a locked ecological rule or certification
-of player ponds. It does not distinguish flowing/still water, infer historic block
-origins or infer property ownership. Contiguous site selection, multi-chunk quality,
-freshness/revalidation, editable live survey settings, SQL-owner submission,
-qualified owners/training and protected atomic founding remain future wiring.
+Live PaperWaterObserver now captures only already-loaded nearby chunks on the
+main thread, traverses their full height incrementally, and submits immutable
+observations to the existing SQL owner. One capture/scan or pending submission is
+active at a time. It never changes blocks, reads inventories or loads chunks.
+Unloading during traversal invalidates that capture as UNKNOWN, not habitat loss.
+Diagnostics are included in `/civ debug observation`; submission failures are logged.
+
+The optional `water-observer` economy.yml section controls enabled, minimum-depth
+(default2), cells-per-tick(default4096, maximum4096), interval-ticks(default400,
+minimum20), and horizontal-radius-chunks(default1, maximum2). Missing old sections
+remain disabled; installed files are never rewritten. Restart after editing.
+Scanning is centered on one deterministic saved household home per settlement,
+with at most1,024 settlement centers. Full-height scanning costs256 times world
+height reads per chunk; capture/SQL waiting can make total sweep time longer than
+the configured interval. No nearby-player requirement or production chunk ticket
+is added. Wider footprints and performance profiling remain future work.
+
+Schema68 adds initially empty water_surveys/water_columns and an index. Complete
+newer captures replace only their chunk's current positives. Partial captures
+retain old columns but invalidate eligibility. Older captures cannot overwrite
+newer evidence; equal timestamp replay is exact after canonical ordering, and
+conflicts reject. World UUID, height bounds, depth, capture time and fingerprint
+are saved together in an owner transaction; late failure rolls back everything.
+Current opportunity review excludes future/stale/partial/depth-mismatched evidence,
+absent/unknown worlds, other towns' fresh conflicting columns and original fishery
+claims. Exceeding the requested candidate budget returns no partial selection.
+
+Evidence grants no land, ownership, fish stock, skill, funding or business. The
+classifier does not distinguish flowing/still water or historic block origin.
+Contiguous site selection, fresh live revalidation, saved recognition terms for
+habitat transitions, qualified founders/training, actual customers and protected
+atomic founding still remain. These observations do not automatically apply
+habitat loss to existing fisheries, whose original depth terms must be respected.
 
 The user approved counting sufficiently large/deep player-built ponds alongside
 natural water under editable requirements, without property claims or block changes.
@@ -52,3 +78,16 @@ that mutation was deferred without bypassing review. On user resume the approved
 audit/cleanup succeeded: exact original properties restored, helper archived,
 consistent backups retained and fixture stopped. Human playable server untouched;
 no merge/push. The temporary execution-capacity blocker is resolved.
+
+## Live evidence verification — October12
+
+Focused70 tests passed, zero failures/errors/skips,27.880s at19:54:03 ET.
+Full Windows .\mvnw.cmd clean verify passed1,238 (1,236 unit/two packaged
+integration), zero failures/errors/skips,6:58 at20:01:16 ET. Guarded native
+PaperWaterObserver/normal SQL-owner check passed20:02:20:220 actual suitable columns
+matched independent snapshot reference, newer capture/absence/restart preserved,
+no invented businesses/resources or helper block/entity changes. Normal shutdown
+20:02:21. Main-save audit111/115 old tables exact; four ordinary clock/economy/
+farm-freshness/ore changes, all identities/assets/cash/history preserved; schema68
+integrity/FK healthy, new water and fishery tables empty. Exact original settings
+restored, helper archived, backups retained; human server untouched.

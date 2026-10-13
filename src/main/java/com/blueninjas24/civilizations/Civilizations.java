@@ -27,6 +27,7 @@ public final class Civilizations extends JavaPlugin {
     private PaperResidentProjector projector;
     private ManagedVillagerLifecycle lifecycle;
     private PaperFarmObserver farms;
+    private com.blueninjas24.civilizations.paper.PaperWaterObserver waters;
     private com.blueninjas24.civilizations.paper.PaperOreObserver ores;
     private com.blueninjas24.civilizations.paper.PaperWorkplaceObserver workplaces;
     private com.blueninjas24.civilizations.paper.PaperWorkplaceOperations workplaceOperations;
@@ -54,6 +55,7 @@ public final class Civilizations extends JavaPlugin {
             var economySettings = EconomyConfiguration.read(economyConfig);
             var farmSettings = EconomyConfiguration.readFarms(economyConfig);
             var oreSettings=EconomyConfiguration.readOreObserver(economyConfig);
+            var waterSettings=EconomyConfiguration.readWaterObserver(economyConfig);
             var workplaceSettings=EconomyConfiguration.readWorkplaceObserver(economyConfig);
             getLogger().info("Economy prototype settings validated: " + economySettings.secondsPerPeriod()
                     + " seconds/period, food output " + economySettings.foodOutputPercent()
@@ -71,6 +73,7 @@ public final class Civilizations extends JavaPlugin {
                     () -> observer == null ? "Village observer not started" : observer.diagnostic()
                             + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic()
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
+                            + "; " + (waters==null?"Water observer not started":waters.diagnostic())
                             + "; " + (workplaces==null?"Workplace observer not started":workplaces.diagnostic())
                             + "; " + (workplaceOperations==null?"Workplace operation checks not started":workplaceOperations.diagnostic())
                             + "; " + (workshopStartup==null?"Automatic workshop startup not started":workshopStartup.diagnostic())
@@ -106,6 +109,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureWorkplaceOperations(EconomyConfiguration.readWorkplaceOperations(economyConfig));
             population.configureWorkshopOpportunities(EconomyConfiguration.readWorkshopOpportunities(economyConfig),EconomyConfiguration.readWorkshopStarterSupplies(economyConfig));
             population.configureIndustryRuntime(EconomyConfiguration.readIndustryRuntime(economyConfig));
+            population.configureWater(waterSettings);
             population.configureFishing(EconomyConfiguration.readFishingResources(economyConfig));
             population.configureBusinessPurchases(EconomyConfiguration.readBusinessPurchasePolicy(economyConfig));
             population.configureBusinessOperations(EconomyConfiguration.readBusinessOperations(economyConfig));
@@ -138,6 +142,7 @@ public final class Civilizations extends JavaPlugin {
                         observer = new VillageObserver(Civilizations.this, population, observerSettings);
                         farms = new PaperFarmObserver(population, farmSettings); farms.runTaskTimer(Civilizations.this, 1, 1);
                         ores=new com.blueninjas24.civilizations.paper.PaperOreObserver(population,oreSettings);ores.runTaskTimer(Civilizations.this,1,1);
+                        waters=new com.blueninjas24.civilizations.paper.PaperWaterObserver(population,waterSettings,getLogger());waters.runTaskTimer(Civilizations.this,1,1);
                         workplaces=new com.blueninjas24.civilizations.paper.PaperWorkplaceObserver(population,workplaceSettings);workplaces.runTaskTimer(Civilizations.this,1,1);
                         workplaceOperations=new com.blueninjas24.civilizations.paper.PaperWorkplaceOperations(population,getLogger());workplaceOperations.runTaskTimer(Civilizations.this,1,20);
                         workshopStartup=new com.blueninjas24.civilizations.paper.PaperWorkshopStartup(population,getLogger());workshopStartup.runTaskTimer(Civilizations.this,1,20);
@@ -159,6 +164,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(waters!=null)waters.cancel();
         if(warehouseStartup!=null)warehouseStartup.cancel();
         if(workshopStartup!=null)workshopStartup.cancel();
         if(workplaceOperations!=null)workplaceOperations.cancel();

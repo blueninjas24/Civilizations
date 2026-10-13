@@ -1,5 +1,32 @@
 # Civilizations Development Log
 
+## October12, 2026 — live current water evidence
+
+Branch codex/phase3-live-water-evidence. Connected main-thread loaded-only
+PaperWaterObserver, incremental full-height budgets, strict optional editable
+water-observer settings, SQL-owner submission and debug diagnostics. Schema68
+adds two initially empty current-evidence tables/index, preserving all old resource
+stocks and identities. Complete captures replace only their chunk; unknown retains
+old positives but invalidates eligibility. Exact replay, freshness/depth/world,
+conflict/permanent-claim/budget exclusions and transactional rollback protect
+candidate review. No blocks/inventories/chunk loading or money/resource grants.
+Focused70 tests passed, zero failures/errors/skips,27.880s at19:54:03 ET.
+Full Windows .\mvnw.cmd clean verify passed1,238 (1,236 unit/two packaged
+integration), zero failures/errors/skips,6:58 at20:01:16 ET. Guarded native
+PaperWaterObserver/normal SQL-owner check passed20:02:20:220 actual suitable columns
+matched independent snapshot reference, newer capture/absence/restart preserved,
+no invented businesses/resources or helper block/entity changes. Normal shutdown
+20:02:21. Main-save audit111/115 old tables exact; four ordinary clock/economy/
+farm-freshness/ore changes, all identities/assets/cash/history preserved; schema68
+integrity/FK healthy, new water and fishery tables empty. Exact original settings
+restored, helper archived, backups retained; human server untouched.
+
+Automatic contiguous selection, fresh live revalidation, saved recognition terms,
+qualified training/funding and fishery founding remain next. No new gameplay
+answer pending. Phase3 remains1/4 whole milestone groups/~69% partial; this
+infrastructure does not finish the broader renewable-industry checklist.
+See WATER_OBSERVATION.md for defaults and limitations.
+
 ## October12, 2026 — water observation batch resumed and cleaned up
 
 User resumed after approval-review capacity was restored. The approved stopped-fixture

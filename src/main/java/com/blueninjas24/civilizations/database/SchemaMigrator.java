@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 67;
+    static final int CURRENT_VERSION = 68;
 
     @FunctionalInterface
     interface Migration {
@@ -910,7 +910,8 @@ final class SchemaMigrator {
                 SchemaMigrator::extendFiniteResourceKinds,
                 SchemaMigrator::createVillageSupplyOrders,
                 SchemaMigrator::createFisheries,
-                SchemaMigrator::createFisheryHabitatChanges
+                SchemaMigrator::createFisheryHabitatChanges,
+                SchemaMigrator::createWaterSurveys
 
 
         ));
@@ -1163,6 +1164,36 @@ final class SchemaMigrator {
         }
         connection.setAutoCommit(true);
         if(restoreForeignKeys)execute(connection,"PRAGMA foreign_keys=ON");
+    }
+
+    static void createWaterSurveys(Connection connection) throws SQLException {
+        execute(connection,"""
+            CREATE TABLE water_surveys (
+                settlement_id TEXT NOT NULL,world_id TEXT NOT NULL,
+                chunk_x INTEGER NOT NULL CHECK(typeof(chunk_x)='integer' AND chunk_x BETWEEN -134217728 AND 134217727),
+                chunk_z INTEGER NOT NULL CHECK(typeof(chunk_z)='integer' AND chunk_z BETWEEN -134217728 AND 134217727),
+                captured_millis INTEGER NOT NULL CHECK(typeof(captured_millis)='integer' AND captured_millis>=0),
+                complete INTEGER NOT NULL CHECK(complete IN(0,1)),
+                minimum_y INTEGER NOT NULL CHECK(typeof(minimum_y)='integer'),
+                maximum_y INTEGER NOT NULL CHECK(typeof(maximum_y)='integer'),
+                minimum_depth INTEGER NOT NULL CHECK(typeof(minimum_depth)='integer' AND minimum_depth BETWEEN 1 AND 64),
+                fingerprint TEXT NOT NULL,
+                CHECK(maximum_y-minimum_y BETWEEN 1 AND 4096 AND minimum_depth<=maximum_y-minimum_y),
+                PRIMARY KEY(settlement_id,world_id,chunk_x,chunk_z),
+                FOREIGN KEY(settlement_id,world_id) REFERENCES settlement_worlds(settlement_id,world_id)
+            )
+            """);
+        execute(connection,"""
+            CREATE TABLE water_columns (
+                settlement_id TEXT NOT NULL,world_id TEXT NOT NULL,chunk_x INTEGER NOT NULL,chunk_z INTEGER NOT NULL,
+                x INTEGER NOT NULL CHECK(typeof(x)='integer' AND x BETWEEN chunk_x*16 AND chunk_x*16+15),
+                z INTEGER NOT NULL CHECK(typeof(z)='integer' AND z BETWEEN chunk_z*16 AND chunk_z*16+15),
+                surface_y INTEGER NOT NULL CHECK(typeof(surface_y)='integer'),
+                PRIMARY KEY(settlement_id,world_id,x,z),
+                FOREIGN KEY(settlement_id,world_id,chunk_x,chunk_z) REFERENCES water_surveys(settlement_id,world_id,chunk_x,chunk_z)
+            )
+            """);
+        execute(connection,"CREATE INDEX current_water_evidence ON water_surveys(settlement_id,world_id,complete,captured_millis)");
     }
 
     static void createFisheryHabitatChanges(Connection connection) throws SQLException {

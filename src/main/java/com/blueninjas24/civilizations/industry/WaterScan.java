@@ -22,8 +22,9 @@ public final class WaterScan {
                     ||columns.size()!=256||columns.stream().map(Column::position).distinct().count()!=256
                     ||columns.stream().anyMatch(c -> Math.floorDiv(c.position().x(),16)!=chunkX
                         ||Math.floorDiv(c.position().z(),16)!=chunkZ
-                        ||(c.surfaceY()!=null&&(c.surfaceY()<minimumY||c.surfaceY()>=maximumY))))
+                        ||(c.surfaceY()!=null&&((long)c.surfaceY()<((long)minimumY+minimumDepth-1)||c.surfaceY()>=maximumY))))
                 throw new IllegalArgumentException("Invalid full-height water observation");
+            columns=columns.stream().sorted(Comparator.comparingInt((Column c)->c.position().x()).thenComparingInt(c->c.position().z())).toList();
         }
         public boolean complete() { return columns.stream().noneMatch(c -> c.state()==FisheryHabitatObservation.State.UNKNOWN); }
         public List<FisheryObservation.Column> suitableColumns() {

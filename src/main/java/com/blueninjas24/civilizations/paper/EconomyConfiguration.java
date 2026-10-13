@@ -20,6 +20,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("quarry-resources")) rootKeys.add("quarry-resources");
         if (config.contains("fishing-resources")) rootKeys.add("fishing-resources");
+        if (config.contains("water-observer")) rootKeys.add("water-observer");
         if (config.contains("village-supply-purchases")) rootKeys.add("village-supply-purchases");
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
         if (config.contains("recipes")) rootKeys.add("recipes");
@@ -58,6 +59,7 @@ public final class EconomyConfiguration {
         readIndustryRuntime(config);
         readQuarryResources(config);
         readFishingResources(config);
+        readWaterObserver(config);
         readVillageSupplies(config);
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
@@ -143,6 +145,12 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-tool-budget.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy(enabled,integer(s,"tool-trade-value-hundredths"),
                 integer(s,"per-period-limit-hundredths"),integer(s,"minimum-treasury-hundredths"),smallInteger(s,"food-reserve-periods"),integer(s,"food-unit-value-hundredths"));
+    }
+    public static com.blueninjas24.civilizations.industry.WaterObserverPolicy readWaterObserver(ConfigurationSection config) {
+        if(!config.contains("water-observer"))return com.blueninjas24.civilizations.industry.WaterObserverPolicy.disabled();
+        var s=section(config,"water-observer");exactKeys(s,Set.of("enabled","minimum-depth","cells-per-tick","interval-ticks","horizontal-radius-chunks"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("water-observer.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.WaterObserverPolicy(enabled,smallInteger(s,"minimum-depth"),smallInteger(s,"cells-per-tick"),smallInteger(s,"interval-ticks"),smallInteger(s,"horizontal-radius-chunks"));
     }
     public static com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy readWorkplaceObserver(ConfigurationSection config) {
         if(!config.contains("workplace-observer"))return com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy.disabled();
