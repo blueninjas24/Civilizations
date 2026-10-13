@@ -1,5 +1,39 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — approved emergency food reserve customers
+
+User approved a needs-based reserve. VillageSupplyPolicy and VillageSupplyPurchases
+now target current unmet food plus actual assessed demand times an editable future
+reserve, counting existing public food, paid public cargo, donations and reserved
+player purchase/barter food. Bundled economy.yml uses two periods;0 or a missing
+new food-stock-reserve-periods key preserves shortage-only behavior. This is separate
+from food-reserve-periods cash protection. Strict0–100 validation, overflow-safe
+targets, existing budgets/haul/minimum cash and actual seller eligibility remain.
+No money, consumption, stock or customer is fabricated. Existing shortage-only
+regressions explicitly retain that configuration; the fishery catch/arrival case
+now verifies a legitimate second reserve purchase after hunger is satisfied.
+
+Eight added automated cases include healthy funded customer plus protected startup,
+real startup/catch/payment, donations/cargo, rollback/replay, budget exhaustion,
+current population/world/cash guards, normal runtime buying before shortage and
+strict editable/missing/invalid settings. Focused124 passed, zero failures/errors/
+skips,22.725s at21:23:49 ET. Initial test runs exposed obsolete shortage-only order
+expectations and a fixture configured after runtime use; corrected fixtures and
+assertions, without relaxing production guards.
+Full Windows .\mvnw.cmd clean verify passed1,264 (1,262 unit/two packaged
+integration), zero failures/errors/skips,7:04 at21:31:29 ET.
+Guarded native ordinary SQL-owner timer probe passed at21:32:09 ET: healthy
+village bought emergency food, delivered/consumed actual goods, conserved real
+cash, paused absent world and resumed with new orders disabled after restart.
+Normal shutdown21:32:09; main-save audit114/117 tables exact, only ordinary clock,
+economy runtime and ore-tracking changes; identities/assets/cash/history retained.
+Schema68 integrity/FK healthy, exact settings restored, helper archived and consistent
+backups preserved. No helper world blocks/entities/chunks changed.
+No schema migration (schema68), automatic fishery scheduler or dock construction.
+Human playable server unchanged; no merge or push. The reserve decision is answered;
+next is automatic qualified shoreline investment/training and fresh acceptance.
+Phase3 remains1/4 whole groups/~69% partial, broader industries/specialization open.
+
 ## October12, 2026 — atomic paid fishery startup
 
 On codex/phase3-fishery-startup, BusinessStartupGrants.startFishery commits the

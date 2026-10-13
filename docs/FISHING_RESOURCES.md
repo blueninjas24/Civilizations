@@ -12,9 +12,9 @@ the existing generic producer startup role identifier for compatibility.
 
 This is a trusted composition API, not automatic founding. Its caller still needs
 current world/support/shoreline proof and real customers. No scheduler hookup,
-dock construction, free goods or new financial rule is enabled. The shortage-only
-food-customer versus food-protected startup conflict is awaiting a user decision
-in DECISIONS_AND_OPEN_QUESTIONS.md. Six temporary-SQL tests cover paid startup,
+dock construction, free goods or new financial rule is enabled. The earlier shortage-only
+customer conflict is resolved by approved bounded emergency-reserve purchases;
+see VILLAGE_SUPPLY_CUSTOMERS.md. Six temporary-SQL tests cover paid startup,
 restart/disabled-policy replay, consumed stock, qualification/food protection,
 invalid habitats, late rollback/retry and conflicting footprint replay.
 

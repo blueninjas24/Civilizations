@@ -199,7 +199,8 @@ class FisheryPersistenceTest {
         try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("SELECT demand,fulfilled FROM needs_periods WHERE period=52")) {
             assertTrue(r.next());assertEquals(2,r.getLong(1));assertEquals(2,r.getLong(2));
         }
-        assertEquals(1,fixture.count("village_supply_orders"));assertEquals(2,food());assertEquals(8100,fixture.cash());
+        // Healthy households now trigger a real emergency-reserve order for the remaining caught food.
+        assertEquals(2,fixture.count("village_supply_orders"));assertEquals(0,food());assertEquals(7700,fixture.cash());
     }
     @Test void migration66FailureIsTransactionalAndRetryPreservesAllOldRows()throws Exception {
         // Reconstruct schema65 only in this @TempDir database; no fishery existed in that schema.

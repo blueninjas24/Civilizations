@@ -1,5 +1,16 @@
 # Civilizations progress tracker
 
+Villages can now buy a small emergency food reserve before anyone is hungry.
+Purchases use real money and real food; what is stored or already on the way reduces
+orders. Admins can edit the reserve size in economy.yml. Old files keep their rules
+until explicitly opted in. This makes a legitimate customer for future fisheries
+while keeping food-protected startup funding. Focused124 tests passed.
+All1,264 full-build tests passed. The isolated server also passed real reserve
+purchases, delivery, money conservation and pause/restart checks.
+Automatic fisheries still need qualified/trained founders, fresh shoreline/water
+acceptance and scheduling. Docks remain Phase4. No decision is pending for that
+work. Your playable server is unchanged. Phase3 stays1/4 whole groups/~69% partial.
+
 Fishery startup now saves its funding, qualified business, worker and fish supply
 as one operation: any failure cancels the whole investment. Restarting cannot
 charge twice or refill used fish. Six new temporary-database tests passed;

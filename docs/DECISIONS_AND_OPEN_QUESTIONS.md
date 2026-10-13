@@ -1,19 +1,21 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October12: proactive emergency food purchases — awaiting decision
+## October12: proactive emergency food reserves — approved
 
-Automatic fishery founding has a customer/funding conflict. The approved public
-food customer buys only actual shortages (VillageSupplyPurchases.wanted), while
-BusinessStartupGrants.budget rejects startup grants during a food shortage.
-Consequently a first fishery cannot meet both funded-demand and grant gates.
-Do not relax either rule silently or count invented future customers.
+User approved: “Yes, they need a reserve.” Villages may buy a small configurable
+emergency food reserve before shortages, based on actual resident food needs.
+Use the existing bounded real food budget; stored public food, incoming public
+cargo, donated food and reserved player food purchases/barter all reduce the
+remaining target. No fictitious consumption, free stock or new village money.
 
-Proposed: allow a small configurable emergency-food target based on actual resident
-needs, using the existing bounded real food budget and counting stored/incoming
-food. Existing food protection and shared startup limits would remain. The choice
-was sent to the user; no answer yet. This extends the earlier shortage-only customer
-approval and therefore requires a gameplay decision under AGENTS.md. Independent
-atomic paid-fishery startup work can proceed; automatic founding remains gated.
+This resolves the customer/funding conflict: shortage-only food purchases could
+not justify first fisheries while food-protected grants refused crisis spending.
+Startup grants still refuse shortages and retain their shared limits/protection.
+Editable prototype target is two future food periods plus current unmet food;
+0 retains shortage-only purchases. Missing new keys in installed files default
+to0 without rewriting them. This is separate from treasury protection measured
+in food costs. Automatic fishery founding still needs actual qualified residents,
+fresh habitat/shoreline revalidation and the scheduler integration.
 
 ## October12: shoreline start and priority dock upgrades — approved
 

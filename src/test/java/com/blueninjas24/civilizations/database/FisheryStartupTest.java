@@ -56,4 +56,15 @@ class FisheryStartupTest {
         var saved=start();habitat=new FisheryObservation(fixture.world,20,true,java.util.stream.IntStream.range(1,17).mapToObj(x->new FisheryObservation.Column(x,0)).toList());
         assertThrows(SQLException.class,this::start);assertEquals(8500,fixture.cash());assertEquals(16,fixture.count("fishery_columns"));assertEquals(saved.resource(),new FisheryRepository(fixture.db.getConnection()).find(request.founding().site().id()).orElseThrow());
     }
+    @Test void healthyReserveCustomerCanFundStartCatchAndPayForRealFoodWithoutCrisis()throws Exception {
+        fixture.sql("UPDATE economy_stocks SET units=1 WHERE commodity='food'");
+        var buyers=new VillageSupplyPurchases(fixture.db.getConnection(),VillageSupplyPolicy.prototype(),StudyPolicy.disabled(),BusinessOperationPolicy.disabled());
+        assertEquals(Map.of(Commodity.FOOD,3L),buyers.demand(fixture.town,Set.of(fixture.world)).fundedUnits());
+        start();var id=request.founding().business().id();fixture.db.getIndustryRepository().fish(UUID.randomUUID(),id,4,1,FishingPolicy.prototype());
+        buyers.purchase(new VillageSupplyPurchases.Request(UUID.randomUUID(),fixture.town,id,Commodity.FOOD,3,1),Set.of(fixture.world));
+        assertEquals(7900,fixture.cash());assertEquals(1600,fixture.db.getIndustryRepository().store(id).orElseThrow().hundredths());
+        assertEquals(1,fixture.db.getIndustryRepository().store(id).orElseThrow().units().get(Commodity.FOOD));
+        assertEquals(Map.of(),buyers.demand(fixture.town,Set.of(fixture.world)).fundedUnits());
+    }
+
 }

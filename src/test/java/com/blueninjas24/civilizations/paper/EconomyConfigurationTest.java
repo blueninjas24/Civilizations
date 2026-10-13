@@ -42,6 +42,13 @@ class EconomyConfigurationTest {
         config.set("village-supply-purchases.prices.timber",175);EconomyConfiguration.read(config);assertEquals(175,EconomyConfiguration.readVillageSupplies(config).prices().get(Commodity.TIMBER));
         config.set("village-supply-purchases",null);EconomyConfiguration.read(config);assertFalse(EconomyConfiguration.readVillageSupplies(config).enabled());
     }
+    @Test void emergencyFoodStockTargetIsEditableAndMissingLegacyKeyPreservesOldRules()throws Exception {
+        var config=defaults();config.set("village-supply-purchases.food-stock-reserve-periods",3);EconomyConfiguration.read(config);
+        assertEquals(3,EconomyConfiguration.readVillageSupplies(config).foodStockReservePeriods());
+        config.set("village-supply-purchases.food-stock-reserve-periods",null);EconomyConfiguration.read(config);
+        assertEquals(0,EconomyConfiguration.readVillageSupplies(config).foodStockReservePeriods());
+        for(Object value:List.of(-1,101,1.5,"many",true)){config.set("village-supply-purchases.food-stock-reserve-periods",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));}
+    }
     @Test void malformedVillageSpendingRulesFailBeforeDatabaseStartup()throws Exception {
         for(Object value:List.of(0,-1,1.5,"free")){var config=defaults();config.set("village-supply-purchases.prices.food",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));}
         var config=defaults();config.set("village-supply-purchases.food-budget-per-period",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));

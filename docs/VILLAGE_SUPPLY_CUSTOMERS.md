@@ -1,5 +1,12 @@
 # Real village supply customers
 
+October12 emergency-reserve addition: full Windows Wrapper clean verify passed
+1,264 tests (1,262 unit/two packaged integration), zero failures/errors/skips.
+Guarded isolated Paper ordinary-owner timer check passed healthy reserve buying,
+real cash/goods conservation, deliveries and absence/disabled-restart at21:32:09.
+Main save audited, exact settings restored and helper archived; human server untouched.
+No new migration. Automatic fishery founding is still unfinished.
+
 The village is now a real customer of local staffed businesses. Its treasury
 pays the supplier for goods the supplier already owns. Payment, seller stock
 removal and saved village-owned cargo are one SQL-owner transaction. This is
@@ -7,10 +14,19 @@ not payroll, a personal bank account, a new tax, or an unlimited public subsidy.
 
 ## What creates a customer
 
-Food orders require a recorded current household food shortage, a complete
-population assessment, a present matching world and no historical food backlog.
-Existing public stocks, player deliveries/reservations and paid incoming public
-cargo reduce the shortage. A healthy village does not buy food just to fill stores.
+Food orders cover current unmet food plus an approved emergency stock reserve,
+with a complete population assessment, present matching world and no historical
+food backlog. Target = current unmet food + assessed demand × configured future
+reserve periods. Stored public food, incoming paid public cargo, donated deliveries,
+reserved player food purchases and barter count first. This is a legitimate limited
+customer before hunger, not invented consumption or a guarantee every firm sells.
+An unrepresentable target declines new spending; no residents means no reserve.
+
+The new `food-stock-reserve-periods` default is2 in bundled economy.yml, range0–100.
+0 retains shortage-only purchases; absent keys in installed files also mean0.
+It is distinct from `food-reserve-periods`, which protects cash from MATERIAL
+purchases. Food spending retains the existing minimum treasury, per-period budget,
+prices and haul cap. Grants still refuse an actual shortage and protect food cash.
 
 Training orders require actual active courses whose latest practice review was
 productive or paused specifically for missing supplies. Completed/cancelled
@@ -35,6 +51,7 @@ Minecraft block items. Initial prototype settings:
 - Food spending cap: 2,000 per completed food period.
 - Shared material spending cap: 1,000 per completed food period.
 - Minimum retained treasury: 2,500.
+- Emergency food stock target: two future periods of assessed household demand.
 - Material spending also retains two periods of assessed food cost, valued at
   the configured food purchase price; the larger reserve wins.
 - Food/stone/timber unit prices: 200/100/150.

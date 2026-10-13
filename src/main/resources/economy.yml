@@ -8,14 +8,19 @@
 format-version: 1
 
 # Prices and money budgets are hundredths of an emerald. Real owned goods only.
-# Food customers require recorded shortages; materials require active practice needs.
+# Food customers cover current shortages plus a needs-based emergency stock reserve.
+# Stored and incoming food reduce orders; materials require active practice needs.
 # Incoming cargo cannot be used before its due food period. Older files opt out.
 village-supply-purchases:
   enabled: true
   food-budget-per-period: 2000
   material-budget-per-period: 1000
   minimum-treasury: 2500
+  # Cash protected from MATERIAL purchases, measured in food periods.
   food-reserve-periods: 2
+  # Desired FUTURE FOOD STOCK, measured in actual resident food periods.
+  # 0 keeps shortage-only purchases; missing key in old files also means 0.
+  food-stock-reserve-periods: 2
   delivery-periods: 1
   haul-units-per-period: 32
   prices:

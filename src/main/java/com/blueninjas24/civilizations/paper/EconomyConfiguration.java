@@ -518,12 +518,15 @@ public final class EconomyConfiguration {
     public static com.blueninjas24.civilizations.industry.VillageSupplyPolicy readVillageSupplies(ConfigurationSection config) {
         if(!config.contains("village-supply-purchases"))return com.blueninjas24.civilizations.industry.VillageSupplyPolicy.disabled();
         var s=section(config,"village-supply-purchases");
-        exactKeys(s,Set.of("enabled","food-budget-per-period","material-budget-per-period","minimum-treasury","food-reserve-periods","delivery-periods","haul-units-per-period","prices"));
+        var keys=new HashSet<>(Set.of("enabled","food-budget-per-period","material-budget-per-period","minimum-treasury","food-reserve-periods","delivery-periods","haul-units-per-period","prices"));
+        if(s.contains("food-stock-reserve-periods"))keys.add("food-stock-reserve-periods");
+        exactKeys(s,keys);
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("village-supply-purchases.enabled must be true or false");
         var p=section(s,"prices");var prices=new TreeMap<Commodity,Long>();
         for(var good:p.getKeys(false))prices.put(new Commodity(good),integer(p,good));
         return new com.blueninjas24.civilizations.industry.VillageSupplyPolicy(enabled,integer(s,"food-budget-per-period"),integer(s,"material-budget-per-period"),
-            integer(s,"minimum-treasury"),Math.toIntExact(integer(s,"food-reserve-periods")),Math.toIntExact(integer(s,"delivery-periods")),integer(s,"haul-units-per-period"),prices);
+            integer(s,"minimum-treasury"),Math.toIntExact(integer(s,"food-reserve-periods")),Math.toIntExact(integer(s,"delivery-periods")),integer(s,"haul-units-per-period"),prices,
+            s.contains("food-stock-reserve-periods")?Math.toIntExact(integer(s,"food-stock-reserve-periods")):0);
     }
     public static List<String> readAdditionalOreEditors(ConfigurationSection config) {
         if (!config.contains("ore-provenance")) return List.of();

@@ -1,5 +1,11 @@
 # Civilizations — canonical master design
 
+October12 approved: villages maintain a configurable emergency food reserve based
+on actual resident needs, purchasing real owned food with the existing bounded
+village food budget. Stored/incoming/reserved food reduces orders; no invented
+consumption or money. Startup grants still protect food and refuse actual shortages.
+See VILLAGE_SUPPLY_CUSTOMERS.md for prototype settings and implementation limits.
+
 October12 approved fishing direction: fisheries may start on safe existing
 shorelines. Prioritize dock construction in Phase4 once resources/funding/labor
 make it feasible; docks should substantially improve fishing efficiency under

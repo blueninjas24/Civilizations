@@ -95,7 +95,7 @@ public final class VillageSupplyPurchases {
     private long wanted(UUID town,long period,Commodity good,Evidence evidence)throws SQLException {
         var account=new CommodityRepository(connection).read(town).orElseThrow();var stock=account.state().stocks().get(good);
         if(stock==null)return 0;long required=0;
-        if(good.equals(Commodity.FOOD))required=evidence.unmet();
+        if(good.equals(Commodity.FOOD))required=policy.foodTarget(evidence.demand(),evidence.unmet());
         else if(study.enabled()&&evidence.unmet()==0) {
             // Only practice actually reviewed as productive or supply-starved creates a customer.
             // Opportunity/food/labor pauses and completed/cancelled courses do not justify purchases.
@@ -146,7 +146,7 @@ public final class VillageSupplyPurchases {
             long invoice=Math.multiplyExact(units,policy.prices().get(good));funded.put(good,units);cash-=invoice;cost=Math.addExact(cost,invoice);haul-=units;
             if(food)foodSpent=Math.addExact(foodSpent,invoice);else materialSpent=Math.addExact(materialSpent,invoice);
         }
-        return new Demand(town,period,funded,cost,"Real current shortage/practice needs after public stock, owned or reserved incoming goods, shared budgets, cash and haul limits; planning only");
+        return new Demand(town,period,funded,cost,"Real current shortage/emergency-food-reserve/practice needs after public stock, owned or reserved incoming goods, shared budgets, cash and haul limits; planning only");
     }
     private long sum(String sql,UUID town,Object value)throws SQLException {
         long total=0;try(var s=connection.prepareStatement(sql)){s.setString(1,town.toString());s.setObject(2,value);try(var r=s.executeQuery()){while(r.next())total=Math.addExact(total,r.getLong(1));}}return total;

@@ -18,4 +18,11 @@ class VillageSupplyPolicyTest {
         assertEquals(0,VillageSupplyPolicy.prototype().affordable(Commodity.SAND,10_000,1,0,10,10,10));
         assertThrows(IllegalArgumentException.class,()->VillageSupplyPolicy.prototype().affordable(Commodity.FOOD,-1,1,0,1,1,1));
     }
+    @Test void foodReserveTracksActualNeedsSeparatelyFromProtectedTreasury() {
+        var p=VillageSupplyPolicy.prototype();assertEquals(8,p.foodTarget(4,0));assertEquals(12,p.foodTarget(4,4));assertEquals(0,p.foodTarget(0,0));
+        var old=new VillageSupplyPolicy(true,2000,1000,2500,2,1,32,p.prices());assertEquals(4,old.foodTarget(4,4));assertEquals(0,old.foodTarget(4,0));
+        assertEquals(0,p.foodTarget(Long.MAX_VALUE,0));assertThrows(IllegalArgumentException.class,()->p.foodTarget(1,2));
+        assertThrows(IllegalArgumentException.class,()->new VillageSupplyPolicy(true,2000,1000,2500,2,1,32,p.prices(),101));
+    }
+
 }
