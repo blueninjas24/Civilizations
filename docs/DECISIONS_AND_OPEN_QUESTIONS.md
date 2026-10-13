@@ -1,5 +1,20 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October12: proactive emergency food purchases — awaiting decision
+
+Automatic fishery founding has a customer/funding conflict. The approved public
+food customer buys only actual shortages (VillageSupplyPurchases.wanted), while
+BusinessStartupGrants.budget rejects startup grants during a food shortage.
+Consequently a first fishery cannot meet both funded-demand and grant gates.
+Do not relax either rule silently or count invented future customers.
+
+Proposed: allow a small configurable emergency-food target based on actual resident
+needs, using the existing bounded real food budget and counting stored/incoming
+food. Existing food protection and shared startup limits would remain. The choice
+was sent to the user; no answer yet. This extends the earlier shortage-only customer
+approval and therefore requires a gameplay decision under AGENTS.md. Independent
+atomic paid-fishery startup work can proceed; automatic founding remains gated.
+
 ## October12: shoreline start and priority dock upgrades — approved
 
 User approved starting fisheries on shorelines. Docks should be built quickly once

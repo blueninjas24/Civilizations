@@ -1,5 +1,23 @@
 # Renewable fishing resources — saved stock and timed catches
 
+## Atomic paid startup composition
+
+BusinessStartupGrants.startFishery now commits the approved real village debit,
+qualified firm/site, first worker, empty owned-food store and original habitat
+in one SQL-owner transaction. A late habitat failure rolls back all of them.
+Restart replay returns saved funding and current stock; policy retuning cannot
+refill spent habitat, replace its footprint or charge again. No migration; schema68
+and existing funding/qualification rules are unchanged. The first worker retains
+the existing generic producer startup role identifier for compatibility.
+
+This is a trusted composition API, not automatic founding. Its caller still needs
+current world/support/shoreline proof and real customers. No scheduler hookup,
+dock construction, free goods or new financial rule is enabled. The shortage-only
+food-customer versus food-protected startup conflict is awaiting a user decision
+in DECISIONS_AND_OPEN_QUESTIONS.md. Six temporary-SQL tests cover paid startup,
+restart/disabled-policy replay, consumed stock, qualification/food protection,
+invalid habitats, late rollback/retry and conflicting footprint replay.
+
 Approved October 12: “Yes the fish stock should ebb and flow just like real life.”
 Suitable observed open water supports a saved renewable supply; catches reduce it,
 rest allows gradual recovery, and heavy harvesting can temporarily exhaust it.

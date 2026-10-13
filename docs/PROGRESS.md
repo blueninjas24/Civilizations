@@ -1,5 +1,15 @@
 # Civilizations progress tracker
 
+Fishery startup now saves its funding, qualified business, worker and fish supply
+as one operation: any failure cancels the whole investment. Restarting cannot
+charge twice or refill used fish. Six new temporary-database tests passed;
+all1,256 full-build tests passed with zero failures/errors/skips.
+Automatic fisheries are still unfinished. One economy decision is pending: may
+villages buy a small emergency food reserve before a shortage? Currently they only
+buy when hungry, but new-business funding is blocked then. Shoreline fishing is
+approved; dock construction and its efficiency upgrade remain Phase4.
+Your playable server is unchanged. Phase3 stays1/4 whole groups/~69% partial.
+
 Shoreline fishing starts are approved. Safe standing-point checks now pass1,250
 full-build tests and a real Paper check finding11 suitable shoreline positions.
 Automatic business startup still needs qualification, customers and funding;

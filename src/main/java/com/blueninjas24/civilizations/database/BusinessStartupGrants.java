@@ -19,6 +19,7 @@ public final class BusinessStartupGrants {
         }
     }
     public record Workshop(BusinessFounding founding,IndustryRepository.Store store,Employment worker,Receipt grant) {}
+    public record Fishery(Workshop startup,FisheryRepository.Resource resource) {}
     public record WarehouseRequest(BusinessFounding founding,long capacity,Map<Commodity,Long> space,long capital,UUID worker) {
         public WarehouseRequest {
             Objects.requireNonNull(founding);Objects.requireNonNull(worker);space=Map.copyOf(space);
@@ -44,6 +45,17 @@ public final class BusinessStartupGrants {
     public Workshop startWorkshop(WorkshopRequest request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);
         return transaction(()->startStockedRows(request,policy,"workshop"));
+    }
+    /** Trusted caller must revalidate actual water, shoreline and demand; paid firm and habitat commit together. */
+    public Fishery startFishery(WorkshopRequest request,FisheryObservation habitat,FishingPolicy fishing,StartupGrantPolicy grants)throws SQLException {
+        Objects.requireNonNull(request);Objects.requireNonNull(habitat);Objects.requireNonNull(fishing);Objects.requireNonNull(grants);
+        if(!request.founding().business().industry().equals("fishing")||!request.space().containsKey(Commodity.FOOD))
+            throw new IllegalArgumentException("Fishery requires fishing industry and food storage");
+        return transaction(()-> {
+            var started=startStockedRows(request,grants,"workshop");
+            var resource=new FisheryRepository(connection).openRows(started.founding().site().id(),habitat,fishing);
+            return new Fishery(started,resource);
+        });
     }
     /** One atomic first-workshop investment; failed supply checks leave no grant, site or firm. */
     public Workshop startWorkshopWithSupplies(WorkshopRequest request,StartupGrantPolicy grantPolicy,

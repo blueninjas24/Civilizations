@@ -1,5 +1,28 @@
 # Civilizations — implementation status and handoff
 
+## October12, 2026 — atomic paid fishery startup
+
+On codex/phase3-fishery-startup, BusinessStartupGrants.startFishery commits the
+real food-protected village grant, qualified business/site, first worker, empty
+food store and saved habitat together. Failed water admission rolls back the
+whole investment. Restart/replay preserves spent fish, caught food and cash under
+retuned/disabled policies; changing supports cannot reset an existing resource.
+Six temporary-SQL tests passed, zero failures/errors/skips,10.024s at21:08:25 ET.
+Full Windows .\mvnw.cmd clean verify passed1,256 (1,254 unit/two packaged
+integration), zero failures/errors/skips,6:46 at21:17:37 ET.
+No schema migration (schema68), live scheduler hookup, dock construction or change
+to the human playable server. Existing generic producer worker IDs are retained.
+Paper-facing adapters are unchanged from the prior native shoreline validation;
+this database-only batch does not claim a new native automatic-startup check.
+
+Automatic founding still needs current loaded-world/support/shoreline proof,
+qualification/training and a real funded customer. A genuine rule conflict needs
+a decision: existing village food customers buy only during shortages, while
+startup grants are blocked during shortages. Proposed bounded emergency-food
+reserve purchasing was sent to the user and recorded in the decisions document;
+it is not implemented or approved. Phase3 remains1/4 whole groups/~69% partial.
+No merge or push.
+
 ## October12, 2026 — approved shoreline starts and priority docks
 
 User approved shoreline starts, quickly prioritized affordable docks in Phase4 and
