@@ -1,5 +1,25 @@
 # Civilizations progress tracker
 
+## October13 — safe funding and bakery opening checks
+
+Bakeries and the general craftsman may now use the same protected startup budget
+as other industries. The budget did not grow; all businesses share its limits.
+Existing server settings stay untouched. Bakery planning now checks whether the
+village can afford both opening the business and buying its food, whether real
+ingredients exist, and whether existing suppliers can already meet the need.
+Failed openings leave money, goods, workers and records unchanged.
+
+Full .\mvnw.cmd clean verify passed1,482 tests with zero failures/errors/skips,
+including20 additional cases. Your playable server and its database are unchanged;
+no schema upgrade or new native-server test in this backend/config batch.
+See PROCESSING_WORKSHOPS.md for what is ready and what is still unfinished.
+
+P3 remains1/4 whole groups,29/39 resource entries/~67% partial. These are opening
+prerequisites, not automatically operating bakeries/craftsmen yet. Next: qualified
+founders, editable product defaults and live opening/ongoing supply integration.
+Live livestock and specialization acceptance also remain. Funding approval is
+resolved; no new question is pending. Feature branch: codex/phase3-processing-startup.
+
 ## October13 — bakery/craftsman locations recognized
 
 Approved smokers now identify bakery candidates; crafting tables identify general

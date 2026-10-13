@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StartupGrantPolicyTest {
     @Test void broaderProducersShareUnchangedCapsAndFoodProtection() {
         var p=StartupGrantPolicy.prototype();
-        for(var industry:Set.of("logging","fishing","quarry","sandpit")) {
+        for(var industry:Set.of("logging","fishing","quarry","sandpit","bakery","craftsman")) {
             assertTrue(p.review(industry,6000,10,2000,0,0).eligible(),industry);
             assertFalse(p.review(industry,5999,10,2000,0,0).eligible(),industry);
             assertFalse(p.review(industry,10000,2,1500,4000,4000).eligible(),industry);
@@ -21,7 +21,7 @@ class StartupGrantPolicyTest {
         assertTrue(p.review("mining",6000,10,2000,0,0).eligible());assertFalse(p.review("mining",5999,10,2000,0,0).eligible());
     }
     @Test void unsupportedDisabledCapsAndOverflowAreSafeAndExplainable() {
-        var p=StartupGrantPolicy.prototype();assertFalse(p.review("bakery",10000,2,1000,0,0).eligible());
+        var p=StartupGrantPolicy.prototype();assertFalse(p.review("unapproved_industry",10000,2,1000,0,0).eligible());
         assertFalse(StartupGrantPolicy.disabled().review("mining",10000,2,1000,0,0).eligible());
         assertTrue(p.review("mining",Long.MAX_VALUE,Long.MAX_VALUE,1,0,0).reason().contains("exceeds"));
         assertFalse(p.review("mining",10000,2,5001,0,0).eligible());assertFalse(p.review("mining",10000,2,1,5000,0).eligible());

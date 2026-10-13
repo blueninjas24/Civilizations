@@ -13,6 +13,18 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void processingWorkshopGrantsShareDefaultsAndRespectInstalledIndustryOptOuts()throws Exception {
+        var c=defaults();var grants=EconomyConfiguration.readStartupGrants(c);
+        for(var industry:List.of("bakery","craftsman")) {
+            assertTrue(grants.review(industry,10000,2,1500,0,0).eligible());
+            assertFalse(grants.review(industry,10000,2,1500,4000,0).eligible());
+        }
+        c.set("startup-grants.industries",List.of("mining","blacksmith","warehouse"));
+        var installed=EconomyConfiguration.readStartupGrants(c);
+        assertEquals(Set.of("mining","blacksmith","warehouse"),installed.industries());
+        for(var industry:List.of("bakery","craftsman"))assertFalse(installed.review(industry,10000,2,1500,0,0).eligible());
+        c.set("startup-grants",null);assertFalse(EconomyConfiguration.readStartupGrants(c).enabled());
+    }
     @Test void farmMarketSettingsAreStrictEditableAndMissingOldSectionOptsOut()throws Exception {
         var c=defaults();assertEquals(FarmMarketPolicy.prototype(),EconomyConfiguration.readFarmMarket(c));EconomyConfiguration.read(c);
         c.set("farm-market.village-share-percent",0);EconomyConfiguration.read(c);assertEquals(0,EconomyConfiguration.readFarmMarket(c).villageSharePercent());

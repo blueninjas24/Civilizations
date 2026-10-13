@@ -1,5 +1,36 @@
 # Civilizations Development Log
 
+## October13 — approved processing grants and bakery investment evidence
+
+User approved bakery/craftsman shared startup grants: “Yes. For sure. Ok keep going”.
+Created codex/phase3-processing-startup from c3c9dd7. Extended default/new-file
+eligibility only, preserving all existing spending caps, food protection and
+installed opt-outs. Updated the decision and admin documentation.
+
+Added BakeryOpportunities as a SQL-owner read-only first-firm review: fresh smoker,
+explicit meal recipe, protected grant, affordable paid surplus inputs, actual
+funded meal/reserve customer after the full startup debit, and available qualified
+local food supply first. Supplier cap overflow defers; retained old bakery identity
+cannot be bypassed. No reservation, skill, goods, money, block or automatic firm
+created. Qualified founder/loaded marker/atomic acceptance remain next.
+
+Twenty additional executed cases: four extended industry grant parameters, one
+configuration case and15 processing/prospect cases. Full-table snapshots prove
+rejection/late-anchor rollback and read-only reviews; paid cargo/processing/village
+food sale conserve assets across restart/replay. Skills are not waived by grants;
+paused sellers cannot trade. Fixture recipes/stock/skills live only in TempDir.
+Focused128 and135 passed; subsequent full .\mvnw.cmd clean verify passed1,482
+(1,480 unit/two packaged integration), zero failures/errors/skips;8:20 at16:56:17 ET.
+Final15-case class passed5.363 seconds in that full run. Production source frozen
+through verification. Reviewed diff and whitespace checks.
+
+No schema migration (still77), catalogue transition, deployment or server/world/DB
+mutation. No new Paper adapter; native test not rerun for this SQL/config batch.
+Live founding/product defaults, ongoing chains, craftsman demand and livestock
+reconciliation remain. P3 stays1/4 whole groups/29-of39 resources/~67% partial;
+no full gameplay milestone claimed. Status/progress/plan and processing guide
+updated. Feature commit/authorized GitHub backup follow verification; main untouched.
+
 ## October13 — GitHub backup and approved bakery/craftsman markers
 
 User authorized GitHub backup: pushed codex/phase3-livestock-protection through

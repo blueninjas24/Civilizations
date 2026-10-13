@@ -162,7 +162,7 @@ startup-grants:
   hundredths-per-food-unit: 200
   # All listed industries share the SAME period/lifetime caps above.
   # Eligibility alone does not create a business or certify resource evidence.
-  industries: [mining, blacksmith, warehouse, logging, fishing, quarry, sandpit]
+  industries: [mining, blacksmith, warehouse, logging, fishing, quarry, sandpit, bakery, craftsman]
 
 water-observer:
   # Read-only current habitat evidence; does not claim land or found a fishery.

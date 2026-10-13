@@ -11,15 +11,15 @@ Current work extends bounded observation and saved marker identity first; actual
 founding/recipes and recovery remain separate verified gates. No marker question
 remains pending. Existing installed configuration lists are not overwritten.
 
-## October13: bakery/craftsman startup funding — awaiting user decision
+## October13: bakery/craftsman startup funding — approved
 
-Before connecting automatic founding, asked whether these two additional businesses
-may use the same limited real village startup grants, shared period/lifetime caps
-and food-budget protection already approved for existing industries. Recommend the
-same protected grants, with qualified founders, real customers and supplies still
-required. Alternative: only existing private business/estate funding. Current grant
-policy does not include bakery/craftsman; marker recognition is not funding approval.
-No new public funding or automatic founding is activated while this is pending.
+User answered “Yes. For sure. Ok keep going” to the recommended extension.
+Bakeries and the general craftsman may use the same limited real village startup
+grants, shared period/lifetime caps and food-budget protection already approved for
+existing industries. The total spending limits are unchanged. Qualified founders,
+real customers, suitable workplace evidence and actual supplies remain required;
+grant eligibility alone does not found a business. Installed industry lists are
+preserved. No startup-funding question remains pending.
 
 ## October13: village herd authority — approved
 

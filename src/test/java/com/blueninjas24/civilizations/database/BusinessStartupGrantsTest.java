@@ -28,7 +28,7 @@ class BusinessStartupGrantsTest {
         var founding=new BusinessFounding(business,source.site(),source.founderRequirements(),source.workerRequirements(),500,"Explicit tested producer opportunity");
         return new BusinessStartupGrants.WorkshopRequest(founding,100,Map.of(Commodity.TIMBER,1L),capital,founder);
     }
-    @ParameterizedTest @ValueSource(strings={"logging","fishing","quarry","sandpit"})
+    @ParameterizedTest @ValueSource(strings={"logging","fishing","quarry","sandpit","bakery","craftsman"})
     void broaderProducerSharesMinePeriodLifetimeAndRealCashAfterRestart(String industry)throws Exception {
         var other=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(other,"Other",town,null,300,Resident.Status.ALIVE));economy.pulse(3000,false);
         grants().startMine(request,StartupGrantPolicy.prototype());var producer=producer(industry,other,20,4000);
@@ -45,7 +45,7 @@ class BusinessStartupGrantsTest {
         db.close();open();assertEquals(saved,grants().startWorkshop(producer,StartupGrantPolicy.disabled()));
         assertEquals(4000,cash());assertEquals(2,count("startup_grants"));
     }
-    @ParameterizedTest @ValueSource(strings={"logging","fishing","quarry","sandpit"})
+    @ParameterizedTest @ValueSource(strings={"logging","fishing","quarry","sandpit","bakery","craftsman"})
     void broaderProducerCannotBypassFoodOrPartialTransactionFailure(String industry)throws Exception {
         var producer=producer(industry,person,20,1000);
         sql("UPDATE needs_periods SET fulfilled=0");assertThrows(BusinessStartupGrants.Declined.class,()->grants().startWorkshop(producer,StartupGrantPolicy.prototype()));unchanged();
@@ -218,7 +218,7 @@ class BusinessStartupGrantsTest {
     @Test void previewsExplainDisabledIndustryFoodProtectionAndGrantCapsWithoutWrites()throws Exception {
         var before=snapshot();var p=StartupGrantPolicy.prototype();
         assertTrue(grants().preview(town,"warehouse",500,1000,StartupGrantPolicy.disabled()).reason().contains("disabled"));
-        assertFalse(grants().preview(town,"bakery",500,1000,p).eligible());
+        assertFalse(grants().preview(town,"unapproved_industry",500,1000,p).eligible());
         assertTrue(grants().preview(town,"warehouse",500,5000,p).reason().contains("single-grant"));
         assertTrue(grants().preview(town,"mining",500,1000,policy(5000,5000,20000,8501)).reason().contains("protected food"));
         assertTrue(grants().preview(town,"mining",500,1000,policy(5000,1499,20000,2500)).reason().contains("period"));

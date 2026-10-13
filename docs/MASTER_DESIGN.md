@@ -1,5 +1,12 @@
 # Civilizations — canonical master design
 
+October13 subsequent approval: bakeries and the single general craftsman may use
+the existing shared startup-grant limits and real food-protected village budget.
+No separate industry allowance or new money. Installed settings remain unchanged;
+qualified owners, actual inputs/customers and safe workplace acceptance still apply.
+Read-only bakery prospects are a prerequisite, not automatic live founding.
+See PROCESSING_WORKSHOPS.md for current implementation and verification boundaries.
+
 October13 approved bakery/craftsman markers: configurable existing smokers and
 crafting tables are location evidence only, with no inventory or building ownership.
 Four-kind observation/identity is now implemented; actual businesses, products and

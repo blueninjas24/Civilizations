@@ -1,5 +1,24 @@
 # Phase 3 — businesses and industry checklist
 
+## October13 — processing startup budget and bakery investment prerequisites
+
+Approved bakery/craftsman eligibility now uses unchanged shared grant caps and
+food-money protection. Config opt-outs remain. Read-only first-bakery review checks
+real meal customers AFTER proposed startup spending, real paid starter ingredients,
+fresh smoker evidence and qualified operating local supply, with bounded no-partial
+review and retained existing bakery identity. Trusted startup/processing/paid food
+sale paths verified with fixture recipes; no default product chain or automatic
+live founding is claimed. Twenty added executed cases; full clean verify passed
+1,482 tests, zero failures/errors/skips. No schema change or human server changes;
+native verification remains required for the future live adapter.
+
+Remaining: qualified bakery preparation/atomic revalidation, editable live product
+settings, ongoing ingredient delivery and automatic opening; real craftsman demand
+and corresponding integration; livestock physical identity/death/adoption work;
+specialization acceptance. Startup funding question resolved. P3 stays29/39
+resources,1/4 whole groups/~67% partial; no complete checklist gate added by these
+prerequisites. See PROCESSING_WORKSHOPS.md.
+
 ## October13 — approved bakery/craftsman recognition prerequisite
 
 Implemented configurable smoker/crafting-table recognition, persisted industry

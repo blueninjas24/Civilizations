@@ -1,5 +1,13 @@
 # Civilizations — simulation rules and testable examples
 
+October13 subsequent approval: bakeries and the single general craftsman share
+the existing protected village startup grants. Period/lifetime caps are common to
+all eligible industries, not per-business allowances. Future bakery investment
+must retain real funds for a meal customer after paying startup, use real protected
+surplus ingredients and consider available qualified local food suppliers first.
+Read-only prospects reserve nothing; actual founding rechecks skills and evidence.
+See PROCESSING_WORKSHOPS.md; live founding/product defaults remain unfinished.
+
 October13 approved bakery/craftsman markers: configurable existing smokers and
 crafting tables are location evidence only, with no inventory or building ownership.
 Four-kind observation/identity is now implemented; actual businesses, products and

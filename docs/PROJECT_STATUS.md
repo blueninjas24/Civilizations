@@ -1,5 +1,38 @@
 # Civilizations — implementation status and handoff
 
+## October13 — protected processing startup and real bakery prospects
+
+User approved the same shared protected startup grants for bakeries and the
+general craftsman. Added both to new-file/default eligibility without increasing
+single, period or lifetime caps. Installed lists and missing legacy opt-outs stay
+unchanged. Recorded the decision; no startup-funding question remains pending.
+
+Added read-only BakeryOpportunities: fresh complete nearby smoker, explicit meal
+recipe, actual affordable surplus ingredients, protected startup funds and enough
+real village meal/reserve demand after deducting the full startup investment.
+Qualified operating local food stocks cover customers first. Bounded supplier
+overflow defers rather than inferring shortage; old bakery identity cannot be
+bypassed. Reviews/restarts mutate no assets and reserve no cash. Acceptance must
+still choose a qualified founder, revalidate the opportunity and check Paper's
+loaded marker. This is not an automatic founding adapter or a default recipe.
+
+Twenty additional executed cases: shared caps/food protection, config opt-outs,
+paid startup/delivery/processing/replay, qualifications, actual paid bakery food
+customer, marker/world absence, complete late-write rollback and read-only customer/
+ingredient/supplier/restart safeguards. Focused128 then135 passed; final full
+.\mvnw.cmd clean verify passed1,482 (1,480 unit/two packaged integration), zero
+failures/errors/skips;8:20 at16:56:17 ET. New processing class15 cases passed in
+the full run. No Paper adapters changed, native check not rerun for this SQL/config
+batch; future live bakery/craftsman adapters still require native verification.
+
+Schema remains77; no migration, old catalogue rewrite or server DB/world changes.
+See PROCESSING_WORKSHOPS.md. Updated status/progress/devlog; feature branch
+codex/phase3-processing-startup. P3 remains29/39 resources,1/4 complete groups/~67%
+partial. Actual funded live founding, sustained ingredient/product/customer chains,
+craftsman demand and live livestock reconciliation remain. Next: qualified bakery
+preparation/acceptance, editable production defaults and live integration. No new
+product decision blocks those scoped steps. Main remains unchanged.
+
 ## October13 — approved bakery/craftsman recognition and candidate safeguards
 
 User approved configurable existing smokers for bakery candidates and crafting
