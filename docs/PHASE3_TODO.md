@@ -1,5 +1,10 @@
 # Phase 3 — businesses and industry checklist
 
+October13 hybrid farm allocation/payment batch verified1,378 full cases and a
+real Paper timer/customer/pause/restart check. Expanded scope adds six resource
+entries:29/39 now complete; earlier70% was the old denominator. Livestock
+ownership is the pending decision. See HYBRID_FARMS.md.
+
 Already-established stone quarries and sand pits now work on the live simulation
 timer. Sand is extracted faster than stone, using editable settings. Supplies stay
 finite: removing one supporting block loses only its share, and restarts cannot
@@ -332,6 +337,19 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 - [x] Validate founding, retries, restarts and absent-world pause on disposable Paper.
 
 ## 2. Resources and connected production — in progress
+
+- [x] Hybrid farm contributions and owned surplus: capped actual allocation,
+      finite storage, tools/skills, replay and preservation of old public goods.
+- [ ] Paid farm food/ingredient customers, protected real funds, causal delivery
+      and income; local food priority without confiscation or invented shoppers.
+- [ ] Basic livestock herds, feed/capacity, breeding reserves, bounded slaughter,
+      renewable eggs/milk, saved ownership/history and no spoilage.
+- [ ] Suitable livestock observation, qualified/funded startup and live timed
+      operation; no assumed animals, forced chunks or duplicate physical herds.
+- [ ] Connected bakeries with real grain/egg/milk ingredients, appropriate recipes,
+      qualified staff, owned stock, actual purchases and collective food customers.
+- [ ] One general craft workshop with editable useful recipes and actual household/
+      business demand; specialized craft occupations deferred.
 
 - [x] Finite geological reserves, shared ore/rock work, bounded business storage.
 - [x] Paid local warehouse transactions and unavailable-until-delivered cargo.

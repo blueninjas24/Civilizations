@@ -1,5 +1,10 @@
 # Protected future grain harvests
 
+Subsequent hybrid farm opt-in is verified under schema73: future surplus is
+farm-owned while existing public grain stays public. See HYBRID_FARMS.md. The
+public-only grain batch described below remains the old-file fallback. Its earlier
+public-grain sale proposal is superseded for future owned farm surplus.
+
 Verified October13: full Windows Wrapper clean verify passed1,360 cases
 (1,358 unit/two packaged integration), zero failures/errors/skips. Focused226
 passed before the final grain-only test; final targeted37 passed. Guarded Paper

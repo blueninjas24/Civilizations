@@ -35,6 +35,12 @@ These are design contracts, **not finalized numeric tuning values**. Avoid hardc
   world merely because a different world is loaded.
 
 ## Resources and production
+- October13 approved hybrid farm accounting: a configurable capped contribution
+  serves village meals/reserves; additional future output is owned business stock.
+  Collective purchases pay real producers for remaining food needs. No compulsory
+  transfer of old stock, free cash, duplicated harvest or individual payroll.
+  Livestock protects breeding reserves, consumes feed and breeds over time within
+  capacity; slaughter reduces animals, renewable outputs do not. No spoilage.
 - Approved October13: future grain ingredients are separate from generic food.
   Existing food/history stay intact and basic meals remain feasible without bakers.
   Observed wheat capacity cannot establish a harvested ingredient balance; actual

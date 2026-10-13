@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 72;
+    static final int CURRENT_VERSION = 73;
 
     @FunctionalInterface
     interface Migration {
@@ -921,12 +921,50 @@ final class SchemaMigrator {
                             grain_crops INTEGER NOT NULL CHECK(typeof(grain_crops)='integer' AND grain_crops>=0 AND grain_crops<=100000)
                         )
                         """),
-                SchemaMigrator::createGrainHarvests
+                SchemaMigrator::createGrainHarvests,
+                SchemaMigrator::createFarmMarket
 
 
         ));
     }
 
+    private static void createFarmMarket(Connection c)throws SQLException {
+        execute(c,"""
+                CREATE TABLE farm_market_stores (
+                    business_id TEXT PRIMARY KEY REFERENCES businesses(id),
+                    capacity INTEGER NOT NULL CHECK(typeof(capacity)='integer' AND capacity BETWEEN 2 AND 1000001),
+                    adopted_millis INTEGER NOT NULL CHECK(typeof(adopted_millis)='integer' AND adopted_millis>=0),
+                    prior_terms TEXT NOT NULL CHECK(length(prior_terms)>0),
+                    policy TEXT NOT NULL CHECK(length(policy) BETWEEN 1 AND 4096)
+                )
+                """);
+        execute(c,"""
+                CREATE TABLE farm_market_harvests (
+                    settlement_id TEXT NOT NULL REFERENCES economy_accounts(settlement_id),
+                    period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=1),
+                    business_id TEXT NOT NULL REFERENCES farm_market_stores(business_id),
+                    potential_work INTEGER NOT NULL CHECK(typeof(potential_work)='integer' AND potential_work>=0),
+                    actual_work INTEGER NOT NULL CHECK(typeof(actual_work)='integer' AND actual_work BETWEEN 0 AND potential_work),
+                    public_food INTEGER NOT NULL CHECK(typeof(public_food)='integer' AND public_food>=0),
+                    business_food INTEGER NOT NULL CHECK(typeof(business_food)='integer' AND business_food>=0),
+                    grain_work INTEGER NOT NULL CHECK(typeof(grain_work)='integer' AND grain_work>=0),
+                    grain_units INTEGER NOT NULL CHECK(typeof(grain_units)='integer' AND grain_units>=0),
+                    policy TEXT NOT NULL CHECK(length(policy) BETWEEN 1 AND 4096),
+                    explanation TEXT NOT NULL CHECK(length(explanation) BETWEEN 1 AND 4096),
+                    grain_policy TEXT NOT NULL CHECK(length(grain_policy) BETWEEN 1 AND 4096),
+                    wheat INTEGER CHECK(wheat IS NULL OR (typeof(wheat)='integer' AND wheat>=0 AND wheat<=crops)),
+                    crops INTEGER NOT NULL CHECK(typeof(crops)='integer' AND crops BETWEEN 0 AND 100000),
+                    observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                    units_per_grain_work INTEGER NOT NULL CHECK(typeof(units_per_grain_work)='integer' AND units_per_grain_work BETWEEN 1 AND 1000),
+                    village_share_percent INTEGER NOT NULL CHECK(typeof(village_share_percent)='integer' AND village_share_percent BETWEEN 0 AND 100),
+                    PRIMARY KEY(settlement_id,period),
+                    CHECK(typeof(public_food+business_food+grain_work)='integer' AND actual_work=public_food+business_food+grain_work),
+                    CHECK(typeof(grain_work*units_per_grain_work)='integer' AND grain_units=grain_work*units_per_grain_work),
+                    CHECK(grain_work=0 OR (wheat IS NOT NULL AND wheat>0)),
+                    CHECK(public_food<=((public_food+business_food)*village_share_percent)/100)
+                )
+                """);
+    }
     private static void createGrainHarvests(Connection connection)throws SQLException {
         execute(connection,"""
                 CREATE TABLE grain_stocks (
@@ -1000,6 +1038,7 @@ final class SchemaMigrator {
                     "center_z", "discovered_at", "population", "beds"));
             if(migrations.size()>=71)requireColumns(connection,"farm_grain_evidence",Set.of("settlement_id","observed_millis","grain_crops"));
             if(migrations.size()>=72){requireColumns(connection,"grain_stocks",Set.of("settlement_id","units"));requireColumns(connection,"grain_harvests",Set.of("settlement_id","period","harvest","food_output","grain_units","policy"));}
+            if(migrations.size()>=73){requireColumns(connection,"farm_market_stores",Set.of("business_id","capacity","prior_terms","policy"));requireColumns(connection,"farm_market_harvests",Set.of("settlement_id","period","business_id","actual_work","public_food","business_food","grain_units","grain_policy"));}
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
                 requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",

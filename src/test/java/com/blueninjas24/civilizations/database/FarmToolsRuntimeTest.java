@@ -16,6 +16,11 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FarmToolsRuntimeTest {
+    @Test void grainSplitUsesTotalActualWorkForPublicEquipmentEligibility()throws Exception {
+        create(upkeep);runtime.configureGrainHarvest(GrainHarvestPolicy.prototype());
+        runtime.observe(new FarmObservation(town,world,1001,true,16,new VillageObservation.Position(0,64,0),16L),1001);runtime.startOnline(1001,Set.of(world));runtime.pulse(2001,false);
+        assertEquals(3,output(1));assertEquals(1,count("farm_tool_purchases"));assertEquals(26000,cash());
+    }
     @TempDir Path directory;DatabaseManager db;EconomyRuntimeRepository runtime;
     UUID town=UUID.randomUUID(),world=UUID.randomUUID(),farmer=new UUID(0,1),smith=new UUID(0,2),seller=new UUID(0,10),farm;
     final FarmToolUpkeepPolicy upkeep=new FarmToolUpkeepPolicy(true,1,2,50,8);

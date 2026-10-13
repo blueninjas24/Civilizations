@@ -26,6 +26,7 @@ final class FarmTools {
     private boolean supported(UUID farm,Optional<IndustryRepository.Store> saved)throws SQLException {
         if(saved.isEmpty())return true;
         var store=saved.orElseThrow();
+        if(FarmMarketStore.supported(connection,farm,store))return true;
         if(store.capacity()!=1||store.hundredths()!=0||!store.spacePerUnit().equals(Map.of(ToolUpkeepPolicy.TOOLS,1L)))return false;
         try(var s=connection.prepareStatement("SELECT 1 FROM farm_tool_purchases WHERE farm_id=? LIMIT 1")) {
             s.setString(1,farm.toString());try(var r=s.executeQuery()){return r.next();}
@@ -82,7 +83,7 @@ final class FarmTools {
         if(!supported(farm,store))return "Retained farm cash/catalog requires explicit equipment transition";
         var state=state(farm);
         if(state.productivePeriods()<policy.startupGracePeriods()||state.servicePeriods()>1)return "No productive farm replacement due";
-        if(store.isPresent()&&store.orElseThrow().freeSpace()<1)return "Farm already owns equipment or paid incoming kit";
+        if(store.isPresent()&&(store.orElseThrow().freeSpace()<1||store.orElseThrow().units().getOrDefault(ToolUpkeepPolicy.TOOLS,0L)+FarmMarketStore.incomingTools(connection,farm)>=1))return "Farm already owns equipment or paid incoming kit";
         String cursor=suppliers.getOrDefault(town,"");var candidates=page(town,cursor);
         if(candidates.isEmpty()&&!cursor.isEmpty())candidates=page(town,"");
         String last="",reason="No eligible toolkit supplier in bounded local page";

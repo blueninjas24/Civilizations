@@ -1,6 +1,39 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October13: recurring purchases of public grain — awaiting user decision
+## October13: existing livestock ownership — awaiting user decision
+
+First live chicken/cattle farms need an explicit ownership rule before the plugin
+breeds or slaughters existing nearby animals. Question sent: may Civilizations
+adopt existing nearby chickens/cows including player pens, or require explicit
+opt-in for existing livestock? Recommend opt-in to preserve player animals.
+No answer is assumed, and no animal adoption/spawning/slaughter is implemented.
+Hybrid farm allocation/payment work can be completed independently while pending.
+
+## October13: hybrid farm obligation, paid surplus and basic food industries — approved direction
+
+User requested a balance where farmers maintain village food reserves in exchange
+for tools and sell surplus, then said the capped-contribution/paid-additional-food
+approach makes sense and authorized continuing implementation. Farms contribute
+a configurable bounded share toward actual meals/reserves; additional harvested
+food and ingredients are business-owned and can be sold using real payments.
+Village support retains protected tool budgets, not individual salaries/wallets.
+Collective village purchases can meet remaining food needs without confiscating
+business goods or creating money. Existing public food/grain/history remain public;
+only future harvest allocation changes under explicit opt-in/tuning.
+
+Approved expanded P3 direction: basic chicken/dairy livestock, separately tracked
+baking ingredients and one general craftsman with editable recipes. No separate
+craft occupations yet; geography-based village industry mixes remain canonical.
+Livestock protects breeding reserves and bounds slaughter; breeding needs time,
+feed and capacity. Renewable eggs/milk/wool do not slaughter animals. User expressly
+excluded spoilage/expiration. Physical barns, docks, buildings and autonomous field
+expansion remain Phase4; regional imports/exports Phase5. Random crop disasters
+were discussed as future variety, not authorized live RNG in this batch.
+
+Prototype numbers remain editable under prior tuning authorization. The expanded
+checklist must be recounted; previous ~70% is an older scope, not current completion.
+
+## October13: recurring purchases of public grain — superseded for future farm surplus
 
 Harvested grain follows the existing public farm-supply direction; it does not
 privatize food farms or invent business cash. Connecting bakeries now needs an
@@ -10,8 +43,10 @@ materials, not an unrestricted recurring sale of public stock.
 Recommendation sent to the user: allow bakeries/warehouses to buy actually owned
 harvested grain using their real business cash, pay proceeds to the village
 treasury, and use editable prices/purchase limits with training supplies protected.
-This proposal is not implemented or treated as approved. Grain harvesting and
-its food/storage protection can be verified independently while this is pending.
+Subsequent discussion approved the hybrid farm direction above: future surplus
+belongs to the farm and buyers pay that business. This supersedes routing all
+future grain sales through the village treasury. Existing public grain stays
+public; no conversion or unrestricted public-stock sale is silently approved.
 
 ## October13: bakery grain accounting — approved
 
@@ -23,7 +58,8 @@ basic meals feasible without requiring a bakery first. Exact editable processing
 coefficients remain prototype tuning under the user's existing authorization.
 Existing food cannot be converted into invented grain. Wheat-field composition persists under schema71, and actual future protected grain
 harvests passed schema72 full/native verification. Bakery activation and recurring
-paid public grain sales remain unfinished/pending the separate question above. The user answered: “Go with your recommendation.”
+paid public grain sales remain unfinished; future farm-owned surplus uses the
+approved hybrid direction above. Existing public grain is preserved. The user answered: “Go with your recommendation.”
 Implement this direction with transactional migrations, actual crop/input evidence and
 editable prototype coefficients; keep basic meals feasible and existing history intact.
 

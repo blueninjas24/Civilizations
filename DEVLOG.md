@@ -1,5 +1,70 @@
 # Civilizations Development Log
 
+## October 13, 2026 — hybrid farm contributions and actual paid surplus
+
+Implemented the approved hybrid farming model on codex/phase3-farm-market.
+Future actual basic food contributes at most an editable share toward real
+meals/reserves; remaining accepted food/grain is business-owned. Old public
+food, grain, identities and period history stay public/intact. Collective food
+orders now pay the farm through existing real budget/stock/cargo checks; no
+salary wallets, free money, duplicate food or confiscation. Grain buffer prevents
+unsold ingredients crowding all basic food out. Storage backpressure idles work
+rather than bypassing the contribution cap. Default50% share, two reserve periods,
+256 commercial spaces plus one protected toolkit slot,16-unit grain target.
+Installed files opt out without rewriting; configured grain rates/yields remain.
+
+Transactional schema73 adds initially empty farm_market_stores/harvests. Empty
+or recognized one-kit/zero-cash legacy farm stores adopt explicitly during a
+successful food transaction, preserving tools/cargo and prior opening terms.
+Unknown private stores are refused. No capital is generated; store opening
+capacity stays saved. Future allocation/rates/targets tune with existing audited
+settings transitions and backlog protection. Harvest proof, owned stock, public
+food and checkpoint commit together; failed periods retry without repeating the
+already successful business startup. Tools/skills use actual accepted work.
+
+Fixed a confirmed grain regression: public tool funding compared food production
+with total harvest learning, incorrectly blocking productive grain farms. It now
+checks the actual shared harvest. Public kit invoices also preserve the farm's
+real sales cash, and one-kit quota includes pending cargo despite larger storage.
+
+Eighteen added cases: five pure allocation cases,11 temporary-DB cases, one YAML
+case and one grain-tool eligibility regression. Includes200-period paid-food
+conservation, actual capped output under overpopulation, cash poverty/no free
+orders, migration failure/retry, late write/adoption rollback, legacy tool/public
+stock/history preservation, absent-world/restart, unknown store refusal, paid kit
+income preservation and an actual funded grain-delivery/bread/public-food order
+backend chain. Initial test compile found one compound var declaration; corrected
+test syntax without changing production guards. Focused200 passed before two
+additional chain/refusal cases; final targeted36 passed. Full Windows Wrapper
+.\mvnw.cmd clean verify passed1,378 (1,376 unit/two packaged integration), zero
+failures/errors/skips,7:14 at09:46:44 ET. No broad multi-town performance claim.
+
+Guarded Paper ordinary-owner timer/customer proof passed09:47:38 ET: six settled
+food periods, capped contributions, real private food/grain and two paid200 food
+orders, one pending owned cargo, actual farm skills and resumed work after
+absence/restart. Conserved17500 cash after2500 startup from explicitly configured
+20000 fixture opening funds. Trusted crop/site inputs are not natural discovery;
+funded fixture does not prove every tiny starting village can afford the loop.
+No blocks, entities or chests edited; no chunk tickets. Main save audit120/123
+predecessor tables exact; three ordinary clock/economy/ore changes, all identity,
+assets/money/history retained. Schema73 integrity/FK healthy; new main market
+rows empty under old-file opt-out. Original properties restored, helper archived,
+consistent backups retained; playable human server unchanged. No merge or push.
+
+Recorded expanded P3 scope: livestock, real bakery ingredients and one general
+craftsman, with no spoilage or separate craft professions. Six new resource entries
+expand the old33-entry group to39. This batch verifies hybrid allocation:29/39;
+whole groups still1/4 and equal-group partial checklist now~67% under NEW scope,
+not the previous70% denominator. Automatic livestock/bakeries/craftsman, further
+resource founding and specialization/long-run acceptance remain unfinished.
+Paid bakery chain is backend fixture proof, not automatic shop founding.
+
+Next livestock startup requires the user's ownership decision: existing nearby
+chickens/cows (including player pens) automatic adoption versus explicit opt-in.
+Recommend opt-in; no answer assumed and no animals changed. Village funds remain
+finite; failed affordability creates a real shortage, not invented income.
+See HYBRID_FARMS.md and DECISIONS_AND_OPEN_QUESTIONS.md.
+
 ## October 13, 2026 — protected actual future grain harvests
 
 Staffed farms now allocate an editable part of actual future wheat work to separate

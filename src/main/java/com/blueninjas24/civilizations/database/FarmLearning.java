@@ -18,8 +18,9 @@ public final class FarmLearning {
         var old=explanation(town,period);if(old.isPresent())return old.orElseThrow();
         long output;
         try(var s=connection.prepareStatement("""
-                SELECT COALESCE(g.harvest,e.production) FROM economy_periods e
+                SELECT COALESCE(m.actual_work,g.harvest,e.production) FROM economy_periods e
                 LEFT JOIN grain_harvests g USING(settlement_id,period)
+                LEFT JOIN farm_market_harvests m USING(settlement_id,period)
                 WHERE e.settlement_id=? AND e.period=? AND e.commodity='food'
                 """)) {
             s.setString(1,town.toString());s.setLong(2,period);try(var r=s.executeQuery()) {

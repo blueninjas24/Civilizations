@@ -23,6 +23,13 @@ Commodity catalog, reserves, supply/demand, escalating shortages, labor/producti
 ## Phase 3 — businesses and specialization
 Persistent founders/owners/employees/sites, resource discovery/potential/depletion, production chains, skill/capital eligibility, competition, closure/succession, emergent specializations. Test business turnover, industry dependency and rare exceptional firms.
 
+October13 approved scope clarification: hybrid farm contributions/paid surplus,
+basic chicken and dairy livestock with protected breeding reserves and no spoilage,
+real bakery ingredients and one general craftsman. Separate crafting occupations
+are deferred; emergent village industry mixes remain part of the gate. Validate
+food pressure, real purchasing funds and producer survival without manufactured
+goods/cash. Construction stays Phase4; regional trade stays Phase5.
+
 ## Phase 4 — physical growth
 Template library and future authoring toolkit, road-first organic planner, land suitability, player-build protection, terrain-aware site selection, staged construction, civic/industrial/residential structures, building upgrades, reuse and decay. Test world modifications in disposable worlds and rollback/failure safety.
 

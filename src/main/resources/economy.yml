@@ -7,6 +7,20 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# Hybrid farms: bounded food contribution in exchange for protected village tool support.
+# Remaining actual harvest belongs to the farm; village food orders pay real business income.
+# Contribution is at most this share of basic food output, and only covers actual meals/reserves.
+# Space is shared by owned food/grain; an additional toolkit slot stays reserved.
+# Existing public food/grain is never privatized. Old files without this section opt out.
+# Storage opening capacity is saved; editing it affects new/adopted stores, not existing assets.
+farm-market:
+  enabled: true
+  village-share-percent: 50
+  food-reserve-periods: 2
+  storage-capacity: 256
+  # A modest ingredient buffer; unsold grain must not crowd all food out of storage.
+  grain-stock-target: 16
+
 # Future wheat work may supply grain ingredients after protecting actual meals.
 # Requires a staffed farm and complete typed wheat evidence; old food is never converted.
 # Percent applies to wheat's share of the same harvest work, not extra production.

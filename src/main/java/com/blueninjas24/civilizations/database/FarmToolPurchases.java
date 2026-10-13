@@ -63,9 +63,11 @@ public final class FarmToolPurchases {
             try(var s=connection.prepareStatement("""
                 SELECT 1 FROM farm_evidence f JOIN economy_periods e ON e.settlement_id=f.settlement_id
                   JOIN farm_learning_reviews l ON l.settlement_id=e.settlement_id AND l.period=e.period
+                  LEFT JOIN grain_harvests g ON g.settlement_id=e.settlement_id AND g.period=e.period
+                  LEFT JOIN farm_market_harvests m ON m.settlement_id=e.settlement_id AND m.period=e.period
                 WHERE f.settlement_id=? AND f.world_id=? AND f.complete=1 AND f.planted_crops>0
-                  AND e.period=? AND e.commodity='food' AND e.production>0
-                  AND l.business_id=? AND l.production=e.production
+                  AND e.period=? AND e.commodity='food' AND COALESCE(m.actual_work,g.harvest,e.production)>0
+                  AND l.business_id=? AND l.production=COALESCE(m.actual_work,g.harvest,e.production)
                 """)) {
                 s.setString(1,town.toString());s.setString(2,founding.site().worldId().toString());s.setLong(3,period);s.setString(4,request.farm().toString());
                 try(var r=s.executeQuery()){if(!r.next())throw new Declined("Complete working fields and actual current food output required");}
@@ -102,20 +104,21 @@ public final class FarmToolPurchases {
                 review=policy.review(cash,demand,spent);if(!review.eligible())throw new Declined(review.reason());
             }
             var saved=industry.store(request.farm());
+            long privateCash=saved.map(IndustryRepository.Store::hundredths).orElse(0L);
             if(saved.isPresent()) {
                 var store=saved.orElseThrow();
-                if(store.hundredths()!=0||!store.spacePerUnit().equals(Map.of(ToolUpkeepPolicy.TOOLS,1L))||store.capacity()!=1)
+                if(!FarmMarketStore.supported(connection,request.farm(),store)&&(store.hundredths()!=0||!store.spacePerUnit().equals(Map.of(ToolUpkeepPolicy.TOOLS,1L))||store.capacity()!=1))
                     throw new Declined("Existing farm catalog/cash requires an explicit transition; public upkeep does not rewrite it");
-                if(store.freeSpace()<1)throw new Declined("Farm already owns a toolkit or paid incoming toolkit");
+                if(store.freeSpace()<1||store.units().getOrDefault(ToolUpkeepPolicy.TOOLS,0L)+FarmMarketStore.incomingTools(connection,request.farm())>=1)throw new Declined("Farm already owns a toolkit or paid incoming toolkit");
             } else industry.openStoreRows(request.farm(),1,Map.of(ToolUpkeepPolicy.TOOLS,1L),0);
             new TreasuryRepository(connection).postRows(request.operation(),town,-policy.toolHundredths(),"Public farm toolkit purchase; food-protected upkeep budget");
-            // Exact invoice funds pass through the purchase seam in this transaction; no cash remains in the farm.
-            try(var s=connection.prepareStatement("UPDATE industry_stores SET hundredths=? WHERE business_id=? AND hundredths=0")) {
-                s.setLong(1,policy.toolHundredths());s.setString(2,request.farm().toString());if(s.executeUpdate()!=1)throw new SQLException("Farm equipment funding account changed");
+            // The public invoice passes through without spending or overwriting earned private cash.
+            try(var s=connection.prepareStatement("UPDATE industry_stores SET hundredths=? WHERE business_id=? AND hundredths=?")) {
+                s.setLong(1,Math.addExact(privateCash,policy.toolHundredths()));s.setString(2,request.farm().toString());s.setLong(3,privateCash);if(s.executeUpdate()!=1)throw new SQLException("Farm equipment funding account changed");
             }
             industry.purchaseRows(request.operation(),request.seller(),request.farm(),ToolUpkeepPolicy.TOOLS,1,
                     policy.toolHundredths(),period,request.delay(),request.haulCapacity(),null);
-            if(industry.store(request.farm()).orElseThrow().hundredths()!=0)throw new SQLException("Public farm invoice left private cash");
+            if(industry.store(request.farm()).orElseThrow().hundredths()!=privateCash)throw new SQLException("Public farm invoice changed earned private cash");
             var receipt=new Receipt(request.operation(),request.farm(),town,period,policy.toolHundredths(),review.protectedHundredths(),cash,cash-policy.toolHundredths(),policy.toString());
             try(var s=connection.prepareStatement("INSERT INTO farm_tool_purchases VALUES(?,?,?,?,?,?,?,?,?,?)")) {
                 s.setString(1,receipt.operation().toString());s.setString(2,receipt.farm().toString());s.setString(3,town.toString());s.setLong(4,period);

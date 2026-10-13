@@ -1,5 +1,20 @@
 # Civilizations progress tracker
 
+Farmers now contribute a capped share of future food and own the surplus. The
+village can buy additional food, giving farms real income. Storage, ingredient
+buffers and tools are accounted for, while old public supplies stay intact.
+All1,378 full-build cases and live paid-food/pause/restart checks passed. A paid
+grain-to-bread chain is verified in backend tests; automatic bakeries remain next.
+Expanded P3 checklist:~67% (29/39 resource entries; still1/4 whole groups). The
+old70% used a smaller scope. Existing livestock ownership needs your decision.
+Your playable server is unchanged. See HYBRID_FARMS.md.
+
+P3 now includes hybrid farm finances, livestock, bakery ingredients and a general
+craftsman. These add six checklist entries: the earlier ~70% used the old scope.
+The current expanded checklist is ~66% before the farm batch passes final checks.
+Farm allocation/paid-customer work is under full/native verification; existing
+livestock ownership is the pending decision. Your playable server is unchanged.
+
 Farms can now save real future wheat harvests as grain for eventual bakeries,
 while protecting village meals and using the same workers and tools. Existing
 food stays intact. All1,360 full-build cases and the live timer/pause/restart
@@ -229,11 +244,13 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |28/33|85%|
+| Resources and connected production |29/39|74%|
 | Business lifecycle and competition |14/15|93%|
 | Specialization and final acceptance |0/5|No complete entries yet|
 
-Equal weight per group gives about70% partial checklist completion. Entries differ
+The October13 food-chain additions expand this checklist. Equal weight per group
+gives about67% partial checklist completion under the new scope. The former70%
+described the earlier scope. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from
 PHASE3_TODO.md. The four-group phase-gate bar below still counts whole groups.

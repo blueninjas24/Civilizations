@@ -68,6 +68,13 @@ numeric multiplier. Habitat capacity/recovery and real-resource constraints rema
 - Decisions create projects and historical events; prior outcomes influence future weights without machine learning.
 
 ## Industry and business
+- October13 approved hybrid farming: bounded contributions toward actual village
+  meals/reserves in exchange for protected tool support; future surplus belongs
+  to the farm and earns real sales income. Additional food is purchased collectively.
+  Preserve old public stocks/history and count each harvest once. Basic chicken/
+  dairy livestock and one general craft workshop join P3; no spoilage or separate
+  craft occupations. Breeding reserves, feed, time and space constrain slaughter
+  and renewal. These new integrations are planned, not implemented by this note.
 - October13 approved: track future grain ingredients separately for bakeries,
   preserve all existing generic food and its history, and keep basic meals feasible
   without a bakery. Wheat-field evidence alone is not harvested ingredient stock;
