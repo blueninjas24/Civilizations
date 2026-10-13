@@ -1,5 +1,32 @@
 # Civilizations — implementation status and handoff
 
+## October13 — persistent initial livestock ownership (schema74)
+
+Continued after the verified protection-domain commit1873626. Added immutable
+first ownership provenance keyed by animal UUID: origin world, player or village
+owner, time and source. Exact retries replay; conflicting owner/provenance is
+refused. No observation, escape, sign break or restart is an ownership transfer.
+Known world and actual same-world town are required for village registration.
+Public writes own a transaction; internal rows compose with future pen transactions.
+Late failures roll back; no silent overwrite, fabricated animal or cash is created.
+
+Schema74 adds an initially empty animal_ownership table/index. It does not adopt
+existing animals or change predecessors. Seven temporary-DB tests cover restart,
+retry/conflict refusal, world/town constraints, late failure/recovery, composed
+rollback, migration73 failure/retry/preservation and invalid owners. Focused94
+passed, including affected older-save fixtures. Full Windows Wrapper
+.\mvnw.cmd clean verify passed1,411 cases (1,409 unit/two packaged integration),
+zero failures/errors/skips,8:05 at11:37:25 ET. No playable server or non-test
+database changed. Diff reviewed; migration exercised only in temporary test DBs.
+
+Live sign claims/particles/menu, persistent pen footprints, authority integration,
+explicit audited ownership transfers, breeding cohorts, observation and live
+startup/production remain next. First records are trusted backend inputs, not a
+player-accessible claim shortcut. P3 remains29/39 resources,1/4 whole groups/~67%
+partial; incomplete livestock entries stay unchecked. No decision is pending.
+See LIVESTOCK_PROTECTION.md. No push/merge; feature branch unchanged.
+
+
 ## October13 — livestock protection and bounded work foundation
 
 Approved automatic free-range adoption and authorized per-pen sign preview/

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 73;
+    static final int CURRENT_VERSION = 74;
 
     @FunctionalInterface
     interface Migration {
@@ -922,10 +922,29 @@ final class SchemaMigrator {
                         )
                         """),
                 SchemaMigrator::createGrainHarvests,
-                SchemaMigrator::createFarmMarket
+                SchemaMigrator::createFarmMarket,
+                SchemaMigrator::createAnimalOwnership
 
 
         ));
+    }
+
+    private static void createAnimalOwnership(Connection c)throws SQLException {
+        execute(c,"""
+                CREATE TABLE animal_ownership (
+                    animal_id TEXT PRIMARY KEY,
+                    world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                    kind TEXT NOT NULL CHECK(kind IN('PLAYER','VILLAGE')),
+                    player_id TEXT,
+                    settlement_id TEXT REFERENCES settlements(id),
+                    recorded_millis INTEGER NOT NULL CHECK(typeof(recorded_millis)='integer' AND recorded_millis>=0),
+                    source TEXT NOT NULL CHECK(length(trim(source)) BETWEEN 1 AND 256),
+                    CHECK((kind='PLAYER' AND player_id IS NOT NULL AND settlement_id IS NULL)
+                       OR (kind='VILLAGE' AND player_id IS NULL AND settlement_id IS NOT NULL)),
+                    FOREIGN KEY(settlement_id,world_id) REFERENCES settlement_worlds(settlement_id,world_id)
+                )
+                """);
+        execute(c,"CREATE INDEX village_animal_owners ON animal_ownership(settlement_id,animal_id)");
     }
 
     private static void createFarmMarket(Connection c)throws SQLException {
@@ -1039,6 +1058,7 @@ final class SchemaMigrator {
             if(migrations.size()>=71)requireColumns(connection,"farm_grain_evidence",Set.of("settlement_id","observed_millis","grain_crops"));
             if(migrations.size()>=72){requireColumns(connection,"grain_stocks",Set.of("settlement_id","units"));requireColumns(connection,"grain_harvests",Set.of("settlement_id","period","harvest","food_output","grain_units","policy"));}
             if(migrations.size()>=73){requireColumns(connection,"farm_market_stores",Set.of("business_id","capacity","prior_terms","policy"));requireColumns(connection,"farm_market_harvests",Set.of("settlement_id","period","business_id","actual_work","public_food","business_food","grain_units","grain_policy"));}
+            if(migrations.size()>=74)requireColumns(connection,"animal_ownership",Set.of("animal_id","world_id","kind","player_id","settlement_id","recorded_millis","source"));
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
                 requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",

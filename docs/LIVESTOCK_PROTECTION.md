@@ -1,5 +1,34 @@
 # Livestock protection and work foundation
 
+## Subsequent schema74 ownership persistence batch
+
+`AnimalOwnershipRepository` now records immutable first player/village ownership,
+origin-world UUID, recording time and source per animal UUID. Exact retries replay;
+changed ownership or provenance cannot overwrite the record. Public calls require
+no active transaction; internal rows participate in a future caller-owned pen
+transaction without independently committing. Loaded location/sign observations
+are not a transfer. Origin world is provenance, not a constantly updated position.
+
+Additive transactional schema74 creates initially empty `animal_ownership` and
+its village-owner index. Village owners require an actual saved settlement bound
+to that origin world; player records require an observed world. No existing animals
+are inferred/adopted. Seven temporary-SQLite cases cover restart, retry/conflicts,
+world constraints, failed inserts, batch rollback, migration73 failure/retry and
+invalid owners. Focused94 passed with affected older-save regression cases; full
+Windows Wrapper .\mvnw.cmd clean verify passed1,411 cases (1,409 unit/two packaged
+integration), zero failures/errors/skips,8:05 at11:37:25 ET. No real server database
+was modified. Source/tests and migration diff reviewed.
+
+This backend accepts only trusted caller-established identity/authority/evidence.
+It is not exposed to players and does not implement sign claiming, pen persistence,
+land-claim permissions, player breeding capture, explicit transfers or adoption.
+A future donation must use a distinct authorized/audited transition, not first
+registration. Live adapter still needs main-thread snapshots, safe 3D classification,
+continuous observation and disposable native verification before activation.
+
+The initial domain batch below describes schema73 at that earlier commit; the
+verified current artifact upgrades to74 when deployed; no server deployment occurred.
+
 ## Approved interaction direction
 
 Free-range eligible animals are adopted automatically after reliable observation.
@@ -53,9 +82,10 @@ its sign, block origins, actual ownership or land-claim permission. Adapter must
 check those before preview and recheck on confirmation. Do not force-load chunks.
 
 No Paper listener/menu/particles, block classifier, config section, persistent
-claim/animal records, continuous observation tracker, land-plugin integration,
+pen footprint records and live animal capture, continuous observation tracker, land-plugin integration,
 herd juvenile cohorts/breeding, startup or live livestock production are wired.
-No animals or databases were changed. Schema remains73. Existing worlds are untouched.
+The initial domain batch changed no animals or databases and retained schema73.
+The subsequent additive schema74 batch above is temporary-DB tested only; worlds stay untouched.
 Neither player pen construction nor a sign silently donates animals.
 
 ## Verification

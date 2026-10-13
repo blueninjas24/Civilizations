@@ -23,7 +23,9 @@ recognition/adoption limits accompany the future interaction adapter.
 
 The current batch implements plain-Java bounded geometry, actor/world/level-bound
 preview checks, adoption eligibility and bounded livestock work only. No live sign
-listener, particles/menu, ownership persistence, adoption or animal mutations yet.
+listener, particles/menu, live ownership capture, adoption or animal mutations yet.
+Subsequent schema74 saves trusted first ownership records without exposing claims
+to players; explicit ownership transfers and persistent pens remain unfinished.
 It introduces no reliable natural-pen recognition or claims-plugin integration.
 See LIVESTOCK_PROTECTION.md. The former opt-in-versus-automatic question is resolved;
 no new product decision blocks the next persistence/adapter work.
