@@ -1,5 +1,15 @@
 # Phase 3 — businesses and industry checklist
 
+Fishery preparation now chooses a genuinely qualified adult using saved fishing
+skills. It cannot take someone from an existing worker job or active studies, and
+does not invent experience, money, a workplace or a business. Existing owners may
+qualify for another business, preserving your unlimited-ownership rule.
+All1,280 full-build tests passed, plus the isolated server API/accounting/
+delivery/pause/restart check. Progress notes and development log are updated.
+Actual automatic founding/training and fresh shoreline/water acceptance remain
+unfinished. The removed-standing-spot decision is pending; docks remain Phase4.
+Your playable server is unchanged. Phase3 stays1/4 whole groups/~69% partial.
+
 Fishery planning now checks that opening costs leave enough real village money
 to buy the catch, and that existing suppliers do not already cover that need.
 It finds bounded nearby water candidates without opening businesses or changing

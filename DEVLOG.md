@@ -1,5 +1,37 @@
 # Civilizations Development Log
 
+## October12, 2026 — qualified read-only fishery owner preparation
+
+FisheryInvestment chooses an actual qualified living local unemployed adult from
+a bounded UUID-sorted page using stable seeded sampling. Server adulthood, saved
+fishing experience and both owner/first-worker requirements apply; active learners
+and existing workers cannot be reassigned. Unlimited ownership is preserved.
+Proposal contains current funded water evidence and qualification terms but no
+invented shoreline anchor, new job, resource, money, skill or reservation.
+
+Optional strict fishery-founding prototype and SQL-owner/plugin configuration wired;
+missing old sections opt out. This is preparation only, not automatic founding or
+fishing training. Current study defaults still lack a fishing course. Seven added
+temporary-database cases plus one config case; focused95 passed, zero failures/
+errors/skips,12.799s at21:54:16 ET. An initial study test had a fixture catalog mismatch;
+corrected its explicit transactional enrollment without weakening production guards.
+Full Windows .\mvnw.cmd clean verify passed1,280 (1,278 unit/two packaged
+integration), zero failures/errors/skips,7:28 at22:03:19 ET.
+Guarded native SQL-owner owner-preparation/first-firm identity safeguards passed
+at22:04:33 ET, alongside ordinary reserve/practice purchases, real money/goods
+conservation, delivery, absence pause and disabled-order restart. This proves safe
+API integration/identity rejection, not native positive founding or training.
+Normal shutdown22:04:33; save audit111/117 tables exact, six ordinary clock,
+demographic/resident-age, active-world, economy-runtime and ore-tracking changes;
+all identity/assets/cash/history retained. Schema68 integrity/FK healthy, exact
+settings restored, helper archived and consistent backups preserved.
+No migration (schema68), automatic scheduler or dock work. Removed-shoreline
+standing-point rule still awaits the user; no elapsed time is approval. Next after
+that choice: current anchor/habitat acceptance, saved recognition terms, appropriate
+supply-backed fishing training and scheduling. Human playable server untouched;
+no merge/push. Phase3 remains1/4 whole groups/~69% partial, broader catalog/
+competition/specialization and acceptance still open. See FISHERY_OWNER_PREPARATION.md.
+
 ## October12, 2026 — bounded funded first-fishery prospects
 
 FisheryOpportunities connects current connected unclaimed water, real food customers

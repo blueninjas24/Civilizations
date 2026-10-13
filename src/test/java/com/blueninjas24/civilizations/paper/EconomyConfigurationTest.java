@@ -13,6 +13,13 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void fisheryFounderQualificationIsStrictEditableAndMissingSectionOptsOut()throws Exception {
+        var c=defaults();assertEquals(com.blueninjas24.civilizations.industry.FisheryFoundingPolicy.prototype(),EconomyConfiguration.readFisheryFounding(c));
+        c.set("fishery-founding.founder-fishing-experience",20);EconomyConfiguration.read(c);assertEquals(20,EconomyConfiguration.readFisheryFounding(c).founderExperience());
+        c.set("fishery-founding",null);EconomyConfiguration.read(c);assertFalse(EconomyConfiguration.readFisheryFounding(c).enabled());
+        for(Object value:List.of(0,11,1.5,"expert",true)){var bad=defaults();bad.set("fishery-founding.worker-fishing-experience",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(bad));}
+        var extra=defaults();extra.set("fishery-founding.free-experience",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(extra));
+    }
     @Test void fisheryOpportunityTermsAreStrictEditableAndMissingSectionOptsOut()throws Exception {
         var c=defaults();assertEquals(com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy.prototype(),EconomyConfiguration.readFisheryOpportunities(c));
         c.set("fishery-opportunities.maximum-columns",32);EconomyConfiguration.read(c);assertEquals(32,EconomyConfiguration.readFisheryOpportunities(c).maximumColumns());

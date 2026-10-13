@@ -1,0 +1,54 @@
+package com.blueninjas24.civilizations.database;
+
+import com.blueninjas24.civilizations.industry.*;
+import com.blueninjas24.civilizations.population.*;
+import java.sql.*;
+import java.util.*;
+
+/** Read-only qualified preparation. No invented shoreline anchor, experience, reservation or founding. */
+public final class FisheryInvestment {
+    public record Proposal(FisheryOpportunities.Opportunity opportunity,UUID founder,long foundedStep,
+            JobRequirements ownerRequirements,JobRequirements workerRequirements,int workerCapacity) {}
+    public record Preparation(Optional<Proposal> proposal,String explanation) {}
+    private final Connection connection;
+    private final FisheryOpportunities opportunities;
+    private final FisheryFoundingPolicy policy;
+    private final long adulthood,seed;
+    public FisheryInvestment(Connection connection,FisheryOpportunities opportunities,FisheryFoundingPolicy policy,long adulthood,long seed) {
+        this.connection=Objects.requireNonNull(connection);this.opportunities=Objects.requireNonNull(opportunities);this.policy=Objects.requireNonNull(policy);
+        if(adulthood<1)throw new IllegalArgumentException("Invalid founder adulthood");this.adulthood=adulthood;this.seed=seed;
+    }
+    public Preparation prepare(UUID town,long step,long now,Set<UUID> worlds)throws SQLException {
+        Objects.requireNonNull(town);if(step<0||now<0)throw new IllegalArgumentException("Invalid fishery preparation time");
+        if(!connection.getAutoCommit())throw new SQLException("Fishery preparation requires idle SQL owner");connection.setAutoCommit(false);
+        try {
+            var result=prepareRows(town,step,now,worlds==null?Set.of():Set.copyOf(worlds));connection.commit();connection.setAutoCommit(true);return result;
+        }catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
+    }
+    private Preparation prepareRows(UUID town,long step,long now,Set<UUID> worlds)throws SQLException {
+        if(!policy.enabled())return none("First-fishery owner preparation disabled");
+        var review=opportunities.reviewRows(town,now,worlds);if(review.candidates().isEmpty())return none(review.explanation());
+        long age=Math.max(adulthood,policy.minimumAgeSteps());var ownerRequirements=new JobRequirements(age,Map.of("fishing",policy.founderExperience()));
+        var workerRequirements=new JobRequirements(age,Map.of("fishing",policy.workerExperience()));
+        var founders=new ArrayList<UUID>();var people=new PopulationRepository(connection);
+        try(var s=connection.prepareStatement("""
+            SELECT r.id FROM residents r WHERE r.settlement_id=? AND r.status='ALIVE' AND r.age_steps>=?
+              AND EXISTS(SELECT 1 FROM resident_skills k WHERE k.resident_id=r.id AND k.skill='fishing' AND k.experience>=?)
+              AND NOT EXISTS(SELECT 1 FROM business_employment e WHERE e.resident_id=r.id AND e.ended_step IS NULL)
+              AND NOT EXISTS(SELECT 1 FROM resident_courses c WHERE c.resident_id=r.id AND c.status='ACTIVE')
+            ORDER BY r.id LIMIT ?
+            """)) {
+            s.setString(1,town.toString());s.setLong(2,age);s.setLong(3,policy.founderExperience());s.setInt(4,policy.foundersPerReview());
+            try(var r=s.executeQuery()){while(r.next()) {
+                var id=UUID.fromString(r.getString(1));var person=people.findResident(id).orElseThrow();var profile=people.findWorkProfile(id).orElseThrow();
+                if(WorkEligibility.evaluate(person,profile,ownerRequirements).eligible()&&WorkEligibility.evaluate(person,profile,workerRequirements).eligible())founders.add(id);
+            }}
+        }
+        if(founders.isEmpty())return none("No qualified unemployed adult in bounded fishing-founder page; no free skill or job changes");
+        var random=new SplittableRandom(seed^town.getMostSignificantBits()^town.getLeastSignificantBits());
+        var candidate=review.candidates().get(random.nextInt(review.candidates().size()));var founder=founders.get(random.nextInt(founders.size()));
+        return new Preparation(Optional.of(new Proposal(candidate,founder,step,ownerRequirements,workerRequirements,policy.workerCapacity())),
+                "Qualified first owner/worker and funded water opportunity ready; fresh actual shoreline/water proof and final current acceptance still required; nothing reserved");
+    }
+    private static Preparation none(String reason){return new Preparation(Optional.empty(),reason);}
+}

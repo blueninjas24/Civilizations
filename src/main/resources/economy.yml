@@ -43,6 +43,17 @@ fishery-opportunities:
   capital-hundredths: 1000
   capacity: 256
 
+# Qualification/preparation only: automatic fishery founding is not enabled yet.
+# No free fishing skill; founder is also the first worker and must be unemployed.
+# Actual adulthood is always enforced, even if minimum-age-steps is lowered.
+fishery-founding:
+  enabled: true
+  founders-per-review: 64
+  minimum-age-steps: 216
+  founder-fishing-experience: 10
+  worker-fishing-experience: 1
+  worker-capacity: 2
+
 # One paid recipe bundle for a new publicly funded workshop, not ongoing supply.
 # Uses prices.base-trade-value below. Food is never sold by this rule.
 # Leave this many units of EVERY purchased material for public/training needs.

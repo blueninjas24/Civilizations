@@ -213,6 +213,18 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure fishery opportunities before session starts");
         fisheryOpportunityPolicy=java.util.Objects.requireNonNull(policy);
     }
+    private com.blueninjas24.civilizations.industry.FisheryFoundingPolicy fisheryFoundingPolicy=com.blueninjas24.civilizations.industry.FisheryFoundingPolicy.disabled();
+    public void configureFisheryFounding(com.blueninjas24.civilizations.industry.FisheryFoundingPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure fishery founding before session starts");
+        fisheryFoundingPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    /** No invented shoreline point or startup debit; actual acceptance remains separate. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.FisheryInvestment.Preparation> prepareFisheryInvestment(UUID town) {
+        return submit(()->{requireReady();var opportunities=new com.blueninjas24.civilizations.database.FisheryOpportunities(database.getConnection(),fisheryOpportunityPolicy,
+                waterPolicy,fishingPolicy,industryPolicy,startupGrantPolicy,villageSupplyPolicy,studyPolicy,operationPolicy);
+            return new com.blueninjas24.civilizations.database.FisheryInvestment(database.getConnection(),opportunities,fisheryFoundingPolicy,settings.population().adulthoodSteps(),settings.seed())
+                    .prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);});
+    }
     /** Read-only SQL-owner prospects; neither schedules founders nor spends grants. */
     public CompletableFuture<com.blueninjas24.civilizations.database.FisheryOpportunities.Review> currentFisheryOpportunities(UUID town) {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.FisheryOpportunities(database.getConnection(),fisheryOpportunityPolicy,

@@ -20,6 +20,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("quarry-resources")) rootKeys.add("quarry-resources");
         if (config.contains("fishing-resources")) rootKeys.add("fishing-resources");
+        if (config.contains("fishery-founding")) rootKeys.add("fishery-founding");
         if (config.contains("fishery-opportunities")) rootKeys.add("fishery-opportunities");
         if (config.contains("water-observer")) rootKeys.add("water-observer");
         if (config.contains("village-supply-purchases")) rootKeys.add("village-supply-purchases");
@@ -62,6 +63,7 @@ public final class EconomyConfiguration {
         readFishingResources(config);
         readWaterObserver(config);
         readFisheryOpportunities(config);
+        readFisheryFounding(config);
         readVillageSupplies(config);
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
@@ -516,6 +518,13 @@ public final class EconomyConfiguration {
         exactKeys(s,Set.of("reserve-batches-per-block","units-per-batch","batches-per-worker","site-batch-capacity"));
         return new com.blueninjas24.civilizations.industry.QuarryPolicy.Terms(integer(s,"reserve-batches-per-block"),
             integer(s,"units-per-batch"),integer(s,"batches-per-worker"),integer(s,"site-batch-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.FisheryFoundingPolicy readFisheryFounding(ConfigurationSection config) {
+        if(!config.contains("fishery-founding"))return com.blueninjas24.civilizations.industry.FisheryFoundingPolicy.disabled();
+        var s=section(config,"fishery-founding");exactKeys(s,Set.of("enabled","founders-per-review","minimum-age-steps","founder-fishing-experience","worker-fishing-experience","worker-capacity"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("fishery-founding.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.FisheryFoundingPolicy(enabled,Math.toIntExact(integer(s,"founders-per-review")),integer(s,"minimum-age-steps"),
+                integer(s,"founder-fishing-experience"),integer(s,"worker-fishing-experience"),Math.toIntExact(integer(s,"worker-capacity")));
     }
     public static com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy readFisheryOpportunities(ConfigurationSection config) {
         if(!config.contains("fishery-opportunities"))return com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy.disabled();
