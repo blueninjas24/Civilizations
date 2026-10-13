@@ -32,6 +32,8 @@ public final class IndustryRuntime {
         this.mutationHealthy=Objects.requireNonNull(mutationHealthy);
     }
     private FarmToolUpkeepPolicy farmUpkeep=FarmToolUpkeepPolicy.disabled();
+    private QuarryPolicy quarries=QuarryPolicy.disabled();
+    public void configureQuarries(QuarryPolicy policy){quarries=Objects.requireNonNull(policy);}
     private FishingPolicy fishing=FishingPolicy.disabled();
     public void configureFishing(FishingPolicy policy) { fishing=Objects.requireNonNull(policy); }
     private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
@@ -90,7 +92,7 @@ public final class IndustryRuntime {
             return null;
         });
     }
-    private boolean supported(String kind) {return kind.equals("mining") || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
+    private boolean supported(String kind) {return kind.equals("mining") || (Set.of("quarry","sandpit").contains(kind)&&quarries.enabled()) || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
     private List<Clock> clocks() throws SQLException {
         var result=new ArrayList<Clock>();
         try(var s=connection.createStatement();var r=s.executeQuery("SELECT c.*,b.industry,p.world_id FROM industry_runtime c JOIN businesses b ON b.id=c.business_id JOIN business_sites p ON p.id=b.site_id ORDER BY c.business_id LIMIT 4097")) {
@@ -128,7 +130,8 @@ public final class IndustryRuntime {
                 }
             }
             else if(!availability.permitted())reason=availability.explanation();
-            else if(clock.industry().equals("mining")) {
+            else if(Set.of("quarry","sandpit").contains(clock.industry())&&!quarries.enabled())reason="Finite stone/sand extraction disabled; saved reserves, goods and jobs retained";
+            else if(Set.of("mining","quarry","sandpit").contains(clock.industry())) {
                 var deposits=new ArrayList<UUID>();
                 try(var s=connection.prepareStatement("SELECT d.id FROM mineral_deposits d JOIN businesses b ON b.site_id=d.site_id WHERE b.id=? ORDER BY d.id LIMIT 2")) {
                     s.setString(1,id.toString());try(var r=s.executeQuery()){while(r.next())deposits.add(UUID.fromString(r.getString(1)));}
@@ -138,9 +141,12 @@ public final class IndustryRuntime {
                     reason="Paused: ore mutation history requires reviewed recovery; reserve and goods retained";
                 else {
                     var supply=tools.acquireRows(id,clock.industry(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),operations);
-                    long maximum=Math.min(policy.mining().siteBatchCapacity(),Math.multiplyExact(new BusinessRepository(connection).currentWorkers(id).size(),policy.mining().batchesPerWorker()));
+                    var quarry=clock.industry().equals("mining")?null:quarries.terms(clock.industry().equals("quarry")?com.blueninjas24.civilizations.economy.Commodity.STONE:com.blueninjas24.civilizations.economy.Commodity.SAND);
+                    long perWorker=quarry==null?policy.mining().batchesPerWorker():quarry.batchesPerWorker();
+                    long capacity=quarry==null?policy.mining().siteBatchCapacity():quarry.siteCapacity();
+                    long maximum=Math.min(capacity,Math.multiplyExact(new BusinessRepository(connection).currentWorkers(id).size(),perWorker));
                     var wear=tools.prepare(id,clock.industry(),maximum);
-                    var receipt=industry.mineRows(operation,id,deposits.getFirst(),wear==null?policy.mining().siteBatchCapacity():wear.requested(),period,policy.mining().batchesPerWorker(),policy.mining().siteBatchCapacity());
+                    var receipt=industry.mineRows(operation,id,deposits.getFirst(),wear==null?capacity:wear.requested(),period,perWorker,capacity);
                     reason=supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
                 }
             } else if(clock.industry().equals("warehouse")) {

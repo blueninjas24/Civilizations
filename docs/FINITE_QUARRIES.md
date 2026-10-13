@@ -70,7 +70,7 @@ abundance and work speed differ from prices. Saved deposit reserves/yields survi
 retuning. The policy supplies terms to future orchestration; trusted explicit
 startup/production APIs still take explicit terms. No automatic quarry scheduler
 was connected by the initial backend batch. Native placement/source-loss coverage
-was subsequently added as described above; automatic quarry scheduling remains absent.
+was subsequently added as described above; timed existing-firm operation passed October13; automatic quarry survey/founding remains absent. See TIMED_QUARRIES.md.
 
 ## Migration and verification
 

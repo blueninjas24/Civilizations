@@ -1,5 +1,16 @@
 # Phase 3 — businesses and industry checklist
 
+Already-established stone quarries and sand pits now work on the live simulation
+timer. Sand is extracted faster than stone, using editable settings. Supplies stay
+finite: removing one supporting block loses only its share, and restarts cannot
+refill it. Workers improve through real work. All1,333 full-build tests and the
+isolated Paper timer/pause/restart proof passed.
+
+Automatic selection and founding of new quarries/pits remain unfinished, alongside
+forestry, wider recipes and specialization acceptance. No decision is pending. Your
+playable server is unchanged; Phase3 remains1/4 whole groups/~70% partial.
+See TIMED_QUARRIES.md. Older notes describe earlier snapshots.
+
 Villages can now train their first fishing owner using real supplies, then pay to
 open a fishery beside suitable water. Catches can be sold and delivered into the
 village's food reserve. Workers improve through real catches, and damaged banks

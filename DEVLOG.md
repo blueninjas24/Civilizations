@@ -1,5 +1,36 @@
 # Civilizations Development Log
 
+## October 13, 2026 — live finite quarry and sand-pit operation
+
+Existing funded/staffed quarry and sandpit firms now enroll in the normal SQL-owner
+industry timer. Resource-specific editable rates apply: stone six batches/worker,
+three units/batch; sand twelve/four. Finite saved source shares/yields, storage,
+actual workers, tools and history-trust guards remain authoritative. New productive
+work earns bounded mining experience. Missing old settings opt out; disabling saved
+clocks records paused periods without backfilling production on reenable. Work-speed
+retuning does not rewrite abundance/yields or refill deposits. No migration: schema70.
+
+Fourteen new temporary-database cases (both kinds) cover work/replay/absence/restart,
+disabling/old-file opt-out, capture gaps, per-block loss with other shares working,
+late checkpoint rollback and speed-retuning invariants. Test setup initially omitted
+tracking initialization before a simulated gap; corrected the fixture, retaining the
+guard. Focused120 passed before the two final opt-out cases. Full Windows Wrapper
+.\mvnw.cmd clean verify passed1,333 (1,331 unit/two packaged integration), zero
+failures/errors/skips,7:22 at03:37:47 ET. Guarded native ordinary SQL-owner timer
+probe passed03:39:45 ET: two explicit funded/qualified firms produced18 stone/48
+sand, spent exactly18 finite batches, gained actual skills, conserved startup money
+and retained state over absence/restart. Sites/actors/resources are trusted explicit
+fixtures, not automatic terrain discovery. No blocks/entities edited or chunks forced.
+Save audit117/120 tables exact; three ordinary clock/economy-runtime/ore changes,
+identity/assets/cash/history retained, integrity/FK healthy. Exact properties restored,
+helper archived and consistent backups retained. Your playable server is unchanged.
+
+Next: actual family-specific quarry/pit surveys and real customer/site/founder selection,
+renewable forestry, wider recipes and competition/specialization acceptance. Existing
+vacancy services remain configurable; this batch does not claim automatic new firms.
+No gameplay question pending. Phase3 remains1/4 whole groups/~70% partial. No merge/push.
+See TIMED_QUARRIES.md and FINITE_QUARRIES.md.
+
 ## October 13, 2026 — automatic first fishing-owner training and paid food chain
 
 Connected normal water/bank observation to one real future fishing-owner course when

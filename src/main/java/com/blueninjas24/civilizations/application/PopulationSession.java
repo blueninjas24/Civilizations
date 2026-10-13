@@ -188,6 +188,10 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure industry runtime before session starts");
         industryPolicy=java.util.Objects.requireNonNull(policy);
     }
+    private com.blueninjas24.civilizations.industry.QuarryPolicy quarryPolicy=com.blueninjas24.civilizations.industry.QuarryPolicy.disabled();
+    public void configureQuarries(com.blueninjas24.civilizations.industry.QuarryPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure quarries before session starts");quarryPolicy=java.util.Objects.requireNonNull(policy);
+    }
     public void configureFishing(com.blueninjas24.civilizations.industry.FishingPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure fishing before session starts");
         fishingPolicy=java.util.Objects.requireNonNull(policy);
@@ -387,6 +391,7 @@ public final class PopulationSession implements AutoCloseable {
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||oreHistoryHealthy.get());
                 industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
                 industries.configureFishing(fishingPolicy);
+                industries.configureQuarries(quarryPolicy);
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
                 var demographic = database.getDemographicRepository();

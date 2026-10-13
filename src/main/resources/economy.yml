@@ -148,7 +148,7 @@ water-observer:
   horizontal-radius-chunks: 1
 
 fishing-resources:
-  # Saved-resource timers and current water evidence are connected; automatic founding remains unfinished.
+  # Qualified shoreline startup, first-owner training and saved-habitat timers are connected.
   # A column must represent distinct, suitable open water in a complete observation.
   enabled: true
   minimum-water-columns: 16
@@ -162,7 +162,8 @@ fishing-resources:
   site-catch-capacity: 16
 
 quarry-resources:
-  # Opening/extraction terms for the finite backend. Automatic founding is not connected yet.
+  # Existing funded/staffed quarries and sand pits operate on the normal industry timer.
+  # Automatic site discovery/founding is still separate and unfinished.
   # Abundance and work speed are independent; existing reserves/yields stay saved.
   enabled: true
   stone:
@@ -257,6 +258,8 @@ work-learning:
     farming: farming
     warehouse: commerce
     fishing: fishing
+    quarry: mining
+    sandpit: mining
 
 # Phase 3 finite mining backend. Timed work runs existing mines; auto founding is pending.
 # Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.
