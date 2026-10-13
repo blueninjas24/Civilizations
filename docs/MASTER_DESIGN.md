@@ -1,5 +1,11 @@
 # Civilizations — canonical master design
 
+October12 approved fishing direction: fisheries may start on safe existing
+shorelines. Prioritize dock construction in Phase4 once resources/funding/labor
+make it feasible; docks should substantially improve fishing efficiency under
+editable terms. This is approved intent, not implemented construction or a locked
+numeric multiplier. Habitat capacity/recovery and real-resource constraints remain.
+
 **Vision:** A persistent, autonomous Minecraft civilization simulation, not a village house-spawner. **We write the rules; the world writes the story.** The player participates in a world that would continue developing without them. *Truman Show principle:* simulate enough truth that the visible world plausibly supports everything abstracted behind it.
 
 ## Locked design laws

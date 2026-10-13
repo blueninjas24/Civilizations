@@ -18,6 +18,9 @@ public final class WaterObserverProbe extends JavaPlugin {
     private World world;
     private Path folder;
     private UUID town;
+    private volatile WaterPatch.Patch selectedPatch;
+    private ShorelineScan shoreline;
+    private int shoreReads;
     private boolean authorized,ticket;
     private final AtomicLong clock=new AtomicLong(1000);
     private final WaterObserverPolicy policy=new WaterObserverPolicy(true,2,4096,20,0);
@@ -46,13 +49,16 @@ public final class WaterObserverProbe extends JavaPlugin {
                     if(stage==1){if(scalar("SELECT COUNT(*) FROM water_surveys WHERE complete=1 AND captured_millis=1000")!=1)return;
                         check(scalar("SELECT COUNT(*) FROM water_columns")==expected.size(),"Native column count differs from independent reference");
                         pending=session.currentWaterOpportunities(town,100,512).thenAccept(r->check(new HashSet<>(r.columns().stream().map(com.blueninjas24.civilizations.database.WaterOpportunities.Candidate::position).toList()).equals(expected),"Native saved coordinates differ"));stage=2;return;}
-                    if(stage==2){pending=session.currentFishingPatches(town,100,32,1).thenAccept(patches->{check(patches.size()==1,"Native connected fishery patch missing");var patch=patches.getFirst();check(patch.evidence().columns().size()==32&&expected.containsAll(patch.evidence().columns()),"Native patch not bounded by actual water evidence");});stage=6;return;}
-                    if(stage==6){clock.set(2000);stage=3;return;}
+                    if(stage==2){pending=session.currentFishingPatches(town,100,256,1).thenAccept(patches->{check(patches.size()==1,"Native connected fishery patch missing");var patch=patches.getFirst();check(patch.evidence().columns().size()>=16&&patch.evidence().columns().size()<=256&&expected.containsAll(patch.evidence().columns()),"Native patch not bounded by actual water evidence");selectedPatch=patch;});stage=6;return;}
+                    if(stage==6){var source=new com.blueninjas24.civilizations.paper.PaperShorelineSource(world);shoreline=new ShorelineScan(p->{shoreReads++;return source.cell(p);},selectedPatch,2);stage=7;return;}
+                    if(stage==7){int before=shoreReads;int used=shoreline.advance(128);check(used<=128&&shoreReads-before==used,"Native shoreline read budget");if(!shoreline.complete())return;
+                        for(var p:shoreline.suitable()){check(world.isChunkLoaded(Math.floorDiv(p.x(),16),Math.floorDiv(p.z(),16)),"Unloaded shoreline became suitable");var footing=world.getBlockAt(p.x(),p.y()-1,p.z()).getType();check(footing.isSolid()&&footing.isOccluding()&&footing!=Material.MAGMA_BLOCK&&world.getBlockAt(p.x(),p.y(),p.z()).getType().isAir()&&world.getBlockAt(p.x(),p.y()+1,p.z()).getType().isAir(),"Unsafe native shoreline standing point");}
+                        clock.set(2000);stage=3;return;}
                     if(stage==3){if(scalar("SELECT MAX(captured_millis) FROM water_surveys")!=2000)return;observer.cancel();observer=null;
                         check(scalar("PRAGMA user_version")==68,"Schema68 expected");check(scalar("SELECT COUNT(*) FROM businesses")==0&&scalar("SELECT COUNT(*) FROM fishery_resources")==0,"Water evidence invented assets");
                         pending=session.updateLoadedWorlds(Set.of()).thenCompose(v->session.currentWaterOpportunities(town,100,512)).thenAccept(r->check(r.columns().isEmpty(),"Absent world exposes candidates"));stage=4;return;}
                     if(stage==4){session.close();session=owner();pending=session.start(false,Set.of(world.getUID())).thenCompose(v->session.currentWaterOpportunities(town,100,512)).thenAccept(r->check(r.columns().size()==expected.size(),"Restart lost current water evidence"));stage=5;return;}
-                    getLogger().info("NATIVE WATER OBSERVER PASS: ordinary scheduled full-height capture/SQL owner matched "+expected.size()+" independent columns; bounded 32-column connected patch selected; newer capture, absent-world pause and restart; schema68; no invented resources/businesses or block/entity changes");cancel();getServer().getPluginManager().disablePlugin(WaterObserverProbe.this);getServer().shutdown();
+                    getLogger().info("NATIVE WATER OBSERVER PASS: ordinary scheduled full-height capture/SQL owner matched "+expected.size()+" independent columns; bounded connected patch selected; safe shoreline positions="+shoreline.suitable().size()+"; shoreline reads="+shoreReads+" at128/tick; newer capture, absent-world pause and restart; schema68; no invented resources/businesses or block/entity changes");cancel();getServer().getPluginManager().disablePlugin(WaterObserverProbe.this);getServer().shutdown();
                 }catch(Exception error){cancel();fail(error);}}
             }.runTaskTimer(this,1,1);
         }catch(Exception error){fail(error);}});

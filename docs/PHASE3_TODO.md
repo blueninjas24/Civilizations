@@ -1,5 +1,12 @@
 # Phase 3 — businesses and industry checklist
 
+Shoreline fishing starts are approved. Safe standing-point checks now pass1,250
+full-build tests and a real Paper check finding11 suitable shoreline positions.
+Automatic business startup still needs qualification, customers and funding;
+docks and their substantial efficiency upgrade are planned for Phase4, prioritized
+once affordable. Your playable server is unchanged. No design question is pending;
+Phase3 milestone counts remain1/4 whole groups/~69% partial.
+
 The plugin can now save nearby water findings and choose connected fishing
 locations without combining separate puddles or claiming a whole ocean. All1,245
 full-build tests and the real Paper connected-patch/pause/restart check passed.

@@ -1,14 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October12: first automatic fishing workplace — pending
+## October12: shoreline start and priority dock upgrades — approved
 
-Proposed: use safe existing dry shoreline next to suitable water, with solid
-footing/clear standing space and editable limits, without placing blocks or
-claiming player buildings. Docks and construction remain Phase4. Alternative:
-require an existing dock or designated workplace. Natural/player pond water
-eligibility is already approved, but the actual initial business-site rule is not
-defined. AGENTS.md prohibits inventing consequential gameplay decisions; ask before
-connecting automatic startup. Connected candidate tests can proceed independently.
+User approved starting fisheries on shorelines. Docks should be built quickly once
+resources become available, and fishing from docks should be much more efficient.
+The approved prototype direction uses safe existing dry footing/clear standing
+space without block changes or a claim over player buildings. Recognition limits
+and shoreline/dock productivity will be editable. Docks are a high-priority Phase4
+upgrade when feasible, not free structures or a promise to ignore funding, labor,
+materials, player protection or other urgent needs. No fixed multiplier or deadline
+is locked. Shoreline work and dock work use the same habitat-backed finite catches
+and gradual recovery: efficiency changes work, never habitat abundance/refills.
+Physical dock construction and the production-efficiency transition remain planned;
+they are not yet implemented. The workplace decision now unblocks Phase3 startup.
 
 ## October12: natural water and player ponds — approved
 

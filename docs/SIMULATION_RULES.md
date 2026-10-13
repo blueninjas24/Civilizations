@@ -1,5 +1,11 @@
 # Civilizations — simulation rules and testable examples
 
+October12 approved fishing direction: fisheries may start on safe existing
+shorelines. Prioritize dock construction in Phase4 once resources/funding/labor
+make it feasible; docks should substantially improve fishing efficiency under
+editable terms. This is approved intent, not implemented construction or a locked
+numeric multiplier. Habitat capacity/recovery and real-resource constraints remain.
+
 These are design contracts, **not finalized numeric tuning values**. Avoid hardcoding guessed rates or thresholds as permanent canon.
 
 ## Population

@@ -127,3 +127,48 @@ no invented businesses/resources or helper block/entity changes. Normal shutdown
 farm-freshness/ore changes, all identities/assets/cash/history preserved; schema68
 integrity/FK healthy. Exact original settings restored, helper archived, consistent
 backups retained. Human playable server untouched; no merge/push.
+
+## Approved shoreline workplaces and dock direction
+
+ShorelineScan incrementally examines adjacent dry standing positions around a
+selected connected water patch. Caller-selected bank rise is bounded0–4 blocks;
+input footprints are capped256 supports and candidate positions4,096. Each standing
+point checks three cells: full safe footing, then two clear air cells. Work per
+advance is strictly bounded; unknown/obstructed/unsupported positions never qualify.
+Selected water supports cannot themselves become dry standing points. Results are
+immutable, deterministic and only available after traversal finishes. Integer-edge
+positions cannot wrap. Findings remain historical evidence and must be rechecked
+at automatic startup; they are not a block reservation, dock or property claim.
+
+PaperShorelineSource uses only Paper's main thread and already-loaded blocks. It
+refuses off-thread reads and never asks Minecraft to load a chunk. Full solid opaque
+blocks qualify as conservative footing, excluding magma; water/lava/fences/partial
+blocks do not. Air includes AIR/CAVE_AIR/VOID_AIR. A genuine Paper registry is
+required for solidity/occlusion; unit tests cover guards and abstract classification,
+and native checks cover actual materials. No inventory, entity or block mutation.
+
+This adapter is not yet scheduled for automatic founding. The forthcoming founder
+bridge must bind world/time, revalidate chosen water/footing, check real customers,
+qualified residents, finite storage and the shared protected startup budget.
+No new schema or rate change is introduced here. Existing saved fisheries retain
+current terms. The user approved shoreline starts and much more efficient dock
+work, with high-priority dock construction once affordable in Phase4. Exact editable
+rates, transition persistence and physical construction remain future implementation;
+docks never refill habitat or bypass real material/labor/cash/player protections.
+
+## Shoreline verification — October12
+
+Five added headless cases cover strict budgets, footing/headroom, unknown and
+obstructed banks, raised banks/cliffs, coordinate overflow and Paper thread/loaded
+height guards. Focused11 passed, zero failures/errors/skips,12.903s at20:53:29 ET.
+An initial headless material-registry check failed because Paper requires live
+RegistryAccess; actual material safety is verified natively instead. Full Windows
+.\mvnw.cmd clean verify passed1,250 (1,248 unit/two packaged integration), zero
+failures/errors/skips,6:24 at21:00:56 ET. Guarded native ordinary water scanner/SQL
+owner found220 suitable columns and11 independently checked safe shoreline positions,
+567 shoreline reads under128/tick, at21:01:58; newer capture/absence/restart passed.
+No helper blocks/entities or invented resources/businesses. Normal shutdown21:01:58.
+Main-save audit113/117 old tables exact; four ordinary clock/economy/farm-freshness/
+ore changes, all identity/assets/cash/history preserved; schema68 integrity/FK
+healthy. Exact properties restored, helper archived, consistent backups retained;
+human playable server untouched. No merge/push.

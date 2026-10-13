@@ -1,5 +1,36 @@
 # Civilizations Development Log
 
+## October12, 2026 — approved shoreline starts and priority docks
+
+User approved shoreline starts, quickly prioritized affordable docks in Phase4 and
+substantially more efficient dock fishing under editable terms. Recorded in master
+design, simulation rules and decisions without locking a multiplier/deadline or
+claiming construction is implemented. ShorelineScan/PaperShorelineSource now provide
+bounded read-only safe standing-point checks: dry solid opaque footing excluding
+magma, two air cells, caller-selected bank rise, no chosen-water footing, no unknown
+positions, overflow safeguards and strict main-thread/already-loaded access.
+No chunk loads, block/inventory/entity changes, resource/rate changes or migration.
+Five added headless cases cover strict budgets, footing/headroom, unknown and
+obstructed banks, raised banks/cliffs, coordinate overflow and Paper thread/loaded
+height guards. Focused11 passed, zero failures/errors/skips,12.903s at20:53:29 ET.
+An initial headless material-registry check failed because Paper requires live
+RegistryAccess; actual material safety is verified natively instead. Full Windows
+.\mvnw.cmd clean verify passed1,250 (1,248 unit/two packaged integration), zero
+failures/errors/skips,6:24 at21:00:56 ET. Guarded native ordinary water scanner/SQL
+owner found220 suitable columns and11 independently checked safe shoreline positions,
+567 shoreline reads under128/tick, at21:01:58; newer capture/absence/restart passed.
+No helper blocks/entities or invented resources/businesses. Normal shutdown21:01:58.
+Main-save audit113/117 old tables exact; four ordinary clock/economy/farm-freshness/
+ore changes, all identity/assets/cash/history preserved; schema68 integrity/FK
+healthy. Exact properties restored, helper archived, consistent backups retained;
+human playable server untouched. No merge/push.
+
+Automatic shoreline startup still requires fresh world/support/footing revalidation,
+qualified residents/training, real demand and protected funding. This adapter is
+verified but not yet scheduled by automatic founding. Physical docks/rate upgrade
+persistence remain Phase4 work. The prior shoreline-versus-dock decision is answered;
+no new design question pending. Phase3 stays1/4 whole groups/~69% partial.
+
 ## October12, 2026 — connected bounded fishing candidates
 
 Branch codex/phase3-fishing-site-selection. WaterPatch selects deterministic,
