@@ -140,7 +140,7 @@ class VillageSupplyPurchasesTest {
         SchemaFixtures.rewind(fixture.db.getConnection(),64);fixture.sql("PRAGMA user_version=64");var before=fixture.snapshot();
         fixture.sql("CREATE VIEW village_supply_orders AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));
         assertEquals(64,scalar("PRAGMA user_version"));assertEquals(before,fixture.snapshot());fixture.sql("DROP VIEW village_supply_orders");
-        new SchemaMigrator().migrate(fixture.db.getConnection());var after=fixture.snapshot();for(var table:List.of("village_supply_orders","fishery_resources","fishery_columns","fishery_work","fishery_habitat_changes","water_surveys","water_columns"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
+        new SchemaMigrator().migrate(fixture.db.getConnection());var after=fixture.snapshot();assertEquals(List.of(),after.remove("fishery_workplace_history"));assertEquals(List.of(),after.remove("fishery_workplaces"));for(var table:List.of("village_supply_orders","fishery_resources","fishery_columns","fishery_work","fishery_habitat_changes","water_surveys","water_columns"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
         assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     void healthyLowReserve()throws Exception {

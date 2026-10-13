@@ -1,5 +1,37 @@
 # Civilizations — implementation status and handoff
 
+## October 13, 2026 — automatic qualified shoreline fisheries and saved recovery
+
+Connected the ordinary main-thread water observer to qualified first-fishery startup,
+exact live support/depth/open-sky and dry-bank checks, final standing-point recheck,
+and atomic real protected startup funding, first job, empty storage and habitat.
+Migration 69 adds two initially empty shoreline binding/history tables; legacy
+resources remain intact and unbound. Saved recognition bounds survive retuning.
+Loaded original habitat/bank checks relocate to a suitable nearby bank, pause catches
+on confirmed unrecoverable damage, and retain the last confirmed state on unknown
+blocks. Capacity loss/restoration and bank movement commit together, with no instant
+fish refill. Stable frames do not add unlimited timer-history rows. No blocks,
+containers or player buildings are changed; physical repair/docks remain Phase 4.
+
+Full Windows .\mvnw.cmd clean verify passed 1,302 cases (1,300 unit/two packaged
+integration), zero failures/errors/skips, 7:36 at 01:53:19 ET. Corrected an accelerated
+native helper race by waiting for the real industry clock registration before advancing
+fixture time; no production behavior was changed to accommodate the helper.
+Final guarded Paper probe passed 01:58:12 ET: ordinary automatic startup, catches,
+real money conservation, persisted same-habitat relocation under a read-only damage
+mask, absent-world pause and restart. Fixture actors, skill and treasury are explicit
+setup; automatic first-owner skill acquisition is not claimed. No helper blocks or
+entities were edited. Save audit 110/119 existing tables exact; nine reviewed ordinary
+clock/freshness/ore/population changes included a real simulated external arrival.
+Existing identity, assets, cash and history retained; integrity/FK healthy, exact
+settings restored, helpers archived and consistent backups retained. Your playable
+server was untouched; no merge/push. See FISHERY_WORKPLACES.md.
+
+Phase 3 remains 1/4 whole groups/~69% partial: the broader resource catalog and final
+specialization gate remain incomplete. Next: fishing skill/course and vacancy wiring,
+automatic first-owner training, other basic industries, competitive multi-year
+scenarios and broader native/profile acceptance. No gameplay answer is pending.
+
 ## October13, 2026 — approved adaptive shoreline recovery planner
 
 User chose nearby replacement or repair rather than permanent fixed-spot pausing.

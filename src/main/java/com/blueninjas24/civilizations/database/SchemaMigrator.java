@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 68;
+    static final int CURRENT_VERSION = 69;
 
     @FunctionalInterface
     interface Migration {
@@ -911,7 +911,8 @@ final class SchemaMigrator {
                 SchemaMigrator::createVillageSupplyOrders,
                 SchemaMigrator::createFisheries,
                 SchemaMigrator::createFisheryHabitatChanges,
-                SchemaMigrator::createWaterSurveys
+                SchemaMigrator::createWaterSurveys,
+                SchemaMigrator::createFisheryWorkplaces
 
 
         ));
@@ -1923,6 +1924,28 @@ final class SchemaMigrator {
             )
             """);
         execute(connection,"CREATE INDEX active_workshop_founders ON workshop_founder_courses(settlement_id,course_id)");
+    }
+    static void createFisheryWorkplaces(Connection connection)throws SQLException {
+        execute(connection,"""
+            CREATE TABLE fishery_workplaces (
+                site_id TEXT PRIMARY KEY NOT NULL REFERENCES fishery_resources(site_id),world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                surface_y INTEGER NOT NULL,minimum_depth INTEGER NOT NULL CHECK(minimum_depth BETWEEN 1 AND 64),
+                maximum_rise INTEGER NOT NULL CHECK(maximum_rise BETWEEN 0 AND 4),maximum_distance INTEGER NOT NULL CHECK(maximum_distance BETWEEN 0 AND 256),
+                x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,unsafe INTEGER NOT NULL CHECK(unsafe IN(0,1)),
+                observed_ms INTEGER NOT NULL CHECK(observed_ms>=0),opening_hash TEXT NOT NULL,latest_fingerprint TEXT NOT NULL
+            )
+            """);
+        execute(connection,"""
+            CREATE TABLE fishery_workplace_history (
+                site_id TEXT NOT NULL REFERENCES fishery_workplaces(site_id),observed_ms INTEGER NOT NULL CHECK(observed_ms>=0),
+                before_x INTEGER NOT NULL,before_y INTEGER NOT NULL,before_z INTEGER NOT NULL,
+                after_x INTEGER NOT NULL,after_y INTEGER NOT NULL,after_z INTEGER NOT NULL,
+                before_unsafe INTEGER NOT NULL CHECK(before_unsafe IN(0,1)),after_unsafe INTEGER NOT NULL CHECK(after_unsafe IN(0,1)),
+                action TEXT NOT NULL CHECK(action IN('KEEP','RELOCATE','WAIT_UNKNOWN','NEEDS_REPAIR')),
+                confirmed_safe INTEGER NOT NULL CHECK(confirmed_safe IN(0,1)),confirmed_damage INTEGER NOT NULL CHECK(confirmed_damage IN(0,1)),
+                fingerprint TEXT NOT NULL,explanation TEXT NOT NULL,PRIMARY KEY(site_id,observed_ms)
+            )
+            """);
     }
     private static void execute(Connection connection, String sql) throws SQLException {
         try (var statement = connection.createStatement()) {

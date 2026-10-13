@@ -44,7 +44,7 @@ public final class PaperWaterObserver extends BukkitRunnable {
                 scan.advance(policy.cellsPerTick());if(!scan.complete())return;
                 var observation=scan.observation(world.getUID(),capturedMillis);scan=null;
                 pending=session.observeWater(target.town(),observation);
-                diagnostic=(observation.complete()?"Complete":"Partial")+" water snapshot: "+observation.suitableColumns().size()+" suitable columns; automatic fisheries remain unfinished";return;
+                diagnostic=(observation.complete()?"Complete":"Partial")+" water snapshot: "+observation.suitableColumns().size()+" suitable columns; qualified shoreline startup checks run separately";return;
             }
             if(targets.isEmpty()&&ticks%policy.intervalTicks()==1) {
                 var view=session.projectionView().orElseThrow();var homes=new TreeMap<UUID,Home>();

@@ -51,11 +51,25 @@ public final class BusinessStartupGrants {
         Objects.requireNonNull(request);Objects.requireNonNull(habitat);Objects.requireNonNull(fishing);Objects.requireNonNull(grants);
         if(!request.founding().business().industry().equals("fishing")||!request.space().containsKey(Commodity.FOOD))
             throw new IllegalArgumentException("Fishery requires fishing industry and food storage");
-        return transaction(()-> {
-            var started=startStockedRows(request,grants,"workshop");
-            var resource=new FisheryRepository(connection).openRows(started.founding().site().id(),habitat,fishing);
-            return new Fishery(started,resource);
-        });
+        return transaction(()->startFisheryRows(request,habitat,fishing,grants));
+    }
+    Fishery startFisheryRows(WorkshopRequest request,FisheryObservation habitat,FishingPolicy fishing,StartupGrantPolicy grants)throws SQLException {
+        var started=startStockedRows(request,grants,"workshop");
+        var resource=new FisheryRepository(connection).openRows(started.founding().site().id(),habitat,fishing);
+        return new Fishery(started,resource);
+    }
+    /** First confirmed shoreline and paid habitat startup commit together; legacy resources are never guessed. */
+    public Fishery startShoreFishery(WorkshopRequest request,WaterPatch.Patch original,int depth,int rise,int distance,
+            ShorelineEvidence evidence,long now,long maximumAge,FishingPolicy fishing,StartupGrantPolicy grants)throws SQLException {
+        if(!request.founding().business().industry().equals("fishing")||!request.space().containsKey(com.blueninjas24.civilizations.economy.Commodity.FOOD))throw new IllegalArgumentException("Fishery requires fishing industry and food storage");
+        return transaction(()->startShoreFisheryRows(request,original,depth,rise,distance,evidence,now,maximumAge,fishing,grants));
+    }
+    Fishery startShoreFisheryRows(WorkshopRequest request,WaterPatch.Patch original,int depth,int rise,int distance,
+            ShorelineEvidence evidence,long now,long maximumAge,FishingPolicy fishing,StartupGrantPolicy grants)throws SQLException {
+        var site=request.founding().site().id();var banks=new FisheryWorkplaces(connection);
+        if(new FisheryRepository(connection).find(site).isPresent()&&banks.find(site).isEmpty())throw new Declined("Legacy fishery cannot acquire guessed bank terms through startup replay");
+        var started=startFisheryRows(request,original.evidence(),fishing,grants);
+        banks.attachRows(site,original,depth,rise,distance,evidence,now,maximumAge);return started;
     }
     /** One atomic first-workshop investment; failed supply checks leave no grant, site or firm. */
     public Workshop startWorkshopWithSupplies(WorkshopRequest request,StartupGrantPolicy grantPolicy,

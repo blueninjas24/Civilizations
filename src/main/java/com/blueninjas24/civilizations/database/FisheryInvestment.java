@@ -14,7 +14,17 @@ public final class FisheryInvestment {
     private final FisheryOpportunities opportunities;
     private final FisheryFoundingPolicy policy;
     private final long adulthood,seed;
+    private final FisheryOpportunityPolicy terms;
+    private final IndustryRuntimePolicy industry;
+    private final WaterObserverPolicy water;
+    private final FisheryShorelinePolicy shoreline;
+    private final StartupGrantPolicy grants;
     public FisheryInvestment(Connection connection,FisheryOpportunities opportunities,FisheryFoundingPolicy policy,long adulthood,long seed) {
+        this(connection,opportunities,policy,FisheryOpportunityPolicy.disabled(),IndustryRuntimePolicy.disabled(),WaterObserverPolicy.disabled(),FisheryShorelinePolicy.disabled(),StartupGrantPolicy.disabled(),adulthood,seed);
+    }
+    public FisheryInvestment(Connection connection,FisheryOpportunities opportunities,FisheryFoundingPolicy policy,FisheryOpportunityPolicy terms,
+            IndustryRuntimePolicy industry,WaterObserverPolicy water,FisheryShorelinePolicy shoreline,StartupGrantPolicy grants,long adulthood,long seed) {
+        this.terms=Objects.requireNonNull(terms);this.industry=Objects.requireNonNull(industry);this.water=Objects.requireNonNull(water);this.shoreline=Objects.requireNonNull(shoreline);this.grants=Objects.requireNonNull(grants);
         this.connection=Objects.requireNonNull(connection);this.opportunities=Objects.requireNonNull(opportunities);this.policy=Objects.requireNonNull(policy);
         if(adulthood<1)throw new IllegalArgumentException("Invalid founder adulthood");this.adulthood=adulthood;this.seed=seed;
     }
@@ -49,6 +59,37 @@ public final class FisheryInvestment {
         var candidate=review.candidates().get(random.nextInt(review.candidates().size()));var founder=founders.get(random.nextInt(founders.size()));
         return new Preparation(Optional.of(new Proposal(candidate,founder,step,ownerRequirements,workerRequirements,policy.workerCapacity())),
                 "Qualified first owner/worker and funded water opportunity ready; fresh actual shoreline/water proof and final current acceptance still required; nothing reserved");
+    }
+    /** Fresh caller-verified bank and current SQL opportunity/owner qualification commit with all paid startup rows. */
+    public BusinessStartupGrants.Fishery accept(Proposal proposal,ShorelineEvidence evidence,long now,Set<UUID> worlds,FishingPolicy fishing)throws SQLException {
+        Objects.requireNonNull(proposal);Objects.requireNonNull(evidence);Objects.requireNonNull(fishing);
+        if(!connection.getAutoCommit())throw new SQLException("Fishery acceptance requires idle SQL owner");connection.setAutoCommit(false);
+        try {
+            var request=draft(proposal,evidence);var firms=new BusinessRepository(connection);var existing=firms.findBusiness(request.founding().business().id());
+            if(existing.isEmpty()) {
+                if(!policy.enabled()||!shoreline.enabled()||!industry.enabled()||!water.enabled()||!fishing.enabled())throw new BusinessStartupGrants.Declined("First-fishery acceptance disabled");
+                var review=opportunities.reviewRows(proposal.opportunity().town(),now,worlds==null?Set.of():Set.copyOf(worlds));
+                if(!review.candidates().contains(proposal.opportunity()))throw new BusinessStartupGrants.Declined("Fishery water/customer/funding opportunity changed; prepare again");
+                long age=Math.max(adulthood,policy.minimumAgeSteps());
+                if(!proposal.ownerRequirements().equals(new JobRequirements(age,Map.of("fishing",policy.founderExperience())))
+                        ||!proposal.workerRequirements().equals(new JobRequirements(age,Map.of("fishing",policy.workerExperience())))||proposal.workerCapacity()!=policy.workerCapacity())throw new BusinessStartupGrants.Declined("Founder terms changed");
+                try(var s=connection.prepareStatement("SELECT 1 FROM business_employment WHERE resident_id=? AND ended_step IS NULL UNION ALL SELECT 1 FROM resident_courses WHERE resident_id=? AND status='ACTIVE' LIMIT 1")) {
+                    s.setString(1,proposal.founder().toString());s.setString(2,proposal.founder().toString());try(var r=s.executeQuery()){if(r.next())throw new BusinessStartupGrants.Declined("Founder now employed or studying");}
+                }
+            }else if(!firms.findFounding(existing.orElseThrow().id()).orElseThrow().equals(request.founding()))throw new SQLException("Fishery founding identity reused with changed terms");
+            var result=new BusinessStartupGrants(connection).startShoreFisheryRows(request,proposal.opportunity().water(),water.minimumDepth(),shoreline.maximumRise(),shoreline.maximumDistance(),evidence,now,terms.evidenceLifetimeMillis(),fishing,grants);
+            connection.commit();connection.setAutoCommit(true);return result;
+        }catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
+    }
+    private BusinessStartupGrants.WorkshopRequest draft(Proposal proposal,ShorelineEvidence evidence) {
+        var opportunity=proposal.opportunity();var p=evidence.origin();
+        String key=opportunity.town()+":"+opportunity.water().evidence().world()+":"+opportunity.water().evidence().columns()+":"+p;
+        UUID site=UUID.nameUUIDFromBytes(("civilizations:first-fishery-site-v1:"+key).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        UUID business=UUID.nameUUIDFromBytes(("civilizations:first-fishery-business-v1:"+key).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        var reason="First habitat-backed fishery for actual funded food reserve/shortage; existing bank only, no property claim; "+policy+"; "+terms;
+        var location=new BusinessSite(site,opportunity.town(),opportunity.water().evidence().world(),p.x(),p.y(),p.z(),evidence.capturedMillis(),reason);
+        var firm=new Business(business,opportunity.town(),"Shore fishery",proposal.founder(),proposal.founder(),"fishing",site,proposal.workerCapacity(),proposal.foundedStep());
+        return new BusinessStartupGrants.WorkshopRequest(new BusinessFounding(firm,location,proposal.ownerRequirements(),proposal.workerRequirements(),terms.startupHundredths(),reason),terms.capacity(),industry.mining().storageSpacePerUnit(),terms.capitalHundredths(),proposal.founder());
     }
     private static Preparation none(String reason){return new Preparation(Optional.empty(),reason);}
 }

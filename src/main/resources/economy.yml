@@ -43,7 +43,7 @@ fishery-opportunities:
   capital-hundredths: 1000
   capacity: 256
 
-# Qualification/preparation only: automatic fishery founding is not enabled yet.
+# Automatic first fisheries require qualified owners, real demand/funds and a verified bank.
 # No free fishing skill; founder is also the first worker and must be unemployed.
 # Actual adulthood is always enforced, even if minimum-age-steps is lowered.
 fishery-founding:
@@ -53,6 +53,15 @@ fishery-founding:
   founder-fishing-experience: 10
   worker-fishing-experience: 1
   worker-capacity: 2
+
+# Safe existing banks only. Opening recognition terms stay saved on each fishery.
+# Unknown chunks are never loaded or interpreted as damage; no blocks are repaired.
+fishery-shoreline:
+  enabled: true
+  maximum-rise: 2
+  maximum-distance: 16
+  cells-per-tick: 128
+  interval-ticks: 200
 
 # One paid recipe bundle for a new publicly funded workshop, not ongoing supply.
 # Uses prices.base-trade-value below. Food is never sold by this rule.

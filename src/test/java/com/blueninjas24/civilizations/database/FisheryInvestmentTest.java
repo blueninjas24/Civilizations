@@ -60,4 +60,20 @@ class FisheryInvestmentTest {
         }
         data().open();assertEquals(10000,data().cash());assertEquals(0,data().count("business_sites"));assertEquals(0,data().count("fishery_resources"));
     }
+    @Test void currentAcceptanceJoinsActualBankFundingWorkerAndResourceWithReplay()throws Exception {
+        qualified();var investment=new FisheryInvestment(data().db.getConnection(),fixture.repo(),policy,fixture.terms,fixture.industry,WaterObserverPolicy.prototype(),FisheryShorelinePolicy.prototype(),StartupGrantPolicy.prototype(),216,42);
+        var proposal=investment.prepare(data().town,2,2000,Set.of(data().world)).proposal().orElseThrow();var origin=new ShorelineScan.Position(-1,65,0);
+        var scan=new ShorelineScan(p->p.equals(new ShorelineScan.Position(-1,64,0))?ShorelineScan.Cell.SAFE_FOOTING:ShorelineScan.Cell.AIR,proposal.opportunity().water(),2);while(!scan.complete())scan.advance(4096);
+        var frame=new ShorelineEvidence(data().world,origin,2001,scan.assessments());var result=investment.accept(proposal,frame,2001,Set.of(data().world),FishingPolicy.prototype());
+        assertEquals(8500,data().cash());assertEquals(1,data().count("fishery_workplaces"));assertEquals(1,data().count("business_employment"));assertEquals(128,result.resource().stock().capacity());
+        assertEquals(result,investment.accept(proposal,frame,0,Set.of(),FishingPolicy.disabled()));assertEquals(8500,data().cash());
+    }
+    @Test void lostCustomerOrNowWorkingFounderRejectsBeforeAnyPaidStartup()throws Exception {
+        qualified();var investment=new FisheryInvestment(data().db.getConnection(),fixture.repo(),policy,fixture.terms,fixture.industry,WaterObserverPolicy.prototype(),FisheryShorelinePolicy.prototype(),StartupGrantPolicy.prototype(),216,42);
+        var proposal=investment.prepare(data().town,2,2000,Set.of(data().world)).proposal().orElseThrow();var origin=new ShorelineScan.Position(-1,65,0);
+        var scan=new ShorelineScan(p->p.equals(new ShorelineScan.Position(-1,64,0))?ShorelineScan.Cell.SAFE_FOOTING:ShorelineScan.Cell.AIR,proposal.opportunity().water(),2);while(!scan.complete())scan.advance(4096);
+        var frame=new ShorelineEvidence(data().world,origin,2001,scan.assessments());data().sql("UPDATE economy_stocks SET units=100 WHERE commodity='food'");
+        assertThrows(BusinessStartupGrants.Declined.class,()->investment.accept(proposal,frame,2001,Set.of(data().world),FishingPolicy.prototype()));assertEquals(10000,data().cash());assertEquals(0,data().count("businesses"));
+    }
+
 }

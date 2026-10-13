@@ -206,7 +206,7 @@ public final class IndustryRepository {
         int workers = 0;
         var requirements = businesses.findFounding(business).orElseThrow().workerRequirements();
         var people = new PopulationRepository(connection);
-        if (availability.permitted()) for (var job : businesses.currentWorkers(business)) {
+        if (availability.permitted()&&!FisheryWorkplaces.paused(connection,b.siteId())) for (var job : businesses.currentWorkers(business)) {
             var person = people.findResident(job.residentId()).orElseThrow();
             if (com.blueninjas24.civilizations.population.WorkEligibility.evaluate(person,
                     people.findWorkProfile(person.id()).orElseThrow(), requirements).eligible()) workers++;
@@ -214,7 +214,7 @@ public final class IndustryRepository {
         // Ecology recovers while a present-world business rests; unavailable owners/staff never catch food.
         var plan = resource.stock().advance(policy, true, requested, workers, store.freeSpace(), size);
         changeStock(business, Commodity.FOOD, plan.caught());
-        var saved = save(operation, terms, plan.caught(), availability.explanation() + "; " + plan.explanation());
+        var saved = save(operation, terms, plan.caught(), availability.explanation() + "; shoreline " + (FisheryWorkplaces.paused(connection,b.siteId())?"awaiting safe recovery":"available or legacy") + "; " + plan.explanation());
         try (var s = connection.prepareStatement("INSERT INTO industry_production VALUES(?,?,?)")) {
             s.setString(1, business.toString()); s.setLong(2, period); s.setString(3, operation.toString()); s.executeUpdate();
         }

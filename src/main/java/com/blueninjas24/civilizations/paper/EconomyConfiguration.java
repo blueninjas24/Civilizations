@@ -20,6 +20,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("quarry-resources")) rootKeys.add("quarry-resources");
         if (config.contains("fishing-resources")) rootKeys.add("fishing-resources");
+        if (config.contains("fishery-shoreline")) rootKeys.add("fishery-shoreline");
         if (config.contains("fishery-founding")) rootKeys.add("fishery-founding");
         if (config.contains("fishery-opportunities")) rootKeys.add("fishery-opportunities");
         if (config.contains("water-observer")) rootKeys.add("water-observer");
@@ -64,6 +65,7 @@ public final class EconomyConfiguration {
         readWaterObserver(config);
         readFisheryOpportunities(config);
         readFisheryFounding(config);
+        readFisheryShoreline(config);
         readVillageSupplies(config);
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
@@ -518,6 +520,12 @@ public final class EconomyConfiguration {
         exactKeys(s,Set.of("reserve-batches-per-block","units-per-batch","batches-per-worker","site-batch-capacity"));
         return new com.blueninjas24.civilizations.industry.QuarryPolicy.Terms(integer(s,"reserve-batches-per-block"),
             integer(s,"units-per-batch"),integer(s,"batches-per-worker"),integer(s,"site-batch-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.FisheryShorelinePolicy readFisheryShoreline(ConfigurationSection config) {
+        if(!config.contains("fishery-shoreline"))return com.blueninjas24.civilizations.industry.FisheryShorelinePolicy.disabled();
+        var s=section(config,"fishery-shoreline");exactKeys(s,Set.of("enabled","maximum-rise","maximum-distance","cells-per-tick","interval-ticks"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("fishery-shoreline.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.FisheryShorelinePolicy(enabled,Math.toIntExact(integer(s,"maximum-rise")),Math.toIntExact(integer(s,"maximum-distance")),Math.toIntExact(integer(s,"cells-per-tick")),Math.toIntExact(integer(s,"interval-ticks")));
     }
     public static com.blueninjas24.civilizations.industry.FisheryFoundingPolicy readFisheryFounding(ConfigurationSection config) {
         if(!config.contains("fishery-founding"))return com.blueninjas24.civilizations.industry.FisheryFoundingPolicy.disabled();

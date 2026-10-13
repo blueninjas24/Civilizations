@@ -117,7 +117,7 @@ public final class IndustryRuntime {
             }
             var firm=new BusinessRepository(connection).findBusiness(id).orElseThrow();
             if(clock.industry().equals("fishing") && new FisheryRepository(connection).find(firm.siteId()).isPresent()) {
-                if(!fishing.enabled() || !availability.permitted())
+                if(!fishing.enabled() || !availability.permitted() || FisheryWorkplaces.paused(connection,firm.siteId()))
                     reason=industry.fishRows(operation,id,0,period,fishing,operations).explanation();
                 else {
                     var supply=tools.acquireRows(id,clock.industry(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),operations);

@@ -1,5 +1,18 @@
 # Civilizations progress tracker
 
+Qualified residents can now open shoreline fisheries automatically when the village
+has suitable water, a safe bank, real demand and enough protected money. Damaged
+banks can move to a safe nearby spot without losing the business. Lost fishing water
+reduces the fish supply; restoring it does not instantly refill fish. Unknown or
+unloaded blocks do not count as damage. Buildings and docks remain Phase 4.
+
+All 1,302 full-build tests passed, and the isolated Paper server passed actual startup,
+catching, persisted recovery, money conservation and pause/restart checks. The native
+check uses explicit test skills: automatic first-owner fishing training remains next.
+The playable server is unchanged. No decision is pending. The broader industry and
+specialization checklist remains open; Phase 3 is 1/4 whole groups/~69% partial.
+See FISHERY_WORKPLACES.md. Older batch notes below describe their earlier snapshots.
+
 You approved adapting after shoreline damage. The new recovery planner looks for
 another safe nearby bank beside the same fishing water, or flags a repair need.
 It never closes the business or resets its fish. Unknown/unloaded blocks cannot

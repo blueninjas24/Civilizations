@@ -218,12 +218,31 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure fishery founding before session starts");
         fisheryFoundingPolicy=java.util.Objects.requireNonNull(policy);
     }
+    private com.blueninjas24.civilizations.industry.FisheryShorelinePolicy fisheryShorelinePolicy=com.blueninjas24.civilizations.industry.FisheryShorelinePolicy.disabled();
+    public void configureFisheryShoreline(com.blueninjas24.civilizations.industry.FisheryShorelinePolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure fishery shoreline before session starts");fisheryShorelinePolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public record FisheryWorksite(com.blueninjas24.civilizations.database.FisheryWorkplaces.Binding binding,com.blueninjas24.civilizations.industry.WaterPatch.Patch original) {}
+    public CompletableFuture<java.util.List<FisheryWorksite>> fisheryWorksites(UUID after,int limit) {
+        return submit(()->{requireReady();var result=new java.util.ArrayList<FisheryWorksite>();
+            for(var binding:new com.blueninjas24.civilizations.database.FisheryWorkplaces(database.getConnection()).page(after,limit)) {
+                var original=new com.blueninjas24.civilizations.industry.WaterPatch.Patch(new com.blueninjas24.civilizations.industry.FisheryObservation(binding.world(),0,true,new com.blueninjas24.civilizations.database.FisheryRepository(database.getConnection()).columns(binding.site())),binding.surfaceY());
+                result.add(new FisheryWorksite(binding,original));
+            }return java.util.List.copyOf(result);});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.FisheryWorkplaces.Receipt> reconcileFisheryWorksite(UUID site,com.blueninjas24.civilizations.industry.ShorelineEvidence bank,com.blueninjas24.civilizations.industry.FisheryHabitatObservation habitat) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.FisheryWorksiteReview(database.getConnection()).reconcile(site,bank,habitat,now.getAsLong(),fisheryOpportunityPolicy.evidenceLifetimeMillis(),loadedWorlds);});
+    }
+    private com.blueninjas24.civilizations.database.FisheryInvestment fisheryInvestment() {
+        var opportunities=new com.blueninjas24.civilizations.database.FisheryOpportunities(database.getConnection(),fisheryOpportunityPolicy,waterPolicy,fishingPolicy,industryPolicy,startupGrantPolicy,villageSupplyPolicy,studyPolicy,operationPolicy);
+        return new com.blueninjas24.civilizations.database.FisheryInvestment(database.getConnection(),opportunities,fisheryFoundingPolicy,fisheryOpportunityPolicy,industryPolicy,waterPolicy,fisheryShorelinePolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed());
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.BusinessStartupGrants.Fishery> acceptFisheryInvestment(com.blueninjas24.civilizations.database.FisheryInvestment.Proposal proposal,com.blueninjas24.civilizations.industry.ShorelineEvidence evidence) {
+        return submit(()->{requireReady();return fisheryInvestment().accept(proposal,evidence,now.getAsLong(),loadedWorlds,fishingPolicy);});
+    }
     /** No invented shoreline point or startup debit; actual acceptance remains separate. */
     public CompletableFuture<com.blueninjas24.civilizations.database.FisheryInvestment.Preparation> prepareFisheryInvestment(UUID town) {
-        return submit(()->{requireReady();var opportunities=new com.blueninjas24.civilizations.database.FisheryOpportunities(database.getConnection(),fisheryOpportunityPolicy,
-                waterPolicy,fishingPolicy,industryPolicy,startupGrantPolicy,villageSupplyPolicy,studyPolicy,operationPolicy);
-            return new com.blueninjas24.civilizations.database.FisheryInvestment(database.getConnection(),opportunities,fisheryFoundingPolicy,settings.population().adulthoodSteps(),settings.seed())
-                    .prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);});
+        return submit(()->{requireReady();return fisheryInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);});
     }
     /** Read-only SQL-owner prospects; neither schedules founders nor spends grants. */
     public CompletableFuture<com.blueninjas24.civilizations.database.FisheryOpportunities.Review> currentFisheryOpportunities(UUID town) {

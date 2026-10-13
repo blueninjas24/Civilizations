@@ -20,17 +20,21 @@ public final class ShorelineRecovery {
     public int advance(int budget){return scan.advance(budget);}
     public boolean complete(){return scan.complete();}
     public Decision decision() {
-        var assessments=scan.assessments();
+        return decide(current,maximumHorizontalDistance,scan.assessments());
+    }
+    public static Decision decide(ShorelineScan.Position current,int maximumHorizontalDistance,List<ShorelineScan.Assessment> assessments) {
+        Objects.requireNonNull(current);assessments=List.copyOf(assessments);
+        if(maximumHorizontalDistance<0||maximumHorizontalDistance>256)throw new IllegalArgumentException("Invalid shoreline relocation distance");
         var original=assessments.stream().filter(a->a.position().equals(current)).findFirst().orElseThrow();
         if(original.state()==ShorelineScan.State.SAFE)return new Decision(Action.KEEP,current,true,false,"Original shoreline remains safe; no relocation or resource change");
         if(original.state()==ShorelineScan.State.UNKNOWN)return new Decision(Action.WAIT_UNKNOWN,current,false,false,"Original standing point unknown; wait for loaded evidence, no inferred damage or relocation");
-        var nearby=assessments.stream().filter(a->horizontalDistance(a.position())<=maximumHorizontalDistance).toList();
-        var order=Comparator.comparingLong((ShorelineScan.Position p)->horizontalDistance(p)+Math.abs((long)p.y()-current.y()))
+        var nearby=assessments.stream().filter(a->horizontalDistance(current,a.position())<=maximumHorizontalDistance).toList();
+        var order=Comparator.comparingLong((ShorelineScan.Position p)->horizontalDistance(current,p)+Math.abs((long)p.y()-current.y()))
                 .thenComparingInt(ShorelineScan.Position::x).thenComparingInt(ShorelineScan.Position::y).thenComparingInt(ShorelineScan.Position::z);
         var replacement=nearby.stream().filter(a->a.state()==ShorelineScan.State.SAFE).map(ShorelineScan.Assessment::position).min(order);
         if(replacement.isPresent())return new Decision(Action.RELOCATE,replacement.orElseThrow(),true,true,"Confirmed unsafe standing point; use nearest safe nearby bank beside the same original habitat, preserving business and resources");
         if(nearby.stream().anyMatch(a->a.state()==ShorelineScan.State.UNKNOWN))return new Decision(Action.WAIT_UNKNOWN,current,false,true,"Standing point unsafe but nearby bank evidence incomplete; wait without closing or inventing repairs");
         return new Decision(Action.NEEDS_REPAIR,current,false,true,"No safe nearby replacement; retain business and habitat, request a feasible protected repair/dock project when construction is available");
     }
-    private long horizontalDistance(ShorelineScan.Position point){return Math.abs((long)point.x()-current.x())+Math.abs((long)point.z()-current.z());}
+    private static long horizontalDistance(ShorelineScan.Position current,ShorelineScan.Position point){return Math.abs((long)point.x()-current.x())+Math.abs((long)point.z()-current.z());}
 }

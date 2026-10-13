@@ -103,7 +103,8 @@ public final class FisheryRepository {
         }
     }
 
-    private FishStock.HabitatChange habitatRows(UUID operation, UUID site, FisheryHabitatObservation observation) throws SQLException {
+    FishStock.HabitatChange habitatRows(UUID operation, UUID site, FisheryHabitatObservation observation) throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Habitat rows require owner transaction");
         String evidence = observation.toString();
         try (var s = connection.prepareStatement("SELECT * FROM fishery_habitat_changes WHERE operation_id=?")) {
             s.setString(1, operation.toString()); try (var r = s.executeQuery()) {

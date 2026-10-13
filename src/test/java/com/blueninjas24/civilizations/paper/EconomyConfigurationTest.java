@@ -13,6 +13,12 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void fisheryShorelineBoundsAreEditableAndOldFilesOptOut()throws Exception {
+        var c=defaults();assertEquals(com.blueninjas24.civilizations.industry.FisheryShorelinePolicy.prototype(),EconomyConfiguration.readFisheryShoreline(c));
+        c.set("fishery-shoreline.maximum-distance",0);EconomyConfiguration.read(c);assertEquals(0,EconomyConfiguration.readFisheryShoreline(c).maximumDistance());
+        c.set("fishery-shoreline",null);EconomyConfiguration.read(c);assertFalse(EconomyConfiguration.readFisheryShoreline(c).enabled());
+        for(Object value:List.of(-1,257,1.5,"far",true)){var bad=defaults();bad.set("fishery-shoreline.maximum-distance",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(bad));}
+    }
     @Test void fisheryFounderQualificationIsStrictEditableAndMissingSectionOptsOut()throws Exception {
         var c=defaults();assertEquals(com.blueninjas24.civilizations.industry.FisheryFoundingPolicy.prototype(),EconomyConfiguration.readFisheryFounding(c));
         c.set("fishery-founding.founder-fishing-experience",20);EconomyConfiguration.read(c);assertEquals(20,EconomyConfiguration.readFisheryFounding(c).founderExperience());

@@ -40,6 +40,8 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.FoodBarterTransfers barters;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
+    private com.blueninjas24.civilizations.paper.PaperFisheryStartup fisheryStartup;
+    private com.blueninjas24.civilizations.paper.PaperFisheryWorkplaces fisheryWorkplaces;
     @Override
     public void onEnable() {
         try {
@@ -73,6 +75,8 @@ public final class Civilizations extends JavaPlugin {
                     () -> observer == null ? "Village observer not started" : observer.diagnostic()
                             + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic()
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
+                            + "; " + (fisheryStartup==null?"Fishery startup not started":fisheryStartup.diagnostic())
+                            + "; " + (fisheryWorkplaces==null?"Fishery workplace checks not started":fisheryWorkplaces.diagnostic())
                             + "; " + (waters==null?"Water observer not started":waters.diagnostic())
                             + "; " + (workplaces==null?"Workplace observer not started":workplaces.diagnostic())
                             + "; " + (workplaceOperations==null?"Workplace operation checks not started":workplaceOperations.diagnostic())
@@ -112,6 +116,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureWater(waterSettings);
             population.configureFisheryOpportunities(EconomyConfiguration.readFisheryOpportunities(economyConfig));
             population.configureFisheryFounding(EconomyConfiguration.readFisheryFounding(economyConfig));
+            population.configureFisheryShoreline(EconomyConfiguration.readFisheryShoreline(economyConfig));
             population.configureFishing(EconomyConfiguration.readFishingResources(economyConfig));
             population.configureBusinessPurchases(EconomyConfiguration.readBusinessPurchasePolicy(economyConfig));
             population.configureBusinessOperations(EconomyConfiguration.readBusinessOperations(economyConfig));
@@ -145,6 +150,8 @@ public final class Civilizations extends JavaPlugin {
                         farms = new PaperFarmObserver(population, farmSettings); farms.runTaskTimer(Civilizations.this, 1, 1);
                         ores=new com.blueninjas24.civilizations.paper.PaperOreObserver(population,oreSettings);ores.runTaskTimer(Civilizations.this,1,1);
                         waters=new com.blueninjas24.civilizations.paper.PaperWaterObserver(population,waterSettings,getLogger());waters.runTaskTimer(Civilizations.this,1,1);
+                        fisheryStartup=new com.blueninjas24.civilizations.paper.PaperFisheryStartup(population,EconomyConfiguration.readFisheryShoreline(economyConfig),waterSettings,getLogger());fisheryStartup.runTaskTimer(Civilizations.this,1,1);
+                        fisheryWorkplaces=new com.blueninjas24.civilizations.paper.PaperFisheryWorkplaces(population,EconomyConfiguration.readFisheryShoreline(economyConfig),getLogger());fisheryWorkplaces.runTaskTimer(Civilizations.this,1,1);
                         workplaces=new com.blueninjas24.civilizations.paper.PaperWorkplaceObserver(population,workplaceSettings);workplaces.runTaskTimer(Civilizations.this,1,1);
                         workplaceOperations=new com.blueninjas24.civilizations.paper.PaperWorkplaceOperations(population,getLogger());workplaceOperations.runTaskTimer(Civilizations.this,1,20);
                         workshopStartup=new com.blueninjas24.civilizations.paper.PaperWorkshopStartup(population,getLogger());workshopStartup.runTaskTimer(Civilizations.this,1,20);
@@ -166,6 +173,8 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(fisheryWorkplaces!=null)fisheryWorkplaces.cancel();
+        if(fisheryStartup!=null)fisheryStartup.cancel();
         if(waters!=null)waters.cancel();
         if(warehouseStartup!=null)warehouseStartup.cancel();
         if(workshopStartup!=null)workshopStartup.cancel();
