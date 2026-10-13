@@ -266,6 +266,14 @@ public final class EconomyRuntimeRepository {
                 else {var crop=evidence.representativeCrop();s.setInt(6,crop.x());s.setInt(7,crop.y());s.setInt(8,crop.z());}
                 s.executeUpdate();
             }
+            try(var s=connection.prepareStatement("DELETE FROM farm_grain_evidence WHERE settlement_id=?")) {
+                s.setString(1,evidence.settlement().toString());s.executeUpdate();
+            }
+            if(evidence.grainCrops()!=null) {
+                try(var s=connection.prepareStatement("INSERT INTO farm_grain_evidence VALUES (?,?,?)")) {
+                    s.setString(1,evidence.settlement().toString());s.setLong(2,evidence.observedMillis());s.setLong(3,evidence.grainCrops());s.executeUpdate();
+                }
+            }
             if (evidence.complete() && living(evidence.settlement(), false) + living(evidence.settlement(), true) > 0 && !hasRuntime(evidence.settlement())) {
                 long people = living(evidence.settlement(), false) + living(evidence.settlement(), true);
                 var account = commodities.read(evidence.settlement());
@@ -610,7 +618,16 @@ public final class EconomyRuntimeRepository {
         try (var s = connection.prepareStatement("SELECT * FROM farm_evidence WHERE settlement_id=?")) {
             s.setString(1, town.toString()); try (var r = s.executeQuery()) {
                 return r.next() ? new FarmObservation(town, UUID.fromString(r.getString("world_id")), r.getLong("observed_millis"),
-                        r.getInt("complete") == 1, r.getLong("planted_crops"),cropSite(r)) : null;
+                        r.getInt("complete") == 1, r.getLong("planted_crops"),cropSite(r),grainCrops(town,r.getLong("observed_millis"))) : null;
+            }
+        }
+    }
+    private Long grainCrops(UUID town,long observedMillis) throws SQLException {
+        try(var s=connection.prepareStatement("SELECT observed_millis,grain_crops FROM farm_grain_evidence WHERE settlement_id=?")) {
+            s.setString(1,town.toString());try(var r=s.executeQuery()) {
+                if(!r.next())return null;
+                if(r.getLong(1)!=observedMillis)throw new SQLException("Grain evidence does not match saved farm frame");
+                return r.getLong(2);
             }
         }
     }

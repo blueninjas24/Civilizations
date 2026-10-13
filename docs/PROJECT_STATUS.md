@@ -1,5 +1,38 @@
 # Civilizations — implementation status and handoff
 
+## October 13, 2026 — saved wheat-field evidence without food conversion
+
+The bounded farm scanner now identifies wheat-on-farmland separately from other
+food crops, retaining the same footprint/overlap/partial rules and read budget.
+All growth stages remain planted capacity, not an immediate physical harvest.
+Transactional schema71 adds farm_grain_evidence, initially empty for old worlds.
+Legacy composition remains unknown; typed zero is distinct. Older/equal frames
+cannot replace current counts, newer untyped evidence clears composition, and
+partial evidence stays partial. Food output, stocks, purchases and history are
+unchanged. This is bakery preparation, not harvested ingredients or bakery startup.
+
+Seven added cases cover typed/legacy bounded scans, real classifier distinctions,
+restart and preserved food/history, stale/zero/partial/unknown frames, late write
+rollback/retry, version70 upgrades without invented grain, failed migration/retry,
+and invalid subsets/corrupt frame pairing. Older-schema preservation tests now
+explicitly expect the additional empty table. Focused116 passed; full Windows
+Wrapper .\mvnw.cmd clean verify passed1,346 cases (1,344 unit/two packaged
+integration), no failures/errors/skips,7:38 at08:19:23 ET. Guarded Paper probe
+passed08:19:58 ET: ordinary observer matched actual empty terrain (zero crops/
+wheat, not a positive field proof), persisted known zero over restart and retained
+all24 food units. Positive wheat/material cases are covered by automated tests.
+No blocks/entities changed; helper-only tickets released. Save audit116/120 old
+tables exact with four ordinary clock/evidence changes; schema71 integrity/FK
+healthy, existing identity/assets/money/history retained. Properties restored,
+helper archived and backups preserved. Playable server unchanged; no merge/push.
+
+Approved grain direction is recorded in canonical design/rules; stale shoreline
+recovery implementation wording is corrected without changing its approved rule.
+Next: actual staffed future grain harvest accounting, paid bakery ingredients,
+automatic quarry/pit founding, forestry and specialization acceptance. Phase3
+remains1/4 whole groups/~70% partial; no gameplay question pending.
+See GRAIN_EVIDENCE.md. This batch does not finish a broader industry milestone.
+
 ## October 13, 2026 — bounded loaded-neighbor mineral observations
 
 The ore observer now uses the centre and at most four already-loaded cardinal
@@ -27,7 +60,7 @@ server changes. See MINERAL_NEIGHBORHOOD.md.
 
 Bakery grain accounting is approved: distinct future ingredients, existing food
 preserved and basic meals remain feasible. See DECISIONS_AND_OPEN_QUESTIONS.
-Resource survey work continues; grain behavior is not implemented yet. No question pending.
+Wheat-field evidence is implemented; grain harvests/bakery behavior remain unfinished. No question pending.
 
 ## October 13, 2026 — live finite quarry and sand-pit operation
 

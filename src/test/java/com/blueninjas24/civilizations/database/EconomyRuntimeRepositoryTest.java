@@ -35,6 +35,56 @@ class EconomyRuntimeRepositoryTest {
     private EconomyRuntimeRepository runtime(EconomySettings settings) { return new EconomyRuntimeRepository(db.getConnection(),settings,FarmObservation.Policy.prototype(),216); }
     private void observe(long time, boolean complete, long crops) throws SQLException { runtime.observe(new FarmObservation(town,world,time,complete,crops),time); }
     private void sql(String sql) throws SQLException { try (var s = db.getConnection().createStatement()) { s.execute(sql); } }
+    private void grain(long time,boolean complete,long crops,Long grain)throws SQLException {
+        runtime.observe(new FarmObservation(town,world,time,complete,crops,null,grain),time);
+    }
+    @Test void grainEvidencePersistsWithoutChangingFoodStocksOrInventingIngredients()throws SQLException {
+        observe(1000,true,32);runtime.startOnline(1000,Set.of(world));runtime.pulse(2000,false);
+        var account=runtime.views().get(town).account();var history=db.getCommodityRepository().history(town,1).orElseThrow();
+        assertNull(runtime.views().get(town).farm().grainCrops());
+        grain(2001,true,32,12L);assertEquals(12L,runtime.views().get(town).farm().grainCrops());
+        assertEquals(account,runtime.views().get(town).account());assertEquals(history,db.getCommodityRepository().history(town,1).orElseThrow());
+        assertEquals(Set.of(Commodity.FOOD),account.state().stocks().keySet());
+        db.close();openExisting();assertEquals(12L,runtime.views().get(town).farm().grainCrops());
+        assertEquals(account,runtime.views().get(town).account());
+    }
+    private void openExisting()throws SQLException {
+        db=new DatabaseManager(directory.toFile(),Logger.getLogger("GrainEvidenceTest"));db.initialize();runtime=runtime(settings);
+    }
+    @Test void grainFramesPreserveUnknownZeroPartialAndStaleDistinctions()throws SQLException {
+        grain(1000,true,32,12L);grain(999,true,32,20L);grain(1000,true,32,20L);
+        assertEquals(12L,runtime.views().get(town).farm().grainCrops());
+        grain(1001,true,32,0L);assertEquals(0L,runtime.views().get(town).farm().grainCrops());
+        grain(1002,false,16,8L);assertFalse(runtime.views().get(town).farm().complete());assertEquals(8L,runtime.views().get(town).farm().grainCrops());
+        observe(1003,true,32);assertNull(runtime.views().get(town).farm().grainCrops());
+    }
+    @Test void lateGrainSaveFailureRollsBackTheWholeFarmFrameAndFoodState()throws SQLException {
+        grain(1000,true,32,12L);var before=runtime.views().get(town);
+        sql("CREATE TRIGGER reject_grain BEFORE INSERT ON farm_grain_evidence BEGIN SELECT RAISE(ABORT,'fixture rejection'); END");
+        assertThrows(SQLException.class,()->grain(1001,true,64,40L));assertEquals(before,runtime.views().get(town));assertTrue(db.getConnection().getAutoCommit());
+        sql("DROP TRIGGER reject_grain");grain(1001,true,64,40L);assertEquals(40L,runtime.views().get(town).farm().grainCrops());
+    }
+    @Test void migration71PreservesLegacyFoodAndCountsWithoutInventingGrain()throws SQLException {
+        observe(1000,true,32);runtime.startOnline(1000,Set.of(world));runtime.pulse(2000,false);
+        var before=runtime.views().get(town);var history=db.getCommodityRepository().history(town,1).orElseThrow();
+        SchemaFixtures.rewind(db.getConnection(),70);sql("PRAGMA user_version=70");
+        new SchemaMigrator().migrate(db.getConnection());assertEquals(before,runtime.views().get(town));
+        assertNull(runtime.views().get(town).farm().grainCrops());assertEquals(history,db.getCommodityRepository().history(town,1).orElseThrow());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM farm_grain_evidence")){assertTrue(r.next());assertEquals(0,r.getLong(1));}
+    }
+    @Test void migration71FailureKeepsVersionAndAllLegacyBalancesThenRetries()throws SQLException {
+        observe(1000,true,32);var before=runtime.views().get(town);
+        SchemaFixtures.rewind(db.getConnection(),70);sql("PRAGMA user_version=70");sql("CREATE VIEW farm_grain_evidence AS SELECT 1");
+        assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertTrue(r.next());assertEquals(70,r.getInt(1));}
+        sql("DROP VIEW farm_grain_evidence");new SchemaMigrator().migrate(db.getConnection());assertEquals(before,runtime.views().get(town));
+    }
+    @Test void impossibleGrainSubsetsAndCorruptFramePairingAreRejected()throws SQLException {
+        assertThrows(IllegalArgumentException.class,()->new FarmObservation(town,world,1,true,2,null,3L));
+        assertThrows(IllegalArgumentException.class,()->new FarmObservation(town,world,1,true,2,null,-1L));
+        grain(1000,true,32,12L);sql("UPDATE farm_grain_evidence SET observed_millis=999");
+        assertThrows(SQLException.class,()->runtime.views());
+    }
     @Test void onlinePauseRetainsFractionAndQueuedGoodsUntilWorldReturns() throws SQLException {
         observe(1000,true,0);runtime.startOnline(1000,Set.of(world));
         runtime.pulse(2500,false);

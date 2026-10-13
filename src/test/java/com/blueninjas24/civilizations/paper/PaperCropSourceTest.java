@@ -1,6 +1,7 @@
 package com.blueninjas24.civilizations.paper;
 
 import org.bukkit.*;
+import com.blueninjas24.civilizations.economy.CropScan;
 import org.junit.jupiter.api.Test;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicReference;
@@ -15,8 +16,12 @@ class PaperCropSourceTest {
             default -> throw new AssertionError(m.getName());
         });
         var source=new PaperCropSource(snapshot,-64); assertTrue(source.emptySection(-4));
-        for(var type:java.util.List.of(Material.WHEAT,Material.CARROTS,Material.POTATOES,Material.BEETROOTS)) { crop.set(type);assertTrue(source.plantedCrop(0,64,0)); }
+        for(var type:java.util.List.of(Material.WHEAT,Material.CARROTS,Material.POTATOES,Material.BEETROOTS)) {
+            crop.set(type);assertTrue(source.plantedCrop(0,64,0));
+            assertEquals(type==Material.WHEAT?CropScan.Kind.GRAIN:CropScan.Kind.OTHER,source.cropKind(0,64,0));
+        }
         floor.set(Material.DIRT);assertFalse(source.plantedCrop(0,64,0)); floor.set(Material.FARMLAND);crop.set(Material.GRASS_BLOCK);assertFalse(source.plantedCrop(0,64,0));
         assertFalse(source.plantedCrop(0,-64,0));
+        assertEquals(CropScan.Kind.NONE,source.cropKind(0,-64,0));
     }
 }

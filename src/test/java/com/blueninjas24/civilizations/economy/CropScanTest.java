@@ -5,6 +5,20 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CropScanTest {
+    @Test void typedGrainIsAStableSubsetAndLegacySourcesCannotInventIt() {
+        var scan=new CropScan(new CropScan.Source() {
+            public boolean emptySection(int section){return false;}
+            public boolean plantedCrop(int x,int y,int z){throw new AssertionError("Typed scan must not duplicate reads");}
+            public CropScan.Kind cropKind(int x,int y,int z){return z==0&&x==0?CropScan.Kind.GRAIN:z==0&&x==1?CropScan.Kind.OTHER:CropScan.Kind.NONE;}
+        },-1,2,64,65);
+        assertThrows(IllegalStateException.class,scan::grainCrops);
+        while(!scan.complete())assertTrue(scan.advance(13)<=13);
+        assertEquals(java.util.List.of(new Position(-16,64,32),new Position(-15,64,32)),scan.crops());
+        assertEquals(java.util.List.of(new Position(-16,64,32)),scan.grainCrops());
+        assertThrows(UnsupportedOperationException.class,()->scan.grainCrops().clear());
+        var legacy=new CropScan(new CropScan.Source(){public boolean emptySection(int section){return false;}public boolean plantedCrop(int x,int y,int z){return x==0&&z==0;}},0,0,64,65);
+        legacy.advance(256);assertEquals(1,legacy.crops().size());assertTrue(legacy.grainCrops().isEmpty());
+    }
     @Test void incrementalNegativeCoordinateScanSkipsEmptySectionsAndRespectsReadBudget() {
         var scan = new CropScan(new CropScan.Source() {
             public boolean emptySection(int section) { return section != -1; }

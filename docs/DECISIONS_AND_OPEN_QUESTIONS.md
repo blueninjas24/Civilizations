@@ -8,7 +8,7 @@ be inferred from existing generic food stocks. User approved the recommended dir
 future grain harvests/inputs, preserve every existing food balance/history, and keep
 basic meals feasible without requiring a bakery first. Exact editable processing
 coefficients remain prototype tuning under the user's existing authorization.
-Existing food cannot be converted into invented grain. No new farm-output accounting
+Existing food cannot be converted into invented grain. Wheat-field composition now persists under schema71; no new farm-output accounting
 or bakery activation has occurred yet. The user answered: “Go with your recommendation.”
 Implement this direction with transactional migrations, actual crop/input evidence and
 editable prototype coefficients; keep basic meals feasible and existing history intact.

@@ -73,6 +73,7 @@ public final class PaperFarmObserver extends BukkitRunnable {
         private final Deque<Chunk> chunks = new ArrayDeque<>();
         private final List<Chunk> inspected = new ArrayList<>();
         private final Set<com.blueninjas24.civilizations.settlement.VillageObservation.Position> crops = new HashSet<>();
+        private final Set<com.blueninjas24.civilizations.settlement.VillageObservation.Position> grainCrops = new HashSet<>();
         private boolean complete = true;
         private CropScan scan;
         private final int minimumY, maximumY;
@@ -105,11 +106,13 @@ public final class PaperFarmObserver extends BukkitRunnable {
             while (scan != null && remaining > 0 && System.nanoTime() - began < 1_000_000) {
                 remaining -= scan.advance(Math.min(64, remaining));
                 if (scan.complete()) {
+                    var grain=Set.copyOf(scan.grainCrops());
                     for (var crop : scan.crops()) {
                         if (anchors.stream().noneMatch(h -> CropScan.near(crop, h.position(), policy))) continue;
                         if (allHomes.entrySet().stream().anyMatch(entry -> !entry.getKey().equals(town) && entry.getValue().stream()
                                 .anyMatch(h -> h.worldId().equals(world.getUID()) && CropScan.near(crop, h.position(), policy)))) complete = false;
                         crops.add(crop);
+                        if(grain.contains(crop))grainCrops.add(crop);
                         if (crops.size() > 100000) throw new IllegalArgumentException("Farm crop count exceeds budget");
                     }
                     scan = null; break;
@@ -122,7 +125,7 @@ public final class PaperFarmObserver extends BukkitRunnable {
             var representative=crops.stream().min(Comparator.comparingInt(com.blueninjas24.civilizations.settlement.VillageObservation.Position::x)
                     .thenComparingInt(com.blueninjas24.civilizations.settlement.VillageObservation.Position::y)
                     .thenComparingInt(com.blueninjas24.civilizations.settlement.VillageObservation.Position::z)).orElse(null);
-            return new FarmObservation(town, world.getUID(), System.currentTimeMillis(), complete, crops.size(),representative);
+            return new FarmObservation(town, world.getUID(), System.currentTimeMillis(), complete, crops.size(),representative,(long)grainCrops.size());
         }
     }
 }

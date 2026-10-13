@@ -4,8 +4,9 @@ October12 approved shoreline recovery: accidental workplace damage suspends unsa
 work while the business searches for a safe nearby bank beside its original saved
 habitat or pursues a feasible protected repair/dock project in Phase4. Preserve
 identity, workers, goods, cash and fish supply. Relocation never claims new water or
-refills resources; unknown/unloaded evidence cannot establish damage. This is design
-intent; automatic saved workplace recovery and physical repairs are not yet enabled.
+refills resources; unknown/unloaded evidence cannot establish damage. Automatic
+saved shoreline recovery passed October13 verification; physical repairs remain
+Phase4 work. See FISHERY_WORKPLACES.md for implementation limits.
 
 October12 approved: villages maintain a configurable emergency food reserve based
 on actual resident needs, purchasing real owned food with the existing bounded
@@ -67,6 +68,10 @@ numeric multiplier. Habitat capacity/recovery and real-resource constraints rema
 - Decisions create projects and historical events; prior outcomes influence future weights without machine learning.
 
 ## Industry and business
+- October13 approved: track future grain ingredients separately for bakeries,
+  preserve all existing generic food and its history, and keep basic meals feasible
+  without a bakery. Wheat-field evidence alone is not harvested ingredient stock;
+  food must never be silently reclassified into invented grain. See GRAIN_EVIDENCE.md.
 - October 12 approved: confirmed loss of supporting fishery water reduces habitat
   capacity and loses only fish above the reduced limit. Restoration permits gradual
   recovery without an instant refill; unknown evidence never establishes loss.

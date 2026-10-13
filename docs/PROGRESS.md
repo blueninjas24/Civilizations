@@ -1,5 +1,12 @@
 # Civilizations progress tracker
 
+Villages can now remember which observed crops are wheat, separately from other
+food crops. Old food supplies stay intact; missing crop information stays unknown.
+All1,346 full-build cases and the real observer/restart check passed. This prepares
+bakery ingredients; grain harvesting and bakeries are still being connected.
+Phase3 remains1/4 whole groups/~70% partial. Your playable server is unchanged.
+See GRAIN_EVIDENCE.md. No decision pending.
+
 Nearby resource checks now read already-loaded neighboring chunks, so exposed
 stone and sand at chunk borders can be checked accurately. Missing terrain stays
 unknown. All1,339 full-build cases and the isolated Paper check passed; your

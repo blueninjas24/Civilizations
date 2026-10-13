@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 70;
+    static final int CURRENT_VERSION = 71;
 
     @FunctionalInterface
     interface Migration {
@@ -913,7 +913,14 @@ final class SchemaMigrator {
                 SchemaMigrator::createFisheryHabitatChanges,
                 SchemaMigrator::createWaterSurveys,
                 SchemaMigrator::createFisheryWorkplaces,
-                SchemaMigrator::createFisheryFounderStudy
+                SchemaMigrator::createFisheryFounderStudy,
+                connection -> execute(connection,"""
+                        CREATE TABLE farm_grain_evidence (
+                            settlement_id TEXT PRIMARY KEY REFERENCES farm_evidence(settlement_id),
+                            observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
+                            grain_crops INTEGER NOT NULL CHECK(typeof(grain_crops)='integer' AND grain_crops>=0 AND grain_crops<=100000)
+                        )
+                        """)
 
 
         ));
@@ -956,6 +963,7 @@ final class SchemaMigrator {
             }
             requireColumns(connection, Set.of("id", "name", "world", "center_x", "center_y",
                     "center_z", "discovered_at", "population", "beds"));
+            if(migrations.size()>=71)requireColumns(connection,"farm_grain_evidence",Set.of("settlement_id","observed_millis","grain_crops"));
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
                 requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",
