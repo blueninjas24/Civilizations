@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.LongSupplier;
 
-/** One bounded snapshot at a time around saved homes; read-only, no forced chunk loading. */
+/** One bounded centre/cardinal snapshot group at a time; read-only, no forced chunk loading. */
 public final class PaperOreObserver extends BukkitRunnable {
     private record Target(UUID town,Home home,OreSurveyArea.Chunk chunk) {}
     private final PopulationSession session;
@@ -73,8 +73,12 @@ public final class PaperOreObserver extends BukkitRunnable {
             int maximumY=(int)Math.min(world.getMaxHeight(),(long)target.home().position().y()+policy.verticalRadius()+1);
             if(minimumY>=maximumY){diagnostic="Ore survey discarded: home outside world height";return;}
             snapshotMillis=clock.getAsLong();
-            var snapshot=world.getChunkAt(chunkX,chunkZ).getChunkSnapshot(false,false,false,false);
-            scan=new OreScan(new PaperOreSource(snapshot,world.getMinHeight(),world.getMaxHeight()),chunkX,chunkZ,minimumY,maximumY,Set.of());
+            var snapshots=new HashMap<OreSurveyArea.Chunk,ChunkSnapshot>();
+            for(var offset:new int[][]{{0,0},{-1,0},{1,0},{0,-1},{0,1}}) {
+                int x=Math.addExact(chunkX,offset[0]),z=Math.addExact(chunkZ,offset[1]);
+                if(world.isChunkLoaded(x,z))snapshots.put(new OreSurveyArea.Chunk(x,z),world.getChunkAt(x,z).getChunkSnapshot(false,false,false,false));
+            }
+            scan=new OreScan(PaperOreNeighborhood.ores(snapshots,chunkX,chunkZ,world.getMinHeight(),world.getMaxHeight()),chunkX,chunkZ,minimumY,maximumY,Set.of());
             diagnostic="Ore survey scanning nearby loaded chunk "+chunkX+","+chunkZ;
         } catch(RuntimeException failure){scan=null;pending=null;diagnostic="Ore survey deferred: "+failure.getMessage();}
     }

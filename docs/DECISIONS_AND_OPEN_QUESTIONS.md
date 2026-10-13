@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October13: bakery grain accounting — approved
+
+Current farm harvests, wheat/bread player deliveries and fish are recorded in the
+same FOOD commodity. A real bakery needs distinct grain ingredients; these cannot
+be inferred from existing generic food stocks. User approved the recommended direction: add separately tracked
+future grain harvests/inputs, preserve every existing food balance/history, and keep
+basic meals feasible without requiring a bakery first. Exact editable processing
+coefficients remain prototype tuning under the user's existing authorization.
+Existing food cannot be converted into invented grain. No new farm-output accounting
+or bakery activation has occurred yet. The user answered: “Go with your recommendation.”
+Implement this direction with transactional migrations, actual crop/input evidence and
+editable prototype coefficients; keep basic meals feasible and existing history intact.
+
 ## October12: shoreline damage recovery — approved
 
 User approved looking for a replacement or trying to repair the workplace: accidental

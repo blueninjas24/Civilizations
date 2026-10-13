@@ -1,5 +1,34 @@
 # Civilizations — implementation status and handoff
 
+## October 13, 2026 — bounded loaded-neighbor mineral observations
+
+The ore observer now uses the centre and at most four already-loaded cardinal
+chunk snapshots. Missing faces remain unknown; no chunks are forced or neighbor
+resources included as centre members. Separate quarry classification can now
+confirm exposed boundary stone/sand without guessing about missing faces.
+
+Six new tests cover exposure, classifier separation, missing faces, identity,
+negative coordinates and overflow. Full Windows Wrapper clean verify passed
+1,339 cases (1,337 unit/two packaged integration), zero failures/errors/skips,
+7:16 at04:22:30 ET. The marked disposable Paper probe passed08:04:41 ET:
+five actual snapshots matched32 independently checked stone/sand positions,
+and the ordinary observer/SQL owner saved current ore evidence. No blocks or
+entities edited; helper-only tickets released. Save audit116/120 tables exact,
+four normal clock/evidence changes; identity/assets/cash/history preserved,
+SQLite integrity/FK healthy. Exact properties restored and helper archived.
+
+No migration: schema70. At most five snapshot captures cost more than one;
+broad multi-town profiling remains open. Automatic quarry surveys/founding,
+forestry, wider recipes and specialization remain unfinished. Grain accounting
+is approved but not implemented: preserve old food, track future ingredients
+separately and retain basic meals without a bakery. Phase3 remains1/4 whole
+groups/~70% partial; no gameplay question pending. No merge/push or playable
+server changes. See MINERAL_NEIGHBORHOOD.md.
+
+Bakery grain accounting is approved: distinct future ingredients, existing food
+preserved and basic meals remain feasible. See DECISIONS_AND_OPEN_QUESTIONS.
+Resource survey work continues; grain behavior is not implemented yet. No question pending.
+
 ## October 13, 2026 — live finite quarry and sand-pit operation
 
 Existing funded/staffed quarry and sandpit firms now enroll in the normal SQL-owner

@@ -1,5 +1,12 @@
 # Civilizations progress tracker
 
+Nearby resource checks now read already-loaded neighboring chunks, so exposed
+stone and sand at chunk borders can be checked accurately. Missing terrain stays
+unknown. All1,339 full-build cases and the isolated Paper check passed; your
+playable server is unchanged. This prepares automatic quarry discovery; it does
+not open new quarries yet. Phase3 remains1/4 whole groups/~70% partial.
+Bakery ingredients are approved; existing food will be preserved.
+
 Already-established stone quarries and sand pits now work on the live simulation
 timer. Sand is extracted faster than stone, using editable settings. Supplies stay
 finite: removing one supporting block loses only its share, and restarts cannot
