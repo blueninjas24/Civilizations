@@ -1,5 +1,15 @@
 # Phase 3 — businesses and industry checklist
 
+You approved adapting after shoreline damage. The new recovery planner looks for
+another safe nearby bank beside the same fishing water, or flags a repair need.
+It never closes the business or resets its fish. Unknown/unloaded blocks cannot
+be treated as damage. Physical repairs and docks remain Phase4 work.
+All1,287 full-build tests passed. The isolated Paper check found a real safe
+replacement under simulated missing-block input, without breaking world blocks.
+Automatic saved workplace recovery/founding is still unfinished; this is a tested
+planning step. Your playable server is unchanged. No decision is pending for this
+work. Phase3 remains1/4 whole groups/~69% partial.
+
 Fishery preparation now chooses a genuinely qualified adult using saved fishing
 skills. It cannot take someone from an existing worker job or active studies, and
 does not invent experience, money, a workplace or a business. Existing owners may

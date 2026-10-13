@@ -6,12 +6,15 @@ import java.util.*;
 public final class ShorelineScan {
     public enum Cell { AIR, SAFE_FOOTING, OTHER, UNKNOWN }
     public record Position(int x,int y,int z) {}
+    public enum State { SAFE, BLOCKED, UNKNOWN }
+    public record Assessment(Position position,State state) {}
     public interface Source { Cell cell(Position position); }
     private final Source source;
     private final List<Position> candidates;
     private final List<Position> suitable=new ArrayList<>();
+    private final List<Assessment> assessments=new ArrayList<>();
     private int cursor,stage;
-    private boolean safe=true,unknown;
+    private boolean safe=true,unknown,positionUnknown;
     public ShorelineScan(Source source,WaterPatch.Patch patch,int maximumRise) {
         this.source=Objects.requireNonNull(source);Objects.requireNonNull(patch);
         if(!patch.evidence().complete()||patch.evidence().columns().size()>256||maximumRise<0||maximumRise>4)
@@ -36,12 +39,14 @@ public final class ShorelineScan {
         while(!complete()&&used<budget) {
             var position=candidates.get(cursor);int y=position.y()+stage-1;
             var cell=Objects.requireNonNull(source.cell(new Position(position.x(),y,position.z())));used++;
-            if(cell==Cell.UNKNOWN)unknown=true;
+            if(cell==Cell.UNKNOWN){unknown=true;positionUnknown=true;}
             if(cell!=(stage==0?Cell.SAFE_FOOTING:Cell.AIR))safe=false;
-            if(++stage==3){if(safe)suitable.add(position);cursor++;stage=0;safe=true;}
+            if(++stage==3){if(safe)suitable.add(position);assessments.add(new Assessment(position,safe?State.SAFE:positionUnknown?State.UNKNOWN:State.BLOCKED));cursor++;stage=0;safe=true;positionUnknown=false;}
         }
         return used;
     }
+    public List<Position> candidates(){return candidates;}
+    public List<Assessment> assessments(){if(!complete())throw new IllegalStateException("Shoreline scan unfinished");return List.copyOf(assessments);}
     public boolean complete(){return cursor==candidates.size();}
     public boolean encounteredUnknown(){return unknown;}
     public List<Position> suitable(){if(!complete())throw new IllegalStateException("Shoreline scan unfinished");return List.copyOf(suitable);}

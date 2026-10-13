@@ -1,17 +1,20 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October12: removed shoreline standing spot — awaiting decision
+## October12: shoreline damage recovery — approved
 
-Before automatically started shoreline fisheries, define what happens when complete
-loaded evidence confirms the original safe standing spot is removed/obstructed while
-its original habitat remains. Recommend pausing work until the same spot is restored,
-retaining resource identity/stock, money, goods, workers and history; unloaded or
-unknown evidence is not confirmed removal. Alternative: bounded relocation to a
-safe bank beside the same original saved habitat. The approved shoreline/dock rule
-covers startup and future efficiency, not this continuing workplace behavior.
-Question sent under AGENTS.md's consequential-gameplay rule; no answer yet.
-Read-only opportunity and qualified-owner preparation can proceed independently.
-Do not apply a guessed removal rule to existing legacy fisheries.
+User approved looking for a replacement or trying to repair the workplace: accidental
+player/creeper damage should not kill the industry. Temporarily suspend unsafe work;
+look for a safe nearby bank beside the same original saved fishing habitat. Keep
+business/site identity, workers, cash, owned goods, remaining fish and history.
+Relocation cannot claim new water or reset habitat abundance. Unknown/unloaded
+standing points do not prove damage; wait for actual loaded evidence.
+
+If no safe replacement is confirmed, retain the business and pursue feasible repair
+or dock construction through Phase4 project/material/labor/funding and player-build
+protection rules. This is not permission to place free blocks or overwrite protected
+player builds. Repairs and automatic persisted workplace/scheduler integration remain
+unfinished. The prior fixed-spot-pausing recommendation was not approved and is
+superseded by this adaptive recovery direction. No new decision is pending here.
 
 ## October12: proactive emergency food reserves — approved
 

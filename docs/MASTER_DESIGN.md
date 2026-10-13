@@ -1,5 +1,12 @@
 # Civilizations — canonical master design
 
+October12 approved shoreline recovery: accidental workplace damage suspends unsafe
+work while the business searches for a safe nearby bank beside its original saved
+habitat or pursues a feasible protected repair/dock project in Phase4. Preserve
+identity, workers, goods, cash and fish supply. Relocation never claims new water or
+refills resources; unknown/unloaded evidence cannot establish damage. This is design
+intent; automatic saved workplace recovery and physical repairs are not yet enabled.
+
 October12 approved: villages maintain a configurable emergency food reserve based
 on actual resident needs, purchasing real owned food with the existing bounded
 village food budget. Stored/incoming/reserved food reduces orders; no invented

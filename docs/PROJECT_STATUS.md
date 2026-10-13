@@ -1,5 +1,40 @@
 # Civilizations — implementation status and handoff
 
+## October13, 2026 — approved adaptive shoreline recovery planner
+
+User chose nearby replacement or repair rather than permanent fixed-spot pausing.
+Recorded in canonical design/simulation/decisions. ShorelineScan now exposes immutable
+per-position safe/blocked/unknown evidence; ShorelineRecovery plans KEEP, nearest
+bounded RELOCATE, WAIT_UNKNOWN or NEEDS_REPAIR around the same original habitat.
+No closure, new resource claim, fish refill, cash/job changes or block edits occur.
+Confirmed damage is distinct from missing evidence; unknown original geometry must
+preserve last verified operational state and normal unloaded-chunk data simulation.
+Caller-supplied rise/distance, strict read budgets, deterministic ties and overflow
+protection apply. Repairs/docks still need Phase4 funding/labor/materials/protection.
+
+Seven added headless cases; focused12 passed, zero failures/errors/skips,12.766s
+at00:00:11 ET. An initial full run was intentionally interrupted when review found
+that fresh-safe evidence needed explicit separation from operational permission;
+validation restarted after clarifying confirmed damage versus unknown flags.
+Full Windows .\mvnw.cmd clean verify passed1,287 (1,285 unit/two packaged
+integration), zero failures/errors/skips,7:02 at00:07:16 ET.
+Guarded native scheduled water/SQL-owner/read-only shoreline probe passed at
+00:08:10 ET:220 independently checked water columns,11 actual safe banks, loss-mask
+selection of an independently checked safe replacement and unknown-mask waiting.
+Strict128 cell checks/tick, newer capture, absent-world pause and restart passed.
+Damage was represented by read-only input overrides; no helper blocks/entities were
+changed and no actual relocation was persisted. Normal shutdown00:08:10. Save audit
+113/117 tables exact; four ordinary clock/economy/farm-freshness/ore changes only,
+all identities/assets/cash/history retained. Schema68 integrity/FK healthy; exact
+settings restored, helper archived, helper-only chunk ticket released and consistent
+backups retained.
+No migration (schema68), persisted workplace binding, automatic founding/recovery
+scheduler or physical repair is enabled. Next: save/validate opening shoreline and
+habitat recognition terms, final acceptance and qualified training/startup scheduling.
+The shoreline decision is answered; no new question pending. Human playable server
+unchanged; no merge/push. Phase3 remains1/4 whole groups/~69% partial.
+See SHORELINE_RECOVERY.md for the exact implemented/planned boundary.
+
 ## October12, 2026 — qualified read-only fishery owner preparation
 
 FisheryInvestment chooses an actual qualified living local unemployed adult from
