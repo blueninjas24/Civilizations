@@ -1,5 +1,26 @@
 # Civilizations Development Log
 
+## October13 — livestock protection and bounded work foundation
+
+Approved automatic free-range adoption and authorized per-pen sign preview/
+confirmation direction, resolving the earlier livestock ownership question.
+Implemented plain-Java bounded incremental enclosure detection, actor/world/level/
+expiry-bound previews, fresh evidence/membership/authority checks, saved-ownership
+priority eligibility and feed/labor/storage/reserve-bounded livestock work.
+Twenty-six new focused tests passed, including13,122 small work combinations.
+Full Windows Wrapper .\mvnw.cmd clean verify passed1,404 cases (1,402 unit
+and two packaged integration), zero failures/errors/skips,9:13 at11:24:55 ET.
+
+This is backend preparation, not live adoption. No Paper sign listener/menu/
+particles, persistent pen/animal records, breeding cohorts, actual herd startup,
+config section or claims-plugin integration yet. Schema remains73; no world,
+animal or human server changes. P3 checklist remains29/39 resources,1/4 whole
+groups/~67% partial: neither livestock entry is complete. Next: saved ownership
+and safe loaded-world recognition before enabling player interactions/adoption.
+No consequential product decision is currently pending.
+See LIVESTOCK_PROTECTION.md. Branch codex/phase3-livestock-protection; no push/merge.
+
+
 ## October 13, 2026 — hybrid farm contributions and actual paid surplus
 
 Implemented the approved hybrid farming model on codex/phase3-farm-market.

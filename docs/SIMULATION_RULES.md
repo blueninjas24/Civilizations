@@ -1,5 +1,14 @@
 # Civilizations — simulation rules and testable examples
 
+October13 approved livestock ownership direction: automatic eligible free-range
+adoption, protection for recorded player animals and uncertain existing pens,
+and explicit authorized bulk pen designation. Protection/donation signs request
+bounded enclosure previews and confirmation; fences/signs alone claim nothing.
+Opening gates, escapes or broken signs do not erase saved animal ownership.
+Current plain-Java eligibility/geometry/work calculations are foundations only;
+live sign interactions, saved claims, breeding and adoption remain unimplemented.
+See LIVESTOCK_PROTECTION.md for limits and verification status.
+
 October12 approved shoreline recovery: accidental workplace damage suspends unsafe
 work while the business searches for a safe nearby bank beside its original saved
 habitat or pursues a feasible protected repair/dock project in Phase4. Preserve

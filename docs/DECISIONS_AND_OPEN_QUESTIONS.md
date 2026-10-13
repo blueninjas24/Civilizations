@@ -1,13 +1,32 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October13: existing livestock ownership — awaiting user decision
+## October13: automatic livestock adoption and confirmed pen protection — approved direction
 
-First live chicken/cattle farms need an explicit ownership rule before the plugin
-breeds or slaughters existing nearby animals. Question sent: may Civilizations
-adopt existing nearby chickens/cows including player pens, or require explicit
-opt-in for existing livestock? Recommend opt-in to preserve player animals.
-No answer is assumed, and no animal adoption/spawning/slaughter is implemented.
-Hybrid farm allocation/payment work can be completed independently while pending.
+User prefers automatic adoption of eligible free-range livestock, rather than
+per-animal approval. After discussing multiplayer authority and accidental walkway
+claims, user accepted bounded enclosure previews and explicit per-pen confirmation:
+“Sounds good. Keep building.” Protection/donation signs request a scan; signs or
+fences alone do not establish ownership. A connected building/fence courtyard may
+be geometrically enclosed, so its footprint and eligible animal count must be
+previewed before confirmation. Open-ended or oversized terrain is refused.
+
+Recorded player ownership, names/leashes and player-breeding evidence protect
+animals. Unknown existing pens remain protected until authorized resolution;
+old pen origins cannot reliably be inferred as player/natural from their shape.
+Recorded owners or delegated/compatible land-claim managers may authorize their
+pens; uncertain old ownership requires admin resolution. Proximity or first
+arrival is not authority. A designated village pen is bulk consent for eligible
+animals and future offspring; it cannot override an individually player-owned
+animal. Escapes and broken signs do not clear saved ownership. Gates count as
+structural boundaries even when open. Commands/permissions and admin-editable
+recognition/adoption limits accompany the future interaction adapter.
+
+The current batch implements plain-Java bounded geometry, actor/world/level-bound
+preview checks, adoption eligibility and bounded livestock work only. No live sign
+listener, particles/menu, ownership persistence, adoption or animal mutations yet.
+It introduces no reliable natural-pen recognition or claims-plugin integration.
+See LIVESTOCK_PROTECTION.md. The former opt-in-versus-automatic question is resolved;
+no new product decision blocks the next persistence/adapter work.
 
 ## October13: hybrid farm obligation, paid surplus and basic food industries — approved direction
 
