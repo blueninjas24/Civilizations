@@ -1,17 +1,26 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October13: village herd authority — awaiting user decision
+## October13: bakery/craftsman workplace markers — awaiting user decision
 
-Automatic eligible free-range adoption/protected pens is approved. Before live
-village herds are wired, asked whether Civilizations may control breeding and
-slaughter under saved feed/space/breeding-reserve rules, preventing vanilla births
-outside that accounting for village-owned animals only. Alternative is retaining
-vanilla breeding and observing changes. Recommend simulation control; no answer
-assumed and no animal breeding/slaughter event cancellation enabled. Player-owned
-animals keep normal Minecraft behavior; actual player-caused deaths still reduce
-the village herd. This is consequential gameplay authority under AGENTS.md, not
-merely a coefficient. Saved-pen verification can proceed independently.
+Before automatic founding, asked whether existing nearby smokers may mark bakeries
+and crafting tables the single general craftsman, with editable recognition and
+the same no-container-content/no-player-building-ownership protections and safe
+replacement searches. Recommend these markers; alternative is explicit designated
+workplaces. Prior approval specifically covers smithing tables/barrels, so this
+extension is not silently chosen. No answer assumed; no new marker recognition
+or bakery/craftsman founding activated. Approved herd authority remains resolved.
 
+
+## October13: village herd authority — approved
+
+User answered “Yes, keep going” to simulation-managed breeding/slaughter for
+village-owned livestock under saved feed, space and breeding-reserve rules.
+Prevent vanilla births outside that accounting for village-owned animals only;
+player-owned animals keep normal Minecraft behavior. Real player-caused deaths
+still reduce the village herd. This authorizes herd control, not taking player
+animals, manufacturing feed/capital, spoilage or mortality from invented shortages.
+Implement with configurable prototype terms, identity evidence and native checks.
+Current adoption/pen approvals remain intact; no new question is pending.
 
 ## October13: automatic livestock adoption and confirmed pen protection — approved direction
 

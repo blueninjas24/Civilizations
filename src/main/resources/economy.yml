@@ -705,3 +705,29 @@ warehouse-founding:
   founder-commerce-experience: 10
   worker-commerce-experience: 1
   worker-capacity: 2
+
+# Village-owned cows/chickens only. Old files missing this section stay disabled.
+# The positive saved-ownership guard blocks outside breeding-food interactions
+# and vanilla births; player animals and bucket/name-tag/leash interactions stay normal.
+# Adoption, persistent herds and live production are still being connected.
+# Rates below are prototype herd-calculator inputs, not active production yet.
+# Periods are active economic periods; absence/downtime must not age herds.
+livestock:
+  enabled: true
+  maturity-periods: 12
+  breeding-delay-periods: 6
+  feed-per-birth: 4
+  work-per-birth: 2
+  maximum-births-per-period: 1
+  cow:
+    breeding-reserve: 2
+    feed-per-adult: 1
+    renewable-units-per-adult: 1 # milk units; no physical bucket minted
+    meat-units-per-animal: 4
+    maximum-slaughter-per-period: 1
+  chicken:
+    breeding-reserve: 2
+    feed-per-adult: 1
+    renewable-units-per-adult: 1 # egg units
+    meat-units-per-animal: 2
+    maximum-slaughter-per-period: 1

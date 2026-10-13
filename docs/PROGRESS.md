@@ -1,5 +1,48 @@
 # Civilizations progress tracker
 
+## October13 — approved herd authority, cohort calculator and village-only breeding guard
+
+User approved simulation-managed breeding/slaughter for village-owned livestock.
+Implemented deterministic active-period young cohorts, paid feed/labor birth costs,
+cooldowns, gradual maturity, head/capacity limits and protected adult slaughter.
+Capacity loss preserves existing animals; absent worlds/disabled mode preserve the
+exact state. No food-linked death, spoilage, invented feed or consumer is introduced.
+This calculation is not a persistent herd ledger or connected production yet.
+
+Added optional strict livestock YAML with editable cow/chicken care/output/birth
+terms. New-file defaults enable control for positively saved village-owned cows/
+chickens; absent old sections disable without rewriting. SQL owner loads immutable
+village animal IDs at startup, excluding player ownership. Main-thread event guard
+blocks outside vanilla births for either village parent and intercepts breeding
+food in either hand before vanilla item consumption; buckets/names/leashes remain
+available. No SQL/world scan per event. Adoption/transfer publication still needs
+its future commit/physical-claim handshake; no live adoption API exists yet.
+
+Fourteen added cases: six herd calculations including2,400 active periods/replay/
+head/feed/work/storage conservation, six event/interaction guards, one strict YAML
+case and one immutable village-only SQL registry case. Focused21 passed. Full
+Wrapper .\mvnw.cmd clean verify passed1,439 (1,437 unit/two packaged integration),
+zero failures/errors/skips,7:37 at13:12:55 ET. Guarded Paper26.2 build129 proof
+passed13:44:11 ET: actual SQL-owner cached identities, actual food tags and synthetic
+birth/interaction dispatch with real temporary cows/chickens and a fake player.
+Verified village birth/feeding blocks, player/other-item availability and unchanged
+feeding stacks. First fixture had missing fake-player PDC and listener errors;
+audit refused its own pass marker. Fixed only the test helper and reran cleanly.
+Removed temporary actors, stopped fixture, restored properties and archived helpers.
+Retry audit verified one normal month: two living residents aged one, dead/history/
+money/assets retained;123 other predecessor tables exact. No client/packet or
+actual vanilla breeding-cycle proof is claimed. No broad profiling claim.
+Schema remains75; no migration or human server edits. Existing saved village
+identities are the only control evidence; cold startup/failed readiness leaves
+control inactive until the identity view is ready. Livestock ledger/startup/death
+reconciliation, safe adoption, signs/transfer UI and actual products remain next.
+P3 remains29/39 resources,1/4 whole groups/~67% partial; no herd gate claimed.
+Next requested decision: editable smoker/crafting-table recognition for bakeries
+and craftsman shops, or explicit designated workplaces. This extends the specific
+smithing-table/barrel approval and is not silently selected. See
+LIVESTOCK_PROTECTION.md. No merge or push.
+
+
 ## October13 — saved protective pens and conservative flat-pen evidence
 
 Implemented confirmed protective pen storage and atomic initial animal ownership,

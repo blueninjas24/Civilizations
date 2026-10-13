@@ -1,5 +1,52 @@
 # Livestock protection and work foundation
 
+## Approved herd control and cohort calculation batch
+
+User approved simulation-managed breeding/slaughter. `LivestockHerd` computes
+only actual active periods: immutable normalized young cohorts mature gradually,
+fed surviving adults can breed after saved cooldown, births require additional
+real caller-supplied feed/work and free herd capacity. Capacity loss retains old
+animals. Adult slaughter uses the existing protected reserve and cannot slaughter
+young; milk/egg and meat units stay abstract until owned inventory integration.
+No feed-linked deaths/spoilage or stock transfer is invented. Replay is deterministic.
+This is not a persisted herd ledger; caller must not treat budget inputs as actual
+stock without a future shared transaction and roster/projection reconciliation.
+
+Strict optional `livestock` YAML: enabled, maturity12 active periods, breeding delay6,
+feed4/work2 per birth, max1 birth/period. Cow/chicken reserve2, feed1/adult, renewable
+output1/adult, meat4/cow or2/chicken, slaughter max1. All editable prototype terms;
+zero birth cap disables breeding. Stored cohort mature-period schedules apply
+forward; new terms do not retroactively reschedule existing cohorts. Current live
+use is the guard enable flag; herd rates are calculator settings awaiting integration.
+Missing old-file section opts out and files are never overwritten.
+
+`AnimalOwnershipRepository.villageAnimals` returns immutable positive village-only
+IDs. `PopulationSession` publishes them on its SQL owner at startup. The new Paper
+guard uses that view and readiness, with no SQL/world access per event. It blocks
+outside EntityBreedEvent births when either supported parent is village-owned;
+intercepts actual cow/chicken food tags in either hand before vanilla consumption.
+Buckets, name tags, leashes, player/unclaimed/unsupported animals stay available.
+No live adoption/transfer exists yet; future claims must publish after commit and
+before physical control. Cold-start/failed readiness leaves the guard inactive;
+startup reconciliation/freeze for recovered real herds is still required before
+live adoption. Slaughter, player-death updates and herd products are not wired.
+
+Fourteen added tests: six pure cases with2,400-period conservation/replay; six
+birth/early-interaction cases; one strict YAML case; one village-only SQL identity
+publication case. Focused21 passed; full .\mvnw.cmd clean verify passed1,439
+(1,437 unit/two packaged integration), zero failures/errors/skips,7:37 at13:12:55 ET.
+Guarded Paper26.2 build129 proof passed13:44:11 ET: SQL-owner identity publication,
+actual cow/chicken food tags, synthetic native event dispatch, player/other-item
+availability and unchanged fake-player feeding stacks. First fake player lacked PDC
+and caused existing trade-guard listener errors; the audit refused its pass marker.
+Fixed only the helper, then reran with no event errors. Real temporary animals
+removed; fixture stopped, settings restored and helpers archived. Retry audit
+verified one normal calendar month and two living residents aging one month; dead
+rows, history, money/assets retained,123 other predecessor tables exact. This is
+synthetic event/identity proof, not a client packet or actual vanilla birth-cycle
+playtest. Production source stayed unchanged after full verification. Schema75 unchanged,
+no human server edits. Production livestock and sign UI remain incomplete.
+
 ## Subsequent schema75 pen protection and snapshot classifier
 
 `PenProtection` validates bounded connected geometry, an interior seed, an adjacent

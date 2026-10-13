@@ -88,4 +88,10 @@ class AnimalOwnershipRepositoryTest {
         assertThrows(IllegalArgumentException.class, () -> new AnimalOwnershipRepository.Claim(animal, world,
                 LivestockAdoption.Ownership.PLAYER, player, town, 1000, "Ambiguous"));
     }
+    @Test void villageIdentityPublicationExcludesPlayersAndIsImmutable()throws Exception {
+        town();repo().record(playerClaim());UUID villageAnimal=new UUID(0,6);
+        repo().record(new AnimalOwnershipRepository.Claim(villageAnimal,world,LivestockAdoption.Ownership.VILLAGE,null,town,1000,"Village registry fixture"));
+        var ids=repo().villageAnimals();assertEquals(java.util.Set.of(villageAnimal),ids);
+        assertThrows(UnsupportedOperationException.class,ids::clear);
+    }
 }

@@ -22,6 +22,13 @@ public final class AnimalOwnershipRepository {
     }
     private final Connection connection;
     public AnimalOwnershipRepository(Connection connection) { this.connection = Objects.requireNonNull(connection); }
+    public Set<UUID> villageAnimals() throws SQLException {
+        var animals=new HashSet<UUID>();
+        try(var s=connection.createStatement();var r=s.executeQuery("SELECT animal_id FROM animal_ownership WHERE kind='VILLAGE' ORDER BY animal_id")){
+            while(r.next())animals.add(UUID.fromString(r.getString(1)));
+        }
+        return Set.copyOf(animals);
+    }
     public Optional<Claim> load(UUID animal) throws SQLException {
         Objects.requireNonNull(animal);
         try (var s = connection.prepareStatement("SELECT * FROM animal_ownership WHERE animal_id=?")) {

@@ -8,10 +8,13 @@ Opening gates, escapes or broken signs do not erase saved animal ownership.
 Current plain-Java eligibility/geometry/work calculations are foundations only;
 saved protective pen footprints and initial animal rosters now persist atomically.
 Simple flat-pen immutable Paper evidence passed native closed/open gate checks;
-live sign interactions, breeding and adoption remain unimplemented.
+live sign interactions, simulation births and adoption remain unimplemented.
 Subsequent schema74 records trusted initial animal ownership; automatic capture
 and explicit authorized transfers are still unwired. Village herd breeding authority
-has been asked explicitly before enabling control of vanilla animal behavior.
+was approved: simulation-managed breeding/slaughter for village-owned animals,
+with normal player-owned behavior and actual deaths reducing herds. The village-only guard
+and cohort calculator passed full/native checks; persistent herds, live simulation
+births/adoption and product inventory integration remain next.
 See LIVESTOCK_PROTECTION.md for limits and verification status.
 
 October12 approved shoreline recovery: accidental workplace damage suspends unsafe

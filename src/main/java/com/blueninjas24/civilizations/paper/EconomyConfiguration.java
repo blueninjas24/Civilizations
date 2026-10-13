@@ -28,6 +28,7 @@ public final class EconomyConfiguration {
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
         if (config.contains("grain-harvest")) rootKeys.add("grain-harvest");
         if (config.contains("farm-market")) rootKeys.add("farm-market");
+        if (config.contains("livestock")) rootKeys.add("livestock");
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
@@ -105,6 +106,7 @@ public final class EconomyConfiguration {
         readFarmBusinesses(config);
         readGrainHarvest(config);
         readFarmMarket(config);
+        readLivestock(config);
         readRecipes(config);
         readOreObserver(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
@@ -297,6 +299,17 @@ public final class EconomyConfiguration {
         var s=section(config,"farm-market");exactKeys(s,Set.of("enabled","village-share-percent","food-reserve-periods","storage-capacity","grain-stock-target"));
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-market.enabled must be true or false");
         return new com.blueninjas24.civilizations.economy.FarmMarketPolicy(enabled,smallInteger(s,"village-share-percent"),smallInteger(s,"food-reserve-periods"),integer(s,"storage-capacity"),integer(s,"grain-stock-target"));
+    }
+    public static com.blueninjas24.civilizations.industry.LivestockPolicy readLivestock(ConfigurationSection config) {
+        if(!config.contains("livestock"))return com.blueninjas24.civilizations.industry.LivestockPolicy.disabled();
+        var s=section(config,"livestock");exactKeys(s,Set.of("enabled","maturity-periods","breeding-delay-periods","feed-per-birth","work-per-birth","maximum-births-per-period","cow","chicken"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("livestock.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.LivestockPolicy(enabled,smallInteger(s,"maturity-periods"),smallInteger(s,"breeding-delay-periods"),
+                integer(s,"feed-per-birth"),integer(s,"work-per-birth"),integer(s,"maximum-births-per-period"),livestockTerms(section(s,"cow")),livestockTerms(section(s,"chicken")));
+    }
+    private static com.blueninjas24.civilizations.industry.LivestockWork.Terms livestockTerms(ConfigurationSection s) {
+        exactKeys(s,Set.of("breeding-reserve","feed-per-adult","renewable-units-per-adult","meat-units-per-animal","maximum-slaughter-per-period"));
+        return new com.blueninjas24.civilizations.industry.LivestockWork.Terms(integer(s,"breeding-reserve"),integer(s,"feed-per-adult"),integer(s,"renewable-units-per-adult"),integer(s,"meat-units-per-animal"),integer(s,"maximum-slaughter-per-period"));
     }
     /** Backend recipe catalog. Parsing does not establish a workshop, provide stock or run production. */
     public static Map<String,com.blueninjas24.civilizations.industry.ProductionRecipe> readRecipes(ConfigurationSection config) {

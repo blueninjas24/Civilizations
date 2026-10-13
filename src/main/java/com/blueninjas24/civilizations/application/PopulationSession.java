@@ -59,6 +59,8 @@ public final class PopulationSession implements AutoCloseable {
     private final ScheduledThreadPoolExecutor owner;
     private final AtomicReference<Status> status = new AtomicReference<>(new Status(false, 0, 0, 0, 0, null));
     private final AtomicReference<java.util.Map<UUID,String>> settlementNames = new AtomicReference<>(java.util.Map.of());
+    private final AtomicReference<java.util.Set<UUID>> villageAnimals=new AtomicReference<>(java.util.Set.of());
+    public java.util.Set<UUID> villageAnimals(){return villageAnimals.get();}
     private final AtomicReference<PopulationState> snapshot = new AtomicReference<>();
     private final AtomicReference<ProjectionView> projectionView = new AtomicReference<>();
     private final AtomicBoolean started = new AtomicBoolean(), closing = new AtomicBoolean();
@@ -385,6 +387,7 @@ public final class PopulationSession implements AutoCloseable {
             try {
                 loadedWorlds = initial;
                 database.initialize();
+                villageAnimals.set(new com.blueninjas24.civilizations.database.AnimalOwnershipRepository(database.getConnection()).villageAnimals());
                 new com.blueninjas24.civilizations.database.WorkplaceOperations(database.getConnection()).configure(workplaceOperationPolicy);
                 if(trackOres) {
                     var fence=new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection()).begin(now.getAsLong());
