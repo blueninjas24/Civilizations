@@ -71,6 +71,19 @@ class WaterOpportunitiesTest {
         try(var s=db.getConnection().createStatement()){s.execute("DROP VIEW water_columns");}new SchemaMigrator().migrate(db.getConnection());assertEquals(1,count("settlements"));assertEquals(1,count("settlement_worlds"));assertEquals(0,count("water_columns"));
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
+    @Test void connectedPatchesRespectCurrentSqlQualityAndConfiguredOwnerTerms()throws Exception {
+        repo().observe(town,frame(1000,0,2,true,20));assertEquals(1,repo().patches(town,1000,100,Set.of(world),2,16,16,1).size());
+        assertEquals(16,repo().patches(town,1000,100,Set.of(world),2,16,16,1).getFirst().evidence().columns().size());
+        repo().observe(town,frame(1001,0,2,false,20));assertTrue(repo().patches(town,1001,100,Set.of(world),2,16,16,1).isEmpty());
+        db.close();var clock=new java.util.concurrent.atomic.AtomicLong(1002);
+        try(var session=new com.blueninjas24.civilizations.application.PopulationSession(directory.toFile(),Logger.getLogger("WaterTest"),com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype(),clock::get)) {
+            session.configureWater(WaterObserverPolicy.prototype());session.configureFishing(FishingPolicy.prototype());session.start(false,Set.of(world)).get(5,java.util.concurrent.TimeUnit.SECONDS);
+            session.observeWater(town,frame(1002,0,2,true,20)).get(5,java.util.concurrent.TimeUnit.SECONDS);
+            assertEquals(16,session.currentFishingPatches(town,100,16,1).get(5,java.util.concurrent.TimeUnit.SECONDS).getFirst().evidence().columns().size());
+            session.updateLoadedWorlds(Set.of()).get(5,java.util.concurrent.TimeUnit.SECONDS);assertTrue(session.currentFishingPatches(town,100,16,1).get(5,java.util.concurrent.TimeUnit.SECONDS).isEmpty());
+        }
+        db=new DatabaseManager(directory.toFile(),Logger.getLogger("WaterTest"));db.initialize();assertEquals(0,count("fishery_resources"));assertEquals(0,count("businesses"));
+    }
     @Test void actualOwnerHonorsDepthConfigurationAndAbsentWorldPause()throws Exception {
         db.close();var clock=new java.util.concurrent.atomic.AtomicLong(1000);
         try(var session=new com.blueninjas24.civilizations.application.PopulationSession(directory.toFile(),Logger.getLogger("WaterTest"),com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype(),clock::get)) {

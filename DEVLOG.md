@@ -1,5 +1,35 @@
 # Civilizations Development Log
 
+## October12, 2026 — connected bounded fishing candidates
+
+Branch codex/phase3-fishing-site-selection. WaterPatch selects deterministic,
+cardinally connected same-level water footprints from current eligible evidence.
+It rejects combining puddles, stale/future supports or duplicate coordinates;
+bounded large-body selection avoids claiming an entire ocean. Nearest saved-town
+center/coordinate ordering, oldest support timestamp and integer-edge safeguards
+preserve explainability. SQL-owner selection applies configured fishing minimum
+columns, enabled/depth/world/quality/conflict/claim gates; no startup or stock is
+created. Six domain cases include100 seeded input-order shuffles, cardinal
+connectivity, component limits, freshness and extrema; one SQL-owner integration
+case checks partial/absence/configured-minimum safety. No new migration.
+Focused37 tests passed, zero failures/errors/skips,20.179s at20:05:28 ET.
+Full Windows .\mvnw.cmd clean verify passed1,245 (1,243 unit/two packaged
+integration), zero failures/errors/skips,6:54 at20:12:51 ET. Guarded native ordinary
+Paper scanner/SQL owner selected one bounded32-column patch from220 independently
+confirmed suitable columns at20:13:35, with newer-capture/absence/restart checks;
+no invented businesses/resources or helper block/entity changes. Normal shutdown
+20:13:35. Main-save audit113/117 old tables exact; four ordinary clock/economy/
+farm-freshness/ore changes, all identities/assets/cash/history preserved; schema68
+integrity/FK healthy. Exact original settings restored, helper archived, consistent
+backups retained. Human playable server untouched; no merge/push.
+
+Automatic founding still needs a fresh actual workplace, skill/training, demand
+and shared protected funding. The natural-shore versus existing-dock workplace
+rule is undefined; recommendation/question recorded in DECISIONS_AND_OPEN_QUESTIONS
+and sent to the user under AGENTS.md. Dependent startup remains paused for this
+choice, not for failing tests. Phase3 remains1/4 whole groups/~69% partial; broader
+renewable catalog, competition/specialization and final acceptance remain open.
+
 ## October12, 2026 — live current water evidence
 
 Branch codex/phase3-live-water-evidence. Connected main-thread loaded-only

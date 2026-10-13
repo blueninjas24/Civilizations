@@ -73,6 +73,17 @@ public final class WaterOpportunities {
         if(columns.size()>limit)return new Review(List.of(),"Water opportunity budget exceeded; no partial selection");
         return new Review(columns,"Current complete water columns: "+columns.size()+"; stale/future/partial/depth-mismatched/conflicting/claimed sources excluded; no resource stock, ownership or funding granted");
     }
+    public List<WaterPatch.Patch> patches(UUID town,long now,long maximumAgeMillis,Set<UUID> activeWorlds,
+            int minimumDepth,int minimumColumns,int maximumColumns,int maximumSites)throws SQLException {
+        var review=review(town,now,maximumAgeMillis,activeWorlds,minimumDepth,4096);
+        try(var s=connection.prepareStatement("SELECT center_x,center_z FROM settlements WHERE id=?")) {
+            s.setString(1,town.toString());try(var r=s.executeQuery()) {
+                if(!r.next())throw new SQLException("Water patch settlement missing");
+                return WaterPatch.choose(world(town),review.columns().stream().map(c->new WaterPatch.Sample(c.position(),c.surfaceY(),c.capturedMillis())).toList(),
+                        r.getInt(1),r.getInt(2),now,maximumAgeMillis,minimumColumns,maximumColumns,maximumSites);
+            }
+        }
+    }
     private UUID world(UUID town)throws SQLException {
         try(var s=connection.prepareStatement("SELECT world_id FROM settlement_worlds WHERE settlement_id=?")) {
             s.setString(1,Objects.requireNonNull(town).toString());try(var r=s.executeQuery()){if(!r.next())throw new SQLException("Water settlement lacks permanent world identity");return UUID.fromString(r.getString(1));}

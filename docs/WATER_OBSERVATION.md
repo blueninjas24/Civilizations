@@ -91,3 +91,39 @@ no invented businesses/resources or helper block/entity changes. Normal shutdown
 farm-freshness/ore changes, all identities/assets/cash/history preserved; schema68
 integrity/FK healthy, new water and fishery tables empty. Exact original settings
 restored, helper archived, backups retained; human server untouched.
+
+## Connected candidate selection
+
+WaterPatch groups fresh distinct eligible columns by cardinal adjacency and equal
+surface elevation. It does not combine separate puddles, diagonal-only contacts,
+or different water levels. From each eligible observed component it chooses one
+bounded connected footprint starting nearest the saved settlement center, breaking
+ties by coordinates. Large bodies need not be claimed in full. Input is capped at
+4,096 columns; output limits are caller-supplied and validated (at most4,096 columns
+per footprint and64 candidate sites). No unobserved blocks or resource stock are
+inferred. Integer-edge coordinates cannot wrap and distance uses long arithmetic.
+The chosen capture time is the oldest support timestamp, not a false fresh time.
+
+WaterOpportunities and PopulationSession expose this read-only candidate selection.
+The SQL owner uses the configured fishing minimum-water-columns, currently16,
+and requires both water observation and fishing enabled. Freshness, world absence,
+partial captures, conflicting towns and existing claims retain the same exclusions.
+The initial same-level shape rule is conservative candidate infrastructure, not a
+promise of industry along every stream. Caller caps still need editable automatic
+founding settings when that adapter is implemented. No automatic decision, dock,
+land claim, skill, funding, fish-resource opening or production is added here.
+Acceptance must revalidate live supports, a safe actual workplace and all economic
+and qualification prerequisites in one transaction.
+
+## Connected selection verification — October12
+
+Focused37 tests passed, zero failures/errors/skips,20.179s at20:05:28 ET.
+Full Windows .\mvnw.cmd clean verify passed1,245 (1,243 unit/two packaged
+integration), zero failures/errors/skips,6:54 at20:12:51 ET. Guarded native ordinary
+Paper scanner/SQL owner selected one bounded32-column patch from220 independently
+confirmed suitable columns at20:13:35, with newer-capture/absence/restart checks;
+no invented businesses/resources or helper block/entity changes. Normal shutdown
+20:13:35. Main-save audit113/117 old tables exact; four ordinary clock/economy/
+farm-freshness/ore changes, all identities/assets/cash/history preserved; schema68
+integrity/FK healthy. Exact original settings restored, helper archived, consistent
+backups retained. Human playable server untouched; no merge/push.

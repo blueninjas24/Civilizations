@@ -1,5 +1,12 @@
 # Civilizations progress tracker
 
+The plugin can now save nearby water findings and choose connected fishing
+locations without combining separate puddles or claiming a whole ocean. All1,245
+full-build tests and the real Paper connected-patch/pause/restart check passed.
+Automatic fishing startup still needs safe workplace recognition, qualified owners,
+real customers and protected funding. Shoreline-versus-dock choice is pending.
+Phase3 counts remain1/4 whole groups/~69% partial; your playable server is unchanged.
+
 Water checks now run on the server and save fresh findings safely. All1,238
 full-build tests and the isolated Paper scanner/restart check passed. Water alone
 still creates no business or money: connected site selection, qualified owners

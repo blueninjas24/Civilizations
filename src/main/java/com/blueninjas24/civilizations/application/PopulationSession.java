@@ -208,6 +208,12 @@ public final class PopulationSession implements AutoCloseable {
             if(!waterPolicy.enabled())return new com.blueninjas24.civilizations.database.WaterOpportunities.Review(java.util.List.of(),"Water recognition disabled");
             return new com.blueninjas24.civilizations.database.WaterOpportunities(database.getConnection()).review(town,now.getAsLong(),maximumAgeMillis,loadedWorlds,waterPolicy.minimumDepth(),limit);});
     }
+    public CompletableFuture<java.util.List<com.blueninjas24.civilizations.industry.WaterPatch.Patch>> currentFishingPatches(UUID town,long maximumAgeMillis,int maximumColumns,int maximumSites) {
+        return submit(()->{requireReady();
+            if(!waterPolicy.enabled()||!fishingPolicy.enabled())return java.util.List.of();
+            return new com.blueninjas24.civilizations.database.WaterOpportunities(database.getConnection()).patches(town,now.getAsLong(),maximumAgeMillis,loadedWorlds,
+                    waterPolicy.minimumDepth(),fishingPolicy.minimumWaterColumns(),maximumColumns,maximumSites);});
+    }
     public String industryRuntimeDiagnostic() {
         return !industryPolicy.enabled()?"Timed industry disabled in economy.yml":industryFailure!=null
                 ?"Timed industry deferred: "+industryFailure:"Timed industry active for saved firms; "+automaticMineDiagnostic;

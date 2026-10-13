@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October12: first automatic fishing workplace — pending
+
+Proposed: use safe existing dry shoreline next to suitable water, with solid
+footing/clear standing space and editable limits, without placing blocks or
+claiming player buildings. Docks and construction remain Phase4. Alternative:
+require an existing dock or designated workplace. Natural/player pond water
+eligibility is already approved, but the actual initial business-site rule is not
+defined. AGENTS.md prohibits inventing consequential gameplay decisions; ask before
+connecting automatic startup. Connected candidate tests can proceed independently.
+
 ## October12: natural water and player ponds — approved
 
 User answered “Whatever you recommend”: both natural water and sufficiently
