@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October13: village herd authority — awaiting user decision
+
+Automatic eligible free-range adoption/protected pens is approved. Before live
+village herds are wired, asked whether Civilizations may control breeding and
+slaughter under saved feed/space/breeding-reserve rules, preventing vanilla births
+outside that accounting for village-owned animals only. Alternative is retaining
+vanilla breeding and observing changes. Recommend simulation control; no answer
+assumed and no animal breeding/slaughter event cancellation enabled. Player-owned
+animals keep normal Minecraft behavior; actual player-caused deaths still reduce
+the village herd. This is consequential gameplay authority under AGENTS.md, not
+merely a coefficient. Saved-pen verification can proceed independently.
+
+
 ## October13: automatic livestock adoption and confirmed pen protection — approved direction
 
 User prefers automatic adoption of eligible free-range livestock, rather than

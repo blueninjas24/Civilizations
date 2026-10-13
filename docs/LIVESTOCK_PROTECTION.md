@@ -1,5 +1,52 @@
 # Livestock protection and work foundation
 
+## Subsequent schema75 pen protection and snapshot classifier
+
+`PenProtection` validates bounded connected geometry, an interior seed, an adjacent
+sign coordinate and capped initial roster. `PenProtectionRepository` stores owner,
+world/standing level, geometry and initial roster with new animal ownership in one
+transaction. Exact retries replay; changed inputs, overlapping protected columns
+or another player/village's animal refuse and roll back everything. Existing animal
+provenance is retained. Protection lookup uses saved coordinates, not a current sign.
+Authority is a trusted adapter input; this backend is not exposed to players.
+Unknown existing pens still require admin/certified authority; sign placement alone
+is never certification. Shared boundary columns conservatively prevent adjacent
+claims in this initial backend; expanding that requires explicit safe overlap review.
+
+Additive schema75 creates empty protected_pens/columns/animals and preserves all
+predecessor rows. Eight temporary-DB tests cover restart/idempotence, denied authority,
+changed owner/roster, overlaps, conflicting animals/atomic rollback, original provenance,
+late failure/retry, migration74 rollback/retry and forged/disconnected geometry.
+Focused91 older-save checks and focused29 geometry/preview/store/Paper cases passed.
+Full .\mvnw.cmd clean verify passed1,425 cases (1,423 unit/two packaged integration),
+zero failures/errors/skips,7:54 at12:25:29 ET. Native Paper26.2 build129 passed
+12:29:13 ET: actual closed/open connected gates, exact nine-column interior, missing
+fence rejection and unknown snapshot. Initial attempt stopped before any block
+changes because no chunks were loaded; test-only setup now explicitly loads one
+fixture chunk if needed. Production source never loads a world/chunk. Temporary
+sky pen blocks restored, no animals edited. First schema73→75 and retry schema75
+save audits passed:125 and129 predecessor tables respectively, with only normal
+clock/economy/ore updates; ownership/pen rows empty, integrity/FK healthy. Settings
+restored, backed-up history preserved, helpers archived and isolated server stopped.
+No playable server or production database edited. Native helper is test-only and
+not shipped; source/tests/diff reviewed before commit.
+
+`PaperPenSource` reads only immutable snapshots captured on Paper's main thread;
+it never calls World or loads chunks. Correct world UUID/metadata, chunk coordinates,
+height bounds and snapshot count are validated. Three vertical levels plus bounded
+connection reads certify simple flat common-cube footing, two air blocks, fences
+with actual reciprocal connections, structurally connected gates (open or closed),
+and two-block common-cube building edges. Unsupported walls/doors/ramps/slabs/materials,
+wet/disconnected fences and missing terrain remain UNKNOWN. Known missing footing
+is OPEN. This is conservative evidence, not all-shape collision/ownership inference.
+Six proxy cases cover geometry, connections/openness independence, unknown/negative
+chunks and wrong identity/height. No live observer/sign menu is wired yet.
+
+Saved initial records/pen protection are backend-only. Automatic adoption, continuous
+observation/player breeding capture, donation transfers, live signs/particles/menu,
+claims-plugin adapters and simulation-controlled herds remain next. Herd authority
+has been asked explicitly; no vanilla animal behavior is changed while pending.
+
 ## Subsequent schema74 ownership persistence batch
 
 `AnimalOwnershipRepository` now records immutable first player/village ownership,

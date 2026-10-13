@@ -1,5 +1,45 @@
 # Civilizations progress tracker
 
+## October13 — saved protective pens and conservative flat-pen evidence
+
+Implemented confirmed protective pen storage and atomic initial animal ownership,
+plus immutable Paper snapshot classification for simple flat pens. A pen save
+records the finite footprint, sign coordinate, owner and initial roster; overlaps,
+changed replay inputs or another owner's animal cancel the whole transaction.
+Existing same-owner animal provenance is retained. Disconnected/forged geometry
+and distant signs are refused. Saved protection does not depend on today's sign.
+
+Schema75 adds initially empty protected_pens, protected_pen_columns and
+protected_pen_animals. Old-world/owner/history rows stay intact. Eight new
+SQLite cases passed within focused91 older-save checks; six Paper-source cases
+passed within focused29 geometry/preview/store checks. Full Windows Wrapper
+.\mvnw.cmd clean verify passed1,425 (1,423 unit/two packaged integration), zero
+failures/errors/skips,7:54 at12:25:29 ET. Guarded Paper26.2 build129 check passed
+12:29:13 ET: closed/open gate exact footprint, missing fence and unknown snapshot.
+Initial native check stopped before edits because empty server had no loaded chunks;
+fixed the test harness to explicitly prepare one chunk (production source never
+loads chunks). All temporary sky-pen blocks restored; no animals edited. Both
+migration73→75 and retry schema75 save audits preserved every predecessor row
+except ordinary civilization_time/economy_runtime/ore_tracking updates. New ownership/
+pen tables remain empty in primary fixture, integrity/FK healthy. Original properties
+restored, backups retained, helpers archived, fixture stopped. Human server untouched.
+This is verified backend/classifier work, not complete live livestock/sign adoption.
+
+The Paper source is an unwired read-only adapter over caller-captured immutable
+loaded chunk snapshots. It certifies common full-cube flat footing/two air blocks,
+connected fences/gates or two-block full-cube edges. Open gates count structurally;
+isolated/disconnected fences, missing chunks, ramps/slabs/doors/walls and unsupported
+materials stay unknown. It cannot certify ownership or land-claim permissions.
+No live listener/menu/adoption, donation transfers, breeding or player server edits.
+Adjacent pens sharing boundary columns conservatively conflict for now.
+
+Pending user rule: simulation-managed breeding/slaughter for village-owned animals
+versus retaining vanilla breeding and observing it. This affects live herd control;
+player animals stay ordinary and cannot be taken. Pen verification proceeds while
+pending. P3 remains29/39 resources,1/4 whole groups/~67% partial; livestock entries
+stay incomplete. See LIVESTOCK_PROTECTION.md. Feature branch unchanged; no push/merge.
+
+
 ## October13 — persistent initial livestock ownership (schema74)
 
 Continued after the verified protection-domain commit1873626. Added immutable

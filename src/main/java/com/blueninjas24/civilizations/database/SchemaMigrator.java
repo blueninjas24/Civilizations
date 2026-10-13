@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 74;
+    static final int CURRENT_VERSION = 75;
 
     @FunctionalInterface
     interface Migration {
@@ -923,10 +923,39 @@ final class SchemaMigrator {
                         """),
                 SchemaMigrator::createGrainHarvests,
                 SchemaMigrator::createFarmMarket,
-                SchemaMigrator::createAnimalOwnership
+                SchemaMigrator::createAnimalOwnership,
+                SchemaMigrator::createPenProtection
 
 
         ));
+    }
+
+    private static void createPenProtection(Connection c)throws SQLException {
+        execute(c,"""
+                CREATE TABLE protected_pens (
+                    id TEXT PRIMARY KEY, world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                    owner_id TEXT NOT NULL, standing_y INTEGER NOT NULL,
+                    sign_x INTEGER NOT NULL, sign_y INTEGER NOT NULL, sign_z INTEGER NOT NULL,
+                    seed_x INTEGER NOT NULL, seed_z INTEGER NOT NULL,
+                    confirmed_millis INTEGER NOT NULL CHECK(typeof(confirmed_millis)='integer' AND confirmed_millis>=0),
+                    UNIQUE(id,world_id,standing_y)
+                )
+                """);
+        execute(c,"""
+                CREATE TABLE protected_pen_columns (
+                    pen_id TEXT NOT NULL, world_id TEXT NOT NULL, standing_y INTEGER NOT NULL,
+                    x INTEGER NOT NULL,z INTEGER NOT NULL,kind TEXT NOT NULL CHECK(kind IN('INTERIOR','BOUNDARY')),
+                    PRIMARY KEY(pen_id,x,z),UNIQUE(world_id,standing_y,x,z),
+                    FOREIGN KEY(pen_id,world_id,standing_y) REFERENCES protected_pens(id,world_id,standing_y)
+                )
+                """);
+        execute(c,"""
+                CREATE TABLE protected_pen_animals (
+                    pen_id TEXT NOT NULL REFERENCES protected_pens(id),
+                    animal_id TEXT NOT NULL REFERENCES animal_ownership(animal_id),
+                    PRIMARY KEY(pen_id,animal_id)
+                )
+                """);
     }
 
     private static void createAnimalOwnership(Connection c)throws SQLException {
@@ -1059,6 +1088,7 @@ final class SchemaMigrator {
             if(migrations.size()>=72){requireColumns(connection,"grain_stocks",Set.of("settlement_id","units"));requireColumns(connection,"grain_harvests",Set.of("settlement_id","period","harvest","food_output","grain_units","policy"));}
             if(migrations.size()>=73){requireColumns(connection,"farm_market_stores",Set.of("business_id","capacity","prior_terms","policy"));requireColumns(connection,"farm_market_harvests",Set.of("settlement_id","period","business_id","actual_work","public_food","business_food","grain_units","grain_policy"));}
             if(migrations.size()>=74)requireColumns(connection,"animal_ownership",Set.of("animal_id","world_id","kind","player_id","settlement_id","recorded_millis","source"));
+            if(migrations.size()>=75){requireColumns(connection,"protected_pens",Set.of("id","world_id","owner_id","standing_y","confirmed_millis"));requireColumns(connection,"protected_pen_columns",Set.of("pen_id","world_id","standing_y","x","z","kind"));requireColumns(connection,"protected_pen_animals",Set.of("pen_id","animal_id"));}
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
                 requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",

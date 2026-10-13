@@ -6,9 +6,12 @@ and explicit authorized bulk pen designation. Protection/donation signs request
 bounded enclosure previews and confirmation; fences/signs alone claim nothing.
 Opening gates, escapes or broken signs do not erase saved animal ownership.
 Current plain-Java eligibility/geometry/work calculations are foundations only;
-live sign interactions, saved pen claims, breeding and adoption remain unimplemented.
+saved protective pen footprints and initial animal rosters now persist atomically.
+Simple flat-pen immutable Paper evidence passed native closed/open gate checks;
+live sign interactions, breeding and adoption remain unimplemented.
 Subsequent schema74 records trusted initial animal ownership; automatic capture
-and explicit authorized transfers are still unwired.
+and explicit authorized transfers are still unwired. Village herd breeding authority
+has been asked explicitly before enabling control of vanilla animal behavior.
 See LIVESTOCK_PROTECTION.md for limits and verification status.
 
 October12 approved shoreline recovery: accidental workplace damage suspends unsafe

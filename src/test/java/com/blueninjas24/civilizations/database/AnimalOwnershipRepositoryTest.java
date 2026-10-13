@@ -78,7 +78,7 @@ class AnimalOwnershipRepositoryTest {
         assertEquals(73, scalar("PRAGMA user_version")); assertEquals(1, scalar("SELECT COUNT(*) FROM settlements"));
         assertEquals(1, scalar("SELECT COUNT(*) FROM observed_worlds"));
         sql("DROP VIEW animal_ownership"); new SchemaMigrator().migrate(db.getConnection());
-        assertEquals(74, scalar("PRAGMA user_version")); assertEquals(0, scalar("SELECT COUNT(*) FROM animal_ownership"));
+        assertEquals(SchemaMigrator.CURRENT_VERSION, scalar("PRAGMA user_version")); assertEquals(0, scalar("SELECT COUNT(*) FROM animal_ownership"));
         assertEquals(1, scalar("SELECT COUNT(*) FROM settlements"));
         try (var s = db.getConnection().createStatement(); var r = s.executeQuery("PRAGMA foreign_key_check")) { assertFalse(r.next()); }
     }
