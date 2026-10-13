@@ -1,5 +1,16 @@
 # Phase 3 — businesses and industry checklist
 
+Fishery planning now checks that opening costs leave enough real village money
+to buy the catch, and that existing suppliers do not already cover that need.
+It finds bounded nearby water candidates without opening businesses or changing
+blocks. Eight added checks passed within the focused122-test run.
+All1,272 full-build tests passed. The isolated server passed identity safeguards
+and reserve/payment/delivery/pause/restart regression checks.
+Qualified founders/training, fresh shoreline/water acceptance and automatic startup
+are still next. The removed-standing-spot rule is awaiting your answer; docks remain
+Phase4. Your playable
+server is unchanged. Phase3 remains1/4 whole groups/~69% partial.
+
 Villages can now buy a small emergency food reserve before anyone is hungry.
 Purchases use real money and real food; what is stored or already on the way reduces
 orders. Admins can edit the reserve size in economy.yml. Old files keep their rules

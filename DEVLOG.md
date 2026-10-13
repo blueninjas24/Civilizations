@@ -1,5 +1,35 @@
 # Civilizations Development Log
 
+## October12, 2026 — bounded funded first-fishery prospects
+
+FisheryOpportunities connects current connected unclaimed water, real food customers
+and food-protected startup feasibility in a read-only SQL-owner review. Proposed
+startup/capital costs are deducted in a demand preview before checking customers,
+preventing counting the same public money twice. Actual eligible staffed local
+food stocks reduce remaining need. Over-budget supplier sets defer conservatively;
+all chosen water supports fit the saved town range. Saved fishery identities cannot
+be bypassed by first-firm bootstrap. No assets, jobs, grants or resources are created.
+
+Optional strict fishery-opportunities config and normal plugin/PopulationSession
+wiring added; missing old sections opt out. Numeric editable prototype terms in
+FISHERY_OPPORTUNITIES.md. Seven temporary-database cases and one configuration case
+added; focused122 passed, zero failures/errors/skips,23.432s at21:37:53 ET.
+Full Windows .\mvnw.cmd clean verify passed1,272 (1,270 unit/two packaged
+integration), zero failures/errors/skips,6:55 at21:46:00 ET.
+Guarded native new SQL-owner first-firm identity/configuration safeguard passed
+at21:46:54 ET, alongside ordinary emergency-food/practice purchases, money/goods
+conservation, delivery, absence pause and disabled-order restart. This native check
+does not claim a newly founded fishery or positive live economic candidate. Normal
+shutdown21:46:54; main-save audit114/117 tables exact, only clock/economy runtime/
+ore changes; identity/assets/cash/history retained. Schema68 integrity/FK healthy;
+exact settings restored, helper archived and consistent backups preserved.
+No migration (schema68), automatic founding/training or physical dock work enabled.
+Next: qualified owner/training preparation, fresh shoreline/water acceptance and
+normal startup scheduling. The removed-shoreline standing-point rule is now awaiting
+a user decision; preparation can continue independently. Human playable server
+unchanged; no merge/push. Phase3 stays1/4 whole groups/~69% partial; broader renewable
+catalog, competition/specialization and final acceptance remain unfinished.
+
 ## October12, 2026 — approved emergency food reserve customers
 
 User approved a needs-based reserve. VillageSupplyPolicy and VillageSupplyPurchases

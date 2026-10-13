@@ -208,6 +208,16 @@ public final class PopulationSession implements AutoCloseable {
             if(!waterPolicy.enabled())return new com.blueninjas24.civilizations.database.WaterOpportunities.Review(java.util.List.of(),"Water recognition disabled");
             return new com.blueninjas24.civilizations.database.WaterOpportunities(database.getConnection()).review(town,now.getAsLong(),maximumAgeMillis,loadedWorlds,waterPolicy.minimumDepth(),limit);});
     }
+    private com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy fisheryOpportunityPolicy=com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy.disabled();
+    public void configureFisheryOpportunities(com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure fishery opportunities before session starts");
+        fisheryOpportunityPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    /** Read-only SQL-owner prospects; neither schedules founders nor spends grants. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.FisheryOpportunities.Review> currentFisheryOpportunities(UUID town) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.FisheryOpportunities(database.getConnection(),fisheryOpportunityPolicy,
+                waterPolicy,fishingPolicy,industryPolicy,startupGrantPolicy,villageSupplyPolicy,studyPolicy,operationPolicy).review(town,now.getAsLong(),loadedWorlds);});
+    }
     public CompletableFuture<java.util.List<com.blueninjas24.civilizations.industry.WaterPatch.Patch>> currentFishingPatches(UUID town,long maximumAgeMillis,int maximumColumns,int maximumSites) {
         return submit(()->{requireReady();
             if(!waterPolicy.enabled()||!fishingPolicy.enabled())return java.util.List.of();

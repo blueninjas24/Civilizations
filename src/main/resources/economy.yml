@@ -28,6 +28,21 @@ village-supply-purchases:
     stone: 100
     timber: 150
 
+# Read-only first-fishery prospects. These settings do not yet enable founding.
+# Needs a real customer AFTER paying startup costs, current water and funding.
+# Qualified founders and fresh shoreline/water confirmation are separate gates.
+# Missing section in old files opts out. No chunk loading or property claims.
+fishery-opportunities:
+  enabled: true
+  sites-per-review: 8
+  maximum-columns: 64
+  evidence-lifetime-millis: 60000
+  horizontal-range: 96
+  vertical-range: 48
+  startup-hundredths: 500
+  capital-hundredths: 1000
+  capacity: 256
+
 # One paid recipe bundle for a new publicly funded workshop, not ongoing supply.
 # Uses prices.base-trade-value below. Food is never sold by this rule.
 # Leave this many units of EVERY purchased material for public/training needs.

@@ -13,6 +13,13 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void fisheryOpportunityTermsAreStrictEditableAndMissingSectionOptsOut()throws Exception {
+        var c=defaults();assertEquals(com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy.prototype(),EconomyConfiguration.readFisheryOpportunities(c));
+        c.set("fishery-opportunities.maximum-columns",32);EconomyConfiguration.read(c);assertEquals(32,EconomyConfiguration.readFisheryOpportunities(c).maximumColumns());
+        c.set("fishery-opportunities",null);EconomyConfiguration.read(c);assertFalse(EconomyConfiguration.readFisheryOpportunities(c).enabled());
+        for(Object value:List.of(0,257,1.5,"many",true)){var bad=defaults();bad.set("fishery-opportunities.maximum-columns",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(bad));}
+        var extra=defaults();extra.set("fishery-opportunities.free-fish",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(extra));
+    }
     @Test void fishingTermsAreEditableAndMissingOldSectionOptsOut() throws Exception {
         var config = defaults();
         assertEquals(com.blueninjas24.civilizations.industry.FishingPolicy.prototype(), EconomyConfiguration.readFishingResources(config));

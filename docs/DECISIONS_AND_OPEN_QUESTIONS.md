@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October12: removed shoreline standing spot — awaiting decision
+
+Before automatically started shoreline fisheries, define what happens when complete
+loaded evidence confirms the original safe standing spot is removed/obstructed while
+its original habitat remains. Recommend pausing work until the same spot is restored,
+retaining resource identity/stock, money, goods, workers and history; unloaded or
+unknown evidence is not confirmed removal. Alternative: bounded relocation to a
+safe bank beside the same original saved habitat. The approved shoreline/dock rule
+covers startup and future efficiency, not this continuing workplace behavior.
+Question sent under AGENTS.md's consequential-gameplay rule; no answer yet.
+Read-only opportunity and qualified-owner preparation can proceed independently.
+Do not apply a guessed removal rule to existing legacy fisheries.
+
 ## October12: proactive emergency food reserves — approved
 
 User approved: “Yes, they need a reserve.” Villages may buy a small configurable

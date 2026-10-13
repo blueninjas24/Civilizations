@@ -20,6 +20,7 @@ public final class EconomyConfiguration {
         if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("quarry-resources")) rootKeys.add("quarry-resources");
         if (config.contains("fishing-resources")) rootKeys.add("fishing-resources");
+        if (config.contains("fishery-opportunities")) rootKeys.add("fishery-opportunities");
         if (config.contains("water-observer")) rootKeys.add("water-observer");
         if (config.contains("village-supply-purchases")) rootKeys.add("village-supply-purchases");
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
@@ -60,6 +61,7 @@ public final class EconomyConfiguration {
         readQuarryResources(config);
         readFishingResources(config);
         readWaterObserver(config);
+        readFisheryOpportunities(config);
         readVillageSupplies(config);
         readWorkshopSupply(config);
         readWorkshopStarterSupplies(config);
@@ -514,6 +516,15 @@ public final class EconomyConfiguration {
         exactKeys(s,Set.of("reserve-batches-per-block","units-per-batch","batches-per-worker","site-batch-capacity"));
         return new com.blueninjas24.civilizations.industry.QuarryPolicy.Terms(integer(s,"reserve-batches-per-block"),
             integer(s,"units-per-batch"),integer(s,"batches-per-worker"),integer(s,"site-batch-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy readFisheryOpportunities(ConfigurationSection config) {
+        if(!config.contains("fishery-opportunities"))return com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy.disabled();
+        var s=section(config,"fishery-opportunities");
+        exactKeys(s,Set.of("enabled","sites-per-review","maximum-columns","evidence-lifetime-millis","horizontal-range","vertical-range","startup-hundredths","capital-hundredths","capacity"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("fishery-opportunities.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy(enabled,Math.toIntExact(integer(s,"sites-per-review")),Math.toIntExact(integer(s,"maximum-columns")),
+                integer(s,"evidence-lifetime-millis"),Math.toIntExact(integer(s,"horizontal-range")),Math.toIntExact(integer(s,"vertical-range")),
+                integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),integer(s,"capacity"));
     }
     public static com.blueninjas24.civilizations.industry.VillageSupplyPolicy readVillageSupplies(ConfigurationSection config) {
         if(!config.contains("village-supply-purchases"))return com.blueninjas24.civilizations.industry.VillageSupplyPolicy.disabled();

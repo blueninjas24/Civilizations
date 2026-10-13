@@ -129,13 +129,16 @@ public final class VillageSupplyPurchases {
     }
     private long hauled(UUID town,long period)throws SQLException {return sum("SELECT units FROM village_supply_orders WHERE settlement_id=? AND period=?",town,period);}
     /** Read-only actual public customer evidence for later resource investment; does not reserve cash or invent a business. */
-    public Demand demand(UUID town,Set<UUID> worlds)throws SQLException {
+    public Demand demand(UUID town,Set<UUID> worlds)throws SQLException {return demandAfterSpending(town,worlds,0);}
+    /** Read-only investment preview; the proposed debit is not reserved or posted. */
+    public Demand demandAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit)throws SQLException {
         Objects.requireNonNull(town);Objects.requireNonNull(worlds);
+        if(proposedDebit<0)throw new IllegalArgumentException("Negative proposed public spending");
         var account=new CommodityRepository(connection).read(town);
         long period=account.map(a->a.state().completedPeriods()).orElse(0L);
         if(!policy.enabled()||period==0)return new Demand(town,period,Map.of(),0,"Public customers disabled or awaiting a completed food assessment");
         Evidence evidence;try{evidence=evidence(town,period,worlds);}catch(Declined unavailable){return new Demand(town,period,Map.of(),0,unavailable.getMessage());}
-        long cash=new TreasuryRepository(connection).load(town).map(t->t.hundredths()).orElse(0L),cost=0;
+        long cash=Math.max(0,new TreasuryRepository(connection).load(town).map(t->t.hundredths()).orElse(0L)-proposedDebit),cost=0;
         long foodSpent=spent(town,period,true),materialSpent=spent(town,period,false),haul=Math.max(0,policy.haulUnitsPerPeriod()-hauled(town,period));
         var goods=new ArrayList<>(policy.prices().keySet());goods.remove(Commodity.FOOD);goods.addFirst(Commodity.FOOD);
         var funded=new TreeMap<Commodity,Long>();
