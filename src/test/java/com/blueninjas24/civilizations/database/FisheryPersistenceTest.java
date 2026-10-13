@@ -99,7 +99,7 @@ class FisheryPersistenceTest {
             assertEquals(7,r.getMetaData().getColumnCount());
         }
         fixture.sql("DROP VIEW fishery_habitat_changes");new SchemaMigrator().migrate(fixture.db.getConnection());
-        var after=fixture.snapshot();assertEquals(List.of(),after.remove("farm_grain_evidence"));assertEquals(List.of(),after.remove("fishery_founder_courses"));assertEquals(List.of(),after.remove("fishery_workplace_history"));assertEquals(List.of(),after.remove("fishery_workplaces"));assertEquals(List.of(),after.remove("water_columns"));assertEquals(List.of(),after.remove("water_surveys"));assertEquals(List.of(),after.remove("fishery_habitat_changes"));
+        var after=fixture.snapshot();assertEquals(List.of(),after.remove("grain_harvests"));assertEquals(List.of(),after.remove("grain_stocks"));assertEquals(List.of(),after.remove("farm_grain_evidence"));assertEquals(List.of(),after.remove("fishery_founder_courses"));assertEquals(List.of(),after.remove("fishery_workplace_history"));assertEquals(List.of(),after.remove("fishery_workplaces"));assertEquals(List.of(),after.remove("water_columns"));assertEquals(List.of(),after.remove("water_surveys"));assertEquals(List.of(),after.remove("fishery_habitat_changes"));
         after.remove("fishery_resources");var originalRows=before.remove("fishery_resources");assertEquals(before,after);
         var preservedRows=new ArrayList<String>();
         try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("SELECT * FROM fishery_resources")) {
@@ -208,7 +208,7 @@ class FisheryPersistenceTest {
         fixture.sql("CREATE VIEW fishery_columns AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));
         assertEquals(before,fixture.snapshot());assertTrue(fixture.db.getConnection().getAutoCommit());
         fixture.sql("DROP VIEW fishery_columns");new SchemaMigrator().migrate(fixture.db.getConnection());var after=fixture.snapshot();
-        for(var table:List.of("farm_grain_evidence","fishery_founder_courses","fishery_workplace_history","fishery_workplaces","fishery_resources","fishery_columns","fishery_work","fishery_habitat_changes","water_surveys","water_columns"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
+        for(var table:List.of("grain_harvests","grain_stocks","farm_grain_evidence","fishery_founder_courses","fishery_workplace_history","fishery_workplaces","fishery_resources","fishery_columns","fishery_work","fishery_habitat_changes","water_surveys","water_columns"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
         try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
 }

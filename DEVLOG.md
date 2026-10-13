@@ -1,5 +1,53 @@
 # Civilizations Development Log
 
+## October 13, 2026 — protected actual future grain harvests
+
+Staffed farms now allocate an editable part of actual future wheat work to separate
+public grain. The same labor/output budget, complete typed wheat fraction, actual
+meals plus future food reserve and finite grain storage limit it. Unknown/partial
+fields, no wheat, no staff, food pressure, full storage and absent worlds cannot
+mint ingredients. Default25% wheat share, two future food periods,256 grain space
+and one grain unit per diverted work unit; installed files without the section
+opt out and are never rewritten. Food/history are never converted or reseeded.
+
+Transactional schema72 adds initially empty grain_stocks/grain_harvests. Food,
+grain allocation/history/stock and checkpoint commit together; late faults roll
+back everything. Historical yields remain saved; lower capacity preserves stock.
+Existing forward tuning refuses unfinished old-policy backlog. Tool service and
+farming learning use the same total actual harvest, including grain-only work;
+there is no extra labor, free tool work or duplicate experience. Current-period
+admin food diagnostics explain grain allocation/storage and basic food output.
+
+Fourteen added cases: four pure calculations, nine temporary-DB runtime cases and
+one strict YAML case. Covers food/reserve protection, wheat fractions/yields/space,
+unknown/partial/unstaffed/disabled modes, replay/absence/restart, late failure,
+settings/backlog transitions, shrinking wheat fields, grain-only tools/learning,
+and migration71 failure/retry preserving old food. Focused226 passed before the
+final grain-only case and work-log changes; final targeted37 passed. Full Windows
+Wrapper .\mvnw.cmd clean verify passed1,360 (1,358 unit/two packaged integration),
+zero failures/errors/skips,7:24 at08:40:41 ET. Helper precompile initially pointed
+at the not-yet-packaged JAR; corrected the precheck classpath and recompiled
+against the verified packaged JAR for the actual native run. No production fix
+or weakened assertion was needed.
+
+Guarded native ordinary-owner timer proof passed08:42:06 ET: actual funded farm
+with two assigned workers; each8 future work split6 food/2 grain,2500 actual
+startup debit from4800 opening funds, real farming skills, absence/restart pause,
+then one resumed harvest. These are trusted explicit crop/site fixture inputs,
+not a natural positive-field discovery claim. No blocks/entities edited or chunk
+tickets used. Save audit115/121 predecessor tables exact; six ordinary calendar,
+economy, tracking, active-world and resident-age changes. Existing identities,
+assets, cash and history retained; schema72 integrity/FK healthy. Exact original
+properties restored, helper archived and backups retained. Playable server unchanged.
+
+Next bakery supply integration needs the user's answer on recurring paid public
+grain sales. Prior approval covers one-time starter material sales; no ongoing
+market is assumed. Configurable real cash payments to village treasury with
+training reserves are recommended. This question is recorded/pending. Automatic
+quarry/pit founding, forestry, wider recipes/competition and specialization gates
+also remain. Phase3 is still1/4 whole groups/~70% partial. No merge/push.
+See GRAIN_HARVESTS.md and DECISIONS_AND_OPEN_QUESTIONS.md.
+
 ## October 13, 2026 — saved wheat-field evidence without food conversion
 
 The bounded farm scanner now identifies wheat-on-farmland separately from other

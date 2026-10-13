@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October13: recurring purchases of public grain — awaiting user decision
+
+Harvested grain follows the existing public farm-supply direction; it does not
+privatize food farms or invent business cash. Connecting bakeries now needs an
+ongoing ingredient market. Prior approval covers limited one-time paid starter
+materials, not an unrestricted recurring sale of public stock.
+
+Recommendation sent to the user: allow bakeries/warehouses to buy actually owned
+harvested grain using their real business cash, pay proceeds to the village
+treasury, and use editable prices/purchase limits with training supplies protected.
+This proposal is not implemented or treated as approved. Grain harvesting and
+its food/storage protection can be verified independently while this is pending.
+
 ## October13: bakery grain accounting — approved
 
 Current farm harvests, wheat/bread player deliveries and fish are recorded in the
@@ -8,8 +21,9 @@ be inferred from existing generic food stocks. User approved the recommended dir
 future grain harvests/inputs, preserve every existing food balance/history, and keep
 basic meals feasible without requiring a bakery first. Exact editable processing
 coefficients remain prototype tuning under the user's existing authorization.
-Existing food cannot be converted into invented grain. Wheat-field composition now persists under schema71; no new farm-output accounting
-or bakery activation has occurred yet. The user answered: “Go with your recommendation.”
+Existing food cannot be converted into invented grain. Wheat-field composition persists under schema71, and actual future protected grain
+harvests passed schema72 full/native verification. Bakery activation and recurring
+paid public grain sales remain unfinished/pending the separate question above. The user answered: “Go with your recommendation.”
 Implement this direction with transactional migrations, actual crop/input evidence and
 editable prototype coefficients; keep basic meals feasible and existing history intact.
 

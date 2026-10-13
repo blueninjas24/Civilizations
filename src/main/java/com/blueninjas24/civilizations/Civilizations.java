@@ -68,6 +68,7 @@ public final class Civilizations extends JavaPlugin {
             population = new PopulationSession(getDataFolder(), getLogger(), settings, System::currentTimeMillis, economySettings, farmSettings,
                     EconomyConfiguration.readPriorities(economyConfig), openingFunds, EconomyConfiguration.readWellbeing(economyConfig),EconomyConfiguration.readResponses(economyConfig));
             population.configureFarmBusinesses(EconomyConfiguration.readFarmBusinesses(economyConfig));
+            population.configureGrainHarvest(EconomyConfiguration.readGrainHarvest(economyConfig));
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)
                             .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);

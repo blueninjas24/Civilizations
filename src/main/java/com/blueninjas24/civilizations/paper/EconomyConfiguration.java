@@ -26,6 +26,7 @@ public final class EconomyConfiguration {
         if (config.contains("water-observer")) rootKeys.add("water-observer");
         if (config.contains("village-supply-purchases")) rootKeys.add("village-supply-purchases");
         if (config.contains("farm-businesses")) rootKeys.add("farm-businesses");
+        if (config.contains("grain-harvest")) rootKeys.add("grain-harvest");
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
@@ -101,6 +102,7 @@ public final class EconomyConfiguration {
         readResponses(config);
         readIndustry(config);
         readFarmBusinesses(config);
+        readGrainHarvest(config);
         readRecipes(config);
         readOreObserver(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
@@ -281,6 +283,12 @@ public final class EconomyConfiguration {
         if(!(settings.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("farm-businesses.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.FarmBusinessPolicy(enabled,smallInteger(settings,"worker-capacity"),
                 integer(settings,"startup-trade-value-hundredths"),integer(settings,"minimum-age-months"),integer(settings,"minimum-farming-experience"));
+    }
+    public static com.blueninjas24.civilizations.economy.GrainHarvestPolicy readGrainHarvest(ConfigurationSection config) {
+        if(!config.contains("grain-harvest"))return com.blueninjas24.civilizations.economy.GrainHarvestPolicy.disabled();
+        var settings=section(config,"grain-harvest");exactKeys(settings,Set.of("enabled","grain-share-percent","protected-food-periods","storage-capacity","grain-units-per-harvest"));
+        if(!(settings.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("grain-harvest.enabled must be true or false");
+        return new com.blueninjas24.civilizations.economy.GrainHarvestPolicy(enabled,smallInteger(settings,"grain-share-percent"),smallInteger(settings,"protected-food-periods"),integer(settings,"storage-capacity"),integer(settings,"grain-units-per-harvest"));
     }
     /** Backend recipe catalog. Parsing does not establish a workshop, provide stock or run production. */
     public static Map<String,com.blueninjas24.civilizations.industry.ProductionRecipe> readRecipes(ConfigurationSection config) {

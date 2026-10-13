@@ -13,6 +13,13 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void grainHarvestTermsAreEditableStrictAndOldFilesOptOut()throws Exception {
+        var c=defaults();assertEquals(GrainHarvestPolicy.prototype(),EconomyConfiguration.readGrainHarvest(c));EconomyConfiguration.read(c);
+        c.set("grain-harvest.grain-share-percent",0);EconomyConfiguration.read(c);assertEquals(0,EconomyConfiguration.readGrainHarvest(c).grainSharePercent());
+        c.set("grain-harvest",null);EconomyConfiguration.read(c);assertFalse(EconomyConfiguration.readGrainHarvest(c).enabled());
+        for(Object value:List.of(-1,101,1.5,"many",true)){var bad=defaults();bad.set("grain-harvest.grain-share-percent",value);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(bad));}
+        var bad=defaults();bad.set("grain-harvest.free-food",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(bad));
+    }
     @Test void fisheryShorelineBoundsAreEditableAndOldFilesOptOut()throws Exception {
         var c=defaults();assertEquals(com.blueninjas24.civilizations.industry.FisheryShorelinePolicy.prototype(),EconomyConfiguration.readFisheryShoreline(c));
         c.set("fishery-shoreline.maximum-distance",0);EconomyConfiguration.read(c);assertEquals(0,EconomyConfiguration.readFisheryShoreline(c).maximumDistance());

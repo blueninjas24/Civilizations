@@ -179,6 +179,10 @@ public final class PopulationSession implements AutoCloseable {
         if(started.get())throw new IllegalStateException("Configure farm businesses before session starts");
         farmBusinessPolicy=java.util.Objects.requireNonNull(policy);
     }
+    private com.blueninjas24.civilizations.economy.GrainHarvestPolicy grainHarvestPolicy=com.blueninjas24.civilizations.economy.GrainHarvestPolicy.disabled();
+    public void configureGrainHarvest(com.blueninjas24.civilizations.economy.GrainHarvestPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure grain harvest before session starts");grainHarvestPolicy=java.util.Objects.requireNonNull(policy);
+    }
     public com.blueninjas24.civilizations.database.BusinessRuntime.Snapshot businessView() { return businessView.get(); }
     public void configureOreTracking() {
         if(started.get())throw new IllegalStateException("Configure ore tracking before session starts");
@@ -410,6 +414,7 @@ public final class PopulationSession implements AutoCloseable {
                 if (economySettings != null) {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
                     economy.configureFarmBusinesses(farmBusinessPolicy,operationPolicy);
+                    economy.configureGrainHarvest(grainHarvestPolicy);
                     economy.configureFarmTools(farmToolsPolicy,farmToolsBudget,industryPolicy.mining());
                     economy.configureUpkeepContributions(upkeepContributions);
                     economy.configureStudy(studyPolicy);

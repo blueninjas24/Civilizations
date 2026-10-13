@@ -137,6 +137,13 @@ public final class EconomyRuntimeRepository {
         for (var town : towns()) transaction(() -> { accrue(town, now, false); return null; });
         loadedWorlds = Set.copyOf(worlds);
     }
+    private GrainHarvestPolicy grainHarvestPolicy=GrainHarvestPolicy.disabled();
+    private boolean grainConfigured;
+    public void configureGrainHarvest(GrainHarvestPolicy policy) {
+        if(inUse||grainConfigured)throw new IllegalStateException("Configure grain harvest once before using runtime");
+        grainConfigured=true;grainHarvestPolicy=Objects.requireNonNull(policy);
+        if(policy.enabled())signature+="|grain-harvest-v1:"+policy;
+    }
     /** Configure once before use; startup applies existing-save forward settings transitions. */
     public void configureFarmBusinesses(com.blueninjas24.civilizations.industry.FarmBusinessPolicy policy) throws SQLException {
         configureFarmBusinesses(policy,com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled());
@@ -531,6 +538,13 @@ public final class EconomyRuntimeRepository {
             if(flow==null)throw new SQLException("Paid village cargo missing from saved supply catalog");
             flows.put(entry.getKey(),new Flow(flow.production(),Math.addExact(flow.imports(),entry.getValue()),flow.households(),flow.industry(),flow.construction(),flow.exports(),flow.events()));
         }
+        GrainHarvest.Plan grainPlan=null;
+        if(grainHarvestPolicy.enabled()) {
+            var foodFlow=flows.get(Commodity.FOOD);
+            grainPlan=GrainHarvest.plan(output,account.state().stocks().get(Commodity.FOOD).units(),foodFlow.imports(),foodFlow.households(),
+                    new GrainHarvestRepository(connection).stock(town),farm,farmBusinesses.enabled()&&labor>0,grainHarvestPolicy);
+            flows.put(Commodity.FOOD,new Flow(grainPlan.foodOutput(),foodFlow.imports(),foodFlow.households(),foodFlow.industry(),foodFlow.construction(),foodFlow.exports(),foodFlow.events()));
+        }
         var study=new ResidentStudy(connection,studyPolicy,adulthood);
         if(mineFounderStudy!=null)study.withFounderOpportunity(course->mineFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds));
         if(workshopFounderStudy!=null||warehouseFounderStudy!=null||fisheryFounderStudy!=null)study.withFounderPractice(course->{
@@ -542,7 +556,9 @@ public final class EconomyRuntimeRepository {
         });
         var studyPlan=study.planRows(town,nextPeriod,account.state(),flows,farmBusinesses.enabled()||output==0);
         var period = commodities.advanceRows(town, nextPeriod, studyPlan.flows(), settings.shortages());
-        farmTools().finishRows(town,nextPeriod,toolWork,period.reports().stream().filter(r->r.commodity().equals(Commodity.FOOD)).findFirst().orElseThrow().flow().production());
+        if(grainPlan!=null)new GrainHarvestRepository(connection).finishRows(town,nextPeriod,grainPlan);
+        // Grain uses the same actual farm work and tool service; it cannot make that work free.
+        farmTools().finishRows(town,nextPeriod,toolWork,output);
         study.applyRows(town,nextPeriod,studyPlan,period);
         if(farmBusinesses.enabled())new FarmLearning(connection,learningPolicy).reviewRows(town,nextPeriod,farm.plantedCrops()/farms.cropsPerWorker());
         var needs = new HouseholdNeedsRepository(connection);
@@ -577,10 +593,10 @@ public final class EconomyRuntimeRepository {
                       new FoodAppealRepository(connection).load(town, account.state().completedPeriods()).orElse(null),
                       new HouseholdWellbeingRepository(connection).load(town,account.state().completedPeriods()),
                       new FoodResponseRepository(connection).load(town,account.state().completedPeriods()).orElse(null),
-                      farmBusinesses.enabled()?enterpriseReasons.getOrDefault(town,"Farm business enabled; awaiting eligible economic period")
+                      (farmBusinesses.enabled()?enterpriseReasons.getOrDefault(town,"Farm business enabled; awaiting eligible economic period")
                               +new FarmLearning(connection,learningPolicy).explanation(town,account.state().completedPeriods()).map(reason->"; "+reason).orElse("")
                               +farmTools().explanation(town,account.state().completedPeriods()).map(reason->"; "+reason).orElse(""):
-                              "Automatic farm businesses disabled; legacy field accounting",
+                              "Automatic farm businesses disabled; legacy field accounting")+new GrainHarvestRepository(connection).summary(town,account.state().completedPeriods()),
                       new ResidentStudy(connection,studyPolicy,adulthood).summary(town)+"; "+villagePurchases().summary(town)));
         }
         return Collections.unmodifiableMap(result);

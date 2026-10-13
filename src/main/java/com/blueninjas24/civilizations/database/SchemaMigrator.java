@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 71;
+    static final int CURRENT_VERSION = 72;
 
     @FunctionalInterface
     interface Migration {
@@ -920,12 +920,47 @@ final class SchemaMigrator {
                             observed_millis INTEGER NOT NULL CHECK(typeof(observed_millis)='integer' AND observed_millis>=0),
                             grain_crops INTEGER NOT NULL CHECK(typeof(grain_crops)='integer' AND grain_crops>=0 AND grain_crops<=100000)
                         )
-                        """)
+                        """),
+                SchemaMigrator::createGrainHarvests
 
 
         ));
     }
 
+    private static void createGrainHarvests(Connection connection)throws SQLException {
+        execute(connection,"""
+                CREATE TABLE grain_stocks (
+                    settlement_id TEXT PRIMARY KEY REFERENCES economy_accounts(settlement_id),
+                    units INTEGER NOT NULL CHECK(typeof(units)='integer' AND units>=0)
+                )
+                """);
+        execute(connection,"""
+                CREATE TABLE grain_harvests (
+                    settlement_id TEXT NOT NULL REFERENCES grain_stocks(settlement_id) DEFERRABLE INITIALLY DEFERRED,
+                    period INTEGER NOT NULL CHECK(typeof(period)='integer' AND period>=1),
+                    harvest INTEGER NOT NULL CHECK(typeof(harvest)='integer' AND harvest>=0),
+                    food_output INTEGER NOT NULL CHECK(typeof(food_output)='integer' AND food_output>=0),
+                    diverted INTEGER NOT NULL CHECK(typeof(diverted)='integer' AND diverted>=0),
+                    grain_units INTEGER NOT NULL CHECK(typeof(grain_units)='integer' AND grain_units>=0),
+                    opening_grain INTEGER NOT NULL CHECK(typeof(opening_grain)='integer' AND opening_grain>=0),
+                    closing_grain INTEGER NOT NULL CHECK(typeof(closing_grain)='integer' AND closing_grain>=opening_grain),
+                    protected_food INTEGER NOT NULL CHECK(typeof(protected_food)='integer' AND protected_food>=0),
+                    available_food INTEGER NOT NULL CHECK(typeof(available_food)='integer' AND available_food>=0),
+                    wheat INTEGER CHECK(wheat IS NULL OR (typeof(wheat)='integer' AND wheat>=0 AND wheat<=crops)),
+                    crops INTEGER NOT NULL CHECK(typeof(crops)='integer' AND crops>=0 AND crops<=100000),
+                    units_per_harvest INTEGER NOT NULL CHECK(typeof(units_per_harvest)='integer' AND units_per_harvest BETWEEN 1 AND 1000),
+                    capacity INTEGER NOT NULL CHECK(typeof(capacity)='integer' AND capacity BETWEEN 1 AND 1000000),
+                    policy TEXT NOT NULL CHECK(length(policy) BETWEEN 1 AND 4096),
+                    explanation TEXT NOT NULL CHECK(length(explanation) BETWEEN 1 AND 4096),
+                    PRIMARY KEY(settlement_id,period),
+                    CHECK(typeof(food_output+diverted)='integer' AND harvest=food_output+diverted),
+                    CHECK(typeof(diverted*units_per_harvest)='integer' AND grain_units=diverted*units_per_harvest),
+                    CHECK(typeof(opening_grain+grain_units)='integer' AND closing_grain=opening_grain+grain_units),
+                    CHECK(closing_grain<=MAX(opening_grain,capacity)),
+                    CHECK(diverted=0 OR (wheat IS NOT NULL AND wheat>0 AND available_food-diverted>=protected_food))
+                )
+                """);
+    }
     // Tests can inject a failing step to verify real SQLite rollback and recovery.
     SchemaMigrator(List<Migration> migrations) {
         this.migrations = List.copyOf(migrations);
@@ -964,6 +999,7 @@ final class SchemaMigrator {
             requireColumns(connection, Set.of("id", "name", "world", "center_x", "center_y",
                     "center_z", "discovered_at", "population", "beds"));
             if(migrations.size()>=71)requireColumns(connection,"farm_grain_evidence",Set.of("settlement_id","observed_millis","grain_crops"));
+            if(migrations.size()>=72){requireColumns(connection,"grain_stocks",Set.of("settlement_id","units"));requireColumns(connection,"grain_harvests",Set.of("settlement_id","period","harvest","food_output","grain_units","policy"));}
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
                 requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",

@@ -1,5 +1,13 @@
 # Civilizations progress tracker
 
+Farms can now save real future wheat harvests as grain for eventual bakeries,
+while protecting village meals and using the same workers and tools. Existing
+food stays intact. All1,360 full-build cases and the live timer/pause/restart
+check passed; settings are editable and older files opt out. Bakery purchases
+need your answer on ongoing paid grain sales. Phase3 remains1/4 whole groups/
+~70% partial; forestry, automatic quarry/pit founding and specialization remain.
+Your playable server is unchanged. See GRAIN_HARVESTS.md.
+
 Villages can now remember which observed crops are wheat, separately from other
 food crops. Old food supplies stay intact; missing crop information stays unknown.
 All1,346 full-build cases and the real observer/restart check passed. This prepares

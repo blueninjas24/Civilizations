@@ -17,7 +17,11 @@ public final class FarmLearning {
         if(fieldSlots<0)throw new IllegalArgumentException("Negative field slots");
         var old=explanation(town,period);if(old.isPresent())return old.orElseThrow();
         long output;
-        try(var s=connection.prepareStatement("SELECT production FROM economy_periods WHERE settlement_id=? AND period=? AND commodity='food'")) {
+        try(var s=connection.prepareStatement("""
+                SELECT COALESCE(g.harvest,e.production) FROM economy_periods e
+                LEFT JOIN grain_harvests g USING(settlement_id,period)
+                WHERE e.settlement_id=? AND e.period=? AND e.commodity='food'
+                """)) {
             s.setString(1,town.toString());s.setLong(2,period);try(var r=s.executeQuery()) {
                 if(!r.next())throw new SQLException("Farm learning requires saved food production");output=r.getLong(1);
             }
@@ -47,7 +51,7 @@ public final class FarmLearning {
                     long before=profile.experience().getOrDefault(skill,0L),after=policy.nextExperience(before);
                     if(after>before)awards.add(new IndustryLearning.Entry(person.id(),before,after));
                 }
-                reason="Actual farm production: "+output+" food units; "+count+" productive worker slots; "+awards.size()+" employees learned "+skill+"; no extra labor or ownership waiver";
+                reason="Actual farm production: "+output+" harvest work units; "+count+" productive worker slots; "+awards.size()+" employees learned "+skill+"; no extra labor or ownership waiver";
             }
         }
         try(var s=connection.prepareStatement("INSERT INTO farm_learning_reviews(settlement_id,period,commodity,business_id,field_slots,production,enabled,skill,gain,ceiling,worker_budget,explanation) VALUES(?,?,'food',?,?,?,?,?,?,?,?,?)")) {

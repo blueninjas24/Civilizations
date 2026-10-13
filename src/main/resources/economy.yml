@@ -7,6 +7,19 @@
 # Starvation effects are not enabled.
 format-version: 1
 
+# Future wheat work may supply grain ingredients after protecting actual meals.
+# Requires a staffed farm and complete typed wheat evidence; old food is never converted.
+# Percent applies to wheat's share of the same harvest work, not extra production.
+# Reserves include this period's meals plus the configured future periods.
+# Grain has finite village storage; bakeries and paid sales connect separately.
+# Missing this entire section in installed files keeps grain harvesting disabled.
+grain-harvest:
+  enabled: true
+  grain-share-percent: 25
+  protected-food-periods: 2
+  storage-capacity: 256
+  grain-units-per-harvest: 1
+
 # Prices and money budgets are hundredths of an emerald. Real owned goods only.
 # Food customers cover current shortages plus a needs-based emergency stock reserve.
 # Stored and incoming food reduce orders; materials require active practice needs.

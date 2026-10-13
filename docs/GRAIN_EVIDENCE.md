@@ -1,5 +1,8 @@
 # Grain ingredient preparation
 
+Subsequent staffed future harvest accounting passed schema72 verification; see
+GRAIN_HARVESTS.md. The evidence-only batch described below did not change output.
+
 The user approved separate future grain ingredients while preserving all existing
 food and keeping basic meals possible without bakeries. This batch implements the
 first prerequisite: actual wheat-field evidence. It does not produce grain stock,

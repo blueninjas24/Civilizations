@@ -59,11 +59,11 @@ final class FarmTools {
         if(plan==null)return;
         UUID farm=FarmEnterprises.businessId(town);var after=ToolUpkeep.finish(plan,output,policy.workPolicy(budget.toolHundredths()));
         if(after.toolsUsed()>0)new IndustryRepository(connection).consumeRows(id("civilizations:farm-tool-use-v1:"+town+":"+period),farm,
-                ToolUpkeepPolicy.TOOLS,after.toolsUsed(),IndustryRepository.Use.MAINTENANCE,"Toolkit service begun by actual farm food period "+period);
+                ToolUpkeepPolicy.TOOLS,after.toolsUsed(),IndustryRepository.Use.MAINTENANCE,"Toolkit service begun by actual farm harvest in food period "+period);
         try(var s=connection.prepareStatement("INSERT INTO business_tools VALUES(?,?,?,?) ON CONFLICT(business_id) DO UPDATE SET productive_periods=excluded.productive_periods,service_periods=excluded.service_periods,remainder_percent=excluded.remainder_percent")) {
             s.setString(1,farm.toString());s.setLong(2,after.after().productivePeriods());s.setLong(3,after.after().servicePeriods());s.setInt(4,after.after().remainderPercent());s.executeUpdate();
         }
-        String reason="Farm tools: actual food "+output+"; kits used "+after.toolsUsed()+"; productive periods "+after.after().productivePeriods()
+        String reason="Farm tools: actual harvest work "+output+"; kits used "+after.toolsUsed()+"; productive periods "+after.after().productivePeriods()
                 +"; service remaining "+after.after().servicePeriods()+"; slowed fraction "+after.after().remainderPercent()+"/100";
         try(var s=connection.prepareStatement("INSERT INTO farm_tool_work VALUES(?,?,'food',?,?,?,?,?,?)")) {
             s.setString(1,town.toString());s.setLong(2,period);s.setString(3,farm.toString());s.setLong(4,output);s.setLong(5,plan.requested());
