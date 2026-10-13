@@ -114,7 +114,7 @@ automatic-business-staffing:
   enabled: true
   candidates-per-review: 64
   hires-per-review: 2
-  industries: [mining, blacksmith, warehouse]
+  industries: [mining, blacksmith, warehouse, fishing]
 
 # Limited public startup funding for qualified mines/workshops/warehouses. Trusted startup
 # accounting is implemented; automatic founding/selection is still being connected.
@@ -256,6 +256,7 @@ work-learning:
     blacksmith: smithing
     farming: farming
     warehouse: commerce
+    fishing: fishing
 
 # Phase 3 finite mining backend. Timed work runs existing mines; auto founding is pending.
 # Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.
@@ -539,6 +540,10 @@ resident-study:
   food-reserve-periods: 1
   material-reserve-units: 2
   skills:
+    fishing:
+      target-experience: 10
+      practice-supplies:
+        timber: 1
     mining:
       target-experience: 10
       practice-supplies:
@@ -594,7 +599,7 @@ automatic-career-study:
   enabled: true
   candidates-per-review: 64
   enrollments-per-review: 1
-  industries: [mining, blacksmith, warehouse]
+  industries: [mining, blacksmith, warehouse, fishing]
 
 # Starts data-only coal/iron mines for current funded workshop needs, not fake buyers.
 # Requires current trusted exposed ore, a staffed affordable warehouse buyer, real

@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+Fishing workers now improve through actual catches. Existing fisheries can train
+new employees using real supplies, then hire them once qualified. Full storage,
+unsafe banks and absent worlds cannot generate free experience. All 1,308 full-build
+tests passed, and the isolated server verified real skill gains and restart safety.
+Automatic training for the FIRST fishing owner remains next; no skill is invented.
+Other basic industry connections and specialization acceptance still remain open.
+No decision is pending, and your playable server is unchanged. Phase 3 remains
+1/4 whole groups/~69% partial. See FISHING_SKILLS.md.
+
 Qualified residents can now open shoreline fisheries automatically when the village
 has suitable water, a safe bank, real demand and enough protected money. Damaged
 banks can move to a safe nearby spot without losing the business. Lost fishing water

@@ -17,6 +17,6 @@ public record WorkLearningPolicy(boolean enabled,long experiencePerProductivePer
         if(current<0)throw new IllegalArgumentException("Negative experience");
         return current>=maximumExperience?current:current+Math.min(experiencePerProductivePeriod,maximumExperience-current);
     }
-    public static WorkLearningPolicy prototype(){return new WorkLearningPolicy(true,1,100,64,Map.of("mining","mining","blacksmith","smithing","farming","farming","warehouse","commerce"));}
+    public static WorkLearningPolicy prototype(){return new WorkLearningPolicy(true,1,100,64,Map.of("mining","mining","blacksmith","smithing","farming","farming","warehouse","commerce","fishing","fishing"));}
     public static WorkLearningPolicy disabled(){return new WorkLearningPolicy(false,1,100,64,Map.of());}
 }

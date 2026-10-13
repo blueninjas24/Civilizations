@@ -1,5 +1,35 @@
 # Civilizations Development Log
 
+## October 13, 2026 — earned fishing skills and real-vacancy study
+
+Connected fishing to configurable productive-work experience, supply-backed fishing
+courses, automatic existing-vacancy study and ordinary qualified staffing defaults.
+Actual catches earn bounded experience; zero catches/full storage/unsafe banks,
+absence, disabled/unmapped policies and historical replay do not. Catch, habitat,
+skill, audit and checkpoint roll back together. Existing vacancies can sponsor real
+future timber practice with protected food/material reserves, then hire qualified
+learners. Enrollment creates neither skill nor employment. No ownership waiver.
+Existing installed maps/lists and accepted course terms remain unchanged; admins opt
+in explicitly. No migration added: schema 69 retained.
+
+Six added temporary-database cases cover work/replay/restart/absence, damage recovery,
+late learning rollback, disabled/unmapped work, full storage and actual practice-to-
+hiring. Focused 120 passed before adding the storage case; test setup initially had
+an import/catalog mismatch, corrected only in the fixture, preserving application
+inventory guards. Full .\mvnw.cmd clean verify passed 1,308 cases (1,306 unit/two
+packaged integration), zero failures/errors/skips, 7:24 at 02:11:40 ET.
+Guarded native ordinary startup/catch/earned experience/recovery/accounting/absence/
+restart probe passed 02:12:59 ET. Save audit 112/119 tables exact; seven ordinary
+clock/freshness/ore/age changes, identity/assets/cash/history retained, integrity/FK
+healthy; exact properties restored and helper archived. No helper block/entity edits.
+
+Automatic training of the FIRST fishery founder is still unfinished: existing-vacancy
+study cannot bootstrap a nonexistent business. Next is a durable real habitat/bank
+opportunity association for that course, then remaining basic industries and final
+specialization/scenario/profile gates. No gameplay decision pending. Your playable
+server is unchanged; no merge/push. Phase 3 remains 1/4 whole groups/~69% partial.
+See FISHING_SKILLS.md and FISHERY_WORKPLACES.md.
+
 ## October 13, 2026 — automatic qualified shoreline fisheries and saved recovery
 
 Connected the ordinary main-thread water observer to qualified first-fishery startup,

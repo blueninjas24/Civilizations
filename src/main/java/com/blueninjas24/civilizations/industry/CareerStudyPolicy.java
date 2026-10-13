@@ -10,6 +10,6 @@ public record CareerStudyPolicy(boolean enabled,int candidatesPerReview,int enro
                 ||industries.size()>32||industries.stream().anyMatch(k->!k.matches("[a-z][a-z0-9_]{0,63}")||k.equals("farming")))
             throw new IllegalArgumentException("Invalid vacancy career study policy");
     }
-    public static CareerStudyPolicy prototype(){return new CareerStudyPolicy(true,64,1,Set.of("mining","blacksmith","warehouse"));}
+    public static CareerStudyPolicy prototype(){return new CareerStudyPolicy(true,64,1,Set.of("mining","blacksmith","warehouse","fishing"));}
     public static CareerStudyPolicy disabled(){return new CareerStudyPolicy(false,64,1,Set.of());}
 }

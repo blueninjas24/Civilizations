@@ -12,8 +12,8 @@ standing points do not prove damage; wait for actual loaded evidence.
 If no safe replacement is confirmed, retain the business and pursue feasible repair
 or dock construction through Phase4 project/material/labor/funding and player-build
 protection rules. This is not permission to place free blocks or overwrite protected
-player builds. Repairs and automatic persisted workplace/scheduler integration remain
-unfinished. The prior fixed-spot-pausing recommendation was not approved and is
+player builds. Saved workplace/scheduler integration passed October 13 validation; physical
+repairs remain unfinished. The prior fixed-spot-pausing recommendation was not approved and is
 superseded by this adaptive recovery direction. No new decision is pending here.
 
 ## October12: proactive emergency food reserves — approved
@@ -30,8 +30,8 @@ Startup grants still refuse shortages and retain their shared limits/protection.
 Editable prototype target is two future food periods plus current unmet food;
 0 retains shortage-only purchases. Missing new keys in installed files default
 to0 without rewriting them. This is separate from treasury protection measured
-in food costs. Automatic fishery founding still needs actual qualified residents,
-fresh habitat/shoreline revalidation and the scheduler integration.
+in food costs. Qualified automatic fishery founding, habitat/shoreline revalidation and scheduling
+passed October 13 validation. Automatic first-owner fishing training remains next.
 
 ## October12: shoreline start and priority dock upgrades — approved
 
