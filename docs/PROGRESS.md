@@ -1,5 +1,22 @@
 # Civilizations progress tracker
 
+## October13 — saved herd accounting, still a partial livestock milestone
+
+Herds can now remember young animals and progress across restarts. The tested
+backend uses real feed and qualified workers to produce owned milk/eggs, with
+once-only updates and protected storage. Twelve added tests include240 production
+periods, failed-save recovery and real paid feed/product deliveries; focused40
+passed. Full .\mvnw.cmd clean verify passed1,451 tests with zero failures/errors/skips.
+Guarded packaged Paper backend check and schema75-to76 audit passed;126/129 old
+tables exact, three ordinary bookkeeping changes, all new main herd tables empty.
+Test server stopped, properties restored/helper archived. No live animal proof is
+claimed; human server untouched.
+
+Automatic animal adoption, physical births/deaths, live herd work and protection
+signs remain unfinished. This does not complete either livestock gate. P3 remains
+29/39 resource checklist items,1/4 whole groups,about67% partial. No human server
+changes or main merge/push. Bakery/craftsman marker decision still pending.
+
 ## October13 — approved herd authority, cohort calculator and village-only breeding guard
 
 User approved simulation-managed breeding/slaughter for village-owned livestock.

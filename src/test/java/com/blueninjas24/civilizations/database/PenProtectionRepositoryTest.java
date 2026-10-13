@@ -53,7 +53,7 @@ class PenProtectionRepositoryTest {
         var old=new AnimalOwnershipRepository(db.getConnection()).record(new AnimalOwnershipRepository.Claim(animal,world,LivestockAdoption.Ownership.PLAYER,owner,null,900,"Migration fixture"));
         SchemaFixtures.rewind(db.getConnection(),74);sql("CREATE VIEW protected_pen_columns AS SELECT 1");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));assertEquals(74,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE name='protected_pens'"));assertEquals(old,new AnimalOwnershipRepository(db.getConnection()).load(animal).orElseThrow());
-        sql("DROP VIEW protected_pen_columns");new SchemaMigrator().migrate(db.getConnection());assertEquals(75,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM protected_pens"));
+        sql("DROP VIEW protected_pen_columns");new SchemaMigrator().migrate(db.getConnection());assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM protected_pens"));
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     @Test void disconnectedForgedGeometryOrDistantSignCannotBeProtected() {

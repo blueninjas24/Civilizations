@@ -1,5 +1,12 @@
 # Civilizations — simulation rules and testable examples
 
+October13 subsequent schema76: dedicated herds now persist young cohorts and
+once-only production receipts. The backend consumes real business feed and credits
+owned milk/eggs under actual qualified work and storage limits. It remains unwired
+to live adoption, physical offspring/deaths and scheduling; slaughter is not exposed
+until physical retirement prevents duplicate harvesting. Existing crop farms and
+assets are retained. See LIVESTOCK_PROTECTION.md for current limits/verification.
+
 October13 approved livestock ownership direction: automatic eligible free-range
 adoption, protection for recorded player animals and uncertain existing pens,
 and explicit authorized bulk pen designation. Protection/donation signs request

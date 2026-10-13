@@ -1,5 +1,34 @@
 # Civilizations Development Log
 
+## October13 — persist herds and real paid livestock output
+
+Added schema76 and SQL-owner `LivestockRepository`: initial owned UUIDs cannot seed
+multiple herds; real feed, qualified work, owned milk/eggs and cohort checkpoints
+commit together. Receipts record constrained before/after feed/product balances,
+actual available work/output space and an explanation. Historical retries/restarts cannot duplicate goods or feed costs.
+Old hybrid crop-farm catalogue/labor and all existing assets remain unchanged.
+Automatic adoption/physical births/deaths/live scheduling remain incomplete, and
+slaughter is not exposed until physical retirement can prevent double harvesting.
+
+Added twelve temporary-SQLite cases including240 periods/replay/restarts and real
+paid feed/milk deliveries. Focused40 passed. First focused run caught an old schema
+assertion; next caught a fixture expecting two adults when its young animal had
+matured. Corrected expectations without weakening production guards. Full regression exposed older migration
+comparisons missing the four new empty tables; extended their emptiness assertions
+while preserving exact predecessor-row comparisons. An intermediate rerun was
+stopped after the seventh comparison had already compiled; final clean verification
+was restarted against all corrected sources. Added constrained before/after stock
+receipts and explanations before that final compilation. Full .\mvnw.cmd clean verify passed1,451 (1,449 unit/two packaged integration),
+zero failures/errors/skips;8:06 at15:16:14 ET. Guarded Paper26.2 build129 packaged
+SQL backend proof passed15:17:04 ET: actual feed/cohort/products, restart replay
+and absent-world pause. Schema75-to76 audit retained every predecessor table;
+126/129 exact, only normal clock/runtime/ore bookkeeping changed; no aging.
+New main-fixture herd tables empty. Fixture stopped, properties restored and helper
+archived. No world/entity mutations by the helper; no client/physical birth proof.
+Existing Windows OSHI performance-counter warning appeared; no Civilizations,
+probe or listener error. No human server changes. P3 stays1/4 groups/~67% partial.
+Bakery/craftsman marker answer remains pending; no human server/main merge/push.
+
 ## October13 — approved herd authority, cohort calculator and village-only breeding guard
 
 User approved simulation-managed breeding/slaughter for village-owned livestock.

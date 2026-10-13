@@ -1,5 +1,44 @@
 # Civilizations — implementation status and handoff
 
+## October13 — persistent herd and paid product backend
+
+Schema76 adds four initially empty tables for dedicated herd identity, unique
+initial animal UUIDs, immutable period receipts and young-cohort checkpoints.
+`LivestockRepository` requires saved village-owned animals in the business's
+world/town and unit-sized real feed/product storage. Exact opening retries retain
+current state; another herd cannot reuse those initial animals. Existing crop-farm
+catalogues/labor are unchanged; combined farm/herd transitions are not inferred.
+
+Production spends actual business feed, counts actual eligible local staff,
+respects business availability and incoming storage reservations, and credits
+cow milk/chicken eggs with cohort changes in one transaction. Receipts retain before/after stock,
+actual work/storage budgets and an explanation. Periods cannot be
+skipped or replayed under changed terms. Historical replay works after later
+periods/restarts. Disabled/absent worlds preserve exact state. Full output storage
+conservatively idles work rather than borrowing anticipated feed space. No cash,
+meat, mortality or physical entities are created. Slaughter is deliberately not
+exposed until safe physical retirement is connected.
+
+Twelve new temporary-database cases cover restart/replay, actual stock/cash
+conservation through paid grain/milk deliveries, ownership/reuse/catalogue guards,
+eligible staffing and staffed-for-sale operation, shortages/full/reserved storage,
+late-write rollback/retry, a240-period scenario and schema75 migration failure/
+recovery. Focused40 passed. Full .\mvnw.cmd clean verify passed1,451 (1,449 unit/two packaged integration),
+zero failures/errors/skips;8:06 at15:16:14 ET. Guarded Paper26.2 build129 packaged
+SQL backend proof passed15:17:04 ET: actual feed/cohort/products, restart replay
+and absent-world pause. Schema75-to76 audit retained every predecessor table;
+126/129 exact, only normal clock/runtime/ore bookkeeping changed; no aging.
+New main-fixture herd tables empty. Fixture stopped, properties restored and helper
+archived. No world/entity mutations by the helper; no client/physical birth proof.
+Existing Windows OSHI performance-counter warning appeared; no Civilizations,
+probe or listener error. No human server changes.
+
+This is a backend, not automatic livestock gameplay. Logical births still need
+physical identity/projection reconciliation; player-death accounting, adoption,
+pen sign UI and live scheduling remain unfinished. P3 checklist stays29/39
+resources,1/4 complete groups/~67% partial. Bakery/craftsman markers remain pending.
+Human server untouched. No merge/push.
+
 ## October13 — approved herd authority, cohort calculator and village-only breeding guard
 
 User approved simulation-managed breeding/slaughter for village-owned livestock.

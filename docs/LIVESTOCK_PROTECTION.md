@@ -1,5 +1,48 @@
 # Livestock protection and work foundation
 
+## Persistent herd/product backend — schema76
+
+`LivestockRepository` is an SQL-owner backend, not a live adopter or scheduler.
+Opening requires a dedicated `livestock` business/store and already confirmed
+village ownership matching the saved town/world. Trusted observations supply
+species and each original animal's adult status or remaining active periods to
+maturity. Ownership alone is not species/age evidence. Initial UUIDs can seed one
+herd only; exact retries return current state without replenishment. One herd per
+business keeps crop-farm labor/catalogue changes explicit. Unit-sized feed and
+milk/egg catalogue entries must already exist; opening supplies no goods/money.
+
+Actual eligible local jobs and editable per-worker/site work limits bound care.
+Real stored feed pays for outputs and births; pending deliveries reserve capacity.
+The conservative output budget uses current free space only: a full store idles
+without assuming consumption will free room. Transactionally save feed debit,
+owned milk/egg credit, period receipt and cohorts. Receipts include constrained
+before/after stock, available work/output space and diagnostic explanations. Absent/disabled mode accrues
+nothing; skipped/stale periods and changed operation terms fail. Exact historical
+replay survives later periods and restarts without duplicating work or inventory.
+Unavailable businesses have no productive labor; active-world cohorts still age.
+
+Schema76 creates `livestock_herds`, `livestock_initial_animals`,
+`livestock_periods`, `livestock_young`, all initially empty. No existing animals,
+stock, cash, crop catalogues or histories are converted. Tested migration failure
+rolls back all new tables/version; retry preserves prior ownership. Slaughter is
+not exposed: physical retirement/player drops require a safe handshake first.
+Logical birth cohorts also need physical identity mapping before live activation.
+Player-death handling, startup freeze/reconciliation, adoption/transfer publication,
+pen signs and actual scheduled business founding/production remain unfinished.
+
+Twelve temporary-database cases include240 periods/restarts, real paid grain and
+milk delivery with conserved cash, no-labor/shortage/storage limits, ownership/
+reuse/catalogue guards, late write rollback/retry and migration recovery. Focused40
+passed. Full .\mvnw.cmd clean verify passed1,451 (1,449 unit/two packaged integration),
+zero failures/errors/skips;8:06 at15:16:14 ET. Guarded Paper26.2 build129 packaged
+SQL backend proof passed15:17:04 ET: actual feed/cohort/products, restart replay
+and absent-world pause. Schema75-to76 audit retained every predecessor table;
+126/129 exact, only normal clock/runtime/ore bookkeeping changed; no aging.
+New main-fixture herd tables empty. Fixture stopped, properties restored and helper
+archived. No world/entity mutations by the helper; no client/physical birth proof.
+Existing Windows OSHI performance-counter warning appeared; no Civilizations,
+probe or listener error. No human server changes. No human-server edits.
+
 ## Approved herd control and cohort calculation batch
 
 User approved simulation-managed breeding/slaughter. `LivestockHerd` computes

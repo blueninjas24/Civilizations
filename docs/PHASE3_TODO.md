@@ -1,5 +1,24 @@
 # Phase 3 — businesses and industry checklist
 
+## October13 — herd persistence and real product backend
+
+Implemented restart-safe young cohorts, unique initial owned-animal enrollment,
+real feed debit/milk-or-egg credit and period receipts in one transaction. Real
+qualified staff, active worlds, business availability and reserved storage limit
+work. Historical replay cannot duplicate goods or spend feed twice. Twelve new
+cases include240 periods, paid deliveries, rollback and schema75-to76 recovery;
+focused40 passed. Full .\mvnw.cmd clean verify passed1,451 tests with zero failures/errors/skips.
+Guarded packaged Paper backend check and schema75-to76 audit passed;126/129 old
+tables exact, three ordinary bookkeeping changes, all new main herd tables empty.
+Test server stopped, properties restored/helper archived. No live animal proof is
+claimed; human server untouched.
+
+Not yet live: adoption/authority UI, confirmed death updates, physical offspring
+identity/reconciliation and herd scheduling. No slaughter API until physical
+retirement prevents duplicate drops. Existing crop farms retain their catalogue
+and labor. Bakery/craftsman markers awaiting the previously requested decision.
+Checklist arithmetic stays29/39 resources,1/4 complete groups/~67% partial.
+
 ## October13 — approved herd authority, cohort calculator and village-only breeding guard
 
 User approved simulation-managed breeding/slaughter for village-owned livestock.
