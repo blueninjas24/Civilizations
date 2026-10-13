@@ -29,7 +29,7 @@ public final class WorkplaceOperations {
         if(capturedMillis<0)throw new IllegalArgumentException("Negative marker capture time");
         var founding=new BusinessRepository(connection).findFounding(anchor.business()).orElseThrow(()->new SQLException("Missing marker founding"));
         var site=founding.site();var p=anchor.position();
-        String industry=anchor.kind()==WorkplaceObservation.Kind.BARREL?"warehouse":"blacksmith";
+        String industry=anchor.kind().industry();
         if(!site.worldId().equals(anchor.world())||site.x()!=p.x()||site.y()!=p.y()||site.z()!=p.z()||!founding.business().industry().equals(industry))
             throw new SQLException("Marker must match founding world, fixed site and industry");
         try(var s=connection.prepareStatement("INSERT INTO business_workplace_anchors VALUES(?,?,?,?,?,?,?,1)")) {

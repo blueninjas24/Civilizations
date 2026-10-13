@@ -1,5 +1,22 @@
 # Phase 3 — businesses and industry checklist
 
+## October13 — approved bakery/craftsman recognition prerequisite
+
+Implemented configurable smoker/crafting-table recognition, persisted industry
+mapping and loaded point confirmation. Filter relevant marker kinds before review
+caps to preserve first smith/warehouse startup. Schema77 retains old rows/history,
+indexes/triggers, with late rollback/retry and refusal of unknown cascading refs.
+Eleven new cases; focused47/targeted13 passed. Full .\mvnw.cmd clean verify passed
+1,462 tests with zero failures/errors/skips. Native four-type/container/restoration
+proof passed; old save133 tables retained,128 exact, with only normal bookkeeping
+and strictly verified observation timestamp refreshes. Human server untouched.
+
+No automatic bakery/craftsman founding/products or marker replacement yet. Live
+livestock reconciliation also remains unfinished. Recognition decision approved;
+protected public startup-grant extension awaiting user answer. No complete checklist
+gate claimed: P3 stays29/39 resources,1/4 groups/about67% partial. Feature backup
+through ce98f79 confirmed; passing next batch remains on its own branch, no main merge.
+
 ## October13 — herd persistence and real product backend
 
 Implemented restart-safe young cohorts, unique initial owned-animal enrollment,

@@ -5,10 +5,15 @@ import java.util.*;
 
 /** Immutable block-type evidence, never block ownership or inventory contents. */
 public record WorkplaceObservation(UUID world,int chunkX,int chunkZ,long capturedMillis,boolean complete,List<Marker> markers) {
-    public enum Kind { BARREL, SMITHING_TABLE }
+    public enum Kind {
+        BARREL("warehouse"), SMITHING_TABLE("blacksmith"), SMOKER("bakery"), CRAFTING_TABLE("craftsman");
+        private final String industry;
+        Kind(String industry){this.industry=industry;}
+        public String industry(){return industry;}
+    }
     public record Marker(Position position,Kind kind) {
         public Marker {Objects.requireNonNull(position);Objects.requireNonNull(kind);}
-        public String industry(){return kind==Kind.BARREL?"warehouse":"blacksmith";}
+        public String industry(){return kind.industry();}
     }
     public WorkplaceObservation {
         Objects.requireNonNull(world);markers=markers.stream().sorted(Comparator.comparingInt((Marker m)->m.position().x())

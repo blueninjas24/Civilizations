@@ -1,5 +1,41 @@
 # Civilizations — implementation status and handoff
 
+## October13 — approved bakery/craftsman recognition and candidate safeguards
+
+User approved configurable existing smokers for bakery candidates and crafting
+tables for the general craftsman. Implemented bounded block-type-only snapshot
+recognition, stable industry mapping and loaded fixed-anchor presence checks.
+New-file defaults recognize all four marker kinds; installed lists stay unchanged
+and missing legacy sections opt out. No container contents, block ownership,
+business, goods or money are taken/created by recognition. Existing first smith/
+warehouse reviews now filter their own marker kind before the candidate cap, so
+additional tables cannot crowd out established industry bootstrap.
+
+Schema77 expands sighting/anchor constraints transactionally, retaining every
+parent/child row and fixed identity. Explicit indexes/triggers survive; copied
+history does not fire triggers. Late failures roll back rows/constraints/version.
+Unknown inbound foreign keys are refused before dropping tables can cascade into
+extension data. No automatic reinterpretation of existing markers or funding.
+
+Eleven new tests; focused47 and targeted13 passed. Full .\mvnw.cmd clean verify
+passed1,462 (1,460 unit/two packaged integration), zero failures/errors/skips;
+8:10 at16:07:56 ET. Native Paper26.2 build129 proof passed16:09:31 ET: four real
+block types, untouched own barrel/smoker inventory, newer empty frame, retained
+history, absence/restart, zero firms and exact four-block restoration/ticket release.
+Schema76-to77 audit retained all133 predecessor tables,128 exact. Five differences:
+three normal clock/runtime/ore records and two farm observation timestamps, with
+all crop counts, completeness, location and identity fields exact; no ages changed.
+Initial audit refused timestamps; strict field-level validation accepted them.
+Fixture stopped, settings restored and helper archived. Existing Windows OSHI
+counter warning remains; no Civilizations/probe/listener errors. Human server untouched.
+
+Actual bakery/craftsman founding, ingredient/product chains and replacement, plus
+live livestock death/birth/adoption reconciliation, remain incomplete. The new
+public startup-grant extension is awaiting user approval; markers are approved.
+P3 stays29/39 resources,1/4 complete groups/about67% partial. Prior development
+through ce98f79 is backed up on GitHub. This passing batch is on
+codex/phase3-bakery-craftsman-markers for authorized feature backup; main unchanged.
+
 ## October13 — persistent herd and paid product backend
 
 Schema76 adds four initially empty tables for dedicated herd identity, unique
@@ -3715,7 +3751,7 @@ Audit identified: malformed INSERT; player-centered settlement/census; global pe
 ## Headless birth/death prototype
 - Demographic domain milestone branch: `codex/population-demographics`. Pure immutable monthly population step emits birth/death explanations, retains deceased people and uses observed household capacity.
 - User-approved editable prototype policy documented in POPULATION_SIMULATION.md; no closed numeric canon. No automatic partnership formation, crisis modifiers, demographic persistence or scheduler yet.
-- Nine new tests, including two 100-year (1,200-month) accounting/replay scenarios. Windows `.\mvnw.cmd clean verify -B -ntp`: 83 unit plus two integration (85 total), no failures/errors/skips.
+- Eleven new tests, including two 100-year (1,200-month) accounting/replay scenarios. Windows `.\mvnw.cmd clean verify -B -ntp`: 83 unit plus two integration (85 total), no failures/errors/skips.
 - Phase 1 remains 40% pending demographic persistence and remaining milestone gates. No server/world/actual database changes, merge or push.
 
 ## Atomic demographic saving milestone

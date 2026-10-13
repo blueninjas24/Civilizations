@@ -1,5 +1,25 @@
 # Civilizations progress tracker
 
+## October13 — bakery/craftsman locations recognized
+
+Approved smokers now identify bakery candidates; crafting tables identify general
+craftsman candidates. Recognition takes no container contents or building rights.
+Admin-editable lists preserve installed settings. Extra markers no longer crowd
+out first smith/warehouse reviews. Saved workplace identities/history survive the
+schema77 upgrade, including tested failure recovery and extension-data protection.
+
+Eleven new cases; focused47/targeted13 and full .\mvnw.cmd clean verify passed:
+1,462 tests, zero failures/errors/skips. Native four-marker/container/restoration
+check passed. All133 old test-save tables retained;128 exact, with normal bookkeeping
+and specifically validated observation timestamps only. Human server untouched.
+
+P3 remains29/39 resource items,1/4 whole groups/about67% partial. This completes a
+recognition prerequisite, not automatic bakery/craftsman businesses. Actual
+funded founding/products/replacement and live livestock remain. Marker choice
+resolved; startup-grant extension approval pending. Prior development through
+ce98f79 backed up on GitHub; this passing batch uses its own feature branch.
+Main unchanged.
+
 ## October13 — saved herd accounting, still a partial livestock milestone
 
 Herds can now remember young animals and progress across restarts. The tested

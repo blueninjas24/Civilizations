@@ -5,7 +5,7 @@ import java.util.*;
 
 /** Incremental plain-Java traversal over an immutable chunk snapshot. */
 public final class WorkplaceScan {
-    public enum Cell { OTHER, BARREL, SMITHING_TABLE, UNKNOWN }
+    public enum Cell { OTHER, BARREL, SMITHING_TABLE, SMOKER, CRAFTING_TABLE, UNKNOWN }
     public interface Source {Cell cell(int x,int y,int z);}
     private final Source source;
     private final int chunkX,chunkZ,originX,originZ,maximumY;
@@ -23,7 +23,7 @@ public final class WorkplaceScan {
         while(!complete()&&used<budget) {
             int x=column&15,z=column>>4;var cell=Objects.requireNonNull(source.cell(x,y,z));
             if(cell==Cell.UNKNOWN)reliable=false;
-            WorkplaceObservation.Kind kind=switch(cell){case BARREL->WorkplaceObservation.Kind.BARREL;case SMITHING_TABLE->WorkplaceObservation.Kind.SMITHING_TABLE;default->null;};
+            WorkplaceObservation.Kind kind=switch(cell){case BARREL->WorkplaceObservation.Kind.BARREL;case SMITHING_TABLE->WorkplaceObservation.Kind.SMITHING_TABLE;case SMOKER->WorkplaceObservation.Kind.SMOKER;case CRAFTING_TABLE->WorkplaceObservation.Kind.CRAFTING_TABLE;default->null;};
             if(kind!=null&&kinds.contains(kind)) {
                 if(markers.size()==512)reliable=false;else markers.add(new WorkplaceObservation.Marker(new Position(originX+x,y,originZ+z),kind));
             }

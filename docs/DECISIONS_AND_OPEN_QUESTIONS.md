@@ -1,15 +1,25 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October13: bakery/craftsman workplace markers — awaiting user decision
+## October13: bakery/craftsman workplace markers — approved
 
-Before automatic founding, asked whether existing nearby smokers may mark bakeries
-and crafting tables the single general craftsman, with editable recognition and
-the same no-container-content/no-player-building-ownership protections and safe
-replacement searches. Recommend these markers; alternative is explicit designated
-workplaces. Prior approval specifically covers smithing tables/barrels, so this
-extension is not silently chosen. No answer assumed; no new marker recognition
-or bakery/craftsman founding activated. Approved herd authority remains resolved.
+User answered “Whatever you recommend” to the pending workplace-marker decision.
+Approved configurable recognition of existing nearby smokers for bakeries and
+crafting tables for the single general craftsman, using the same no-container-
+contents/no-player-building-ownership protections and safe replacement direction.
+Recognition alone grants no business, goods, money or block modification rights.
+Current work extends bounded observation and saved marker identity first; actual
+founding/recipes and recovery remain separate verified gates. No marker question
+remains pending. Existing installed configuration lists are not overwritten.
 
+## October13: bakery/craftsman startup funding — awaiting user decision
+
+Before connecting automatic founding, asked whether these two additional businesses
+may use the same limited real village startup grants, shared period/lifetime caps
+and food-budget protection already approved for existing industries. Recommend the
+same protected grants, with qualified founders, real customers and supplies still
+required. Alternative: only existing private business/estate funding. Current grant
+policy does not include bakery/craftsman; marker recognition is not funding approval.
+No new public funding or automatic founding is activated while this is pending.
 
 ## October13: village herd authority — approved
 

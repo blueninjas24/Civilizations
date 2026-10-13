@@ -1,5 +1,39 @@
 # Civilizations Development Log
 
+## October13 — GitHub backup and approved bakery/craftsman markers
+
+User authorized GitHub backup: pushed codex/phase3-livestock-protection through
+ce98f79 and verified its remote SHA. Main unchanged. User approved recommended
+smoker/crafting-table recognition. Continued on codex/phase3-bakery-craftsman-markers:
+four-kind bounded observation, industry mapping, loaded point checks and editable
+YAML; old lists preserved, no inventory access/ownership or invented firms/goods.
+Scoped candidate kinds before budgets to prevent new markers crowding out first
+smith/warehouse opportunities. Schema77 retains parent/child history, indexes and
+triggers; copy before restoring triggers avoids artificial audit history. Refuse
+unknown inbound foreign keys before DROP can cascade into extension data.
+
+Eleven tests added. Initial focused45 passed, final focused47 and targeted13 passed.
+Restarted obsolete compiled runs while adding the two safeguards. First complete
+run caught a quarry diagnostic contract (expected "foreign keys") and one ten-second
+pulse timeout in the long farm/tool chain. Aligned diagnostic wording; unchanged
+timeout case passed targeted rerun in7.987 seconds. No timeout increase/behavior
+weakening. Final clean verify passed1,462 (1,460 unit/two packaged integration), zero
+failures/errors/skips;8:10 at16:07:56 ET. Production source unchanged afterward.
+
+Native marked Paper26.2 build129 proof passed16:09:31 ET: four real blocks, unchanged
+own barrel/smoker items, empty-frame clearing/history, absent world/restart, zero
+firms, restored four blocks and released chunk ticket. Server stopped/settings
+restored/helper archived. Schema76-to77:133 old tables retained,128 exact; three
+normal bookkeeping changes plus two farm timestamp refreshes. First audit refused
+those timestamps; explicit field comparison proved all crop/identity/location/
+completeness fields unchanged before accepting the result. No blanket whitelist.
+Known Windows OSHI counter warning; no plugin/probe/listener errors.
+
+Human server untouched; no main merge/push. Actual bakery/craftsman founding,
+products/replacement and live livestock remain. Marker choice resolved; asked new
+public startup-grant extension decision before automatic founding. P3 stays~67%
+partial. This passing batch is prepared for authorized feature-branch GitHub backup.
+
 ## October13 — persist herds and real paid livestock output
 
 Added schema76 and SQL-owner `LivestockRepository`: initial owned UUIDs cannot seed
@@ -1640,7 +1674,7 @@ keeps service/history and permits already-paid arrivals; retuning is forward-onl
 Schema 54 adds empty actual food-work audit; no free kit or state backfill.
 See docs/FARM_TOOLS.md and FARM_TOOL_FUNDING.md.
 
-Nine added tests (eight SQLite runtime and one strict configuration). Initial
+Eleven added tests (eight SQLite runtime and one strict configuration). Initial
 focused 50 passed; final focused 17 and final Windows .\mvnw.cmd clean verify
 passed 940 (938 unit/two packaged integration), zero failures/errors/skips, 4:28.
 The initial full 939 run passed before review added stable scalar-only farm

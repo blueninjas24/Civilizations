@@ -37,7 +37,7 @@ public final class WarehouseOpportunities {
         if(connection.getAutoCommit())throw new SQLException("Warehouse opportunity requires owner transaction");
         if(!policy.enabled()||!industry.enabled()||!industry.supply().enabled()||!industry.warehouseSupply().enabled()||!mines.enabled())return no("First mineral-chain warehouse review disabled");
         if(!mutationHealthy.getAsBoolean())return no("Warehouse mineral prospect waits for trusted ore mutation capture");
-        var markers=new WorkplaceOpportunities(connection).review(town,now,policy.evidenceLifetimeMillis(),worlds,policy.markersPerReview());
+        var markers=new WorkplaceOpportunities(connection).review(town,now,policy.evidenceLifetimeMillis(),worlds,policy.markersPerReview(),Set.of(WorkplaceObservation.Kind.BARREL));
         if(markers.candidates().isEmpty())return no(markers.explanation());
         try(var s=connection.prepareStatement("SELECT 1 FROM businesses WHERE settlement_id=? AND industry='warehouse' LIMIT 1")) {
             s.setString(1,town.toString());try(var r=s.executeQuery()){if(r.next())return no("Existing warehouse identity retained; first-firm prospect cannot bypass vacancy, closure or competition");}

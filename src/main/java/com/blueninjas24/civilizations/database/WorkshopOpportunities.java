@@ -36,7 +36,7 @@ public final class WorkshopOpportunities {
     Review reviewRows(UUID town,long now,Set<UUID> worlds)throws SQLException {
         if(connection.getAutoCommit())throw new SQLException("Workshop review rows require owner transaction");
         if(!policy.enabled()||!industry.enabled()||!industry.supply().enabled()||!starter.enabled())return no("First-workshop investment review disabled");
-        var workplaces=new WorkplaceOpportunities(connection).review(town,now,policy.evidenceLifetimeMillis(),worlds,policy.markersPerReview());
+        var workplaces=new WorkplaceOpportunities(connection).review(town,now,policy.evidenceLifetimeMillis(),worlds,policy.markersPerReview(),Set.of(WorkplaceObservation.Kind.SMITHING_TABLE));
         if(workplaces.candidates().isEmpty())return no(workplaces.explanation());
         // First-firm bootstrap only. Existing/closed firms require lifecycle/reuse/competition review.
         try(var s=connection.prepareStatement("SELECT 1 FROM businesses WHERE settlement_id=? AND industry='blacksmith' LIMIT 1")) {

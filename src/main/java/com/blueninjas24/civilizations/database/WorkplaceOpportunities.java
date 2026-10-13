@@ -10,7 +10,7 @@ import java.security.MessageDigest;
 /** Current marker candidates plus retained sightings; no business, stock, money or land writes. */
 public final class WorkplaceOpportunities {
     public record Candidate(UUID world,Position position,WorkplaceObservation.Kind kind,long capturedMillis) {
-        public String industry(){return kind==WorkplaceObservation.Kind.BARREL?"warehouse":"blacksmith";}
+        public String industry(){return kind.industry();}
     }
     public record Review(List<Candidate> candidates,String explanation) {public Review{candidates=List.copyOf(candidates);}}
     private final Connection connection;
@@ -47,6 +47,13 @@ public final class WorkplaceOpportunities {
         }catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
     }
     public Review review(UUID town,long now,long maximumAgeMillis,Set<UUID> activeWorlds,int limit)throws SQLException {
+        return review(town,now,maximumAgeMillis,activeWorlds,limit,Set.of(WorkplaceObservation.Kind.values()));
+    }
+    /** Filter before the candidate limit: unrelated workshop types cannot crowd out a first firm.
+     * SQL kind literals come exclusively from this closed enum, never external text. */
+    public Review review(UUID town,long now,long maximumAgeMillis,Set<UUID> activeWorlds,int limit,Set<WorkplaceObservation.Kind> kinds)throws SQLException {
+        kinds=Set.copyOf(kinds);if(kinds.isEmpty())throw new IllegalArgumentException("Workplace review needs at least one marker kind");
+        String filter=kinds.stream().sorted().map(k->"'"+k.name()+"'").collect(java.util.stream.Collectors.joining(","));
         if(now<0||maximumAgeMillis<0||limit<1||limit>512)throw new IllegalArgumentException("Invalid workplace review bounds");
         UUID world=world(town);if(activeWorlds==null||!activeWorlds.contains(world))return new Review(List.of(),"Workplace candidates paused: world absent or availability unknown");
         long earliest=Math.max(0,now-maximumAgeMillis);var rows=new ArrayList<Candidate>();
@@ -59,8 +66,9 @@ public final class WorkplaceOpportunities {
               AND NOT EXISTS(SELECT 1 FROM workplace_markers o JOIN workplace_surveys w USING(settlement_id,world_id,chunk_x,chunk_z)
                 WHERE o.settlement_id<>m.settlement_id AND o.world_id=m.world_id AND o.x=m.x AND o.y=m.y AND o.z=m.z
                   AND w.complete=1 AND w.captured_millis BETWEEN ? AND ?)
+              AND m.kind IN(%s)
             ORDER BY m.x,m.y,m.z,m.kind LIMIT ?
-            """)) {
+            """.formatted(filter))) {
             s.setString(1,town.toString());s.setString(2,world.toString());s.setLong(3,earliest);s.setLong(4,now);s.setLong(5,earliest);s.setLong(6,now);s.setInt(7,limit+1);
             try(var r=s.executeQuery()){while(r.next())rows.add(new Candidate(world,new Position(r.getInt(1),r.getInt(2),r.getInt(3)),WorkplaceObservation.Kind.valueOf(r.getString(4)),r.getLong(5)));}
         }

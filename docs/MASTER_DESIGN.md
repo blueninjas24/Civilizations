@@ -1,5 +1,10 @@
 # Civilizations — canonical master design
 
+October13 approved bakery/craftsman markers: configurable existing smokers and
+crafting tables are location evidence only, with no inventory or building ownership.
+Four-kind observation/identity is now implemented; actual businesses, products and
+safe replacement remain separate gates. Marker recognition is not construction.
+
 October13 subsequent schema76: dedicated herds now persist young cohorts and
 once-only production receipts. The backend consumes real business feed and credits
 owned milk/eggs under actual qualified work and storage limits. It remains unwired

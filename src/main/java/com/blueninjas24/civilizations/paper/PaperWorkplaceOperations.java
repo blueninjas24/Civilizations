@@ -33,7 +33,7 @@ public final class PaperWorkplaceOperations extends BukkitRunnable {
                 var world=Bukkit.getWorld(anchor.world());var p=anchor.position();
                 if(world==null||!world.isChunkLoaded(Math.floorDiv(p.x(),16),Math.floorDiv(p.z(),16)))continue;
                 if(p.y()<world.getMinHeight()||p.y()>=world.getMaxHeight())continue;
-                Material required=switch(anchor.kind()){case BARREL->Material.BARREL;case SMITHING_TABLE->Material.SMITHING_TABLE;};
+                Material required=PaperWorkplaceSource.material(anchor.kind());
                 evidence.add(new WorkplaceOperations.Confirmation(anchor,world.getBlockAt(p.x(),p.y(),p.z()).getType()==required,captured));
             }
             if(!evidence.isEmpty())save=session.confirmWorkplaceOperations(evidence);

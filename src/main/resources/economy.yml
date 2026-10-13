@@ -657,14 +657,17 @@ automatic-mines:
 
 # Read-only existing markers around one saved home per village. Never opens an
 # inventory, moves blocks or grants property rights. Current-block proof still gates startup.
-# Legacy files without this section stay disabled; select either/both marker types.
+# Legacy files without this section stay disabled. Existing marker lists are preserved.
+# Select any subset: barrels -> warehouses; smithing tables -> blacksmiths;
+# smokers -> bakeries; crafting tables -> the general craftsman.
+# Recognition is evidence only, never ownership or permission to take container goods.
 workplace-observer:
   enabled: true
   vertical-radius: 16
   cells-per-tick: 512
   interval-ticks: 400
   horizontal-radius-chunks: 1
-  markers: [barrel, smithing_table]
+  markers: [barrel, smithing_table, smoker, crafting_table]
 
 # Confirmed removal pauses newly marker-founded businesses. Unloaded blocks are unknown.
 # Set false and restart to allow those firms to operate despite a missing marker.

@@ -168,9 +168,9 @@ public final class EconomyConfiguration {
         if(!config.contains("workplace-observer"))return com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy.disabled();
         var s=section(config,"workplace-observer");exactKeys(s,Set.of("enabled","vertical-radius","cells-per-tick","interval-ticks","horizontal-radius-chunks","markers"));
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("workplace-observer.enabled must be true or false");
-        if(!(s.get("markers") instanceof List<?> raw)||raw.isEmpty()||raw.size()>2||raw.stream().anyMatch(x->!(x instanceof String))||new HashSet<>(raw).size()!=raw.size())throw new IllegalArgumentException("Workplace markers must be a distinct supported list");
+        if(!(s.get("markers") instanceof List<?> raw)||raw.isEmpty()||raw.size()>4||raw.stream().anyMatch(x->!(x instanceof String))||new HashSet<>(raw).size()!=raw.size())throw new IllegalArgumentException("Workplace markers must be a distinct supported list");
         var kinds=new HashSet<com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind>();
-        for(var name:raw)kinds.add(switch((String)name){case "barrel"->com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL;case "smithing_table"->com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE;default->throw new IllegalArgumentException("Unsupported workplace marker "+name);});
+        for(var name:raw)kinds.add(switch((String)name){case "barrel"->com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL;case "smithing_table"->com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE;case "smoker"->com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMOKER;case "crafting_table"->com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.CRAFTING_TABLE;default->throw new IllegalArgumentException("Unsupported workplace marker "+name);});
         return new com.blueninjas24.civilizations.industry.WorkplaceObserverPolicy(enabled,smallInteger(s,"vertical-radius"),smallInteger(s,"cells-per-tick"),smallInteger(s,"interval-ticks"),smallInteger(s,"horizontal-radius-chunks"),kinds);
     }
     public static com.blueninjas24.civilizations.industry.MineFoundingPolicy readMineFounding(ConfigurationSection config) {
