@@ -32,7 +32,9 @@ public final class FisheryOpportunities {
         try{var result=reviewRows(town,now,worlds==null?Set.of():Set.copyOf(worlds));connection.commit();connection.setAutoCommit(true);return result;}
         catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
     }
-    Review reviewRows(UUID town,long now,Set<UUID> worlds)throws SQLException {
+    Review reviewRows(UUID town,long now,Set<UUID> worlds)throws SQLException {return reviewRows(town,now,worlds,false);}
+    Review reviewForTrainingRows(UUID town,long now,Set<UUID> worlds)throws SQLException {return reviewRows(town,now,worlds,true);}
+    private Review reviewRows(UUID town,long now,Set<UUID> worlds,boolean nextPeriodPractice)throws SQLException {
         if(connection.getAutoCommit())throw new SQLException("Fishery review rows require owner transaction");
         if(!policy.enabled()||!water.enabled()||!fishing.enabled()||!industry.enabled())return no("First-fishery review, water recognition or timed fishing disabled");
         if(policy.maximumColumns()<fishing.minimumWaterColumns())return no("Configured fishery footprint cannot meet habitat minimum");
@@ -43,7 +45,8 @@ public final class FisheryOpportunities {
         }
         var funding=new BusinessStartupGrants(connection).previewRows(town,"fishing",policy.startupHundredths(),policy.capitalHundredths(),grants);
         if(!funding.eligible())return no("Fishery funding unavailable: "+funding.reason());
-        var customer=new VillageSupplyPurchases(connection,customers,study,operations).demandAfterSpending(town,worlds,Math.addExact(policy.startupHundredths(),policy.capitalHundredths()));
+        var purchases=new VillageSupplyPurchases(connection,customers,study,operations);long debit=Math.addExact(policy.startupHundredths(),policy.capitalHundredths());
+        var customer=nextPeriodPractice?purchases.demandForTrainingAfterSpending(town,worlds,debit):purchases.demandAfterSpending(town,worlds,debit);
         long need=customer.fundedUnits().getOrDefault(Commodity.FOOD,0L);
         if(need==0)return no("No real funded food customer after proposed startup spending: "+customer.explanation());
         UUID townWorld;

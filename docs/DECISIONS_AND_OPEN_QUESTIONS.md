@@ -31,7 +31,7 @@ Editable prototype target is two future food periods plus current unmet food;
 0 retains shortage-only purchases. Missing new keys in installed files default
 to0 without rewriting them. This is separate from treasury protection measured
 in food costs. Qualified automatic fishery founding, habitat/shoreline revalidation and scheduling
-passed October 13 validation. Automatic first-owner fishing training remains next.
+passed October 13 validation. Automatic first-owner fishing training and paid public food delivery passed October 13 native validation.
 
 ## October12: shoreline start and priority dock upgrades — approved
 

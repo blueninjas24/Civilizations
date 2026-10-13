@@ -240,6 +240,11 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessStartupGrants.Fishery> acceptFisheryInvestment(com.blueninjas24.civilizations.database.FisheryInvestment.Proposal proposal,com.blueninjas24.civilizations.industry.ShorelineEvidence evidence) {
         return submit(()->{requireReady();return fisheryInvestment().accept(proposal,evidence,now.getAsLong(),loadedWorlds,fishingPolicy);});
     }
+    /** Live water/bank caller may sponsor or refresh one supply-backed future first-owner course. */
+    public CompletableFuture<String> reviewFisheryFounderStudy(com.blueninjas24.civilizations.database.FisheryOpportunities.Opportunity opportunity,com.blueninjas24.civilizations.industry.ShorelineEvidence bank) {
+        return submit(()->{requireReady();if(economy==null||economyFailure!=null||status.get().remainingMonths()>0)return "First fishing-owner study waits for current enabled food/population economy";
+            return economy.reviewFisheryFounderStudy(opportunity,bank,now.getAsLong());});
+    }
     /** No invented shoreline point or startup debit; actual acceptance remains separate. */
     public CompletableFuture<com.blueninjas24.civilizations.database.FisheryInvestment.Preparation> prepareFisheryInvestment(UUID town) {
         return submit(()->{requireReady();return fisheryInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);});
@@ -409,6 +414,7 @@ public final class PopulationSession implements AutoCloseable {
                     economy.configureWarehouseFounderStudy(new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
                         operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get()),warehouseFoundingPolicy,careerStudyPolicy);
                     economy.configureMineFounderStudy(automaticMines,careerStudyPolicy,mineFoundingPolicy);
+                    economy.configureFisheryFounderStudy(new com.blueninjas24.civilizations.database.FisheryOpportunities(database.getConnection(),fisheryOpportunityPolicy,waterPolicy,fishingPolicy,industryPolicy,startupGrantPolicy,villageSupplyPolicy,studyPolicy,operationPolicy),fisheryFoundingPolicy,fisheryShorelinePolicy,fisheryOpportunityPolicy,careerStudyPolicy);
                     businesses.configureCareerStudy(economy,careerStudyPolicy);
                     economy.configureWorkLearning(learningPolicy);
                     if (loadedWorlds == null) economy.start(now.getAsLong());

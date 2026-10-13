@@ -1,5 +1,17 @@
 # Phase 3 — businesses and industry checklist
 
+Villages can now train their first fishing owner using real supplies, then pay to
+open a fishery beside suitable water. Catches can be sold and delivered into the
+village's food reserve. Workers improve through real catches, and damaged banks
+can use a safe replacement without losing the business. No free skill or money.
+
+All 1,319 full-build tests passed. The isolated Paper test started with zero fishing
+experience and passed training, startup, paid food delivery, recovery and restart.
+The verified current customer/recipe milestone is complete; forestry, remaining
+stone/sand/bakery connections and specialization acceptance still remain. Phase 3
+is 1/4 whole groups/~70% partial. No decision is pending; your playable server is
+unchanged. See FISHERY_FOUNDER_TRAINING.md. Older notes describe earlier snapshots.
+
 Fishing workers now improve through actual catches. Existing fisheries can train
 new employees using real supplies, then hire them once qualified. Full storage,
 unsafe banks and absent worlds cannot generate free experience. All 1,308 full-build
@@ -364,7 +376,10 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
       treasury, shared economic-period/lifetime quotas and atomic startup/capital/
       first-worker receipts; 844 tests and packaged Paper restart/accounting passed.
       No ownership cap or automatic startup; missing old settings remain disabled.
-- [ ] Connect real local customers and recipes; demand-based reserves, no fake buyers.
+- [x] Connect real local customers and recipes; demand-based reserves, no fake buyers.
+      Verified current mineral/tool and food/practice catalogs: paid owned goods,
+      protected spending, once-only delivery and actual consumption/reserves.
+      Broader resource/recipe catalogs remain the separate unchecked item below.
 - [x] Read actual staffed funded workshop input gaps using editable recipe/buffer/
       prices, owned/pending goods, finite storage and once-counted warehouse stock;
       match only currently observed needed minerals. This is a read-only review,

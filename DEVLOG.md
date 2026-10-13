@@ -1,5 +1,46 @@
 # Civilizations Development Log
 
+## October 13, 2026 — automatic first fishing-owner training and paid food chain
+
+Connected normal water/bank observation to one real future fishing-owner course when
+no qualified owner exists. Permanent world/habitat identity, current protected funding,
+real funded food need, safe-bank proof, actual adult availability, practice supplies and
+study budgets apply. Enrollment gives no skill, job or money. Real future timber practice
+qualifies the owner before the unchanged paid startup path opens the fishery. Unknown,
+stale, unfunded or disabled opportunities pause courses; redundant sponsorship is refused.
+Migration 70 adds one initially empty course association table, retaining all old rows.
+
+A scoped read-only training preview may validate exactly one currently processing food
+period. Actual purchases and startup still require a complete current assessment without
+backlog. This distinction is necessary to prevent linked practice from pausing forever
+mid-period; it cannot authorize old purchases or manufacture demand/funds. Tests verify
+this boundary, original safe footing, enrollment/practice rollback, stale proof, backlog,
+restart/absence and policy disabling. Eleven new temporary-database cases. Focused 69
+passed before the two final guard cases; full Windows .\mvnw.cmd clean verify passed
+1,319 (1,317 unit/two packaged integration), zero failures/errors/skips, 6:50 at 02:36:45 ET.
+
+Final guarded native first-owner chain passed 03:05:00 ET: zero initial fishing skill,
+ten real timber practice steps, qualification, ordinary protected startup, catches and
+further earned experience, an actual paid public food order delivered once into reserve,
+conserved money, saved bank relocation under read-only damage masking, absence pause
+and restart. Native setup/clock/observation assertions were corrected after they exposed
+seed mismatch, an overpaced clock, already-earned work and split payment snapshots;
+production seed, purchase, backlog and money guards were not weakened. Consistent
+read snapshots and fully observed/settled baselines distinguish real behavior from test
+races. Native actors/farm/practice stocks/treasury are explicit isolated fixtures; actual
+water/banks are read from Paper. This is not a natural survival-balance or scale gate.
+Save audit 113/120 tables exact; seven ordinary clock/freshness/ore/age changes only,
+identities/assets/cash/history retained, integrity/FK healthy. Exact settings restored,
+helpers archived and consistent backups retained; no helper block/entity edits.
+
+The verified mineral/tool and food/practice customer/recipe milestone is now checked;
+broader catalogs remain separately open. Phase 3: 1/4 whole groups/~70% partial
+(4/4 business foundation, 28/33 resources, 14/15 lifecycle, 0/5 specialization/acceptance).
+Next: renewable forestry and remaining stone/sand/bakery connections, competition and
+multi-year geographic scenarios, broader native/profile/client acceptance. No gameplay
+answer pending. Your playable server is unchanged; no merge/push.
+See FISHERY_FOUNDER_TRAINING.md, FISHERY_WORKPLACES.md and FISHING_SKILLS.md.
+
 ## October 13, 2026 — earned fishing skills and real-vacancy study
 
 Connected fishing to configurable productive-work experience, supply-backed fishing

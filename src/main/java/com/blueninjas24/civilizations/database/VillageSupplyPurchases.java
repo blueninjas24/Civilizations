@@ -76,16 +76,17 @@ public final class VillageSupplyPurchases {
         return find(request.operation()).orElseThrow();
     }
     private record Evidence(UUID world,long demand,long unmet) {}
-    private Evidence evidence(UUID town,long period,Set<UUID> worlds)throws SQLException {
+    private Evidence evidence(UUID town,long period,Set<UUID> worlds)throws SQLException {return evidence(town,period,worlds,false);}
+    private Evidence evidence(UUID town,long period,Set<UUID> worlds,boolean nextPeriodPractice)throws SQLException {
         try(var s=connection.prepareStatement("""
             SELECT w.world_id,n.demand,n.fulfilled,n.unassigned_residents+COALESCE((SELECT SUM(h.adults+h.children)
               FROM household_needs h WHERE h.settlement_id=n.settlement_id AND h.period=n.period),0) AS assessed,
               (SELECT COUNT(*) FROM residents p WHERE p.settlement_id=n.settlement_id AND p.status='ALIVE') AS living
             FROM economy_accounts a JOIN economy_runtime r USING(settlement_id) JOIN settlement_worlds w USING(settlement_id)
               JOIN needs_periods n ON n.settlement_id=a.settlement_id AND n.period=a.completed_periods
-            WHERE a.settlement_id=? AND a.completed_periods=? AND r.target_periods=a.completed_periods
+            WHERE a.settlement_id=? AND a.completed_periods=? AND r.target_periods>=a.completed_periods AND r.target_periods-a.completed_periods<=?
             """)) {
-            s.setString(1,town.toString());s.setLong(2,period);try(var r=s.executeQuery()) {
+            s.setString(1,town.toString());s.setLong(2,period);s.setInt(3,nextPeriodPractice?1:0);try(var r=s.executeQuery()) {
                 if(!r.next()||r.getLong("assessed")!=r.getLong("living"))throw new Declined("Current complete population assessment without historical backlog required");
                 UUID world=UUID.fromString(r.getString(1));if(!worlds.contains(world))throw new Declined("Village world absent");
                 return new Evidence(world,r.getLong("demand"),Math.max(0,r.getLong("demand")-r.getLong("fulfilled")));
@@ -131,13 +132,16 @@ public final class VillageSupplyPurchases {
     /** Read-only actual public customer evidence for later resource investment; does not reserve cash or invent a business. */
     public Demand demand(UUID town,Set<UUID> worlds)throws SQLException {return demandAfterSpending(town,worlds,0);}
     /** Read-only investment preview; the proposed debit is not reserved or posted. */
-    public Demand demandAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit)throws SQLException {
+    public Demand demandAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit)throws SQLException {return demandAfterSpending(town,worlds,proposedDebit,false);}
+    /** Planning only: one currently processing future food period may validate linked practice. Never used by orders. */
+    Demand demandForTrainingAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit)throws SQLException {return demandAfterSpending(town,worlds,proposedDebit,true);}
+    private Demand demandAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit,boolean nextPeriodPractice)throws SQLException {
         Objects.requireNonNull(town);Objects.requireNonNull(worlds);
         if(proposedDebit<0)throw new IllegalArgumentException("Negative proposed public spending");
         var account=new CommodityRepository(connection).read(town);
         long period=account.map(a->a.state().completedPeriods()).orElse(0L);
         if(!policy.enabled()||period==0)return new Demand(town,period,Map.of(),0,"Public customers disabled or awaiting a completed food assessment");
-        Evidence evidence;try{evidence=evidence(town,period,worlds);}catch(Declined unavailable){return new Demand(town,period,Map.of(),0,unavailable.getMessage());}
+        Evidence evidence;try{evidence=evidence(town,period,worlds,nextPeriodPractice);}catch(Declined unavailable){return new Demand(town,period,Map.of(),0,unavailable.getMessage());}
         long cash=Math.max(0,new TreasuryRepository(connection).load(town).map(t->t.hundredths()).orElse(0L)-proposedDebit),cost=0;
         long foodSpent=spent(town,period,true),materialSpent=spent(town,period,false),haul=Math.max(0,policy.haulUnitsPerPeriod()-hauled(town,period));
         var goods=new ArrayList<>(policy.prices().keySet());goods.remove(Commodity.FOOD);goods.addFirst(Commodity.FOOD);

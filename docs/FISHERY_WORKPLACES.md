@@ -1,6 +1,6 @@
 # Saved shoreline fisheries
 
-Implemented on the feature branch: a qualified, unemployed adult can open the village's first fishery when there is fresh connected nearby water, a safe dry bank, actual funded food demand remaining after startup spending, protected village funds, and enabled settings. The founder must already have saved fishing experience; automatic first-owner fishing training is still pending. No vanilla profession grants free experience.
+Implemented on the feature branch: a qualified, unemployed adult can open the village's first fishery when there is fresh connected nearby water, a safe dry bank, actual funded food demand remaining after startup spending, protected village funds, and enabled settings. The founder must already have saved fishing experience; automatic first-owner fishing training is separately verified in FISHERY_FOUNDER_TRAINING.md. No vanilla profession grants free experience.
 
 PaperFisheryStartup reads only loaded chunks on the main thread. It rechecks the original columns for open sky, saved surface level and minimum depth, scans bounded bank candidates, then rechecks the selected footing/headroom before serialized SQL acceptance. Read budgets are editable. It does not load chunks, move blocks, claim player buildings, or use container contents.
 

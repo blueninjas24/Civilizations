@@ -1,5 +1,17 @@
 # Civilizations progress tracker
 
+Villages can now train their first fishing owner using real supplies, then pay to
+open a fishery beside suitable water. Catches can be sold and delivered into the
+village's food reserve. Workers improve through real catches, and damaged banks
+can use a safe replacement without losing the business. No free skill or money.
+
+All 1,319 full-build tests passed. The isolated Paper test started with zero fishing
+experience and passed training, startup, paid food delivery, recovery and restart.
+The verified current customer/recipe milestone is complete; forestry, remaining
+stone/sand/bakery connections and specialization acceptance still remain. Phase 3
+is 1/4 whole groups/~70% partial. No decision is pending; your playable server is
+unchanged. See FISHERY_FOUNDER_TRAINING.md. Older notes describe earlier snapshots.
+
 Fishing workers now improve through actual catches. Existing fisheries can train
 new employees using real supplies, then hire them once qualified. Full storage,
 unsafe banks and absent worlds cannot generate free experience. All 1,308 full-build
@@ -184,11 +196,11 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |27/33|82%|
+| Resources and connected production |28/33|85%|
 | Business lifecycle and competition |14/15|93%|
 | Specialization and final acceptance |0/5|No complete entries yet|
 
-Equal weight per group gives about69% partial checklist completion. Entries differ
+Equal weight per group gives about70% partial checklist completion. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from
 PHASE3_TODO.md. The four-group phase-gate bar below still counts whole groups.

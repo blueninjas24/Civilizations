@@ -8,7 +8,9 @@ An existing live-owner fishery with a genuine vacancy can sponsor bounded gradua
 
 Default fishing study target is 10 experience with one timber per productive practice period, using the existing one-experience study rate. All settings are editable under resident-study, automatic-career-study, automatic-business-staffing and work-learning in economy.yml. Existing files keep their saved maps/lists until administrators explicitly opt in; these changes do not overwrite files or upgrade existing accepted course terms.
 
-Automatic sponsorship for the FIRST fishing owner is still unfinished. Existing-vacancy training cannot bootstrap a business that does not exist, and water or a vanilla fisherman profession does not grant free skill. A suitable, funded first-owner course requires its own durable habitat/bank opportunity association and current-evidence checks. This remains the next fishing integration task.
+Automatic sponsorship for the FIRST fishing owner is now separately connected and verified; see FISHERY_FOUNDER_TRAINING.md. The paragraph below records the previous missing dependency.
+
+Before that connection: Existing-vacancy training cannot bootstrap a business that does not exist, and water or a vanilla fisherman profession does not grant free skill. A suitable, funded first-owner course requires its own durable habitat/bank opportunity association and current-evidence checks. This remains the next fishing integration task.
 
 No migration is added by this batch. Existing schema 69 saves and accepted courses keep their identities, terms and history. Tests use temporary databases only. The native probe uses explicit initial fixture fishing skill, then verifies that real catches earn further experience and that absent worlds/restarts do not grant past work; it does not claim automatic first-owner training.
 

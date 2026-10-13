@@ -155,6 +155,22 @@ public final class EconomyRuntimeRepository {
         if(inUse)throw new IllegalStateException("Configure study before using economy");
         studyPolicy=Objects.requireNonNull(policy);
     }
+    private FisheryFounderStudy fisheryFounderStudy;
+    public void configureFisheryFounderStudy(FisheryOpportunities opportunities,com.blueninjas24.civilizations.industry.FisheryFoundingPolicy founding,
+            com.blueninjas24.civilizations.industry.FisheryShorelinePolicy shoreline,com.blueninjas24.civilizations.industry.FisheryOpportunityPolicy terms,
+            com.blueninjas24.civilizations.industry.CareerStudyPolicy careers) {
+        if(inUse)throw new IllegalStateException("Configure fishing founder study before economy use");
+        fisheryFounderStudy=new FisheryFounderStudy(connection,opportunities,founding,shoreline,terms,careers,studyPolicy,adulthood);
+    }
+    public String reviewFisheryFounderStudy(FisheryOpportunities.Opportunity opportunity,com.blueninjas24.civilizations.industry.ShorelineEvidence bank,long now)throws SQLException {
+        return transaction(()-> {
+            if(fisheryFounderStudy==null)return "First fishing-owner study not configured";
+            var town=opportunity.town();if(!hasRuntime(town)||!active(town))return "Fishing-owner study waits for present-world food economy";
+            var field=farm(town);if(field==null||!field.complete())return "Fishing-owner study waits for complete food evidence";
+            long period=commodities.read(town).orElseThrow().state().completedPeriods();if(period==0)return "Fishing-owner study waits for first food assessment";
+            accrue(town,now,false);return fisheryFounderStudy.reviewRows(opportunity,bank,now,loadedWorlds==null?Set.of():loadedWorlds,period,clock(town).anchor().targetSteps());
+        });
+    }
     private MineFounderStudy mineFounderStudy;
     private WorkshopFounderStudy workshopFounderStudy;
     private WarehouseFounderStudy warehouseFounderStudy;
@@ -509,10 +525,12 @@ public final class EconomyRuntimeRepository {
         }
         var study=new ResidentStudy(connection,studyPolicy,adulthood);
         if(mineFounderStudy!=null)study.withFounderOpportunity(course->mineFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds));
-        if(workshopFounderStudy!=null||warehouseFounderStudy!=null)study.withFounderPractice(course->{
+        if(workshopFounderStudy!=null||warehouseFounderStudy!=null||fisheryFounderStudy!=null)study.withFounderPractice(course->{
             var workshop=workshopFounderStudy==null?ResidentStudy.FounderState.READY:workshopFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds);
-            return workshop!=ResidentStudy.FounderState.READY?workshop:warehouseFounderStudy==null?ResidentStudy.FounderState.READY:
-                    warehouseFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds);
+            if(workshop!=ResidentStudy.FounderState.READY)return workshop;
+            var warehouse=warehouseFounderStudy==null?ResidentStudy.FounderState.READY:warehouseFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds);
+            return warehouse!=ResidentStudy.FounderState.READY?warehouse:fisheryFounderStudy==null?ResidentStudy.FounderState.READY:
+                    fisheryFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds==null?Set.of():loadedWorlds);
         });
         var studyPlan=study.planRows(town,nextPeriod,account.state(),flows,farmBusinesses.enabled()||output==0);
         var period = commodities.advanceRows(town, nextPeriod, studyPlan.flows(), settings.shortages());

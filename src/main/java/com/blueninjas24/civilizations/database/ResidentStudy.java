@@ -74,8 +74,8 @@ public final class ResidentStudy {
             else if(!AutomaticCareerStudy.opportunityAvailable(connection,course.id())){status="CANCELLED";reason="Linked business vacancy no longer available; practice supplies retained";}
             else if(!founderOpportunity.available(course.id())){status="CANCELLED";reason="Linked mining founder opportunity no longer viable; practice supplies retained";}
             else if(experience>=course.target()){status="COMPLETED";reason="Target already reached; no supplies spent";}
-            else if(founderState==FounderState.CANCEL){status="CANCELLED";reason="First-workshop opportunity already taken; practice supplies retained";}
-            else if(founderState==FounderState.WAIT)reason="First-workshop opportunity unavailable or unknown; study paused, supplies retained";
+            else if(founderState==FounderState.CANCEL){status="CANCELLED";reason="Linked first-business opportunity already taken; practice supplies retained";}
+            else if(founderState==FounderState.WAIT)reason="Linked first-business opportunity unavailable or unknown; study paused, supplies retained";
             else if(!policy.enabled()||!policy.skills().containsKey(course.skill()))reason="Study disabled; supplies retained";
             else if(!laborAvailable)reason="Legacy field output counts all adults; study deferred to avoid double labor";
             else if(!foodSafe)reason="Food needs/reserve take priority; study paused";

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 69;
+    static final int CURRENT_VERSION = 70;
 
     @FunctionalInterface
     interface Migration {
@@ -912,7 +912,8 @@ final class SchemaMigrator {
                 SchemaMigrator::createFisheries,
                 SchemaMigrator::createFisheryHabitatChanges,
                 SchemaMigrator::createWaterSurveys,
-                SchemaMigrator::createFisheryWorkplaces
+                SchemaMigrator::createFisheryWorkplaces,
+                SchemaMigrator::createFisheryFounderStudy
 
 
         ));
@@ -1946,6 +1947,17 @@ final class SchemaMigrator {
                 fingerprint TEXT NOT NULL,explanation TEXT NOT NULL,PRIMARY KEY(site_id,observed_ms)
             )
             """);
+    }
+    static void createFisheryFounderStudy(Connection connection)throws SQLException {
+        execute(connection,"""
+            CREATE TABLE fishery_founder_courses (
+                course_id TEXT PRIMARY KEY NOT NULL REFERENCES resident_courses(id),
+                settlement_id TEXT NOT NULL REFERENCES settlements(id),world_id TEXT NOT NULL REFERENCES observed_worlds(id),
+                habitat_key TEXT NOT NULL,x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                observed_ms INTEGER NOT NULL CHECK(observed_ms>=0),period INTEGER NOT NULL CHECK(period>0)
+            )
+            """);
+        execute(connection,"CREATE INDEX fishery_founder_towns ON fishery_founder_courses(settlement_id,course_id)");
     }
     private static void execute(Connection connection, String sql) throws SQLException {
         try (var statement = connection.createStatement()) {
