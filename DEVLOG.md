@@ -1,5 +1,50 @@
 # Civilizations Development Log
 
+## October16 — confirmed original-herd losses reach saved production
+
+Confirmed uncancelled native cow/chicken deaths now cross the main-thread/SQL-owner
+boundary as immutable observations. Original saved UUIDs lose one adult or their
+actual young cohort. Unknown/player/unassigned animals create no loss or ownership;
+missing observations never establish death. Cross-world death records the actual
+location world without changing original ownership/world history or earning time.
+
+Loss receipts and old production history remain immutable. Pending losses reduce
+current heads immediately after commit; future paid production checkpoints save
+the reduced state and apply losses atomically. Exact event/work replay and restart
+do not subtract twice, refill animals or create goods/cash. Failed loss/application
+writes roll back. Disabled/absent worlds earn no work or aging from the event.
+Main-thread capture changes no native death, loot or XP; bounded unbound buffering,
+serial owner requests, delayed exact retry and graceful draining include diagnostics.
+
+Schema82 adds one initially empty loss table/index referencing original animals
+and before/application periods. All prior rows remain. Every affected old-save
+comparison still checks every predecessor row and explicitly asserts the new table
+empty; upgrade failure/retry tested. No production/world reset or YAML changes.
+
+Eleven new executed cases: seven accounting/migration/restart/failure cases, four
+capture/retry/readiness/shutdown cases. Focused111 passed; final Windows
+.\mvnw.cmd clean verify passed1,595 (1,593 unit/two packaged integration), zero
+failures/errors/skips;08:09, finished2026-10-16T16:26:19-04:00. Production/test Java
+frozen during final verification. Helper-only cleanup tags its own disposable loot.
+
+Guarded Paper26.2 build129 passed16:27:16: actual native adult/young/player cow
+deaths, real SQL-owner listener, one retained survivor, reduced feed/output,
+absence, exact work/death replay and restart. No human client, automatic adopter,
+physical offspring or crash-gap certification. All helper animals/tagged loot
+removed; no blocks changed, ticket released. Schema81->82 audit retained139
+predecessor tables/136 exact; only normal clock/runtime/ore metadata changed;
+age delta0, integrity/FKs clean. New main-fixture loss table empty. Fixture stopped,
+properties restored/helper archived/backups retained; OSHI warning only, no
+Civilizations/probe/listener failure. Human server untouched. Branch
+codex/phase3-livestock-losses; main unchanged.
+
+P3 stays30/39 resources,1/4 whole groups/~68% partial. Next: egg/spawn-origin
+protection, then unclean-capture recovery and physical herd reconciliation before
+live adoption/output. The death queue is in memory until SQL commit: do not infer
+crash-gap safety. Newborn physical UUIDs, authorized transfers, automatic funding/
+feed/output and milk/egg trading remain separate gates. No decision needed.
+See LIVESTOCK_PROTECTION.md.
+
 ## October16 — village milk/eggs and player-bred animal protection
 
 Implemented the approved village-only product rule: an empty bucket in either

@@ -1,5 +1,46 @@
 # Livestock protection and work foundation
 
+## October16 — confirmed losses of original herd animals
+
+`LivestockLosses` accepts trusted physical death observations for saved initial
+animal UUIDs only. Unknown, player-owned and village animals not assigned to a
+herd create no loss, ownership or new herd. Record the actual observed world and
+native damage-type key without attacker/player identity. Death in another world
+still removes that exact animal; original ownership/world history stays intact.
+An exact retry returns its immutable receipt; changed evidence/operation refuses.
+
+Pending losses overlay the current saved headcount. Original animals whose saved
+maturity has passed reduce adults; otherwise remove exactly one from their saved
+young cohort. They do not consume feed, create goods, advance time or alter prior
+production/cohort receipts. The next actual production transaction saves the
+reduced state and marks those losses applied together. Failure of either write
+rolls back feed, output, cohorts and application; retry cannot subtract twice.
+Disabled/absent worlds retain external confirmed loss but earn no production/time.
+
+Schema82 adds initially empty `livestock_animal_losses` and its pending lookup
+index, with references to original animals and before/application checkpoints.
+No prior animal, stock, money, person, job or history conversion. Every older-save
+comparison retains its prior row checks and explicitly asserts this new table
+empty. New upgrade failure/rollback/retry is covered separately.
+
+`ManagedLivestockDeaths` captures only confirmed, uncancelled cow/chicken death
+events on the main thread. It does not cancel deaths or change loot/experience.
+Immutable observations cross to the existing SQL-owner queue. One outstanding
+request, exact retry with delay and graceful shutdown draining preserve accepted
+evidence. Pending positive identities are bounded by the saved ownership roster;
+unpublished candidates use a256-entry/30-second window and never establish death
+from absence. Diagnostics show pending/unbound counts in debug observation output.
+Physical loss recording still runs when production is disabled.
+
+Current scope is original UUIDs, not physical offspring or authorized transfers.
+The queue is in memory until the owner commits. A hard crash in that handoff needs
+an unclean-capture fence/reconciliation before live production can safely resume;
+this batch does not certify that crash gap or enable automatic adoption/output.
+Missing/unloaded animals must never be silently removed or respawned. Eleven new
+cases, focused111 and final full1,595 passed. Actual native adult/young/player
+deaths, reduced survivor production, restart/retry/absence and schema81->82
+preservation passed on guarded Paper. See PROJECT_STATUS/DEVLOG for exact limits.
+
 ## October16 — approved village product control and player-breeding evidence
 
 User approved recorded trade as the initial route for village milk/eggs. The

@@ -128,7 +128,7 @@ public final class LivestockRepository {
                     q.setString(1,business.toString());try(var rows=q.executeQuery()){rows.next();period=rows.getLong(1);if(rows.wasNull())throw new SQLException("Herd checkpoint missing");}
                 }
                 var plan=readPlan(business,period,r.getLong("capacity"));
-                return Optional.of(new Herd(business,LivestockHerd.Species.valueOf(r.getString("species")),new Commodity(r.getString("feed")),plan.after()));
+                return Optional.of(new Herd(business,LivestockHerd.Species.valueOf(r.getString("species")),new Commodity(r.getString("feed")),new LivestockLosses(connection).remainingRows(business,plan.after())));
             }
         }
     }
@@ -170,7 +170,8 @@ public final class LivestockRepository {
             if(new IndustryRepository(connection).store(business).orElseThrow().freeSpace()<0)throw new SQLException("Herd output exceeded storage");
             save(business,operation,terms,plan,store,herd.feed(),herd.species(),work,
                     availability.explanation()+"; qualified workers="+workers+"; work="+work+"; feed="+store.units().get(herd.feed())+
-                    "; output space="+store.freeSpace()+"; births="+plan.births()+"; product="+plan.renewableUnits());return plan;
+                    "; output space="+store.freeSpace()+"; births="+plan.births()+"; product="+plan.renewableUnits());
+            new LivestockLosses(connection).applyRows(business,expectedPeriod);return plan;
         });
     }
 

@@ -1,5 +1,17 @@
 # Phase 3 — businesses and industry checklist
 
+## October16 — killed livestock no longer stays in a saved herd
+
+Confirmed deaths of original village herd animals now reduce the saved count and
+later production exactly once. Young animals that die do not grow up later in the
+simulation. Player-owned animals keep normal deaths and drops.
+
+All1,595 build tests and a real Paper death/survivor/production/restart check passed.
+The test-save upgrade preserved existing records; your server is untouched.
+P3 stays~68% partial (`██████▊░░░`),30/39 resources,1/4 whole groups. Live herd
+adoption/output still needs crash recovery and physical offspring reconciliation.
+Next: protect egg-hatched/spawn-created animals too. No decision needed.
+
 ## October16 — village products and player-bred animals are protected
 
 Village-owned cows/chickens now reserve milk and eggs for the recorded economy,

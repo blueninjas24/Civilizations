@@ -883,6 +883,14 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Boolean> recordPhysicalDeath(UUID world, UUID entity, long observedMillis, String reason) {
         return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
     }
+    public CompletableFuture<java.util.Optional<com.blueninjas24.civilizations.database.LivestockLosses.Receipt>> recordLivestockLoss(
+            com.blueninjas24.civilizations.database.LivestockLosses.Observation observation) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection()).record(observation);});
+    }
+    public CompletableFuture<Void> flushLivestockLosses(java.util.List<com.blueninjas24.civilizations.database.LivestockLosses.Observation> losses) {
+        var captured=java.util.List.copyOf(losses);
+        return submit(()->{requireReady();var repository=new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection());for(var loss:captured)repository.record(loss);return null;});
+    }
     public record DeathObservation(UUID world, UUID entity, long observedMillis, String reason) {}
     public CompletableFuture<Boolean> flushPhysicalDeaths(List<DeathObservation> deaths) {
         var observations = List.copyOf(deaths);
