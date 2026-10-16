@@ -1,5 +1,14 @@
 # Civilizations Development Log
 
+## October16 — hosted persistence verification time allowance
+
+GitHub's Windows job for3ecd4d3 was cancelled after20:06. Its check annotation
+explicitly reports exceeding the20-minute job limit; Linux succeeded in4:24.
+Raised the job allowance to45 minutes without skipping tests or changing the
+verification command, matrix, permissions or branch protections. This is a time
+allowance, not a claim that hosted Windows verification has passed. The same
+revision passed the complete Windows suite locally. Main remains unchanged.
+
 ## October16 — qualified craftsmen open for real storage customers
 
 Connected bounded first-craftsman opportunities, seeded qualified founder selection,
