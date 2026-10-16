@@ -1,5 +1,49 @@
 # Civilizations — implementation status and handoff
 
+## October16 — qualified craftsmen open for real storage customers
+
+Connected bounded first-craftsman opportunities, seeded qualified founder selection,
+SQL-owner prepare/accept and the main-thread crafting-table opening cycle. Actual
+current storage pressure and purchasing cash justify a prospect; staffed local
+fitting stocks are considered first. A forecast neither reserves cash nor promises
+a sale. Protected shared startup caps, current food assessment, real paid public
+surplus, qualification, employment/study, marker freshness and storage/haul checks
+apply. The entire business/site/worker/grant/material order/marker is atomic;
+rollback/retry/restart preserves assets and prevents duplicate startup payments.
+
+New-file craftsman qualification/opportunity sections are editable; old missing
+sections opt out. Reuses small workshop bounds rather than adding a framework.
+A qualified craftsman can now open through Paper and make/sell the fitting recipe.
+No free experience or automatic vanilla profession change. First-owner study and
+crafting work-learning remain next; an unskilled village still waits. The first
+starter currently requires real protected public surplus, without a private fallback.
+Wider useful products/household demand remain. Schema unchanged at 80.
+
+Validation: 16 new cases (eight investment/persistence/session, six opening-cycle,
+two configuration). Focused 154 passed. Full Windows .\mvnw.cmd clean verify
+passed 1,549 tests (1,547 unit/two packaged integration), zero failures/errors/skips.
+Build duration 07:37 min; finished 2026-10-16T08:44:08-04:00.
+Production/test Java unchanged throughout final verification. Initial new fixtures
+assumed unit storage weights, absent-world marker replay and an incomplete job end;
+corrected to existing weighted storage, fresh present marker, assessed food and
+employment contracts without changing application rules. The excluded native
+helper initially attempted package-private stock inspection; corrected to read-only
+SQL. No application visibility or behavior changed for helper convenience.
+
+Guarded Paper 26.2 build 129 passed 08:44:38 ET: actual SQL owner, loaded main-thread
+crafting-table confirmation, automatic qualified paid opening, paid public starter,
+real timed production and business fitting sale/installation, replay and absence.
+No training proof is claimed. Native save audit: 137 predecessor tables retained, 134 exact; ordinary changes civilization_time, economy_runtime, ore_tracking; resident aging 0 months. Integrity/FKs clean.
+Temporary disposable air block restored, test chunk ticket removed, server stopped,
+properties restored, helper archived and backups retained. Existing OSHI Windows
+counter warning; no Civilizations/probe/listener failure. Human server untouched.
+
+P3 stays 30/39 resources,1/4 whole groups/~68% partial checklist completion. These
+are verified substeps within the still-open full craftsman gate. Next: supply-backed
+craftsman training, livestock physical integration, wider products and specialization
+acceptance. No design decision pending; main unchanged. Feature branch
+codex/phase3-craftsman-investment. See PROCESSING_WORKSHOPS.md and STORAGE_UPGRADES.md.
+
 ## October16 — real paid craftsman storage customers (schema80)
 
 Implemented the approved limited storage upgrades. Actual staffed businesses with

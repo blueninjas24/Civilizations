@@ -1,5 +1,45 @@
 # Processing workshops — bakeries and general craftsman
 
+## October16 — qualified general craftsman opening
+
+The first general craftsman now prepares and atomically accepts an opening when
+current funded storage-fitting customers, a fresh available crafting-table marker,
+qualified unemployed adult, shared protected grant and real paid public surplus
+all exist. A conservative bounded source review considers already stocked local
+fittings before inferring a gap. It creates no shoppers, guaranteed revenue or
+reservation; actual customer cash/stock/needs can change before any later sale.
+
+Default qualification reuses the small workshop bounds: age216 months, founder
+crafting experience10, worker experience1 and two worker slots. Evidence uses at
+most eight tables,60-second freshness,96 horizontal/48 vertical blocks. Opening
+cost500 plus4000 working capital shares existing food-protected startup caps;
+there is no extra craftsman allowance. The default first batch buys three timber
+and one stone for1500 hundredths of Trade Value, leaving2500 working cash.
+Material reserves and configured recipe/storage/haul limits still apply.
+
+`craftsman-founding` and `craftsman-opportunities` are separately editable. Missing
+sections disable the new opening. Existing installed files must explicitly add
+these sections, enable crafting-table recognition, fitting storage/recipe/customer
+terms and the existing shared grant eligibility. No file/catalogue is overwritten.
+The first-input route currently uses protected public surplus; a private starter
+fallback is not claimed. Normal later supply still buys real local inputs.
+
+`CraftsmanStartupCycle` keeps one proposal or acceptance in flight and rotates
+saved living villages. `PaperCraftsmanStartup` confirms an already loaded crafting
+table on the main thread; it never loads chunks, moves blocks, claims buildings
+or reads container contents. The SQL owner repeats current eligibility before the
+entire business/site/worker/grant/material order/marker commits. Replay preserves
+accepted identity and cannot charge again. A fresh present-world point is still
+required by the existing marker startup contract, including historical replay.
+Diagnostics explain deferrals, and the plugin schedules/cancels this loop normally.
+
+This opens a qualified owner. Gradual first-craftsman study, crafting work-learning
+and extra employee staffing opt-in remain next; no resident receives free skill
+or an automatic vanilla profession change. Existing worlds with no crafting skill
+will wait rather than manufacture a founder. Broader useful products and household
+demand remain unfinished. Schema stays80; old data needs no new migration.
+Verification results are recorded in PROJECT_STATUS.md and DEVLOG.md.
+
 ## October16 — first real craftsman customers
 
 Limited business storage fittings now have a production recipe, actual funded

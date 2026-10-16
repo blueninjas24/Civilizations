@@ -1,5 +1,20 @@
 # Civilizations progress tracker
 
+## October16 — qualified craftsmen can open and sell useful fittings
+
+A skilled adult can now open a craft workshop at a suitable crafting table when
+real customers, startup funds and materials exist. The workshop makes storage
+fittings; crowded businesses pay for them and gain capacity after delivery.
+No free materials or money. Villages still need gradual training to develop an
+unskilled first owner; that is next. Your server has not been changed.
+
+All 1,549 full-build tests and the disposable Paper opening/production/payment/
+restart-style replay/pause check passed. Existing test-save records were retained,
+temporary blocks restored and the fixture stopped. No merge or push to main.
+P3 remains ~68% partial (`██████▊░░░`),30/39 resource entries,1/4 whole groups:
+training, wider craft products, live livestock and specialization remain. No
+question needed. See PROCESSING_WORKSHOPS.md for exact settings/limits.
+
 ## October16 — businesses can pay the craftsman for useful storage fittings
 
 The first craft product now has real customers. Crowded businesses buy fittings

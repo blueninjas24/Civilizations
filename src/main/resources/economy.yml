@@ -115,6 +115,24 @@ bakery-opportunities:
 # Small storage fittings only; physical building expansion remains Phase 4.
 # Businesses pay with their own cash; accepted fittings arrive before installation.
 # Hard count, baseline-growth and capacity caps all apply. Older files opt out.
+# Backend investment terms; training and automatic opening remain separate.
+craftsman-founding:
+  enabled: true
+  founders-per-review: 64
+  minimum-age-months: 216
+  founder-crafting-experience: 10
+  worker-crafting-experience: 1
+  worker-capacity: 2
+craftsman-opportunities:
+  enabled: true
+  markers-per-review: 8
+  evidence-lifetime-millis: 60000
+  horizontal-range: 96
+  vertical-range: 48
+  startup-hundredths: 500
+  capital-hundredths: 4000
+  storage-capacity: 1024
+
 storage-upgrades:
   enabled: true
   occupancy-percent: 80
