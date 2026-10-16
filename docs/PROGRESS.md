@@ -1,5 +1,12 @@
 # Civilizations progress tracker
 
+## October16 — checking saved milk/egg trade receipts
+
+The plugin can now verify the new trade receipt in a saved player file while
+rejecting forged, duplicated or incomplete records. All1,630 tests passed,
+including20 new checks across this batch. Player menu/exchange remain unfinished.
+P3 stays~68% partial; no new design answer is needed.
+
 ## October16 — product trade accounting verified
 
 Milk/egg purchases now have saved accounting for holding actual goods, confirming

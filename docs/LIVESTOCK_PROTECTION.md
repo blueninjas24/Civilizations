@@ -1,5 +1,22 @@
 # Livestock protection and work foundation
 
+## October16 — receipt proof key support
+
+SavedAidProof now explicitly allows PendingLivestockSale.KEY. Its parser and NBT
+format remain unchanged; arbitrary keys remain refused. Three new temporary
+synthetic-save tests cover exact values/players/stages/products, nested or other
+keys, duplicated proofs, corrupted compression and truncated saves. Focused14
+passed with existing parser/receipt coverage. Final Windows Wrapper clean verify
+passed1,630 tests (1,628 unit/two packaged integration), zero failures/errors/skips;
+07:46, finished2026-10-16T19:16:50-04:00. No source/test changes during final run.
+No live player exchange, native client save/crash recovery or menu is certified
+by these tests. The future adapter still needs durable inventory proof, owner
+handoff, local eligibility/quote checks and explicit uncertain-state recovery.
+Before enabling exchange, extend the pending inventory guard for this key, including
+milk consumption and crafting/container transfers. An unverified filled bucket
+must not be moved into separately saved state or used while recovery is pending.
+The current food-trade guard does not yet protect this new receipt type.
+
 ## October16 — saved product sale accounting (not a player menu)
 
 Schema84 adds an initially empty `livestock_product_sales` ledger. The explicit
@@ -16,8 +33,11 @@ must satisfy current eligibility. Arithmetic/SQL failures roll back all effects.
 `PendingLivestockSale` is a canonical, versioned player-receipt format, not an
 installed listener. One prototype milk stock unit materializes as one milk bucket,
 using one player-supplied empty bucket; milk is offered singly to respect its item
-stack limit. Eggs permit up to64 ordinary eggs and need no container. Numeric
-payment/rate terms are explicit, bounded and not fixed prices or an active quote.
+stack limit. Eggs permit up to64 ordinary eggs per order and need no container.
+That is an order quantity cap, not a stack-size declaration: the future inventory
+adapter must split egg deliveries using the pinned server's actual item stack
+limit and refuse insufficient destination space. Never create an oversized stack.
+Numeric payment/rate terms are explicit, bounded and not fixed prices or an active quote.
 This item conversion does not change abstract animal-production yields.
 
 No public command, menu, price defaults or player inventory exchange is enabled.

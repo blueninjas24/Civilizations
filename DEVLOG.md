@@ -1,5 +1,26 @@
 # Civilizations Development Log
 
+## October16 — saved player proof for livestock receipts
+
+The existing bounded, read-only SavedAidProof parser now accepts only the new
+PendingLivestockSale key in addition to its three existing food-transfer keys.
+It still requires exact full-file root BukkitValues evidence. The NBT parser,
+compression, file limits, path rules and supported format are unchanged. No live
+player inventory/command/listener or automatic sale was enabled.
+
+Three added temporary synthetic-save cases exercise all products/stages, exact
+player/key/value matching, nested and other-key spoofs, unsupported-key refusal,
+duplicated proofs and corrupt/truncated compressed files. Focused14 tests passed,
+including the seven existing parser tests and four receipt tests. Final Windows
+.\mvnw.cmd clean verify -B -ntp passed1,630 tests (1,628 unit/two packaged
+integration), zero failures/errors/skips;07:46, finished2026-10-16T19:16:50-04:00.
+No source/test changes during that final run;20 new tests across this batch.
+Schema remains84; no new migration or actual server/world/database operations.
+Native player save/crash delivery remains an unfinished integration gate; this
+is new-key coverage for the existing format, not proof of a live inventory exchange.
+P3 remains~68% partial. Next: owner handoff, configurable sale quoting, inventory
+exchange/recovery and the player menu, alongside safe live herd adoption/output.
+
 ## October16 — milk and egg sale ledger
 
 Added saved reservations/completion/cancellation for real herd product sales,
