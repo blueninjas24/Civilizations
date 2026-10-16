@@ -1,5 +1,17 @@
 # Civilizations progress tracker
 
+## October16 — village products and player-bred animals are protected
+
+Village-owned cows/chickens now reserve milk and eggs for the recorded economy,
+while player-owned animals behave normally. Player-bred offspring also keep a
+saved protection flag so future village adoption can recognize them.
+
+All1,584 full-build tests and the real Paper egg/protection/event checks passed.
+Test animals/items cleaned up; your server is untouched. The product-trading UI
+and automatic herds are still unfinished. P3 stays~68% partial (`██████▊░░░`),
+30/39 resources,1/4 whole groups. Next: real animal losses and herd reconciliation.
+No decision needed. See LIVESTOCK_PROTECTION.md for verified limits.
+
 ## October16 — livestock startup money and safe animal observation
 
 Chicken/dairy businesses can now use the same protected startup budget as other

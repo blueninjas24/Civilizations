@@ -1,5 +1,43 @@
 # Livestock protection and work foundation
 
+## October16 — approved village product control and player-breeding evidence
+
+User approved recorded trade as the initial route for village milk/eggs. The
+separate `ManagedLivestockProducts` listener cancels empty-bucket cow interaction
+in either hand, and prevents egg drops only for positive saved village IDs. Specifically, egg prevention requires a chicken source and EGG,
+BROWN_EGG or BLUE_EGG output; unrelated drops, player-dropped eggs and other
+species remain normal. The handler cancels before vanilla adds the item; it does
+not delete arbitrary existing items, alter an inventory, debit stock, award money
+or suppress death drops. Naming/leashing stay available. There is no new stock-
+backed collection UI, milk/egg trade command or automatic herd enabled by this rule.
+
+It uses the same immutable SQL-owner ID publication and `livestock.enabled` plus
+session readiness as the breeding guard. Missing old-file livestock sections opt
+out; installed YAML is not overwritten. The readiness window is not certification
+for live herds: cold-start freeze/reconciliation and commit-before-publication for
+future adoption must still be connected before automatic live production.
+
+`LivestockBreedingProvenance` records a BYTE protection flag under the entity PDC
+key `civilizations:livestock_player_bred` for successful player-bred cows/chickens.
+Existing protected-parent evidence propagates to offspring even if a breeder is
+unavailable. Cancelled/unsupported births are untouched. This listener records
+evidence even when livestock production is disabled; it changes no breeding,
+items, experience or ownership. It neither reads nor stores player identity.
+Existing values, including malformed/legacy types, stay protective and are never
+overwritten. The flag follows normal entity/world saving; it is not a separate
+SQLite owner or an authority to claim/transfer animals. Authorized transfers still
+need their own saved ownership/history and must never be inferred from this flag.
+
+`PaperLivestockSource` copies that flag into immutable observations on the main
+thread. The existing adoption calculator protects a tagged unclaimed animal.
+Missing tags do not prove natural origin or allow uncertain old pens to be taken;
+old animals, player ownership, names/leashes, enclosure authority and continuous
+safe observation still require their separate checks. No existing entity is scanned
+or tagged retroactively. No schema change; remains81. Twelve new executed cases;
+focused28 and full1,584 passed. Native three-colour egg laying, both-hand event
+dispatch, normal unclaimed drops and actual PDC serialization/capture passed.
+No human-client or completed stock-trading claim; see PROJECT_STATUS/DEVLOG.
+
 ## October16 — approved protected grants and trusted atomic opening
 
 Dedicated livestock businesses are eligible in the new-file startup-grants list.
@@ -115,7 +153,9 @@ IDs. `PopulationSession` publishes them on its SQL owner at startup. The new Pap
 guard uses that view and readiness, with no SQL/world access per event. It blocks
 outside EntityBreedEvent births when either supported parent is village-owned;
 intercepts actual cow/chicken food tags in either hand before vanilla consumption.
-Buckets, name tags, leashes, player/unclaimed/unsupported animals stay available.
+The breeding guard itself leaves buckets, naming and leashing available; the
+separate products listener above now enforces the approved village milk rule.
+Player/unclaimed/unsupported animals keep normal behavior.
 No live adoption/transfer exists yet; future claims must publish after commit and
 before physical control. Cold-start/failed readiness leaves the guard inactive;
 startup reconciliation/freeze for recovered real herds is still required before

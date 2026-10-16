@@ -1,15 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October16: player collection of village milk/eggs — decision requested
+## October16: player collection of village milk/eggs — approved
 
-Before live village livestock production, asked whether players should initially
-buy/trade its recorded milk/egg products, preventing separate vanilla harvesting
-for village-owned animals, or retain ordinary vanilla gathering in addition.
-Recommended the former to avoid counting the same managed production twice;
-stock-backed direct collection may follow later. Player-owned livestock remains
-normal in either option. This is a new player interaction/economic rule and is
-not selected by the startup grant approval. Existing bucket behavior and live
-listeners are unchanged while pending; automatic adoption/output remains unwired.
+User answered yes: initially obtain village milk/eggs through recorded trade,
+preventing separate vanilla harvesting for village-owned animals. Player-owned,
+unclaimed and unsupported livestock keep normal behavior. Stock-backed direct
+collection may follow later. This approves village-only bucket/egg prevention,
+not taking player animals, suppressing death drops, manufacturing products or
+opening an unfinished trading UI. All chicken egg variants need the same rule.
+Village-only protection and player-breeding evidence are implemented, verified
+by1,584 full-build tests and guarded native egg/event/PDC checks. Live output and
+stock-trading UI remain unfinished; no collection decision remains pending.
 
 ## October16: livestock startup funding — approved
 

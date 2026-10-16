@@ -32,10 +32,10 @@ public final class PaperLivestockSource {
                     ||location.getY()<world.getMinHeight()||location.getY()>=world.getMaxHeight())return unknown(expectedWorld,x,z,now,"Inconsistent animal location; no partial roster");
             var position=new Position(location.getBlockX(),location.getBlockY(),location.getBlockZ());
             if(Math.floorDiv(position.x(),16)!=x||Math.floorDiv(position.z(),16)!=z)return unknown(expectedWorld,x,z,now,"Animal crossed observed chunk; retry fresh evidence");
-            var observed=new LivestockObservation.Animal(entity.getUniqueId(),type==EntityType.COW?LivestockHerd.Species.COW:LivestockHerd.Species.CHICKEN,position,animal.getAge(),entity.getCustomName()!=null,animal.isLeashed());
+            var observed=new LivestockObservation.Animal(entity.getUniqueId(),type==EntityType.COW?LivestockHerd.Species.COW:LivestockHerd.Species.CHICKEN,position,animal.getAge(),entity.getCustomName()!=null,animal.isLeashed(),LivestockBreedingProvenance.recorded(animal));
             if(animals.putIfAbsent(observed.id(),observed)!=null||animals.size()>animalLimit)return unknown(expectedWorld,x,z,now,"Animal identity/review budget invalid; no partial roster");
         }
-        return new LivestockObservation(expectedWorld,x,z,now,true,List.copyOf(animals.values()),"Visible cow/chicken identities and raw age/name/leash evidence; ownership, breeding provenance, habitat and authority require separate checks");
+        return new LivestockObservation(expectedWorld,x,z,now,true,List.copyOf(animals.values()),"Visible cow/chicken identities and age/name/leash/recorded player-breeding evidence; ownership, habitat and authority require separate checks; missing breeding tags do not prove natural origin");
     }
     private static LivestockObservation unknown(UUID world,int x,int z,long now,String reason){return new LivestockObservation(world,x,z,now,false,List.of(),reason);}
 }

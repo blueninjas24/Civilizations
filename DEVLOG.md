@@ -1,5 +1,48 @@
 # Civilizations Development Log
 
+## October16 — village milk/eggs and player-bred animal protection
+
+Implemented the approved village-only product rule: an empty bucket in either
+hand cannot milk a saved village cow, and saved village chickens cannot lay a
+second physical supply of white/brown/blue eggs. Player/unclaimed/unsupported
+animals, other items and naming/leashing remain normal. No inventory edits,
+SQL/world scans per event, arbitrary item deletion, stock credits or death-drop
+changes. Existing livestock enable/readiness gates apply; old files opt out.
+
+Successful player-bred cow/chicken offspring now retain anonymous entity-PDC
+protection evidence. Protected-parent evidence propagates; cancelled/unsupported
+births remain untouched and existing values are preserved. No player IDs/names,
+ownership, items or experience are changed. Captures include an immutable flag;
+missing old tags never prove natural origin. Protection capture remains active
+when production is disabled so future adoption cannot ignore those births.
+
+Twelve new executed cases (seven product guards, four provenance, one captured
+adoption-protection case). Focused28 passed. Full Windows .\mvnw.cmd clean verify
+passed1,584 (1,582 unit/two packaged integration), zero failures/errors/skips;
+07:46, finished2026-10-16T11:15:33-04:00. Production/test Java frozen during this
+run. Excluded helper initially had ambiguous Plugin/Listener cleanup overload;
+fixed its explicit Plugin cast, without any application/test changes.
+
+Guarded Paper26.2 build129 passed16:10:23: saved SQL-owner identities and production
+listener registration, actual three-colour native chicken laying/cancellation,
+normal physical eggs for unclaimed hens, synthetic both-hand bucket/breeding
+event dispatch, real PDC serialization and immutable capture. This is not a human
+client milking or completed stock-trading check. All created animals/items removed,
+chunk ticket released, no blocks changed. Schema81/no migration; all139 predecessor
+tables retained/136 exact, only ordinary clock/runtime/ore metadata changed; age
+delta0, integrity/FKs clean. Fixture stopped/properties restored/helper archived,
+backups retained. Existing OSHI warning only; no Civilizations/probe/listener failure.
+Human server untouched. Prior6556e2c hosted Windows/Linux checks both succeeded:
+https://github.com/blueninjas24/Civilizations/actions/runs/38917154524 . Those results
+belong to the preceding startup revision, not this newer harvesting revision.
+
+P3 remains30/39 resources,1/4 whole groups/~68% partial. Collection decision resolved;
+next: confirmed physical losses and safe herd reconciliation. Live automatic
+adoption/founding, physical offspring, output scheduling, milk/egg trading and
+broader industry/specialization gates remain. Cold-start freeze/publication must
+precede live herd control; no live adopters enabled. Branch
+codex/phase3-livestock-harvesting; main unchanged. See LIVESTOCK_PROTECTION.md.
+
 ## October16 — protected livestock startup and real animal evidence
 
 Approved chicken/dairy businesses now share existing startup grants: unchanged

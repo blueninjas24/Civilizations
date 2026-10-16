@@ -1,5 +1,12 @@
 # Civilizations — canonical master design
 
+October16 approved village livestock product rule: initially buy/trade recorded
+milk/egg stock; prevent separate vanilla milking and egg laying drops for saved
+village-owned animals. Player-owned animals keep normal behavior. This grants
+neither automatic adoption nor a completed product-trading UI. Player-bred animal
+provenance remains protective; missing old tags cannot establish natural origin.
+See LIVESTOCK_PROTECTION.md and PROJECT_STATUS.md for implementation/verification.
+
 October13 subsequent approval: bakeries and the single general craftsman may use
 the existing shared startup-grant limits and real food-protected village budget.
 No separate industry allowance or new money. Installed settings remain unchanged;
