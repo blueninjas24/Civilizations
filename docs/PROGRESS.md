@@ -1,5 +1,28 @@
 # Civilizations progress tracker
 
+## October16 — livestock safety foundation verified
+
+Milk/eggs are reserved for recorded village trade, player-created livestock keeps
+protective origin evidence, confirmed deaths reduce herds once, and interrupted
+capture history now has a saved recovery warning. A shutdown file-lock race is fixed.
+
+All1,610 build tests and the relevant isolated Paper checks passed. Your server is
+untouched; test saves preserved. P3 remains~68% partial (`██████▊░░░`),30/39 resources,
+1/4 whole groups. These livestock substeps show the work inside the unfinished gate:
+
+- [x] Protected funding and atomic saved herd startup.
+- [x] Player-animal protection and native origin evidence.
+- [x] Confirmed original-animal deaths and once-only accounting.
+- [x] Durable capture eligibility, pending-loss checks and shutdown recovery warning.
+- [ ] Automatic safe animal adoption and business opening.
+- [ ] Physical newborn identity and herd reconciliation.
+- [ ] Scheduled feed purchases and production.
+- [ ] Connected milk/egg customers and player trading.
+
+Next: connect live herds safely and their real customers. One pending choice for
+player milk trading: bring an empty bucket, or buy a separately supplied container.
+The recommended empty-bucket route prevents free iron. See LIVESTOCK_PROTECTION.md.
+
 ## October16 — player-created livestock keeps its origin evidence
 
 Chickens hatched from eggs and livestock created through breeding, spawn eggs,

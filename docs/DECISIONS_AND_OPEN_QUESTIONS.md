@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October16: milk trade containers — decision requested
+
+Before connecting player milk purchases, asked whether buyers should bring an
+empty bucket (recommended), or the village must supply a separately paid bucket.
+Milk materialization must not create free iron containers. Eggs need no container.
+The approved recorded-stock trade route remains; it did not choose who provides
+packaging. This is a resource/payment rule under AGENTS.md, not numeric price tuning.
+No milk-trade UI or inventory behavior is changed while pending. Recovery, testing,
+documentation and source backup continue independently of this decision.
+
 ## October16: player collection of village milk/eggs — approved
 
 User answered yes: initially obtain village milk/eggs through recorded trade,

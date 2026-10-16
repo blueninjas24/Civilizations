@@ -18,6 +18,8 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
         Set<UUID> villageAnimals();boolean ready();
         CompletableFuture<Optional<LivestockLosses.Receipt>> record(LivestockLosses.Observation observation);
         CompletableFuture<Void> flush(List<LivestockLosses.Observation> observations);
+        void gap();
+        void captured(LivestockLosses.Observation observation);
     }
     private final Owner owner;private final Logger logger;private final LongSupplier clock;
     private final Map<UUID,LivestockLosses.Observation> deaths=new LinkedHashMap<>(),recent=new LinkedHashMap<>();
@@ -25,7 +27,7 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
     public ManagedLivestockDeaths(PopulationSession session,Logger logger) {
         this(new Owner(){public Set<UUID> villageAnimals(){return session.villageAnimals();}public boolean ready(){return session.status().ready();}
             public CompletableFuture<Optional<LivestockLosses.Receipt>> record(LivestockLosses.Observation o){return session.recordLivestockLoss(o);}
-            public CompletableFuture<Void> flush(List<LivestockLosses.Observation> o){return session.flushLivestockLosses(o);}},logger,System::currentTimeMillis);
+            public CompletableFuture<Void> flush(List<LivestockLosses.Observation> o){return session.flushLivestockLosses(o);}public void gap(){session.markLivestockCaptureGap();}public void captured(LivestockLosses.Observation o){session.stageLivestockLoss(o);}},logger,System::currentTimeMillis);
     }
     ManagedLivestockDeaths(Owner owner,Logger logger,LongSupplier clock){this.owner=Objects.requireNonNull(owner);this.logger=Objects.requireNonNull(logger);this.clock=Objects.requireNonNull(clock);}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
@@ -35,13 +37,13 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
         var animal=entity.getUniqueId();var id=UUID.nameUUIDFromBytes(("civilizations:physical-livestock-loss-v1:"+animal).getBytes(StandardCharsets.UTF_8));
         String reason=event.getDamageSource().getDamageType().getKey().toString();
         var observed=new LivestockLosses.Observation(id,animal,entity.getWorld().getUID(),clock.getAsLong(),reason.length()>256?reason.substring(0,256):reason);
-        if(owner.villageAnimals().contains(animal))deaths.putIfAbsent(animal,observed);
-        else {if(recent.size()>=256&&!recent.containsKey(animal))recent.remove(recent.keySet().iterator().next());recent.putIfAbsent(animal,observed);}
+        if(owner.villageAnimals().contains(animal)){if(deaths.putIfAbsent(animal,observed)==null)owner.captured(observed);}
+        else {if(recent.size()>=256&&!recent.containsKey(animal)){if(!owner.ready())owner.gap();recent.remove(recent.keySet().iterator().next());}recent.putIfAbsent(animal,observed);}
         run();
     }
     @Override public void run() {
         var ids=owner.villageAnimals();long now=clock.getAsLong();
-        recent.entrySet().removeIf(e->{if(ids.contains(e.getKey())){deaths.putIfAbsent(e.getKey(),e.getValue());return true;}return now-e.getValue().observedMillis()>30000;});
+        recent.entrySet().removeIf(e->{if(ids.contains(e.getKey())){if(deaths.putIfAbsent(e.getKey(),e.getValue())==null)owner.captured(e.getValue());return true;}boolean expired=now-e.getValue().observedMillis()>30000;if(expired&&!owner.ready())owner.gap();return expired;});
         if(pending!=null) {
             if(!pending.isDone())return;
             try{pending.join();deaths.remove(submitted.animal());}

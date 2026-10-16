@@ -23,6 +23,7 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             PopulationDiagnostics.status(session.status(), session.settings()).forEach(sender::sendMessage);
             sender.sendMessage(session.oreTrackingDiagnostic());
             sender.sendMessage(session.industryRuntimeDiagnostic());
+            sender.sendMessage(session.livestockCaptureDiagnostic());
             if (session.onlineOnly()) sender.sendMessage("Time policy: server downtime and absent worlds pause; shared calendar is an administrative date, not every world's age.");
             return true;
         }

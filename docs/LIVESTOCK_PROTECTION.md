@@ -1,5 +1,46 @@
 # Livestock protection and work foundation
 
+## October16 — durable capture eligibility and pending-loss fencing
+
+Schema83 adds initially empty singleton `livestock_capture`: clean-stop flag,
+trusted-history flag and observation timestamp. Before live capture can be eligible,
+the SQL owner persists a dirty marker. A first empty history can be trusted;
+existing herds with no fence cannot acquire guessed past coverage. An unclean
+previous stop, explicit gap or unresolved saves remains untrusted through later
+clean restarts. No automatic reset/review permission or animal repair is exposed.
+
+`PopulationSession.livestockCaptureReady` additionally requires session readiness,
+no capture gap and no staged unsaved loss. Every known native loss is staged in
+memory before waiting in the bounded Paper handoff, not just when its SQL request
+is submitted. Committing the first of several losses cannot briefly certify the
+remaining queue. Exact successful retry clears its pending identity; failed or
+rejected work stays pending. Shutdown draining precedes the fence; unresolved
+work makes even a clean stop untrusted. Lost/expired unpublished candidates before
+readiness mark an explicit gap; repeated gap notifications coalesce to one write.
+Confirmed losses remain recordable when history is untrusted.
+
+`/civ debug status` reports capture eligibility via cached state, without JDBC or
+world access. This is a prerequisite for the future live herd adapter, not an
+active scheduler or proof of physical reconciliation. The trusted standalone herd
+backend remains available for explicit tests/composition; callers must gate any
+future live operation on eligibility AND fresh safe physical/identity evidence.
+A trusted marker does not certify physical newborn mappings, external world edits,
+world/DB restores, plugin-free play or unseen missing animals. Those still require
+review/reconciliation; absence alone never establishes death or a replacement.
+
+The owner-close regression now waits for an already-started drain when close is
+called again outside its owner. Owner-thread callbacks still return without
+waiting for themselves. This fixes a Windows file-lock race exposed by the extra
+fence write; population rules and the existing timeout remain unchanged. Fence
+failures retain exception diagnostics and cannot falsely certify a clean capture.
+
+Eleven new executed cases (nine repository/owner/migration, two handoff-gap/staging).
+Old-save tests preserve their predecessor comparisons and explicitly require the
+new table empty. Latest focused44 and final full1,610 passed. Guarded native
+owner/status/staged pending/gap/restart/callback close and simulated dirty-marker
+checks passed, with all predecessor data preserved. No actual JVM crash, physical
+reconciliation or live-production certification; see PROJECT_STATUS/DEVLOG.
+
 ## October16 — hatched and explicitly spawned livestock origin
 
 The protective adapter now observes successful cow/chicken CreatureSpawnEvent

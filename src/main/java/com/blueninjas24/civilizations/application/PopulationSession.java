@@ -61,6 +61,22 @@ public final class PopulationSession implements AutoCloseable {
     private final AtomicReference<java.util.Map<UUID,String>> settlementNames = new AtomicReference<>(java.util.Map.of());
     private final AtomicReference<java.util.Set<UUID>> villageAnimals=new AtomicReference<>(java.util.Set.of());
     public java.util.Set<UUID> villageAnimals(){return villageAnimals.get();}
+    private final AtomicBoolean livestockHistoryHealthy=new AtomicBoolean(),livestockCaptureGap=new AtomicBoolean();
+    private final java.util.Set<UUID> pendingLivestockLosses=java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private boolean livestockTrackingStarted;
+    public boolean livestockCaptureReady(){return status().ready()&&livestockHistoryHealthy.get()&&!livestockCaptureGap.get()&&pendingLivestockLosses.isEmpty();}
+    public String livestockCaptureDiagnostic(){
+        if(!status().ready())return "Livestock capture: starting or unavailable";
+        if(!livestockHistoryHealthy.get()||livestockCaptureGap.get())return "Livestock capture: incomplete history; review needed before live herd production";
+        if(!pendingLivestockLosses.isEmpty())return "Livestock capture: waiting for "+pendingLivestockLosses.size()+" physical loss saves";
+        return "Livestock capture: trusted; automatic adoption/output still unfinished";
+    }
+    public void markLivestockCaptureGap(){
+        if(!livestockCaptureGap.compareAndSet(false,true))return;
+        if(!started.get()||closing.get())return;
+        submit(()->{requireReady();new com.blueninjas24.civilizations.database.LivestockCapture(database.getConnection()).markGap(now.getAsLong());return null;})
+                .whenComplete((ignored,failure)->{if(failure!=null)logger.log(Level.SEVERE,"Livestock capture gap save deferred; live readiness remains false",failure);});
+    }
     private final AtomicReference<PopulationState> snapshot = new AtomicReference<>();
     private final AtomicReference<ProjectionView> projectionView = new AtomicReference<>();
     private final AtomicBoolean started = new AtomicBoolean(), closing = new AtomicBoolean();
@@ -407,6 +423,9 @@ public final class PopulationSession implements AutoCloseable {
             try {
                 loadedWorlds = initial;
                 database.initialize();
+                var capture=new com.blueninjas24.civilizations.database.LivestockCapture(database.getConnection());
+                livestockHistoryHealthy.set(capture.begin(now.getAsLong()).trusted());livestockTrackingStarted=true;
+                if(livestockCaptureGap.get())capture.markGap(now.getAsLong());
                 villageAnimals.set(new com.blueninjas24.civilizations.database.AnimalOwnershipRepository(database.getConnection()).villageAnimals());
                 new com.blueninjas24.civilizations.database.WorkplaceOperations(database.getConnection()).configure(workplaceOperationPolicy);
                 if(trackOres) {
@@ -885,11 +904,17 @@ public final class PopulationSession implements AutoCloseable {
     }
     public CompletableFuture<java.util.Optional<com.blueninjas24.civilizations.database.LivestockLosses.Receipt>> recordLivestockLoss(
             com.blueninjas24.civilizations.database.LivestockLosses.Observation observation) {
-        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection()).record(observation);});
+        stageLivestockLoss(observation);
+        return submit(()->{requireReady();var result=new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection()).record(observation);pendingLivestockLosses.remove(observation.animal());return result;});
+    }
+    /** Memory-only main-thread capture fence, before any bounded Paper queue delay. */
+    public void stageLivestockLoss(com.blueninjas24.civilizations.database.LivestockLosses.Observation observation){
+        pendingLivestockLosses.add(java.util.Objects.requireNonNull(observation).animal());
     }
     public CompletableFuture<Void> flushLivestockLosses(java.util.List<com.blueninjas24.civilizations.database.LivestockLosses.Observation> losses) {
         var captured=java.util.List.copyOf(losses);
-        return submit(()->{requireReady();var repository=new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection());for(var loss:captured)repository.record(loss);return null;});
+        captured.forEach(loss->pendingLivestockLosses.add(loss.animal()));
+        return submit(()->{requireReady();var repository=new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection());for(var loss:captured){repository.record(loss);pendingLivestockLosses.remove(loss.animal());}return null;});
     }
     public record DeathObservation(UUID world, UUID entity, long observedMillis, String reason) {}
     public CompletableFuture<Boolean> flushPhysicalDeaths(List<DeathObservation> deaths) {
@@ -997,19 +1022,24 @@ public final class PopulationSession implements AutoCloseable {
     }
 
     @Override public void close() {
-        if (!closing.compareAndSet(false, true)) return;
-        var previous = status.get();
-        status.set(new Status(false, previous.completedMonths(), previous.targetMonths(), previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
-        var scheduled = timer; if (scheduled != null) scheduled.cancel(false);
-        owner.execute(()-> {
-            try {
-                if(trackOres && readyForWork)new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection())
-                        .finish(now.getAsLong(),oreHistoryHealthy.get());
-            } catch(SQLException|RuntimeException failure) {
-                logger.log(Level.SEVERE,"Ore tracking shutdown fence failed; discovery will require reviewed recovery",failure);
-            } finally {database.close();}
-        });
-        owner.shutdown();
+        if (closing.compareAndSet(false, true)) {
+            var previous = status.get();
+            status.set(new Status(false, previous.completedMonths(), previous.targetMonths(), previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
+            var scheduled = timer; if (scheduled != null) scheduled.cancel(false);
+            owner.execute(()-> {
+                try {
+                    if(livestockTrackingStarted)try{new com.blueninjas24.civilizations.database.LivestockCapture(database.getConnection())
+                            .finish(now.getAsLong(),livestockHistoryHealthy.get()&&!livestockCaptureGap.get()&&pendingLivestockLosses.isEmpty());}
+                        catch(SQLException|RuntimeException failure){logger.log(Level.SEVERE,"Livestock capture shutdown fence failed; live production requires review",failure);}
+                    if(trackOres && readyForWork)new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection())
+                            .finish(now.getAsLong(),oreHistoryHealthy.get());
+                } catch(SQLException|RuntimeException failure) {
+                    logger.log(Level.SEVERE,"Ore tracking shutdown fence failed; discovery will require reviewed recovery",failure);
+                } finally {database.close();}
+            });
+            owner.shutdown();
+        }
+        // A repeated close from outside the owner still waits for the original drain.
         if (Thread.currentThread() == ownerThread.get()) return;
         try {
             if (!owner.awaitTermination(5, TimeUnit.SECONDS)) logger.warning("Population shutdown still finishing on its owner thread");

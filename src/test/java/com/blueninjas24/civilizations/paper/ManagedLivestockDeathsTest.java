@@ -17,11 +17,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class ManagedLivestockDeathsTest {
     UUID animal=new UUID(0,1),world=new UUID(0,2);AtomicLong now=new AtomicLong(1000);
     static class Owner implements ManagedLivestockDeaths.Owner {
-        Set<UUID> ids=Set.of();boolean ready=true;List<LivestockLosses.Observation> submitted=new ArrayList<>(),flushed;
+        Set<UUID> ids=Set.of();boolean ready=true;int gaps;List<LivestockLosses.Observation> submitted=new ArrayList<>(),flushed;
         List<CompletableFuture<Optional<LivestockLosses.Receipt>>> futures=new ArrayList<>();
         public Set<UUID> villageAnimals(){return ids;}public boolean ready(){return ready;}
         public CompletableFuture<Optional<LivestockLosses.Receipt>> record(LivestockLosses.Observation o){submitted.add(o);var result=new CompletableFuture<Optional<LivestockLosses.Receipt>>();futures.add(result);return result;}
         public CompletableFuture<Void> flush(List<LivestockLosses.Observation> o){flushed=o;return CompletableFuture.completedFuture(null);}
+        public void gap(){gaps++;}
+        List<LivestockLosses.Observation> captured=new ArrayList<>();public void captured(LivestockLosses.Observation o){captured.add(o);}
     }
     <T>T proxy(Class<T> type,java.util.function.Function<String,Object> answer){return type.cast(Proxy.newProxyInstance(type.getClassLoader(),new Class<?>[]{type},(p,m,a)->answer.apply(m.getName())));}
     EntityDeathEvent event(EntityType type) {
@@ -49,5 +51,17 @@ class ManagedLivestockDeathsTest {
     @Test void cancelledAndUnsupportedDeathsAreIgnoredAndGracefulFlushRetainsPendingObservations() {
         var owner=new Owner();owner.ids=Set.of(animal);owner.ready=false;var listener=listener(owner);var cancelled=event(EntityType.COW);cancelled.setCancelled(true);listener.died(cancelled);listener.died(event(EntityType.PIG));listener.flush();assertNull(owner.flushed);
         listener.died(event(EntityType.COW));listener.flush();assertEquals(1,owner.flushed.size());assertEquals(animal,owner.flushed.getFirst().animal());assertThrows(UnsupportedOperationException.class,()->owner.flushed.clear());assertTrue(cancelled.isCancelled());assertEquals(3,cancelled.getDroppedExp());
+    }
+    @Test void losingUnpublishedCaptureBeforeReadinessSignalsGapRatherThanCertifyingHistory() {
+        var owner=new Owner();owner.ready=false;var listener=listener(owner);
+        for(int n=0;n<257;n++){animal=new UUID(0,n);listener.died(event(EntityType.COW));}
+        assertTrue(owner.gaps>0);assertTrue(owner.submitted.isEmpty());assertTrue(listener.diagnostic().contains("recent unbound: 256"));
+        now.set(32000);listener.run();assertTrue(owner.gaps>1);assertTrue(listener.diagnostic().contains("recent unbound: 0"));
+    }
+    @Test void everyKnownDeathIsStagedEvenWhileAnEarlierOwnerSaveIsOutstanding() {
+        var first=animal;var second=new UUID(0,99);var owner=new Owner();owner.ids=Set.of(first,second);var listener=listener(owner);
+        listener.died(event(EntityType.COW));animal=second;listener.died(event(EntityType.CHICKEN));assertEquals(1,owner.submitted.size());assertEquals(List.of(first,second),owner.captured.stream().map(LivestockLosses.Observation::animal).toList());
+        owner.futures.getFirst().complete(Optional.empty());listener.run();assertEquals(2,owner.submitted.size());assertEquals(second,owner.submitted.getLast().animal());
+        owner.futures.getLast().complete(Optional.empty());listener.run();assertTrue(listener.diagnostic().contains("pending: 0"));
     }
 }

@@ -1,5 +1,54 @@
 # Civilizations Development Log
 
+## October16 — durable capture eligibility and safe owner shutdown
+
+Schema83 adds initially empty livestock_capture metadata. Startup writes a dirty
+capture marker; only new empty history or an already trusted clean stop can be
+eligible. Legacy herds with no fence, unclean stops, explicit gaps and unresolved
+saves cannot silently regain trust. No automatic repair/reset permission. Cached
+status additionally requires no unsaved staged loss; every known death is staged
+before its Paper queue delay, so the first saved loss cannot briefly certify the
+others. Exact successful retry clears its pending identity. Pre-readiness capture
+loss/expiry marks a durable gap; repeated gap notifications coalesce.
+
+Confirmed death saves stay available when untrusted. Shutdown drains accepted work
+before persisting its fence. A repeated close outside the owner now waits for the
+original drain; owner callbacks still return without waiting for themselves. This
+fixes an existing Windows database-file lock race exposed by the extra write.
+/civ debug status reads cached capture eligibility without JDBC/world operations.
+The trusted herd backend remains explicit; future live callers must require this
+gate plus safe physical reconciliation. Neither adoption nor live output is enabled.
+
+Eleven new executed cases: nine repository/owner/migration and two handoff gap/
+staging cases. Older-save tests retain predecessor comparisons and explicitly
+assert the new table empty. Focused148 passed before final staging coverage;
+latest focused44 and final Windows .\mvnw.cmd clean verify passed1,610
+(1,608 unit/two packaged integration), zero failures/errors/skips;07:52, finished
+2026-10-16T17:03:38-04:00. Production/test Java frozen for that final run. Earlier
+1,608 full pass was superseded after review found the pre-owner staging gap.
+One new fixture initially assumed legacy trust; corrected only its explicit prior
+clean-history seed. The existing callback-close test exposed the real shutdown race.
+
+Guarded Paper26.2 build129 passed17:04:31: actual owner/start/status, multi-observation
+pending gate, immediate gap, owner-callback/external close drain, durable restart
+warning and simulated prior dirty marker. No deliberate JVM crash or physical
+reconciliation certification. No helper world/entity mutations. Schema82->83 audit
+retained140 predecessor tables/137 exact; normal clock/runtime/ore metadata only,
+age delta0, integrity/FKs clean. Main new marker is clean/trusted for its empty
+herd history. Fixture stopped, properties restored/helper archived/backups retained.
+Existing OSHI warning only; no Civilizations/probe/listener failure. Human server
+untouched. Branch codex/phase3-livestock-recovery; main unchanged.
+
+P3 stays30/39 resources,1/4 whole groups/~68% partial. Livestock foundation substeps
+are shown in PROGRESS; automatic adoption, physical newborn UUIDs/reconciliation,
+scheduled founding/feed/output and milk/egg customers remain. Capture trust does
+not certify plugin-free play, external world edits/restores or unseen animals.
+Before player milk trades, the pending container rule needs a decision; no free
+iron buckets may be created. CI allowance maintenance follows separately: the
+older harvesting Windows log shows continuing passing tests until45-minute
+cancellation, Linux passed, and the later loss workflow passed both platforms.
+See LIVESTOCK_PROTECTION.md and DECISIONS_AND_OPEN_QUESTIONS.md.
+
 ## October16 — hatched and explicitly created animals keep protective origins
 
 Supported EGG/BREEDING/SPAWNER_EGG/DISPENSE_EGG/COMMAND spawn events now retain
