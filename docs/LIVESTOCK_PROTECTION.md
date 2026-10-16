@@ -1,5 +1,13 @@
 # Livestock protection and work foundation
 
+## October16 — buyer-supplied milk buckets approved
+
+Players bring an empty bucket for each purchased milk bucket. Recorded dairy stock
+supplies the milk; the container is the player's own item. No bucket means no sale
+or payment debit. Stock, payment, container and destination space must be checked
+again at exchange, with once-only recovery across retries/restarts. Eggs require
+no container. This is the approved adapter contract, not an enabled trade command.
+
 ## October16 — durable capture eligibility and pending-loss fencing
 
 Schema83 adds initially empty singleton `livestock_capture`: clean-stop flag,

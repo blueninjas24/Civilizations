@@ -1,5 +1,10 @@
 # Civilizations — canonical master design
 
+October16 approved milk-container rule: players must bring an empty bucket for
+each milk bucket purchased. Fill only from recorded business milk stock under
+agreed payment terms; never include a free iron bucket. Eggs need no container.
+This resolves the container decision, not the unfinished trading implementation.
+
 October16 approved village livestock product rule: initially buy/trade recorded
 milk/egg stock; prevent separate vanilla milking and egg laying drops for saved
 village-owned animals. Player-owned animals keep normal behavior. This grants

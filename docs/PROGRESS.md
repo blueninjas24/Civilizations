@@ -24,9 +24,9 @@ untouched; test saves preserved. P3 remains~68% partial (`██████▊�
 - [ ] Scheduled feed purchases and production.
 - [ ] Connected milk/egg customers and player trading.
 
-Next: connect live herds safely and their real customers. One pending choice for
-player milk trading: bring an empty bucket, or buy a separately supplied container.
-The recommended empty-bucket route prevents free iron. See LIVESTOCK_PROTECTION.md.
+Next: connect live herds safely and their real customers. Milk buyers must bring
+an empty bucket; that decision is now approved. Milk/egg player trading remains
+unfinished. See LIVESTOCK_PROTECTION.md.
 
 ## October16 — player-created livestock keeps its origin evidence
 

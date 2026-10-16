@@ -1,5 +1,19 @@
 # Civilizations Development Log
 
+## October16 — milk container decision recorded
+
+User approved buyer-supplied empty buckets for milk purchases. Canonical design,
+simulation rules, livestock adapter contract and current checklist now agree:
+one supplied bucket per milk bucket, real recorded milk stock and payment,
+no free iron container, no payment taken when the required bucket is missing.
+Eggs need no container. The container question is resolved; live livestock
+production and player product trading remain unfinished. P3 stays~68% partial.
+
+Documentation only: no Java/config/schema/artifact changes, no database/server
+operations and no new test/build run. Previous verified source remains939f805
+with1,610 local tests. Latest hosted verification could not be refreshed because
+GitHub DNS was unavailable in this sandbox; no hosted success is inferred.
+
 ## October16 — hosted verification allowance after measured Windows slowdown
 
 Raised only the CI job allowance45->60 minutes; retained both operating systems,
