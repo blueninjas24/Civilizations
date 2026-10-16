@@ -1,5 +1,21 @@
 # Civilizations — implementation status and handoff
 
+## October16 — hosted verification allowance after measured Windows slowdown
+
+Raised only the CI job allowance45->60 minutes; retained both operating systems,
+all wrapper checks, timeouts in tests and dependency pins. The older7f523ff Windows
+job explicitly exceeded45 minutes while still progressing through passing tests
+(WarehouseSuppliesTest at cancellation); its Linux job passed. The later03b4d86
+loss workflow passed both platforms. This is measured hosted disk variability,
+not evidence that a test should be removed or that all future runs will finish.
+Evidence: https://github.com/blueninjas24/Civilizations/actions/runs/38960407636 .
+
+Application/test source and packaged artifact remain exactly the locally/native
+verified939f805 recovery revision: final1,610 tests, schema83. Validated the workflow
+diff changes only its numeric allowance. No extra Maven rerun for this CI/docs-only
+commit. New hosted verification remains pending; no two-platform pass claimed for
+this latest head. P3 remains~68% partial; livestock substeps are in PROGRESS.md.
+
 ## October16 — durable capture eligibility and safe owner shutdown
 
 Schema83 adds initially empty livestock_capture metadata. Startup writes a dirty

@@ -1,5 +1,10 @@
 # Civilizations progress tracker
 
+CI note: hosted Windows kept passing tests but ran out of its45-minute allowance.
+The allowance is now60 minutes, with every check retained. Latest local/native
+validation is1,610 tests; new GitHub checks are pending. Phase progress and the
+livestock substeps below are unchanged.
+
 ## October16 — livestock safety foundation verified
 
 Milk/eggs are reserved for recorded village trade, player-created livestock keeps
