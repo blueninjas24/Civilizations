@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 79;
+    static final int CURRENT_VERSION = 80;
 
     @FunctionalInterface
     interface Migration {
@@ -928,7 +928,8 @@ final class SchemaMigrator {
                 LivestockRepository::createSchema,
                 WorkplaceMarkerMigration::apply,
                 BakeryPrivateInputs::createSchema,
-                SchemaMigrator::createBakeryFounderStudy
+                SchemaMigrator::createBakeryFounderStudy,
+                StorageUpgrades::createSchema
 
 
         ));
@@ -1223,6 +1224,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"warehouse_founder_reviews",Set.of("settlement_id","period","after_resident","policy","explanation"));
                 requireColumns(connection,"warehouse_founder_courses",Set.of("course_id","settlement_id","world_id","x","y","z","enrolled_period"));
             }
+            if(migrations.size()>=80)requireColumns(connection,"business_storage_upgrades",Set.of("operation_id","buyer_id","seller_id","period","haul_window","cadence","ordinal","base_capacity","before_capacity","after_capacity","units","price","due_period","installed_period","policy"));
             if(migrations.size()>=79){
                 requireColumns(connection,"bakery_founder_reviews",Set.of("settlement_id","period","after_resident","policy","explanation"));
                 requireColumns(connection,"bakery_founder_courses",Set.of("course_id","settlement_id","world_id","x","y","z","enrolled_period"));

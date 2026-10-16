@@ -24,4 +24,8 @@ public record ProductionRecipe(String id, String industry, Map<Commodity,Long> i
         return new ProductionRecipe("bakery_bread","bakery",Map.of(new Commodity("grain"),3L),
                 Map.of(Commodity.FOOD,3L),1,4);
     }
+    public static ProductionRecipe storageFittings() {
+        return new ProductionRecipe("craft_storage_fittings","craftsman",Map.of(Commodity.TIMBER,3L,Commodity.STONE,1L),
+                Map.of(new Commodity("storage_fittings"),1L),1,4);
+    }
 }

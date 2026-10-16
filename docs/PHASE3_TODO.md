@@ -1,5 +1,19 @@
 # Phase 3 — businesses and industry checklist
 
+## October16 — businesses can pay the craftsman for useful storage fittings
+
+The first craft product now has real customers. Crowded businesses buy fittings
+with their own money, wait for delivery, then gain limited storage. Materials and
+cash are conserved; restarting cannot charge or expand twice. Admins can edit
+prices/limits. Existing server files stay intact; your server was not changed.
+
+All1,533 full-build tests and the disposable Paper payment/delivery/restart/pause
+check passed. The test-save upgrade preserved existing records and was audited.
+P3 stays~68% partial (`██████▊░░░`),30/39 resource entries and1/4 whole groups.
+Automatic craftsman training/opening is next; this batch does not finish that
+whole checklist item. Live livestock, wider products and specialization remain.
+Storage approval is resolved; no decision needed. See STORAGE_UPGRADES.md.
+
 ## October 15 — automatic bread bakery and paid farm customer gate
 
 Approved real-market competition, future supply-backed first-baker study and the

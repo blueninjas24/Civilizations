@@ -4,12 +4,13 @@ import java.util.*;
 
 /** Editable timed work for existing funded firms; no automatic founding or invented buyers. */
 public record IndustryRuntimePolicy(boolean enabled, long millisPerPeriod, int businessesPerPulse,
-                                    IndustryPolicy mining, Map<String,ProductionRecipe> recipes, WorkshopSupplyPolicy supply, WarehouseSupplyPolicy warehouseSupply, ToolUpkeepPolicy tools) {
+                                    IndustryPolicy mining, Map<String,ProductionRecipe> recipes, WorkshopSupplyPolicy supply, WarehouseSupplyPolicy warehouseSupply, ToolUpkeepPolicy tools,StorageUpgradePolicy storageUpgrades) {
     public IndustryRuntimePolicy {
         Objects.requireNonNull(mining); recipes = Map.copyOf(recipes);
         Objects.requireNonNull(supply);
         Objects.requireNonNull(warehouseSupply);
         Objects.requireNonNull(tools);
+        Objects.requireNonNull(storageUpgrades);
         if (millisPerPeriod < 1000 || millisPerPeriod > 86_400_000 || businessesPerPulse < 1 || businessesPerPulse > 64)
             throw new IllegalArgumentException("Industry cadence must be 1000..86400000 ms; pulse budget 1..64");
         var industries = new HashSet<String>();
@@ -25,6 +26,9 @@ public record IndustryRuntimePolicy(boolean enabled, long millisPerPeriod, int b
         if(!tools.enabled())return supply;
         var prices=new TreeMap<>(supply.unitHundredths());prices.put(ToolUpkeepPolicy.TOOLS,tools.toolValueHundredths());
         return new WorkshopSupplyPolicy(supply.enabled(),supply.inputPeriods(),supply.warehousesPerReview(),prices);
+    }
+    public IndustryRuntimePolicy(boolean enabled,long millisPerPeriod,int businessesPerPulse,IndustryPolicy mining,Map<String,ProductionRecipe> recipes,WorkshopSupplyPolicy supply,WarehouseSupplyPolicy warehouseSupply,ToolUpkeepPolicy tools) {
+        this(enabled,millisPerPeriod,businessesPerPulse,mining,recipes,supply,warehouseSupply,tools,StorageUpgradePolicy.disabled());
     }
     public IndustryRuntimePolicy(boolean enabled,long millisPerPeriod,int businessesPerPulse,IndustryPolicy mining,Map<String,ProductionRecipe> recipes,WorkshopSupplyPolicy supply,WarehouseSupplyPolicy warehouseSupply) {
         this(enabled,millisPerPeriod,businessesPerPulse,mining,recipes,supply,warehouseSupply,ToolUpkeepPolicy.disabled());

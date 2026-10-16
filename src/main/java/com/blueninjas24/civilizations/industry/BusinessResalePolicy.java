@@ -27,6 +27,6 @@ public record BusinessResalePolicy(boolean enabled,long minimumSiteHundredths,in
     }
     public static BusinessResalePolicy prototype(){return new BusinessResalePolicy(true,1000,50,600000,32,
             Map.of(Commodity.FOOD,200L,Commodity.TIMBER,150L,Commodity.STONE,100L,Commodity.IRON,500L,Commodity.COAL,200L,
-                   Commodity.LIVESTOCK_PRODUCTS,300L,new Commodity("tools"),800L));}
+                   Commodity.LIVESTOCK_PRODUCTS,300L,new Commodity("tools"),800L,new Commodity("storage_fittings"),2000L));}
     public static BusinessResalePolicy disabled(){return new BusinessResalePolicy(false,1000,50,600000,32,Map.of());}
 }

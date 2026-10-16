@@ -32,6 +32,7 @@ public final class EconomyConfiguration {
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
+        if (config.contains("storage-upgrades")) rootKeys.add("storage-upgrades");
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("workshop-starter-supplies")) rootKeys.add("workshop-starter-supplies");
@@ -66,6 +67,7 @@ public final class EconomyConfiguration {
         exactKeys(config, rootKeys);
         readAdditionalOreEditors(config);
         readIndustryRuntime(config);
+        readStorageUpgrades(config);
         readQuarryResources(config);
         readFishingResources(config);
         readWaterObserver(config);
@@ -484,7 +486,15 @@ public final class EconomyConfiguration {
         exactKeys(runtime,Set.of("enabled","real-millis-per-period","businesses-per-pulse"));
         if(!(runtime.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("industry-runtime.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.IndustryRuntimePolicy(enabled,integer(runtime,"real-millis-per-period"),
-                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config),readWorkshopSupply(config),readWarehouseSupply(config),readToolUpkeep(config));
+                smallInteger(runtime,"businesses-per-pulse"),readIndustry(config),readRecipes(config),readWorkshopSupply(config),readWarehouseSupply(config),readToolUpkeep(config),readStorageUpgrades(config));
+    }
+    public static com.blueninjas24.civilizations.industry.StorageUpgradePolicy readStorageUpgrades(ConfigurationSection config) {
+        if(!config.contains("storage-upgrades"))return com.blueninjas24.civilizations.industry.StorageUpgradePolicy.disabled();
+        var s=section(config,"storage-upgrades");exactKeys(s,Set.of("enabled","occupancy-percent","capacity-per-upgrade","maximum-upgrades","maximum-growth-percent","maximum-capacity","minimum-business-cash","fittings-per-upgrade","price-per-fitting","delivery-periods","suppliers-per-review","industries"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("storage-upgrades.enabled must be true or false");
+        if(!(s.get("industries") instanceof List<?> raw)||raw.size()>32||raw.stream().anyMatch(x->!(x instanceof String))||new HashSet<>(raw).size()!=raw.size())throw new IllegalArgumentException("Distinct storage upgrade industries required");
+        var kinds=new HashSet<String>();raw.forEach(x->kinds.add((String)x));
+        return new com.blueninjas24.civilizations.industry.StorageUpgradePolicy(enabled,smallInteger(s,"occupancy-percent"),integer(s,"capacity-per-upgrade"),smallInteger(s,"maximum-upgrades"),smallInteger(s,"maximum-growth-percent"),integer(s,"maximum-capacity"),integer(s,"minimum-business-cash"),integer(s,"fittings-per-upgrade"),integer(s,"price-per-fitting"),smallInteger(s,"delivery-periods"),smallInteger(s,"suppliers-per-review"),kinds);
     }
     public static com.blueninjas24.civilizations.industry.ToolUpkeepPolicy readToolUpkeep(ConfigurationSection config) {
         if(!config.contains("business-tools"))return com.blueninjas24.civilizations.industry.ToolUpkeepPolicy.disabled();

@@ -1,14 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October15: first craftsman customers — awaiting answer
+## October16: first craftsman customers — approved
 
-Asked whether existing businesses may buy small storage fittings/upgrades using
-real business cash when constrained by storage, under editable prices and hard
-capacity limits. This would provide a causal use for craft goods before Phase4
-physical expansion. It cannot invent shoppers, confiscate public materials,
-create money, force-load chunks, or authorize block changes. No upgrade or new
-craft customer rule is implemented. If deferred, storage stays fixed until
-physical construction; select other genuinely feasible craft customers explicitly.
+User approved limited, configurable storage upgrades. Existing businesses may
+buy actual storage fittings with their own cash when storage is constrained,
+under editable prices, retained operating cash, delivery time and hard count/
+capacity limits. This gives craft goods a real use before Phase4 physical
+building expansion. No imaginary customer, public-stock confiscation, free cash,
+player inventory use or block-change permission is granted. Existing goods,
+opening terms, ownership and paid improvement history must survive transitions.
+Storage customers, paid orders and delayed installation are implemented and
+verified by1,533 full-build tests and guarded Paper payment/delivery/restart/pause
+checks. Automatic craftsman training/opening remains next; this does not complete
+the craftsman or Phase3 production gate. See STORAGE_UPGRADES.md.
 
 ## October15: bakery competition for existing paid food orders — approved
 

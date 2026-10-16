@@ -332,6 +332,7 @@ public final class IndustryRepository {
             if(haulCadence!=null)s.setLong(3,haulCadence);
             try(var r=s.executeQuery()) { while(r.next())dispatched=Math.addExact(dispatched,r.getLong(1)); }
         }
+        if(haulCadence!=null)dispatched=Math.addExact(dispatched,StorageUpgrades.haulUsed(connection,origin.settlementId(),haulWindow,haulCadence));
         if(Math.addExact(dispatched,units)>haulCapacity)throw new SQLException("Local haul capacity exhausted for this period");
         var from=store(seller).orElseThrow(()->new SQLException("Seller store missing"));
         var to=store(buyer).orElseThrow(()->new SQLException("Buyer store missing"));
@@ -414,6 +415,11 @@ public final class IndustryRepository {
         }return Map.copyOf(result);
     }
     private Optional<Receipt> receipt(UUID id,String terms) throws SQLException {
+        try(var version=connection.createStatement();var r=version.executeQuery("PRAGMA user_version")) {
+            if(r.getInt(1)>=80)try(var s=connection.prepareStatement("SELECT 1 FROM business_storage_upgrades WHERE operation_id=?")) {
+                s.setString(1,id.toString());try(var old=s.executeQuery()){if(old.next())throw new SQLException("Industry operation identity belongs to a storage upgrade");}
+            }
+        }
         try(var s=connection.prepareStatement("SELECT * FROM industry_operations WHERE id=?")) {
             s.setString(1,id.toString());try(var r=s.executeQuery()) {
                 if(!r.next())return Optional.empty();if(!terms.equals(r.getString("terms")))throw new SQLException("Industry operation identity reused with different terms");

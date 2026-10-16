@@ -1,5 +1,48 @@
 # Civilizations — implementation status and handoff
 
+## October16 — real paid craftsman storage customers (schema80)
+
+Implemented the approved limited storage upgrades. Actual staffed businesses with
+current storage pressure pay real craftsman/warehouse cash for produced fittings;
+capacity increases only after delivery. Input/output stock and old catalogues stay
+intact. Configurable retained cash, occupancy, count, original-baseline growth,
+absolute capacity, source-review and hauling limits prevent unlimited expansion.
+Paid cargo and installed improvements remain with the business in resale value.
+Atomic receipts/replay, absent-world pause, current-clock spending and rollback
+protect money and goods. Local demand includes real fitting customers without
+counting a warehouse's own need twice or spending already-planned input money.
+
+New-file editable recipe: three timber + one stone -> one storage fitting.
+Default fitting invoice is20 Trade Value versus15 ingredient value; this is a
+prototype gross ingredient margin, not guaranteed sales/profit. Missing upgrade
+sections disable new purchases; installed files and old catalogues are preserved.
+Schema80 adds one empty receipt table/index, rewriting no old economic assets.
+Farms/herds require separate adapters and cannot use this generic capacity path.
+
+Validation:16 new executed cases (14 persistence/runtime/migration/resale/demand,
+two configuration), final focused154 passed. Full Windows .\mvnw.cmd clean verify
+passed1,533 tests (1,531 unit/two packaged integration), zero failures/errors/skips,
+in7:55 at08:27:28 ET. One earlier new test referenced the wrong receipt table;
+corrected its SQL to recipe_flows without changing application behavior. Final
+production/test Java remained frozen through verification.
+
+Guarded Paper26.2 build129 passed08:28:00 ET: actual ingredient purchase/crafting,
+SQL-owner automatic fitting payment, delayed installation, absence/restart and
+exact disabled replay, preserving cash/stock and the buyer's old catalogue. No
+helper world/entity/block mutations. Schema79->80 audit retained all136 predecessor
+tables,133 exactly; only three normal clock/runtime/ore bookkeeping tables changed,
+zero aging. Integrity/FKs clean. Fixture stopped, original properties restored,
+helper archived/backups retained. Existing OSHI counter warning; no plugin failure.
+Human server untouched. Earlier bakery GitHub CI: Linux succeeded, Windows was
+cancelled; do not report a two-platform hosted pass for that revision.
+
+P3 remains30/39 resource entries,1/4 whole groups/~68% partial checklist progress:
+this completes storage customers, not the whole craftsman gate. Automatic craftsman
+opportunities, qualified founding and gradual training remain next, then livestock
+physical integration, wider products and specialization acceptance. No new decision
+is pending. Feature branch codex/phase3-storage-upgrades; main unchanged.
+See STORAGE_UPGRADES.md and PROCESSING_WORKSHOPS.md.
+
 ## October 15 — trained bakers can now open real paid bread businesses
 
 Implemented the approved competition rule: a bounded forecast of actual recent

@@ -38,7 +38,7 @@ final class WarehouseSupplies {
         }
         if(!staffed)return "Restocking deferred: qualified warehouse staff required";
         var town=founding.business().settlementId();
-        var demand=new LocalIndustryDemand(connection,policy,operations,mutationHealthy).withFarmTools(farmUpkeep,farmBudget).review(town,Set.of(world),policy.warehouseSupply().customersPerReview());
+        var demand=new LocalIndustryDemand(connection,policy,operations,mutationHealthy).withFarmTools(farmUpkeep,farmBudget).excludingStorageBuyer(buyer).review(town,Set.of(world),policy.warehouseSupply().customersPerReview());
         if(!demand.complete())return "Restocking deferred: "+demand.explanation();
         var availability=new BusinessOperations(connection,operations);var industry=new IndustryRepository(connection);
         var warehouses=ids(town,"warehouse",policy.supply().warehousesPerReview());
@@ -76,6 +76,7 @@ final class WarehouseSupplies {
             s.setString(1,town.toString());s.setLong(2,haulWindow);s.setLong(3,policy.millisPerPeriod());
             try(var r=s.executeQuery()){while(r.next())hauled=Math.addExact(hauled,r.getLong(1));}
         }
+        hauled=Math.addExact(hauled,StorageUpgrades.haulUsed(connection,town,haulWindow,policy.millisPerPeriod()));
         var store=industry.store(buyer).orElseThrow();
         var orders=WarehouseInputPlan.choose(demand.uncovered(),pending,store.hundredths(),store.freeSpace(),
                 Math.max(0,policy.mining().localHaulUnitsPerPeriod()-hauled),128-incoming,store.spacePerUnit(),sources,policy.purchasingSupply().unitHundredths());

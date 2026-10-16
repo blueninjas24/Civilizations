@@ -49,6 +49,7 @@ final class WorkshopSupplies {
         try(var s=connection.prepareStatement("SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=? AND a.haul_cadence=?")) {
             s.setString(1,founding.business().settlementId().toString());s.setLong(2,haulWindow);s.setLong(3,haulCadence);try(var r=s.executeQuery()){while(r.next())hauled=Math.addExact(hauled,r.getLong(1));}
         }
+        hauled=Math.addExact(hauled,StorageUpgrades.haulUsed(connection,founding.business().settlementId(),haulWindow,haulCadence));
         var plan=WorkshopInputPlan.choose(recipe,businesses.currentWorkers(buyer).size(),store.hundredths(),store.freeSpace(),
                 Math.max(0,transport.localHaulUnitsPerPeriod()-hauled),128-incoming,store.units(),pending,store.spacePerUnit(),warehouses,policy);
         for(var order:plan.orders()) {

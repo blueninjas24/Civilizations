@@ -30,6 +30,8 @@ public final class LocalIndustryDemand {
     }
     private FarmToolUpkeepPolicy farmUpkeep=FarmToolUpkeepPolicy.disabled();
     private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
+    private UUID excludedStorageBuyer;
+    LocalIndustryDemand excludingStorageBuyer(UUID business){excludedStorageBuyer=Objects.requireNonNull(business);return this;}
     public LocalIndustryDemand withFarmTools(FarmToolUpkeepPolicy upkeep,FarmToolBudgetPolicy budget){farmUpkeep=Objects.requireNonNull(upkeep);farmBudget=Objects.requireNonNull(budget);return this;}
     public MiningReview reviewMining(UUID town,long now,long maximumAgeMillis,Set<UUID> worlds,int businessLimit)throws SQLException {
         var demand=review(town,worlds,businessLimit);var survey=new MineralOpportunities(connection).review(town,now,maximumAgeMillis,worlds);
@@ -122,7 +124,22 @@ public final class LocalIndustryDemand {
             if(gap>0)total.merge(ToolUpkeepPolicy.TOOLS,gap,Math::addExact);
             customers.add(new Customer(farmNeed.farm(),0,Map.of(ToolUpkeepPolicy.TOOLS,farmNeed.units()),uncovered,farmNeed.invoice(),farmNeed.explanation()));
         }
-        return new Review(true,customers,total,"Fundable workshop input gaps after owned/pending goods and shared available warehouse stock; planning only, not orders; actual public farm tools "+farmNeed.units());
+        var spending=new HashMap<UUID,Long>();for(var customer:customers)spending.put(customer.business(),customer.estimatedCost());
+        var storage=new StorageUpgradeDemand(connection,policy.storageUpgrades(),operations).review(town,worlds,businessLimit+warehouses.size(),spending);
+        if(!storage.complete())return deferred(storage.explanation());
+        for(var need:storage.needs()) {
+            // A warehouse installs a fitting through the upgrade order, rather than stocking
+            // a second fitting to supply its own identical installation need.
+            if(need.buyer().equals(excludedStorageBuyer))continue;
+            var good=StorageUpgrades.FITTINGS;long covered=Math.min(localStock.getOrDefault(good,0L),need.units()),gap=need.units()-covered;
+            localStock.computeIfPresent(good,(k,v)->v-covered);if(gap>0)total.merge(good,gap,Math::addExact);
+            int index=-1;for(int n=0;n<customers.size();n++)if(customers.get(n).business().equals(need.buyer())){index=n;break;}
+            var old=index<0?new Customer(need.buyer(),0,Map.of(),Map.of(),0,""):customers.get(index);
+            var missing=new TreeMap<>(old.missing());missing.merge(good,need.units(),Math::addExact);var uncovered=new TreeMap<>(old.uncovered());if(gap>0)uncovered.merge(good,gap,Math::addExact);
+            var updated=new Customer(need.buyer(),old.batches(),missing,uncovered,Math.addExact(old.estimatedCost(),need.price()),old.explanation()+"; funded bounded storage fittings");
+            if(index<0){if(customers.size()>=businessLimit+warehouses.size())return deferred("Combined storage/input customer budget exceeded");customers.add(updated);}else customers.set(index,updated);
+        }
+        return new Review(true,customers,total,"Fundable workshop inputs and bounded storage fittings after owned/pending goods, shared available warehouse stock and planned spending; planning only, not orders; actual public farm tools "+farmNeed.units());
     }
     private Review deferred(String reason){return new Review(false,List.of(),Map.of(),reason);}
 }

@@ -112,6 +112,8 @@ public final class IndustryRuntime {
             var supplies=new WorkshopSupplies(connection,operations);
             var tools=new BusinessTools(connection,policy);
             int arrived=supplies.deliverRows(id,period);
+            var storage=new StorageUpgrades(connection,policy.storageUpgrades(),operations);
+            int installed=storage.deliverRows(id,period,Set.of(clock.world()));
             var operation=UUID.nameUUIDFromBytes(("civilizations:timed-industry-v1:"+id+":"+period).getBytes(StandardCharsets.UTF_8));
             boolean freshProduction;
             try(var s=connection.prepareStatement("SELECT 1 FROM industry_operations WHERE id=?")) {
@@ -165,12 +167,14 @@ public final class IndustryRuntime {
                 }
             }
             reason="Owned cargo delivered: "+arrived+"; "+availability.explanation()+"; "+reason+"; "+new IndustryLearning(connection,learning).reviewRows(operation,id,freshProduction);
-            try(var s=connection.prepareStatement("INSERT INTO industry_runtime_history VALUES(?,?,?)")) {
-                s.setString(1,id.toString());s.setLong(2,period);s.setString(3,reason.substring(0,Math.min(1024,reason.length())));s.executeUpdate();
-            }
             try(var s=connection.prepareStatement("UPDATE industry_runtime SET completed=? WHERE business_id=? AND completed=?")) {
                 s.setLong(1,period);s.setString(2,id.toString());s.setLong(3,clock.completed());
                 if(s.executeUpdate()!=1)throw new SQLException("Industry checkpoint changed during owner work");
+            }
+            String storageReason=period==clock.anchor().targetSteps()?storage.reviewRows(id,period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),policy.millisPerPeriod(),policy.mining().localHaulUnitsPerPeriod(),Set.of(clock.world())):"New storage spending waits for current industry clock";
+            reason="Storage installations: "+installed+"; "+storageReason+"; "+reason;
+            try(var s=connection.prepareStatement("INSERT INTO industry_runtime_history VALUES(?,?,?)")) {
+                s.setString(1,id.toString());s.setLong(2,period);s.setString(3,reason.substring(0,Math.min(1024,reason.length())));s.executeUpdate();
             }
             return null;
         });

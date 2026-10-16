@@ -112,6 +112,23 @@ bakery-opportunities:
   capital-hundredths: 4000
   storage-capacity: 1024
 
+# Small storage fittings only; physical building expansion remains Phase 4.
+# Businesses pay with their own cash; accepted fittings arrive before installation.
+# Hard count, baseline-growth and capacity caps all apply. Older files opt out.
+storage-upgrades:
+  enabled: true
+  occupancy-percent: 80
+  capacity-per-upgrade: 256
+  maximum-upgrades: 4
+  maximum-growth-percent: 100
+  maximum-capacity: 8192
+  minimum-business-cash: 2500
+  fittings-per-upgrade: 1
+  price-per-fitting: 2000
+  delivery-periods: 1
+  suppliers-per-review: 8
+  industries: [mining, blacksmith, warehouse, quarry, sandpit, fishing, bakery, craftsman]
+
 # Opening forecast only. No extra meals, money or guaranteed sales.
 # 10000 basis points = up to 100% of the observed average paid food market.
 # Actual sellers still compete under the existing food budget and rotating orders.
@@ -269,6 +286,15 @@ ore-observer:
 # Inputs, outputs and work rates may be tuned; saved production history is immutable.
 # Timed work and automatic input purchases require their separate settings below.
 recipes:
+  craft_storage_fittings:
+    industry: craftsman
+    inputs:
+      timber: 3
+      stone: 1
+    outputs:
+      storage_fittings: 1
+    batches-per-worker: 1
+    site-batch-capacity: 4
   bakery_bread:
     # Abstract grain becomes meals. Cakes/individual item stock are separate work.
     # No ingredients are created: future farms must harvest or suppliers must deliver them.
@@ -354,6 +380,7 @@ industry:
     food: 1
     tools: 1
     grain: 1
+    storage_fittings: 1
 
 # /civ barter timber (or stone) requests a quote for the whole held food stack.
 # /civ barter accept explicitly confirms it; saved inventory proof gates the exchange.
@@ -495,6 +522,7 @@ shortages:
 # Abstract commodity units, not items removed from Minecraft chests.
 # Food 12 gives a new adult about six periods of reserves without production.
 starting-units-per-resident:
+  storage_fittings: 0  # Future crafted goods only.
   grain: 0  # Ingredients must come from actual future harvests; never a free opening bundle.
   food: 12
   timber: 4
@@ -507,6 +535,7 @@ starting-units-per-resident:
 # Prices can have up to two decimal places. Commodity keys must match stocks above.
 prices:
   base-trade-value:
+    storage_fittings: 20
     grain: 1
     food: 2
     timber: 4
@@ -654,6 +683,7 @@ automatic-business-resale:
     coal: 200
     livestock_products: 300
     tools: 800
+    storage_fittings: 2000
 
 # Only the cash shortage for a verified public farm toolkit invoice is funded.
 # Supplier keeps its original village-funded capital PLUS this operating reserve.

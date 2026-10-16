@@ -1,4 +1,14 @@
-# Processing workshops — startup funding and bakery prospects
+# Processing workshops — bakeries and general craftsman
+
+## October16 — first real craftsman customers
+
+Limited business storage fittings now have a production recipe, actual funded
+customers, paid orders and delayed installation in the industry runtime. A saved
+qualified craftsman can make and sell them; a warehouse can resell actual stock.
+The supplier-independent demand review will support first-craftsman opportunities
+without requiring that a craftsman already exist. No automatic craftsman opening
+or free crafting experience is claimed. See STORAGE_UPGRADES.md for editable
+terms, installed-file opt-in, schema80 and preservation limits.
 
 ## October15 — first-baker study, commercial competition and automatic opening
 
