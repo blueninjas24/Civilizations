@@ -36,6 +36,8 @@ public final class EconomyConfiguration {
         if (config.contains("industry-supply")) rootKeys.add("industry-supply");
         if (config.contains("workshop-starter-supplies")) rootKeys.add("workshop-starter-supplies");
         if (config.contains("workshop-founding")) rootKeys.add("workshop-founding");
+        if (config.contains("bakery-founding")) rootKeys.add("bakery-founding");
+        if (config.contains("bakery-opportunities")) rootKeys.add("bakery-opportunities");
         if (config.contains("workshop-opportunities")) rootKeys.add("workshop-opportunities");
         if (config.contains("warehouse-opportunities")) rootKeys.add("warehouse-opportunities");
         if (config.contains("warehouse-founding")) rootKeys.add("warehouse-founding");
@@ -76,6 +78,8 @@ public final class EconomyConfiguration {
         readWarehouseOpportunities(config);
         readWarehouseFounding(config);
         readWorkshopFounding(config);
+        readBakeryFounding(config);
+        readBakeryOpportunities(config);
         readWarehouseSupply(config);
         readToolUpkeep(config);
         readBusinessStaffing(config);
@@ -258,6 +262,18 @@ public final class EconomyConfiguration {
         var s=section(config,"workshop-founding");exactKeys(s,Set.of("enabled","founders-per-review","minimum-age-months","founder-smithing-experience","worker-smithing-experience","worker-capacity"));
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("workshop-founding.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.WorkshopFoundingPolicy(enabled,smallInteger(s,"founders-per-review"),integer(s,"minimum-age-months"),integer(s,"founder-smithing-experience"),integer(s,"worker-smithing-experience"),smallInteger(s,"worker-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.BakeryFoundingPolicy readBakeryFounding(ConfigurationSection config) {
+        if(!config.contains("bakery-founding"))return com.blueninjas24.civilizations.industry.BakeryFoundingPolicy.disabled();
+        var s=section(config,"bakery-founding");exactKeys(s,Set.of("enabled","founders-per-review","minimum-age-months","founder-baking-experience","worker-baking-experience","worker-capacity"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("bakery-founding.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.BakeryFoundingPolicy(enabled,smallInteger(s,"founders-per-review"),integer(s,"minimum-age-months"),integer(s,"founder-baking-experience"),integer(s,"worker-baking-experience"),smallInteger(s,"worker-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy readBakeryOpportunities(ConfigurationSection config) {
+        if(!config.contains("bakery-opportunities"))return com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy.disabled();
+        var s=section(config,"bakery-opportunities");exactKeys(s,Set.of("enabled","markers-per-review","evidence-lifetime-millis","horizontal-range","vertical-range","startup-hundredths","capital-hundredths","storage-capacity"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("bakery-opportunities.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy(enabled,smallInteger(s,"markers-per-review"),integer(s,"evidence-lifetime-millis"),smallInteger(s,"horizontal-range"),smallInteger(s,"vertical-range"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),integer(s,"storage-capacity"));
     }
     public static com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy readWorkplaceOperations(ConfigurationSection config) {
         if(!config.contains("workplace-operations"))return com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();

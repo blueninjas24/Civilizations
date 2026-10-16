@@ -58,9 +58,12 @@ public final class LocalIndustryDemand {
             """)) {
             s.setString(1,town.toString());s.setInt(2,policy.tools().applies("mining")?1:0);s.setInt(3,businessLimit+policy.supply().warehousesPerReview()+1);
             try(var r=s.executeQuery()) {
+                int reviewed=0;
                 while(r.next()) {
+                    if(++reviewed>businessLimit+policy.supply().warehousesPerReview())return deferred("Stored business review budget exceeded; no partial shortage inferred");
                     var kind=r.getString(2);var id=UUID.fromString(r.getString(1));
                     if(kind.equals("warehouse"))warehouses.add(id);
+                    else if(kind.equals("farming")&&FarmMarketStore.supported(connection,id,new IndustryRepository(connection).store(id).orElseThrow()))continue;
                     else if(kind.equals("mining")&&policy.tools().applies(kind))workshops.add(id);
                     else if(policy.recipes().values().stream().anyMatch(recipe->recipe.industry().equals(kind)))workshops.add(id);
                     else return deferred("Unsupported stored industry requires explicit demand review");

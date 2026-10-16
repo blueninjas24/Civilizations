@@ -64,7 +64,7 @@ public final class WorkshopStarterSupplies {
         }
         var store=new IndustryRepository(connection).store(business.id()).orElseThrow();
         if(store.reservedIncomingSpace()!=0||store.units().values().stream().anyMatch(v->v!=0))throw new SQLException("Starter purchase requires newly empty workshop");
-        var stockUnits=new TreeMap<Commodity,Long>();account.state().stocks().forEach((good,stock)->stockUnits.put(good,stock.units()));
+        var stockUnits=WorkshopPublicStock.read(connection,business.settlementId());
         var plan=WorkshopStarterPlan.review(request.recipe(),request.batches(),policy,store.hundredths(),store.freeSpace(),request.haulCapacity(),stockUnits,store.spacePerUnit());
         if(!plan.eligible())throw new SQLException(plan.explanation());
         var goods=plan.goods();long price=plan.price();
@@ -76,10 +76,8 @@ public final class WorkshopStarterSupplies {
             s.setString(1,request.operation().toString());s.setString(2,business.id().toString());s.setString(3,business.settlementId().toString());s.setLong(4,grant.period());s.setLong(5,Math.addExact(request.period(),request.delay()));s.setLong(6,price);s.setLong(7,store.hundredths());s.setLong(8,store.hundredths()-price);s.setString(9,request.terms());s.setString(10,policy.toString());s.executeUpdate();
         }
         for(var entry:goods.entrySet()) {
-            long before=account.state().stocks().get(entry.getKey()).units(),after=before-entry.getValue();
-            try(var s=connection.prepareStatement("UPDATE economy_stocks SET units=? WHERE settlement_id=? AND commodity=? AND units=?")) {
-                s.setLong(1,after);s.setString(2,business.settlementId().toString());s.setString(3,entry.getKey().id());s.setLong(4,before);if(s.executeUpdate()!=1)throw new SQLException("Starter surplus changed");
-            }
+            long before=stockUnits.get(entry.getKey()),after=before-entry.getValue();
+            WorkshopPublicStock.debit(connection,business.settlementId(),entry.getKey(),entry.getValue(),before);
             try(var s=connection.prepareStatement("INSERT INTO workshop_starter_goods VALUES(?,?,?,?,?,?,?)")) {
                 s.setString(1,request.operation().toString());s.setString(2,entry.getKey().id());s.setLong(3,entry.getValue());s.setLong(4,policy.prices().get(entry.getKey()));s.setLong(5,policy.reserveUnits());s.setLong(6,before);s.setLong(7,after);s.executeUpdate();
             }

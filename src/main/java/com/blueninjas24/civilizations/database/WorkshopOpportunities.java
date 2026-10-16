@@ -50,8 +50,7 @@ public final class WorkshopOpportunities {
         if(!pressure.complete()||pressure.uncovered().getOrDefault(ToolUpkeepPolicy.TOOLS,0L)==0)return no("Existing local supply or incomplete demand review: "+pressure.explanation());
         var funding=new BusinessStartupGrants(connection).previewRows(town,"blacksmith",policy.startupHundredths(),policy.capitalHundredths(),grants);
         if(!funding.eligible())return no("Workshop startup funding unavailable: "+funding.reason());
-        var account=new CommodityRepository(connection).read(town).orElseThrow();var stock=new TreeMap<Commodity,Long>();
-        account.state().stocks().forEach((good,units)->stock.put(good,units.units()));
+        var stock=WorkshopPublicStock.read(connection,town);
         var sizes=industry.mining().storageSpacePerUnit();var selected=recipe.orElseThrow();long outputSpace=0;
         try {
             for(var output:selected.outputs().entrySet()) {

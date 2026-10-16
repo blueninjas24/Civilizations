@@ -38,6 +38,45 @@ class FarmMarketRuntimeTest {
     void sql(String q)throws Exception{try(var s=db.getConnection().createStatement()){s.execute(q);}}
     long food()throws Exception{return runtime.views().get(town).account().state().stocks().get(Commodity.FOOD).units();}
     IndustryRepository.Store store()throws Exception{return db.getIndustryRepository().store(farm).orElseThrow();}
+    @Test void warehouseBuysActuallyHarvestedFarmGrainForTimedBakeryAndAllMoneyConserves()throws Exception {
+        UUID baker=new UUID(0,30),bakery=new UUID(0,31),merchant=new UUID(0,32),warehouse=new UUID(0,33);
+        person(baker);person(merchant);db.getPopulationRepository().recordSkillExperience(baker,"baking",10);
+        for(var entry:Map.of(bakery,baker,warehouse,merchant).entrySet()) {
+            boolean baking=entry.getKey().equals(bakery);var site=new BusinessSite(UUID.randomUUID(),town,world,baking?10:12,64,0,1000,"Explicit funded fixture workplace");
+            var requirements=new JobRequirements(216,baking?Map.of("baking",1L):Map.of());
+            db.getBusinessRepository().found(new BusinessFounding(new Business(entry.getKey(),town,"Fixture enterprise",entry.getValue(),entry.getValue(),baking?"bakery":"warehouse",site.id(),1,0),site,requirements,requirements,0,"Explicit fixture opportunity"));
+            db.getBusinessRepository().hire(UUID.randomUUID(),entry.getKey(),entry.getValue(),0);
+            db.getIndustryRepository().openStore(entry.getKey(),100,Map.of(FarmMarketStore.GRAIN,1L,Commodity.FOOD,1L),5000);
+        }
+        var recipe=new ProductionRecipe("paid_farm_bread","bakery",Map.of(FarmMarketStore.GRAIN,1L),Map.of(Commodity.FOOD,2L),1,1);
+        var transport=new IndustryPolicy(150,8,32,1024,1,128,Map.of(Commodity.COAL,1L),Map.of(Commodity.COAL,1L,FarmMarketStore.GRAIN,1L,Commodity.FOOD,1L));
+        var policy=new IndustryRuntimePolicy(true,1000,8,transport,Map.of(recipe.id(),recipe),new WorkshopSupplyPolicy(true,2,16,Map.of(FarmMarketStore.GRAIN,100L)),new WarehouseSupplyPolicy(true,16,16));
+        runtime.startOnline(1000,Set.of(world));runtime.pulse(2000,false);
+        var industries=new IndustryRuntime(db.getConnection(),policy,BusinessOperationPolicy.prototype());industries.start(2000);
+        for(int period=2;period<=80;period++) {
+            long now=1000L+period*1000;runtime.pulse(now,false);industries.pulse(now,Set.of(world));
+            assertEquals(97500,scalar("SELECT SUM(hundredths) FROM treasuries")+scalar("SELECT SUM(hundredths) FROM industry_stores"));
+            long harvested=scalar("SELECT COALESCE(SUM(grain_units),0) FROM farm_market_harvests");
+            long consumed=scalar("SELECT COALESCE(SUM(units),0) FROM recipe_flows WHERE commodity='grain' AND direction='INPUT'");
+            long stored=scalar("SELECT COALESCE(SUM(units),0) FROM industry_stock WHERE commodity='grain'");
+            long cargo=scalar("SELECT COALESCE(SUM(units),0) FROM local_shipments WHERE commodity='grain' AND delivered_period IS NULL");
+            assertEquals(harvested,consumed+stored+cargo);
+        }
+        assertTrue(scalar("SELECT COUNT(*) FROM local_shipments WHERE seller_id='"+farm+"' AND buyer_id='"+warehouse+"' AND commodity='grain'")>0);
+        assertTrue(scalar("SELECT COUNT(*) FROM local_shipments WHERE seller_id='"+warehouse+"' AND buyer_id='"+bakery+"' AND commodity='grain'")>0);
+        assertTrue(scalar("SELECT COUNT(*) FROM village_supply_orders WHERE seller_id='"+bakery+"'")>0);
+        assertEquals(0,store().units().get(ToolUpkeepPolicy.TOOLS));assertEquals(0,scalar("SELECT COUNT(*) FROM workshop_starter_orders"));
+        assertTrue(new LocalIndustryDemand(db.getConnection(),policy,BusinessOperationPolicy.prototype()).review(town,Set.of(world),16).complete());
+        var before=store();long shipments=scalar("SELECT COUNT(*) FROM local_shipments");industries.pulse(999999,Set.of());assertEquals(before,store());assertEquals(shipments,scalar("SELECT COUNT(*) FROM local_shipments"));
+    }
+    @Test void registeredFarmCatalogueMustRemainValidBeforeItCanBeSkippedAsANonWorkshop()throws Exception {
+        runtime.startOnline(1000,Set.of(world));runtime.pulse(2000,false);
+        var industry=new IndustryRuntimePolicy(true,1000,8,IndustryPolicy.prototype(),Map.of(),new WorkshopSupplyPolicy(true,1,16,Map.of(FarmMarketStore.GRAIN,100L)));
+        var demand=new LocalIndustryDemand(db.getConnection(),industry,BusinessOperationPolicy.prototype());
+        assertTrue(demand.review(town,Set.of(world),16).complete());
+        sql("INSERT INTO industry_stock VALUES('"+farm+"','unreviewed_product',1,0)");
+        assertThrows(SQLException.class,()->demand.review(town,Set.of(world),16));assertEquals(0,scalar("SELECT COUNT(*) FROM local_shipments"));
+    }
     @Test void firstFutureHarvestHasOneOwnerAndOldPublicFoodGrainAndHistoryRemainUntouched()throws Exception {
         sql("INSERT INTO grain_stocks VALUES('"+town+"',7)");runtime.startOnline(1000,Set.of(world));runtime.pulse(2000,false);
         assertEquals(20,food());assertEquals(6,store().units().get(Commodity.FOOD));assertEquals(2,store().units().get(FarmMarketStore.GRAIN));assertEquals(0,store().hundredths());

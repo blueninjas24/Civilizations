@@ -62,6 +62,8 @@ final class WarehouseSupplies {
                 try(var s=connection.prepareStatement("SELECT y.commodity FROM mineral_yields y JOIN mineral_deposits d ON d.id=y.deposit_id WHERE d.site_id=?")) {
                     s.setString(1,b.siteId().toString());try(var r=s.executeQuery()){while(r.next())allowed.add(new Commodity(r.getString(1)));}
                 }
+            }else if(b.industry().equals("farming")&&FarmMarketStore.supported(connection,id,industry.store(id).orElseThrow())) {
+                allowed.add(Commodity.FOOD);allowed.add(FarmMarketStore.GRAIN);
             }else policy.recipes().values().stream().filter(r->r.industry().equals(b.industry())).forEach(r->allowed.addAll(r.outputs().keySet()));
             var stock=new TreeMap<Commodity,Long>();industry.store(id).orElseThrow().units().forEach((good,units)->{if(allowed.contains(good))stock.put(good,units);});
             var store=industry.store(id).orElseThrow();
@@ -111,8 +113,10 @@ final class WarehouseSupplies {
             """)) {
             s.setString(1,town.toString());s.setInt(2,limit+1);try(var r=s.executeQuery()){while(r.next()) {
                 String kind=r.getString(2);
-                if(!kind.equals("mining")&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
-                result.add(UUID.fromString(r.getString(1)));
+                var id=UUID.fromString(r.getString(1));
+                boolean farm=kind.equals("farming")&&FarmMarketStore.supported(connection,id,new IndustryRepository(connection).store(id).orElseThrow());
+                if(!kind.equals("mining")&&!farm&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
+                result.add(id);
             }}
         }
         return result;

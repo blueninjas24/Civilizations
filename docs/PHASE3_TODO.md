@@ -1,5 +1,21 @@
 # Phase 3 — businesses and industry checklist
 
+## October15 — qualified bakery backend and paid farm/warehouse grain
+
+Completed seeded qualified preparation, atomic current acceptance, actual SQL-owner
+APIs and editable default bread/founding terms. Installed configuration and store
+catalogues preserved. Fixed registered farm demand/producer handling and saved
+public grain omission; old balances never copied or reset. Eighty-period paid
+farm→warehouse→bakery→village chain conserves harvests/cargo/consumption/cash.
+Full clean verify1,496 passed; native packaged SQL-owner proof passed with133 old
+tables retained,130 exact and only three ordinary bookkeeping changes; age delta0.
+No migration (schema77), human-server changes or automatic live founding claimed.
+
+Next: private first-batch purchase with durable replay protection, supply-backed
+first-owner study and main-thread loaded-marker opening cycle. Wider industry,
+craftsman, livestock and specialization gates remain unchecked. P3 stays29/39
+resource entries,1/4 whole groups/~67% partial. See PROCESSING_WORKSHOPS.md.
+
 ## October13 — processing startup budget and bakery investment prerequisites
 
 Approved bakery/craftsman eligibility now uses unchanged shared grant caps and

@@ -1,5 +1,23 @@
 # Civilizations progress tracker
 
+## October15 — bakery owners, recipes and a working paid grain chain
+
+Qualified bakery opening now checks the owner's real skills, customers, ingredients
+and money together. Bread production settings are editable. Farms can sell actual
+harvested grain through warehouses to existing bakeries; the village pays for the
+food it needs. Fixed two supply gaps that previously blocked that chain, while
+retaining old grain and existing server settings.
+
+All1,496 full-build tests passed, including14 new cases and an80-period grain/money
+conservation scenario. The packaged plugin passed its actual database-thread check
+on disposable Paper. All133 existing test-save tables retained; only three normal
+bookkeeping tables changed, with no resident aging. Your server remains unchanged.
+
+P3 stays about67% partial,1/4 whole groups. Automatic opening still needs private
+starter purchases and gradual first-owner training connected to the live loop;
+these are the next steps. Craftsmen, live livestock and specialization remain.
+No decision needed. See PROCESSING_WORKSHOPS.md.
+
 ## October13 — safe funding and bakery opening checks
 
 Bakeries and the general craftsman may now use the same protected startup budget

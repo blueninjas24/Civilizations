@@ -113,6 +113,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureOreTracking();
             population.configureWorkplaces(workplaceSettings);
             population.configureWorkshopFounding(EconomyConfiguration.readWorkshopFounding(economyConfig));
+            population.configureBakery(EconomyConfiguration.readBakeryFounding(economyConfig),EconomyConfiguration.readBakeryOpportunities(economyConfig));
             population.configureWarehouseOpportunities(EconomyConfiguration.readWarehouseOpportunities(economyConfig));
             population.configureWarehouseFounding(EconomyConfiguration.readWarehouseFounding(economyConfig));
             population.configureWorkplaceOperations(EconomyConfiguration.readWorkplaceOperations(economyConfig));

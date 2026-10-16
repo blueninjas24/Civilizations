@@ -101,6 +101,25 @@ workshop-starter-supplies:
   maximum-purchase-hundredths: 4000
   protected-units-per-material: 2
 
+bakery-opportunities:
+  # Backend preparation/acceptance settings; live automatic opening is connected separately.
+  enabled: true
+  markers-per-review: 8
+  evidence-lifetime-millis: 60000
+  horizontal-range: 96
+  vertical-range: 48
+  startup-hundredths: 500
+  capital-hundredths: 4000
+  storage-capacity: 1024
+
+bakery-founding:
+  enabled: true
+  founders-per-review: 64
+  minimum-age-months: 216
+  founder-baking-experience: 10
+  worker-baking-experience: 1
+  worker-capacity: 2
+
 # Read-only first-tool-workshop investment checks; automatic founding remains separate.
 # Requires current smithing-table evidence, a real funded farm toolkit need,
 # protected startup funds and the paid surplus bundle above. No land ownership.
@@ -242,6 +261,16 @@ ore-observer:
 # Inputs, outputs and work rates may be tuned; saved production history is immutable.
 # Timed work and automatic input purchases require their separate settings below.
 recipes:
+  bakery_bread:
+    # Abstract grain becomes meals. Cakes/individual item stock are separate work.
+    # No ingredients are created: future farms must harvest or suppliers must deliver them.
+    industry: bakery
+    inputs:
+      grain: 3
+    outputs:
+      food: 3
+    batches-per-worker: 1
+    site-batch-capacity: 4
   smith_tools:
     industry: blacksmith
     inputs:
@@ -315,6 +344,7 @@ industry:
     timber: 2
     food: 1
     tools: 1
+    grain: 1
 
 # /civ barter timber (or stone) requests a quote for the whole held food stack.
 # /civ barter accept explicitly confirms it; saved inventory proof gates the exchange.
@@ -456,6 +486,7 @@ shortages:
 # Abstract commodity units, not items removed from Minecraft chests.
 # Food 12 gives a new adult about six periods of reserves without production.
 starting-units-per-resident:
+  grain: 0  # Ingredients must come from actual future harvests; never a free opening bundle.
   food: 12
   timber: 4
   stone: 4
@@ -467,6 +498,7 @@ starting-units-per-resident:
 # Prices can have up to two decimal places. Commodity keys must match stocks above.
 prices:
   base-trade-value:
+    grain: 1
     food: 2
     timber: 4
     stone: 3

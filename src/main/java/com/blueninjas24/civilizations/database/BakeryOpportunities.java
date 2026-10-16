@@ -54,8 +54,7 @@ public final class BakeryOpportunities {
         var supply=availableFood(town,markers.candidates().getFirst().world(),worlds);if(supply.isEmpty())return no("Local meal supplier review cap exceeded; no partial shortage inferred");
         long uncovered=Math.max(0,wanted-supply.orElseThrow());var selected=recipe.orElseThrow();
         if(uncovered<selected.outputs().get(Commodity.FOOD))return no("Existing available meals cover demand or remaining funded need is smaller than one bakery batch");
-        var account=new CommodityRepository(connection).read(town).orElseThrow();var stocks=new TreeMap<Commodity,Long>();
-        account.state().stocks().forEach((g,s)->stocks.put(g,s.units()));var weights=industry.mining().storageSpacePerUnit();
+        var stocks=WorkshopPublicStock.read(connection,town);var weights=industry.mining().storageSpacePerUnit();
         long outputSpace;
         try{var weight=weights.get(Commodity.FOOD);if(weight==null)return no("Configured bakery storage lacks meals");outputSpace=Math.multiplyExact(weight,selected.outputs().get(Commodity.FOOD));}
         catch(ArithmeticException overflow){return no("Bakery output storage exceeds supported range");}

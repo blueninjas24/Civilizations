@@ -1,5 +1,44 @@
 # Civilizations — implementation status and handoff
 
+## October15 — qualified bakery investment and actual farm grain supply
+
+Implemented seeded qualified bakery preparation and atomic current acceptance,
+including owner/worker experience, age, employment/study, current food customers,
+protected funding, real inputs and fresh marker checks. SQL-owner session APIs
+prepare/accept without sharing a connection. Default-file bakery terms and bread
+recipe are editable; installed files and legacy storage catalogues are preserved.
+No free opening grain, automatic vanilla profession change or automatic live
+bakery founding. Public-surplus first inputs remain the current startup route.
+
+Fixed registered hybrid farms stopping local industry reviews and being rejected
+as warehouse producers. Only valid registered farm catalogues supply owned food/
+grain; reserved farm tools are excluded. An80-period actual harvest/warehouse/
+bakery/village-customer scenario conserves every grain unit and all actual cash.
+Fixed starter planning overlooking preserved public harvested grain: both existing
+public ledgers are reviewed, dedicated harvest stock debited first, combined
+reserves retained and all payment/stock/identity changes rolled back together.
+No balance copies, resets or schema migration; version remains77.
+
+Fourteen added cases. Focused143 and SQL-owner10 passed. The first complete run
+caught an old new-file storage expectation; updated it and explicitly tested
+unchanged installed/missing-legacy catalogues (targeted3 passed). Final
+.\mvnw.cmd clean verify passed1,496 (1,494 unit/two packaged integration), zero
+failures/errors/skips;7:35 at21:10:54 ET. Production source unchanged afterward.
+Guarded Paper26.2 build129 packaged proof passed21:12:10 ET: resource defaults,
+actual SQL-owner founding, preserved grain, timed bread, real paid food, restart/
+replay and absent-world pause. Backend proof only; no world/entity mutations or
+natural automatic-opening proof. Save audit:133 old tables retained,130 exact,
+only normal civilization_time/economy_runtime/ore_tracking changed; no ages changed.
+Fixture stopped, original properties restored, helper archived. Existing OSHI
+Windows counter warning remains; no plugin/probe/listener failure. Human server untouched.
+
+See PROCESSING_WORKSHOPS.md. P3 remains29/39 resources,1/4 whole groups/~67% partial;
+this is still a partial bakery integration gate. Next: first-batch private farm/
+warehouse purchase, supply-backed founder study and the loaded-marker opening loop.
+Craftsmen, livestock physical reconciliation, wider industries and specialization
+acceptance remain. No new product decision is pending. Feature branch:
+codex/phase3-bakery-investment; no main merge/push.
+
 ## October13 — protected processing startup and real bakery prospects
 
 User approved the same shared protected startup grants for bakeries and the

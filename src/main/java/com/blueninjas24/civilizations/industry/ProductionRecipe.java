@@ -19,4 +19,9 @@ public record ProductionRecipe(String id, String industry, Map<Commodity,Long> i
         return new ProductionRecipe("smith_tools","blacksmith",Map.of(Commodity.IRON,2L,Commodity.COAL,1L),
                 Map.of(new Commodity("tools"),1L),2,8);
     }
+    /** Editable abstract grain-to-meal prototype; does not represent items taken from a chest. */
+    public static ProductionRecipe bakeryBread() {
+        return new ProductionRecipe("bakery_bread","bakery",Map.of(new Commodity("grain"),3L),
+                Map.of(Commodity.FOOD,3L),1,4);
+    }
 }

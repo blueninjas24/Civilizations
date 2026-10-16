@@ -1,5 +1,37 @@
 # Civilizations Development Log
 
+## October15 — qualified bakery startup and paid farm grain integration
+
+Continued unfinished codex/phase3-bakery-investment from882819d. Added seeded
+qualified founder selection, atomic current revalidation, replay/rollback guards,
+SQL-owner preparation/acceptance and strict editable bakery/default bread settings.
+New-file grain stock starts0; old config/catalogues never silently extend.
+Fixed registered farms halting LocalIndustryDemand and warehouse producer review;
+validated hybrid farm grain/food can supply actual paid workshop demand, never tools.
+Added80-period farm→warehouse→bakery→village scenario tracking actual harvests,
+stored/in-transit/processed grain, meals and total cash. Fixed starter purchases
+overlooking old grain_stocks; shared public balance view debits canonical harvest
+stock first, preserves generic stock/history and rolls both ledgers back together.
+
+Fourteen additional executed cases. Focused143 passed; actual SQL-owner10 passed.
+Initial full run caught a stale new-file storage expectation; amended it with an
+explicit installed-catalogue opt-out check (targeted3 passed). Final clean verify
+passed1,496 (1,494 unit/two packaged integration), zero failures/errors/skips;
+7:35 at21:10:54 ET. Main production code remained unchanged afterward.
+
+Excluded native probe separately compiled against the packaged artifact; checksum/
+marker/EULA/port guards and consistent backups preceded launch. Paper26.2 build129
+proof passed21:12:10 ET for packaged defaults, actual SQL owner, saved grain, timed
+bread, paid food, historical replay and absence. No helper world/entity mutations.
+Main save audit retained all133 tables,130 exact, only normal clock/runtime/ore
+metadata changed; ages unchanged. Properties restored, fixture stopped and helper
+archived. Existing Windows OSHI counter warning; no plugin/probe/listener failure.
+Human server untouched; no migration (schema77), main merge or main push.
+
+Status/progress/processing guide updated. Automatic private starter purchase,
+founder study and opening loop remain next; no new product question blocks them.
+P3 stays1/4 groups/29-of39 resources/~67% partial; no completed gameplay gate claimed.
+
 ## October13 — approved processing grants and bakery investment evidence
 
 User approved bakery/craftsman shared startup grants: “Yes. For sure. Ok keep going”.

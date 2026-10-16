@@ -13,6 +13,22 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EconomyConfigurationTest {
+    @Test void bakerySettingsAndBreadRecipeAreEditableAndOldFilesOptOut()throws Exception {
+        var c=defaults();assertEquals(com.blueninjas24.civilizations.industry.BakeryFoundingPolicy.prototype(),EconomyConfiguration.readBakeryFounding(c));
+        assertEquals(com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy.prototype(),EconomyConfiguration.readBakeryOpportunities(c));
+        assertEquals(com.blueninjas24.civilizations.industry.ProductionRecipe.bakeryBread(),EconomyConfiguration.readRecipes(c).get("bakery_bread"));
+        assertEquals(0,EconomyConfiguration.read(c).startingReserves(10).get(new Commodity("grain")));
+        c.set("bakery-founding.founder-baking-experience",20);assertEquals(20,EconomyConfiguration.readBakeryFounding(c).founderExperience());
+        c.set("bakery-opportunities.capital-hundredths",3000);assertEquals(3000,EconomyConfiguration.readBakeryOpportunities(c).capitalHundredths());EconomyConfiguration.read(c);
+        c.set("bakery-founding",null);c.set("bakery-opportunities",null);c.set("recipes.bakery_bread",null);
+        assertFalse(EconomyConfiguration.readBakeryFounding(c).enabled());assertFalse(EconomyConfiguration.readBakeryOpportunities(c).enabled());assertEquals(Set.of("smith_tools"),EconomyConfiguration.readRecipes(c).keySet());EconomyConfiguration.read(c);
+    }
+    @Test void invalidBakeryTermsFailBeforeDatabaseStartup()throws Exception {
+        for(var path:List.of("bakery-founding.founder-baking-experience","bakery-founding.founders-per-review","bakery-opportunities.capital-hundredths","bakery-opportunities.evidence-lifetime-millis")) {
+            for(Object bad:List.of(0,1.5,"many",true)){var c=defaults();c.set(path,bad);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(c),path);}
+        }
+        var c=defaults();c.set("bakery-founding.free-skills",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(c));
+    }
     @Test void processingWorkshopGrantsShareDefaultsAndRespectInstalledIndustryOptOuts()throws Exception {
         var c=defaults();var grants=EconomyConfiguration.readStartupGrants(c);
         for(var industry:List.of("bakery","craftsman")) {
