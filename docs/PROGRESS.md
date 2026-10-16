@@ -1,5 +1,20 @@
 # Civilizations progress tracker
 
+## October16 — villages can develop their first craftsman naturally
+
+An eligible adult now learns gradually with real practice materials, opens a
+workshop when qualified, makes storage fittings and sells them to businesses
+that actually need space. Restarting preserves progress. Missing supplies or
+customers pause training; waiting offline never grants free experience.
+
+All 1,558 full-build tests and the disposable Paper training/restart/opening/
+production/payment/pause check passed. Save history preserved, test blocks restored.
+Your server is untouched. Existing admin settings remain editable and unchanged.
+P3 stays ~68% partial (`██████▊░░░`),30/39 resource entries,1/4 whole groups;
+wider products, live livestock and specialization remain. Next decision: may
+chicken/dairy businesses share the existing protected startup grants? The same
+common limits would apply, with no extra money. See PROCESSING_WORKSHOPS.md.
+
 ## October16 — qualified craftsmen can open and sell useful fittings
 
 A skilled adult can now open a craft workshop at a suitable crafting table when

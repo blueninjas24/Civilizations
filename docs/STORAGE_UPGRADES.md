@@ -2,8 +2,8 @@
 
 Businesses can buy actual craftsman-made fittings to increase the usable capacity
 of an existing stockroom. This is the approved limited upgrade rule, not physical
-building construction or permission to change player blocks. Qualified automatic founding is now connected; first-owner training remains
-separate work. See PROCESSING_WORKSHOPS.md.
+building construction or permission to change player blocks. Gradual first-owner training and qualified automatic founding are now connected.
+See PROCESSING_WORKSHOPS.md.
 
 ## Real customers and payments
 
@@ -76,8 +76,7 @@ history. Failure rollback/retry preserves predecessor rows. Bounded customer and
 supplier reviews defer rather than infer demand from incomplete samples.
 
 The automatic runtime purchase and delayed installation paths are implemented.
-Read-only genuine fitting customers also feed local industrial demand. Qualified first-craftsman opportunity review and automatic opening are now connected;
-gradual first-owner training remains next. These paths cannot create an unskilled
-craftsman or complete Phase 3.
+Read-only genuine fitting customers also feed local industrial demand. Qualified first-craftsman opportunity review, gradual training and automatic opening
+are connected. These paths cannot grant free skills or complete Phase 3.
 No physical chests, block placement, inventories, spoilage or extra occupations.
 Verification results are recorded in PROJECT_STATUS.md and DEVLOG.md.

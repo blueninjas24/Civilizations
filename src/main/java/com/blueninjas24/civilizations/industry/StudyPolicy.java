@@ -35,6 +35,7 @@ public record StudyPolicy(boolean enabled, long gainPerPeriod, long maximumExper
                    "smithing",new Course(10,Map.of(Commodity.STONE,1L,Commodity.TIMBER,1L)),
                    "commerce",new Course(10,Map.of(Commodity.TIMBER,1L)),
                    "fishing",new Course(10,Map.of(Commodity.TIMBER,1L)),
+                   "crafting",new Course(10,Map.of(Commodity.TIMBER,1L)),
                    "baking",new Course(10,Map.of(Commodity.TIMBER,1L))));}
     public static StudyPolicy disabled(){return new StudyPolicy(false,1,100,2,8,1,2,Map.of());}
 }

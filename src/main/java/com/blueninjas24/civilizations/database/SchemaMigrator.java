@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 80;
+    static final int CURRENT_VERSION = 81;
 
     @FunctionalInterface
     interface Migration {
@@ -929,7 +929,8 @@ final class SchemaMigrator {
                 WorkplaceMarkerMigration::apply,
                 BakeryPrivateInputs::createSchema,
                 SchemaMigrator::createBakeryFounderStudy,
-                StorageUpgrades::createSchema
+                StorageUpgrades::createSchema,
+                SchemaMigrator::createCraftsmanFounderStudy
 
 
         ));
@@ -1223,6 +1224,10 @@ final class SchemaMigrator {
             if(migrations.size()>=63){
                 requireColumns(connection,"warehouse_founder_reviews",Set.of("settlement_id","period","after_resident","policy","explanation"));
                 requireColumns(connection,"warehouse_founder_courses",Set.of("course_id","settlement_id","world_id","x","y","z","enrolled_period"));
+            }
+            if(migrations.size()>=81){
+                requireColumns(connection,"craftsman_founder_reviews",Set.of("settlement_id","period","after_resident","policy","explanation"));
+                requireColumns(connection,"craftsman_founder_courses",Set.of("course_id","settlement_id","world_id","x","y","z","enrolled_period"));
             }
             if(migrations.size()>=80)requireColumns(connection,"business_storage_upgrades",Set.of("operation_id","buyer_id","seller_id","period","haul_window","cadence","ordinal","base_capacity","before_capacity","after_capacity","units","price","due_period","installed_period","policy"));
             if(migrations.size()>=79){
@@ -2070,6 +2075,25 @@ final class SchemaMigrator {
             )
             """);
         execute(connection,"CREATE INDEX active_workshop_founders ON workshop_founder_courses(settlement_id,course_id)");
+    }
+    private static void createCraftsmanFounderStudy(Connection connection)throws SQLException {
+        execute(connection,"""
+            CREATE TABLE craftsman_founder_reviews (
+                settlement_id TEXT NOT NULL REFERENCES settlements(id),period INTEGER NOT NULL CHECK(period>=1),
+                after_resident TEXT NOT NULL,policy TEXT NOT NULL,explanation TEXT NOT NULL,
+                PRIMARY KEY(settlement_id,period)
+            )
+            """);
+        execute(connection,"""
+            CREATE TABLE craftsman_founder_courses (
+                course_id TEXT PRIMARY KEY REFERENCES resident_courses(id),settlement_id TEXT NOT NULL REFERENCES settlements(id),
+                world_id TEXT NOT NULL REFERENCES observed_worlds(id),x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,
+                enrolled_period INTEGER NOT NULL CHECK(enrolled_period>=1),
+                FOREIGN KEY(settlement_id,world_id) REFERENCES settlement_worlds(settlement_id,world_id),
+                FOREIGN KEY(settlement_id,enrolled_period) REFERENCES craftsman_founder_reviews(settlement_id,period) DEFERRABLE INITIALLY DEFERRED
+            )
+            """);
+        execute(connection,"CREATE INDEX active_craftsman_founders ON craftsman_founder_courses(settlement_id,course_id)");
     }
     private static void createBakeryFounderStudy(Connection connection)throws SQLException {
         execute(connection,"CREATE INDEX IF NOT EXISTS bakery_paid_food_market ON village_supply_orders(settlement_id,commodity,period,operation_id)");

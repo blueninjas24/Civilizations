@@ -1,5 +1,62 @@
 # Civilizations — implementation status and handoff
 
+## October16 — villages can train their first craftsman
+
+Connected one prospective first-craftsman course to real current fitting customers,
+feasible startup, observed crafting-table evidence and future practice supplies.
+Existing food/material reserves, student limits, age, employment and active-owner
+guards apply. Editable new-file settings consume one real timber per productive
+economic period for one experience toward 10. No free initial skill or retrospective
+backlog practice. Absence, stale/missing markers, lost customers/funding and supply
+shortages pause safely; a taken first firm releases the learner.
+
+SQL-owner automatic review now sponsors training when appropriate, then uses the
+existing main-thread confirmation and paid opening after qualification. Actual
+productive craft work earns bounded once-only further experience. Installed YAML
+lists, saved catalogues and accepted course/history terms remain intact. Extra
+employee hiring remains an explicit staffing-list opt-in; first paid inputs still
+require public surplus. Wider products/household furnishing demand are unfinished.
+See PROCESSING_WORKSHOPS.md for exact settings, opt-ins and limits.
+
+Schema 81 adds two initially empty founder review/course tables and their index,
+with deferred sponsorship links. No old people, jobs, cash, goods or history are
+rewritten. Transactional migration/enrollment/practice failure and retry preserve
+all prior rows. Historic migration tests explicitly assert new tables empty while
+retaining every predecessor-row comparison.
+
+Validation: nine new cases (eight training/migration/pause/rollback/SQL-owner,
+one old-config opt-out); actual productive crafting learning also verified.
+Focused 47 passed. Full Windows .\mvnw.cmd clean verify passed 1,558 tests
+(1,556 unit/two packaged integration), zero failures/errors/skips; 7:52, finished
+09:29:19 ET. Production/test Java frozen during final verification; later edits
+only docs and the excluded helper. One early new config test changed the wrong
+key (career-study rather than automatic-career-study); corrected its fixture
+without changing application behavior.
+
+Guarded Paper 26.2 build 129 passed 09:31:03 ET: real SQL-owner training with ten
+actual practice expenses, restart, main-thread crafting-table confirmation,
+automatic paid opening, produced fitting customer, further productive work learning,
+replay and absent-world pause. The first helper advanced its test clock beyond
+real time, so the saved-clock guard correctly deferred the customer's work.
+Corrected only its time origin and reran; application behavior unchanged.
+Initial schema 80->81 audit retained 137 predecessor tables/134 exact; retry retained
+139/136 exact. Only normal civilization_time/economy_runtime/ore_tracking metadata
+changed; zero resident aging, clean integrity/FKs and empty new main-fixture tables.
+Temporary air block restored, chunk ticket removed, fixture stopped, properties
+restored, helpers archived and backups retained. Existing OSHI Windows counter
+warning; no Civilizations/probe/listener failure on the passing run. Human server untouched.
+
+CI fix 6706540 raises the job allowance from 20 to 45 minutes, retaining all tests.
+The previous hosted Windows check explicitly timed out; Linux succeeded. New
+hosted verification remains pending; no two-platform hosted pass is claimed.
+
+P3 remains 30/39 resources,1/4 whole groups/~68% partial checklist completion:
+training/opening is now connected, but broader products, livestock and specialization
+remain. Next automatic livestock founding needs the pending decision: may chicken/
+dairy businesses share existing food-protected startup grants under unchanged
+common limits? No livestock grant eligibility change is implemented. Feature
+branch codex/phase3-craftsman-training; main unchanged.
+
 ## October16 — qualified craftsmen open for real storage customers
 
 Connected bounded first-craftsman opportunities, seeded qualified founder selection,

@@ -76,7 +76,7 @@ class StorageUpgradesTest {
     @Test void freshAndVersion79MigrationPreserveEveryOldRowAndRetryAfterFailure()throws Exception {
         SchemaFixtures.rewind(f.database.getConnection(),79);var before=snapshot();f.sql("CREATE VIEW business_storage_upgrades AS SELECT 1");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(f.database.getConnection()));assertEquals(79,scalar("PRAGMA user_version"));
-        f.sql("DROP VIEW business_storage_upgrades");assertEquals(before,snapshot());new SchemaMigrator().migrate(f.database.getConnection());var after=snapshot();assertEquals(List.of(),after.remove("business_storage_upgrades"));assertEquals(before,after);
+        f.sql("DROP VIEW business_storage_upgrades");assertEquals(before,snapshot());new SchemaMigrator().migrate(f.database.getConnection());var after=snapshot();assertEquals(List.of(),after.remove("craftsman_founder_courses"));assertEquals(List.of(),after.remove("craftsman_founder_reviews"));assertEquals(List.of(),after.remove("business_storage_upgrades"));assertEquals(before,after);
         try(var s=f.database.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     @Test void realCraftingAndAutomaticPaidDeliveryIncreaseCapacityOnlyAfterArrival()throws Exception {

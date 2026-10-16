@@ -1,5 +1,42 @@
 # Processing workshops — bakeries and general craftsman
 
+## October16 — gradual first-craftsman study and productive work learning
+
+A first-craftsman opportunity can now sponsor one eligible unemployed adult.
+The same real fitting customers, protected startup funding, current complete
+crafting-table evidence and paid first-input feasibility must remain available.
+Students cannot already own an active business, hold a job or study another
+course. Enrollment pages rotate and existing village study limits still apply.
+
+New-file `resident-study.skills.crafting` targets10 experience, consumes one real
+timber per productive economic period and uses the existing editable study gain,
+food/material reserves and student limits. No past queued period enrolls a new
+student or grants practice. Current future study is distinct from subsequent
+actual craft work. Absent worlds/downtime, missing/stale markers, unavailable
+customers/funding and insufficient supplies pause without awarding experience.
+If another craftsman takes the first-firm opportunity, the learner is released.
+Restart preserves the accepted course, its expenses and actual earned skill.
+
+The automatic review now sponsors training when there is no qualified founder;
+after qualification it uses the existing main-thread point confirmation and
+atomic paid opening. `work-learning.industry-skills.craftsman: crafting` awards
+bounded experience only for actual recorded productive work, once per operation.
+No zero-output or repeated pulse can create an extra award.
+
+Schema81 adds initially empty founder review/course tables and their index,
+retaining old people, accepted courses, jobs, stocks, balances and history.
+Foreign keys tie a sponsorship to its actual course, village/world and saved
+review. Migration and late-write failure/retry are transactional.
+
+Existing installed files need explicit opt-in: the crafting study course,
+`craftsman` in `automatic-career-study.industries`, the crafting work-learning
+mapping, and the earlier craftsman founding/recipe/customer terms. Old lists and
+catalogues are not overwritten. Extra employee hiring still requires explicitly
+adding `craftsman` to `automatic-business-staffing.industries`; opening supplies
+one actual qualified working founder. The first paid input route still requires
+public surplus. Wider products and household furnishing demand remain unfinished.
+Verification results are recorded in PROJECT_STATUS.md and DEVLOG.md.
+
 ## October16 — qualified general craftsman opening
 
 The first general craftsman now prepares and atomically accepts an opening when

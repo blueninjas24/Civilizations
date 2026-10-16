@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October16: livestock startup funding — decision requested
+
+Before connecting automatic chicken/dairy founding, asked whether dedicated
+livestock businesses may share the existing village startup grants. Recommended:
+same common period/lifetime spending caps and food-money protection, with no
+additional funds or per-industry allowance. Alternative: private business/family
+funds only. Existing grant eligibility lists omit livestock; no new eligibility
+or automatic livestock founding is implemented while this is pending. Real
+animals, trusted ownership, suitable sites, feed, qualified work and safe physical
+reconciliation remain independent prerequisites. This question does not block
+completing craftsman training and verification.
+
 ## October16: first craftsman customers — approved
 
 User approved limited, configurable storage upgrades. Existing businesses may
@@ -10,9 +22,10 @@ building expansion. No imaginary customer, public-stock confiscation, free cash,
 player inventory use or block-change permission is granted. Existing goods,
 opening terms, ownership and paid improvement history must survive transitions.
 Storage customers, paid orders and delayed installation are implemented and
-verified by1,533 full-build tests and guarded Paper payment/delivery/restart/pause
-checks. Automatic craftsman training/opening remains next; this does not complete
-the craftsman or Phase3 production gate. See STORAGE_UPGRADES.md.
+verified initially by 1,533 full-build tests and guarded Paper payment/delivery/
+restart/pause checks. Qualified opening and gradual first-owner training are now
+connected and verified by 1,558 tests and Paper training/opening/production checks.
+Broader craft products and the Phase3 gate remain. See STORAGE_UPGRADES.md.
 
 ## October15: bakery competition for existing paid food orders — approved
 

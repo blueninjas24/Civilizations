@@ -449,6 +449,8 @@ public final class PopulationSession implements AutoCloseable {
                     economy.configureVillageSupplies(villageSupplyPolicy);
                     economy.configureWorkshopFounderStudy(new com.blueninjas24.civilizations.database.WorkshopOpportunities(database.getConnection(),workshopOpportunityPolicy,industryPolicy,
                         operationPolicy,startupGrantPolicy,workshopStarterPolicy,farmToolsPolicy,farmToolsBudget),workshopFoundingPolicy,careerStudyPolicy);
+                    economy.configureCraftsmanFounderStudy(new com.blueninjas24.civilizations.database.CraftsmanOpportunities(database.getConnection(),craftsmanOpportunityPolicy,industryPolicy,
+                            startupGrantPolicy,workshopStarterPolicy,operationPolicy),craftsmanFoundingPolicy,careerStudyPolicy);
                     economy.configureBakeryFounderStudy(new com.blueninjas24.civilizations.database.BakeryOpportunities(database.getConnection(),bakeryOpportunityPolicy,industryPolicy,
                             startupGrantPolicy,workshopStarterPolicy,villageSupplyPolicy,studyPolicy,operationPolicy,bakeryMarketPolicy),bakeryFoundingPolicy,careerStudyPolicy);
                     economy.configureWarehouseFounderStudy(new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
@@ -781,6 +783,19 @@ public final class PopulationSession implements AutoCloseable {
             if(result.draft().isPresent())return result;
             String training=economy.reviewWorkshopFounderStudy(town,now.getAsLong());
             return new com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation(java.util.Optional.empty(),result.explanation()+"; "+training);
+        });
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.CraftsmanInvestment.Preparation> reviewAutomaticCraftsmanInvestment(UUID town) {
+        return submit(()-> {
+            requireReady();
+            String waiting=economy==null?"Food economy disabled":economyFailure!=null?"Food economy deferred: "+economyFailure
+                    :status.get().remainingMonths()>0?"Population backlog must finish":!workplacePolicy.enabled()
+                    ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.CRAFTING_TABLE)?"Craftsman workplace recognition disabled":null;
+            if(waiting!=null)return new com.blueninjas24.civilizations.database.CraftsmanInvestment.Preparation(java.util.Optional.empty(),"Automatic craftsman waits: "+waiting);
+            var result=craftsmanInvestment().prepare(town,status.get().completedMonths(),now.getAsLong(),loadedWorlds);
+            if(result.draft().isPresent())return result;
+            String training=economy.reviewCraftsmanFounderStudy(town,now.getAsLong());
+            return new com.blueninjas24.civilizations.database.CraftsmanInvestment.Preparation(java.util.Optional.empty(),result.explanation()+"; "+training);
         });
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.BakeryInvestment.Preparation> reviewAutomaticBakeryInvestment(UUID town) {

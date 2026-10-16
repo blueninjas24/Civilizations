@@ -16,7 +16,7 @@ public final class PaperCraftsmanStartup extends BukkitRunnable {
     public PaperCraftsmanStartup(PopulationSession session,Logger logger) {
         this.session=Objects.requireNonNull(session);
         this.logger=Objects.requireNonNull(logger);
-        cycle=new CraftsmanStartupCycle(session::prepareCraftsmanInvestment,draft-> {
+        cycle=new CraftsmanStartupCycle(session::reviewAutomaticCraftsmanInvestment,draft-> {
             var anchor=draft.anchor();var p=anchor.position();var world=Bukkit.getWorld(anchor.world());
             if(world==null||!world.isChunkLoaded(Math.floorDiv(p.x(),16),Math.floorDiv(p.z(),16))
                     ||p.y()<world.getMinHeight()||p.y()>=world.getMaxHeight())return Optional.empty();
