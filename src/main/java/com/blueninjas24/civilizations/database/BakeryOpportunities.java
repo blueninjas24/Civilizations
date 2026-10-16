@@ -10,7 +10,7 @@ import java.util.*;
 /** Read-only first-bakery evidence. Does not reserve money, grant skills or activate automatic founding. */
 public final class BakeryOpportunities {
     public record Opportunity(UUID town,WorkplaceOpportunities.Candidate workplace,ProductionRecipe recipe,
-                              WorkshopStarterPlan.Review starter,long fundedFoodUnits,long foodPeriod) {}
+                              WorkshopStarterPlan.Review starter,long fundedFoodUnits,long foodPeriod,BakeryInvestment.PrivateInputs privateInputs) {}
     public record Review(List<Opportunity> candidates,String explanation) {public Review{candidates=List.copyOf(candidates);}}
     private final Connection connection;
     private final WorkshopOpportunityPolicy policy;
@@ -60,7 +60,12 @@ public final class BakeryOpportunities {
         catch(ArithmeticException overflow){return no("Bakery output storage exceeds supported range");}
         if(outputSpace>policy.capacity())return no("One bakery output batch cannot fit configured storage");
         var bundle=WorkshopStarterPlan.review(selected,1,starter,policy.capitalHundredths(),policy.capacity(),industry.mining().localHaulUnitsPerPeriod(),stocks,weights);
-        if(!bundle.eligible())return no("Bakery paid starter inputs unavailable: "+bundle.explanation());
+        BakeryInvestment.PrivateInputs privateInputs=null;
+        if(!bundle.eligible()) {
+            var privateReview=new BakeryPrivateInputs(connection,starter,operations).review(town,markers.candidates().getFirst().world(),selected,policy.capitalHundredths(),policy.capacity(),industry.mining().localHaulUnitsPerPeriod(),weights);
+            if(privateReview.quote()==null)return no("Bakery paid starter inputs unavailable: "+bundle.explanation()+"; "+privateReview.explanation());
+            bundle=privateReview.bundle();privateInputs=privateReview.quote();
+        }
         Position center;
         try(var s=connection.prepareStatement("SELECT center_x,center_y,center_z FROM settlements WHERE id=?")) {
             s.setString(1,town.toString());try(var r=s.executeQuery()){if(!r.next())throw new SQLException("Missing bakery settlement");center=new Position(r.getInt(1),r.getInt(2),r.getInt(3));}
@@ -70,7 +75,7 @@ public final class BakeryOpportunities {
             var p=marker.position();long dx=(long)p.x()-center.x(),dz=(long)p.z()-center.z();
             if(Math.abs(dx)>policy.horizontalRange()||Math.abs(dz)>policy.horizontalRange()
                     ||dx*dx+dz*dz>(long)policy.horizontalRange()*policy.horizontalRange()||Math.abs((long)p.y()-center.y())>policy.verticalRange())continue;
-            found.add(new Opportunity(town,marker,selected,bundle,uncovered,demand.period()));
+            found.add(new Opportunity(town,marker,selected,bundle,uncovered,demand.period(),privateInputs));
         }
         return new Review(found,found.isEmpty()?"No nearby available smoker in bounded bakery review"
                 :"First-bakery prospects have real funded meals demand and paid surplus inputs; qualified founder and fresh loaded-marker acceptance remain required; no assets changed");

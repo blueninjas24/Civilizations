@@ -1,5 +1,22 @@
 # Phase 3 — businesses and industry checklist
 
+## October15 — private first-input route and durable receipt (schema78)
+
+Implemented qualified local farm/warehouse first grain purchases under existing
+starter/grant/food/storage/haul protections. Entire startup plus actual payment,
+goods, buyer clock and receipt is atomic. Normal timed delivery works; changed
+supplier/price/recipe and both directions of public/private route switching are
+rejected. No stock conversion or invented money. Schema78 retains all old assets
+and adds one empty receipt table; seven new cases and explicit old-save migration
+fixtures. Full clean verify1,503 and packaged Paper SQL-owner proof passed. Main
+test-save133 predecessor tables retained/130 exact, three normal metadata changes,
+age delta0; helper archived/properties restored/server stopped. Human server untouched.
+
+Decision pending before founder training/opening: permit bakeries to compete for
+existing real paid village food orders, rather than only uncovered needs? Current
+rule unchanged. P3 stays29/39 resources,1/4 whole groups/~67% partial. Wider industry,
+craftsman, livestock physical integration and specialization remain unchecked.
+
 ## October15 — qualified bakery backend and paid farm/warehouse grain
 
 Completed seeded qualified preparation, atomic current acceptance, actual SQL-owner

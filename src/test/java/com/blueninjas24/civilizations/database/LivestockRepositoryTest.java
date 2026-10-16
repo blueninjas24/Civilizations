@@ -124,7 +124,7 @@ class LivestockRepositoryTest {
         assertTrue(feedUsed>output);assertTrue(output>1000);assertEquals(last,advance(lastOperation,240));assertEquals(241,count("livestock_periods"));
     }
     @Test void schema75UpgradeAndInjectedFailurePreserveExistingOwnershipAndRecover()throws Exception {
-        for(String table:List.of("livestock_young","livestock_periods","livestock_initial_animals","livestock_herds"))sql("DROP TABLE "+table);
+        SchemaFixtures.rewind(db.getConnection(),75);
         sql("PRAGMA user_version=75");sql("CREATE VIEW livestock_young AS SELECT 1 AS fixture");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
         assertEquals(3,count("animal_ownership"));assertTrue(db.getConnection().getAutoCommit());

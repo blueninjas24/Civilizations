@@ -1,5 +1,36 @@
 # Processing workshops — startup funding and bakery prospects
 
+## October15 — private first-batch grain purchases (schema78)
+
+If preserved public surplus cannot supply the first bread batch, preparation can
+quote real grain from a staffed, operating local warehouse or a valid registered
+hybrid farm. Only the current grain-only bread input is supported by this private
+bootstrap. The same editable starter prices, purchase cap, retained material
+reserve, startup grants, output storage and transport limits apply. Suppliers
+with insufficient actual stock, the wrong world, unknown farm catalogues or no
+qualified staff cannot justify startup. More than64 eligible stocked source rows
+defers review instead of choosing from a partial sample.
+
+The bakery pays from its real granted working capital; money goes to the supplier,
+not the treasury. The seller's stock becomes owned cargo once, destination space
+is reserved, and the bakery's new delivery clock begins at the actual acceptance
+time with no past earned work. Normal timed delivery makes the grain available.
+The first-batch purchase and later ordinary restocking use different operation IDs.
+
+Schema78 adds one initially empty `bakery_private_starters` table. Its receipt binds
+the saved business, buyer-linked shipment, seller and versioned price/recipe/cargo
+terms. Startup, cash, source stock, worker, marker, clock, shipment and receipt
+commit together. A final receipt failure rolls everything back. Restart/replay
+cannot change suppliers/prices/recipes, repay or redeliver. An accepted starter
+cannot switch between public and private routes to receive a second bundle.
+Existing public starters retain their original receipts and behavior. No existing
+assets, catalogues, ownership or history are rewritten by the migration.
+
+Live automatic opening and first-owner training are still unfinished. Current
+investment still requires an uncovered funded food/reserve need. A separate
+question asks whether bakers may compete for existing real paid food orders in
+healthy villages; that commercial rule remains unchanged while the answer is pending.
+
 ## October15 — qualified opening and paid farm grain
 
 `BakeryInvestment` now prepares a seeded qualified founder and accepts only after
@@ -32,10 +63,11 @@ to a funded bakery under existing shared transport/storage constraints. The
 paid village meals and total treasury/business cash. No public grain or private
 cash is created to start that scenario.
 
-This still does not automatically found bakeries in ordinary play. The current
-startup backend buys one public-surplus starter bundle; new farm surplus is
-private. A first-batch private purchase, supply-backed first-owner training and the
-main-thread opening cycle remain integration work. Existing recipes can run only
+This still does not automatically found bakeries in ordinary play. The original
+qualified-startup batch used public surplus; the subsequent private first-batch
+route above supports new farm surplus without taking ownership from the farmer.
+Supply-backed first-owner training and the main-thread opening cycle remain
+integration work. Existing recipes can run only
 with appropriate saved stores, staff and real inputs. Craftsman customer/production
 integration and cakes/multiple product selection remain unfinished. Construction
 continues to belong to Phase4.
@@ -118,6 +150,17 @@ automatic craftsman founding; construction demand is not assumed to exist today.
 
 ## Verification boundaries
 
+October15 private-input batch: seven added cases, focused56 and targeted84 historic
+migration checks passed. Older fixtures now explicitly require the new receipt
+table to be empty and retain every predecessor-row comparison. Final
+`.\mvnw.cmd clean verify` passed1,503 (1,501 unit/two packaged integration), zero
+failures/errors/skips,7:07 at21:43:51 ET. Paper26.2 build129 proof passed21:44:30 ET
+for actual SQL-owner private startup, source payment, receipt/restart replay,
+normal timed delivery/bread, paid food and absence. Schema77→78 audit retained all
+133 predecessor tables,130 exact; three normal bookkeeping changes, no aging,
+new main private-receipt table empty. Fixture stopped/settings restored/helper
+archived. This does not establish natural automatic opening or human playtest.
+
 October15 full `.\mvnw.cmd clean verify` passed1,496 (1,494 unit/two packaged
 integration), zero failures/errors/skips;14 additional cases. Focused143 and
 SQL-owner10 passed. A stale new-file storage expectation was corrected; installed
@@ -138,9 +181,10 @@ packaged integration), zero failures/errors/skips, in 8:20. Twenty executed case
 were added by this batch. Focused runs of 128 and 135 cases also passed; the final
 15-case processing class passed within the complete build.
 
-No schema migration is needed; the database remains at version 77. Existing stock
+The qualified-public-startup batch required no migration (schema77). The subsequent
+private-input batch adds only the empty schema78 receipt table. Existing stock
 catalogues, goods, receipts and history are unchanged. No new block/entity behavior
 is introduced. The bakery SQL-owner bridge is configured at plugin startup; live
-automatic opening, first private inputs and owner training still need integration
+automatic opening and owner training still need integration
 and native verification before being declared playable. Existing paid farm grain
 restocking is connected separately from first-firm bootstrap.

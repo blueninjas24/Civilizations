@@ -39,11 +39,15 @@ class WorkplaceMarkerExtensionTest {
     }
     // Reconstruct exact schema76 marker constraints only in this test's temporary DB.
     void legacy76()throws SQLException {
+        SchemaFixtures.rewind(db.getConnection(),77);
         var ddl=new HashMap<String,String>();var accessories=rows("SELECT sql FROM sqlite_master WHERE type IN('index','trigger') AND sql IS NOT NULL AND tbl_name IN('workplace_markers','workplace_sightings','workplace_operation_history','business_workplace_anchors') ORDER BY type,name");
         for(String table:tables){ddl.put(table,(String)rows("SELECT sql FROM sqlite_master WHERE name='"+table+"'").getFirst().getFirst());sql("CREATE TEMP TABLE fixture_old_"+table+" AS SELECT * FROM "+table);}
         for(String table:tables)sql("DROP TABLE "+table);
         for(String table:List.of("workplace_sightings","workplace_markers","business_workplace_anchors","workplace_operation_history")){sql(ddl.get(table).replace(",'SMOKER','CRAFTING_TABLE'",""));sql("INSERT INTO "+table+" SELECT * FROM fixture_old_"+table);sql("DROP TABLE fixture_old_"+table);}
         for(var accessory:accessories)sql((String)accessory.getFirst());sql("PRAGMA user_version=76");
+    }
+    void assertUpgradedRows(Map<String,List<List<Object>>> before)throws SQLException {
+        var after=snapshot();assertEquals(List.of(),after.remove("bakery_private_starters"));assertEquals(before,after);
     }
     @Test void bakeryAndCraftsmanEvidencePersistsWithoutInventingBusinessOrRights()throws Exception {
         observe(1000,marker(1,WorkplaceObservation.Kind.SMOKER),marker(2,WorkplaceObservation.Kind.CRAFTING_TABLE));
@@ -70,7 +74,7 @@ class WorkplaceMarkerExtensionTest {
     @Test void exactUpgradePreservesAllRowsAndPermitsNewKindsWithoutLosingOldHistory()throws Exception {
         observe(1000,marker(1,WorkplaceObservation.Kind.BARREL),marker(2,WorkplaceObservation.Kind.SMITHING_TABLE));firm(3,WorkplaceObservation.Kind.SMITHING_TABLE);legacy76();var before=snapshot();
         assertThrows(SQLException.class,()->observe(1001,marker(1,WorkplaceObservation.Kind.SMOKER)));
-        new SchemaMigrator().migrate(db.getConnection());assertEquals(before,snapshot());
+        new SchemaMigrator().migrate(db.getConnection());assertUpgradedRows(before);
         assertEquals(2,rows("SELECT * FROM workplace_sightings").size());observe(1001,marker(1,WorkplaceObservation.Kind.SMOKER),marker(2,WorkplaceObservation.Kind.CRAFTING_TABLE));assertEquals(4,rows("SELECT * FROM workplace_sightings").size());
         assertTrue(rows("PRAGMA foreign_key_check").isEmpty());assertTrue(rows("SELECT name FROM sqlite_temp_master WHERE name LIKE 'civ_schema77_%'").isEmpty());
     }
@@ -79,12 +83,12 @@ class WorkplaceMarkerExtensionTest {
         List<SchemaMigrator.Migration> steps=new ArrayList<>(Collections.nCopies(76,c->{}));steps.add(c->{WorkplaceMarkerMigration.apply(c);try(var s=c.createStatement()){s.execute("THIS IS INVALID SQL");}});
         assertThrows(SQLException.class,()->new SchemaMigrator(steps).migrate(db.getConnection()));assertEquals(before,snapshot());assertTrue(db.getConnection().getAutoCommit());
         assertEquals(76,((Number)rows("PRAGMA user_version").getFirst().getFirst()).intValue());assertThrows(SQLException.class,()->observe(1001,marker(1,WorkplaceObservation.Kind.SMOKER)));
-        assertTrue(rows("SELECT name FROM sqlite_temp_master WHERE name LIKE 'civ_schema77_%'").isEmpty());new SchemaMigrator().migrate(db.getConnection());assertEquals(before,snapshot());
+        assertTrue(rows("SELECT name FROM sqlite_temp_master WHERE name LIKE 'civ_schema77_%'").isEmpty());new SchemaMigrator().migrate(db.getConnection());assertUpgradedRows(before);
     }
     @Test void customIndexesAndTriggersSurviveWithoutFiringDuringCopiedHistory()throws Exception {
         observe(1000,marker(1,WorkplaceObservation.Kind.BARREL));legacy76();sql("CREATE TABLE fixture_audit(calls INTEGER NOT NULL)");sql("INSERT INTO fixture_audit VALUES(0)");
         sql("CREATE INDEX fixture_sighting_kind ON workplace_sightings(kind)");sql("CREATE TRIGGER fixture_sighting_audit AFTER INSERT ON workplace_sightings BEGIN UPDATE fixture_audit SET calls=calls+1; END");
-        var before=snapshot();new SchemaMigrator().migrate(db.getConnection());assertEquals(before,snapshot());assertEquals(2,rows("SELECT name FROM sqlite_master WHERE name IN('fixture_sighting_kind','fixture_sighting_audit')").size());
+        var before=snapshot();new SchemaMigrator().migrate(db.getConnection());assertUpgradedRows(before);assertEquals(2,rows("SELECT name FROM sqlite_master WHERE name IN('fixture_sighting_kind','fixture_sighting_audit')").size());
         observe(1001,marker(2,WorkplaceObservation.Kind.SMOKER));assertEquals(1,((Number)rows("SELECT calls FROM fixture_audit").getFirst().getFirst()).intValue());
         assertThrows(SQLException.class,()->sql("UPDATE workplace_sightings SET kind='FURNACE'"));
     }

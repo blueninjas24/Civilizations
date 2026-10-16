@@ -8,8 +8,10 @@ import java.util.*;
 
 /** Bounded preparation followed by atomic current revalidation. Does not inspect Paper, schedule or train. */
 public final class BakeryInvestment {
-    public record Draft(BusinessStartupGrants.WorkshopRequest startup,WorkshopStarterSupplies.Request supplies,WorkplaceOperations.Anchor anchor) {
+    public record PrivateInputs(UUID seller,long price) {public PrivateInputs{Objects.requireNonNull(seller);if(price<1)throw new IllegalArgumentException("Positive private input price required");}}
+    public record Draft(BusinessStartupGrants.WorkshopRequest startup,WorkshopStarterSupplies.Request supplies,WorkplaceOperations.Anchor anchor,PrivateInputs privateInputs) {
         public Draft {Objects.requireNonNull(startup);Objects.requireNonNull(supplies);Objects.requireNonNull(anchor);}
+        public Draft(BusinessStartupGrants.WorkshopRequest startup,WorkshopStarterSupplies.Request supplies,WorkplaceOperations.Anchor anchor){this(startup,supplies,anchor,null);}
     }
     public record Preparation(Optional<Draft> draft,String explanation) {}
     private final Connection connection;
@@ -58,7 +60,8 @@ public final class BakeryInvestment {
         if(!draft.anchor().equals(evidence.anchor()))throw new BusinessStartupGrants.Declined("Loaded marker proof does not match proposed fixed anchor");
         return transaction(()-> {
             UUID business=draft.startup().founding().business().id();var firms=new BusinessRepository(connection);
-            if(firms.findBusiness(business).isEmpty()) {
+            boolean existing=firms.findBusiness(business).isPresent();
+            if(!existing) {
                 if(!policy.enabled())throw new BusinessStartupGrants.Declined("First-bakery founding disabled");
                 var request=draft.startup();var b=request.founding().business();
                 var current=opportunities.reviewRows(b.settlementId(),now,worlds==null?Set.of():worlds);
@@ -71,7 +74,16 @@ public final class BakeryInvestment {
                     s.setString(1,b.founderId().toString());s.setString(2,b.founderId().toString());try(var r=s.executeQuery()){if(r.next())throw new BusinessStartupGrants.Declined("Founder already employed or studying");}
                 }
             } else if(!firms.findFounding(business).orElseThrow().equals(draft.startup().founding()))throw new SQLException("Accepted bakery identity reused with changed founding");
-            return new BusinessStartupGrants(connection).startMarkerWorkshopRows(draft.startup(),grants,draft.supplies(),starter,worlds,evidence,now);
+            var startup=new BusinessStartupGrants(connection);
+            if(draft.privateInputs()==null) {
+                if(BakeryPrivateInputs.recorded(connection,business))throw new SQLException("Accepted private starter cannot switch to public supplies");
+                return startup.startMarkerWorkshopRows(draft.startup(),grants,draft.supplies(),starter,worlds,evidence,now);
+            }
+            if(new WorkshopStarterSupplies(connection).find(draft.supplies().operation()).isPresent())throw new SQLException("Accepted public starter cannot switch to a private purchase");
+            if(existing)BakeryPrivateInputs.requireReplay(connection,draft);
+            var started=startup.startMarkerEmptyWorkshopRows(draft.startup(),grants,worlds,evidence,now);
+            if(!existing)BakeryPrivateInputs.purchaseRows(connection,draft,now,industry);
+            return new BusinessStartupGrants.Workshop(started.founding(),new IndustryRepository(connection).store(business).orElseThrow(),started.worker(),started.grant());
         });
     }
     private Draft draft(BakeryOpportunities.Opportunity opportunity,UUID founder,long step) {
@@ -83,7 +95,7 @@ public final class BakeryInvestment {
         var founding=new BusinessFounding(firm,location,ownerRequirements(),new JobRequirements(Math.max(adulthood,policy.minimumAgeSteps()),Map.of("baking",policy.workerExperience())),terms.startupHundredths(),reason);
         var request=new BusinessStartupGrants.WorkshopRequest(founding,terms.capacity(),industry.mining().storageSpacePerUnit(),terms.capitalHundredths(),founder);
         var supply=new WorkshopStarterSupplies.Request(id("civilizations:first-bakery-starter-v1:"+key),business,opportunity.recipe(),1,0,industry.mining().localDeliveryPeriods(),industry.mining().localHaulUnitsPerPeriod());
-        return new Draft(request,supply,new WorkplaceOperations.Anchor(business,marker.world(),p,marker.kind()));
+        return new Draft(request,supply,new WorkplaceOperations.Anchor(business,marker.world(),p,marker.kind()),opportunity.privateInputs());
     }
     private JobRequirements ownerRequirements(){return new JobRequirements(Math.max(adulthood,policy.minimumAgeSteps()),Map.of("baking",policy.founderExperience()));}
     private static UUID id(String text){return UUID.nameUUIDFromBytes(text.getBytes(StandardCharsets.UTF_8));}

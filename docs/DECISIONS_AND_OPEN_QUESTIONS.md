@@ -1,5 +1,21 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October15: bakery competition for existing paid food orders — awaiting answer
+
+The current first-bakery planner requires an uncovered, funded meal/reserve gap.
+When farms already cover that gap, it defers bakery investment and founder study.
+This can postpone training until reserves are low. Asked whether a bakery may
+instead compete for a configurable share of actual food orders the village
+already pays producers for, even while basic food supply is healthy.
+
+Recommend allowing competition using real observed paid demand, actual budgets,
+qualified work, real ingredients and finite storage. Do not add consumers, food
+consumption, cash or compulsory purchases to make a bakery profitable. Existing
+paid food orders may change suppliers; farmers can earn grain-sale revenue.
+This affects farm sales and startup priorities, so no new competition rule is
+being activated while the answer is pending. Private first-input purchases and
+their accounting are already within the approved paid farm-surplus direction.
+
 ## October13: bakery/craftsman workplace markers — approved
 
 User answered “Whatever you recommend” to the pending workplace-marker decision.

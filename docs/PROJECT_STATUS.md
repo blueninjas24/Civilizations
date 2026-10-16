@@ -1,5 +1,44 @@
 # Civilizations — implementation status and handoff
 
+## October15 — private bakery starter purchases verified; commercial decision pending
+
+Implemented first grain-batch purchases from actual staffed local warehouses and
+valid registered farms when preserved public surplus is insufficient. Real bakery
+capital pays the supplier; no public-stock conversion or treasury refund. Shared
+grant/food protection, editable starter price/cap/reserve, finite storage and local
+hauling still apply. Source/price/recipe/route changes require a new proposal;
+accepted public/private routes cannot switch to obtain another bundle.
+
+Schema78 adds only the initially empty bakery_private_starters receipt table,
+binding buyer-linked shipment, seller and versioned accepted terms. A new buyer's
+delivery clock is enrolled at actual acceptance with target/completed0, allowing
+normal timed delivery without inventing past work. Founding, money, grain, worker,
+marker, clock, shipment and receipt are atomic, including final-write rollback.
+Existing receipts/stores/owners/history remain; migration failure/retry tested.
+
+Seven new cases. Focused56 passed; the first full run exposed historical fixture
+assumptions about added tables. Corrected explicit empty-new-table expectations
+and old-schema reconstruction without removing any predecessor-row comparisons.
+Focused84 migration checks passed. Final .\mvnw.cmd clean verify passed1,503
+(1,501 unit/two packaged integration), zero failures/errors/skips;7:07 at21:43:51 ET.
+Production code unchanged afterward. Guarded Paper26.2 build129 private-source
+proof passed21:44:30 ET: packaged defaults, actual SQL owner, paid private grain,
+restart replay, timed bread, real food sale and exact absent-world pause. No helper
+world/entity mutations or natural automatic-founding proof. Schema77→78 main-save
+audit: all133 predecessor tables retained,130 exact; only normal clock/runtime/ore
+bookkeeping changed, age delta0; new private receipt table empty. Fixture stopped,
+original properties restored, helper archived. Known OSHI Windows counter warning;
+no plugin/probe/listener failure. Human server untouched.
+
+Earlier qualified/public-grain batch2522ee8 is backed up on GitHub. Current feature
+branch: codex/phase3-bakery-private-inputs. Update status/progress/devlog and back up
+this passing batch; do not merge/push main. P3 remains29/39 resources,1/4 groups/
+~67% partial. Next training/opening work awaits the commercial question in
+DECISIONS_AND_OPEN_QUESTIONS: may bakers compete for existing real paid village
+food orders even when farms cover them? No new competition rule is active. Existing
+uncovered-demand behavior remains. Craftsmen, livestock, wider industry and
+specialization gates remain unfinished. See PROCESSING_WORKSHOPS.md.
+
 ## October15 — qualified bakery investment and actual farm grain supply
 
 Implemented seeded qualified bakery preparation and atomic current acceptance,

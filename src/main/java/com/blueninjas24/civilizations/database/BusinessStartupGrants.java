@@ -107,6 +107,19 @@ public final class BusinessStartupGrants {
         if(!existing)markers.attachRows(evidence.anchor(),evidence.capturedMillis());
         return new Workshop(started.founding(),new IndustryRepository(connection).store(supplies.business()).orElseThrow(),started.worker(),started.grant());
     }
+    /** Private first-input purchases compose with this empty paid startup in the same owner transaction. */
+    Workshop startMarkerEmptyWorkshopRows(WorkshopRequest request,StartupGrantPolicy grants,Set<UUID> worlds,
+            WorkplaceOperations.Confirmation evidence,long now)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Marker startup requires complete owner transaction");
+        var id=request.founding().business().id();
+        if(!id.equals(evidence.anchor().business())||now<0||!evidence.present()||evidence.capturedMillis()>now
+                ||now-evidence.capturedMillis()>60000||worlds==null||!worlds.contains(evidence.anchor().world()))
+            throw new Declined("Matching fresh present loaded-world marker required");
+        var markers=new WorkplaceOperations(connection);boolean existing=new BusinessRepository(connection).findBusiness(id).isPresent();
+        if(existing&&!markers.matchesSavedAnchor(evidence.anchor()))throw new Declined("Legacy business cannot acquire a marker through private startup replay");
+        var started=startStockedRows(request,grants,"workshop");
+        if(!existing)markers.attachRows(evidence.anchor(),evidence.capturedMillis());return started;
+    }
     /** Same village budget, qualification and transaction as other grants; no free warehouse stock. */
     public Warehouse startWarehouse(WarehouseRequest request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);

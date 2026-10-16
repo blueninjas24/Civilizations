@@ -1,5 +1,44 @@
 # Civilizations Development Log
 
+## October15 — paid private bakery starters and replay-safe schema78
+
+After backing up2522ee8, continued on codex/phase3-bakery-private-inputs. Added a
+narrow actual farm/warehouse grain quote as fallback to preserved public surplus.
+Real capital pays the source; qualified current staff/world/catalogue/stock and
+retained reserve are required. Stock/world/registration filtering precedes a
+bounded64-source review; overflow defers with no partial selection. No new cash,
+public procurement, player container access or ownership conversion.
+
+Schema78 adds one empty private-starter receipt table with buyer-linked shipment
+FK and seller/versioned terms. Startup and its first delivery clock, shipment,
+payment and final receipt commit together; clock starts now with no past work.
+Resolved the enrollment FK dependency in focused tests before the complete run.
+Exact replay remains historical; changed source/price/recipe or public/private
+route cannot create another payment/bundle. New test fixtures cover both kinds,
+normal timed bread, rollback/retry, migration, source guard/cap and route protection.
+
+Seven new executed cases. Focused56 passed. Initial full run revealed explicit
+old-migration table lists and manual old-schema fixtures needing the new empty
+table; updated those expectations/reconstruction, retaining all row comparisons.
+Targeted84 migration cases passed. Final clean verify passed1,503 (1,501 unit/two
+packaged integration), zero failures/errors/skips;7:07 at21:43:51 ET. Main source
+remained unchanged through native verification.
+
+Native private probe separately compiled; marker/hash/EULA/ports and consistent
+schema77 save/JAR/properties backup guarded the authorized fixture. Paper26.2
+build129 proof passed21:44:30 ET: real SQL owner, private payment/cargo, restart
+replay, timed bread, paid food, absence. No world/entity mutations. Save upgraded
+77→78: all133 predecessor tables retained,130 exact, only normal clock/runtime/ore
+metadata changed; age delta0 and new private receipt table empty. Fixture stopped,
+properties restored/helper archived. Existing OSHI counter warning only; no plugin/
+probe/listener failure. Human server untouched; no main merge/push.
+
+Recorded/sent a genuine commercial question before choosing training/opening
+behavior: allow bakers to compete for existing paid food orders while farms cover
+needs, or retain uncovered-demand-only investment? Current behavior unchanged,
+answer pending. Status/progress/guide updated; P3 remains~67% partial. Passing
+private-input feature is ready for its logical commit and authorized GitHub backup.
+
 ## October15 — qualified bakery startup and paid farm grain integration
 
 Continued unfinished codex/phase3-bakery-investment from882819d. Added seeded

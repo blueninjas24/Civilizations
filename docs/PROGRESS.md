@@ -1,5 +1,23 @@
 # Civilizations progress tracker
 
+## October15 — bakeries can pay real suppliers for their first grain
+
+The startup backend can now buy the first bread ingredients from a farm or
+warehouse, using the bakery's real startup money. The farmer gets paid and keeps
+a reserve. Payments, delivery and opening save together; retrying cannot charge
+twice or collect a second batch through another route. Existing grain stays owned
+by its current owner.
+
+All1,503 full-build tests and the packaged Paper check passed. The schema78 upgrade
+preserved all133 old test-save tables; only three ordinary bookkeeping tables
+changed, with no aging. Human server unchanged; no merge/push to main.
+
+P3 remains about67% partial. Automatic baker training/opening still needs connecting.
+One decision is pending: should bakeries compete for food orders already going to
+farmers, even while the village is well fed? Recommended: yes, with real purchases
+and editable limits. The current shortage-only investment rule is unchanged.
+Craftsmen, live livestock and specialization remain. See PROCESSING_WORKSHOPS.md.
+
 ## October15 — bakery owners, recipes and a working paid grain chain
 
 Qualified bakery opening now checks the owner's real skills, customers, ingredients

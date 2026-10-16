@@ -170,4 +170,70 @@ class BakeryInvestmentTest {
         }
         open();assertEquals(5800,cash());
     }
+    UUID privateSource(String kind)throws Exception {
+        sql("UPDATE economy_stocks SET units=0 WHERE commodity='grain'");
+        var seller=UUID.randomUUID();var worker=UUID.randomUUID();db.getPopulationRepository().insertResident(new Resident(worker,"Fixture supplier",town,null,300,Resident.Status.ALIVE));
+        var site=new BusinessSite(UUID.randomUUID(),town,world,3,64,0,1000,"Explicit private grain source");var requirements=new JobRequirements(216,Map.of());
+        db.getBusinessRepository().found(new BusinessFounding(new Business(seller,town,"Supplier",worker,worker,kind,site.id(),1,0),site,requirements,requirements,0,"Explicit supplier fixture"));
+        db.getBusinessRepository().hire(UUID.randomUUID(),seller,worker,0);
+        if(kind.equals("farming")) {
+            db.getConnection().setAutoCommit(false);try{FarmMarketStore.ensureRows(db.getConnection(),seller,FarmMarketPolicy.prototype(),1000);db.getConnection().commit();}finally{db.getConnection().setAutoCommit(true);}
+        }else db.getIndustryRepository().openStore(seller,100,Map.of(grain,1L),0);
+        sql("UPDATE industry_stock SET units=10 WHERE business_id='"+seller+"' AND commodity='grain'");
+        sql("UPDATE needs_periods SET unassigned_residents=2,demand=4,fulfilled=4");return seller;
+    }
+    @Test void privateFarmStarterPaysProducerOnceAndTimedDeliveryBecomesRealBread()throws Exception {
+        opportunity();qualified();var seller=privateSource("farming");var before=snapshot();var d=draft();assertNotNull(d.privateInputs());assertEquals(seller,d.privateInputs().seller());assertEquals(300,d.privateInputs().price());assertEquals(before,snapshot());
+        engine().accept(d,proof(d),1000,Set.of(world));var id=d.anchor().business();
+        assertEquals(5500,cash());assertEquals(3700,db.getIndustryRepository().store(id).orElseThrow().hundredths());assertEquals(300,db.getIndustryRepository().store(seller).orElseThrow().hundredths());
+        assertEquals(7,db.getIndustryRepository().store(seller).orElseThrow().units().get(grain));assertEquals(3,db.getIndustryRepository().store(id).orElseThrow().reservedIncomingSpace());assertEquals(0,units(grain));
+        var live=new IndustryRuntime(db.getConnection(),runtime(),BusinessOperationPolicy.prototype());live.start(1000);live.pulse(2000,Set.of(world));
+        assertEquals(3,db.getIndustryRepository().store(id).orElseThrow().units().get(Commodity.FOOD));assertEquals(0,db.getIndustryRepository().store(id).orElseThrow().reservedIncomingSpace());
+        db.close();open();before=snapshot();engine(BakeryFoundingPolicy.disabled()).accept(d,proof(d),1000,Set.of(world));assertEquals(before,snapshot());
+    }
+    @Test void privateWarehouseStarterCannotBeReplayedWithDifferentSupplierPriceRecipeOrPublicRoute()throws Exception {
+        opportunity();qualified();privateSource("warehouse");var d=draft();engine().accept(d,proof(d),1000,Set.of(world));var before=snapshot();
+        var publicRoute=new BakeryInvestment.Draft(d.startup(),d.supplies(),d.anchor());assertThrows(SQLException.class,()->engine().accept(publicRoute,proof(d),1000,Set.of(world)));assertEquals(before,snapshot());
+        var changedPrice=new BakeryInvestment.Draft(d.startup(),d.supplies(),d.anchor(),new BakeryInvestment.PrivateInputs(d.privateInputs().seller(),301));
+        assertThrows(SQLException.class,()->engine().accept(changedPrice,proof(d),1000,Set.of(world)));assertEquals(before,snapshot());
+        var different=new ProductionRecipe(recipe.id(),"bakery",recipe.inputs(),Map.of(Commodity.FOOD,4L),recipe.batchesPerWorker(),recipe.siteCapacity());
+        var supplies=new WorkshopStarterSupplies.Request(d.supplies().operation(),d.anchor().business(),different,1,0,1,128);
+        assertThrows(SQLException.class,()->engine().accept(new BakeryInvestment.Draft(d.startup(),supplies,d.anchor(),d.privateInputs()),proof(d),1000,Set.of(world)));assertEquals(before,snapshot());
+    }
+    @Test void changedPrivateStockAndLastReceiptFailureRollbackCapitalGoodsMarkerAndWorker()throws Exception {
+        opportunity();qualified();var seller=privateSource("warehouse");var d=draft();sql("UPDATE industry_stock SET units=4 WHERE business_id='"+seller+"' AND commodity='grain'");var before=snapshot();
+        assertThrows(SQLException.class,()->engine().accept(d,proof(d),1000,Set.of(world)));assertEquals(before,snapshot());
+        sql("UPDATE industry_stock SET units=10 WHERE business_id='"+seller+"' AND commodity='grain'");sql("CREATE TRIGGER reject_private_receipt BEFORE INSERT ON bakery_private_starters BEGIN SELECT RAISE(ABORT,'fixture last receipt failure'); END");before=snapshot();
+        assertThrows(SQLException.class,()->engine().accept(d,proof(d),1000,Set.of(world)));assertEquals(before,snapshot());assertTrue(db.getConnection().getAutoCommit());
+        sql("DROP TRIGGER reject_private_receipt");assertNotNull(engine().accept(d,proof(d),1000,Set.of(world)));
+    }
+    @Test void privateSupplierRequiresRegisteredFarmCatalogueAndQualifiedCurrentStaff()throws Exception {
+        opportunity();qualified();var seller=privateSource("farming");sql("UPDATE business_employment SET ended_step=1,end_reason='Fixture departure' WHERE business_id='"+seller+"'");var before=snapshot();
+        assertTrue(engine().prepare(town,0,1000,Set.of(world)).draft().isEmpty());assertEquals(before,snapshot());
+        var owner=db.getBusinessRepository().findBusiness(seller).orElseThrow().ownerId();db.getBusinessRepository().hire(UUID.randomUUID(),seller,owner,2);
+        sql("INSERT INTO industry_stock VALUES('"+seller+"','unreviewed',1,0)");before=snapshot();assertThrows(SQLException.class,()->engine().prepare(town,0,1000,Set.of(world)));assertEquals(before,snapshot());
+    }
+    @Test void privateStarterSchemaUpgradeIsEmptyTransactionalAndRetryable()throws Exception {
+        opportunity();qualified();privateSource("warehouse");SchemaFixtures.rewind(db.getConnection(),77);var before=snapshot();
+        sql("CREATE VIEW bakery_private_starters AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(db.getConnection()));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(77,r.getInt(1));}
+        sql("DROP VIEW bakery_private_starters");assertEquals(before,snapshot());new SchemaMigrator().migrate(db.getConnection());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM bakery_private_starters")){assertEquals(0,r.getLong(1));}
+        var d=draft();assertNotNull(d.privateInputs());engine().accept(d,proof(d),1000,Set.of(world));
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+    }
+    @Test void acceptedPublicStarterCannotBeChargedAgainAsAPrivatePurchase()throws Exception {
+        opportunity();qualified();var d=draft();engine().accept(d,proof(d),1000,Set.of(world));var seller=privateSource("warehouse");var before=snapshot();
+        var privateRoute=new BakeryInvestment.Draft(d.startup(),d.supplies(),d.anchor(),new BakeryInvestment.PrivateInputs(seller,300));
+        assertThrows(SQLException.class,()->engine().accept(privateRoute,proof(d),1000,Set.of(world)));assertEquals(before,snapshot());
+    }
+    @Test void oversizedPrivateSupplierReviewCannotCreateAnOpportunityFromAPartialSample()throws Exception {
+        opportunity();qualified();var source=privateSource("warehouse");var owner=db.getBusinessRepository().findBusiness(source).orElseThrow().ownerId();var req=new JobRequirements(216,Map.of());
+        for(int n=0;n<64;n++) {
+            var site=new BusinessSite(UUID.randomUUID(),town,world,n+4,64,0,1000,"Explicit source-cap fixture");var id=UUID.randomUUID();
+            db.getBusinessRepository().found(new BusinessFounding(new Business(id,town,"Source-cap fixture",owner,owner,"warehouse",site.id(),1,0),site,req,req,0,"Fixture"));
+            db.getIndustryRepository().openStore(id,100,Map.of(grain,1L),0);sql("UPDATE industry_stock SET units=10 WHERE business_id='"+id+"' AND commodity='grain'");
+        }
+        var before=snapshot();var result=engine().prepare(town,0,1000,Set.of(world));assertTrue(result.draft().isEmpty());assertTrue(result.explanation().contains("supplier budget"));assertEquals(before,snapshot());
+    }
 }
