@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StartupGrantPolicyTest {
     @Test void broaderProducersShareUnchangedCapsAndFoodProtection() {
         var p=StartupGrantPolicy.prototype();
-        for(var industry:Set.of("logging","fishing","quarry","sandpit","bakery","craftsman")) {
+        for(var industry:Set.of("logging","fishing","quarry","sandpit","bakery","craftsman","livestock")) {
             assertTrue(p.review(industry,6000,10,2000,0,0).eligible(),industry);
             assertFalse(p.review(industry,5999,10,2000,0,0).eligible(),industry);
             assertFalse(p.review(industry,10000,2,1500,4000,4000).eligible(),industry);

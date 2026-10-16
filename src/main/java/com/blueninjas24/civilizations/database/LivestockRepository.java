@@ -72,47 +72,51 @@ public final class LivestockRepository {
      * positive values are trusted remaining active periods to maturity. No goods/cash supplied here. */
     public Herd open(UUID business,LivestockHerd.Species species,Commodity feed,long capacity,
                      Map<UUID,Integer> observedAnimals)throws SQLException {
+        return transaction(()->openRows(business,species,feed,capacity,observedAnimals));
+    }
+    /** Shares a complete trusted startup transaction; never commits independently. */
+    Herd openRows(UUID business,LivestockHerd.Species species,Commodity feed,long capacity,
+                  Map<UUID,Integer> observedAnimals)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Herd opening rows require SQL owner transaction");
         Objects.requireNonNull(business);Objects.requireNonNull(species);Objects.requireNonNull(feed);
         var animals=new TreeMap<>(Map.copyOf(observedAnimals));
         if(capacity<0||capacity>1_000_000||animals.isEmpty()||animals.size()>4096||
                 animals.values().stream().anyMatch(v->v<0||v>1000))throw new IllegalArgumentException("Invalid herd opening observations");
         if(feed.equals(product(species)))throw new IllegalArgumentException("Feed must differ from herd output");
         String terms=species+"|"+feed.id()+"|"+capacity+"|"+animals;
-        return transaction(()->{
-            try(var s=connection.prepareStatement("SELECT opening_terms FROM livestock_herds WHERE business_id=?")) {
-                s.setString(1,business.toString());try(var r=s.executeQuery()) {
-                    if(r.next()) {if(!terms.equals(r.getString(1)))throw new SQLException("Herd opening identity/observations changed");return load(business).orElseThrow();}
-                }
+        try(var s=connection.prepareStatement("SELECT opening_terms FROM livestock_herds WHERE business_id=?")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()) {
+                if(r.next()) {if(!terms.equals(r.getString(1)))throw new SQLException("Herd opening identity/observations changed");return load(business).orElseThrow();}
             }
-            var b=new BusinessRepository(connection).findBusiness(business).orElseThrow(()->new SQLException("Unknown herd business"));
-            if(!b.industry().equals("livestock"))throw new SQLException("A dedicated livestock business is required; existing producers retain their labor");
-            BusinessClosure.requireOpen(connection,business);WorkplaceOperations.requirePermitted(connection,business);
-            // Existing hybrid crop farms retain their exact catalogue and labor accounting.
-            try(var s=connection.prepareStatement("SELECT 1 FROM farm_market_stores WHERE business_id=?")) {
-                s.setString(1,business.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Hybrid crop farm needs an explicit combined-labor/catalogue transition");}
-            }
-            var store=new IndustryRepository(connection).store(business).orElseThrow();
-            requireCatalogue(store,feed,species);
-            var founding=new BusinessRepository(connection).findFounding(business).orElseThrow();
-            var owners=new AnimalOwnershipRepository(connection);
-            long adults=0;var cohorts=new TreeMap<Long,Long>();
-            for(var animal:animals.entrySet()) {
-                var claim=owners.load(animal.getKey()).orElseThrow(()->new SQLException("Animal lacks saved ownership"));
-                if(claim.kind()!=LivestockAdoption.Ownership.VILLAGE||!b.settlementId().equals(claim.settlement())||
-                        !founding.site().worldId().equals(claim.originWorld()))throw new SQLException("Animal ownership/world differs from herd");
-                if(animal.getValue()==0)adults++;else cohorts.merge(animal.getValue().longValue(),1L,Math::addExact);
-            }
-            try(var s=connection.prepareStatement("INSERT INTO livestock_herds VALUES(?,?,?,?,?)")) {
-                s.setString(1,business.toString());s.setString(2,species.name());s.setLong(3,capacity);s.setString(4,feed.id());s.setString(5,terms);s.executeUpdate();
-            }
-            for(var animal:animals.entrySet())try(var s=connection.prepareStatement("INSERT INTO livestock_initial_animals VALUES(?,?,?)")) {
-                s.setString(1,animal.getKey().toString());s.setString(2,business.toString());s.setInt(3,animal.getValue());s.executeUpdate();
-            }
-            var young=cohorts.entrySet().stream().map(e->new LivestockHerd.Young(e.getKey(),e.getValue())).toList();
-            var state=new LivestockHerd.State(0,adults,capacity,0,young);
-            save(business,null,terms,new LivestockHerd.Plan(state,0,0,0,0,0,0,0),store,feed,species,0,"Confirmed initial animal roster; no production or capital created");
-            return new Herd(business,species,feed,state);
-        });
+        }
+        var b=new BusinessRepository(connection).findBusiness(business).orElseThrow(()->new SQLException("Unknown herd business"));
+        if(!b.industry().equals("livestock"))throw new SQLException("A dedicated livestock business is required; existing producers retain their labor");
+        BusinessClosure.requireOpen(connection,business);WorkplaceOperations.requirePermitted(connection,business);
+        // Existing hybrid crop farms retain their exact catalogue and labor accounting.
+        try(var s=connection.prepareStatement("SELECT 1 FROM farm_market_stores WHERE business_id=?")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Hybrid crop farm needs an explicit combined-labor/catalogue transition");}
+        }
+        var store=new IndustryRepository(connection).store(business).orElseThrow();
+        requireCatalogue(store,feed,species);
+        var founding=new BusinessRepository(connection).findFounding(business).orElseThrow();
+        var owners=new AnimalOwnershipRepository(connection);
+        long adults=0;var cohorts=new TreeMap<Long,Long>();
+        for(var animal:animals.entrySet()) {
+            var claim=owners.load(animal.getKey()).orElseThrow(()->new SQLException("Animal lacks saved ownership"));
+            if(claim.kind()!=LivestockAdoption.Ownership.VILLAGE||!b.settlementId().equals(claim.settlement())||
+                    !founding.site().worldId().equals(claim.originWorld()))throw new SQLException("Animal ownership/world differs from herd");
+            if(animal.getValue()==0)adults++;else cohorts.merge(animal.getValue().longValue(),1L,Math::addExact);
+        }
+        try(var s=connection.prepareStatement("INSERT INTO livestock_herds VALUES(?,?,?,?,?)")) {
+            s.setString(1,business.toString());s.setString(2,species.name());s.setLong(3,capacity);s.setString(4,feed.id());s.setString(5,terms);s.executeUpdate();
+        }
+        for(var animal:animals.entrySet())try(var s=connection.prepareStatement("INSERT INTO livestock_initial_animals VALUES(?,?,?)")) {
+            s.setString(1,animal.getKey().toString());s.setString(2,business.toString());s.setInt(3,animal.getValue());s.executeUpdate();
+        }
+        var young=cohorts.entrySet().stream().map(e->new LivestockHerd.Young(e.getKey(),e.getValue())).toList();
+        var state=new LivestockHerd.State(0,adults,capacity,0,young);
+        save(business,null,terms,new LivestockHerd.Plan(state,0,0,0,0,0,0,0),store,feed,species,0,"Confirmed initial animal roster; no production or capital created");
+        return new Herd(business,species,feed,state);
     }
 
     public Optional<Herd> load(UUID business)throws SQLException {

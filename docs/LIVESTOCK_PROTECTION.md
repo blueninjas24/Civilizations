@@ -1,5 +1,52 @@
 # Livestock protection and work foundation
 
+## October16 — approved protected grants and trusted atomic opening
+
+Dedicated livestock businesses are eligible in the new-file startup-grants list.
+The grant ceiling, shared per-period/lifetime caps, food assessments and retained
+food money are unchanged. Existing installed lists opt in explicitly; missing
+sections and opt-outs stay disabled. Funding eligibility alone starts no business.
+
+`BusinessStartupGrants.startLivestock` atomically saves an explicitly qualified
+business/site/store/first worker, its real village grant and the already confirmed
+initial herd. `LivestockRepository.openRows` joins that owner transaction without
+committing it independently; the public standalone herd-opening contract remains.
+An animal must already have matching saved village/world ownership, and trusted
+species/remaining-maturity observations. Player/unrecorded animals, wrong worlds,
+unsupported stores, unqualified work and failed final checkpoints leave prior rows
+unchanged. Separate legacy grant/herd setups require an explicit future transition;
+a startup replay cannot retrofit guessed facts. Exact accepted replay returns
+current assets/cohorts after production and restart without refilling them.
+
+Opening supplies zero feed/products and creates no animals. Existing actual local
+purchases can pay an owned supplier for real grain and deliver it before the herd
+uses it. Those ordinary purchases are not a new automatic starter-feed policy or
+part of a live opening planner. Future automatic founding must establish real
+customers, ongoing feed, suitable site/qualified workers, fresh observations and
+safe physical reconciliation before calling this trusted backend. There is no
+new schema migration; version remains81 and prior records remain intact.
+
+## October16 — bounded read-only live animal evidence
+
+`PaperLivestockSource` captures one supplied already-loaded entity chunk on the
+main thread. It never obtains/loads chunks itself, schedules a scan, changes
+entities, assigns ownership or writes SQL. Immutable `LivestockObservation`
+records world UUID, chunk, time, actual cow/chicken IDs, positions, raw age ticks
+and name/leash flags. No player name, name text or invented breeding provenance
+is recorded. Age>=0 identifies an observed adult; conversion to simulation
+maturity requires the future trusted adapter's explicit policy.
+
+Wrong world/thread fails before entity access. Unloaded entity chunks, exceeded
+entity/animal budgets, duplicate identities, unsupported entity implementations
+or crossed/inconsistent locations return unknown with no partial roster. Normal
+empty observations do not establish deaths or clear a herd. Mooshrooms/other
+species are excluded. Defaults/limits are caller-supplied, bounded at4096 raw
+entities/256 animals per capture; a future live observer still needs per-tick
+scheduling and total village budgets. No live observation loop/adoption is enabled.
+Ownership, recorded player breeding, pen geometry/protection and authority remain
+separate mandatory checks before adoption. See PROJECT_STATUS/DEVLOG for verified
+unit/native results and the pending milk/egg player-interaction decision.
+
 ## Persistent herd/product backend — schema76
 
 `LivestockRepository` is an SQL-owner backend, not a live adopter or scheduler.

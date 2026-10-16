@@ -1,5 +1,19 @@
 # Phase 3 — businesses and industry checklist
 
+## October16 — livestock startup money and safe animal observation
+
+Chicken/dairy businesses can now use the same protected startup budget as other
+industries. Opening saves the business and confirmed herd together; failures or
+restarts cannot duplicate money, feed or animals. The plugin can also safely read
+real loaded cows/chickens without taking ownership or changing them.
+
+All1,572 full-build tests and the isolated Paper cow/chicken/payment/feed/output/
+restart/pause check passed. Temporary test animals were removed; your server is
+untouched. P3 remains~68% partial (`██████▊░░░`),30/39 resources,1/4 whole groups:
+automatic adoption/live livestock, broader products and specialization remain.
+Player collection of village milk/eggs needs a decision before live production.
+See LIVESTOCK_PROTECTION.md. Prior craftsman hosted Windows/Linux checks passed.
+
 ## October16 — villages can develop their first craftsman naturally
 
 An eligible adult now learns gradually with real practice materials, opens a

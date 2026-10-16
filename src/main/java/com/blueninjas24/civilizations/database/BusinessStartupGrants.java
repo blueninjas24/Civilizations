@@ -20,6 +20,7 @@ public final class BusinessStartupGrants {
     }
     public record Workshop(BusinessFounding founding,IndustryRepository.Store store,Employment worker,Receipt grant) {}
     public record Fishery(Workshop startup,FisheryRepository.Resource resource) {}
+    public record Livestock(Workshop startup,LivestockRepository.Herd herd) {}
     public record WarehouseRequest(BusinessFounding founding,long capacity,Map<Commodity,Long> space,long capital,UUID worker) {
         public WarehouseRequest {
             Objects.requireNonNull(founding);Objects.requireNonNull(worker);space=Map.copyOf(space);
@@ -45,6 +46,24 @@ public final class BusinessStartupGrants {
     public Workshop startWorkshop(WorkshopRequest request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);
         return transaction(()->startStockedRows(request,policy,"workshop"));
+    }
+    /** Trusted backend only: caller supplies qualified real opportunity/site and confirmed animal observations.
+     * No adoption, animal mutation, initial feed or live scheduling is authorized by this composition. */
+    public Livestock startLivestock(WorkshopRequest request,LivestockHerd.Species species,Commodity feed,
+            long herdCapacity,Map<UUID,Integer> animals,StartupGrantPolicy grants)throws SQLException {
+        Objects.requireNonNull(request);Objects.requireNonNull(species);Objects.requireNonNull(feed);Objects.requireNonNull(grants);
+        var observed=Map.copyOf(animals);
+        if(!request.founding().business().industry().equals("livestock"))throw new IllegalArgumentException("Dedicated livestock business required");
+        return transaction(()-> {
+            var id=request.founding().business().id();var herds=new LivestockRepository(connection);
+            // A previously separate/partial legacy setup is not evidence of this atomic opening.
+            if(find(id).isPresent()!=herds.load(id).isPresent())throw new Declined("Existing grant/herd needs an explicit transition; no startup retrofit");
+            if(find(id).isPresent()&&new BusinessRepository(connection).findEmployment(firstWorkerId("livestock",id)).isEmpty())
+                throw new Declined("Existing livestock setup lacks its original atomic opening episode; no startup retrofit");
+            var started=startStockedRows(request,grants,"livestock");
+            var herd=herds.openRows(id,species,feed,herdCapacity,observed);
+            return new Livestock(started,herd);
+        });
     }
     /** Trusted caller must revalidate actual water, shoreline and demand; paid firm and habitat commit together. */
     public Fishery startFishery(WorkshopRequest request,FisheryObservation habitat,FishingPolicy fishing,StartupGrantPolicy grants)throws SQLException {
@@ -150,10 +169,11 @@ public final class BusinessStartupGrants {
         var receipt=prepare(request.founding(),request.capital(),policy);
         var businesses=new BusinessRepository(connection);var founding=businesses.foundRows(request.founding());
         var store=new IndustryRepository(connection).openStoreRows(founding.business().id(),request.capacity(),request.space(),request.capital());
-        var job=UUID.nameUUIDFromBytes(("civilizations:"+role+"-first-worker-v1:"+founding.business().id()).getBytes(StandardCharsets.UTF_8));
+        var job=firstWorkerId(role,founding.business().id());
         var worker=businesses.hireRows(job,founding.business().id(),request.worker(),founding.business().foundedStep());
         return new Workshop(founding,store,worker,save(receipt));
     }
+    private static UUID firstWorkerId(String role,UUID business){return UUID.nameUUIDFromBytes(("civilizations:"+role+"-first-worker-v1:"+business).getBytes(StandardCharsets.UTF_8));}
     /** Read-only current affordability, not a reservation or permission to found a business. */
     public StartupGrantPolicy.Review preview(UUID town,String industry,long startup,long capital,StartupGrantPolicy policy)throws SQLException {
         return transaction(()->previewRows(town,industry,startup,capital,policy));

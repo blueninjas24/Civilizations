@@ -1,5 +1,53 @@
 # Civilizations Development Log
 
+## October16 — protected livestock startup and real animal evidence
+
+Approved chicken/dairy businesses now share existing startup grants: unchanged
+common spending caps and food-money protection, no extra money. Installed YAML
+lists remain intact. A trusted atomic opening saves the paid business, site,
+store, original worker and already-confirmed animal roster together. No free feed,
+products, animals or skills. Real ordinary feed purchases and delayed delivery
+can supply that herd; this is not an automatic starter-feed policy or live founder.
+
+Failed final writes roll back every opening row and payment. Exact restart replay
+returns current assets/cohorts and an ended original job without rehiring. Separate
+legacy grant/herd setups cannot retrofit this opening or acquire a new job through
+replay. Existing standalone herd opening retains its contract. Schema stays81;
+no migration or existing-stock conversion.
+
+Paper now captures bounded immutable cow/chicken identity, position, age and
+name/leash evidence on the main thread from an already-loaded entity chunk.
+No chunk loading, SQL, claims or animal mutations. Incomplete/over-budget/crossed
+observations are unknown, never proof of death. Ownership, player breeding,
+protected pens, authority and safe physical reconciliation remain separate gates.
+
+Validation: 14 new executed cases (eight atomic funding/herd, one configuration,
+five Paper capture); final focused47 passed. Full Windows .\mvnw.cmd clean verify
+passed1,572 tests (1,570 unit/two packaged integration), zero failures/errors/skips.
+Final build duration 09:36 min; finished 2026-10-16T10:34:41-04:00. Production/test Java frozen
+for final verification. An earlier full pass preceded the final legacy replay guard
+and was superseded by this run; no old result is claimed for the latest source.
+
+Guarded Paper26.2 build129 passed actual main-thread cow/chicken capture, named/
+young evidence, trusted fixture ownership, real protected grants, paid feed and
+delivery, abstract milk/egg output, restart replay and absent-world pause. Six
+helper-created animals were removed and the test-only chunk ticket released;
+no blocks changed. 139 predecessor tables retained/136 exact; ordinary changes civilization_time, economy_runtime, ore_tracking; normal age-month delta0. Exact audit, integrity/FKs clean; fixture stopped,
+properties restored, helper archived, backups retained. Existing OSHI Windows
+counter warning only; no Civilizations/probe/listener failure. Human server untouched.
+
+Previous craftsman revision d53fbea passed both hosted Windows/Linux checks:
+https://github.com/blueninjas24/Civilizations/actions/runs/38908644113 . Windows
+26:37/Linux2:40 confirms the earlier timeout correction without removing tests.
+These hosted results do not claim verification of this newer livestock revision.
+
+P3 stays30/39 resources,1/4 whole groups/~68% partial. Live automatic adoption,
+founding, physical births/deaths, harvesting and product-customer integration are
+unfinished. Before live milk/egg output, player harvesting versus stock-backed
+trade needs the explicit decision in DECISIONS_AND_OPEN_QUESTIONS. No bucket/drop
+behavior changed. Branch codex/phase3-livestock-startup; main unchanged.
+See LIVESTOCK_PROTECTION.md for exact boundaries/settings.
+
 ## October16 — villages can train their first craftsman
 
 Connected one prospective first-craftsman course to real current fitting customers,

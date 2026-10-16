@@ -1,16 +1,28 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October16: livestock startup funding — decision requested
+## October16: player collection of village milk/eggs — decision requested
 
-Before connecting automatic chicken/dairy founding, asked whether dedicated
-livestock businesses may share the existing village startup grants. Recommended:
-same common period/lifetime spending caps and food-money protection, with no
-additional funds or per-industry allowance. Alternative: private business/family
-funds only. Existing grant eligibility lists omit livestock; no new eligibility
-or automatic livestock founding is implemented while this is pending. Real
-animals, trusted ownership, suitable sites, feed, qualified work and safe physical
-reconciliation remain independent prerequisites. This question does not block
-completing craftsman training and verification.
+Before live village livestock production, asked whether players should initially
+buy/trade its recorded milk/egg products, preventing separate vanilla harvesting
+for village-owned animals, or retain ordinary vanilla gathering in addition.
+Recommended the former to avoid counting the same managed production twice;
+stock-backed direct collection may follow later. Player-owned livestock remains
+normal in either option. This is a new player interaction/economic rule and is
+not selected by the startup grant approval. Existing bucket behavior and live
+listeners are unchanged while pending; automatic adoption/output remains unwired.
+
+## October16: livestock startup funding — approved
+
+User answered yes to sharing the existing village startup grants with dedicated
+chicken/dairy livestock businesses. The same common period/lifetime spending caps
+and food-money protection apply, with no extra money or per-industry allowance.
+Installed eligibility lists remain unchanged unless an admin opts in. This grants
+funding eligibility only: real animals, trusted ownership, suitable sites, actual
+feed, qualified work and safe physical reconciliation remain prerequisites before
+live automatic founding/production. Protected eligibility, trusted atomic opening
+and bounded real animal capture are verified by1,572 full-build tests and the
+isolated Paper capture/payment/feed/output/restart/pause check. This does not
+enable live adoption or automatic livestock production. No funding decision remains.
 
 ## October16: first craftsman customers — approved
 
