@@ -1,5 +1,60 @@
 # Processing workshops — startup funding and bakery prospects
 
+## October15 — first-baker study, commercial competition and automatic opening
+
+The approved bakery market forecast can qualify an opening from actual recent
+paid village food orders even if other suppliers already cover those orders.
+It averages receipts across the complete observed lookback (including quiet
+periods), caps by current resident demand, then applies an editable market share,
+unit limit, real post-startup cash, food budget and haul limit. No future sale is
+guaranteed or reserved. It neither counts old deliveries as missing food nor adds
+food orders/consumption/money. The existing rotating supplier selection still
+places only legitimate current orders. More than3,200 indexed receipts defers
+this forecast; the independent uncovered-demand route remains available.
+
+New-file `bakery-market` defaults: enabled,12 economic periods,10000 basis points
+(up to100% of observed paid demand),32 units per period. This is investment
+eligibility for the first bakery, not an exclusive sales allocation. A missing
+section preserves installed uncovered-meal/reserve-demand behavior. Empty paid history cannot
+justify competition; declining paid demand may pause training before opening.
+
+A prospective baker must be an eligible unemployed adult, not a current active
+business owner or student. One first-owner course per village is sponsored only
+for current smoker/funding/customer/input evidence. New-file baking study earns1
+experience per productive economic period toward10 and consumes1 real timber per
+period for abstract practice/equipment/fuel. Existing food and material reserves,
+student budgets and actual supplies apply. The course gets no past queued work;
+unknown opportunities pause without spending, and a taken first-bakery opportunity
+cancels the course to release the learner. Unloaded worlds/downtime remain paused.
+Training may inspect one currently processing future food period; purchases and
+opening acceptance still require current completed evidence with no backlog.
+
+Schema79 adds initially empty bakery founder review/course tables with existing
+resident/course/world references, plus a paid-food history index. It does not
+rewrite balances, people, jobs or old accepted grants/shipments. Enrollment,
+reviews and spending retain the existing atomic owner-thread transaction model.
+
+`BakeryStartupCycle` polls one SQL proposal/acceptance at a time and rotates saved
+villages. `PaperBakeryStartup` checks one smoker on the main thread, only in an
+already loaded chunk; no chunk tickets, block placement, container access or
+property claim. The SQL owner then repeats all eligibility and funding checks.
+The plugin schedules this loop and includes its explanation in diagnostics.
+
+Existing installed files must explicitly opt in: copy/tune the bakery-founding,
+bakery-opportunities and bakery-market sections, bakery bread recipe, grain
+storage/supply terms, baking study course, bakery career-study permission and
+bakery→baking work-learning mapping from the bundled default. Nothing overwrites
+an administrator's installed economy file or expands saved store catalogues.
+Additional bakery employee hiring requires opting `bakery` into the existing
+`automatic-business-staffing.industries` list; this batch opens the working
+founder and preserves existing staffing lists. It does not give unqualified
+residents free baking experience.
+
+This connects the first bread bakery. Cakes, egg/milk ingredient integration,
+multiple product selection, the general craftsman and physical construction
+remain unfinished. No human-server deployment is implied by a passing test.
+Verification results for this batch are recorded in PROJECT_STATUS and DEVLOG.
+
 ## October15 — private first-batch grain purchases (schema78)
 
 If preserved public surplus cannot supply the first bread batch, preparation can

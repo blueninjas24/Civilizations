@@ -32,6 +32,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperWorkplaceObserver workplaces;
     private com.blueninjas24.civilizations.paper.PaperWorkplaceOperations workplaceOperations;
     private com.blueninjas24.civilizations.paper.PaperWorkshopStartup workshopStartup;
+    private com.blueninjas24.civilizations.paper.PaperBakeryStartup bakeryStartup;
     private com.blueninjas24.civilizations.paper.PaperWarehouseStartup warehouseStartup;
     private com.blueninjas24.civilizations.paper.OrePlacementTracker orePlacements;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
@@ -86,6 +87,7 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + (workplaces==null?"Workplace observer not started":workplaces.diagnostic())
                             + "; " + (workplaceOperations==null?"Workplace operation checks not started":workplaceOperations.diagnostic())
                             + "; " + (workshopStartup==null?"Automatic workshop startup not started":workshopStartup.diagnostic())
+                            + "; " + (bakeryStartup==null?"Automatic bakery startup not started":bakeryStartup.diagnostic())
                             + "; " + (warehouseStartup==null?"Automatic warehouse startup not started":warehouseStartup.diagnostic()));
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
             var previewPolicy = EconomyConfiguration.readAidPreview(economyConfig);
@@ -113,7 +115,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureOreTracking();
             population.configureWorkplaces(workplaceSettings);
             population.configureWorkshopFounding(EconomyConfiguration.readWorkshopFounding(economyConfig));
-            population.configureBakery(EconomyConfiguration.readBakeryFounding(economyConfig),EconomyConfiguration.readBakeryOpportunities(economyConfig));
+            population.configureBakery(EconomyConfiguration.readBakeryFounding(economyConfig),EconomyConfiguration.readBakeryOpportunities(economyConfig),EconomyConfiguration.readBakeryMarket(economyConfig));
             population.configureWarehouseOpportunities(EconomyConfiguration.readWarehouseOpportunities(economyConfig));
             population.configureWarehouseFounding(EconomyConfiguration.readWarehouseFounding(economyConfig));
             population.configureWorkplaceOperations(EconomyConfiguration.readWorkplaceOperations(economyConfig));
@@ -162,6 +164,7 @@ public final class Civilizations extends JavaPlugin {
                         workplaces=new com.blueninjas24.civilizations.paper.PaperWorkplaceObserver(population,workplaceSettings);workplaces.runTaskTimer(Civilizations.this,1,1);
                         workplaceOperations=new com.blueninjas24.civilizations.paper.PaperWorkplaceOperations(population,getLogger());workplaceOperations.runTaskTimer(Civilizations.this,1,20);
                         workshopStartup=new com.blueninjas24.civilizations.paper.PaperWorkshopStartup(population,getLogger());workshopStartup.runTaskTimer(Civilizations.this,1,20);
+                        bakeryStartup=new com.blueninjas24.civilizations.paper.PaperBakeryStartup(population,getLogger());bakeryStartup.runTaskTimer(Civilizations.this,1,20);
                         warehouseStartup=new com.blueninjas24.civilizations.paper.PaperWarehouseStartup(population,getLogger());warehouseStartup.runTaskTimer(Civilizations.this,1,20);
                         lifecycle = new ManagedVillagerLifecycle(population, getLogger());
                         getServer().getPluginManager().registerEvents(lifecycle, Civilizations.this);
@@ -185,6 +188,7 @@ public final class Civilizations extends JavaPlugin {
         if(waters!=null)waters.cancel();
         if(warehouseStartup!=null)warehouseStartup.cancel();
         if(workshopStartup!=null)workshopStartup.cancel();
+        if(bakeryStartup!=null)bakeryStartup.cancel();
         if(workplaceOperations!=null)workplaceOperations.cancel();
         if(barterCommand!=null)barterCommand.close();
         if(barters!=null)barters.close();

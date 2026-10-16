@@ -135,6 +135,22 @@ public final class VillageSupplyPurchases {
     public Demand demandAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit)throws SQLException {return demandAfterSpending(town,worlds,proposedDebit,false);}
     /** Planning only: one currently processing future food period may validate linked practice. Never used by orders. */
     Demand demandForTrainingAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit)throws SQLException {return demandAfterSpending(town,worlds,proposedDebit,true);}
+    /** Conservative recurring market: actual paid food orders, capped by current assessed needs and future affordability.
+     * Does not place orders, count historical food as missing, or allocate sales away from another producer. */
+    long competingFoodUnits(UUID town,Set<UUID> worlds,long proposedDebit,BakeryMarketPolicy market,boolean training)throws SQLException {
+        if(!market.enabled()||!policy.enabled())return 0;
+        var account=new CommodityRepository(connection).read(town);long period=account.map(a->a.state().completedPeriods()).orElse(0L);
+        if(period<1)return 0;
+        Evidence current;try{current=evidence(town,period,worlds,training);}catch(Declined unavailable){return 0;}
+        long window=Math.min(period,market.paidOrderLookbackPeriods()),total=0;
+        try(var s=connection.prepareStatement("SELECT units FROM village_supply_orders WHERE settlement_id=? AND commodity='food' AND period>? AND period<=? ORDER BY period,operation_id LIMIT 3201")) {
+            s.setString(1,town.toString());s.setLong(2,period-window);s.setLong(3,period);
+            int reviewed=0;try(var r=s.executeQuery()){while(r.next()){if(++reviewed>3200)return 0;total=Math.addExact(total,r.getLong(1));}}
+        }
+        long units=market.share(Math.min(total/window,current.demand()));
+        long cash=Math.max(0,new TreasuryRepository(connection).load(town).map(t->t.hundredths()).orElse(0L)-proposedDebit);
+        return policy.affordable(Commodity.FOOD,cash,current.demand(),0,units,units,policy.haulUnitsPerPeriod());
+    }
     private Demand demandAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit,boolean nextPeriodPractice)throws SQLException {
         Objects.requireNonNull(town);Objects.requireNonNull(worlds);
         if(proposedDebit<0)throw new IllegalArgumentException("Negative proposed public spending");

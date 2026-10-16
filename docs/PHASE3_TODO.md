@@ -1,5 +1,23 @@
 # Phase 3 — businesses and industry checklist
 
+## October 15 — automatic bread bakery and paid farm customer gate
+
+Approved real-market competition, future supply-backed first-baker study and the
+main-thread loaded-smoker opening cycle are connected. Real qualified work,
+protected funding, actual paid grain, storage and delayed delivery still apply.
+Schema 79 adds two empty training tables and a bounded market-history index.
+Full clean verify: 1,517 passing tests; packaged Paper training/opening/bread/
+replay/absence proof passed, old saves preserved and fixture restored/stopped.
+No human-server deployment. Additional bakery hires require the existing staffing
+list opt-in; egg/milk products, cakes and wider product selection remain pending.
+
+Checked paid farm food/ingredient customers after the real 80-period chain,
+paid private starters and automatic bakery integration. Resources now 30/39;
+1/4 whole groups, about 68% partial. Neither the combined bakery/egg/milk entry
+nor either livestock entry is complete. Craftsman storage customers await the
+explicit decision in DECISIONS_AND_OPEN_QUESTIONS. Other P3 gates remain.
+
+
 ## October15 — private first-input route and durable receipt (schema78)
 
 Implemented qualified local farm/warehouse first grain purchases under existing
@@ -559,7 +577,7 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 
 - [x] Hybrid farm contributions and owned surplus: capped actual allocation,
       finite storage, tools/skills, replay and preservation of old public goods.
-- [ ] Paid farm food/ingredient customers, protected real funds, causal delivery
+- [x] Paid farm food/ingredient customers, protected real funds, causal delivery
       and income; local food priority without confiscation or invented shoppers.
 - [ ] Basic livestock herds, feed/capacity, breeding reserves, bounded slaughter,
       renewable eggs/milk, saved ownership/history and no spoilage.

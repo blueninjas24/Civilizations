@@ -112,6 +112,14 @@ bakery-opportunities:
   capital-hundredths: 4000
   storage-capacity: 1024
 
+# Opening forecast only. No extra meals, money or guaranteed sales.
+# 10000 basis points = up to 100% of the observed average paid food market.
+# Actual sellers still compete under the existing food budget and rotating orders.
+bakery-market:
+  enabled: true
+  paid-order-lookback-periods: 12
+  maximum-share-basis-points: 10000
+  maximum-units-per-period: 32
 bakery-founding:
   enabled: true
   founders-per-review: 64
@@ -314,6 +322,7 @@ work-learning:
     farming: farming
     warehouse: commerce
     fishing: fishing
+    bakery: baking
     quarry: mining
     sandpit: mining
 
@@ -602,6 +611,10 @@ resident-study:
   food-reserve-periods: 1
   material-reserve-units: 2
   skills:
+    baking:
+      target-experience: 10
+      practice-supplies:
+        timber: 1
     fishing:
       target-experience: 10
       practice-supplies:
@@ -661,7 +674,7 @@ automatic-career-study:
   enabled: true
   candidates-per-review: 64
   enrollments-per-review: 1
-  industries: [mining, blacksmith, warehouse, fishing]
+  industries: [mining, blacksmith, warehouse, fishing, bakery]
 
 # Starts data-only coal/iron mines for current funded workshop needs, not fake buyers.
 # Requires current trusted exposed ore, a staffed affordable warehouse buyer, real

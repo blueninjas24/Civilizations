@@ -1,20 +1,30 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October15: bakery competition for existing paid food orders — awaiting answer
+## October15: first craftsman customers — awaiting answer
 
-The current first-bakery planner requires an uncovered, funded meal/reserve gap.
-When farms already cover that gap, it defers bakery investment and founder study.
-This can postpone training until reserves are low. Asked whether a bakery may
-instead compete for a configurable share of actual food orders the village
-already pays producers for, even while basic food supply is healthy.
+Asked whether existing businesses may buy small storage fittings/upgrades using
+real business cash when constrained by storage, under editable prices and hard
+capacity limits. This would provide a causal use for craft goods before Phase4
+physical expansion. It cannot invent shoppers, confiscate public materials,
+create money, force-load chunks, or authorize block changes. No upgrade or new
+craft customer rule is implemented. If deferred, storage stays fixed until
+physical construction; select other genuinely feasible craft customers explicitly.
 
-Recommend allowing competition using real observed paid demand, actual budgets,
-qualified work, real ingredients and finite storage. Do not add consumers, food
-consumption, cash or compulsory purchases to make a bakery profitable. Existing
-paid food orders may change suppliers; farmers can earn grain-sale revenue.
-This affects farm sales and startup priorities, so no new competition rule is
-being activated while the answer is pending. Private first-input purchases and
-their accounting are already within the approved paid farm-surplus direction.
+## October15: bakery competition for existing paid food orders — approved
+
+User answered yes: bakeries may compete for existing paid village food orders
+while basic supply is healthy. Eligibility uses configurable recent actual paid
+food orders, current assessed resident demand, real post-startup purchasing cash,
+food budgets and haul limits. It must not create consumers, food consumption,
+cash or compulsory purchases. Existing rotating purchase rules still decide
+actual sales; the forecast neither guarantees nor reserves revenue. Farmers may
+also earn real grain-sale income. Installed files without the new bakery-market
+section retain the earlier uncovered-demand rule. Numeric defaults are editable
+prototypes under the user's existing economy tuning authorization.
+
+Training, bounded commercial forecasting and automatic first-bread opening are
+implemented and verified by 1,517 full-build tests and the guarded Paper check.
+This does not finish the broader bakery/product/livestock gate.
 
 ## October13: bakery/craftsman workplace markers — approved
 

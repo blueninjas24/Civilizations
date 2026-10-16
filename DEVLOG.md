@@ -1,5 +1,63 @@
 # Civilizations Development Log
 
+## October 15 — trained bakers can now open real paid bread businesses
+
+Implemented the approved competition rule: a bounded forecast of actual recent
+paid food orders can justify a bakery even when existing suppliers cover them.
+Current population, post-startup funds, shared food budgets and hauling still
+limit the forecast. It creates no purchases, consumers, money or guaranteed sales.
+Admins can edit/disable the lookback, market share and unit cap in economy.yml.
+Old installed files retain their settings and uncovered-demand behavior.
+
+Connected gradual first-baker study and the live opening loop. One eligible
+unemployed adult earns actual baking experience through future supply-backed
+practice. Food/material reserves, known opportunities, staffing and study limits
+apply; absence/unknown evidence pauses, old queued time awards nothing, and a
+taken first-bakery opportunity releases the learner. Paper confirms a real loaded
+smoker on its main thread; the SQL owner then rechecks and saves the paid opening.
+Production runtime never loads chunks or alters blocks. Additional bakery employee
+hiring remains an explicit existing staffing-list opt-in; this opens the working
+founder. Cakes, milk/egg recipes and broader product selection remain unfinished.
+
+Schema 79 adds empty founder course/review tables and an indexed paid-food history
+lookup. No old people, goods, cash, ownership or history are rewritten. Migration
+failure/retry, enrollment/practice rollback, quiet-market averaging, current cash,
+world/population limits, cancellation, backlog and old-config behavior are tested.
+History review is bounded at 3,200 receipts and defers instead of inferring demand
+from a partial sample. Existing real food-order rotation remains unchanged.
+
+Validation: 14 new focused cases passed. Final Windows .\mvnw.cmd clean verify
+passed 1,517 tests (1,515 unit and two packaged integration), zero failures/errors/
+skips, in 7:30 at 22:47:57 ET. An added test initially rewrote household totals
+inconsistently; corrected it to advance an ordinary assessed period. No application
+rule changed for that fixture correction. All production/test Java stayed frozen
+through final verification; subsequent edits were docs and the excluded probe.
+
+Guarded Paper 26.2 build 129 passed at 22:49:48 ET: actual SQL-owner study with ten
+real practice expenses, restart, normal Paper bakery cycle/point confirmation,
+private supplier payment, timed bread, exact replay and absent-world pause.
+The first helper follow-up incorrectly supplied an absent world for fresh marker
+confirmation; the guard correctly declined. Corrected only the excluded helper
+and reran. Initial schema 78-to-79 audit retained all 134 predecessor tables,
+131 exactly; retry retained all 136/133 exactly. Both changed only three normal
+clock/runtime/ore bookkeeping tables, with zero resident aging. Integrity/FKs pass.
+One existing disposable chunk was held by a test-only ticket; the temporary air
+block was restored and ticket removed. Server stopped, original properties
+restored, helpers archived and backups retained. Known OSHI Windows counter warning;
+no Civilizations/probe/listener failure on the passing run. Human server untouched.
+
+Paid farm food/ingredient customers now satisfy their checklist entry: owned crop
+surplus earns actual village, warehouse and bakery payments, with causal delivery,
+protected reserves and conserved cash/grain in the 80-period chain and starter
+checks. P3 is 30/39 resource entries, 1/4 whole groups, about 68% partial checklist
+completion. This is not a finished bakery/livestock/production phase gate.
+Next: general craftsman customers, physical livestock integration, remaining
+industry/product scope and specialization acceptance. One decision is pending:
+may real businesses buy limited storage upgrades from the craftsman before Phase 4?
+No storage-upgrade rule or new craft customer is implemented yet. Main unchanged;
+feature branch codex/phase3-bakery-customers. See PROCESSING_WORKSHOPS.md.
+
+
 ## October15 — paid private bakery starters and replay-safe schema78
 
 After backing up2522ee8, continued on codex/phase3-bakery-private-inputs. Added a

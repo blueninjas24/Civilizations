@@ -20,12 +20,19 @@ public final class BakeryOpportunities {
     private final VillageSupplyPolicy customers;
     private final StudyPolicy study;
     private final BusinessOperationPolicy operations;
+    private final BakeryMarketPolicy market;
     public BakeryOpportunities(Connection connection,WorkshopOpportunityPolicy policy,IndustryRuntimePolicy industry,
             StartupGrantPolicy grants,WorkshopStarterPolicy starter,VillageSupplyPolicy customers,
             StudyPolicy study,BusinessOperationPolicy operations) {
+        this(connection,policy,industry,grants,starter,customers,study,operations,BakeryMarketPolicy.disabled());
+    }
+    public BakeryOpportunities(Connection connection,WorkshopOpportunityPolicy policy,IndustryRuntimePolicy industry,
+            StartupGrantPolicy grants,WorkshopStarterPolicy starter,VillageSupplyPolicy customers,
+            StudyPolicy study,BusinessOperationPolicy operations,BakeryMarketPolicy market) {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);this.industry=Objects.requireNonNull(industry);
         this.grants=Objects.requireNonNull(grants);this.starter=Objects.requireNonNull(starter);this.customers=Objects.requireNonNull(customers);
         this.study=Objects.requireNonNull(study);this.operations=Objects.requireNonNull(operations);
+        this.market=Objects.requireNonNull(market);
     }
     public Review review(UUID town,long now,Set<UUID> worlds)throws SQLException {
         Objects.requireNonNull(town);if(now<0)throw new IllegalArgumentException("Negative bakery evidence time");
@@ -36,6 +43,10 @@ public final class BakeryOpportunities {
     }
     /** Acceptance must repeat this review inside its complete founding transaction and recheck the loaded marker. */
     Review reviewRows(UUID town,long now,Set<UUID> worlds)throws SQLException {
+        return reviewRows(town,now,worlds,false);
+    }
+    Review reviewForTrainingRows(UUID town,long now,Set<UUID> worlds)throws SQLException {return reviewRows(town,now,worlds,true);}
+    private Review reviewRows(UUID town,long now,Set<UUID> worlds,boolean training)throws SQLException {
         if(connection.getAutoCommit())throw new SQLException("Bakery evidence rows require owner transaction");
         if(!policy.enabled()||!industry.enabled()||!industry.supply().enabled()||!starter.enabled()||!customers.enabled())return no("Bakery investment, processing, input supply, starter or public customers disabled");
         var markers=new WorkplaceOpportunities(connection).review(town,now,policy.evidenceLifetimeMillis(),worlds,policy.markersPerReview(),Set.of(WorkplaceObservation.Kind.SMOKER));
@@ -48,11 +59,13 @@ public final class BakeryOpportunities {
         var funding=new BusinessStartupGrants(connection).previewRows(town,"bakery",policy.startupHundredths(),policy.capitalHundredths(),grants);
         if(!funding.eligible())return no("Bakery startup funding unavailable: "+funding.reason());
         long debit=Math.addExact(policy.startupHundredths(),policy.capitalHundredths());
-        var demand=new VillageSupplyPurchases(connection,customers,study,operations).demandAfterSpending(town,worlds,debit);
+        var buyers=new VillageSupplyPurchases(connection,customers,study,operations);
+        var demand=training?buyers.demandForTrainingAfterSpending(town,worlds,debit):buyers.demandAfterSpending(town,worlds,debit);
         long wanted=demand.fundedUnits().getOrDefault(Commodity.FOOD,0L);
-        if(wanted==0)return no("No real funded village meal/reserve customer after startup spending: "+demand.explanation());
+        long competing=buyers.competingFoodUnits(town,worlds,debit,market,training);
+        if(wanted==0&&competing==0)return no("No real funded village meal/reserve customer or recurring paid food orders after startup spending: "+demand.explanation());
         var supply=availableFood(town,markers.candidates().getFirst().world(),worlds);if(supply.isEmpty())return no("Local meal supplier review cap exceeded; no partial shortage inferred");
-        long uncovered=Math.max(0,wanted-supply.orElseThrow());var selected=recipe.orElseThrow();
+        long uncovered=Math.max(Math.max(0,wanted-supply.orElseThrow()),competing);var selected=recipe.orElseThrow();
         if(uncovered<selected.outputs().get(Commodity.FOOD))return no("Existing available meals cover demand or remaining funded need is smaller than one bakery batch");
         var stocks=WorkshopPublicStock.read(connection,town);var weights=industry.mining().storageSpacePerUnit();
         long outputSpace;

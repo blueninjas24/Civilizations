@@ -187,6 +187,7 @@ public final class EconomyRuntimeRepository {
     }
     private MineFounderStudy mineFounderStudy;
     private WorkshopFounderStudy workshopFounderStudy;
+    private BakeryFounderStudy bakeryFounderStudy;
     private WarehouseFounderStudy warehouseFounderStudy;
     public void configureWarehouseFounderStudy(WarehouseOpportunities opportunities,com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy founding,
             com.blueninjas24.civilizations.industry.CareerStudyPolicy careers) {
@@ -216,6 +217,21 @@ public final class EconomyRuntimeRepository {
             if(period==0)return "Workshop founder study waits for first food assessment";
             accrue(town,now,false);
             return workshopFounderStudy.reviewRows(town,now,loadedWorlds,period,clock(town).anchor().targetSteps());
+        });
+    }
+    public void configureBakeryFounderStudy(BakeryOpportunities opportunities,com.blueninjas24.civilizations.industry.BakeryFoundingPolicy founding,
+            com.blueninjas24.civilizations.industry.CareerStudyPolicy careers) {
+        if(inUse)throw new IllegalStateException("Configure bakery founder study before economy use");
+        bakeryFounderStudy=new BakeryFounderStudy(connection,opportunities,founding,careers,studyPolicy,adulthood);
+    }
+    public String reviewBakeryFounderStudy(UUID town,long now)throws SQLException {
+        return transaction(()-> {
+            if(bakeryFounderStudy==null)return "Bakery founder study not configured";
+            if(!hasRuntime(town)||!active(town))return "Bakery founder study waits for present-world food economy";
+            long period=commodities.read(town).orElseThrow().state().completedPeriods();
+            if(period==0)return "Bakery founder study waits for first food assessment";
+            accrue(town,now,false);
+            return bakeryFounderStudy.reviewRows(town,now,loadedWorlds,period,clock(town).anchor().targetSteps());
         });
     }
     public void configureMineFounderStudy(AutomaticMineFounding mines,com.blueninjas24.civilizations.industry.CareerStudyPolicy careers,
@@ -564,7 +580,9 @@ public final class EconomyRuntimeRepository {
         }
         var study=new ResidentStudy(connection,studyPolicy,adulthood);
         if(mineFounderStudy!=null)study.withFounderOpportunity(course->mineFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds));
-        if(workshopFounderStudy!=null||warehouseFounderStudy!=null||fisheryFounderStudy!=null)study.withFounderPractice(course->{
+        if(workshopFounderStudy!=null||warehouseFounderStudy!=null||fisheryFounderStudy!=null||bakeryFounderStudy!=null)study.withFounderPractice(course->{
+            var bakery=bakeryFounderStudy==null?ResidentStudy.FounderState.READY:bakeryFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds);
+            if(bakery!=ResidentStudy.FounderState.READY)return bakery;
             var workshop=workshopFounderStudy==null?ResidentStudy.FounderState.READY:workshopFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds);
             if(workshop!=ResidentStudy.FounderState.READY)return workshop;
             var warehouse=warehouseFounderStudy==null?ResidentStudy.FounderState.READY:warehouseFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds);

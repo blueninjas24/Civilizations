@@ -37,6 +37,7 @@ public final class EconomyConfiguration {
         if (config.contains("workshop-starter-supplies")) rootKeys.add("workshop-starter-supplies");
         if (config.contains("workshop-founding")) rootKeys.add("workshop-founding");
         if (config.contains("bakery-founding")) rootKeys.add("bakery-founding");
+        if (config.contains("bakery-market")) rootKeys.add("bakery-market");
         if (config.contains("bakery-opportunities")) rootKeys.add("bakery-opportunities");
         if (config.contains("workshop-opportunities")) rootKeys.add("workshop-opportunities");
         if (config.contains("warehouse-opportunities")) rootKeys.add("warehouse-opportunities");
@@ -80,6 +81,7 @@ public final class EconomyConfiguration {
         readWorkshopFounding(config);
         readBakeryFounding(config);
         readBakeryOpportunities(config);
+        readBakeryMarket(config);
         readWarehouseSupply(config);
         readToolUpkeep(config);
         readBusinessStaffing(config);
@@ -268,6 +270,12 @@ public final class EconomyConfiguration {
         var s=section(config,"bakery-founding");exactKeys(s,Set.of("enabled","founders-per-review","minimum-age-months","founder-baking-experience","worker-baking-experience","worker-capacity"));
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("bakery-founding.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.BakeryFoundingPolicy(enabled,smallInteger(s,"founders-per-review"),integer(s,"minimum-age-months"),integer(s,"founder-baking-experience"),integer(s,"worker-baking-experience"),smallInteger(s,"worker-capacity"));
+    }
+    public static com.blueninjas24.civilizations.industry.BakeryMarketPolicy readBakeryMarket(ConfigurationSection config) {
+        if(!config.contains("bakery-market"))return com.blueninjas24.civilizations.industry.BakeryMarketPolicy.disabled();
+        var s=section(config,"bakery-market");exactKeys(s,Set.of("enabled","paid-order-lookback-periods","maximum-share-basis-points","maximum-units-per-period"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("bakery-market.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.BakeryMarketPolicy(enabled,smallInteger(s,"paid-order-lookback-periods"),smallInteger(s,"maximum-share-basis-points"),integer(s,"maximum-units-per-period"));
     }
     public static com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy readBakeryOpportunities(ConfigurationSection config) {
         if(!config.contains("bakery-opportunities"))return com.blueninjas24.civilizations.industry.WorkshopOpportunityPolicy.disabled();

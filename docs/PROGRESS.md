@@ -1,5 +1,23 @@
 # Civilizations progress tracker
 
+## October 15 — first bread bakeries can train and open automatically
+
+Villages can now teach an eligible adult to bake, pay a real grain supplier and
+open a bread bakery at an observed smoker when money, skills and customers make
+it viable. Bakers can compete for existing paid food orders; nobody gets invented
+money or guaranteed sales. Admin settings remain editable. Your server is unchanged.
+
+**P3: about 68% partial checklist progress** (`██████▊░░░`), with one of four whole
+groups finished. Paid farm food/ingredient customers now count as complete:
+resources 30/39. Bread opening is connected; milk/egg products, the craftsman,
+live livestock and specialization still prevent the broader gates from passing.
+
+All 1,517 full-build tests passed, plus real Paper training/opening/production,
+restart and pause checks. Test-save history was preserved and the fixture restored.
+A decision is pending about allowing limited, paid business storage upgrades as
+the craftsman's first customers. See PROJECT_STATUS and PROCESSING_WORKSHOPS.
+
+
 ## October15 — bakeries can pay real suppliers for their first grain
 
 The startup backend can now buy the first bread ingredients from a farm or
@@ -468,12 +486,12 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |29/39|74%|
+| Resources and connected production |30/39|77%|
 | Business lifecycle and competition |14/15|93%|
 | Specialization and final acceptance |0/5|No complete entries yet|
 
 The October13 food-chain additions expand this checklist. Equal weight per group
-gives about67% partial checklist completion under the new scope. The former70%
+gives about68% partial checklist completion under the current scope. The former70%
 described the earlier scope. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from
