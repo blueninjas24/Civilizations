@@ -6,14 +6,30 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityBreedEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.persistence.PersistentDataType;
 
 /** Persistent protective evidence, not ownership. No player identities, SQL, cancellation or resource changes. */
 public final class LivestockBreedingProvenance implements Listener {
     private static final NamespacedKey PLAYER_BRED=new NamespacedKey("civilizations","livestock_player_bred");
+    private static final NamespacedKey HUMAN_ORIGIN=new NamespacedKey("civilizations","livestock_human_origin");
     public static boolean recorded(Entity entity) {
         // Any saved value is protective; a malformed/old tag must not make an animal adoptable.
-        return entity.getPersistentDataContainer().has(PLAYER_BRED);
+        var data=entity.getPersistentDataContainer();
+        return data.has(PLAYER_BRED)||data.has(HUMAN_ORIGIN)||humanOrigin(entity.getEntitySpawnReason());
+    }
+    private static boolean humanOrigin(CreatureSpawnEvent.SpawnReason reason) {
+        return reason==CreatureSpawnEvent.SpawnReason.EGG||reason==CreatureSpawnEvent.SpawnReason.BREEDING
+                ||reason==CreatureSpawnEvent.SpawnReason.SPAWNER_EGG||reason==CreatureSpawnEvent.SpawnReason.DISPENSE_EGG
+                ||reason==CreatureSpawnEvent.SpawnReason.COMMAND;
+    }
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
+    public void spawned(CreatureSpawnEvent event) {
+        if(event.isCancelled()||!humanOrigin(event.getSpawnReason()))return;
+        var entity=event.getEntity();var type=entity.getType();
+        if(type!=EntityType.COW&&type!=EntityType.CHICKEN)return;
+        if(!entity.getPersistentDataContainer().has(HUMAN_ORIGIN))
+            entity.getPersistentDataContainer().set(HUMAN_ORIGIN,PersistentDataType.BYTE,(byte)1);
     }
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
     public void bred(EntityBreedEvent event) {
@@ -21,7 +37,8 @@ public final class LivestockBreedingProvenance implements Listener {
         var child=event.getEntity();var type=child.getType();
         if(type!=EntityType.COW&&type!=EntityType.CHICKEN)return;
         if(event.getBreeder() instanceof Player||recorded(event.getMother())||recorded(event.getFather())) {
-            if(!recorded(child))child.getPersistentDataContainer().set(PLAYER_BRED,PersistentDataType.BYTE,(byte)1);
+            var data=child.getPersistentDataContainer();
+            if(!data.has(PLAYER_BRED))data.set(PLAYER_BRED,PersistentDataType.BYTE,(byte)1);
         }
     }
 }

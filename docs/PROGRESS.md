@@ -1,5 +1,16 @@
 # Civilizations progress tracker
 
+## October16 — player-created livestock keeps its origin evidence
+
+Chickens hatched from eggs and livestock created through breeding, spawn eggs,
+dispensers or commands now carry protective evidence for future village adoption.
+Normal player animal behavior stays intact. Missing information remains unknown.
+
+All1,599 build tests and the real Paper origin/protection checks passed. Test
+animals/items removed; your server untouched. P3 stays~68% partial (`██████▊░░░`),
+30/39 resources,1/4 whole groups. Next: interrupted-save recovery, then physical
+herd reconciliation and live business/feed/output connections. No decision needed.
+
 ## October16 — killed livestock no longer stays in a saved herd
 
 Confirmed deaths of original village herd animals now reduce the saved count and

@@ -45,7 +45,7 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
         if(pending!=null) {
             if(!pending.isDone())return;
             try{pending.join();deaths.remove(submitted.animal());}
-            catch(java.util.concurrent.CompletionException failed){logger.warning("Physical livestock loss save deferred: "+failed.getCause().getClass().getSimpleName());retryAt=now+1000;}
+            catch(java.util.concurrent.CompletionException failed){logger.log(java.util.logging.Level.WARNING,"Physical livestock loss save deferred; exact observation retained for retry",failed.getCause());retryAt=now+1000;}
             pending=null;submitted=null;
         }
         if(!owner.ready()||deaths.isEmpty()||now<retryAt)return;
@@ -55,6 +55,6 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
     public void flush() {
         if(deaths.isEmpty()&&recent.isEmpty())return;
         var observations=new ArrayList<>(deaths.values());observations.addAll(recent.values());
-        owner.flush(List.copyOf(observations)).whenComplete((ignored,failure)->{if(failure!=null)logger.severe("Physical livestock loss shutdown save failed: "+failure.getClass().getSimpleName());});
+        owner.flush(List.copyOf(observations)).whenComplete((ignored,failure)->{if(failure!=null)logger.log(java.util.logging.Level.SEVERE,"Physical livestock loss shutdown save failed",failure);});
     }
 }

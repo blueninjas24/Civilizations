@@ -1,5 +1,42 @@
 # Civilizations — implementation status and handoff
 
+## October16 — hatched and explicitly created animals keep protective origins
+
+Supported EGG/BREEDING/SPAWNER_EGG/DISPENSE_EGG/COMMAND spawn events now retain
+anonymous protective origin evidence. Normal spawning/hatching, amounts, items
+and experience are unchanged. Cancelled/unsupported events are untouched; no
+player owner is guessed. Original native reasons also protect older untagged
+animals from these sources. Existing/malformed protective values are retained.
+
+Captures now copy the native reason name into plain-Java immutable observations;
+absent information is UNKNOWN. No missing tag or uncertain CUSTOM/DEFAULT source
+is reinterpreted as natural. Real ownership/pen authority and safe observation
+remain mandatory; this does not enable adoption. Physical-loss deferred/shutdown
+logging now retains exception causes without changing exact retry behavior.
+
+Four new executed cases; focused30 passed. Full Windows .\mvnw.cmd clean verify
+passed1,599 (1,597 unit/two packaged integration), zero failures/errors/skips;
+07:42, finished2026-10-16T16:37:40-04:00. Production/test Java frozen during final
+verification; no behavior changes for test convenience. Schema unchanged82.
+
+Guarded Paper26.2 build129 passed16:38:12: actual native explicit-origin spawns,
+production event tags, original-reason fallback with tags removed, PDC serialization
+and immutable origin capture. Existing three-colour actual egg laying/drop control,
+synthetic both-hand bucket/breeding and player-normal behavior checks passed too.
+This is explicit native spawn-reason coverage, not a thrown-projectile hatching or
+human-client/stock-trading test. All helper animals/items removed, ticket released,
+no block changes. All140 predecessor tables retained/137 exact; only ordinary
+clock/runtime/ore metadata changed; age delta0, integrity/FKs clean. Fixture stopped,
+properties restored/helper archived/backups retained. Existing OSHI warning only;
+no Civilizations/probe/listener failure. Human server untouched.
+
+P3 stays30/39 resources,1/4 whole groups/~68% partial. Next: unclean-capture recovery
+before safe physical herd reconciliation/live production. Physical newborn UUIDs,
+automatic opening/feed/customer loops and wider industry/specialization remain.
+No decision needed. Branch codex/phase3-livestock-origin; main unchanged.
+Prior harvesting7f523ff hosted Linux passed; Windows still running at16:38. No
+hosted pass claimed for newer loss/origin revisions. See LIVESTOCK_PROTECTION.md.
+
 ## October16 — confirmed original-herd losses reach saved production
 
 Confirmed uncancelled native cow/chicken deaths now cross the main-thread/SQL-owner

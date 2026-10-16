@@ -1,5 +1,37 @@
 # Livestock protection and work foundation
 
+## October16 — hatched and explicitly spawned livestock origin
+
+The protective adapter now observes successful cow/chicken CreatureSpawnEvent
+origins EGG, BREEDING, SPAWNER_EGG, DISPENSE_EGG and COMMAND. This closes the egg-
+hatching route that need not emit EntityBreedEvent. An anonymous BYTE under
+`civilizations:livestock_human_origin` records protective human/uncertain origin,
+not a player identity or owner. Egg dispensers are conservative protection too;
+no nearby player is guessed as owner. Normal hatching, counts, species, items and
+experience are unchanged. Cancelled and unsupported spawns do not write tags.
+
+`recorded` accepts either protective PDC key and falls back to Paper's original
+spawn reason for already existing untagged animals with those known origins.
+Existing values of any type are preserved. Explicit player breeding still keeps
+its separate `livestock_player_bred` evidence. Known saved village ownership
+retains precedence in the existing adoption calculator; tags never perform a
+transfer or override an individually saved player claim.
+
+Immutable animal observations now also copy the raw native spawn-reason name,
+using UNKNOWN for absent information. The DTO remains plain Java. NATURAL or
+CHUNK_GEN is evidence only: safe continuous observation, location/pen authority,
+existing ownership, names/leashes and viability remain separate mandatory gates.
+CUSTOM/DEFAULT/UNKNOWN is not silently relabeled as natural. No automatic adoption,
+retroactive entity scan, owner creation or live herd output is enabled here.
+
+Four new executed cases cover spawn-origin tagging/idempotency, cancellations/
+unsupported/natural/uncertain sources, retained malformed values and old untagged
+hatching in immutable capture. Focused30 and final full1,599 passed; native
+explicit-origin spawns/tagging/fallback/serialization/capture and milk/egg
+regressions passed. No thrown-projectile/client-trading claim. Death handoff
+warnings now retain their exception cause for diagnosis;
+retry and shutdown behavior are unchanged. No schema migration; remains82.
+
 ## October16 — confirmed losses of original herd animals
 
 `LivestockLosses` accepts trusted physical death observations for saved initial

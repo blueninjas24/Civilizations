@@ -6,8 +6,11 @@ import java.util.*;
 /** Immutable visible evidence only. An empty frame never establishes death, ownership or adoption. */
 public record LivestockObservation(UUID world,int chunkX,int chunkZ,long capturedMillis,boolean complete,
         List<Animal> animals,String explanation) {
-    public record Animal(UUID id,LivestockHerd.Species species,Position position,int ageTicks,boolean named,boolean leashed,boolean recordedPlayerBreeding) {
-        public Animal {Objects.requireNonNull(id);Objects.requireNonNull(species);Objects.requireNonNull(position);}
+    public record Animal(UUID id,LivestockHerd.Species species,Position position,int ageTicks,boolean named,boolean leashed,boolean recordedPlayerBreeding,String spawnReason) {
+        public Animal {
+            Objects.requireNonNull(id);Objects.requireNonNull(species);Objects.requireNonNull(position);Objects.requireNonNull(spawnReason);
+            if(!spawnReason.matches("[A-Z][A-Z0-9_]{0,63}"))throw new IllegalArgumentException("Invalid native livestock origin");
+        }
         public boolean adult(){return ageTicks>=0;}
     }
     public LivestockObservation {
