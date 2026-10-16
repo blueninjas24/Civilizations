@@ -35,7 +35,7 @@ class LivestockCaptureTest {
     @Test void schema82MigrationAddsOnlyEmptyCaptureStateAndPreservesPriorHerdLosses()throws Exception {
         var f=new LivestockLossesTest();f.directory=directory.resolve("migration");try{f.setup();f.losses().record(f.observed(10));SchemaFixtures.rewind(f.f.db.getConnection(),82);var before=f.snapshot();f.f.sql("CREATE VIEW livestock_capture AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(f.f.db.getConnection()));
             try(var s=f.f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(82,r.getInt(1));}
-            f.f.sql("DROP VIEW livestock_capture");assertEquals(before,f.snapshot());new SchemaMigrator().migrate(f.f.db.getConnection());var after=f.snapshot();assertEquals(List.of(),after.remove("livestock_capture"));assertEquals(before,after);assertEquals(2,f.state().heads());
+            f.f.sql("DROP VIEW livestock_capture");assertEquals(before,f.snapshot());new SchemaMigrator().migrate(f.f.db.getConnection());var after=f.snapshot();assertEquals(List.of(),after.remove("livestock_product_sales"));assertEquals(List.of(),after.remove("livestock_capture"));assertEquals(before,after);assertEquals(2,f.state().heads());
         }finally{f.close();}
     }
     @Test void ownerFailurePausesReadinessUntilExactRetryCommitsAndShutdownDrainsCleanly()throws Exception {

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 83;
+    static final int CURRENT_VERSION = 84;
 
     @FunctionalInterface
     interface Migration {
@@ -932,7 +932,8 @@ final class SchemaMigrator {
                 StorageUpgrades::createSchema,
                 SchemaMigrator::createCraftsmanFounderStudy,
                 LivestockLosses::createSchema,
-                LivestockCapture::createSchema
+                LivestockCapture::createSchema,
+                LivestockProductSales::createSchema
 
 
         ));

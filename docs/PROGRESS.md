@@ -1,9 +1,15 @@
 # Civilizations progress tracker
 
-CI note: hosted Windows kept passing tests but ran out of its45-minute allowance.
-The allowance is now60 minutes, with every check retained. Latest local/native
-validation is1,610 tests; new GitHub checks are pending. Phase progress and the
-livestock substeps below are unchanged.
+## October16 — product trade accounting verified
+
+Milk/egg purchases now have saved accounting for holding actual goods, confirming
+payment once, or safely returning unsold goods. Milk receipts require the buyer's
+own bucket. The player trade menu is not connected yet. All1,627 tests passed;
+P3 stays~68% partial and the livestock gate remains unfinished.
+
+CI note: the previous recovery revision81be4a0 passed both Windows and Linux
+hosted verification. The new product-sale batch passed local checks; hosted verification pending.
+Phase progress and the unfinished livestock gate below are unchanged.
 
 ## October16 — livestock safety foundation verified
 
@@ -19,6 +25,7 @@ untouched; test saves preserved. P3 remains~68% partial (`██████▊�
 - [x] Player-animal protection and native origin evidence.
 - [x] Confirmed original-animal deaths and once-only accounting.
 - [x] Durable capture eligibility, pending-loss checks and shutdown recovery warning.
+- [x] Saved milk/egg sale ledger and bucket receipt terms (menu unfinished).
 - [ ] Automatic safe animal adoption and business opening.
 - [ ] Physical newborn identity and herd reconciliation.
 - [ ] Scheduled feed purchases and production.

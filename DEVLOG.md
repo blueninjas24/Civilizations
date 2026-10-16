@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## October16 — milk and egg sale ledger
+
+Added saved reservations/completion/cancellation for real herd product sales,
+exact buyer-supplied milk-bucket receipt terms, and storage protection so later
+work cannot occupy the space needed to cancel an order. No seller revenue before
+confirmed exchange; retries/restarts cannot repeat a completed payment or goods
+return. Wrong supplier/world/product, unavailable staff/stock and changed terms
+are refused. SQL or arithmetic failures roll back the entire transition.
+
+Schema84 is additive and starts with an empty sale ledger. Old-schema regression
+fixtures now explicitly assert that new table empty while retaining every old-row
+comparison. Existing goods, cash, herd identity, histories and world files remain.
+No actual server database was touched. No new inventory/menu/command is enabled;
+the future Paper adapter must verify saved player proof, inventory and price terms.
+Automatic adoption, physical newborn reconciliation and live feed/output remain
+unfinished. P3 stays~68% partial (30/39 resources,1/4 whole groups).
+
+Final Windows .\mvnw.cmd clean verify -B -ntp passed1,627 tests (1,625 unit/two
+packaged integration), zero failures/errors/skips;08:47, finished2026-10-16
+19:07:55-04:00. Seventeen new cases passed. Focused57 trade/herd/recovery/storage
+cases passed before two final storage/quantity cases. One initial fixture omitted
+the required employment-end reason; switched it to the existing termination API,
+without changing application behavior. Source/tests frozen during final run.
+No native smoke needed for this SQL/domain-only change; no Paper API changed.
+Prior81be4a0 source passed hosted Windows and Linux verification:
+https://github.com/blueninjas24/Civilizations/actions/runs/38967519430 .
+Earlier80fe3f0 Windows was cancelled, not certified; later81be4a0 passed both.
+
 ## October16 — milk container decision recorded
 
 User approved buyer-supplied empty buckets for milk purchases. Canonical design,

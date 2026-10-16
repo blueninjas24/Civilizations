@@ -1,5 +1,42 @@
 # Livestock protection and work foundation
 
+## October16 — saved product sale accounting (not a player menu)
+
+Schema84 adds an initially empty `livestock_product_sales` ledger. The explicit
+SQL-owner `LivestockProductSales` API accepts exact `LivestockProductSale.Terms`
+for a saved, operating, qualified staffed herd in its actual village/present world.
+Dairies sell only recorded milk; chicken herds sell only recorded eggs. Reserving
+removes actual goods from sellable stock without revenue. Held goods retain their
+storage space, so later production or incoming cargo cannot occupy cancellation
+room. Completing credits the agreed real player payment once and releases room;
+cancelling returns goods once. Conflicting terms or terminal outcomes are refused.
+Accepted reservations can recover after absence or staff departure; new orders
+must satisfy current eligibility. Arithmetic/SQL failures roll back all effects.
+
+`PendingLivestockSale` is a canonical, versioned player-receipt format, not an
+installed listener. One prototype milk stock unit materializes as one milk bucket,
+using one player-supplied empty bucket; milk is offered singly to respect its item
+stack limit. Eggs permit up to64 ordinary eggs and need no container. Numeric
+payment/rate terms are explicit, bounded and not fixed prices or an active quote.
+This item conversion does not change abstract animal-production yields.
+
+No public command, menu, price defaults or player inventory exchange is enabled.
+The future Paper adapter must prove independently saved player intent before
+reservation, revalidate empty bucket/payment/destination space before exchange,
+and prove the saved exchange before completion. Cancellation requires proof that
+no delivery happened. REVIEW outcomes must not automatically refund delivered
+items. This backend deliberately cannot infer payment from an SQL reservation.
+No price-setting authority, player proximity/permission check or crash-safe live
+inventory exchange is claimed by calling this trusted backend alone.
+
+Validation: full Windows Wrapper clean verify passed1,627 tests (1,625 unit/two
+packaged integration), zero failures/errors/skips;08:47, finished19:07:55 ET. Seventeen added
+cases cover both products, all receipt stages, malformed/changed terms, restart
+replay, competing buyers, cancellation room versus real herd production, real
+staff/stock/world checks, injected transactional failures, overflow and intact
+schema83 upgrade/retry. Tests use temporary SQLite databases only. No Paper API
+or player-facing runtime change; no new native event/animal behavior is claimed.
+
 ## October16 — buyer-supplied milk buckets approved
 
 Players bring an empty bucket for each purchased milk bucket. Recorded dairy stock

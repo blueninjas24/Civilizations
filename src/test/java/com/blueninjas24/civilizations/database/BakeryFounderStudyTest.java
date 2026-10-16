@@ -59,7 +59,7 @@ class BakeryFounderStudyTest {
         assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='bakery_founder_reviews'"));
         assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='index' AND name='bakery_paid_food_market'"));
         f.sql("DROP VIEW bakery_founder_courses");assertEquals(before,f.snapshot());new SchemaMigrator().migrate(f.db.getConnection());
-        var after=f.snapshot();assertEquals(List.of(),after.remove("livestock_capture"));assertEquals(List.of(),after.remove("livestock_animal_losses"));assertEquals(List.of(),after.remove("craftsman_founder_courses"));assertEquals(List.of(),after.remove("craftsman_founder_reviews"));assertEquals(List.of(),after.remove("business_storage_upgrades"));assertEquals(List.of(),after.remove("bakery_founder_courses"));assertEquals(List.of(),after.remove("bakery_founder_reviews"));assertEquals(before,after);
+        var after=f.snapshot();assertEquals(List.of(),after.remove("livestock_product_sales"));assertEquals(List.of(),after.remove("livestock_capture"));assertEquals(List.of(),after.remove("livestock_animal_losses"));assertEquals(List.of(),after.remove("craftsman_founder_courses"));assertEquals(List.of(),after.remove("craftsman_founder_reviews"));assertEquals(List.of(),after.remove("business_storage_upgrades"));assertEquals(List.of(),after.remove("bakery_founder_courses"));assertEquals(List.of(),after.remove("bakery_founder_reviews"));assertEquals(before,after);
         try(var s=f.db.getConnection().createStatement();var fk=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(fk.next());}
     }
     @Test void historicalBacklogCannotSponsorARetroactiveCourse()throws Exception {

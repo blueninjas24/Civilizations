@@ -128,6 +128,14 @@ public final class IndustryRepository {
                         while(pending.next())reserved=Math.addExact(reserved,Math.multiplyExact(pending.getLong(1),pending.getLong(2)));
                     }
                 }
+                // Held outbound player orders retain room for exact cancellation; other work cannot fill it.
+                try(var version=connection.createStatement();var saved=version.executeQuery("PRAGMA user_version")) {
+                    if(saved.getInt(1)>=84)try(var q=connection.prepareStatement("SELECT item_count,space_per_unit FROM livestock_product_sales WHERE seller_id=? AND status='RESERVED'")) {
+                        q.setString(1,business.toString());try(var held=q.executeQuery()) {
+                            while(held.next())reserved=Math.addExact(reserved,Math.multiplyExact(held.getLong(1),held.getLong(2)));
+                        }
+                    }
+                }
                 var result=new Store(business,r.getLong(1),r.getLong(2),readCatalog("SELECT commodity,units FROM industry_stock WHERE business_id=?",business),
                         readCatalog("SELECT commodity,space_per_unit FROM industry_stock WHERE business_id=?",business),reserved);
                 if(result.freeSpace()<0)throw new SQLException("Business storage exceeds saved capacity");

@@ -1,5 +1,12 @@
 # Phase 3 — businesses and industry checklist
 
+## October16 — product trade accounting verified
+
+Milk/egg purchases now have saved accounting for holding actual goods, confirming
+payment once, or safely returning unsold goods. Milk receipts require the buyer's
+own bucket. The player trade menu is not connected yet. All1,627 tests passed;
+P3 stays~68% partial and the livestock gate remains unfinished.
+
 ## October16 — livestock safety foundation verified
 
 Milk/eggs are reserved for recorded village trade, player-created livestock keeps
@@ -14,6 +21,7 @@ untouched; test saves preserved. P3 remains~68% partial (`██████▊�
 - [x] Player-animal protection and native origin evidence.
 - [x] Confirmed original-animal deaths and once-only accounting.
 - [x] Durable capture eligibility, pending-loss checks and shutdown recovery warning.
+- [x] Saved milk/egg sale ledger and bucket receipt terms (menu unfinished).
 - [ ] Automatic safe animal adoption and business opening.
 - [ ] Physical newborn identity and herd reconciliation.
 - [ ] Scheduled feed purchases and production.
