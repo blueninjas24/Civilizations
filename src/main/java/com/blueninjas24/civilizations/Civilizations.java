@@ -28,6 +28,7 @@ public final class Civilizations extends JavaPlugin {
     private ManagedVillagerLifecycle lifecycle;
     private com.blueninjas24.civilizations.paper.ManagedLivestockDeaths livestockDeaths;
     private com.blueninjas24.civilizations.paper.PaperLivestockPresence livestockPresence;
+    private com.blueninjas24.civilizations.paper.PaperLivestockNewborns livestockNewborns;
     private PaperFarmObserver farms;
     private com.blueninjas24.civilizations.paper.PaperWaterObserver waters;
     private com.blueninjas24.civilizations.paper.PaperOreObserver ores;
@@ -89,6 +90,8 @@ public final class Civilizations extends JavaPlugin {
             livestockDeaths.runTaskTimer(this,1,1);
             livestockPresence=new com.blueninjas24.civilizations.paper.PaperLivestockPresence(population,getLogger());
             livestockPresence.runTaskTimer(this,20,20);
+            livestockNewborns=new com.blueninjas24.civilizations.paper.PaperLivestockNewborns(population,projectionSettings.nearbyRadius(),livestockPolicy::enabled,getLogger());
+            livestockNewborns.runTaskTimer(this,1,5);
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)
                             .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);
@@ -97,6 +100,7 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic()
                             + "; " + livestockDeaths.diagnostic()
                             + "; " + livestockPresence.diagnostic()
+                            + "; " + livestockNewborns.diagnostic()
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
                             + "; " + (fisheryStartup==null?"Fishery startup not started":fisheryStartup.diagnostic())
                             + "; " + (fisheryWorkplaces==null?"Fishery workplace checks not started":fisheryWorkplaces.diagnostic())
@@ -226,6 +230,7 @@ public final class Civilizations extends JavaPlugin {
         if (aid != null) aid.close();
         if (projector != null) projector.close();
         if (lifecycle != null) lifecycle.flush();
+        if(livestockNewborns!=null){livestockNewborns.cancel();livestockNewborns.close();}
         if(livestockPresence!=null){livestockPresence.cancel();livestockPresence.flush();}
         if(livestockDeaths!=null){livestockDeaths.cancel();livestockDeaths.flush();}
         if (population != null) population.close();

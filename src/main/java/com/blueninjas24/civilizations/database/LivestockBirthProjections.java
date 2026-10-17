@@ -12,6 +12,9 @@ public final class LivestockBirthProjections {
         public Claim {Objects.requireNonNull(birth);Objects.requireNonNull(entity);Objects.requireNonNull(world);Objects.requireNonNull(species);if(claimedMillis<0)throw new IllegalArgumentException("Invalid birth claim time");}
     }
     public record Projection(Claim claim,State state) {}
+    public record Job(LivestockBirth birth,LivestockHerd.Species species,UUID world,
+                      com.blueninjas24.civilizations.settlement.VillageObservation.Position home,
+                      long herdPeriod,Optional<Projection> projection) {}
     private final Connection connection;
     public LivestockBirthProjections(Connection connection){this.connection=Objects.requireNonNull(connection);}
     static void createSchema(Connection c)throws SQLException {
@@ -76,6 +79,25 @@ public final class LivestockBirthProjections {
         }
     }
     public boolean activate(UUID birth,UUID entity)throws SQLException{return transition(birth,entity,State.ACTIVE);}
+    /** Bounded UUID-text seek over saved births; confirmed deaths never request another body.
+     * Coverage/trust/world/identity are still checked by the complete claim transaction. */
+    public List<Job> page(UUID after,int limit)throws SQLException {
+        if(limit<1||limit>64)throw new IllegalArgumentException("Invalid newborn projection page");
+        var births=new LivestockBirths(connection);var herds=new LivestockRepository(connection);var businesses=new BusinessRepository(connection);
+        var result=new ArrayList<Job>();
+        try(var s=connection.prepareStatement("""
+            SELECT b.id FROM livestock_births b LEFT JOIN livestock_birth_projections p ON p.birth_id=b.id
+            WHERE b.id>? AND (p.state IS NULL OR p.state<>'DECEASED') ORDER BY b.id LIMIT ?
+            """)) {
+            s.setString(1,after==null?"":after.toString());s.setInt(2,limit);
+            try(var r=s.executeQuery()){while(r.next()) {
+                var birth=births.find(UUID.fromString(r.getString(1))).orElseThrow();var herd=herds.load(birth.business()).orElseThrow();
+                var site=businesses.findFounding(birth.business()).orElseThrow().site();
+                result.add(new Job(birth,herd.species(),site.worldId(),new com.blueninjas24.civilizations.settlement.VillageObservation.Position(site.x(),site.y(),site.z()),herd.state().period(),find(birth.id())));
+            }}
+        }
+        return List.copyOf(result);
+    }
     /** Only when the same main-thread operation positively proved its prepared entity was never added.
      * This is not a missing-entity repair API. ACTIVE/DECEASED entities cannot be failed/replaced. */
     public boolean failedUnspawned(UUID birth,UUID entity)throws SQLException{return transition(birth,entity,State.FAILED);}

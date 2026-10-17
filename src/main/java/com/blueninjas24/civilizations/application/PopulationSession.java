@@ -962,6 +962,9 @@ public final class PopulationSession implements AutoCloseable {
             villageAnimals.set(new com.blueninjas24.civilizations.database.AnimalOwnershipRepository(database.getConnection()).villageAnimals());return result;
         });
     }
+    public CompletableFuture<java.util.List<com.blueninjas24.civilizations.database.LivestockBirthProjections.Job>> livestockBirthJobs(UUID after,int limit) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockBirthProjections(database.getConnection()).page(after,limit);});
+    }
     public CompletableFuture<Optional<com.blueninjas24.civilizations.database.LivestockBirthProjections.Projection>> livestockBirthProjection(UUID birth) {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockBirthProjections(database.getConnection()).find(birth);});
     }

@@ -1,5 +1,19 @@
 # Livestock protection and work foundation
 
+## October17 — saved animal births now appear safely in Minecraft
+
+Recorded newborns can now appear on safe loaded ground near players. They keep
+permanent identities, grow at their saved dates and survive restarts without
+copies. An animal missing from view is never automatically replaced. One real
+death removes only that animal; the farm's goods and money remain accounted for.
+
+All1,763 full-build tests and the isolated real-cow birth/growth/restart/missing/
+death check passed. Earlier radius work also passed GitHub on Windows/Linux.
+Your server is untouched. P3 remains about68% partial: initial animal aging,
+automatic livestock businesses/feed/output, wider products and specialization
+still remain. Next: initial herd aging. The slaughter-product question is pending;
+other work continues while awaiting that answer.
+
 ## October17 — animals can pause work without disappearing
 
 A cow or chicken confirmed far from its farm can stop working until it returns,

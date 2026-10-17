@@ -1,5 +1,39 @@
 # Civilizations — implementation status and handoff
 
+## October17 — safe automatic physical newborns verified
+
+Saved paid births now project as actual nearby cows/chickens on safe loaded
+terrain. One birth handoff/eight-job pages, ownership commit/publication before
+native add, activation before pending movement release, saved age lock/maturity,
+exact retry/positive recovery and no missing-body replacement. No adoption,
+terrain/chunk loading, free head/goods/cash or invulnerability grant. Shutdown
+and unloaded-world cleanup retain only immutable identity work in SQL-owner order.
+
+Added24 state-machine/temporary-SQLite/Paper geometry-age cases. Focused38 and40
+passed. Three initial headless fixture errors required native block registry
+seams, retaining default production properties. Initial full run intentionally
+stopped for a discovered prepared-world-reference edge case; only that Maven
+process/test child were interrupted. Final Windows .\mvnw.cmd clean verify -B
+-ntp passed1,763 tests (1,761 unit/two packaged integration), zero failures/errors/
+skips;12:29, finished2026-10-17T10:03:05-04:00. Source/test Java frozen.
+
+Guarded Paper26.2 build129 passed10:03:55 EDT: controlled nearby gating, two real
+cows automatically claimed/added/activated on existing safe terrain, normal
+movement release/no granted invulnerability, owner/controller restart without
+another UUID, actual paid active-period feed/products, saved individual maturity,
+missing body never replaced, actual sibling death and exact assets/headcounts.
+Not actual client/chunk unload/JVM crash, initial animal age or automatic adoption
+proof. Schema87 unchanged:147 existing main tables retained/143 exact; ordinary
+clock/runtime/capture/ore metadata only, no aging. Integrity/FKs clean. Fixture
+stopped/settings restored/helper archived/backups retained; only its explicitly
+identified animals cleaned up. Human server untouched. See LIVESTOCK_NEWBORNS.md.
+
+Priorb00baa1 passed hosted Windows/Linux checks, run39036771535. Current backup/CI
+follows this checkpoint. P3 stays about68% partial (30/39 resources,1/4 whole
+groups). Next: initial adopted-animal age, automatic adoption/feed/output and real
+bakery ingredients. Business-slaughter product accounting question is pending;
+no answer assumed, and these independent tasks can continue.
+
 ## October17 — confirmed livestock distance and retained herds verified
 
 Saved farm animals positively observed outside an editable working radius pause
