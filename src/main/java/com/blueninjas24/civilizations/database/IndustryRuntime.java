@@ -35,6 +35,16 @@ public final class IndustryRuntime {
     private QuarryPolicy quarries=QuarryPolicy.disabled();
     public void configureQuarries(QuarryPolicy policy){quarries=Objects.requireNonNull(policy);}
     private FishingPolicy fishing=FishingPolicy.disabled();
+    private LivestockPolicy livestock=LivestockPolicy.disabled();
+    private LivestockRuntimePolicy herdWork=LivestockRuntimePolicy.disabled();
+    private LivestockWorkingArea herdArea=LivestockWorkingArea.prototype();
+    private java.util.function.BooleanSupplier livestockHealthy=()->false;
+    public void configureLivestock(LivestockPolicy policy,LivestockRuntimePolicy work,LivestockWorkingArea area,java.util.function.BooleanSupplier healthy){
+        if(work.enabled()&&this.policy.recipes().values().stream().anyMatch(r->r.industry().equals("livestock")))throw new IllegalArgumentException("A generic livestock recipe conflicts with saved herd work; remove it before enabling livestock-runtime");
+        livestock=Objects.requireNonNull(policy);herdWork=Objects.requireNonNull(work);herdArea=Objects.requireNonNull(area);livestockHealthy=Objects.requireNonNull(healthy);
+    }
+    private boolean dedicatedLivestock(String kind){return kind.equals("livestock")&&policy.recipes().values().stream().noneMatch(r->r.industry().equals("livestock"));}
+    private boolean herdEnabled(){return livestock.enabled()&&herdWork.enabled()&&livestockHealthy.getAsBoolean();}
     public void configureFishing(FishingPolicy policy) { fishing=Objects.requireNonNull(policy); }
     private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
     public void configureFarmToolDemand(FarmToolUpkeepPolicy upkeep,FarmToolBudgetPolicy budget){farmUpkeep=Objects.requireNonNull(upkeep);farmBudget=Objects.requireNonNull(budget);}
@@ -48,7 +58,8 @@ public final class IndustryRuntime {
         worlds=worlds==null?null:Set.copyOf(worlds);
         observe(now,worlds,false);
         var pending=new ArrayList<Clock>();
-        for(var c:clocks()) if(c.completed()<c.anchor().targetSteps() && (worlds==null || worlds.contains(c.world()))) pending.add(c);
+        for(var c:clocks()) if(c.completed()<c.anchor().targetSteps() && (worlds==null || worlds.contains(c.world()))
+                &&(!dedicatedLivestock(c.industry())||herdEnabled())) pending.add(c);
         pending.sort(Comparator.comparingInt((Clock c)->c.business().toString().compareTo(cursor)>0?0:1).thenComparing(c->c.business().toString()));
         int done=0;
         for(var c:pending) {
@@ -68,11 +79,11 @@ public final class IndustryRuntime {
             var candidates=new ArrayList<UUID>();
             int scanned=0;
             try(var s=connection.createStatement();var r=s.executeQuery("SELECT b.id,b.industry FROM businesses b JOIN industry_stores k ON k.business_id=b.id WHERE NOT EXISTS(SELECT 1 FROM industry_runtime c WHERE c.business_id=b.id) ORDER BY b.id LIMIT 4097")) {
-                while(r.next()) {scanned++;if(supported(r.getString(2)))candidates.add(UUID.fromString(r.getString(1)));}
+                while(r.next()) {scanned++;if(supported(r.getString(2))&&(!dedicatedLivestock(r.getString(2))||new LivestockRepository(connection).load(UUID.fromString(r.getString(1))).isPresent()))candidates.add(UUID.fromString(r.getString(1)));}
             }
             if(scanned>4096)throw new SQLException("Industry clock enrollment budget exceeded");
-            for(var id:candidates)try(var s=connection.prepareStatement("INSERT INTO industry_runtime SELECT ?,?,?,0,COALESCE(MAX(period),0),COALESCE(MAX(period),0) FROM industry_production WHERE business_id=?")) {
-                s.setString(1,id.toString());s.setLong(2,policy.millisPerPeriod());s.setLong(3,now);s.setString(4,id.toString());s.executeUpdate();
+            for(var id:candidates)try(var s=connection.prepareStatement("INSERT INTO industry_runtime SELECT ?,?,?,0,COALESCE(MAX(period),0),COALESCE(MAX(period),0) FROM (SELECT period FROM industry_production WHERE business_id=? UNION ALL SELECT period FROM livestock_periods WHERE business_id=?)")) {
+                s.setString(1,id.toString());s.setLong(2,policy.millisPerPeriod());s.setLong(3,now);s.setString(4,id.toString());s.setString(5,id.toString());s.executeUpdate();
             }
             for(var c:clocks()) {
                 long cadence=c.cadence();var before=c.anchor();
@@ -84,7 +95,7 @@ public final class IndustryRuntime {
                     cadence=policy.millisPerPeriod();before=new CivilizationTime.Anchor(Math.max(now,before.lastObservedMillis()),0,before.targetSteps());
                 }
                 var after=restart?new CivilizationTime.Anchor(Math.max(now,before.lastObservedMillis()),before.remainderMillis(),before.targetSteps())
-                        :CivilizationTime.accrue(before,now,cadence,worlds==null || worlds.contains(c.world())?Long.MAX_VALUE:0).anchor();
+                        :CivilizationTime.accrue(before,now,cadence,(worlds==null || worlds.contains(c.world()))&&(!dedicatedLivestock(c.industry())||herdEnabled())?Long.MAX_VALUE:0).anchor();
                 try(var s=connection.prepareStatement("UPDATE industry_runtime SET cadence=?,last_ms=?,remainder=?,target=? WHERE business_id=?")) {
                     s.setLong(1,cadence);s.setLong(2,after.lastObservedMillis());s.setLong(3,after.remainderMillis());s.setLong(4,after.targetSteps());s.setString(5,c.business().toString());s.executeUpdate();
                 }
@@ -92,7 +103,7 @@ public final class IndustryRuntime {
             return null;
         });
     }
-    private boolean supported(String kind) {return kind.equals("mining") || (Set.of("quarry","sandpit").contains(kind)&&quarries.enabled()) || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
+    private boolean supported(String kind) {return dedicatedLivestock(kind)?livestock.enabled()&&herdWork.enabled():kind.equals("mining") || (Set.of("quarry","sandpit").contains(kind)&&quarries.enabled()) || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
     private List<Clock> clocks() throws SQLException {
         var result=new ArrayList<Clock>();
         try(var s=connection.createStatement();var r=s.executeQuery("SELECT c.*,b.industry,p.world_id FROM industry_runtime c JOIN businesses b ON b.id=c.business_id JOIN business_sites p ON p.id=b.site_id ORDER BY c.business_id LIMIT 4097")) {
@@ -103,6 +114,7 @@ public final class IndustryRuntime {
         return List.copyOf(result);
     }
     private void work(Clock clock) throws SQLException {
+        if(dedicatedLivestock(clock.industry())&&!herdEnabled())return;
         transaction(()-> {
             long period=Math.incrementExact(clock.completed());
             var id=clock.business();
@@ -120,7 +132,17 @@ public final class IndustryRuntime {
                 s.setString(1,operation.toString());try(var r=s.executeQuery()){freshProduction=!r.next();}
             }
             var firm=new BusinessRepository(connection).findBusiness(id).orElseThrow();
-            if(clock.industry().equals("fishing") && new FisheryRepository(connection).find(firm.siteId()).isPresent()) {
+            if(dedicatedLivestock(clock.industry())) {
+                var repository=new LivestockRepository(connection);var herd=repository.load(id).orElseThrow(()->new SQLException("Timed livestock requires saved herd"));
+                long workers=repository.qualifiedWorkers(id,operations),maximum=Math.min(herdWork.siteWorkLimit(),Math.multiplyExact(workers,herdWork.workPerWorker()));
+                long away=new LivestockPresence(connection).unavailableAdultsRows(id,period,herdArea);
+                var forecast=LivestockHerd.plan(herd.state(),1_000_000,maximum,1_000_000,0,livestock,herd.species(),true,away);
+                String feed=new LivestockFeeds(connection).acquireRows(id,herd,forecast.feedUsed(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),policy,operations);
+                if(!livestockHealthy.getAsBoolean())throw new SQLException("Livestock capture changed before work; retry after reviewed recovery");
+                var plan=repository.advanceRows(operation,id,period,herdWork.workPerWorker(),herdWork.siteWorkLimit(),livestock,operations,true,herdArea);
+                reason=feed+"; herd period="+plan.after().period()+"; feed used="+plan.feedUsed()+"; products="+plan.renewableUnits()+"; births="+plan.births();
+            }
+            else if(clock.industry().equals("fishing") && new FisheryRepository(connection).find(firm.siteId()).isPresent()) {
                 if(!fishing.enabled() || !availability.permitted() || FisheryWorkplaces.paused(connection,firm.siteId()))
                     reason=industry.fishRows(operation,id,0,period,fishing,operations).explanation();
                 else {
@@ -166,7 +188,7 @@ public final class IndustryRuntime {
                     reason=upkeep+"; "+supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
                 }
             }
-            reason="Owned cargo delivered: "+arrived+"; "+availability.explanation()+"; "+reason+"; "+new IndustryLearning(connection,learning).reviewRows(operation,id,freshProduction);
+            reason="Owned cargo delivered: "+arrived+"; "+availability.explanation()+"; "+reason+"; "+(dedicatedLivestock(clock.industry())?"Herd work recorded in livestock ledger":new IndustryLearning(connection,learning).reviewRows(operation,id,freshProduction));
             try(var s=connection.prepareStatement("UPDATE industry_runtime SET completed=? WHERE business_id=? AND completed=?")) {
                 s.setLong(1,period);s.setString(2,id.toString());s.setLong(3,clock.completed());
                 if(s.executeUpdate()!=1)throw new SQLException("Industry checkpoint changed during owner work");

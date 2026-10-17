@@ -82,6 +82,7 @@ public final class Civilizations extends JavaPlugin {
             var livestockPolicy=EconomyConfiguration.readLivestock(economyConfig);
             population.configureLivestockMarket(EconomyConfiguration.readLivestockMarket(economyConfig));
             population.configureLivestockWorkingArea(EconomyConfiguration.readLivestockWorkingArea(economyConfig));
+            population.configureLivestockWork(EconomyConfiguration.readLivestock(economyConfig),EconomyConfiguration.readLivestockRuntime(economyConfig));
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.ManagedLivestockBreedingGuard(
                     population::villageAnimals,()->livestockPolicy.enabled()&&population.status().ready()),this);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.ManagedLivestockProducts(

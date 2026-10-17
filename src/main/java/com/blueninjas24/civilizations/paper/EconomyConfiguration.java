@@ -29,6 +29,7 @@ public final class EconomyConfiguration {
         if (config.contains("grain-harvest")) rootKeys.add("grain-harvest");
         if (config.contains("farm-market")) rootKeys.add("farm-market");
         if (config.contains("livestock")) rootKeys.add("livestock");
+        if (config.contains("livestock-runtime")) rootKeys.add("livestock-runtime");
         if (config.contains("livestock-market")) rootKeys.add("livestock-market");
         if (config.contains("livestock-working-area")) rootKeys.add("livestock-working-area");
         if (config.contains("recipes")) rootKeys.add("recipes");
@@ -121,6 +122,7 @@ public final class EconomyConfiguration {
         readGrainHarvest(config);
         readFarmMarket(config);
         readLivestock(config);
+        readLivestockRuntime(config);
         readLivestockWorkingArea(config);
         readLivestockMarket(config);
         readRecipes(config);
@@ -359,6 +361,12 @@ public final class EconomyConfiguration {
         if(!config.contains("livestock-working-area"))return com.blueninjas24.civilizations.industry.LivestockWorkingArea.prototype();
         var s=section(config,"livestock-working-area");exactKeys(s,Set.of("radius-blocks"));
         return new com.blueninjas24.civilizations.industry.LivestockWorkingArea(smallInteger(s,"radius-blocks"));
+    }
+    public static com.blueninjas24.civilizations.industry.LivestockRuntimePolicy readLivestockRuntime(ConfigurationSection config) {
+        if(!config.contains("livestock-runtime"))return com.blueninjas24.civilizations.industry.LivestockRuntimePolicy.disabled();
+        var s=section(config,"livestock-runtime");exactKeys(s,Set.of("enabled","work-per-worker","site-work-limit"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("livestock-runtime.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.LivestockRuntimePolicy(enabled,integer(s,"work-per-worker"),integer(s,"site-work-limit"));
     }
     public static com.blueninjas24.civilizations.industry.LivestockPolicy readLivestock(ConfigurationSection config) {
         if(!config.contains("livestock"))return com.blueninjas24.civilizations.industry.LivestockPolicy.disabled();

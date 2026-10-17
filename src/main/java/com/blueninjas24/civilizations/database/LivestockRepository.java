@@ -6,7 +6,7 @@ import com.blueninjas24.civilizations.population.*;
 import java.sql.*;
 import java.util.*;
 
-/** SQL-owner backend for a dedicated herd business. Not wired to automatic adoption or live ticks.
+/** SQL-owner herd persistence; IndustryRuntime composes timed feed/work. Automatic adoption remains separate.
  * Initial animals require confirmed village ownership and trusted species/age observations.
  * Births are logical cohorts; physical reconciliation must precede live activation. No slaughter API
  * until retiring physical animals can be coordinated without duplicate drops/products. */
@@ -142,13 +142,18 @@ public final class LivestockRepository {
     }
     public LivestockHerd.Plan advance(UUID operation,UUID business,long expectedPeriod,long workPerWorker,long siteWorkLimit,
                                       LivestockPolicy policy,BusinessOperationPolicy operations,boolean worldActive,LivestockWorkingArea workingArea)throws SQLException {
+        return transaction(()->advanceRows(operation,business,expectedPeriod,workPerWorker,siteWorkLimit,policy,operations,worldActive,workingArea));
+    }
+    /** Shares the clock/feed delivery transaction; never commits independently. */
+    LivestockHerd.Plan advanceRows(UUID operation,UUID business,long expectedPeriod,long workPerWorker,long siteWorkLimit,
+                                      LivestockPolicy policy,BusinessOperationPolicy operations,boolean worldActive,LivestockWorkingArea workingArea)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Herd rows require owner transaction");
         Objects.requireNonNull(operation);Objects.requireNonNull(business);Objects.requireNonNull(policy);Objects.requireNonNull(operations);
         Objects.requireNonNull(workingArea);
         if(expectedPeriod<1||workPerWorker<1||workPerWorker>1_000_000||siteWorkLimit<0||siteWorkLimit>1_000_000)
             throw new IllegalArgumentException("Invalid herd work request");
         String terms=business+"|"+expectedPeriod+"|"+workPerWorker+"|"+siteWorkLimit+"|"+policy+"|"+operations+"|"+worldActive
                 +(workingArea.equals(LivestockWorkingArea.prototype())?"":"|working-radius="+workingArea.radiusBlocks());
-        return transaction(()->{
             var herd=load(business).orElseThrow(()->new SQLException("Herd not initialized"));
             try(var s=connection.prepareStatement("SELECT business_id,period,terms FROM livestock_periods WHERE operation_id=?")) {
                 s.setString(1,operation.toString());try(var r=s.executeQuery()) {
@@ -157,16 +162,8 @@ public final class LivestockRepository {
             }
             if(!worldActive||!policy.enabled())return new LivestockHerd.Plan(herd.state(),0,0,0,0,0,0,0);
             if(expectedPeriod!=Math.incrementExact(herd.state().period()))throw new SQLException("Herd period stale or skipped");
-            var businesses=new BusinessRepository(connection);var people=new PopulationRepository(connection);
-            long workers=0;
+            long workers=qualifiedWorkers(business,operations);
             var availability=new BusinessOperations(connection,operations).evaluate(business);
-            if(availability.permitted()) {
-                var requirements=businesses.findFounding(business).orElseThrow().workerRequirements();
-                for(var job:businesses.currentWorkers(business)) {
-                    var person=people.findResident(job.residentId()).orElseThrow();
-                    if(WorkEligibility.evaluate(person,people.findWorkProfile(person.id()).orElseThrow(),requirements).eligible())workers++;
-                }
-            }
             var store=new IndustryRepository(connection).store(business).orElseThrow();requireCatalogue(store,herd.feed(),herd.species());
             // Conservative output budget: never borrow incoming reservations or anticipated feed space.
             long work=Math.min(siteWorkLimit,Math.multiplyExact(workers,workPerWorker));
@@ -181,9 +178,18 @@ public final class LivestockRepository {
                     "; confirmed away mature animals="+unavailable+"; working radius="+workingArea.radiusBlocks());
             new LivestockBirths(connection).recordRows(business,expectedPeriod,Math.toIntExact(plan.births()),policy.maturityPeriods());
             new LivestockLosses(connection).applyRows(business,expectedPeriod);return plan;
-        });
     }
 
+    long qualifiedWorkers(UUID business,BusinessOperationPolicy operations)throws SQLException {
+        if(!new BusinessOperations(connection,operations).evaluate(business).permitted())return 0;
+        var businesses=new BusinessRepository(connection);var people=new PopulationRepository(connection);
+        var requirements=businesses.findFounding(business).orElseThrow().workerRequirements();long count=0;
+        for(var job:businesses.currentWorkers(business)) {
+            var person=people.findResident(job.residentId()).orElseThrow();
+            if(WorkEligibility.evaluate(person,people.findWorkProfile(person.id()).orElseThrow(),requirements).eligible())count++;
+        }
+        return count;
+    }
     private static Commodity product(LivestockHerd.Species species){return new Commodity(species==LivestockHerd.Species.COW?"milk":"eggs");}
     private static void requireCatalogue(IndustryRepository.Store store,Commodity feed,LivestockHerd.Species species)throws SQLException {
         for(var commodity:List.of(feed,product(species)))if(!Long.valueOf(1).equals(store.spacePerUnit().get(commodity)))

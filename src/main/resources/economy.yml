@@ -833,6 +833,14 @@ livestock:
     meat-units-per-animal: 2
     maximum-slaughter-per-period: 1
 
+# Existing qualified, saved herds use the shared industry clock and paid deliveries.
+# Missing this section in an installed file leaves automatic herd work disabled.
+# Feed prices/coverage come from workshop-supply; no free feed or new money.
+livestock-runtime:
+  enabled: true
+  work-per-worker: 10
+  site-work-limit: 40
+
 livestock-working-area:
   radius-blocks: 32 # 3D distance from the saved farm site, inclusive; 1..256.
   # Only a positive sight outside this area pauses that animal's work/breeding.

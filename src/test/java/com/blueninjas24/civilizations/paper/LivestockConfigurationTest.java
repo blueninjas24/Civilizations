@@ -6,6 +6,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LivestockConfigurationTest {
+    @Test void liveWorkHasExplicitEditableLimitsAndInstalledFilesOptOut()throws Exception {
+        var config=new YamlConfiguration();try(var reader=new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(com.blueninjas24.civilizations.industry.LivestockRuntimePolicy.prototype(),EconomyConfiguration.readLivestockRuntime(config));EconomyConfiguration.read(config);
+        config.set("livestock-runtime.site-work-limit",20);assertEquals(20,EconomyConfiguration.readLivestockRuntime(config).siteWorkLimit());
+        config.set("livestock-runtime.work-per-worker",1.5);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readLivestockRuntime(config));
+        config.set("livestock-runtime",null);assertFalse(EconomyConfiguration.readLivestockRuntime(config).enabled());EconomyConfiguration.read(config);
+    }
     @Test void workingRadiusIsEditableAndLegacyFilesKeepAValidatedPrototype()throws Exception {
         var config=new YamlConfiguration();try(var reader=new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
         assertEquals(32,EconomyConfiguration.readLivestockWorkingArea(config).radiusBlocks());config.set("livestock-working-area.radius-blocks",12);EconomyConfiguration.read(config);assertEquals(12,EconomyConfiguration.readLivestockWorkingArea(config).radiusBlocks());

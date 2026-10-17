@@ -1,5 +1,36 @@
 # Civilizations Development Log
 
+## October17 — automatic saved-herd work and paid feed verified
+
+Existing saved livestock businesses now use the shared industry clock: buy real
+feed with business money, wait for cargo, then consume it for milk/eggs and saved
+births under actual qualified work/storage limits. Existing newborn/age adapters
+can reconcile those births. World/server absence and capture gaps earn no work.
+Delivery, purchases, production and checkpoints roll back together on failure;
+old manual herd periods are not replayed. New editable livestock-runtime limits
+opt installed files out when absent. Schema88 unchanged; no migration/reset.
+
+Five focused scenario/config cases added. Final scoped Wrapper verify passed126
+unit plus2 packaged integration tests (128 total), zero failures/errors/skips;
+43.518s, finished2026-10-17T12:26:27-04:00. No new full-suite claim. Initial checks
+caught/fixed a fixture cash-column typo and new config root-key registration.
+Guarded Paper26.2 build129 passed14:44:59 EDT: actual packaged owner-thread work,
+paid feed/cargo/milk/births/conservation, restart, absent-world and capture-gap
+pause. Private synthetic herd; no block/animal mutations. All149 main tables
+retained/145 exact; ordinary clock/runtime/capture/ore metadata only, no aging.
+Integrity/FKs clean; fixture stopped/settings restored/helper archived/backups
+kept. Human server untouched. Full CI follows feature backup.
+
+Changed: herd persistence composition, shared industry runtime, paid-feed helper,
+editable policy/configuration, plugin/owner wiring, diagnostics, focused tests and
+excluded LivestockRuntimeProbe. See LIVESTOCK_RUNTIME.md for settings/contracts.
+P3's livestock milestone remains partial: automatic eligible animal adoption and
+funded founding, physical slaughter, and bakery milk/egg consumers still remain.
+This closes scheduled operation for already saved herds; no unimplemented startup
+is counted complete. P3 stays~68% partial/30of39 resource entries/1of4 whole groups.
+Next: bounded eligible-animal observation and atomic farm opening. No new answer
+needed for this scheduled-work batch; no duplicate slaughter drops is approved.
+
 ## October17 — usable pen protection controls verified
 
 Admins can now right-click a [Civ Protect] sign inside a supported flat enclosure,

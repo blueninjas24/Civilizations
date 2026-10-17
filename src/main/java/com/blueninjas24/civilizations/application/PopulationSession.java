@@ -69,7 +69,7 @@ public final class PopulationSession implements AutoCloseable {
         if(!status().ready())return "Livestock capture: starting or unavailable";
         if(!livestockHistoryHealthy.get()||livestockCaptureGap.get())return "Livestock capture: incomplete history; review needed before live herd production";
         if(!pendingLivestockLosses.isEmpty())return "Livestock capture: waiting for "+pendingLivestockLosses.size()+" physical loss saves";
-        return "Livestock capture: trusted; automatic adoption/output still unfinished";
+        return "Livestock capture: trusted; saved herd work "+(livestockRuntimePolicy.enabled()&&livestockPolicy.enabled()?"configured":"disabled")+"; automatic adoption unfinished";
     }
     public void markLivestockCaptureGap(){
         if(!livestockCaptureGap.compareAndSet(false,true))return;
@@ -116,6 +116,12 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy workplaceOperationPolicy=com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();
     private com.blueninjas24.civilizations.industry.LivestockMarketPolicy livestockMarketPolicy=com.blueninjas24.civilizations.industry.LivestockMarketPolicy.disabled();
     private com.blueninjas24.civilizations.industry.LivestockWorkingArea livestockWorkingArea=com.blueninjas24.civilizations.industry.LivestockWorkingArea.prototype();
+    private com.blueninjas24.civilizations.industry.LivestockPolicy livestockPolicy=com.blueninjas24.civilizations.industry.LivestockPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.LivestockRuntimePolicy livestockRuntimePolicy=com.blueninjas24.civilizations.industry.LivestockRuntimePolicy.disabled();
+    public void configureLivestockWork(com.blueninjas24.civilizations.industry.LivestockPolicy policy,com.blueninjas24.civilizations.industry.LivestockRuntimePolicy work){
+        if(started.get())throw new IllegalStateException("Configure herd work before session starts");
+        livestockPolicy=java.util.Objects.requireNonNull(policy);livestockRuntimePolicy=java.util.Objects.requireNonNull(work);
+    }
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private com.blueninjas24.civilizations.industry.MineFoundingPolicy mineFoundingPolicy=com.blueninjas24.civilizations.industry.MineFoundingPolicy.disabled();
@@ -452,6 +458,7 @@ public final class PopulationSession implements AutoCloseable {
                 industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
                 industries.configureFishing(fishingPolicy);
                 industries.configureQuarries(quarryPolicy);
+                industries.configureLivestock(livestockPolicy,livestockRuntimePolicy,livestockWorkingArea,this::livestockCaptureReady);
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
                 var demographic = database.getDemographicRepository();
