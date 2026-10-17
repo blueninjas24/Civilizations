@@ -26,21 +26,29 @@ public final class LivestockHerd {
                        long renewableUnits,long meatUnits) {}
     public static Plan plan(State before,long feed,long work,long storage,long slaughterRequest,
                             LivestockPolicy policy,Species species,boolean worldActive) {
+        return plan(before,feed,work,storage,slaughterRequest,policy,species,worldActive,0);
+    }
+    /** Unavailable adults remain alive, owned and aging; only their work/breeding is paused. */
+    public static Plan plan(State before,long feed,long work,long storage,long slaughterRequest,
+                            LivestockPolicy policy,Species species,boolean worldActive,long unavailableAdults) {
         Objects.requireNonNull(before);Objects.requireNonNull(policy);Objects.requireNonNull(species);
-        if(feed<0||work<0||storage<0||slaughterRequest<0)throw new IllegalArgumentException("Negative herd budget");
+        if(feed<0||work<0||storage<0||slaughterRequest<0||unavailableAdults<0)throw new IllegalArgumentException("Negative herd budget");
         if(!worldActive||!policy.enabled())return new Plan(before,0,0,0,0,0,0,0);
         long period=Math.incrementExact(before.period());long matured=0;
         var young=new ArrayList<Young>();
         for(var cohort:before.young())if(cohort.maturePeriod()<=period)matured=Math.addExact(matured,cohort.heads());else young.add(cohort);
-        var production=LivestockWork.plan(Math.addExact(before.adults(),matured),feed,work,storage,slaughterRequest,
+        long totalAdults=Math.addExact(before.adults(),matured);
+        if(unavailableAdults>totalAdults)throw new IllegalArgumentException("Unavailable adults exceed herd");
+        var production=LivestockWork.plan(totalAdults-unavailableAdults,feed,work,storage,slaughterRequest,
                 species==Species.COW?policy.cow():policy.chicken());
-        long heads=production.retainedAdults()+young.stream().mapToLong(Young::heads).sum();
+        long retainedAdults=totalAdults-production.slaughtered();
+        long heads=retainedAdults+young.stream().mapToLong(Young::heads).sum();
         long fedSurvivors=Math.min(production.fedAdults(),production.retainedAdults());
         long births=period<before.nextBirthPeriod()?0:Math.min(Math.min(policy.maximumBirthsPerPeriod(),fedSurvivors/2),
                 Math.min(Math.max(0,before.capacity()-heads),Math.min((feed-production.feedUsed())/policy.feedPerBirth(),(work-production.workUsed())/policy.workPerBirth())));
         long nextBirth=before.nextBirthPeriod();
         if(births>0){young.add(new Young(Math.addExact(period,policy.maturityPeriods()),births));nextBirth=Math.addExact(period,policy.breedingDelayPeriods());}
-        return new Plan(new State(period,production.retainedAdults(),before.capacity(),nextBirth,young),matured,births,production.slaughtered(),
+        return new Plan(new State(period,retainedAdults,before.capacity(),nextBirth,young),matured,births,production.slaughtered(),
                 Math.addExact(production.feedUsed(),Math.multiplyExact(births,policy.feedPerBirth())),
                 Math.addExact(production.workUsed(),Math.multiplyExact(births,policy.workPerBirth())),production.renewableUnits(),production.meatUnits());
     }

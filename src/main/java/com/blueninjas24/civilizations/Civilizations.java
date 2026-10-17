@@ -27,6 +27,7 @@ public final class Civilizations extends JavaPlugin {
     private PaperResidentProjector projector;
     private ManagedVillagerLifecycle lifecycle;
     private com.blueninjas24.civilizations.paper.ManagedLivestockDeaths livestockDeaths;
+    private com.blueninjas24.civilizations.paper.PaperLivestockPresence livestockPresence;
     private PaperFarmObserver farms;
     private com.blueninjas24.civilizations.paper.PaperWaterObserver waters;
     private com.blueninjas24.civilizations.paper.PaperOreObserver ores;
@@ -77,6 +78,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureFarmMarket(EconomyConfiguration.readFarmMarket(economyConfig));
             var livestockPolicy=EconomyConfiguration.readLivestock(economyConfig);
             population.configureLivestockMarket(EconomyConfiguration.readLivestockMarket(economyConfig));
+            population.configureLivestockWorkingArea(EconomyConfiguration.readLivestockWorkingArea(economyConfig));
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.ManagedLivestockBreedingGuard(
                     population::villageAnimals,()->livestockPolicy.enabled()&&population.status().ready()),this);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.ManagedLivestockProducts(
@@ -85,6 +87,8 @@ public final class Civilizations extends JavaPlugin {
             livestockDeaths=new com.blueninjas24.civilizations.paper.ManagedLivestockDeaths(population,getLogger());
             getServer().getPluginManager().registerEvents(livestockDeaths,this);
             livestockDeaths.runTaskTimer(this,1,1);
+            livestockPresence=new com.blueninjas24.civilizations.paper.PaperLivestockPresence(population,getLogger());
+            livestockPresence.runTaskTimer(this,20,20);
             getServer().getPluginManager().registerEvents(new ManagedVillagerConversionGuard(() ->
                     population.projectionView().map(PopulationSession.ProjectionView::identities)
                             .orElseGet(ResidentProjectionRepository.Snapshot::empty)), this);
@@ -92,6 +96,7 @@ public final class Civilizations extends JavaPlugin {
                     () -> observer == null ? "Village observer not started" : observer.diagnostic()
                             + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic()
                             + "; " + livestockDeaths.diagnostic()
+                            + "; " + livestockPresence.diagnostic()
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
                             + "; " + (fisheryStartup==null?"Fishery startup not started":fisheryStartup.diagnostic())
                             + "; " + (fisheryWorkplaces==null?"Fishery workplace checks not started":fisheryWorkplaces.diagnostic())
@@ -221,6 +226,7 @@ public final class Civilizations extends JavaPlugin {
         if (aid != null) aid.close();
         if (projector != null) projector.close();
         if (lifecycle != null) lifecycle.flush();
+        if(livestockPresence!=null){livestockPresence.cancel();livestockPresence.flush();}
         if(livestockDeaths!=null){livestockDeaths.cancel();livestockDeaths.flush();}
         if (population != null) population.close();
         getLogger().info("Civilizations has been disabled.");

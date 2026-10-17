@@ -1,5 +1,38 @@
 # Civilizations — implementation status and handoff
 
+## October17 — confirmed livestock distance and retained herds verified
+
+Saved farm animals positively observed outside an editable working radius pause
+products/breeding until return. Ownership/headcounts/aging remain; other eligible
+animals work. Unknown/unloaded sightings alone never establish departure or death.
+Bounded main-thread observer looks up16 saved living UUIDs per page, never scans
+terrain/loads chunks/adopts animals, and retains exact failed-save batches.
+
+Optional economy.yml livestock-working-area.radius-blocks defaults to32 (inclusive
+3D,1..256); legacy files are not rewritten. SQL-owner work uses configured radius,
+actual world presence and trusted death capture. Cohorts still mature while away;
+real feed/output/storage/reserve accounting and receipt replay remain intact.
+Additive schema87 creates an empty latest-positive-position table, retaining old
+animals/births/assets/history without guessing old sightings or repairing gaps.
+
+Added21 automated cases. Focused52 and151 passed. Windows .\mvnw.cmd clean verify
+-B -ntp passed1,739 tests (1,737 unit/two packaged integration), zero failures/
+errors/skips;12:24, finished2026-10-16T23:36:49-04:00. Source/test Java frozen.
+Guarded Paper26.2 build129 passed2026-10-17 09:28:12 EDT: actual newborn/death
+regression, bounded positive sightings, own test cow moved away/returned inside a
+loaded chunk, saved away evidence through owner restart before new observation,
+unchanged heads/ownership/goods/cash. Not automatic production/adoption, actual
+chunk unload or JVM crash proof. Test save86->87 retained146 predecessor tables,
+142 exact; only ordinary clock/runtime/capture/ore metadata changed, zero aging.
+Integrity/FKs clean; new main presence empty. Fixture stopped/settings restored,
+helper archived/backups retained. Human server untouched.
+
+Earlier936fd54 and9c1a415 both passed hosted Windows/Linux checks (runs38996032941,
+38998105994). Current feature backup/CI follows this checkpoint. P3 stays about68%
+partial (30/39 resources,1/4 whole groups). Next: safe physical newborn placement/
+reconciliation, automatic adoption/feed/output and real bakery ingredient customers.
+No decision pending. See LIVESTOCK_WORKING_AREA.md for files/settings/limits.
+
 ## October16 — physical newborn identity handoff verified
 
 Schema86 adds claim-before-spawn identities, retained failed aliases and individual

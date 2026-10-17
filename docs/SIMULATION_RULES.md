@@ -5,7 +5,10 @@ outside the configurable farm radius become unavailable for products/breeding;
 positive return observations restore eligibility. Retain their ownership,
 headcounts and aging. Unknown/unloaded observations do not change eligibility
 or infer death. Other eligible animals continue; absent worlds still pause time.
-The rule is approved; live observation/production integration remains unfinished.
+Saved positive sightings and configured herd-work eligibility are verified by
+1,739 Wrapper tests and a real-cow away/return/restart check. Automatic adoption,
+newborn reconciliation and scheduled feed/output remain unfinished; see
+LIVESTOCK_WORKING_AREA.md.
 
 October16 approved unfinished-purchase rule: retain only the exact pending
 purchase goods through player death until confirmation. Other inventory follows

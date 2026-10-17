@@ -115,6 +115,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy warehouseFoundingPolicy=com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy workplaceOperationPolicy=com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();
     private com.blueninjas24.civilizations.industry.LivestockMarketPolicy livestockMarketPolicy=com.blueninjas24.civilizations.industry.LivestockMarketPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.LivestockWorkingArea livestockWorkingArea=com.blueninjas24.civilizations.industry.LivestockWorkingArea.prototype();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private com.blueninjas24.civilizations.industry.MineFoundingPolicy mineFoundingPolicy=com.blueninjas24.civilizations.industry.MineFoundingPolicy.disabled();
@@ -307,6 +308,10 @@ public final class PopulationSession implements AutoCloseable {
     public void configureLivestockMarket(com.blueninjas24.civilizations.industry.LivestockMarketPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure livestock market before session starts");
         livestockMarketPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureLivestockWorkingArea(com.blueninjas24.civilizations.industry.LivestockWorkingArea policy) {
+        if(started.get())throw new IllegalStateException("Configure livestock working area before session starts");
+        livestockWorkingArea=java.util.Objects.requireNonNull(policy);
     }
     public void configureBusinessOperations(com.blueninjas24.civilizations.industry.BusinessOperationPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure business operation before session starts");
@@ -925,6 +930,27 @@ public final class PopulationSession implements AutoCloseable {
     }
     public CompletableFuture<Boolean> recordPhysicalDeath(UUID world, UUID entity, long observedMillis, String reason) {
         return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
+    }
+    /** Explicit trusted herd work handoff; no automatic scheduling or physical reconciliation implied. */
+    public CompletableFuture<com.blueninjas24.civilizations.industry.LivestockHerd.Plan> advanceLivestock(
+            UUID operation,UUID business,long expectedPeriod,long workPerWorker,long siteWorkLimit,
+            com.blueninjas24.civilizations.industry.LivestockPolicy policy) {
+        return submit(()-> {
+            requireReady();var founding=new com.blueninjas24.civilizations.database.BusinessRepository(database.getConnection()).findFounding(business).orElseThrow();
+            boolean active=loadedWorlds!=null&&loadedWorlds.contains(founding.site().worldId());
+            if(active&&policy.enabled()&&!livestockCaptureReady())throw new IllegalStateException("Trusted livestock loss capture required before production");
+            return new com.blueninjas24.civilizations.database.LivestockRepository(database.getConnection()).advance(operation,business,expectedPeriod,workPerWorker,siteWorkLimit,policy,operationPolicy,active,livestockWorkingArea);
+        });
+    }
+    public CompletableFuture<java.util.List<com.blueninjas24.civilizations.database.LivestockPresence.Member>> livestockMembers(UUID after,int limit) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockPresence(database.getConnection()).page(after,limit);});
+    }
+    public CompletableFuture<Integer> recordLivestockPresence(java.util.List<com.blueninjas24.civilizations.database.LivestockPresence.Sight> observations) {
+        var sights=java.util.List.copyOf(observations);
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockPresence(database.getConnection()).record(sights);});
+    }
+    public CompletableFuture<Optional<com.blueninjas24.civilizations.database.LivestockPresence.Sight>> livestockSight(UUID animal) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockPresence(database.getConnection()).find(animal);});
     }
     /** Trusted main-thread prepared-body claim. Publication of village identity precedes future completion/spawn. */
     public CompletableFuture<com.blueninjas24.civilizations.database.LivestockBirthProjections.Projection> claimLivestockBirth(

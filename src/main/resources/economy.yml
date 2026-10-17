@@ -833,6 +833,12 @@ livestock:
     meat-units-per-animal: 2
     maximum-slaughter-per-period: 1
 
+livestock-working-area:
+  radius-blocks: 32 # 3D distance from the saved farm site, inclusive; 1..256.
+  # Only a positive sight outside this area pauses that animal's work/breeding.
+  # Unloaded/missing alone never means away/dead. Ownership and aging are retained.
+  # Live herd adoption/production scheduling is still being connected.
+
 # Initial local dairy/chicken sales from actual saved business stock. No free buckets.
 # One milk bucket per order; egg orders split into legal Minecraft stacks.
 # Prices are editable introductory quotes, not milk/egg bargaining yet. Real

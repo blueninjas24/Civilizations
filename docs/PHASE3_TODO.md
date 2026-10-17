@@ -1,5 +1,19 @@
 # Phase 3 — businesses and industry checklist
 
+## October17 — animals can pause work without disappearing
+
+A cow or chicken confirmed far from its farm can stop working until it returns,
+without losing its ownership or place in the herd. Growing animals still age;
+other animals keep working. Unloaded animals keep their last known status.
+Admins can edit the working radius in economy.yml; the prototype is32 blocks.
+
+All1,739 full-build tests and the isolated real-cow away/return/restart check
+passed. Existing test-save records were preserved; your server is untouched.
+Earlier newborn checkpoints also passed GitHub's Windows/Linux builds.
+P3 remains about68% partial: automatic adoption, safe newborn placement, scheduled
+feed/output and broader bakery ingredients remain. Next: safe newborn placement.
+No answer needed.
+
 ## October16 — physical newborn identity handoff verified
 
 Newborn records can now connect safely to actual Minecraft animals. A retry or

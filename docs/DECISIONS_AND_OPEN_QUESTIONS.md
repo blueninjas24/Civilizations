@@ -7,8 +7,11 @@ confirmed outside its farm's configurable working radius stops contributing
 products and breeding until confirmed back. It remains village-owned; eligible
 animals continue working. Unloaded chunks, missing observations and absent
 worlds never by themselves establish departure or death. Preserve headcounts,
-individual identity and aging separately from production eligibility. This is
-approved intent; live observation and production integration remain unfinished.
+individual identity and aging separately from production eligibility. Saved
+positive observation and configured work eligibility are now verified by1,739
+Wrapper tests and the real-cow away/return/restart check. Automatic adoption,
+physical newborn reconciliation and scheduled feed/output remain unfinished.
+See LIVESTOCK_WORKING_AREA.md; no radius decision remains pending.
 
 ## October16 — unfinished purchases through player death: approved
 

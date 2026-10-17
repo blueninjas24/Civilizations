@@ -138,10 +138,16 @@ public final class LivestockRepository {
      * Disabled/absent worlds return unchanged without reserving an operation or accruing time. */
     public LivestockHerd.Plan advance(UUID operation,UUID business,long expectedPeriod,long workPerWorker,long siteWorkLimit,
                                       LivestockPolicy policy,BusinessOperationPolicy operations,boolean worldActive)throws SQLException {
+        return advance(operation,business,expectedPeriod,workPerWorker,siteWorkLimit,policy,operations,worldActive,LivestockWorkingArea.prototype());
+    }
+    public LivestockHerd.Plan advance(UUID operation,UUID business,long expectedPeriod,long workPerWorker,long siteWorkLimit,
+                                      LivestockPolicy policy,BusinessOperationPolicy operations,boolean worldActive,LivestockWorkingArea workingArea)throws SQLException {
         Objects.requireNonNull(operation);Objects.requireNonNull(business);Objects.requireNonNull(policy);Objects.requireNonNull(operations);
+        Objects.requireNonNull(workingArea);
         if(expectedPeriod<1||workPerWorker<1||workPerWorker>1_000_000||siteWorkLimit<0||siteWorkLimit>1_000_000)
             throw new IllegalArgumentException("Invalid herd work request");
-        String terms=business+"|"+expectedPeriod+"|"+workPerWorker+"|"+siteWorkLimit+"|"+policy+"|"+operations+"|"+worldActive;
+        String terms=business+"|"+expectedPeriod+"|"+workPerWorker+"|"+siteWorkLimit+"|"+policy+"|"+operations+"|"+worldActive
+                +(workingArea.equals(LivestockWorkingArea.prototype())?"":"|working-radius="+workingArea.radiusBlocks());
         return transaction(()->{
             var herd=load(business).orElseThrow(()->new SQLException("Herd not initialized"));
             try(var s=connection.prepareStatement("SELECT business_id,period,terms FROM livestock_periods WHERE operation_id=?")) {
@@ -164,13 +170,15 @@ public final class LivestockRepository {
             var store=new IndustryRepository(connection).store(business).orElseThrow();requireCatalogue(store,herd.feed(),herd.species());
             // Conservative output budget: never borrow incoming reservations or anticipated feed space.
             long work=Math.min(siteWorkLimit,Math.multiplyExact(workers,workPerWorker));
+            long unavailable=new LivestockPresence(connection).unavailableAdultsRows(business,expectedPeriod,workingArea);
             var plan=LivestockHerd.plan(herd.state(),store.units().get(herd.feed()),work,
-                    store.freeSpace(),0,policy,herd.species(),true);
+                    store.freeSpace(),0,policy,herd.species(),true,unavailable);
             changeStock(business,herd.feed(),-plan.feedUsed());changeStock(business,product(herd.species()),plan.renewableUnits());
             if(new IndustryRepository(connection).store(business).orElseThrow().freeSpace()<0)throw new SQLException("Herd output exceeded storage");
             save(business,operation,terms,plan,store,herd.feed(),herd.species(),work,
                     availability.explanation()+"; qualified workers="+workers+"; work="+work+"; feed="+store.units().get(herd.feed())+
-                    "; output space="+store.freeSpace()+"; births="+plan.births()+"; product="+plan.renewableUnits());
+                    "; output space="+store.freeSpace()+"; births="+plan.births()+"; product="+plan.renewableUnits()+
+                    "; confirmed away mature animals="+unavailable+"; working radius="+workingArea.radiusBlocks());
             new LivestockBirths(connection).recordRows(business,expectedPeriod,Math.toIntExact(plan.births()),policy.maturityPeriods());
             new LivestockLosses(connection).applyRows(business,expectedPeriod);return plan;
         });

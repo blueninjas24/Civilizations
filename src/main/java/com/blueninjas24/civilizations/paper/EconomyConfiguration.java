@@ -30,6 +30,7 @@ public final class EconomyConfiguration {
         if (config.contains("farm-market")) rootKeys.add("farm-market");
         if (config.contains("livestock")) rootKeys.add("livestock");
         if (config.contains("livestock-market")) rootKeys.add("livestock-market");
+        if (config.contains("livestock-working-area")) rootKeys.add("livestock-working-area");
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
@@ -120,6 +121,7 @@ public final class EconomyConfiguration {
         readGrainHarvest(config);
         readFarmMarket(config);
         readLivestock(config);
+        readLivestockWorkingArea(config);
         readLivestockMarket(config);
         readRecipes(config);
         readOreObserver(config);
@@ -352,6 +354,11 @@ public final class EconomyConfiguration {
         return new com.blueninjas24.civilizations.industry.LivestockMarketPolicy(enabled, readPurchases(config).hundredthsPerEmerald(),
                 smallInteger(s, "milk-emeralds"), smallInteger(s, "eggs-per-order"), smallInteger(s, "egg-order-emeralds"),
                 smallInteger(s, "horizontal-radius"), smallInteger(s, "vertical-radius"), smallInteger(s, "maximum-sellers"), smallInteger(s, "offer-seconds"));
+    }
+    public static com.blueninjas24.civilizations.industry.LivestockWorkingArea readLivestockWorkingArea(ConfigurationSection config) {
+        if(!config.contains("livestock-working-area"))return com.blueninjas24.civilizations.industry.LivestockWorkingArea.prototype();
+        var s=section(config,"livestock-working-area");exactKeys(s,Set.of("radius-blocks"));
+        return new com.blueninjas24.civilizations.industry.LivestockWorkingArea(smallInteger(s,"radius-blocks"));
     }
     public static com.blueninjas24.civilizations.industry.LivestockPolicy readLivestock(ConfigurationSection config) {
         if(!config.contains("livestock"))return com.blueninjas24.civilizations.industry.LivestockPolicy.disabled();
