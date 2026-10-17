@@ -1,5 +1,24 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October17 — bounded free-range recognition: awaiting answer
+
+Automatic adoption is approved in principle. A finite local scan cannot prove
+that a very large unmarked player pasture has no enclosing fence farther away.
+The current design protects uncertain existing pens, so the live classifier must
+not silently choose how much uncertainty permits taking an animal.
+
+Asked: permit repeated complete loaded local scans to classify otherwise
+unnamed/unleashed/non-human-origin, known-natural cows/chickens as free-range
+when no nearby fence/gate/wall or saved pen protection is seen, under editable
+scan limits; require [Civ Protect] for guaranteed protection of larger pastures.
+Alternative: keep uncertain old areas unclaimed until an admin authorizes the
+whole village herd in one action. Unknown/native-human origin, individually
+recorded player owners and explicit protection remain excluded in either case.
+
+No answer assumed and no automatic first ownership enabled. Existing saved-herd
+paid feed/production is verified separately in LIVESTOCK_RUNTIME.md. This choice
+blocks enabling the automatic adoption classifier, not normal saved-herd work.
+
 ## October17 — business slaughter products: approved
 
 User confirmed: "Correct, no duplicate drops." When a village business deliberately slaughters its own animal, credit
