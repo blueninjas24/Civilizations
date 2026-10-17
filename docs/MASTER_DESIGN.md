@@ -2,8 +2,9 @@
 
 October17 implementation note: saved, paid livestock births now project as
 nearby loaded Minecraft animals with permanent IDs, restart-safe activation and
-saved maturity. Missing bodies never authorize replacement. Initial-animal age,
-automatic adoption and scheduled feed/output remain unfinished; see LIVESTOCK_NEWBORNS.md.
+saved maturity. Missing bodies never authorize replacement. Initial-animal age
+and stale-view protection are also verified. Automatic adoption and scheduled
+feed/output remain unfinished; see LIVESTOCK_NEWBORNS.md and LIVESTOCK_SAVED_AGES.md.
 
 October16 approved livestock working radius: only animals positively observed
 far from their farm pause products and breeding until their return. The radius

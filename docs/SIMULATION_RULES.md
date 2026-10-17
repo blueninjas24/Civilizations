@@ -3,8 +3,9 @@
 October17 implementation note: recorded paid births can now materialize on safe
 loaded ground near players and reconcile saved maturity without another head,
 goods or payout. Missing bodies remain unknown, never replacements. Initial
-animal age, live adoption and production scheduling remain unfinished. See
-LIVESTOCK_NEWBORNS.md for verification boundaries and interruption handling.
+animal age and shared stale-view protection are also verified; live adoption and
+production scheduling remain unfinished. See LIVESTOCK_NEWBORNS.md and
+LIVESTOCK_SAVED_AGES.md for verification boundaries and interruption handling.
 
 October16 approved livestock working radius: only animals positively observed
 outside the configurable farm radius become unavailable for products/breeding;

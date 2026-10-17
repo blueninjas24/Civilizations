@@ -74,9 +74,8 @@ public final class PaperLivestockNewborns extends BukkitRunnable implements Auto
         return Optional.of(animal);
     }
     static void applyAge(Animals animal,Job job) {
-        animal.setAgeLock(true);animal.getPersistentDataContainer().set(BIRTH,PersistentDataType.STRING,job.birth().id().toString());
-        if(job.herdPeriod()>=job.birth().maturePeriod()){if(!animal.isAdult())animal.setAdult();}
-        else if(animal.isAdult())animal.setBaby();
+        LivestockAgeReconciler.apply(animal,job.birth().business(),job.herdPeriod(),job.birth().maturePeriod());
+        animal.getPersistentDataContainer().set(BIRTH,PersistentDataType.STRING,job.birth().id().toString());
     }
     static Location safeLocation(World world,Position home) {
         return safeLocation(world,home,Material::isOccluding,Material::isAir);

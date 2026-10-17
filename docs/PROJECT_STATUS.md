@@ -1,5 +1,38 @@
 # Civilizations — implementation status and handoff
 
+## October17 — initial herd ages and monotonic native views verified
+
+Known initial animals now reconcile from the saved herd period and original
+remaining maturity, alongside newborns. Shared versioned native age metadata
+prevents older in-flight views making adults young again. Same-period repair
+avoids unnecessary clock writes; contradictory/malformed scope is reported,
+not overwritten. Valid positions and other animals continue after an age issue.
+Names, leashes, AI/gravity/invulnerability, ownership and assets are untouched.
+
+Member paging adds an indexed latest-period read; missing checkpoints refuse
+instead of manufacturing period zero. Schema87 unchanged; no migration/backfill/
+reset. Added13 SQLite/age/observer cases. Focused52 passed. Windows .\mvnw.cmd
+clean verify -B -ntp passed1,776 tests (1,774 unit/two packaged integration), zero
+failures/errors/skips;12:31, finished2026-10-17T10:32:48-04:00. Source/test Java
+frozen during full verification.
+
+Guarded Paper26.2 build129 passed10:35:01 EDT: three real initial cows corrected
+from intentionally wrong native ages, exact youngster period8/9 behavior, preserved
+names/movement/protection flags, actual native stale-view rejection and unspawned
+EntitySnapshot(World) age/lock/PDC round-trip. Automatic newborn/restart/real paid
+feed/output/missing/confirmed-death regression also passed. Not automatic adoption,
+actual chunk unload, human-client or JVM crash proof. All147 main tables retained,
+143 exact; ordinary clock/runtime/capture/ore metadata only, no aging. Integrity/
+FKs clean; native server stopped/settings restored/helper archived/backups kept.
+Only exact private test animals cleaned up. Human server untouched.
+
+Prior11ad06b passed hosted Windows/Linux, run39039309999. Current feature backup/
+CI follows this checkpoint. P3 remains about68% partial (30/39 resources,1/4 whole
+groups): pen interactions, automatic adoption/founding/feed/output, intentional
+slaughter, wider products and specialization remain. Next: authorized bounded
+bulk pen protection. Slaughter product-accounting answer is pending; no answer
+assumed and independent work continues. See LIVESTOCK_SAVED_AGES.md.
+
 ## October17 — safe automatic physical newborns verified
 
 Saved paid births now project as actual nearby cows/chickens on safe loaded

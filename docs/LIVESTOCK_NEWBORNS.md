@@ -65,6 +65,8 @@ capture/ore metadata changed, no aging. Schema87 unchanged; integrity/FKs clean.
 Fixture stopped/settings restored/helper archived/backups retained; human server
 untouched. Only explicitly tagged private-fixture bodies were removed in cleanup.
 
-Automatic livestock adoption, scheduling real feed/output, initial animal age
-reconciliation and broader bakery ingredient consumers remain unfinished. This
+Initial saved-animal age reconciliation and shared stale-view protection are now
+verified by1,776 Wrapper tests and real initial/newborn age/native-serialization
+checks; see LIVESTOCK_SAVED_AGES.md. Automatic livestock adoption, scheduling real
+feed/output and broader bakery ingredient consumers remain unfinished. This
 adapter does not authorize anonymous historical births or replace missing animals.

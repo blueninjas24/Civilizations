@@ -1,5 +1,17 @@
 # Civilizations progress tracker
 
+## October17 — existing farm animals now use the saved growth clock
+
+Animals initially assigned to a farm now grow at their saved dates, just like
+newborns. Late observations cannot turn an adult back into a baby. Names and
+ordinary movement/protection settings stay intact; unknown animals stay unknown.
+
+All1,776 full-build tests and the isolated real initial-animal/growth/restart/
+serialization check passed. No save migration or human-server change. The prior
+newborn build also passed GitHub on Windows/Linux. P3 stays about68% partial.
+Next: bulk pen protection before automatic adoption. The slaughter-product
+question is pending, and independent work continues.
+
 ## October17 — saved animal births now appear safely in Minecraft
 
 Recorded newborns can now appear on safe loaded ground near players. They keep

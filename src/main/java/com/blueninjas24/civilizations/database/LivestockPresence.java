@@ -7,7 +7,9 @@ import java.util.*;
 
 /** Latest positively observed locations of already saved living herd members. Unknown never means away. */
 public final class LivestockPresence {
-    public record Member(UUID animal,UUID business,LivestockHerd.Species species,UUID world,Position home,long maturePeriod) {}
+    public record Member(UUID animal,UUID business,LivestockHerd.Species species,UUID world,Position home,long maturePeriod,long herdPeriod) {
+        public Member {Objects.requireNonNull(animal);Objects.requireNonNull(business);Objects.requireNonNull(species);Objects.requireNonNull(world);Objects.requireNonNull(home);if(maturePeriod<0||herdPeriod<0)throw new IllegalArgumentException("Invalid saved livestock age");}
+    }
     public record Sight(UUID animal,LivestockHerd.Species species,UUID world,Position position,long observedMillis) {
         public Sight {Objects.requireNonNull(animal);Objects.requireNonNull(species);Objects.requireNonNull(world);Objects.requireNonNull(position);if(observedMillis<0)throw new IllegalArgumentException("Invalid livestock observation time");}
     }
@@ -41,7 +43,8 @@ public final class LivestockPresence {
     public List<Member> page(UUID after,int limit)throws SQLException {
         if(limit<1||limit>256)throw new IllegalArgumentException("Invalid livestock member page size");
         String query=MEMBERS+"""
-            SELECT m.*,h.species,s.world_id,s.x,s.y,s.z FROM members m
+            SELECT m.*,h.species,s.world_id,s.x,s.y,s.z,
+                (SELECT MAX(p.period) FROM livestock_periods p WHERE p.business_id=m.business_id) AS herd_period FROM members m
             JOIN livestock_herds h ON h.business_id=m.business_id JOIN businesses b ON b.id=m.business_id
             JOIN business_sites s ON s.id=b.site_id WHERE m.animal_id>? ORDER BY m.animal_id LIMIT ?
             """;
@@ -52,7 +55,8 @@ public final class LivestockPresence {
     }
     private Optional<Member> member(UUID animal)throws SQLException {
         try(var s=connection.prepareStatement(MEMBERS+"""
-            SELECT m.*,h.species,s.world_id,s.x,s.y,s.z FROM members m
+            SELECT m.*,h.species,s.world_id,s.x,s.y,s.z,
+                (SELECT MAX(p.period) FROM livestock_periods p WHERE p.business_id=m.business_id) AS herd_period FROM members m
             JOIN livestock_herds h ON h.business_id=m.business_id JOIN businesses b ON b.id=m.business_id
             JOIN business_sites s ON s.id=b.site_id WHERE m.animal_id=?
             """)) {
@@ -60,7 +64,8 @@ public final class LivestockPresence {
         }
     }
     private static Member member(ResultSet r)throws SQLException {
-        return new Member(UUID.fromString(r.getString("animal_id")),UUID.fromString(r.getString("business_id")),LivestockHerd.Species.valueOf(r.getString("species")),UUID.fromString(r.getString("world_id")),new Position(r.getInt("x"),r.getInt("y"),r.getInt("z")),r.getLong("mature_period"));
+        long period=r.getLong("herd_period");if(r.wasNull())throw new SQLException("Saved herd checkpoint missing for animal age");
+        return new Member(UUID.fromString(r.getString("animal_id")),UUID.fromString(r.getString("business_id")),LivestockHerd.Species.valueOf(r.getString("species")),UUID.fromString(r.getString("world_id")),new Position(r.getInt("x"),r.getInt("y"),r.getInt("z")),r.getLong("mature_period"),period);
     }
     public Optional<Sight> find(UUID animal)throws SQLException {
         try(var s=connection.prepareStatement("SELECT * FROM livestock_presence WHERE animal_id=?")) {

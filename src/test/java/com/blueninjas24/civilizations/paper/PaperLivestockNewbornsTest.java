@@ -49,14 +49,15 @@ class PaperLivestockNewbornsTest {
         occupied=true;assertNull(PaperLivestockNewborns.safeLocation(world,new Position(0,64,0),support,air));assertTrue(chunkReads<=27);assertTrue(blockReads<=81);
     }
     @Test void savedMaturityControlsAgeWithoutChangingInvulnerabilityAiOrPlayerAnimals() {
-        var birth=LivestockBirth.batch(new UUID(0,1),1,1,12).getFirst();var values=new HashMap<Object,Object>();var adult=new boolean[]{true};var ageLocks=new int[]{0};
-        var pdc=proxy(PersistentDataContainer.class,(m,a)->{if(m.equals("set")){values.put(a[0],a[2]);return null;}throw new AssertionError(m);});
+        var birth=LivestockBirth.batch(new UUID(0,1),1,1,12).getFirst();var values=new HashMap<Object,Object>();var adult=new boolean[]{true};var locked=new boolean[]{false};var ageLocks=new int[]{0};
+        var pdc=proxy(PersistentDataContainer.class,(m,a)->switch(m){case "set"->{values.put(a[0],a[2]);yield null;}case "has"->values.containsKey(a[0]);case "get"->values.get(a[0]);default->throw new AssertionError(m);});
         var animal=proxy(Animals.class,(m,a)->switch(m) {
-            case "setAgeLock"->{assertEquals(true,a[0]);ageLocks[0]++;yield null;}
+            case "getAgeLock"->locked[0];case "setAgeLock"->{assertEquals(true,a[0]);locked[0]=true;ageLocks[0]++;yield null;}
             case "getPersistentDataContainer"->pdc;case "isAdult"->adult[0];case "setBaby"->{adult[0]=false;yield null;}
             case "setAdult"->{adult[0]=true;yield null;}default->throw new AssertionError("Unexpected body mutation "+m);
         });
         var young=new Job(birth,LivestockHerd.Species.COW,new UUID(0,2),new Position(0,64,0),12,Optional.empty());PaperLivestockNewborns.applyAge(animal,young);assertFalse(adult[0]);assertEquals(birth.id().toString(),values.get(PaperLivestockNewborns.BIRTH));
-        PaperLivestockNewborns.applyAge(animal,new Job(birth,young.species(),young.world(),young.home(),13,Optional.empty()));assertTrue(adult[0]);assertEquals(2,ageLocks[0]);
+        PaperLivestockNewborns.applyAge(animal,new Job(birth,young.species(),young.world(),young.home(),13,Optional.empty()));assertTrue(adult[0]);assertEquals(1,ageLocks[0]);
+        PaperLivestockNewborns.applyAge(animal,young);assertTrue(adult[0]);assertTrue(((String)values.get(LivestockAgeReconciler.CLOCK)).endsWith("|13"));
     }
 }

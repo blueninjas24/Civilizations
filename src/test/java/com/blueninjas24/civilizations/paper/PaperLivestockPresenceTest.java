@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PaperLivestockPresenceTest {
     final UUID world=new UUID(0,1),animal=new UUID(0,2),business=new UUID(0,3);
-    final Member member=new Member(animal,business,LivestockHerd.Species.COW,world,new Position(0,64,0),0);
+    final Member member=new Member(animal,business,LivestockHerd.Species.COW,world,new Position(0,64,0),0,0);
     final Sight sight=new Sight(animal,LivestockHerd.Species.COW,world,new Position(40,64,0),1000);
     class Owner implements PaperLivestockPresence.Owner {
         boolean ready=true;int pages,records;UUID after;List<Sight> last;CompletableFuture<List<Member>> page=new CompletableFuture<>();CompletableFuture<Integer> save=new CompletableFuture<>();
@@ -48,5 +48,14 @@ class PaperLivestockPresenceTest {
     @Test void pageBudgetAndCapturedIdentityCannotBeBypassed() {
         var owner=new Owner();var observer=observer(owner,m->Optional.of(sight),()->true,()->1000);observer.run();owner.page.complete(Collections.nCopies(17,member));assertThrows(IllegalStateException.class,observer::run);assertEquals(0,owner.records);
         var other=new Owner();var wrong=new Sight(UUID.randomUUID(),sight.species(),world,sight.position(),1000);var bad=observer(other,m->Optional.of(wrong),()->true,()->1000);bad.run();other.page.complete(List.of(member));assertThrows(IllegalStateException.class,bad::run);assertEquals(0,other.records);
+    }
+    @Test void oneAgeConflictIsReportedWhileOtherAnimalsAndValidPositionsContinue() {
+        var owner=new Owner();var count=new AtomicInteger();var other=new Member(new UUID(0,4),business,LivestockHerd.Species.COW,world,member.home(),2,1);
+        var observer=new PaperLivestockPresence(owner,m->Optional.of(new Sight(m.animal(),m.species(),world,new Position(0,64,0),1000)),()->true,Logger.getLogger("Age isolation fixture"),()->1000,(m,s)->{count.incrementAndGet();if(m.animal().equals(animal))throw new IllegalStateException("fixture age scope conflict");});
+        observer.run();owner.page.complete(List.of(member,other));observer.run();assertEquals(2,count.get());assertEquals(1,owner.records);assertEquals(2,owner.last.size());assertTrue(observer.diagnostic().contains("fixture age scope conflict"));
+    }
+    @Test void unknownOrUnloadedBodyNeverReceivesAgeMutationFromAnEmptySight() {
+        var owner=new Owner();var observer=new PaperLivestockPresence(owner,m->Optional.empty(),()->true,Logger.getLogger("Unknown age fixture"),()->1000,(m,s)->{throw new AssertionError("Missing body cannot be aged");});
+        observer.run();owner.page.complete(List.of(member));observer.run();assertEquals(0,owner.records);
     }
 }

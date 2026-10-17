@@ -11,8 +11,8 @@ breeding reserves, real work and storage constraints remain.
 
 Asked because the approved managed-slaughter direction does not yet settle this
 physical-drop/accounting rule. No approval assumed and no slaughter API enabled.
-Newborn projection, initial-age reconciliation and other independent work can
-continue while this answer is pending.
+Newborn projection and initial-age reconciliation are now verified. Other
+independent work, including pen protection, continues while this answer is pending.
 
 ## October16 — livestock working radius: approved
 
