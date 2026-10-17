@@ -12,6 +12,10 @@ public final class LivestockMarket {
                         long quotedMillis, long expiresMillis) {
         public Offer { Objects.requireNonNull(terms); Objects.requireNonNull(businessName); }
     }
+    /** Saved site accompanies owner acceptance so a later main-thread exchange can recheck proximity. */
+    public record Reservation(LivestockProductSales.Receipt receipt, UUID world, int x, int y, int z) {
+        public LivestockProductSales.Status status() { return receipt.status(); }
+    }
     private final Connection c;
     private final LivestockMarketPolicy policy;
     private final LivestockProductSales sales;
@@ -50,14 +54,14 @@ public final class LivestockMarket {
         return List.copyOf(result);
     }
     /** Replays accepted reservations even after settings/availability change; caller still checks before inventory exchange. */
-    public LivestockProductSales.Receipt reserve(Terms terms, Position player, Set<UUID> worlds) throws SQLException {
-        if (sales.find(terms.operation()).isPresent()) return sales.reserve(terms, worlds);
-        if (!policy.accepts(terms)) throw new LivestockProductSales.Declined("Market disabled or price/order changed; reopen the market");
+    public Reservation reserve(Terms terms, Position player, Set<UUID> worlds) throws SQLException {
+        boolean replay = sales.find(terms.operation()).isPresent();
+        if (!replay && !policy.accepts(terms)) throw new LivestockProductSales.Declined("Market disabled or price/order changed; reopen the market");
         var founding = new BusinessRepository(c).findFounding(terms.seller()).orElseThrow(() -> new LivestockProductSales.Declined("Saved supplier required"));
         var site = founding.site();
-        if (!policy.nearby(player, site.worldId(), site.x(), site.y(), site.z()))
+        if (!replay && !policy.nearby(player, site.worldId(), site.x(), site.y(), site.z()))
             throw new LivestockProductSales.Declined("Supplier is no longer nearby");
-        return sales.reserve(terms, worlds);
+        return new Reservation(sales.reserve(terms, worlds), site.worldId(), site.x(), site.y(), site.z());
     }
     /** Owner-ordered recovery of a failed/unsubmitted reservation; never refunds an exchanged player inventory. */
     public Optional<LivestockProductSales.Receipt> cancel(Terms terms) throws SQLException {

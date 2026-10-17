@@ -25,6 +25,14 @@ class LivestockInventoryTest {
         before.set(1,slot("BUCKET",1,16));before.set(0,slot("EMERALD",1,64));original=List.copyOf(before);
         assertThrows(LivestockInventory.Unavailable.class,()->LivestockInventory.plan(before,terms(Product.MILK,1,2),1));assertEquals(original,before);
     }
+    @Test void pendingGoodsUseSeparateStacksAndCannotProtectOlderEggsThroughAMergedPayout() {
+        var before=inventory();before.set(0,slot("EMERALD",5,64));before.set(1,slot("EGG",8,16));
+        var after=LivestockInventory.separated(before,terms(Product.EGGS,4,1),16).after();
+        assertEquals(before.get(1),after.get(1));assertEquals(slot("EGG",4,16),after.get(2));
+        for(int i=2;i<36;i++)before.set(i,slot("STONE",64,64));
+        assertThrows(LivestockInventory.Unavailable.class,()->LivestockInventory.separated(before,terms(Product.EGGS,4,1),16));
+        assertEquals(12,count(LivestockInventory.plan(before,terms(Product.EGGS,4,1),16).after(),"EGG"));
+    }
     @Test void fullInventoryCanUseAnActuallyEmptiedSlotButCannotDropOverflowOrInventRoom() {
         var before=new ArrayList<>(Collections.nCopies(36,slot("STONE",64,64)));before.set(0,slot("EMERALD",64,64));before.set(1,slot("BUCKET",16,16));
         var original=List.copyOf(before);assertThrows(LivestockInventory.Unavailable.class,()->LivestockInventory.plan(before,terms(Product.MILK,1,2),1));assertEquals(original,before);

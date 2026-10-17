@@ -862,7 +862,7 @@ public final class PopulationSession implements AutoCloseable {
             UUID player,com.blueninjas24.civilizations.industry.LivestockMarketPolicy.Position position) {
         return submit(()->{requireReady();return livestockMarket().offers(player,position,now.getAsLong(),loadedWorlds==null?java.util.Set.of():loadedWorlds);});
     }
-    public CompletableFuture<com.blueninjas24.civilizations.database.LivestockProductSales.Receipt> reserveLivestockSale(
+    public CompletableFuture<com.blueninjas24.civilizations.database.LivestockMarket.Reservation> reserveLivestockSale(
             com.blueninjas24.civilizations.industry.LivestockProductSale.Terms terms,com.blueninjas24.civilizations.industry.LivestockMarketPolicy.Position position) {
         return submit(()->{requireReady();return livestockMarket().reserve(terms,position,loadedWorlds==null?java.util.Set.of():loadedWorlds);});
     }

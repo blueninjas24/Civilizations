@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.*;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /** Main-thread storage snapshot/plan. Preserves full metadata of unchanged items, never drops overflow. */
 public final class LivestockSaleInventory {
@@ -29,7 +30,13 @@ public final class LivestockSaleInventory {
         }
     }
     public static Exchange plan(PlayerInventory inventory,Terms terms) { return plan(inventory,terms,ItemStack::new); }
+    public static Exchange pending(PlayerInventory inventory,Terms terms) {
+        return plan(inventory,terms,ItemStack::new,item->PendingLivestockItems.mark(item,terms));
+    }
     static Exchange plan(PlayerInventory inventory,Terms terms,BiFunction<Material,Integer,ItemStack> factory) {
+        return plan(inventory,terms,factory,null);
+    }
+    static Exchange plan(PlayerInventory inventory,Terms terms,BiFunction<Material,Integer,ItemStack> factory,Consumer<ItemStack> marker) {
         var before=copy(inventory.getStorageContents());
         if(before.length!=36)throw new IllegalArgumentException("Expected 36 main storage slots");
         var slots=new ArrayList<LivestockInventory.Slot>();
@@ -39,7 +46,7 @@ public final class LivestockSaleInventory {
             slots.add(new LivestockInventory.Slot(item.getType().name(),item.getAmount(),max,!item.hasItemMeta()&&item.getAmount()<=max));
         }
         var output=Objects.requireNonNull(factory.apply(Material.valueOf(terms.product().item()),1));
-        var plan=LivestockInventory.plan(slots,terms,output.getMaxStackSize());
+        var plan=marker==null?LivestockInventory.plan(slots,terms,output.getMaxStackSize()):LivestockInventory.separated(slots,terms,output.getMaxStackSize());
         var after=copy(before);
         for(int i=0;i<after.length;i++)if(!plan.before().get(i).equals(plan.after().get(i))) {
             var target=plan.after().get(i);
@@ -48,6 +55,7 @@ public final class LivestockSaleInventory {
                 var item=Objects.requireNonNull(factory.apply(Material.valueOf(target.item()),target.count()));
                 if(!item.getType().name().equals(target.item())||item.getAmount()!=target.count()||item.hasItemMeta()||item.getAmount()>item.getMaxStackSize())
                     throw new IllegalArgumentException("Inventory provider returned an invalid ordinary stack");
+                if(marker!=null&&target.item().equals(terms.product().item()))marker.accept(item);
                 after[i]=item;
             }
         }

@@ -4,7 +4,7 @@ import com.blueninjas24.civilizations.industry.LivestockProductSale.*;
 import java.util.Objects;
 import java.util.UUID;
 
-/** Future inventory adapter must save this with its player inventory and verify disk proof before SQL effects. */
+/** Inventory adapter saves this with its player inventory and verifies disk proof before SQL effects. */
 public record PendingLivestockSale(Terms terms, Stage stage) {
     public static final String KEY = "civilizations:pending_livestock_sale";
     public enum Stage { PREPARED, EXCHANGED, CANCELLED, REVIEW }

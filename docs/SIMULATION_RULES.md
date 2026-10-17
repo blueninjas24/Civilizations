@@ -3,12 +3,15 @@
 October16 approved unfinished-purchase rule: retain only the exact pending
 purchase goods through player death until confirmation. Other inventory follows
 normal death rules; confirmed goods lose the temporary protection. No broad
-keep-inventory or invulnerability. This is approved intent; the adapter is next.
+keep-inventory or invulnerability. The adapter is now implemented and verified by
+Wrapper/native synthetic-player checks; see LIVESTOCK_MARKET.md. Human-client
+death/crash compatibility remains release validation.
 
 October16 approved milk-container rule: players must bring an empty bucket for
 each milk bucket purchased. Fill only from recorded business milk stock under
 agreed payment terms; never include a free iron bucket. Eggs need no container.
-This resolves the container decision, not the unfinished trading implementation.
+Stock-backed player trading is now connected; live adoption/feed/output remain
+unfinished. See LIVESTOCK_MARKET.md for current implementation limits.
 
 October16 approved village livestock product rule: initially buy/trade recorded
 milk/egg stock; prevent separate vanilla milking and egg laying drops for saved

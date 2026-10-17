@@ -1,5 +1,54 @@
 # Civilizations — implementation status and handoff
 
+## October16 — recoverable milk/egg player market verified
+
+Connected /civ market to nearby eligible recorded herd stock. A protected 54-slot
+menu shows bounded expiring offers, editable prices and buyer-supplied buckets.
+Explicit one-click orders persist intent, recheck saved supplier site/permission/
+payment/room, deliver once, prove the saved exchange, then credit the seller once.
+Failed saves retry the current stage; accepted orders recover after restart or
+market disablement. Exact marked quantity is checked before requesting seller
+credit. Uncertain inventory/restore or ledger disagreement retains REVIEW instead
+of manufacturing another payout/refund. Dead players wait until respawn.
+
+New goods occupy separate marked stacks. Only the exact operation/buyer/product/
+quantity receive approved temporary death retention. Older goods, XP and normal
+server keepInventory rules stay ordinary. Already-kept copies are not duplicated;
+extra unexpected marked quantities remain ordinary drops. Confirmation removes
+only the temporary marker. Guards cover movement, vanilla interactions, milk
+consumption and recipe-book autofill. Food aid/sale/barter starts cannot overlap.
+
+Added29 automated cases: storage separation, routing, exact death/consumption/
+recipe-book behavior, saved proof and purchase recovery. Focused61 and42 checks
+passed. Final Windows .\mvnw.cmd clean verify -B -ntp passed1,681 tests (1,679
+unit/two packaged integration), zero failures/errors/skips;09:23, finished
+2026-10-16T22:11:50-04:00. Initial full run intentionally stopped to add the
+pre-credit quantity guard; source/test Java frozen during final verification.
+
+Guarded Paper26.2 build129 market probe passed22:13:02: actual native item/PDC/
+player files and separate SQL owner, menu double-click, withheld preparation and
+exchange saves, synthetic selective death/respawn, real buckets/egg separation,
+native reload and owner/controller restart. Exact two completed orders, seller
+cash1600/800 and milk1/eggs1 closing stock; integrity/FKs clean. Not a human-client
+death, actual JVM crash or automatic herd test. First probe setup incorrectly
+shared two business addresses; corrected only the excluded helper and reran.
+No application behavior changed to bypass that valid uniqueness constraint.
+
+Main disposable fixture remains schema84:142 predecessor tables preserved/135
+exact, only ordinary clock/active-world/capture/ore metadata and one age month.
+Existing identities/goods/cash/history retained. Fixture stopped, original25577
+settings restored, helpers archived, backups/synthetic saves retained. No helper
+blocks/animals/online players changed. Human server untouched; no migration here.
+Previous product-sale1722790 hosted CI passed (run38980634799); foundation38f9763
+Linux passed/Windows still running at last check. Current batch hosted run pending.
+
+P3 stays~68% partial (30/39 resources,1/4 whole groups). Player retail is connected;
+automatic adoption, permanent physical offspring/reconciliation, scheduled feed/
+output and bakery customers remain. Changed groups: market controller/menu,
+selective item guard/storage planning, owner-site DTO, command/startup routing,
+old food-transfer mutual exclusion, tests and docs. Next: newborn identity and
+safe herd activation. No design decision pending. See LIVESTOCK_MARKET.md.
+
 ## October16 — configurable nearby market and inventory exchange foundation
 
 Implemented bounded SQL-owner dairy/chicken quotes from actual eligible staffed

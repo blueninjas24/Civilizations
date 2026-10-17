@@ -39,8 +39,7 @@ public final class FoodBarterTransfers extends BukkitRunnable implements AutoClo
     public boolean confirm(Player player,FoodBarters.Terms terms) {
         if(!session.status().ready()||!policy.enabled()||!foods.enabled()||!player.hasPermission("civilizations.trade")
                 ||!terms.player().equals(player.getUniqueId())||work.size()>=16
-                ||player.getPersistentDataContainer().has(KEY)||player.getPersistentDataContainer().has(FoodPurchaseTransfers.KEY)
-                ||player.getPersistentDataContainer().has(FoodAidTransfers.KEY)) {
+                ||LivestockSaleTransfers.pending(player)) {
             player.sendMessage("Barter is unavailable or another transfer is recovering. No items taken.");return false;
         }
         if(!terms.settlement().equals(FoodAidPreviewCommand.recipient(session,player.getLocation(),foods,terms.settlement()).town())) {

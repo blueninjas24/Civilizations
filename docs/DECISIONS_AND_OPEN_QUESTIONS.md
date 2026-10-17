@@ -8,7 +8,9 @@ trade is confirmed. Their other items follow ordinary server death rules. Once
 confirmed, the special protection ends. This does not grant broad keep-inventory,
 invulnerability, free containers, refunds or protection for ordinary existing goods.
 The purchase controller must isolate the exact pending goods and preserve once-only
-payment/delivery recovery. Approval recorded; native player-death handling is next.
+payment/delivery recovery. Selective retention and the purchase adapter are implemented, verified by1,681
+Wrapper tests and actual Paper saves with synthetic death/respawn events. A human
+client/actual crash remains release validation; see LIVESTOCK_MARKET.md.
 No design question remains pending for this safeguard.
 
 ## October16: milk trade containers — approved

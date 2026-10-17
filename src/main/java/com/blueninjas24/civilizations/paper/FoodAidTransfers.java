@@ -36,7 +36,7 @@ public final class FoodAidTransfers extends BukkitRunnable implements AutoClosea
         if (!enabled || !policy.enabled()) {player.sendMessage("Food donations are disabled by this server.");return false;}
         if (!player.hasPermission("civilizations.aid.donate")) {player.sendMessage("You do not have permission to donate food.");return false;}
         if (!session.status().ready() || work.size()>=16) {player.sendMessage("Food delivery is busy; your items were not taken.");return false;}
-        if (player.getPersistentDataContainer().has(KEY) || player.getPersistentDataContainer().has(FoodPurchaseTransfers.KEY) || player.getPersistentDataContainer().has(FoodBarterTransfers.KEY)) {player.sendMessage("Your previous transfer is still pending recovery. No more items taken.");return false;}
+        if (LivestockSaleTransfers.pending(player)) {player.sendMessage("Your previous transfer is still pending recovery. No more items taken.");return false;}
         if (!town.equals(FoodAidPreviewCommand.recipient(session,player.getLocation(),policy,town).town())) {player.sendMessage("The village is no longer ready or nearby. Your items were not taken.");return false;}
         var held=player.getInventory().getItemInMainHand();
         if (!held.isSimilar(offered)||held.getAmount()!=offered.getAmount()) {player.sendMessage("Your held food changed. Reopen the village menu.");return false;}

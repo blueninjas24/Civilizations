@@ -1,5 +1,18 @@
 # Phase 3 — businesses and industry checklist
 
+## October16 — milk/egg player market verified
+
+Players can now open /civ market to buy recorded milk/eggs from an eligible stocked
+business. Milk needs your own empty bucket. Purchases survive interrupted saves
+without a second charge or delivery. Only goods from an unfinished purchase get
+temporary death protection; older items follow ordinary server rules.
+
+All1,681 full-build tests and the isolated Paper save/menu/retention check passed.
+The native test used a synthetic player and death/respawn event model, not a human
+client or actual crash. Your server is untouched. P3 stays~68% partial: live herd
+adoption, newborn tracking, feed/output and bakery customers remain. Next: newborn
+identity and safe herd activation; no answer needed.
+
 ## October16 — market prices and inventory foundations verified
 
 Nearby real dairy/chicken stock can now be quoted with editable prices and exact
@@ -41,7 +54,8 @@ untouched; test saves preserved. P3 remains~68% partial (`██████▊�
 - [ ] Automatic safe animal adoption and business opening.
 - [ ] Physical newborn identity and herd reconciliation.
 - [ ] Scheduled feed purchases and production.
-- [ ] Connected milk/egg customers and player trading.
+- [x] Recoverable stock-backed milk/egg player trading and selective pending-goods retention.
+- [ ] Connected bakery ingredient customers and live herd supply.
 
 Next: connect live herds safely and their real customers. Milk buyers must bring
 an empty bucket; that decision is now approved. Milk/egg player trading remains

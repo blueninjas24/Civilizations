@@ -70,7 +70,7 @@ public final class FoodPurchaseTransfers extends BukkitRunnable implements AutoC
         var town=terms.settlement();
         if(!session.status().ready()||!policy.enabled()||!foods.enabled()||!player.hasPermission("civilizations.trade")
                 ||!terms.player().equals(player.getUniqueId())
-                ||work.size()>=16||player.getPersistentDataContainer().has(KEY)||player.getPersistentDataContainer().has(FoodAidTransfers.KEY)||player.getPersistentDataContainer().has(FoodBarterTransfers.KEY)) {
+                ||work.size()>=16||LivestockSaleTransfers.pending(player)) {
             player.sendMessage("Trading is unavailable or a previous transfer is still recovering. No items taken.");return false;
         }
         if(!town.equals(FoodAidPreviewCommand.recipient(session,player.getLocation(),foods,town).town())) {

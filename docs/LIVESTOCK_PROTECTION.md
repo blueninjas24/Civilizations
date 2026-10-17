@@ -1,5 +1,21 @@
 # Livestock protection and work foundation
 
+## October16 — recoverable player retail and selective pending-item retention verified
+
+/civ market, SQL-owner acceptance/site recheck and durable once-only purchase
+handoff are now connected. Newly purchased goods occupy separate marked stacks;
+only their exact quantity receives temporary death retention. Normal other items,
+XP and server keepInventory rules remain. Movement, interactions, consumption and
+recipe-book autofill cannot spend unconfirmed goods. Exact quantity is checked
+before seller credit; uncertain state requires review, never a second delivery.
+
+All1,681 Wrapper tests and guarded native Paper save/menu/retention/restart checks
+passed; details in PROJECT_STATUS. Native death/respawn is an explicit synthetic
+event model, not a human client or actual crash. Human server untouched. Schema84
+unchanged. Older entries below describe their historical checkpoints. Automatic
+adoption, permanent physical newborns and live feed/output remain unfinished.
+See LIVESTOCK_MARKET.md for settings, recovery and current limits.
+
 ## October16 — nearby retail quotes and guarded storage plans verified
 
 LivestockMarketPolicy exposes editable introductory milk/egg prices, egg order

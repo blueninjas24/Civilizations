@@ -25,6 +25,13 @@ public final class LivestockInventory {
         Unavailable(String message) { super(message); }
     }
     public static Plan plan(List<Slot> inventory, Terms terms, int outputMaximum) {
+        return plan(inventory,terms,outputMaximum,true);
+    }
+    /** Pending goods occupy separate stacks so death retention cannot also protect older player property. */
+    public static Plan separated(List<Slot> inventory,Terms terms,int outputMaximum) {
+        return plan(inventory,terms,outputMaximum,false);
+    }
+    private static Plan plan(List<Slot> inventory,Terms terms,int outputMaximum,boolean mergeOutput) {
         Objects.requireNonNull(terms);
         var before = List.copyOf(inventory);
         if (before.isEmpty() || before.size() > 36 || outputMaximum < 1)
@@ -33,7 +40,7 @@ public final class LivestockInventory {
         take(after, "EMERALD", terms.emeralds(), "Not enough plain emeralds in your inventory.");
         if (terms.emptyBuckets() > 0) take(after, "BUCKET", terms.emptyBuckets(), "Bring a plain empty bucket for the milk.");
         int remaining = terms.count(); String output = terms.product().item();
-        for (int i = 0; i < after.size() && remaining > 0; i++) {
+        for (int i = 0; mergeOutput && i < after.size() && remaining > 0; i++) {
             var slot = after.get(i);
             if (!slot.usable(output) || slot.maximum() != outputMaximum) continue;
             int moved = Math.min(remaining, slot.maximum() - slot.count());

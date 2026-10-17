@@ -6,7 +6,7 @@ import com.blueninjas24.civilizations.population.WorkEligibility;
 import java.sql.*;
 import java.util.*;
 
-/** SQL-owner player sale ledger. Not a live trade command. The future Paper adapter must independently
+/** SQL-owner player sale ledger. The Paper adapter must independently
  * prove saved player intent before reserve, and saved payment/container exchange before complete.
  * Reservations remove sellable goods but retain their storage space until completion/cancellation. */
 public final class LivestockProductSales {
