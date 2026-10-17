@@ -931,6 +931,18 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Boolean> recordPhysicalDeath(UUID world, UUID entity, long observedMillis, String reason) {
         return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
     }
+    /** Trusted adapter supplies fresh enclosure/animal/authority evidence; no Bukkit objects cross threads. */
+    public CompletableFuture<com.blueninjas24.civilizations.industry.PenProtection> protectPen(
+            com.blueninjas24.civilizations.industry.PenProtection pen,boolean authorized) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.PenProtectionRepository(database.getConnection()).save(pen,authorized);});
+    }
+    public CompletableFuture<Optional<com.blueninjas24.civilizations.industry.PenProtection>> protectedPen(UUID pen) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.PenProtectionRepository(database.getConnection()).load(pen);});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.PenProtectionLifecycle.Release> releasePen(
+            com.blueninjas24.civilizations.database.PenProtectionLifecycle.Release request,boolean admin) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.PenProtectionLifecycle(database.getConnection()).release(request,admin);});
+    }
     /** Explicit trusted herd work handoff; no automatic scheduling or physical reconciliation implied. */
     public CompletableFuture<com.blueninjas24.civilizations.industry.LivestockHerd.Plan> advanceLivestock(
             UUID operation,UUID business,long expectedPeriod,long workPerWorker,long siteWorkLimit,
@@ -1078,7 +1090,8 @@ public final class PopulationSession implements AutoCloseable {
                     result.complete(operation.run());
                 } catch (Exception failure) {
                     if (failure instanceof SQLException && !(failure instanceof EconomyRuntimeRepository.PurchaseDeclined)
-                            && !(failure instanceof com.blueninjas24.civilizations.database.BusinessSales.Declined)) reportFailure(failure);
+                            && !(failure instanceof com.blueninjas24.civilizations.database.BusinessSales.Declined)
+                            && !(failure instanceof com.blueninjas24.civilizations.database.PenProtectionLifecycle.Declined)) reportFailure(failure);
                     result.completeExceptionally(failure);
                 }
                 finally { queued.decrementAndGet(); }

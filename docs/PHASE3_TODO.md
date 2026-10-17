@@ -1,5 +1,33 @@
 # Phase 3 — businesses and industry checklist
 
+## October17 — pen area release and retained animal ownership verified
+
+Pen protection now separates an active area from its permanent history. An
+explicit owner/admin release retains original animal ownership and provenance;
+old protection retries cannot reclaim released land. Adjacent pens may share a
+fence, while overlapping interiors are refused. Schema88 preserves original
+pen records and backfills current claims without inventing ownership.
+
+Added12 lifecycle/owner-queue cases; focused50 passed. Windows .\mvnw.cmd clean
+verify -B -ntp passed1,788 tests (1,786 unit/two packaged integration), zero
+failures/errors/skips;11:39, finished2026-10-17T11:01:25-04:00. Source/test Java
+remained fixed during the final full run. The excluded native helper was then
+compiled against the verified packaged JAR.
+
+Guarded Paper26.2 build129 passed11:01:48 EDT: private populated schema87 upgrade,
+shared fence, authority checks, release/retry/reclaim/restart, preserved original
+pen/animal history and clean SQLite integrity/FKs. All147 main predecessor tables
+retained;143 exact, only ordinary clock/runtime/capture/ore metadata changed,
+no aging. The two new main tables are empty. Fixture stopped/settings restored/
+helper archived/backups kept. No world/entity edits or human-server changes.
+This certifies packaged persistence, not a live sign interaction or human client.
+
+No player-facing pen controls or automatic adoption enabled. P3 stays about68%
+partial (30/39 resource milestones,1/4 whole groups). Next: bounded authorized
+pen interactions before automatic livestock founding/feed/output. The slaughter-
+product question remains pending; no answer assumed. See PEN_PROTECTION_LIFECYCLE.md.
+Feature backup/hosted CI follows the verified checkpoint; main stays unchanged.
+
 ## October17 — existing farm animals now use the saved growth clock
 
 Animals initially assigned to a farm now grow at their saved dates, just like

@@ -68,7 +68,7 @@ class LivestockPresenceTest {
     @Test void schema86MigrationAndFailurePreserveEveryPriorAssetAndCreateNoPresence()throws Exception {
         SchemaFixtures.rewind(f.db.getConnection(),86);var helper=new LivestockLossesTest();helper.f=f;var before=helper.snapshot();
         f.sql("CREATE VIEW livestock_presence AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(f.db.getConnection()));assertEquals(before,helper.snapshot());f.sql("DROP VIEW livestock_presence");
-        new SchemaMigrator().migrate(f.db.getConnection());var after=helper.snapshot();assertEquals(List.of(),after.remove("livestock_presence"));assertEquals(before,after);
+        new SchemaMigrator().migrate(f.db.getConnection());var after=helper.snapshot();assertEquals(List.of(),after.remove("active_pen_claims"));assertEquals(List.of(),after.remove("pen_releases"));assertEquals(List.of(),after.remove("livestock_presence"));assertEquals(before,after);
         try(var s=f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
 }

@@ -8,6 +8,13 @@ final class SchemaFixtures {
     private SchemaFixtures() {}
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<88){
+                statement.execute("DROP TRIGGER IF EXISTS active_pen_overlap");
+                statement.execute("DROP TABLE IF EXISTS pen_releases");
+                statement.execute("DROP TABLE IF EXISTS active_pen_claims");
+                statement.execute("DROP INDEX IF EXISTS protected_pen_location");
+                if(version>=75)statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS fixture_old_pen_location ON protected_pen_columns(world_id,standing_y,x,z)");
+            }
             if(version<87)statement.execute("DROP TABLE IF EXISTS livestock_presence");
             if(version<86){statement.execute("DROP TABLE IF EXISTS livestock_birth_losses");statement.execute("DROP TABLE IF EXISTS livestock_birth_projections");statement.execute("DROP TABLE IF EXISTS livestock_birth_entities");}
             if(version<85)statement.execute("DROP TABLE IF EXISTS livestock_births");

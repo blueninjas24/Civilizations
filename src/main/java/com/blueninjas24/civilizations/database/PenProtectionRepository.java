@@ -32,13 +32,13 @@ public final class PenProtectionRepository {
      * Unknown old pens require admin resolution. A nearby player or sign placer is not authority. */
     public PenProtection save(PenProtection pen, boolean authorized) throws SQLException {
         Objects.requireNonNull(pen);
-        if (!authorized) throw new SQLException("Pen protection requires certified authority");
+        if (!authorized) throw new PenProtectionLifecycle.Declined("Pen protection requires certified authority");
         if (!connection.getAutoCommit()) throw new SQLException("Pen protection requires no active transaction");
         connection.setAutoCommit(false);
         try {
             var old = load(pen.id());
             if (old.isPresent()) {
-                if (!old.orElseThrow().equals(pen)) throw new SQLException("Pen ID reused with changed protection");
+                if (!old.orElseThrow().equals(pen)) throw new PenProtectionLifecycle.Declined("Pen ID reused with changed protection");
             } else saveRows(pen);
             connection.commit(); connection.setAutoCommit(true); return old.orElse(pen);
         } catch (SQLException | RuntimeException failure) {
@@ -47,6 +47,23 @@ public final class PenProtectionRepository {
         }
     }
     private void saveRows(PenProtection pen) throws SQLException {
+        // Reject expected conflicts before writing; a SQL trigger also guards the invariant.
+        try (var s=connection.prepareStatement("""
+                SELECT c.x,c.z,c.kind FROM protected_pen_columns c JOIN active_pen_claims a ON a.pen_id=c.pen_id
+                WHERE c.world_id=? AND c.standing_y=? AND c.x BETWEEN ? AND ? AND c.z BETWEEN ? AND ?
+                """)) {
+            var cells=new HashSet<>(pen.evidence().interior());cells.addAll(pen.evidence().boundary());
+            s.setString(1,pen.world().toString());s.setInt(2,pen.standingY());
+            s.setInt(3,cells.stream().mapToInt(PenScan.Column::x).min().orElseThrow());
+            s.setInt(4,cells.stream().mapToInt(PenScan.Column::x).max().orElseThrow());
+            s.setInt(5,cells.stream().mapToInt(PenScan.Column::z).min().orElseThrow());
+            s.setInt(6,cells.stream().mapToInt(PenScan.Column::z).max().orElseThrow());
+            try(var r=s.executeQuery()){while(r.next()){
+                var column=new PenScan.Column(r.getInt(1),r.getInt(2));
+                if(pen.evidence().interior().contains(column)||(pen.evidence().boundary().contains(column)&&r.getString(3).equals("INTERIOR")))
+                    throw new PenProtectionLifecycle.Declined("Pen overlaps an active protected area");
+            }}
+        }
         try (var s = connection.prepareStatement("INSERT INTO protected_pens VALUES(?,?,?,?,?,?,?,?,?,?)")) {
             s.setString(1,pen.id().toString());s.setString(2,pen.world().toString());s.setString(3,pen.owner().toString());s.setInt(4,pen.standingY());
             s.setInt(5,pen.signX());s.setInt(6,pen.signY());s.setInt(7,pen.signZ());s.setInt(8,pen.seed().x());s.setInt(9,pen.seed().z());s.setLong(10,pen.confirmedMillis());s.executeUpdate();
@@ -55,13 +72,16 @@ public final class PenProtectionRepository {
             try (var s = connection.prepareStatement("INSERT INTO protected_pen_columns VALUES(?,?,?,?,?,?)")) {
                 s.setString(1,pen.id().toString());s.setString(2,pen.world().toString());s.setInt(3,pen.standingY());s.setInt(4,p.x());s.setInt(5,p.z());s.setString(6,kind);s.executeUpdate();
             }
+        try(var s=connection.prepareStatement("INSERT INTO active_pen_claims VALUES(?)")) {
+            s.setString(1,pen.id().toString());s.executeUpdate();
+        }
         var ownership = new AnimalOwnershipRepository(connection);
         for (var animal : pen.animals().stream().sorted().toList()) {
             var old = ownership.load(animal);
             if (old.isPresent()) {
                 var claim = old.orElseThrow();
                 if (claim.kind()!=LivestockAdoption.Ownership.PLAYER || !pen.owner().equals(claim.player()))
-                    throw new SQLException("Pen cannot take an animal belonging to another player or village");
+                    throw new PenProtectionLifecycle.Declined("Pen cannot take an animal belonging to another player or village");
             } else ownership.recordRows(new AnimalOwnershipRepository.Claim(animal,pen.world(),LivestockAdoption.Ownership.PLAYER,
                     pen.owner(),null,pen.confirmedMillis(),"Confirmed pen "+pen.id()));
             try (var s = connection.prepareStatement("INSERT INTO protected_pen_animals VALUES(?,?)")) {
@@ -71,9 +91,14 @@ public final class PenProtectionRepository {
     }
     /** Saved protection is independent of today's fence/sign and never spans an entire world. */
     public Optional<UUID> at(UUID world,int standingY,int x,int z) throws SQLException {
-        try (var s = connection.prepareStatement("SELECT pen_id FROM protected_pen_columns WHERE world_id=? AND standing_y=? AND x=? AND z=?")) {
+        var matches=atAll(world,standingY,x,z);
+        return matches.isEmpty()?Optional.empty():Optional.of(matches.getFirst());
+    }
+    /** Shared boundary columns may protect two adjacent pens; ordered immutable results. */
+    public List<UUID> atAll(UUID world,int standingY,int x,int z) throws SQLException {
+        try (var s = connection.prepareStatement("SELECT c.pen_id FROM protected_pen_columns c JOIN active_pen_claims a ON a.pen_id=c.pen_id WHERE c.world_id=? AND c.standing_y=? AND c.x=? AND c.z=? ORDER BY c.pen_id")) {
             s.setString(1,world.toString());s.setInt(2,standingY);s.setInt(3,x);s.setInt(4,z);
-            try (var r = s.executeQuery()) { return r.next() ? Optional.of(UUID.fromString(r.getString(1))) : Optional.empty(); }
+            try (var r = s.executeQuery()) {var result=new ArrayList<UUID>();while(r.next())result.add(UUID.fromString(r.getString(1)));return List.copyOf(result);}
         }
     }
 }

@@ -76,7 +76,7 @@ class LivestockBirthProjectionsTest {
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(f.db.getConnection()));assertEquals(before,snapshot());
         try(var s=f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertTrue(r.next());assertEquals(85,r.getInt(1));}
         f.sql("DROP VIEW livestock_birth_projections");new SchemaMigrator().migrate(f.db.getConnection());var after=snapshot();
-        for(var table:List.of("livestock_presence","livestock_birth_entities","livestock_birth_projections","livestock_birth_losses"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
+        for(var table:List.of("active_pen_claims","pen_releases","livestock_presence","livestock_birth_entities","livestock_birth_projections","livestock_birth_losses"))assertEquals(List.of(),after.remove(table));assertEquals(before,after);
         assertEquals(birth,new LivestockBirths(f.db.getConnection()).find(birth.id()).orElseThrow());
         try(var s=f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }

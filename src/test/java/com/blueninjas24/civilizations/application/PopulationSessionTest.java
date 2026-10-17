@@ -15,6 +15,24 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PopulationSessionTest {
+    @Test void penProtectionAndReleaseUseOwnerQueueWithoutReportingExpectedRefusalsAsFailures()throws Exception {
+        var world=observed().worldId();var player=new UUID(0,77);var penId=new UUID(0,78);
+        var scan=new com.blueninjas24.civilizations.industry.PenScan(p->Math.abs(p.x())==2||Math.abs(p.z())==2
+                ?com.blueninjas24.civilizations.industry.PenScan.Cell.BARRIER:com.blueninjas24.civilizations.industry.PenScan.Cell.INTERIOR,
+                new com.blueninjas24.civilizations.industry.PenScan.Column(0,0),new com.blueninjas24.civilizations.industry.PenScan.Limits(4,16));
+        while(!scan.complete())scan.advance(8);
+        var pen=new com.blueninjas24.civilizations.industry.PenProtection(penId,world,player,64,3,64,0,
+                new com.blueninjas24.civilizations.industry.PenScan.Column(0,0),scan.evidence(),java.util.Set.of(),1000);
+        try(var session=session(settings(2,12))){
+            await(session.start(false));await(session.observe(observed()));
+            var refused=assertThrows(ExecutionException.class,()->await(session.protectPen(pen,false)));
+            assertInstanceOf(com.blueninjas24.civilizations.database.PenProtectionLifecycle.Declined.class,refused.getCause());
+            assertNull(session.status().failure());assertEquals(pen,await(session.protectPen(pen,true)));
+            var request=new com.blueninjas24.civilizations.database.PenProtectionLifecycle.Release(new UUID(0,79),penId,player,2000,"Explicit owner release");
+            assertEquals(request,await(session.releasePen(request,false)));assertEquals(pen,await(session.protectedPen(penId)).orElseThrow());
+            assertNull(session.status().failure());
+        }
+    }
     @Test void currentSurveyReviewUsesOwnerClockAndWorldAvailabilityThenRetainsEmptyFrame()throws Exception {
         var world=observed().worldId();UUID town;
         try(var session=session(settings(2,12))) {

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 87;
+    static final int CURRENT_VERSION = 88;
 
     @FunctionalInterface
     interface Migration {
@@ -936,7 +936,8 @@ final class SchemaMigrator {
                 LivestockProductSales::createSchema,
                 LivestockBirths::createSchema,
                 connection -> {LivestockBirthProjections.createSchema(connection);LivestockBirthLosses.createSchema(connection);},
-                LivestockPresence::createSchema
+                LivestockPresence::createSchema,
+                PenProtectionLifecycle::createSchema
 
 
         ));
@@ -1103,6 +1104,7 @@ final class SchemaMigrator {
             if(migrations.size()>=75){requireColumns(connection,"protected_pens",Set.of("id","world_id","owner_id","standing_y","confirmed_millis"));requireColumns(connection,"protected_pen_columns",Set.of("pen_id","world_id","standing_y","x","z","kind"));requireColumns(connection,"protected_pen_animals",Set.of("pen_id","animal_id"));}
             if(migrations.size()>=76){requireColumns(connection,"livestock_herds",Set.of("business_id","species","capacity","feed","opening_terms"));requireColumns(connection,"livestock_periods",Set.of("business_id","period","operation_id","terms","adults","births","feed_used","renewable_units"));requireColumns(connection,"livestock_young",Set.of("business_id","period","mature_period","heads"));requireColumns(connection,"livestock_initial_animals",Set.of("animal_id","business_id","mature_period"));}
             if(migrations.size()>=78)requireColumns(connection,"bakery_private_starters",Set.of("business_id","shipment_id","seller_id","terms"));
+            if(migrations.size()>=88){requireColumns(connection,"active_pen_claims",Set.of("pen_id"));requireColumns(connection,"pen_releases",Set.of("operation_id","pen_id","actor_id","released_millis","reason"));}
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
                 requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",
