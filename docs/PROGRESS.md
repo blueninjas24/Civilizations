@@ -1,5 +1,35 @@
 # Civilizations progress tracker
 
+## October 17, 17:02 — paid livestock-to-bakery food chain verified
+
+Bakeries now buy delivered milk and eggs through paid local warehouses and make
+richer meals from actual ingredients. Bread remains the simple startup/fallback;
+one recipe uses the existing worker/tool budget per earned period. Defaults are
+editable: 3 grain + 1 milk + 1 egg -> 8 abstract food units. No physical cake item.
+The integrated scenario continues through a real paid village food order.
+
+Business-only ingredient prices avoid changing saved public food catalogues.
+Configured existing bakery/warehouse stores gain audited empty ingredient slots;
+units, cash, capacity, original terms and saved unit weights are retained. No
+schema change (89), world edits or human-server deployment. Installed config is
+never rewritten; see BAKERY_SUPPLY_CHAIN.md for opt-in and exact boundaries.
+
+Windows affected verify/package passed 234 unit + 2 packaged tests (236), zero
+failures/errors/skips, 1:31, finished 17:02:13 EDT. Initial checks caught a fixture
+accessor and incompatible public-price catalogue additions; corrected before
+shipping. Packaged Paper 26.2 build129 passed 17:02:51: 39 accelerated actual
+PopulationSession periods, real herd products and both paid delivery legs, recipe
+flows, conservation, exact receipt replay, restart and absent-world pause. Main
+disposable fixture retained all 151 tables/147 exact; four ordinary clock/capture/
+ore metadata changes, no aging; integrity/FKs clean. Server stopped, settings
+restored, helper archived, backups retained. Feature push/hosted CI follows.
+
+Resources advance to 32/39 (82%); equally weighted partial Phase3 progress is
+about69%, with 1/4 whole groups complete. Controlled slaughter, authorized pen
+donation, broader craft/industry coverage, competition and specialization remain.
+Next: controlled livestock slaughter with exact native identity/drop accounting.
+No new gameplay decision is needed for this batch.
+
 ## October 17 — livestock qualifications, succession and resale defaults verified
 
 Real feed-backed animal care now earns configurable farming experience for actual
@@ -58,7 +88,7 @@ These are details, not extra credit in the four-group percentage.
 - [x] Automatically open qualified, funded businesses from eligible natural animals.
 - [x] Let actual caretakers gain skill and qualify for succession; value producer stock for resale.
 - [ ] Finish controlled slaughter without duplicate drops.
-- [ ] Connect bakery recipes that consume milk and eggs.
+- [x] Connect bakery recipes that consume milk and eggs.
 - [ ] Add authorized bulk pen donation/ownership transfer.
 
 ## October 17 — automatic natural livestock startup and the feed chain verified
@@ -898,12 +928,12 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |31/39|79%|
+| Resources and connected production |32/39|82%|
 | Business lifecycle and competition |14/15|93%|
 | Specialization and final acceptance |0/5|No complete entries yet|
 
 The October13 food-chain additions expand this checklist. Equal weight per group
-gives about68% partial checklist completion under the current scope. The former70%
+gives about69% partial checklist completion under the current scope. The former70%
 described the earlier scope. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from
@@ -934,7 +964,7 @@ not a replacement for ROADMAP.md or its design requirements.
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 1 / 4 | `██▌░░░░░░░` 25% |
+| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 1 / 4 | `██▌░░░░░░░` 25% whole gates; **69% partial checklist** |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |

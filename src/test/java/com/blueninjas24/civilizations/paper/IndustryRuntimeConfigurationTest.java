@@ -1,6 +1,7 @@
 package com.blueninjas24.civilizations.paper;
 
 import java.util.*;
+import com.blueninjas24.civilizations.economy.Commodity;
 import com.blueninjas24.civilizations.industry.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
@@ -107,12 +108,53 @@ class IndustryRuntimeConfigurationTest {
         config.set("industry-runtime.real-millis-per-period",2000);config.set("industry-runtime.businesses-per-pulse",1.5);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readIndustryRuntime(config));
         config.set("industry-runtime.businesses-per-pulse",3);config.set("industry-runtime.invent-money",true);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readIndustryRuntime(config));
     }
-    @Test void ambiguousRuntimeRecipesAreRejectedAndPolicyOwnsItsCatalog() {
+    @Test void multipleBakeryRecipesAreAllowedButOtherDuplicateIndustriesAreRejected() {
         var map=new HashMap<String,ProductionRecipe>();map.put("smith_tools",ProductionRecipe.smithTools());
         var policy=new IndustryRuntimePolicy(true,1000,1,IndustryPolicy.prototype(),map);map.clear();assertEquals(1,policy.recipes().size());
         var a=ProductionRecipe.smithTools();var b=new ProductionRecipe("alternate",a.industry(),a.inputs(),a.outputs(),1,1);
         assertThrows(IllegalArgumentException.class,()->new IndustryRuntimePolicy(true,1000,1,IndustryPolicy.prototype(),Map.of(a.id(),a,b.id(),b)));
+        var bread=ProductionRecipe.bakeryBread();var cake=ProductionRecipe.bakeryCake();
+        var bakeries=Map.of(bread.id(),bread,cake.id(),cake);
+        assertEquals(2,new IndustryRuntimePolicy(true,1000,1,IndustryPolicy.prototype(),bakeries).recipes().size());
         assertThrows(IllegalArgumentException.class,()->new IndustryRuntimePolicy(true,1000,1,IndustryPolicy.prototype(),Map.of("wrong_key",a)));
+    }
+    @Test void bakeryRecipesHaveStableRuntimeOrderAndSimpleStartupFallback() {
+        var bread=ProductionRecipe.bakeryBread();var cake=ProductionRecipe.bakeryCake();
+        var recipes=Map.of(bread.id(),bread,cake.id(),cake);
+        var all=Set.of(new Commodity("grain"),new Commodity("milk"),new Commodity("eggs"),Commodity.FOOD);
+        assertEquals(List.of(cake,bread),BakeryRecipes.ordered(recipes.values(),all));
+        assertEquals(Optional.of(bread),BakeryRecipes.baseline(recipes.values(),all));
+        var oldCatalog=Set.of(new Commodity("grain"),Commodity.FOOD);
+        assertEquals(List.of(bread),BakeryRecipes.ordered(recipes.values(),oldCatalog));
+        var weights=Map.of(new Commodity("grain"),1L,new Commodity("milk"),1L,new Commodity("eggs"),1L,Commodity.FOOD,1L);
+        var stock=Map.of(new Commodity("grain"),3L,new Commodity("milk"),1L,new Commodity("eggs"),1L,Commodity.FOOD,0L);
+        assertEquals(Optional.of(cake),BakeryRecipes.produced(BakeryRecipes.ordered(recipes.values(),all),stock,weights,100,1));
+        var breadOnly=Map.of(new Commodity("grain"),3L,new Commodity("food"),0L);
+        assertEquals(Optional.of(bread),BakeryRecipes.produced(BakeryRecipes.ordered(recipes.values(),oldCatalog),breadOnly,
+                Map.of(new Commodity("grain"),1L,Commodity.FOOD,1L),100,1));
+    }
+    @Test void bundledCakeRecipeHasActualMilkEggInputsAndAbstractMealOutput()throws Exception {
+        var config=new YamlConfiguration();
+        try(var input=getClass().getResourceAsStream("/economy.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        var cake=EconomyConfiguration.readRecipes(config).get("bakery_cake");
+        assertEquals(ProductionRecipe.bakeryCake(),cake);
+        var industry=EconomyConfiguration.readIndustry(config);
+        assertEquals(1L,industry.storageSpacePerUnit().get(new Commodity("milk")));
+        assertEquals(1L,industry.storageSpacePerUnit().get(new Commodity("eggs")));
+        var prices=EconomyConfiguration.readWorkshopSupply(config).unitHundredths();
+        assertEquals(150L,prices.get(new Commodity("milk")));
+        assertEquals(75L,prices.get(new Commodity("eggs")));
+        var before=EconomyConfiguration.read(config).startingPerResident();
+        assertFalse(before.containsKey(new Commodity("milk")));assertFalse(before.containsKey(new Commodity("eggs")));
+        config.set("industry-supply.input-unit-hundredths.milk",225L);
+        assertEquals(225L,EconomyConfiguration.readWorkshopSupply(config).unitHundredths().get(new Commodity("milk")));
+        assertEquals(before,EconomyConfiguration.read(config).startingPerResident());
+        for(Object invalid:List.of(0,1.5,"many",true)) {
+            config.set("industry-supply.input-unit-hundredths.milk",invalid);
+            assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readWorkshopSupply(config));
+        }
+        config.set("industry-supply.input-unit-hundredths",null);
+        assertFalse(EconomyConfiguration.readWorkshopSupply(config).unitHundredths().containsKey(new Commodity("milk")));
     }
     @Test void bundledCommerceSettingsMatchEditablePrototypes()throws Exception {
         var config=new YamlConfiguration();

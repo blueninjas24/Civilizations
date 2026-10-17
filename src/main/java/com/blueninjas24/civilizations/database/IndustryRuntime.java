@@ -86,6 +86,7 @@ public final class IndustryRuntime {
                 s.setString(1,id.toString());s.setLong(2,policy.millisPerPeriod());s.setLong(3,now);s.setString(4,id.toString());s.setString(5,id.toString());s.executeUpdate();
             }
             for(var c:clocks()) {
+                BakeryCatalogue.ensureRows(connection,c.business(),c.industry(),policy);
                 long cadence=c.cadence();var before=c.anchor();
                 if(cadence!=policy.millisPerPeriod()) {
                     if(c.completed()!=before.targetSteps())throw new SQLException("Finish queued industry periods under old cadence before retuning");
@@ -176,12 +177,20 @@ public final class IndustryRuntime {
             } else if(clock.industry().equals("warehouse")) {
                 reason=new WarehouseSupplies(connection,policy,operations,mutationHealthy).withFarmTools(farmUpkeep,farmBudget).withLivestock(livestock,herdWork,herdArea,livestockHealthy).acquireRows(id,clock.world(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),learning);
             } else {
-                var recipe=policy.recipes().values().stream().filter(r->r.industry().equals(clock.industry())).findFirst();
+                var recipe=BakeryRecipeChoice.supply(connection,id,policy,operations,industry.store(id).orElseThrow().hundredths());
                 if(recipe.isEmpty())reason="Paused: no configured industry recipe";
                 else {
                     long haulWindow=clock.anchor().lastObservedMillis()/policy.millisPerPeriod();
                     String upkeep=tools.acquireRows(id,clock.industry(),period,haulWindow,operations);
+                    // Tool purchases spend first; optional baking must use the actual remaining cash.
+                    recipe=BakeryRecipeChoice.supply(connection,id,policy,operations,industry.store(id).orElseThrow().hundredths());
                     String supply=supplies.acquireRows(id,recipe.orElseThrow(),period,haulWindow,policy.millisPerPeriod(),policy.purchasingSupply(),policy.mining());
+                    if(clock.industry().equals("bakery")) {
+                        var stock=industry.store(id).orElseThrow();
+                        var ready=BakeryRecipes.produced(BakeryRecipes.ordered(policy.recipes().values(),stock.spacePerUnit().keySet()),
+                                stock.units(),stock.spacePerUnit(),stock.freeSpace(),new BusinessRepository(connection).currentWorkers(id).size());
+                        if(ready.isPresent())recipe=ready;
+                    }
                     long maximum=Math.min(recipe.orElseThrow().siteCapacity(),Math.multiplyExact(new BusinessRepository(connection).currentWorkers(id).size(),recipe.orElseThrow().batchesPerWorker()));
                     var wear=tools.prepare(id,clock.industry(),maximum);
                     var receipt=industry.processRows(operation,id,recipe.orElseThrow(),wear==null?recipe.orElseThrow().siteCapacity():wear.requested(),period).receipt();

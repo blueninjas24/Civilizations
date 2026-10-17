@@ -24,6 +24,11 @@ public record ProductionRecipe(String id, String industry, Map<Commodity,Long> i
         return new ProductionRecipe("bakery_bread","bakery",Map.of(new Commodity("grain"),3L),
                 Map.of(Commodity.FOOD,3L),1,4);
     }
+    /** Abstract grain, milk and egg inputs become meals; this does not create physical cakes. */
+    public static ProductionRecipe bakeryCake() {
+        return new ProductionRecipe("bakery_cake","bakery",Map.of(new Commodity("grain"),3L,
+                new Commodity("milk"),1L,new Commodity("eggs"),1L),Map.of(Commodity.FOOD,8L),1,4);
+    }
     public static ProductionRecipe storageFittings() {
         return new ProductionRecipe("craft_storage_fittings","craftsman",Map.of(Commodity.TIMBER,3L,Commodity.STONE,1L),
                 Map.of(new Commodity("storage_fittings"),1L),1,4);

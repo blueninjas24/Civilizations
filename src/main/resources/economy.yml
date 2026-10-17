@@ -323,6 +323,17 @@ recipes:
       food: 3
     batches-per-worker: 1
     site-batch-capacity: 4
+  bakery_cake:
+    # Abstract grain, milk and eggs become meals, not physical cake items.
+    industry: bakery
+    inputs:
+      grain: 3
+      milk: 1
+      eggs: 1
+    outputs:
+      food: 8
+    batches-per-worker: 1
+    site-batch-capacity: 4
   smith_tools:
     industry: blacksmith
     inputs:
@@ -400,6 +411,8 @@ industry:
     food: 1
     tools: 1
     grain: 1
+    milk: 1
+    eggs: 1
     storage_fittings: 1
 
 # /civ barter timber (or stone) requests a quote for the whole held food stack.
@@ -622,6 +635,11 @@ industry-supply:
   enabled: true
   input-periods: 2
   warehouses-per-review: 16
+  # Optional business-only prices; 100 hundredths = 1 Trade Value.
+  # No public food-inventory change or free products. Old files retain base prices.
+  input-unit-hundredths:
+    milk: 150
+    eggs: 75
 
 # Existing staffed warehouses buy actual extracted mine goods for funded workshop
 # input needs. Uses the same base prices, cargo delay and shared hauling quota.

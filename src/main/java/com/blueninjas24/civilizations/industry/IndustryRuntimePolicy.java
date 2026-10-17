@@ -16,8 +16,10 @@ public record IndustryRuntimePolicy(boolean enabled, long millisPerPeriod, int b
         var industries = new HashSet<String>();
         if (recipes.size() > 32) throw new IllegalArgumentException("At most 32 runtime recipes");
         for (var e : recipes.entrySet()) {
-            if (!e.getKey().equals(e.getValue().id()) || Set.of("mining","warehouse").contains(e.getValue().industry()) || !industries.add(e.getValue().industry()))
-                throw new IllegalArgumentException("One named runtime recipe per non-mining industry required");
+            var industry=e.getValue().industry();
+            if (!e.getKey().equals(e.getValue().id()) || Set.of("mining","warehouse").contains(industry)
+                    || (!industry.equals("bakery")&&!industries.add(industry)))
+                throw new IllegalArgumentException("One named runtime recipe per non-bakery industry required");
             if(tools.applies(e.getValue().industry())&&e.getValue().inputs().containsKey(ToolUpkeepPolicy.TOOLS))
                 throw new IllegalArgumentException("Tool upkeep cannot also consume tools as a recipe ingredient in the same industry");
         }

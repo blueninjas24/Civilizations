@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October17 — approved bakery scope: prototype implementation
+
+Implemented the approved real grain/milk/egg chain with editable recipes and
+prices. Startup uses the simplest meal recipe; runtime prefers feasible recipes
+with more ingredient types, then stable recipe ID, and falls back to bread. One
+recipe per ordinary worker/tool period. Business-only prices preserve public
+food catalogues. Configured bakery/warehouse ingredient slots are additive,
+empty, transactional and audited; existing assets/weights/opening terms survive.
+These are configurable prototype choices within the approved scope, not locked
+balance or physical cake crafting. No further answer needed for this batch.
+See BAKERY_SUPPLY_CHAIN.md and current PROJECT_STATUS.md for verification.
+
 ## October17 — bounded free-range recognition: approved
 
 Automatic adoption is approved in principle. A finite local scan cannot prove

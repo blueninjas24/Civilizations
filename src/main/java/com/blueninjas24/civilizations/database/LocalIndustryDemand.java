@@ -130,7 +130,7 @@ public final class LocalIndustryDemand {
             long toolNeed=founding.business().industry().equals("mining")&&!mutationHealthy.getAsBoolean()?0
                     :new BusinessTools(connection,policy).missingFunded(id,founding.business().industry(),workers,store,pending);
             long toolCost=toolNeed*policy.tools().toolValueHundredths();
-            var recipe=policy.recipes().values().stream().filter(r->r.industry().equals(founding.business().industry())).findFirst();
+            var recipe=BakeryRecipeChoice.supply(connection,id,policy,operations,store.hundredths()-toolCost);
             var planned=recipe.isPresent()?WorkshopInputDemand.review(recipe.orElseThrow(),workers,store.hundredths()-toolCost,
                     store.freeSpace()-toolNeed*store.spacePerUnit().getOrDefault(ToolUpkeepPolicy.TOOLS,0L),store.units(),pending,store.spacePerUnit(),policy.purchasingSupply())
                     :new WorkshopInputDemand.Review(0,Map.of(),0,"Actual mining maintenance need only; no speculative raw input demand");

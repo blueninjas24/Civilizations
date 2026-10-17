@@ -568,7 +568,7 @@ public final class EconomyConfiguration {
     public static com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy readWorkshopSupply(ConfigurationSection config) {
         if(!config.contains("industry-supply"))return com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy.disabled();
         var supply=section(config,"industry-supply");
-        exactKeys(supply,Set.of("enabled","input-periods","warehouses-per-review"));
+        exactKeys(supply,supply.contains("input-unit-hundredths")?Set.of("enabled","input-periods","warehouses-per-review","input-unit-hundredths"):Set.of("enabled","input-periods","warehouses-per-review"));
         if(!(supply.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("industry-supply.enabled must be true or false");
         var values=new TreeMap<Commodity,Long>();
         var prices=section(config,"prices.base-trade-value");
@@ -577,6 +577,11 @@ public final class EconomyConfiguration {
             if(!(value instanceof Number))throw new IllegalArgumentException("prices.base-trade-value."+id+" must be a number");
             try {values.put(new Commodity(id),new BigDecimal(value.toString()).movePointRight(2).longValueExact());}
             catch(NumberFormatException|ArithmeticException invalid) {throw new IllegalArgumentException("Supply prices must be finite with at most two decimal places",invalid);}
+        }
+        // Business-only ingredients do not alter the saved public-food commodity catalogue.
+        if(supply.contains("input-unit-hundredths")) {
+            var extra=section(supply,"input-unit-hundredths");
+            for(var id:extra.getKeys(false))values.put(new Commodity(id),integer(extra,id));
         }
         return new com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy(enabled,smallInteger(supply,"input-periods"),smallInteger(supply,"warehouses-per-review"),values);
     }

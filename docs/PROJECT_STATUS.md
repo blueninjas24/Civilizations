@@ -1,5 +1,35 @@
 # Civilizations — implementation status and handoff
 
+## October 17, 17:02 — paid livestock-to-bakery food chain verified
+
+Bakeries now buy delivered milk and eggs through paid local warehouses and make
+richer meals from actual ingredients. Bread remains the simple startup/fallback;
+one recipe uses the existing worker/tool budget per earned period. Defaults are
+editable: 3 grain + 1 milk + 1 egg -> 8 abstract food units. No physical cake item.
+The integrated scenario continues through a real paid village food order.
+
+Business-only ingredient prices avoid changing saved public food catalogues.
+Configured existing bakery/warehouse stores gain audited empty ingredient slots;
+units, cash, capacity, original terms and saved unit weights are retained. No
+schema change (89), world edits or human-server deployment. Installed config is
+never rewritten; see BAKERY_SUPPLY_CHAIN.md for opt-in and exact boundaries.
+
+Windows affected verify/package passed 234 unit + 2 packaged tests (236), zero
+failures/errors/skips, 1:31, finished 17:02:13 EDT. Initial checks caught a fixture
+accessor and incompatible public-price catalogue additions; corrected before
+shipping. Packaged Paper 26.2 build129 passed 17:02:51: 39 accelerated actual
+PopulationSession periods, real herd products and both paid delivery legs, recipe
+flows, conservation, exact receipt replay, restart and absent-world pause. Main
+disposable fixture retained all 151 tables/147 exact; four ordinary clock/capture/
+ore metadata changes, no aging; integrity/FKs clean. Server stopped, settings
+restored, helper archived, backups retained. Feature push/hosted CI follows.
+
+Resources advance to 32/39 (82%); equally weighted partial Phase3 progress is
+about69%, with 1/4 whole groups complete. Controlled slaughter, authorized pen
+donation, broader craft/industry coverage, competition and specialization remain.
+Next: controlled livestock slaughter with exact native identity/drop accounting.
+No new gameplay decision is needed for this batch.
+
 ## October 17 — livestock qualifications, succession and resale defaults verified
 
 Real feed-backed animal care now earns configurable farming experience for actual

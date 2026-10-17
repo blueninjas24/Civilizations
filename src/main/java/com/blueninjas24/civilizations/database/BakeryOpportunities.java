@@ -54,7 +54,9 @@ public final class BakeryOpportunities {
         try(var s=connection.prepareStatement("SELECT 1 FROM businesses WHERE settlement_id=? AND industry='bakery' LIMIT 1")) {
             s.setString(1,town.toString());try(var r=s.executeQuery()){if(r.next())return no("Existing bakery identity retained; first-firm review cannot bypass closure, vacancy or competition");}
         }
-        var recipe=industry.recipes().values().stream().filter(r->r.industry().equals("bakery")&&r.outputs().keySet().equals(Set.of(Commodity.FOOD))).findFirst();
+        // A new bakery starts with its simplest meal recipe; optional dairy never blocks bread.
+        var recipe=BakeryRecipes.baseline(industry.recipes().values().stream()
+                .filter(r->r.industry().equals("bakery")&&r.outputs().keySet().equals(Set.of(Commodity.FOOD))).toList());
         if(recipe.isEmpty())return no("Configured bakery meal recipe required; ingredients are not meals");
         var funding=new BusinessStartupGrants(connection).previewRows(town,"bakery",policy.startupHundredths(),policy.capitalHundredths(),grants);
         if(!funding.eligible())return no("Bakery startup funding unavailable: "+funding.reason());
