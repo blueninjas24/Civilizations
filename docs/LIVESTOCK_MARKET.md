@@ -13,10 +13,12 @@ bucket and room. Expired offers require reopening. Repeated clicks cannot buy tw
 Custom emeralds/buckets are not consumed. Armor and offhand are not payment storage.
 Large egg orders split into legal native item stacks; no overflow drops.
 
-**Automatic herd adoption, physical offspring reconciliation and scheduled feed/
-output are unfinished.** Ordinary nearby animals do not automatically provide
-market stock yet. A village without an established eligible stocked business will
-report no offers. This market does not manufacture herds, goods, money or buckets.
+Automatic eligible natural-animal adoption, funded herd startup, physical offspring
+reconciliation and paid scheduled feed/output are now connected; see
+LIVESTOCK_ADOPTION.md and LIVESTOCK_RUNTIME.md. These require their own enabled
+settings and real qualification, funding, grain deliveries and work. A village
+without an established eligible stocked business still reports no offers. This
+market does not manufacture herds, goods, money or buckets.
 Real bakery purchases of these products remain a separate integration step.
 
 ## Editable settings

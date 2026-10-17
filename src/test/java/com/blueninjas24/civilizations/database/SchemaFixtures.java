@@ -8,6 +8,7 @@ final class SchemaFixtures {
     private SchemaFixtures() {}
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<89){statement.execute("DROP TABLE IF EXISTS livestock_learning_entries");statement.execute("DROP TABLE IF EXISTS livestock_learning_reviews");}
             if(version<88){
                 statement.execute("DROP TRIGGER IF EXISTS active_pen_overlap");
                 statement.execute("DROP TABLE IF EXISTS pen_releases");

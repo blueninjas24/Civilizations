@@ -364,6 +364,7 @@ work-learning:
     mining: mining
     blacksmith: smithing
     farming: farming
+    livestock: farming # Real animal-care work can qualify employees for later ownership.
     warehouse: commerce
     fishing: fishing
     craftsman: crafting
@@ -699,6 +700,10 @@ automatic-business-resale:
   sale-deadline-seconds: 600
   buyers-per-review: 32
   stock-value-hundredths-per-unit:
+    grain: 100
+    milk: 300
+    eggs: 100
+    sand: 100 # Positive producer stock must have an editable liquidation value.
     food: 200
     timber: 150
     stone: 100

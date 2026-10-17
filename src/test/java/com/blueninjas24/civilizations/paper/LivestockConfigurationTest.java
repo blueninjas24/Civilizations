@@ -6,6 +6,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LivestockConfigurationTest {
+    @Test void bundledResaleValuesCoverNewProducerGoodsAndRemainEditable()throws Exception{
+        var config=new YamlConfiguration();try(var reader=new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(com.blueninjas24.civilizations.industry.BusinessResalePolicy.prototype(),EconomyConfiguration.readAutomaticResale(config));
+        config.set("automatic-business-resale.stock-value-hundredths-per-unit.milk",450);
+        assertEquals(450,EconomyConfiguration.readAutomaticResale(config).stockValues().get(new com.blueninjas24.civilizations.economy.Commodity("milk")));
+    }
     @Test void adoptionIsEditableStrictAndMissingInstalledSectionOptsOut()throws Exception{
         var config=new YamlConfiguration();try(var reader=new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
         assertEquals(com.blueninjas24.civilizations.industry.LivestockAdoptionPolicy.prototype(),EconomyConfiguration.readLivestockAdoption(config));EconomyConfiguration.read(config);

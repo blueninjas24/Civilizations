@@ -26,7 +26,10 @@ public record BusinessResalePolicy(boolean enabled,long minimumSiteHundredths,in
         return price;
     }
     public static BusinessResalePolicy prototype(){return new BusinessResalePolicy(true,1000,50,600000,32,
-            Map.of(Commodity.FOOD,200L,Commodity.TIMBER,150L,Commodity.STONE,100L,Commodity.IRON,500L,Commodity.COAL,200L,
-                   Commodity.LIVESTOCK_PRODUCTS,300L,new Commodity("tools"),800L,new Commodity("storage_fittings"),2000L));}
+            Map.ofEntries(Map.entry(Commodity.FOOD,200L),Map.entry(Commodity.TIMBER,150L),Map.entry(Commodity.STONE,100L),
+                Map.entry(Commodity.IRON,500L),Map.entry(Commodity.COAL,200L),Map.entry(Commodity.LIVESTOCK_PRODUCTS,300L),
+                Map.entry(new Commodity("tools"),800L),Map.entry(new Commodity("storage_fittings"),2000L),
+                Map.entry(new Commodity("grain"),100L),Map.entry(new Commodity("milk"),300L),
+                Map.entry(new Commodity("eggs"),100L),Map.entry(Commodity.SAND,100L)));}
     public static BusinessResalePolicy disabled(){return new BusinessResalePolicy(false,1000,50,600000,32,Map.of());}
 }

@@ -36,6 +36,19 @@ class AutomaticBusinessResaleTest {
         return db.getBusinessRepository().found(new BusinessFounding(b,s,qualified,new JobRequirements(216,Map.of()),0,"Actual fixture opportunity"));
     }
     AutomaticBusinessResale auto(){return new AutomaticBusinessResale(db.getConnection(),BusinessResalePolicy.prototype(),BusinessPurchasePolicy.prototype(),42);}
+    @Test void actualMilkEggAndGrainStockCanBeSoldWithItsBusinessAndMoneyStaysReal()throws Exception{
+        var owner=person(10);var location=new BusinessSite(UUID.randomUUID(),town,world,site++,64,0,1,"Explicit dairy resale fixture");
+        var firm=new Business(UUID.randomUUID(),town,"Stocked dairy",owner.id(),owner.id(),"livestock",location.id(),1,0);
+        db.getBusinessRepository().found(new BusinessFounding(firm,location,qualified,new JobRequirements(216,Map.of()),0,"Explicit qualified dairy"));
+        var grain=new Commodity("grain");var milk=new Commodity("milk");var eggs=new Commodity("eggs");
+        db.getIndustryRepository().openStore(firm.id(),100,Map.of(grain,1L,milk,1L,eggs,1L),300);
+        for(var entry:Map.of(grain,5L,milk,2L,eggs,4L).entrySet())sql("UPDATE industry_stock SET units="+entry.getValue()+" WHERE business_id='"+firm.id()+"' AND commodity='"+entry.getKey().id()+"'");
+        var investment=firm(buyer);db.getIndustryRepository().openStore(investment.business().id(),100,Map.of(Commodity.STONE,1L),20000);
+        var stock=db.getIndustryRepository().store(firm.id()).orElseThrow().units();long before=money();die(owner);
+        var review=auto().review(firm.id(),1,1000);assertTrue(review.contains("Paid automatic sale"),review);
+        assertEquals(buyer.id(),db.getBusinessRepository().findBusiness(firm.id()).orElseThrow().ownerId());
+        assertEquals(stock,db.getIndustryRepository().store(firm.id()).orElseThrow().units());assertEquals(before,money());
+    }
     void sql(String query)throws SQLException{try(var s=db.getConnection().createStatement()){s.execute(query);}}
     long count(String table)throws SQLException{try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){return r.getLong(1);}}
     long cash(UUID id)throws SQLException{return db.getIndustryRepository().store(id).orElseThrow().hundredths();}

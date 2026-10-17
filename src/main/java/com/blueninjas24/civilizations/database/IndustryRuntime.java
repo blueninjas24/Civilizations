@@ -140,7 +140,7 @@ public final class IndustryRuntime {
                 String feed=new LivestockFeeds(connection).acquireRows(id,herd,forecast.feedUsed(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),policy,operations);
                 if(!livestockHealthy.getAsBoolean())throw new SQLException("Livestock capture changed before work; retry after reviewed recovery");
                 var plan=repository.advanceRows(operation,id,period,herdWork.workPerWorker(),herdWork.siteWorkLimit(),livestock,operations,true,herdArea);
-                reason=feed+"; herd period="+plan.after().period()+"; feed used="+plan.feedUsed()+"; products="+plan.renewableUnits()+"; births="+plan.births();
+                reason=feed+"; herd period="+plan.after().period()+"; feed used="+plan.feedUsed()+"; products="+plan.renewableUnits()+"; births="+plan.births()+"; "+new LivestockLearning(connection,learning).reviewRows(id,period);
             }
             else if(clock.industry().equals("fishing") && new FisheryRepository(connection).find(firm.siteId()).isPresent()) {
                 if(!fishing.enabled() || !availability.permitted() || FisheryWorkplaces.paused(connection,firm.siteId()))

@@ -1,5 +1,50 @@
 # Civilizations — implementation status and handoff
 
+## October 17 — livestock qualifications, succession and resale defaults verified
+
+Real feed-backed animal care now earns configurable farming experience for actual
+qualified employees. Owners earn nothing merely for owning a business. Awards
+respect real work, worker limits and ceilings, rotate when work is scarce, and
+commit with feed/products/births/the clock. No work or replay means no free skills.
+A scenario proves an initially unqualified employee earns the actual founder
+qualification and can then inherit under the existing family-first rules.
+
+Fixed another lifecycle gap: default resale values now cover grain, milk, eggs
+and sand. Stocked producers can be valued and sold instead of waiting forever
+for a missing quote. Real buyer budgets and accepted sale prices stay intact.
+Installed files remain unchanged; admins opt into the livestock learning mapping
+and add the new editable resale values. No wallets, payroll or new money.
+
+Schema 89 adds two learning audit tables only. Existing herd/animal/owner/skill/
+stock/history rows survive; no retroactive awards or reset. Updated historical
+migration fixtures to require exactly the two new empty tables while comparing
+every predecessor row unchanged. See LIVESTOCK_LEARNING.md. Changed: livestock
+learning helper, shared runtime, migration validation, learning/resale defaults,
+focused and preservation tests, excluded native probe and livestock guides.
+
+Windows .\mvnw.cmd clean verify -B -ntp passed 1,814 unit + 2 packaged integration
+tests (1,816), zero failures/errors/skips, 12:19, finished 16:26:28 EDT. After the
+small resale-default correction, final affected verify/package passed 111 unit +
+2 packaged tests (113), zero failures/errors/skips, 23.605s, finished 16:28:21 EDT.
+No claim that the three subsequently added resale tests were in the earlier full
+run. Initial checks caught outdated table-list expectations and an underfunded
+buyer fixture; both were corrected without weakening preservation/spending rules.
+
+Guarded packaged Paper 26.2 build 129 passed 16:28:43 EDT: populated private
+schema88 upgrade, actual PopulationSession care/skills/audits, restart, absent-
+world and capture-gap pause, cash/goods conservation. No block/animal changes.
+Main dev fixture retained all 149 predecessor tables/145 exact; ordinary clock/
+economy/capture/ore metadata only, no aging. Two new tables empty; integrity/FKs
+clean. Server stopped/settings restored/helper archived/backups kept. Human
+server untouched. Feature backup/hosted CI follows; main stays unchanged.
+
+Phase 3 remains in progress: resources 31/39 (79%), about 68% partial across
+four groups, 1/4 groups complete. The automatic observed/funded herd-operation
+entry is complete; physical slaughter without duplicate drops, authorized pen
+donation, bakery milk/egg consumers and remaining industry/specialization gates
+remain. These qualification/lifecycle fixes do not inflate checklist credit.
+No design answer is needed for this batch.
+
 ## October 17 — automatic natural livestock startup and the feed chain verified
 
 Villages can now start a real dairy/chicken business from repeated bounded

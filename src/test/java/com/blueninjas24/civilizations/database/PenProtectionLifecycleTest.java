@@ -103,7 +103,7 @@ class PenProtectionLifecycleTest {
         var pen=pen(penId,0,Set.of(animal));pens().save(pen,true);
         SchemaFixtures.rewind(db.getConnection(),87);
         assertEquals(87,scalar("PRAGMA user_version"));new SchemaMigrator().migrate(db.getConnection());
-        assertEquals(88,scalar("PRAGMA user_version"));assertEquals(pen,pens().load(penId).orElseThrow());
+        assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(pen,pens().load(penId).orElseThrow());
         assertEquals(Optional.of(penId),pens().at(world,64,0,0));assertEquals(1,scalar("SELECT COUNT(*) FROM active_pen_claims"));
         assertEquals(0,scalar("SELECT COUNT(*) FROM pen_releases"));assertEquals(21,scalar("SELECT COUNT(*) FROM protected_pen_columns"));
         assertEquals(owner,new AnimalOwnershipRepository(db.getConnection()).load(animal).orElseThrow().player());integrity();

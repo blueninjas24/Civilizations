@@ -2,8 +2,9 @@
 
 Existing saved, qualified livestock businesses now run on the shared bounded
 industry clock. This connects their real feed, milk/eggs, logical births, saved
-maturity and physical newborn reconciliation. It does not automatically adopt
-animals, found new businesses or enable intentional slaughter.
+maturity and physical newborn reconciliation. The separate approved adoption/
+funding adapter now supplies eligible new businesses (LIVESTOCK_ADOPTION.md).
+Intentional slaughter remains unfinished.
 
 ## Operation
 
@@ -57,7 +58,9 @@ permit work. Care/breeding terms stay in `livestock`; the positive-sighting radi
 stays in `livestock-working-area`. Feed coverage/review limits use `industry-supply`,
 prices use `prices.base-trade-value`, and delivery/hauling use existing industry
 settings. Edit while stopped and restart; no new command-based tuning required.
-Schema remains88; no migration or data reset.
+The original scheduling batch retained schema88. The subsequent schema89 learning
+integration adds only care-experience audit tables; see LIVESTOCK_LEARNING.md and
+PROJECT_STATUS.md for verification. No herd, animal, stock or historical reset.
 
 ## Verification
 

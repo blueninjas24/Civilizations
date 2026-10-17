@@ -1,5 +1,10 @@
 # Saved ages for existing herd animals
 
+Current project status: approved automatic free-range adoption, funded startup
+and paid scheduled feed/output are now connected and verified. See
+LIVESTOCK_ADOPTION.md and LIVESTOCK_RUNTIME.md. The earlier scope notes below
+describe this age-specific checkpoint; slaughter remains a separate integration.
+
 Both initial herd members and projected newborns use their saved herd period and
 permanent maturity period. The bounded positive-sighting adapter reconciles only
 actual, living, already-owned loaded cow/chicken UUIDs. It never derives ownership

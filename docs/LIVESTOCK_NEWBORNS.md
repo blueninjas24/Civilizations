@@ -1,5 +1,10 @@
 # Saved livestock births in Minecraft
 
+Current project status: automatic eligible natural-animal adoption, funded herd
+startup and paid scheduled feed/output are now connected and verified. See
+LIVESTOCK_ADOPTION.md and LIVESTOCK_RUNTIME.md. The adapter-specific verification
+below retains its original scope; safe intentional slaughter is still unfinished.
+
 The newborn adapter projects already saved, feed/work-backed births. It never
 adopts animals, creates another logical head, supplies feed, pays money, runs a
 production period or constructs blocks. Schema87 is unchanged.
