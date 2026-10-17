@@ -1,5 +1,42 @@
 # Civilizations progress tracker
 
+## October 17, 17:40 — controlled livestock slaughter verified
+
+Village livestock businesses can now turn eligible surplus adults into saved food
+without duplicate ground drops. Exact loaded animal identity, breeding reserves,
+unused earned work, qualified staff and real storage space are checked first.
+Cancelled deaths keep the animal and add no food. Ordinary kills keep vanilla
+loot and receive no business food. Pending outcomes survive restart and reserve
+space; an unprovable outcome stays paused for reviewed recovery, never inferred
+from a missing or unloaded animal. Defaults and limits are editable; older files
+without livestock-slaughter remain opted out. See LIVESTOCK_SLAUGHTER.md.
+
+Schema 90 adds one transactional permit/audit table; existing histories and
+assets are preserved. Fixed quick shutdown during database startup so it drains
+capture state and closes cleanly. Also corrected a stale CI catalogue expectation
+for the already-added milk/egg weights; no economy behavior changed for that fix.
+
+Windows clean verify passed 1,837 unit + 2 packaged integration tests (1,839),
+zero failures/errors/skips, 12:22, finished 17:31:35 EDT. Two later regressions
+cover manual-budget exclusion and immediate startup shutdown; final affected
+verify/package passed 57 unit + 2 packaged tests (59), zero failures/errors/skips,
+35.949s, finished 17:36:23 EDT. Those two tests were not in the earlier full run.
+Packaged Paper 26.2 build 129 passed at 17:39:36: actual cancelled death,
+intentional death with no ground loot/XP, ordinary death with normal loot, exact
+saved head/food counts and replay protection. Main disposable fixture retained
+all 152 tables/148 exact; only four routine metadata tables changed, no aging,
+integrity/FKs clean. Fixture-only startup/timing and revive-health assumptions
+were corrected before the successful proof. Server stopped, settings restored,
+helper archived and backups retained. Human server untouched.
+
+Resources advance to 33/39 (85%); equally weighted partial Phase 3 progress is
+about 69.5% (roughly 70%), with 1/4 whole groups complete. Detailed livestock
+connections are 10/11; authorized bulk pen donation remains. Broader industry,
+competition, specialization and final acceptance still prevent calling P3 done.
+Next: check remaining producer-to-warehouse connections and pen donation.
+No new gameplay decision is needed. Feature-branch backup/CI follows; main stays
+unchanged.
+
 ## October 17, 17:02 — paid livestock-to-bakery food chain verified
 
 Bakeries now buy delivered milk and eggs through paid local warehouses and make
@@ -87,7 +124,7 @@ These are details, not extra credit in the four-group percentage.
 - [x] Buy real grain/feed, wait for delivery and run paid timed care.
 - [x] Automatically open qualified, funded businesses from eligible natural animals.
 - [x] Let actual caretakers gain skill and qualify for succession; value producer stock for resale.
-- [ ] Finish controlled slaughter without duplicate drops.
+- [x] Finish controlled slaughter without duplicate drops.
 - [x] Connect bakery recipes that consume milk and eggs.
 - [ ] Add authorized bulk pen donation/ownership transfer.
 
@@ -928,12 +965,12 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |32/39|82%|
+| Resources and connected production |33/39|85%|
 | Business lifecycle and competition |14/15|93%|
 | Specialization and final acceptance |0/5|No complete entries yet|
 
 The October13 food-chain additions expand this checklist. Equal weight per group
-gives about69% partial checklist completion under the current scope. The former70%
+gives about69.5% partial checklist completion under the current scope. The former70%
 described the earlier scope. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from
@@ -964,7 +1001,7 @@ not a replacement for ROADMAP.md or its design requirements.
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 1 / 4 | `██▌░░░░░░░` 25% whole gates; **69% partial checklist** |
+| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 1 / 4 | `██▌░░░░░░░` 25% whole gates; **69.5% partial checklist** |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |

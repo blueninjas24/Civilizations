@@ -1,5 +1,42 @@
 # Civilizations Development Log
 
+## October 17, 17:40 — controlled livestock slaughter verified
+
+Village livestock businesses can now turn eligible surplus adults into saved food
+without duplicate ground drops. Exact loaded animal identity, breeding reserves,
+unused earned work, qualified staff and real storage space are checked first.
+Cancelled deaths keep the animal and add no food. Ordinary kills keep vanilla
+loot and receive no business food. Pending outcomes survive restart and reserve
+space; an unprovable outcome stays paused for reviewed recovery, never inferred
+from a missing or unloaded animal. Defaults and limits are editable; older files
+without livestock-slaughter remain opted out. See LIVESTOCK_SLAUGHTER.md.
+
+Schema 90 adds one transactional permit/audit table; existing histories and
+assets are preserved. Fixed quick shutdown during database startup so it drains
+capture state and closes cleanly. Also corrected a stale CI catalogue expectation
+for the already-added milk/egg weights; no economy behavior changed for that fix.
+
+Windows clean verify passed 1,837 unit + 2 packaged integration tests (1,839),
+zero failures/errors/skips, 12:22, finished 17:31:35 EDT. Two later regressions
+cover manual-budget exclusion and immediate startup shutdown; final affected
+verify/package passed 57 unit + 2 packaged tests (59), zero failures/errors/skips,
+35.949s, finished 17:36:23 EDT. Those two tests were not in the earlier full run.
+Packaged Paper 26.2 build 129 passed at 17:39:36: actual cancelled death,
+intentional death with no ground loot/XP, ordinary death with normal loot, exact
+saved head/food counts and replay protection. Main disposable fixture retained
+all 152 tables/148 exact; only four routine metadata tables changed, no aging,
+integrity/FKs clean. Fixture-only startup/timing and revive-health assumptions
+were corrected before the successful proof. Server stopped, settings restored,
+helper archived and backups retained. Human server untouched.
+
+Resources advance to 33/39 (85%); equally weighted partial Phase 3 progress is
+about 69.5% (roughly 70%), with 1/4 whole groups complete. Detailed livestock
+connections are 10/11; authorized bulk pen donation remains. Broader industry,
+competition, specialization and final acceptance still prevent calling P3 done.
+Next: check remaining producer-to-warehouse connections and pen donation.
+No new gameplay decision is needed. Feature-branch backup/CI follows; main stays
+unchanged.
+
 ## October 17, 17:02 — paid livestock-to-bakery food chain verified
 
 Bakeries now buy delivered milk and eggs through paid local warehouses and make

@@ -136,6 +136,11 @@ public final class IndustryRepository {
                         }
                     }
                 }
+                try(var version=connection.createStatement();var saved=version.executeQuery("PRAGMA user_version")) {
+                    if(saved.getInt(1)>=90)try(var q=connection.prepareStatement("SELECT p.meat_units*k.space_per_unit FROM livestock_slaughter p JOIN industry_stock k ON k.business_id=p.business_id AND k.commodity='food' WHERE p.business_id=? AND p.state='PENDING'")) {
+                        q.setString(1,business.toString());try(var held=q.executeQuery()){while(held.next())reserved=Math.addExact(reserved,held.getLong(1));}
+                    }
+                }
                 var result=new Store(business,r.getLong(1),r.getLong(2),readCatalog("SELECT commodity,units FROM industry_stock WHERE business_id=?",business),
                         readCatalog("SELECT commodity,space_per_unit FROM industry_stock WHERE business_id=?",business),reserved);
                 if(result.freeSpace()<0)throw new SQLException("Business storage exceeds saved capacity");

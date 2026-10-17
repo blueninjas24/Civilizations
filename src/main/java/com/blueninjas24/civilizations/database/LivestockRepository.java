@@ -8,8 +8,8 @@ import java.util.*;
 
 /** SQL-owner herd persistence; IndustryRuntime composes timed feed/work. Automatic adoption remains separate.
  * Initial animals require confirmed village ownership and trusted species/age observations.
- * Births are logical cohorts; physical reconciliation must precede live activation. No slaughter API
- * until retiring physical animals can be coordinated without duplicate drops/products. */
+ * Births are logical cohorts; physical reconciliation precedes live activation. Deliberate physical
+ * retirement uses LivestockSlaughter permits and the confirmed-loss overlay, separately from care receipts. */
 public final class LivestockRepository {
     public record Herd(UUID business, LivestockHerd.Species species, Commodity feed, LivestockHerd.State state) {}
     private final Connection connection;

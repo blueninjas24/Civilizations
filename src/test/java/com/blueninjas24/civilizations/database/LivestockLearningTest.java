@@ -41,7 +41,7 @@ class LivestockLearningTest {
         var before=f.f.repo().load(f.f.business.id()).orElseThrow();SchemaFixtures.rewind(f.f.db.getConnection(),88);
         f.f.sql("CREATE VIEW livestock_learning_entries AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(f.f.db.getConnection()));
         assertEquals(88,f.scalar("PRAGMA user_version"));assertEquals(0,f.scalar("SELECT COUNT(*) FROM sqlite_master WHERE name='livestock_learning_reviews'"));assertEquals(before,f.f.repo().load(f.f.business.id()).orElseThrow());
-        f.f.sql("DROP VIEW livestock_learning_entries");new SchemaMigrator().migrate(f.f.db.getConnection());assertEquals(89,f.scalar("PRAGMA user_version"));assertEquals(before,f.f.repo().load(f.f.business.id()).orElseThrow());assertEquals(0,awards());
+        f.f.sql("DROP VIEW livestock_learning_entries");new SchemaMigrator().migrate(f.f.db.getConnection());assertEquals(SchemaMigrator.CURRENT_VERSION,f.scalar("PRAGMA user_version"));assertEquals(before,f.f.repo().load(f.f.business.id()).orElseThrow());assertEquals(0,awards());
         try(var s=f.f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     @Test void employeeCanEarnTheActualFoundingQualificationThenInheritWithoutAFreeWaiver()throws Exception{

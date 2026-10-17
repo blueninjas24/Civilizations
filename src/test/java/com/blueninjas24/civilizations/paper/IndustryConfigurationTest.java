@@ -16,6 +16,7 @@ class IndustryConfigurationTest {
         var config=config();EconomyConfiguration.read(config);
         var prototype=IndustryPolicy.prototype();var sizes=new java.util.TreeMap<>(prototype.storageSpacePerUnit());sizes.put(new Commodity("tools"),1L);
         sizes.put(new Commodity("grain"),1L);sizes.put(new Commodity("storage_fittings"),1L);
+        sizes.put(new Commodity("milk"),1L);sizes.put(new Commodity("eggs"),1L);
         assertEquals(new IndustryPolicy(prototype.depositBatchesPerObservedOre(),prototype.batchesPerWorker(),prototype.siteBatchCapacity(),prototype.storageCapacity(),prototype.localDeliveryPeriods(),prototype.localHaulUnitsPerPeriod(),prototype.miningBundle(),sizes),EconomyConfiguration.readIndustry(config));
         config.set("industry.storage-space-per-unit.grain",null);
         assertFalse(EconomyConfiguration.readIndustry(config).storageSpacePerUnit().containsKey(new Commodity("grain")),"Installed storage catalogues are never extended silently");

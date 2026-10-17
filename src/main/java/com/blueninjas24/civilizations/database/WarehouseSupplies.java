@@ -70,6 +70,7 @@ final class WarehouseSupplies {
             }else if(b.industry().equals("livestock")&&new LivestockRepository(connection).load(id).isPresent()) {
                 var herd=new LivestockRepository(connection).load(id).orElseThrow();
                 allowed.add(new Commodity(herd.species()==LivestockHerd.Species.COW?"milk":"eggs"));
+                allowed.add(Commodity.FOOD); // Confirmed deliberate slaughter; feed remains unavailable for resale.
             }else policy.recipes().values().stream().filter(r->r.industry().equals(b.industry())).forEach(r->allowed.addAll(r.outputs().keySet()));
             var stock=new TreeMap<Commodity,Long>();industry.store(id).orElseThrow().units().forEach((good,units)->{if(allowed.contains(good))stock.put(good,units);});
             var store=industry.store(id).orElseThrow();

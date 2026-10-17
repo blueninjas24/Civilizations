@@ -833,8 +833,8 @@ warehouse-founding:
 # Village-owned cows/chickens only. Old files missing this section stay disabled.
 # The positive saved-ownership guard blocks outside breeding-food interactions
 # and vanilla births; player animals and bucket/name-tag/leash interactions stay normal.
-# Adoption, persistent herds and live production are still being connected.
-# Rates below are prototype herd-calculator inputs, not active production yet.
+# Suitable natural animals can start funded herds under livestock-adoption below.
+# Rates below govern saved timed care/births; native slaughter has a separate opt-in.
 # Periods are active economic periods; absence/downtime must not age herds.
 livestock:
   enabled: true
@@ -886,7 +886,19 @@ livestock-working-area:
   radius-blocks: 32 # 3D distance from the saved farm site, inclusive; 1..256.
   # Only a positive sight outside this area pauses that animal's work/breeding.
   # Unloaded/missing alone never means away/dead. Ownership and aging are retained.
-  # Live herd adoption/production scheduling is still being connected.
+  # Saved-herd work and adoption use their separately enabled sections above/below.
+
+# Deliberate slaughter of saved village-owned livestock surplus.
+# Only actually loaded, mature animal UUIDs may be considered; no offline kill
+# and no guesses from missing bodies. Keep saved breeding reserves and account
+# for saved breeding, work, and storage caps before choosing an animal.
+# Credits use the existing food resource; meat remains abstract
+# food and creates no new physical drops. Old files without this section stay off.
+livestock-slaughter:
+  enabled: true
+  interval-ticks: 100
+  candidates-per-review: 16
+  evidence-max-age-millis: 5000
 
 # Initial local dairy/chicken sales from actual saved business stock. No free buckets.
 # One milk bucket per order; egg orders split into legal Minecraft stacks.

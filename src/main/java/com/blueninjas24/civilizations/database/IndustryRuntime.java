@@ -96,7 +96,7 @@ public final class IndustryRuntime {
                     cadence=policy.millisPerPeriod();before=new CivilizationTime.Anchor(Math.max(now,before.lastObservedMillis()),0,before.targetSteps());
                 }
                 var after=restart?new CivilizationTime.Anchor(Math.max(now,before.lastObservedMillis()),before.remainderMillis(),before.targetSteps())
-                        :CivilizationTime.accrue(before,now,cadence,(worlds==null || worlds.contains(c.world()))&&(!dedicatedLivestock(c.industry())||herdEnabled())?Long.MAX_VALUE:0).anchor();
+                        :CivilizationTime.accrue(before,now,cadence,(worlds==null || worlds.contains(c.world()))&&(!dedicatedLivestock(c.industry())||(herdEnabled()&&!new LivestockSlaughter(connection).pending(c.business())))?Long.MAX_VALUE:0).anchor();
                 try(var s=connection.prepareStatement("UPDATE industry_runtime SET cadence=?,last_ms=?,remainder=?,target=? WHERE business_id=?")) {
                     s.setLong(1,cadence);s.setLong(2,after.lastObservedMillis());s.setLong(3,after.remainderMillis());s.setLong(4,after.targetSteps());s.setString(5,c.business().toString());s.executeUpdate();
                 }
@@ -116,6 +116,7 @@ public final class IndustryRuntime {
     }
     private void work(Clock clock) throws SQLException {
         if(dedicatedLivestock(clock.industry())&&!herdEnabled())return;
+        if(dedicatedLivestock(clock.industry())&&new LivestockSlaughter(connection).pending(clock.business()))return;
         transaction(()-> {
             long period=Math.incrementExact(clock.completed());
             var id=clock.business();

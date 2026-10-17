@@ -37,7 +37,7 @@ public final class LivestockLosses {
     public Optional<Receipt> record(Observation observed)throws SQLException {
         Objects.requireNonNull(observed);if(!connection.getAutoCommit())throw new SQLException("Physical loss requires complete owner transaction");
         connection.setAutoCommit(false);
-        try {var result=recordRows(observed);connection.commit();connection.setAutoCommit(true);return result;}
+        try {var result=recordRows(observed);new LivestockSlaughter(connection).observedLossRows(observed,result);connection.commit();connection.setAutoCommit(true);return result;}
         catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
     }
     private Optional<Receipt> recordRows(Observation observed)throws SQLException {

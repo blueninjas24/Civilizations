@@ -53,7 +53,7 @@ public final class LivestockPresence {
             try(var r=s.executeQuery()){var result=new ArrayList<Member>();while(r.next())result.add(member(r));return List.copyOf(result);}
         }
     }
-    private Optional<Member> member(UUID animal)throws SQLException {
+    Optional<Member> member(UUID animal)throws SQLException {
         try(var s=connection.prepareStatement(MEMBERS+"""
             SELECT m.*,h.species,s.world_id,s.x,s.y,s.z,
                 (SELECT MAX(p.period) FROM livestock_periods p WHERE p.business_id=m.business_id) AS herd_period FROM members m

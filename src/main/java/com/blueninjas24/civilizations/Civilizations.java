@@ -27,6 +27,7 @@ public final class Civilizations extends JavaPlugin {
     private PaperResidentProjector projector;
     private ManagedVillagerLifecycle lifecycle;
     private com.blueninjas24.civilizations.paper.ManagedLivestockDeaths livestockDeaths;
+    private com.blueninjas24.civilizations.paper.PaperLivestockSlaughter livestockSlaughter;
     private com.blueninjas24.civilizations.paper.PaperLivestockPresence livestockPresence;
     private com.blueninjas24.civilizations.paper.PaperLivestockNewborns livestockNewborns;
     private com.blueninjas24.civilizations.paper.PaperLivestockAdoption livestockAdoption;
@@ -93,7 +94,10 @@ public final class Civilizations extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.ManagedLivestockProducts(
                     population::villageAnimals,()->livestockPolicy.enabled()&&population.status().ready()),this);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.LivestockBreedingProvenance(),this);
-            livestockDeaths=new com.blueninjas24.civilizations.paper.ManagedLivestockDeaths(population,getLogger());
+            var slaughterPolicy=EconomyConfiguration.readLivestockSlaughter(economyConfig);population.configureLivestockSlaughter(slaughterPolicy);
+            livestockSlaughter=new com.blueninjas24.civilizations.paper.PaperLivestockSlaughter(population,slaughterPolicy,EconomyConfiguration.readLivestockWorkingArea(economyConfig),getLogger());
+            livestockDeaths=new com.blueninjas24.civilizations.paper.ManagedLivestockDeaths(population,getLogger(),livestockSlaughter::observeDeath);
+            livestockSlaughter.setDeathSink(livestockDeaths::captureControlled);livestockSlaughter.runTaskTimer(this,1,1);
             getServer().getPluginManager().registerEvents(livestockDeaths,this);
             livestockDeaths.runTaskTimer(this,1,1);
             livestockPresence=new com.blueninjas24.civilizations.paper.PaperLivestockPresence(population,getLogger());
@@ -107,6 +111,8 @@ public final class Civilizations extends JavaPlugin {
                     () -> observer == null ? "Village observer not started" : observer.diagnostic()
                             + "; " + projector.diagnostic() + "; " + lifecycle.diagnostic() + "; " + farms.diagnostic()
                             + "; " + livestockDeaths.diagnostic()
+                            + "; " + livestockSlaughter.diagnostic()
+                            + "; " + population.livestockSlaughterDiagnostic()
                             + "; " + livestockPresence.diagnostic()
                             + "; " + livestockNewborns.diagnostic()
                             + "; " + livestockAdoption.diagnostic()
@@ -243,6 +249,7 @@ public final class Civilizations extends JavaPlugin {
         if (projector != null) projector.close();
         if (lifecycle != null) lifecycle.flush();
         if(livestockAdoption!=null){livestockAdoption.cancel();livestockAdoption.close();}
+        if(livestockSlaughter!=null){livestockSlaughter.cancel();livestockSlaughter.close();}
         if(livestockNewborns!=null){livestockNewborns.cancel();livestockNewborns.close();}
         if(livestockPresence!=null){livestockPresence.cancel();livestockPresence.flush();}
         if(livestockDeaths!=null){livestockDeaths.cancel();livestockDeaths.flush();}

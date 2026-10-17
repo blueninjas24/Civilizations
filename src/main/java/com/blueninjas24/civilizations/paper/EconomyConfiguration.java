@@ -32,6 +32,7 @@ public final class EconomyConfiguration {
         if (config.contains("livestock-runtime")) rootKeys.add("livestock-runtime");
         if (config.contains("livestock-adoption")) rootKeys.add("livestock-adoption");
         if (config.contains("livestock-market")) rootKeys.add("livestock-market");
+        if (config.contains("livestock-slaughter")) rootKeys.add("livestock-slaughter");
         if (config.contains("livestock-working-area")) rootKeys.add("livestock-working-area");
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
@@ -127,6 +128,7 @@ public final class EconomyConfiguration {
         readLivestockAdoption(config);
         readLivestockWorkingArea(config);
         readLivestockMarket(config);
+        readLivestockSlaughter(config);
         readRecipes(config);
         readOreObserver(config);
         if (integer(config, "format-version") != 1) throw new IllegalArgumentException("Unsupported economy.yml format-version; expected 1");
@@ -358,6 +360,14 @@ public final class EconomyConfiguration {
         return new com.blueninjas24.civilizations.industry.LivestockMarketPolicy(enabled, readPurchases(config).hundredthsPerEmerald(),
                 smallInteger(s, "milk-emeralds"), smallInteger(s, "eggs-per-order"), smallInteger(s, "egg-order-emeralds"),
                 smallInteger(s, "horizontal-radius"), smallInteger(s, "vertical-radius"), smallInteger(s, "maximum-sellers"), smallInteger(s, "offer-seconds"));
+    }
+    public static com.blueninjas24.civilizations.industry.LivestockSlaughterPolicy readLivestockSlaughter(ConfigurationSection config) {
+        if (!config.contains("livestock-slaughter")) return com.blueninjas24.civilizations.industry.LivestockSlaughterPolicy.disabled();
+        var s = section(config, "livestock-slaughter");
+        exactKeys(s, Set.of("enabled", "interval-ticks", "candidates-per-review", "evidence-max-age-millis"));
+        if (!(s.get("enabled") instanceof Boolean enabled)) throw new IllegalArgumentException("livestock-slaughter.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.LivestockSlaughterPolicy(enabled,
+                smallInteger(s, "interval-ticks"), smallInteger(s, "candidates-per-review"), integer(s, "evidence-max-age-millis"));
     }
     public static com.blueninjas24.civilizations.industry.LivestockWorkingArea readLivestockWorkingArea(ConfigurationSection config) {
         if(!config.contains("livestock-working-area"))return com.blueninjas24.civilizations.industry.LivestockWorkingArea.prototype();

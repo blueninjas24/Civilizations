@@ -6,8 +6,9 @@ saved-herd production are now connected and verified. Protection, named/human/
 unknown-origin exclusions and absent-world pause remain. See LIVESTOCK_ADOPTION.md
 and PROJECT_STATUS.md; older dated notes below describe their earlier checkpoints.
 Latest verified addition: paid milk/egg bakery recipes and collective food
-customers; bread remains the fallback. See BAKERY_SUPPLY_CHAIN.md. Physical
-slaughter and pen donation remain unfinished.
+customers; bread remains the fallback. See BAKERY_SUPPLY_CHAIN.md. Controlled physical
+slaughter is now verified (schema90); see LIVESTOCK_SLAUGHTER.md. Authorized
+bulk pen donation remains unfinished.
 
 October17 implementation note: saved, paid livestock births now project as
 nearby loaded Minecraft animals with permanent IDs, restart-safe activation and

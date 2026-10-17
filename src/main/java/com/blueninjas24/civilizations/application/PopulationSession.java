@@ -122,6 +122,23 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.LivestockWorkingArea livestockWorkingArea=com.blueninjas24.civilizations.industry.LivestockWorkingArea.prototype();
     private com.blueninjas24.civilizations.industry.LivestockPolicy livestockPolicy=com.blueninjas24.civilizations.industry.LivestockPolicy.disabled();
     private com.blueninjas24.civilizations.industry.LivestockRuntimePolicy livestockRuntimePolicy=com.blueninjas24.civilizations.industry.LivestockRuntimePolicy.disabled();
+    private com.blueninjas24.civilizations.industry.LivestockSlaughterPolicy slaughterPolicy=com.blueninjas24.civilizations.industry.LivestockSlaughterPolicy.disabled();
+    private volatile int pendingSlaughters;
+    public String livestockSlaughterDiagnostic(){return "Saved slaughter permits awaiting exact native outcome: "+pendingSlaughters;}
+    private void refreshSlaughterCount()throws java.sql.SQLException {pendingSlaughters=new com.blueninjas24.civilizations.database.LivestockSlaughter(database.getConnection()).pendingCount();}
+    public void configureLivestockSlaughter(com.blueninjas24.civilizations.industry.LivestockSlaughterPolicy policy){
+        if(started.get())throw new IllegalStateException("Configure slaughter before starting population");slaughterPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public CompletableFuture<java.util.Optional<com.blueninjas24.civilizations.database.LivestockSlaughter.Permit>> prepareLivestockSlaughter(
+            com.blueninjas24.civilizations.database.LivestockPresence.Sight sight) {
+        return submit(()->{requireReady();
+            if(!industryPolicy.enabled()||!livestockRuntimePolicy.enabled()||!livestockCaptureReady())return java.util.Optional.empty();
+            var result=new com.blueninjas24.civilizations.database.LivestockSlaughter(database.getConnection()).prepare(sight,now.getAsLong(),
+                    loadedWorlds==null?java.util.Set.of():loadedWorlds,livestockPolicy,slaughterPolicy,operationPolicy,livestockWorkingArea,this::livestockCaptureReady);
+            refreshSlaughterCount();return result;
+        });
+    }
+    public CompletableFuture<Void> cancelLivestockSlaughter(UUID permit,String reason){return submit(()->{requireReady();new com.blueninjas24.civilizations.database.LivestockSlaughter(database.getConnection()).cancel(permit,reason);refreshSlaughterCount();return null;});}
     public void configureLivestockWork(com.blueninjas24.civilizations.industry.LivestockPolicy policy,com.blueninjas24.civilizations.industry.LivestockRuntimePolicy work){
         if(started.get())throw new IllegalStateException("Configure herd work before session starts");
         livestockPolicy=java.util.Objects.requireNonNull(policy);livestockRuntimePolicy=java.util.Objects.requireNonNull(work);
@@ -464,6 +481,7 @@ public final class PopulationSession implements AutoCloseable {
             try {
                 loadedWorlds = initial;
                 database.initialize();
+                refreshSlaughterCount();
                 var capture=new com.blueninjas24.civilizations.database.LivestockCapture(database.getConnection());
                 livestockHistoryHealthy.set(capture.begin(now.getAsLong()).trusted());livestockTrackingStarted=true;
                 if(livestockCaptureGap.get())capture.markGap(now.getAsLong());
@@ -525,11 +543,13 @@ public final class PopulationSession implements AutoCloseable {
                     economyView.set(economy.views());
                 }
                 readyForWork = true;
-                if (scheduleAutomatically) timer = owner.scheduleWithFixedDelay(() -> {
-                    if (!closing.get()) {
-                        try { pulseOnOwner(); } catch (Exception failure) { reportFailure(failure); }
-                    }
-                }, 1, 1, TimeUnit.SECONDS);
+                if (scheduleAutomatically&&!closing.get())try {
+                    timer = owner.scheduleWithFixedDelay(() -> {
+                        if (!closing.get()) {
+                            try { pulseOnOwner(); } catch (Exception failure) { reportFailure(failure); }
+                        }
+                    }, 1, 1, TimeUnit.SECONDS);
+                }catch(RejectedExecutionException stopped){if(!closing.get())throw stopped;}
                 return status.get();
             } catch (Exception failure) {
                 reportFailure(failure); database.close(); throw failure;
@@ -1034,7 +1054,7 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<java.util.Optional<com.blueninjas24.civilizations.database.LivestockLosses.Receipt>> recordLivestockLoss(
             com.blueninjas24.civilizations.database.LivestockLosses.Observation observation) {
         stageLivestockLoss(observation);
-        return submit(()->{requireReady();var result=new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection()).record(observation);pendingLivestockLosses.remove(observation.animal());return result;});
+        return submit(()->{requireReady();var result=new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection()).record(observation);pendingLivestockLosses.remove(observation.animal());refreshSlaughterCount();return result;});
     }
     /** Memory-only main-thread capture fence, before any bounded Paper queue delay. */
     public void stageLivestockLoss(com.blueninjas24.civilizations.database.LivestockLosses.Observation observation){
@@ -1043,7 +1063,7 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Void> flushLivestockLosses(java.util.List<com.blueninjas24.civilizations.database.LivestockLosses.Observation> losses) {
         var captured=java.util.List.copyOf(losses);
         captured.forEach(loss->pendingLivestockLosses.add(loss.animal()));
-        return submit(()->{requireReady();var repository=new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection());for(var loss:captured){repository.record(loss);pendingLivestockLosses.remove(loss.animal());}return null;});
+        return submit(()->{requireReady();var repository=new com.blueninjas24.civilizations.database.LivestockLosses(database.getConnection());for(var loss:captured){repository.record(loss);pendingLivestockLosses.remove(loss.animal());}refreshSlaughterCount();return null;});
     }
     public record DeathObservation(UUID world, UUID entity, long observedMillis, String reason) {}
     public CompletableFuture<Boolean> flushPhysicalDeaths(List<DeathObservation> deaths) {
@@ -1165,7 +1185,10 @@ public final class PopulationSession implements AutoCloseable {
                             .finish(now.getAsLong(),oreHistoryHealthy.get());
                 } catch(SQLException|RuntimeException failure) {
                     logger.log(Level.SEVERE,"Ore tracking shutdown fence failed; discovery will require reviewed recovery",failure);
-                } finally {database.close();}
+                } finally {
+                    database.close();readyForWork=false;
+                    status.updateAndGet(current->new Status(false,current.completedMonths(),current.targetMonths(),current.livingPeople(),current.lastBatchNanos(),current.failure()));
+                }
             });
             owner.shutdown();
         }

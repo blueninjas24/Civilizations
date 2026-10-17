@@ -332,6 +332,13 @@ class PopulationSessionTest {
             assertThrows(ExecutionException.class, () -> await(session.pulse()));
         } finally { session.close(); }
     }
+    @Test void stoppingImmediatelyDuringAutomaticStartupDrainsAndClosesCaptureCleanly()throws Exception {
+        var session=session(settings(2,12));var startup=session.start(true);session.close();
+        assertDoesNotThrow(()->startup.get(5,TimeUnit.SECONDS));assertFalse(session.status().ready());assertNull(session.status().failure());
+        try(var external=DriverManager.getConnection("jdbc:sqlite:"+directory.resolve("civilizations.db"));var s=external.createStatement();var r=s.executeQuery("SELECT clean_stop,trusted FROM livestock_capture WHERE id=1")) {
+            assertTrue(r.next());assertEquals(1,r.getInt(1));assertEquals(1,r.getInt(2));
+        }
+    }
 
     @Test void overloadedQueueExplicitlyRejectsExcessWorkRatherThanAccumulatingWithoutBound() throws Exception {
         var entered = new CountDownLatch(1); var release = new CountDownLatch(1);

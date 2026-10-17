@@ -41,10 +41,11 @@ drops, reduce the herd and receive no duplicate business products. Physical
 retirement/capture must still make retries and unloaded bodies safe. Existing
 breeding reserves, real work and storage constraints remain.
 
-This settles the physical-drop/accounting rule; no slaughter API is enabled yet.
-Newborn projection, initial-age reconciliation and saved pen area lifecycle are
-verified. Implement physical retirement and once-only product accounting before
-enabling managed slaughter. No further answer is needed for this rule.
+Implemented October17: exact saved permits, loaded-body native retirement and
+once-only food accounting are verified, including cancelled and ordinary kills.
+Schema90 preserves pending outcomes; uncertain crash outcomes require reviewed
+recovery. Older config files opt out until configured. See LIVESTOCK_SLAUGHTER.md.
+No further answer is needed for this rule.
 
 ## October16 — livestock working radius: approved
 

@@ -12,7 +12,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.LongSupplier;
 import java.util.logging.Logger;
 
-/** Main-thread confirmed death capture, immutable SQL-owner handoff and graceful draining. No loot changes. */
+/** Main-thread confirmed deaths, immutable SQL-owner handoff and graceful draining.
+ * Ordinary loot stays native; exact intentional deaths delegate to their controlled retirement adapter. */
 public final class ManagedLivestockDeaths extends BukkitRunnable implements Listener {
     interface Owner {
         Set<UUID> villageAnimals();boolean ready();
@@ -24,6 +25,10 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
     private final Owner owner;private final Logger logger;private final LongSupplier clock;
     private final Map<UUID,LivestockLosses.Observation> deaths=new LinkedHashMap<>(),recent=new LinkedHashMap<>();
     private LivestockLosses.Observation submitted;private CompletableFuture<?> pending;private long retryAt;
+    private java.util.function.Predicate<EntityDeathEvent> controlled=event->false;
+    public ManagedLivestockDeaths(PopulationSession session,Logger logger,java.util.function.Predicate<EntityDeathEvent> controlled) {
+        this(session,logger);this.controlled=Objects.requireNonNull(controlled);
+    }
     public ManagedLivestockDeaths(PopulationSession session,Logger logger) {
         this(new Owner(){public Set<UUID> villageAnimals(){return session.villageAnimals();}public boolean ready(){return session.status().ready();}
             public CompletableFuture<Optional<LivestockLosses.Receipt>> record(LivestockLosses.Observation o){return session.recordLivestockLoss(o);}
@@ -32,7 +37,7 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
     ManagedLivestockDeaths(Owner owner,Logger logger,LongSupplier clock){this.owner=Objects.requireNonNull(owner);this.logger=Objects.requireNonNull(logger);this.clock=Objects.requireNonNull(clock);}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
     public void died(EntityDeathEvent event) {
-        if(event.isCancelled())return;var entity=event.getEntity();var type=entity.getType();
+        if(event.isCancelled()||controlled.test(event))return;var entity=event.getEntity();var type=entity.getType();
         if(type!=EntityType.COW&&type!=EntityType.CHICKEN)return;
         var animal=entity.getUniqueId();var id=UUID.nameUUIDFromBytes(("civilizations:physical-livestock-loss-v1:"+animal).getBytes(StandardCharsets.UTF_8));
         String reason=event.getDamageSource().getDamageType().getKey().toString();
@@ -40,6 +45,10 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
         if(owner.villageAnimals().contains(animal)){if(deaths.putIfAbsent(animal,observed)==null)owner.captured(observed);}
         else {if(recent.size()>=256&&!recent.containsKey(animal)){if(!owner.ready())owner.gap();recent.remove(recent.keySet().iterator().next());}recent.putIfAbsent(animal,observed);}
         run();
+    }
+    /** Exact intentional-death evidence enters the same retry/shutdown queue as ordinary native deaths. */
+    public void captureControlled(LivestockLosses.Observation observation) {
+        if(deaths.putIfAbsent(observation.animal(),observation)==null)owner.captured(observation);run();
     }
     @Override public void run() {
         var ids=owner.villageAnimals();long now=clock.getAsLong();
