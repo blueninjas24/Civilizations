@@ -1,5 +1,18 @@
 # Civilizations progress tracker
 
+## October16 — physical newborn identity handoff verified
+
+Newborn records can now connect safely to actual Minecraft animals. A retry or
+restart cannot create a second body, and one confirmed death removes only that
+animal while preserving its siblings and the farm's money/goods. Missing or
+unloaded animals never authorize replacement.
+
+All1,718 full-build tests and the isolated real-animal/death/restart check passed.
+The additive test-save upgrade retained prior data; your server is untouched.
+Automatic herd adoption and production remain unfinished. P3 stays about68%
+partial. Next: the approved editable working radius and safe live integration;
+no answer needed.
+
 ## October 16 — newborn identities are saved safely
 
 Simulated newborn animals now get permanent identities and saved growing-up dates.

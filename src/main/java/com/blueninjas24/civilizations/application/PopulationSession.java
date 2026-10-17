@@ -926,6 +926,25 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Boolean> recordPhysicalDeath(UUID world, UUID entity, long observedMillis, String reason) {
         return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
     }
+    /** Trusted main-thread prepared-body claim. Publication of village identity precedes future completion/spawn. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.LivestockBirthProjections.Projection> claimLivestockBirth(
+            com.blueninjas24.civilizations.database.LivestockBirthProjections.Claim claim) {
+        return submit(()-> {
+            requireReady();var repository=new com.blueninjas24.civilizations.database.LivestockBirthProjections(database.getConnection());
+            if(!livestockCaptureReady()&&repository.forEntity(claim.entity()).isEmpty())throw new IllegalStateException("Livestock history must be trusted before a new physical birth claim");
+            var result=repository.claim(claim,loadedWorlds==null?java.util.Set.of():loadedWorlds);
+            villageAnimals.set(new com.blueninjas24.civilizations.database.AnimalOwnershipRepository(database.getConnection()).villageAnimals());return result;
+        });
+    }
+    public CompletableFuture<Optional<com.blueninjas24.civilizations.database.LivestockBirthProjections.Projection>> livestockBirthProjection(UUID birth) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockBirthProjections(database.getConnection()).find(birth);});
+    }
+    public CompletableFuture<Boolean> activateLivestockBirth(UUID birth,UUID entity) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockBirthProjections(database.getConnection()).activate(birth,entity);});
+    }
+    public CompletableFuture<Boolean> failUnspawnedLivestockBirth(UUID birth,UUID entity) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockBirthProjections(database.getConnection()).failedUnspawned(birth,entity);});
+    }
     public CompletableFuture<java.util.Optional<com.blueninjas24.civilizations.database.LivestockLosses.Receipt>> recordLivestockLoss(
             com.blueninjas24.civilizations.database.LivestockLosses.Observation observation) {
         stageLivestockLoss(observation);

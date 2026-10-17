@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October16 — livestock working radius: approved
+
+User chose “Pause only animals confirmed far away.” A saved village animal
+confirmed outside its farm's configurable working radius stops contributing
+products and breeding until confirmed back. It remains village-owned; eligible
+animals continue working. Unloaded chunks, missing observations and absent
+worlds never by themselves establish departure or death. Preserve headcounts,
+individual identity and aging separately from production eligibility. This is
+approved intent; live observation and production integration remain unfinished.
+
 ## October16 — unfinished purchases through player death: approved
 
 User chose “Keep only unfinished purchase items until confirmation”. Only goods

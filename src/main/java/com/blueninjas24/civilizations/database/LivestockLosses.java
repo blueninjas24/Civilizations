@@ -4,7 +4,7 @@ import com.blueninjas24.civilizations.industry.LivestockHerd;
 import java.sql.*;
 import java.util.*;
 
-/** Confirmed physical losses of saved initial UUIDs. Missing observations never establish death. */
+/** Confirmed physical losses of saved initial/current offspring UUIDs. Missing observations never establish death. */
 public final class LivestockLosses {
     public record Observation(UUID operation,UUID animal,UUID observedWorld,long observedMillis,String reason) {
         public Observation {
@@ -50,9 +50,10 @@ public final class LivestockLosses {
                 }
             }
         }
+        var children=new LivestockBirthLosses(connection);var replay=children.replayRows(observed);if(replay.isPresent())return replay;
         UUID business;
         try(var s=connection.prepareStatement("SELECT business_id FROM livestock_initial_animals WHERE animal_id=?")) {
-            s.setString(1,observed.animal().toString());try(var r=s.executeQuery()){if(!r.next())return Optional.empty();business=UUID.fromString(r.getString(1));}
+            s.setString(1,observed.animal().toString());try(var r=s.executeQuery()){if(!r.next())return children.recordRows(observed);business=UUID.fromString(r.getString(1));}
         }
         var state=new LivestockRepository(connection).load(business).orElseThrow().state();
         try(var s=connection.prepareStatement("INSERT INTO livestock_animal_losses(animal_id,operation_id,business_id,observed_world,observed_millis,reason,after_period) VALUES(?,?,?,?,?,?,?)")) {
@@ -65,10 +66,13 @@ public final class LivestockLosses {
     LivestockHerd.State remainingRows(UUID business,LivestockHerd.State before)throws SQLException {
         long adults=before.adults();var young=new TreeMap<Long,Long>();for(var c:before.young())young.put(c.maturePeriod(),c.heads());
         try(var s=connection.prepareStatement("""
-            SELECT a.mature_period FROM livestock_animal_losses l JOIN livestock_initial_animals a ON a.animal_id=l.animal_id
-            WHERE l.business_id=? AND l.applied_period IS NULL ORDER BY l.animal_id
+            SELECT a.mature_period,l.animal_id FROM livestock_animal_losses l JOIN livestock_initial_animals a ON a.animal_id=l.animal_id
+            WHERE l.business_id=? AND l.applied_period IS NULL
+            UNION ALL
+            SELECT b.mature_period,l.entity_id FROM livestock_birth_losses l JOIN livestock_births b ON b.id=l.birth_id
+            WHERE l.business_id=? AND l.applied_period IS NULL ORDER BY 2
             """)) {
-            s.setString(1,business.toString());try(var r=s.executeQuery()){while(r.next()) {
+            s.setString(1,business.toString());s.setString(2,business.toString());try(var r=s.executeQuery()){while(r.next()) {
                 long maturity=r.getLong(1);
                 if(maturity<=before.period()){if(adults==0)throw new SQLException("Physical loss exceeds retained adult herd");adults--;}
                 else {long heads=young.getOrDefault(maturity,0L);if(heads==0)throw new SQLException("Physical loss exceeds retained young cohort");if(heads==1)young.remove(maturity);else young.put(maturity,heads-1);}
@@ -79,5 +83,6 @@ public final class LivestockLosses {
     void applyRows(UUID business,long period)throws SQLException {
         if(connection.getAutoCommit())throw new SQLException("Loss application requires production owner transaction");
         try(var s=connection.prepareStatement("UPDATE livestock_animal_losses SET applied_period=? WHERE business_id=? AND applied_period IS NULL")) {s.setLong(1,period);s.setString(2,business.toString());s.executeUpdate();}
+        try(var s=connection.prepareStatement("UPDATE livestock_birth_losses SET applied_period=? WHERE business_id=? AND applied_period IS NULL")) {s.setLong(1,period);s.setString(2,business.toString());s.executeUpdate();}
     }
 }

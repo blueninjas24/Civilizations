@@ -1,5 +1,12 @@
 # Civilizations — simulation rules and testable examples
 
+October16 approved livestock working radius: only animals positively observed
+outside the configurable farm radius become unavailable for products/breeding;
+positive return observations restore eligibility. Retain their ownership,
+headcounts and aging. Unknown/unloaded observations do not change eligibility
+or infer death. Other eligible animals continue; absent worlds still pause time.
+The rule is approved; live observation/production integration remains unfinished.
+
 October16 approved unfinished-purchase rule: retain only the exact pending
 purchase goods through player death until confirmation. Other inventory follows
 normal death rules; confirmed goods lose the temporary protection. No broad

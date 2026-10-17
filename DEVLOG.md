@@ -1,5 +1,36 @@
 # Civilizations Development Log
 
+## October16 — physical newborn identity handoff verified
+
+Schema86 adds claim-before-spawn identities, retained failed aliases and individual
+offspring death receipts. The SQL owner publishes protection before returning a
+committed claim. Missing bodies never authorize replacement. Confirmed offspring
+losses remove their exact saved cohort member and survive restart without adding
+goods or money. New claims require trusted capture history and the origin world.
+
+Added24 temporary-SQLite/owner cases. Focused163 affected migration/newborn tests
+passed. Windows .\mvnw.cmd clean verify -B -ntp passed1,718 tests (1,716 unit/two
+packaged integration), zero failures/errors/skips;11:59, finished
+2026-10-16T23:14:31-04:00. Source/test Java frozen throughout verification.
+
+Guarded Paper26.2 build129 probe passed23:15:00: real prepared UUID committed and
+published before native addEntity, once-only activation, positive never-spawned
+failure/retry with retained alias, actual native offspring death, exact surviving
+sibling/head/goods accounting and SQL-owner restart. Not automatic adoption,
+general reconciliation or an actual JVM crash test. Marked test save upgraded
+85->86:143 predecessor tables retained,139 exact; only ordinary clock/runtime/
+capture/ore metadata changed, no aging. Three new main tables empty; integrity/FKs
+clean. Fixture stopped/settings restored/helper archived/backups retained; human
+server untouched. See LIVESTOCK_BIRTH_PROJECTIONS.md.
+
+Prior936fd54 hosted Linux passed; Windows still running when checked. Current
+feature backup/hosted checks follow this checkpoint. P3 stays about68% partial
+(30/39 resources,1/4 whole groups). The user approved pausing products/breeding
+only for animals positively observed outside an editable working radius,
+retaining ownership and treating unloaded observations as unknown. Next: this
+eligibility rule and safe live herd integration; no decision is pending.
+
+
 ## October 16 — permanent newborn identities verified
 
 Each new simulated birth now receives a deterministic permanent identity in the

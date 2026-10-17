@@ -1,5 +1,11 @@
 # Civilizations — canonical master design
 
+October16 approved livestock working radius: only animals positively observed
+far from their farm pause products and breeding until their return. The radius
+is editable. Ownership, identity and other animals' work remain intact; unloaded
+or missing animals alone never count as departed or dead. This approval does not
+mean the live adapter is implemented yet.
+
 October16 approved unfinished-purchase rule: retain only the exact pending
 purchase goods through player death until confirmation. Other inventory follows
 normal death rules; confirmed goods lose the temporary protection. No broad

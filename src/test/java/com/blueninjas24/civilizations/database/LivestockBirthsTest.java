@@ -62,16 +62,16 @@ class LivestockBirthsTest {
         assertEquals(1,all().size());assertEquals(13,all().getFirst().maturePeriod());
     }
     @Test void olderAnonymousBirthsArePreservedAndReportedRatherThanBackfilledAsInventedAnimals()throws Exception {
-        open();f.advance(new UUID(9,1),1);f.sql("DROP TABLE livestock_births");f.sql("PRAGMA user_version=84");var before=snapshot();
-        new SchemaMigrator().migrate(f.db.getConnection());var after=snapshot();assertEquals(List.of(),after.remove("livestock_births"));assertEquals(before,after);
+        open();f.advance(new UUID(9,1),1);SchemaFixtures.rewind(f.db.getConnection(),84);var before=snapshot();
+        new SchemaMigrator().migrate(f.db.getConnection());var after=snapshot();assertEquals(List.of(),after.remove("livestock_birth_losses"));assertEquals(List.of(),after.remove("livestock_birth_projections"));assertEquals(List.of(),after.remove("livestock_birth_entities"));assertEquals(List.of(),after.remove("livestock_births"));assertEquals(before,after);
         assertEquals(1,births().unmappedBirths(f.business.id()));assertTrue(all().isEmpty());assertEquals(4,f.repo().load(f.business.id()).orElseThrow().state().heads());
         f.advance(new UUID(9,1),1);assertTrue(all().isEmpty());assertEquals(1,births().unmappedBirths(f.business.id()));
     }
     @Test void schema84FailureRollsBackThenRetriesWithoutChangingOldAssetsOrVersions()throws Exception {
-        open();f.advance(new UUID(9,1),1);f.sql("DROP TABLE livestock_births");f.sql("PRAGMA user_version=84");f.sql("CREATE VIEW livestock_births AS SELECT 1 AS blocker");var before=snapshot();
+        open();f.advance(new UUID(9,1),1);SchemaFixtures.rewind(f.db.getConnection(),84);f.sql("CREATE VIEW livestock_births AS SELECT 1 AS blocker");var before=snapshot();
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(f.db.getConnection()));assertEquals(before,snapshot());
         try(var s=f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertTrue(r.next());assertEquals(84,r.getInt(1));}
-        f.sql("DROP VIEW livestock_births");new SchemaMigrator().migrate(f.db.getConnection());var after=snapshot();assertEquals(List.of(),after.remove("livestock_births"));assertEquals(before,after);
+        f.sql("DROP VIEW livestock_births");new SchemaMigrator().migrate(f.db.getConnection());var after=snapshot();assertEquals(List.of(),after.remove("livestock_birth_losses"));assertEquals(List.of(),after.remove("livestock_birth_projections"));assertEquals(List.of(),after.remove("livestock_birth_entities"));assertEquals(List.of(),after.remove("livestock_births"));assertEquals(before,after);
         try(var s=f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     @Test void missingRegistryRowsAreVisibleAndHistoricalReplayDoesNotSilentlyRepairThem()throws Exception {
