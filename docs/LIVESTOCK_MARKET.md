@@ -19,7 +19,8 @@ LIVESTOCK_ADOPTION.md and LIVESTOCK_RUNTIME.md. These require their own enabled
 settings and real qualification, funding, grain deliveries and work. A village
 without an established eligible stocked business still reports no offers. This
 market does not manufacture herds, goods, money or buckets.
-Real bakery purchases of these products remain a separate integration step.
+Paid bakery purchases through local warehouses are now verified separately;
+see BAKERY_SUPPLY_CHAIN.md. Configured recipes and real buyers are still required.
 
 ## Editable settings
 

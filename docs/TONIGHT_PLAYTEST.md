@@ -17,15 +17,22 @@ Type `stop` in the console when finished. The folder is outside OneDrive and use
 a separate test world/save. Keep it if you want to resume the same village later.
 
 The prepared settings predate optional workshop supply and nearby-chunk radius.
-The artifact is updated after verified batches, but those existing settings are
-preserved. Missing industry-supply stays off; missing horizontal-radius-chunks
+Existing test folders may contain an older plugin JAR; replace it with the newly
+verified target/civilizations-0.0.1-SNAPSHOT.jar while stopped. Existing settings
+are preserved. Missing industry-supply stays off; missing horizontal-radius-chunks
 keeps home-chunk surveys. See WORKSHOP_SUPPLIES.md and LIVE_RESOURCE_SURVEYS.md to
-opt in while stopped. This does not create nonfood businesses automatically.
+opt in while stopped. New default settings also enable the implemented automatic
+coal/iron, toolkit-workshop and warehouse startup, subject to real opportunities,
+training, qualified staff and protected funds. Older files need explicit opt-in.
 
 Use a disposable Paper test server and world. The current prototype has persistent
 villagers/families, food shortages, village food deliveries/trading and automatic
-farms. Phase 3 industry work is still in progress. It does not yet offer automatic
-mines/workshops, physical excavation or new buildings.
+farms. Configured Phase 3 businesses also include automatic coal/iron mines,
+toolkit workshops, warehouses, bakeries, craftsman storage upgrades, shoreline
+fisheries and natural cow/chicken herds. Individual startup still depends on real
+observations, skills, supplies, customers and money; not every village gets every
+business. Phase 3 remains unfinished. Physical excavation and new buildings
+belong to Phase 4.
 
 1. Stop the test server. Install only target/civilizations-0.0.1-SNAPSHOT.jar in its
    plugins folder, then start it normally. Never install src/test/paper probe JARs
@@ -48,6 +55,40 @@ mines/workshops, physical excavation or new buildings.
 6. Watch food reserves/workers change in diagnostics. Stop the server normally and
    restart it; identities, goods and family history should remain. Downtime adds no
    simulation years. Avoid plugin hot reload or editing the SQLite file directly.
+
+## New livestock and bakery checks (October17)
+
+Keep your edited settings and saves. Stop the server, back up its plugin folder,
+and compare your economy.yml with src/main/resources/economy.yml. Copy only the
+new settings you want; do not replace a tuned file wholesale. In particular,
+missing livestock, livestock-adoption, livestock-runtime, livestock-slaughter
+and livestock-market sections opt out of their respective new features. Learning
+mappings and resale values also need the additions in LIVESTOCK_LEARNING.md.
+The bakery recipe, business ingredient prices and storage weights are documented
+in BAKERY_SUPPLY_CHAIN.md. Its business ingredients must not be added to the
+public village starting-goods/price catalogue merely to enable bakeries.
+
+- Stay near a recognized, funded village with available adults and eligible
+  natural cows/chickens. Adoption requires repeated clear observations. Named,
+  leashed, player-bred, recorded player-owned and uncertain penned animals are
+  protected. [Civ Protect] is protection, not donation; bulk donation is unfinished.
+- Look at /civ debug observation and /civ debug businesses <ID> before expecting
+  a visible change. Food, qualifications, space or money can prevent startup.
+- Confirm saved herds consume real delivered feed and earn milk/eggs. Use
+  /civ market near an eligible stocked livestock business for actual products;
+  bring your own empty bucket for milk. See LIVESTOCK_MARKET.md.
+- Configured bakeries can buy delivered grain/milk/eggs and make saved meals;
+  these are abstract food units, not cakes appearing in chests. Bread is fallback.
+- With enabled slaughter, only eligible loaded surplus adults can be deliberately
+  killed. Breeding reserves remain. No duplicate ground loot accompanies business
+  food. Ordinary player kills retain vanilla drops without duplicate business food.
+  An unloaded or missing animal is never sufficient proof of death.
+- Stop and restart normally. Verify ownership, food, money and histories persist;
+  downtime/absent worlds do not progress. Report pending permits or failure messages
+  instead of deleting database rows or spawning replacement bodies.
+
+These are playtest observations, not instructions to modify a production world.
+The development agent has not installed this batch into your personal server.
 
 Useful feedback: what you expected, what happened, the command/offer wording, and
 whether it repeated after a normal restart. In particular check inventory counts,

@@ -69,5 +69,5 @@ Schema stays 89; this uses the existing transactional stock/operation tables.
 
 Physical cake inventories, visible construction and regional deliveries are not
 part of this batch. Existing feed/food limits can still cause shortages; optional
-recipes do not guarantee bakery profitability. Controlled slaughter and bulk pen
-donation remain separate livestock work. Validate server balance through play.
+recipes do not guarantee bakery profitability. Controlled slaughter is now verified separately in LIVESTOCK_SLAUGHTER.md
+(schema90); bulk pen donation remains unfinished. Validate server balance through play.

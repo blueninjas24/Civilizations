@@ -1,5 +1,39 @@
 # Civilizations — implementation status and handoff
 
+## October 17, 17:53 — dedicated producers no longer block local trade
+
+Fixed warehouse/demand classification that rejected registered fisheries,
+quarries and sandpits as unknown industries. Saved fishery food and matching
+finite-deposit yields can now supply actual funded customers. Existing earned
+stock stays tradable; the fix creates no resource, customer, capital or automatic
+quarry. Unknown/unregistered businesses still defer for review. Configurable tool
+needs are retained, and exhausted quarries/sandpits use the same no-replacement
+check as exhausted mines. Immediate extraction trust gaps suppress new tool
+pressure without deleting already-earned goods.
+
+Changed WarehouseSupplies, LocalIndustryDemand and BusinessTools; added eight
+DedicatedProducerChainTest cases for actual fishery/finite extraction, real paid
+warehouse orders, delayed delivery, exact replay, registration guards and positive
+then depleted quarry tool demand. Updated TONIGHT_PLAYTEST.md and milk/egg/bakery
+guides so preserved old configs and unfinished bulk pen donation are explicit.
+Schema remains90; no migration, world edits or human-server deployment this batch.
+
+Windows Wrapper affected verify passed58 unit +2 packaged integration tests (60),
+zero failures/errors/skips,33.897 seconds. Initial restricted run hit a Windows
+sandbox denial moving the packaged backup test's temporary file; the ordinary
+permission-enabled rerun passed without skipping tests or changing backup code.
+Final command: `.\mvnw.cmd -B -ntp "-Dtest=DedicatedProducerChainTest,WarehouseSuppliesTest,LocalIndustryDemandTest,BusinessToolsTest,QuarryRuntimeTest" verify`.
+No new Paper API behavior was introduced; preceding actual Paper slaughter and
+bakery proofs remain the native checkpoints. Full Linux CI for preceding c4ddeec
+passed; its Windows job was still running at this checkpoint. Feature backup and
+fresh hosted full verification follow. No unrun hosted result is claimed.
+
+Checklist credit stays33/39 resources, about69.5% partial P3,1/4 whole groups:
+this repairs connected behavior rather than adding an uncompleted industry.
+Next scoped industry work: actual trusted stone/sand surveys and qualified funded
+quarry/sandpit startup, then broader forestry/craft and specialization acceptance.
+No new gameplay answer is needed for this fix. Main remains unchanged.
+
 ## October 17, 17:40 — controlled livestock slaughter verified
 
 Village livestock businesses can now turn eligible surplus adults into saved food

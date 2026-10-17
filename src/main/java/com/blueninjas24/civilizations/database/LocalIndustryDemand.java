@@ -75,6 +75,8 @@ public final class LocalIndustryDemand {
                     else if(kind.equals("farming")&&FarmMarketStore.supported(connection,id,new IndustryRepository(connection).store(id).orElseThrow()))continue;
                     else if(kind.equals("mining")&&policy.tools().applies(kind))workshops.add(id);
                     else if(kind.equals("livestock")&&new LivestockRepository(connection).load(id).isPresent())workshops.add(id);
+                    else if(kind.equals("fishing")&&registeredFishery(id))workshops.add(id);
+                    else if(Set.of("quarry","sandpit").contains(kind)&&registeredExtraction(id,kind))workshops.add(id);
                     else if(policy.recipes().values().stream().anyMatch(recipe->recipe.industry().equals(kind)))workshops.add(id);
                     else return deferred("Unsupported stored industry requires explicit demand review");
                 }
@@ -127,13 +129,14 @@ public final class LocalIndustryDemand {
                     if(gap>0){gaps.put(herd.feed(),gap);total.merge(herd.feed(),gap,Math::addExact);}}
                 customers.add(new Customer(id,0,needs,gaps,cost,"Actual staffed herd feed; real cash, held/incoming stock, radius, capture and storage limits"));continue;
             }
-            long toolNeed=founding.business().industry().equals("mining")&&!mutationHealthy.getAsBoolean()?0
+            boolean extraction=Set.of("mining","quarry","sandpit").contains(founding.business().industry());
+            long toolNeed=extraction&&!mutationHealthy.getAsBoolean()?0
                     :new BusinessTools(connection,policy).missingFunded(id,founding.business().industry(),workers,store,pending);
             long toolCost=toolNeed*policy.tools().toolValueHundredths();
             var recipe=BakeryRecipeChoice.supply(connection,id,policy,operations,store.hundredths()-toolCost);
             var planned=recipe.isPresent()?WorkshopInputDemand.review(recipe.orElseThrow(),workers,store.hundredths()-toolCost,
                     store.freeSpace()-toolNeed*store.spacePerUnit().getOrDefault(ToolUpkeepPolicy.TOOLS,0L),store.units(),pending,store.spacePerUnit(),policy.purchasingSupply())
-                    :new WorkshopInputDemand.Review(0,Map.of(),0,"Actual mining maintenance need only; no speculative raw input demand");
+                    :new WorkshopInputDemand.Review(0,Map.of(),0,"Actual productive-work maintenance need only; no speculative raw input demand");
             var missing=new TreeMap<>(planned.missing());if(toolNeed>0)missing.merge(ToolUpkeepPolicy.TOOLS,toolNeed,Math::addExact);
             var uncovered=new TreeMap<Commodity,Long>();
             for(var e:missing.entrySet()) {
@@ -168,6 +171,17 @@ public final class LocalIndustryDemand {
             if(index<0){if(customers.size()>=businessLimit+warehouses.size())return deferred("Combined storage/input customer budget exceeded");customers.add(updated);}else customers.set(index,updated);
         }
         return new Review(true,customers,total,"Fundable workshop inputs and bounded storage fittings after owned/pending goods, shared available warehouse stock and planned spending; planning only, not orders; actual public farm tools "+farmNeed.units());
+    }
+    private boolean registeredFishery(UUID business)throws SQLException {
+        try(var s=connection.prepareStatement("SELECT 1 FROM businesses b JOIN fishery_resources f ON f.site_id=b.site_id WHERE b.id=? AND b.industry='fishing'")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()){return r.next();}
+        }
+    }
+    private boolean registeredExtraction(UUID business,String industry)throws SQLException {
+        String mineral=industry.equals("quarry")?"stone":"sand";
+        try(var s=connection.prepareStatement("SELECT 1 FROM businesses b JOIN mineral_deposits d ON d.site_id=b.site_id JOIN mineral_discovery m ON m.deposit_id=d.id WHERE b.id=? AND b.industry=? AND m.mineral=? LIMIT 1")) {
+            s.setString(1,business.toString());s.setString(2,industry);s.setString(3,mineral);try(var r=s.executeQuery()){return r.next();}
+        }
     }
     private Review deferred(String reason){return new Review(false,List.of(),Map.of(),reason);}
 }

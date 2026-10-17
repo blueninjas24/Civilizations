@@ -71,6 +71,12 @@ final class WarehouseSupplies {
                 var herd=new LivestockRepository(connection).load(id).orElseThrow();
                 allowed.add(new Commodity(herd.species()==LivestockHerd.Species.COW?"milk":"eggs"));
                 allowed.add(Commodity.FOOD); // Confirmed deliberate slaughter; feed remains unavailable for resale.
+            }else if(b.industry().equals("fishing")&&registeredFishery(b.siteId())) {
+                allowed.add(Commodity.FOOD);
+            }else if(Set.of("quarry","sandpit").contains(b.industry())&&registeredExtraction(b.siteId(),b.industry())) {
+                try(var s=connection.prepareStatement("SELECT y.commodity FROM mineral_yields y JOIN mineral_deposits d ON d.id=y.deposit_id JOIN mineral_discovery m ON m.deposit_id=d.id WHERE d.site_id=? AND m.mineral=?")) {
+                    s.setString(1,b.siteId().toString());s.setString(2,b.industry().equals("quarry")?"stone":"sand");try(var r=s.executeQuery()){while(r.next())allowed.add(new Commodity(r.getString(1)));}
+                }
             }else policy.recipes().values().stream().filter(r->r.industry().equals(b.industry())).forEach(r->allowed.addAll(r.outputs().keySet()));
             var stock=new TreeMap<Commodity,Long>();industry.store(id).orElseThrow().units().forEach((good,units)->{if(allowed.contains(good))stock.put(good,units);});
             var store=industry.store(id).orElseThrow();
@@ -124,10 +130,24 @@ final class WarehouseSupplies {
                 var id=UUID.fromString(r.getString(1));
                 boolean farm=kind.equals("farming")&&FarmMarketStore.supported(connection,id,new IndustryRepository(connection).store(id).orElseThrow());
                 boolean herd=kind.equals("livestock")&&new LivestockRepository(connection).load(id).isPresent();
-                if(!kind.equals("mining")&&!farm&&!herd&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
+                var business=new BusinessRepository(connection).findBusiness(id).orElseThrow();
+                boolean fishery=kind.equals("fishing")&&registeredFishery(business.siteId());
+                boolean extraction=Set.of("quarry","sandpit").contains(kind)&&registeredExtraction(business.siteId(),kind);
+                if(!kind.equals("mining")&&!farm&&!herd&&!fishery&&!extraction&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
                 result.add(id);
             }}
         }
         return result;
+    }
+    private boolean registeredFishery(UUID site)throws SQLException {
+        try(var s=connection.prepareStatement("SELECT 1 FROM fishery_resources f JOIN business_sites b ON b.id=f.site_id WHERE f.site_id=? AND b.id=?")) {
+            s.setString(1,site.toString());s.setString(2,site.toString());try(var r=s.executeQuery()){return r.next();}
+        }
+    }
+    private boolean registeredExtraction(UUID site,String industry)throws SQLException {
+        String mineral=industry.equals("quarry")?"stone":"sand";
+        try(var s=connection.prepareStatement("SELECT 1 FROM mineral_deposits d JOIN mineral_discovery m ON m.deposit_id=d.id WHERE d.site_id=? AND m.mineral=? LIMIT 1")) {
+            s.setString(1,site.toString());s.setString(2,mineral);try(var r=s.executeQuery()){return r.next();}
+        }
     }
 }
