@@ -1,5 +1,19 @@
 # Development and recovery procedures
 
+## October17 — user-approved focused validation workflow
+
+The user requested fewer repeated exhaustive checks and larger feature batches.
+During development, run affected tests after meaningful changes or failures; do
+not rerun every suite after individual helpers, ordinary edits or documentation.
+At a cohesive feature checkpoint, package/verify with the affected tests and one
+relevant Paper smoke check for Minecraft-facing behavior. Run full clean verify
+for phase gates, schema changes, broad regression concerns or larger integrated
+checkpoints; full hosted Windows/Linux CI remains enabled on feature pushes.
+Never claim a focused run is the complete suite, weaken data-integrity checks,
+or ship known failures. Keep normal test isolation and save/ownership safeguards.
+Avoid separate feature branches/CI cycles for every internal substep. Continue
+related implementation after focused checks; document actual scope/results.
+
 ## October 11, 2026: opportunity-backed first mining founder training verified
 
 When current observed ore, real funded workshop demand, a staffed warehouse buyer

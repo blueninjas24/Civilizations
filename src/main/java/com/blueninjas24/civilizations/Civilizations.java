@@ -45,6 +45,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.FoodBarterTransfers barters;
     private com.blueninjas24.civilizations.paper.LivestockSaleTransfers livestockSales;
     private com.blueninjas24.civilizations.paper.LivestockMarketMenu livestockMarket;
+    private com.blueninjas24.civilizations.paper.PaperPenControls pens;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
     private com.blueninjas24.civilizations.paper.PaperFisheryStartup fisheryStartup;
@@ -58,6 +59,7 @@ public final class Civilizations extends JavaPlugin {
             var settings = PopulationConfiguration.read(config);
             var observerSettings = PopulationConfiguration.readObserver(config);
             var projectionSettings = PopulationConfiguration.readProjection(config);
+            var penSettings=com.blueninjas24.civilizations.paper.PenProtectionSettings.read(config);
             var economyFile = new File(getDataFolder(), "economy.yml");
             if (!economyFile.exists()) saveResource("economy.yml", false);
             var economyConfig = new YamlConfiguration(); economyConfig.load(economyFile);
@@ -130,8 +132,10 @@ public final class Civilizations extends JavaPlugin {
             livestockSales.runTaskTimer(this,20,5);livestockMarket.runTaskTimer(this,1,1);
             getServer().getPluginManager().registerEvents(livestockMarket,this);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingLivestockItems(),this);
+            pens=new com.blueninjas24.civilizations.paper.PaperPenControls(population,penSettings,getLogger());
+            pens.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(pens,this);
             var router=new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
-                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining,barterCommand,livestockMarket);
+                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining,barterCommand,livestockMarket,pens);
             command.setExecutor(router);command.setTabCompleter(router);bargaining.runTaskTimer(this,1,1);
             // Poll completed transfer stages promptly; each adapter still caps work at four players.
             // Five-second polling multiplied the wait across save/ledger stages during playtesting.
@@ -213,6 +217,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(pens!=null){pens.cancel();pens.close();}
         if(livestockMarket!=null)livestockMarket.close();
         if(livestockSales!=null)livestockSales.close();
         if(fisheryWorkplaces!=null)fisheryWorkplaces.cancel();

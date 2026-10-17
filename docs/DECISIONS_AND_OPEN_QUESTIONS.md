@@ -1,18 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October17 — business slaughter products: awaiting answer
+## October17 — business slaughter products: approved
 
-Proposed: when a village business deliberately slaughters its own animal, credit
+User confirmed: "Correct, no duplicate drops." When a village business deliberately slaughters its own animal, credit
 the configured products to that business once and suppress extra ground drops
 for that specific intentional slaughter. Ordinary player/mob kills retain normal
 drops, reduce the herd and receive no duplicate business products. Physical
 retirement/capture must still make retries and unloaded bodies safe. Existing
 breeding reserves, real work and storage constraints remain.
 
-Asked because the approved managed-slaughter direction does not yet settle this
-physical-drop/accounting rule. No approval assumed and no slaughter API enabled.
-Newborn projection and initial-age reconciliation are now verified. Other
-independent work, including pen protection, continues while this answer is pending.
+This settles the physical-drop/accounting rule; no slaughter API is enabled yet.
+Newborn projection, initial-age reconciliation and saved pen area lifecycle are
+verified. Implement physical retirement and once-only product accounting before
+enabling managed slaughter. No further answer is needed for this rule.
 
 ## October16 — livestock working radius: approved
 

@@ -1,5 +1,37 @@
 # Phase 3 — businesses and industry checklist
 
+## October17 — usable pen protection controls verified
+
+Admins can now right-click a [Civ Protect] sign inside a supported flat enclosure,
+review its area/animal count and private boundary outline, then explicitly confirm.
+The plugin recaptures evidence and saves real animal owners. /civ pen here finds
+saved IDs; owner/admin release also requires confirmation and retains each animal's
+ownership/history. Sign placement alone claims nothing; existing owners cannot
+be overwritten. Limits are editable in config.yml. No donation or automatic herd
+founding/feed/output enabled yet. No migration; schema88 retained.
+
+Following the user's faster-development instruction, final scoped Wrapper verify
+passed67 affected unit plus2 packaged integration tests (69 total), zero failures/
+errors/skips;26.961s, finished2026-10-17T11:44:00-04:00. No new full-suite run is
+claimed; the prior checkpoint passed1,788. Guarded Paper26.2 build129 passed
+11:44:59 EDT with a real sign/pen/cow and synthetic player: explicit confirmation,
+owner/controller restart, lookup and release retain ownership/history. Temporary
+blocks restored/test cow removed. All149 main tables retained/145 exact, ordinary
+clock/runtime/capture/ore metadata only, no aging; integrity/FKs clean. Fixture
+stopped/settings restored/helper archived/backups kept. Human server untouched.
+
+New files: PaperPenControls, PaperPenCapture, PenProtectionSettings, eight focused
+control/config tests, excluded PenControlsProbe and PEN_CONTROLS.md. Plugin/router,
+config/permissions and owner handoffs updated. No-duplicate slaughter drops now
+explicitly approved and recorded; no question remains for that rule. Full-suite
+CI follows feature backup. Local checks stay focused between larger checkpoints.
+
+P3 remains about68% partial (30/39 resource entries,1/4 complete groups). This
+finishes an interaction prerequisite within the incomplete livestock milestone;
+no percentage credit for unimplemented adoption/feed/slaughter. Next: automatic
+livestock loop and bakery ingredients. See PEN_CONTROLS.md for actual commands,
+authority and limitations; broader templates/construction remain Phase4.
+
 ## October17 — pen area release and retained animal ownership verified
 
 Pen protection now separates an active area from its permanent history. An

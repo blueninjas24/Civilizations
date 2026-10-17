@@ -1,4 +1,4 @@
-# Editable Phase 1 prototype settings, not balanced survival defaults.
+# Editable prototype settings, not balanced survival defaults.
 # A year lasts six real minutes. Existing saves reject changes to the seed,
 # calendar cadence and population/migration rules; no silent replay transition.
 population:
@@ -42,3 +42,14 @@ projection:
   maximum-at-night: 8
   chunks-per-tick: 2
   residents-per-tick: 16
+# Explicit protection only; does not enable livestock adoption or building claims.
+# Unknown existing pens require civilizations.pen.admin (operators by default).
+pen-protection:
+  enabled: true
+  radius: 32
+  maximum-area: 1024
+  chunks-per-tick: 2
+  cells-per-tick: 64
+  maximum-animals: 128
+  maximum-requests: 8
+  preview-seconds: 60

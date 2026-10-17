@@ -939,6 +939,19 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Optional<com.blueninjas24.civilizations.industry.PenProtection>> protectedPen(UUID pen) {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.PenProtectionRepository(database.getConnection()).load(pen);});
     }
+    public CompletableFuture<java.util.List<UUID>> protectedPensAt(UUID world,int y,int x,int z) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.PenProtectionRepository(database.getConnection()).atAll(world,y,x,z);});
+    }
+    /** Actual loaded-world name captured by the trusted Paper adapter; unknown worlds need no town. */
+    public CompletableFuture<com.blueninjas24.civilizations.industry.PenProtection> protectPen(
+            com.blueninjas24.civilizations.industry.PenProtection pen,boolean authorized,String worldName) {
+        java.util.Objects.requireNonNull(pen);java.util.Objects.requireNonNull(worldName);
+        return submit(()->{requireReady();
+            if(!authorized)throw new com.blueninjas24.civilizations.database.PenProtectionLifecycle.Declined("Pen protection requires certified authority");
+            database.getVillageIdentityRepository().observeWorld(pen.world(),worldName);
+            return new com.blueninjas24.civilizations.database.PenProtectionRepository(database.getConnection()).save(pen,true);
+        });
+    }
     public CompletableFuture<com.blueninjas24.civilizations.database.PenProtectionLifecycle.Release> releasePen(
             com.blueninjas24.civilizations.database.PenProtectionLifecycle.Release request,boolean admin) {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.PenProtectionLifecycle(database.getConnection()).release(request,admin);});
