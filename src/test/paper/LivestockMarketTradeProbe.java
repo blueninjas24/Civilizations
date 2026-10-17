@@ -43,7 +43,7 @@ public final class LivestockMarketTradeProbe extends JavaPlugin {
         work=CompletableFuture.runAsync(this::seed);
         new BukkitRunnable(){public void run(){try {
             check(++ticks<=800,"Native market timeout at stage "+stage);step();
-            if(stage==99){getLogger().info("LIVESTOCK_MARKET_TRADE_PROBE_PASSED real Paper item/PDC/player saves and SQL owner, menu double-click, failed preparation/exchange saves, selective synthetic death/respawn, milk bucket/egg conservation, native reload and owner/controller restart; not a real client death/crash or automatic herd test");cancel();getServer().shutdown();}
+            if(stage==99){getLogger().info("LIVESTOCK_MARKET_TRADE_PROBE_PASSED real Paper item/PDC/player saves and SQL owner, menu double-click, failed preparation/exchange saves, selective synthetic death/respawn, milk bucket/egg conservation, native reload, owner/controller restart and stable logical newborn identities/maturity; not a real client death/crash, physical offspring or automatic herd test");cancel();getServer().shutdown();}
         }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"LIVESTOCK_MARKET_TRADE_PROBE_FAILED stage="+stage,failure);cancel();getServer().shutdown();}}}.runTaskTimer(this,10,1);
     }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"LIVESTOCK_MARKET_TRADE_PROBE_FAILED",failure);if(authorized)getServer().shutdown();}}
     private boolean ready(){if(!work.isDone())return false;work.join();return true;}
@@ -152,6 +152,11 @@ public final class LivestockMarketTradeProbe extends JavaPlugin {
         var db=new DatabaseManager(data.toFile(),getLogger());try {
             db.initialize();check(db.getIndustryRepository().store(dairy).orElseThrow().hundredths()==1600,"Milk seller credited once");check(db.getIndustryRepository().store(chickens).orElseThrow().hundredths()==800,"Egg seller credited once");
             check(db.getIndustryRepository().store(dairy).orElseThrow().units().get(new Commodity("milk"))==1,"One milk stock debit");check(db.getIndustryRepository().store(chickens).orElseThrow().units().get(new Commodity("eggs"))==1,"Four egg stock debit");
+            var births=new LivestockBirths(db.getConnection());
+            for(var business:List.of(dairy,chickens)) {
+                check(births.page(business,0,-1,256).equals(LivestockBirth.batch(business,1,1,12)),"Stable newborn identities/maturity retained through native owner restart");
+                check(births.unmappedBirths(business)==0,"All new simulated births have identity records; not physical spawn proof");
+            }
             try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*),SUM(CASE WHEN status='COMPLETED' THEN 1 ELSE 0 END) FROM livestock_product_sales")){check(r.next()&&r.getInt(1)==2&&r.getInt(2)==2,"Exactly two completed saved orders");}
             try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA integrity_check")){check(r.next()&&r.getString(1).equals("ok"),"Native fixture SQLite integrity");}
             try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){check(!r.next(),"Native fixture foreign keys");}

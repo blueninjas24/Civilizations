@@ -171,6 +171,7 @@ public final class LivestockRepository {
             save(business,operation,terms,plan,store,herd.feed(),herd.species(),work,
                     availability.explanation()+"; qualified workers="+workers+"; work="+work+"; feed="+store.units().get(herd.feed())+
                     "; output space="+store.freeSpace()+"; births="+plan.births()+"; product="+plan.renewableUnits());
+            new LivestockBirths(connection).recordRows(business,expectedPeriod,Math.toIntExact(plan.births()),policy.maturityPeriods());
             new LivestockLosses(connection).applyRows(business,expectedPeriod);return plan;
         });
     }

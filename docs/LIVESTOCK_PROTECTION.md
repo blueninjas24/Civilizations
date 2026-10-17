@@ -1,5 +1,14 @@
 # Livestock protection and work foundation
 
+## October 16 — permanent logical newborn records verified
+
+New actual simulated births now save stable identities/maturity within their
+production transaction. Schema 85 adds an empty registry without changing old
+rows or guessing physical animals for old anonymous cohorts. All 1,694 Wrapper
+tests and the native market/record restart regression passed; details in status.
+No physical offspring are spawned yet. Claims, individual offspring losses,
+reconciliation and live adoption/feed/output remain. See LIVESTOCK_BIRTH_IDENTITIES.md.
+
 ## October16 — recoverable player retail and selective pending-item retention verified
 
 /civ market, SQL-owner acceptance/site recheck and durable once-only purchase

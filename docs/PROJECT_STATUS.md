@@ -1,5 +1,49 @@
 # Civilizations — implementation status and handoff
 
+## October 16 — permanent newborn identities verified
+
+Each new simulated birth now receives a deterministic permanent identity in the
+same SQL transaction as its real feed/work costs, products and herd checkpoint.
+Business ID, birth period and sibling ordinal establish identity; saved maturity
+stays fixed through retuning and restart. Bounded chronological pages prepare the
+physical adapter. No Paper animal, ownership, new birth or free goods are created
+by recording these already calculated outcomes.
+
+Additive schema 85 creates an initially empty livestock_births table. Older
+anonymous births, headcounts, goods and histories stay intact and are reported as
+unmapped. Coverage is a count diagnostic, not physical-presence certification;
+validated identities and real reconciliation are still required before activation.
+No automatic historical backfill, missing-animal replacement or data reset.
+
+Added 13 domain/temporary-SQLite cases for stable IDs, sibling paging, bounds,
+rollback/retry, restart/replay/retuning, legacy coverage and migration/corruption.
+Focused 102 checks passed, then 77 affected migration/newborn checks passed.
+The first full run exposed seven old comparisons in five fixture lists missing
+only the new empty table. Verified every old value identical, extended explicit
+empty-table assertions and retained every prior-row comparison. Final Windows
+.\mvnw.cmd clean verify -B -ntp passed 1,694 tests (1,692 unit/two packaged
+integration), zero failures/errors/skips; 10:43, finished 2026-10-16T22:40:40-04:00.
+Source/test Java stayed frozen throughout that final run.
+
+Guarded Paper 26.2 build 129 regression passed at 22:41:56: actual market/player
+saves, bucket/egg separation, selective synthetic death/respawn, once-only seller
+credit and owner/controller restart remain correct. Separate fixture herds retain
+exact stable newborn IDs/maturity and zero unmapped births after restart. This is
+not physical offspring, actual client death/crash or automatic adoption proof.
+Main disposable save upgraded 84->85: all 142 predecessor tables preserved, 138
+exact; only ordinary clock/runtime/capture/ore metadata changed, no aging. The new
+main registry is empty; integrity/FKs clean. Fixture stopped, original settings
+restored, helper archived, backups/synthetic saves retained. Human server untouched.
+
+Previous market commit cbafaac passed both hosted Windows/Linux builds:
+https://github.com/blueninjas24/Civilizations/actions/runs/38994123234 . Current
+batch hosted verification follows its feature-branch backup. P3 remains about
+68% partial (30/39 resources, 1/4 whole groups). Changed groups: domain birth IDs,
+SQL registry/production transaction, schema migration, migration fixtures/tests,
+native regression and project records. Next: physical claims and confirmed
+individual offspring losses, then safe live adoption/feed/output and real bakery
+customers. No new decision is required. See LIVESTOCK_BIRTH_IDENTITIES.md.
+
 ## October16 — recoverable milk/egg player market verified
 
 Connected /civ market to nearby eligible recorded herd stock. A protected 54-slot

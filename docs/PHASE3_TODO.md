@@ -1,5 +1,19 @@
 # Phase 3 — businesses and industry checklist
 
+## October 16 — newborn identities are saved safely
+
+Simulated newborn animals now get permanent identities and saved growing-up dates.
+Restarting or changing settings cannot reroll those records. Older anonymous
+records stay intact and are flagged for reconciliation. This prepares physical
+newborns; it does not spawn them yet.
+
+All 1,694 full-build tests and the isolated Paper save/restart regression passed.
+The test-save upgrade retained existing records; your server is untouched. The
+previous player-market commit also passed GitHub checks on Windows and Linux.
+P3 remains about 68% partial. Next: connecting identities to physical animals and
+recording their individual deaths, before automatic herds/feed/output. No answer
+needed.
+
 ## October16 — milk/egg player market verified
 
 Players can now open /civ market to buy recorded milk/eggs from an eligible stocked
@@ -52,7 +66,8 @@ untouched; test saves preserved. P3 remains~68% partial (`██████▊�
 - [x] Saved milk/egg sale ledger and bucket receipt terms (menu unfinished).
 - [x] Configurable nearby market quotes, owner handoff and verified inventory exchange plans (purchase controller/menu next).
 - [ ] Automatic safe animal adoption and business opening.
-- [ ] Physical newborn identity and herd reconciliation.
+- [x] Permanent logical newborn identities and saved maturity dates.
+- [ ] Physical newborn claims, individual losses and herd reconciliation.
 - [ ] Scheduled feed purchases and production.
 - [x] Recoverable stock-backed milk/egg player trading and selective pending-goods retention.
 - [ ] Connected bakery ingredient customers and live herd supply.

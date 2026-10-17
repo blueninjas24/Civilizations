@@ -59,7 +59,7 @@ class LivestockLossesTest {
     @Test void schema81UpgradeIsEmptyTransactionalAndRetainsAllExistingHerdAssets()throws Exception {
         SchemaFixtures.rewind(f.db.getConnection(),81);var before=snapshot();f.sql("CREATE VIEW livestock_animal_losses AS SELECT 1");
         assertThrows(java.sql.SQLException.class,()->new SchemaMigrator().migrate(f.db.getConnection()));try(var s=f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA user_version")){assertEquals(81,r.getInt(1));}
-        f.sql("DROP VIEW livestock_animal_losses");assertEquals(before,snapshot());new SchemaMigrator().migrate(f.db.getConnection());var after=snapshot();assertEquals(List.of(),after.remove("livestock_product_sales"));assertEquals(List.of(),after.remove("livestock_capture"));assertEquals(List.of(),after.remove("livestock_animal_losses"));assertEquals(before,after);
+        f.sql("DROP VIEW livestock_animal_losses");assertEquals(before,snapshot());new SchemaMigrator().migrate(f.db.getConnection());var after=snapshot();assertEquals(List.of(),after.remove("livestock_births"));assertEquals(List.of(),after.remove("livestock_product_sales"));assertEquals(List.of(),after.remove("livestock_capture"));assertEquals(List.of(),after.remove("livestock_animal_losses"));assertEquals(before,after);
         losses().record(observed(10));assertEquals(2,state().heads());try(var s=f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
 }
