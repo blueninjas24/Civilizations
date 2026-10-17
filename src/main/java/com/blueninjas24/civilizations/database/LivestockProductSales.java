@@ -48,29 +48,8 @@ public final class LivestockProductSales {
         return transaction(() -> {
             var old = find(terms.operation());
             if (old.isPresent()) return matching(terms);
-            if (!worlds.contains(terms.world())) throw new Declined("Supplier world is absent");
-            var businesses = new BusinessRepository(connection);
-            var founding = businesses.findFounding(terms.seller()).orElseThrow(() -> new Declined("Saved livestock supplier required"));
-            if (!founding.business().settlementId().equals(terms.settlement()) || !founding.site().worldId().equals(terms.world()))
-                throw new Declined("Supplier must belong to the requested village and world");
-            if (!new BusinessOperations(connection, operations).evaluate(terms.seller()).permitted())
-                throw new Declined("Operating livestock supplier required");
-            var herd = new LivestockRepository(connection).load(terms.seller()).orElseThrow(() -> new Declined("Saved herd required"));
-            var species = terms.product() == Product.MILK ? LivestockHerd.Species.COW : LivestockHerd.Species.CHICKEN;
-            if (herd.species() != species) throw new Declined("Product does not match the supplier herd");
-            var population = new PopulationRepository(connection); boolean staffed = false;
-            for (var job : businesses.currentWorkers(terms.seller())) {
-                var person = population.findResident(job.residentId()).orElseThrow();
-                if (person.settlementId().equals(terms.settlement()) && WorkEligibility.evaluate(person,
-                        population.findWorkProfile(person.id()).orElseThrow(), founding.workerRequirements()).eligible()) {
-                    staffed = true; break;
-                }
-            }
-            if (!staffed) throw new Declined("Qualified supplier staff required");
-            var store = new IndustryRepository(connection).store(terms.seller()).orElseThrow();
-            if (store.units().getOrDefault(terms.product().commodity(), 0L) < terms.count())
-                throw new Declined("Insufficient actual supplier product stock");
-            long period = herd.state().period(), space = store.spacePerUnit().get(terms.product().commodity());
+            var supplier = supplier(terms, worlds); var store = supplier.store();
+            long period = supplier.period(), space = store.spacePerUnit().get(terms.product().commodity());
             changeStock(terms, -terms.count());
             try (var s = connection.prepareStatement("INSERT INTO livestock_product_sales(operation_id,player_id,settlement_id,world_id,seller_id,product,commodity,item_count,emeralds,rate,space_per_unit,accepted_period,status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'RESERVED')")) {
                 s.setString(1, terms.operation().toString()); s.setString(2, terms.player().toString());
@@ -81,6 +60,33 @@ public final class LivestockProductSales {
             }
             return matching(terms);
         });
+    }
+    record Supplier(IndustryRepository.Store store, long period) {}
+    /** Shared read-only eligibility for quotes and the final reservation. */
+    Supplier supplier(Terms terms, Set<UUID> worlds) throws SQLException {
+        if (!worlds.contains(terms.world())) throw new Declined("Supplier world is absent");
+        var businesses = new BusinessRepository(connection);
+        var founding = businesses.findFounding(terms.seller()).orElseThrow(() -> new Declined("Saved livestock supplier required"));
+        if (!founding.business().settlementId().equals(terms.settlement()) || !founding.site().worldId().equals(terms.world()))
+            throw new Declined("Supplier must belong to the requested village and world");
+        if (!new BusinessOperations(connection, operations).evaluate(terms.seller()).permitted())
+            throw new Declined("Operating livestock supplier required");
+        var herd = new LivestockRepository(connection).load(terms.seller()).orElseThrow(() -> new Declined("Saved herd required"));
+        var species = terms.product() == Product.MILK ? LivestockHerd.Species.COW : LivestockHerd.Species.CHICKEN;
+        if (herd.species() != species) throw new Declined("Product does not match the supplier herd");
+        var population = new PopulationRepository(connection); boolean staffed = false;
+        for (var job : businesses.currentWorkers(terms.seller())) {
+            var person = population.findResident(job.residentId()).orElseThrow();
+            if (person.settlementId().equals(terms.settlement()) && WorkEligibility.evaluate(person,
+                    population.findWorkProfile(person.id()).orElseThrow(), founding.workerRequirements()).eligible()) {
+                staffed = true; break;
+            }
+        }
+        if (!staffed) throw new Declined("Qualified supplier staff required");
+        var store = new IndustryRepository(connection).store(terms.seller()).orElseThrow();
+        if (store.units().getOrDefault(terms.product().commodity(), 0L) < terms.count())
+            throw new Declined("Insufficient actual supplier product stock");
+        return new Supplier(store, herd.state().period());
     }
     /** Caller must prove the player's durable EXCHANGED receipt first. Never infers payment from intent. */
     public Receipt complete(Terms terms) throws SQLException { return finish(terms, Status.COMPLETED); }

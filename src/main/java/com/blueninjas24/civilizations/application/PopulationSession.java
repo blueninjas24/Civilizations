@@ -114,6 +114,7 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy warehouseOpportunityPolicy=com.blueninjas24.civilizations.industry.WarehouseOpportunityPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy warehouseFoundingPolicy=com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy workplaceOperationPolicy=com.blueninjas24.civilizations.industry.WorkplaceOperationPolicy.prototype();
+    private com.blueninjas24.civilizations.industry.LivestockMarketPolicy livestockMarketPolicy=com.blueninjas24.civilizations.industry.LivestockMarketPolicy.disabled();
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private com.blueninjas24.civilizations.industry.MineFoundingPolicy mineFoundingPolicy=com.blueninjas24.civilizations.industry.MineFoundingPolicy.disabled();
@@ -302,6 +303,10 @@ public final class PopulationSession implements AutoCloseable {
     public void configureBusinessPurchases(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy policy) {
         if(started.get())throw new IllegalStateException("Configure business purchases before session starts");
         purchasePolicy=java.util.Objects.requireNonNull(policy);
+    }
+    public void configureLivestockMarket(com.blueninjas24.civilizations.industry.LivestockMarketPolicy policy) {
+        if(started.get())throw new IllegalStateException("Configure livestock market before session starts");
+        livestockMarketPolicy=java.util.Objects.requireNonNull(policy);
     }
     public void configureBusinessOperations(com.blueninjas24.civilizations.industry.BusinessOperationPolicy policy) {
         if(started.get())throw new IllegalStateException("Configure business operation before session starts");
@@ -849,6 +854,25 @@ public final class PopulationSession implements AutoCloseable {
     }
     public CompletableFuture<Boolean> activateProjection(UUID person, UUID entity) {
         return projectionWork(() -> database.getResidentProjectionRepository().activate(person, entity));
+    }
+    private com.blueninjas24.civilizations.database.LivestockMarket livestockMarket() {
+        return new com.blueninjas24.civilizations.database.LivestockMarket(database.getConnection(),livestockMarketPolicy,operationPolicy);
+    }
+    public CompletableFuture<List<com.blueninjas24.civilizations.database.LivestockMarket.Offer>> livestockOffers(
+            UUID player,com.blueninjas24.civilizations.industry.LivestockMarketPolicy.Position position) {
+        return submit(()->{requireReady();return livestockMarket().offers(player,position,now.getAsLong(),loadedWorlds==null?java.util.Set.of():loadedWorlds);});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.LivestockProductSales.Receipt> reserveLivestockSale(
+            com.blueninjas24.civilizations.industry.LivestockProductSale.Terms terms,com.blueninjas24.civilizations.industry.LivestockMarketPolicy.Position position) {
+        return submit(()->{requireReady();return livestockMarket().reserve(terms,position,loadedWorlds==null?java.util.Set.of():loadedWorlds);});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.LivestockProductSales.Receipt> completeLivestockSale(
+            com.blueninjas24.civilizations.industry.LivestockProductSale.Terms terms) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.LivestockProductSales(database.getConnection(),operationPolicy).complete(terms);});
+    }
+    public CompletableFuture<Optional<com.blueninjas24.civilizations.database.LivestockProductSales.Receipt>> cancelLivestockSale(
+            com.blueninjas24.civilizations.industry.LivestockProductSale.Terms terms) {
+        return submit(()->{requireReady();return livestockMarket().cancel(terms);});
     }
     public CompletableFuture<String> reserveFoodPurchase(FoodPurchases.Terms terms, FoodPurchases.Policy policy, FoodAidPreview.Policy foods) {
         return reserveFoodPurchase(terms,policy,foods,FoodBargaining.Policy.disabled());

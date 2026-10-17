@@ -1,5 +1,13 @@
 # Civilizations progress tracker
 
+## October16 — market prices and inventory foundations verified
+
+Nearby real dairy/chicken stock can now be quoted with editable prices and exact
+payment terms. Inventory planning safely handles emeralds, your empty bucket,
+custom items and room for legal item stacks. All1,652 tests and the isolated Paper
+inventory check passed. The player purchase controller/menu is next; P3 stays~68%
+partial. You approved protecting only unfinished purchase goods through death.
+
 ## October16 — checking saved milk/egg trade receipts
 
 The plugin can now verify the new trade receipt in a saved player file while
@@ -33,6 +41,7 @@ untouched; test saves preserved. P3 remains~68% partial (`██████▊�
 - [x] Confirmed original-animal deaths and once-only accounting.
 - [x] Durable capture eligibility, pending-loss checks and shutdown recovery warning.
 - [x] Saved milk/egg sale ledger and bucket receipt terms (menu unfinished).
+- [x] Configurable nearby market quotes, owner handoff and verified inventory exchange plans (purchase controller/menu next).
 - [ ] Automatic safe animal adoption and business opening.
 - [ ] Physical newborn identity and herd reconciliation.
 - [ ] Scheduled feed purchases and production.

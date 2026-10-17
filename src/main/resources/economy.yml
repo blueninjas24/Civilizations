@@ -832,3 +832,18 @@ livestock:
     renewable-units-per-adult: 1 # egg units
     meat-units-per-animal: 2
     maximum-slaughter-per-period: 1
+
+# Initial local dairy/chicken sales from actual saved business stock. No free buckets.
+# One milk bucket per order; egg orders split into legal Minecraft stacks.
+# Prices are editable introductory quotes, not milk/egg bargaining yet. Real
+# seller income uses purchases.trade-value-per-emerald for the shared cash scale.
+# Missing section in installed files keeps this market disabled; add to opt in.
+livestock-market:
+  enabled: true
+  milk-emeralds: 2
+  eggs-per-order: 4
+  egg-order-emeralds: 1
+  horizontal-radius: 64
+  vertical-radius: 24
+  maximum-sellers: 32
+  offer-seconds: 30

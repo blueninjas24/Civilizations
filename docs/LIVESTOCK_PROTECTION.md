@@ -1,5 +1,29 @@
 # Livestock protection and work foundation
 
+## October16 — nearby retail quotes and guarded storage plans verified
+
+LivestockMarketPolicy exposes editable introductory milk/egg prices, egg order
+count, shared emerald cash conversion, local radius, candidate cap and quote
+lifetime. LivestockMarket queries actual saved same-world nearby staffed herds
+on the SQL owner, then revalidates current terms/location/stock for new reservations.
+Accepted reservations retain their exact terms for recovery; the future Paper
+controller must still recheck permissions/location before inventory mutation.
+Owner APIs do not read world/entity/inventory objects. Old installed settings
+without livestock-market remain disabled; no stock or money is created by quotes.
+
+LivestockInventory plans only main storage: real plain emeralds, one real plain
+bucket per milk bucket, and destination capacity. Egg orders split using actual
+server item limits. Existing custom items are opaque and retained. The Paper
+LivestockSaleInventory snapshot validates exact apply/restore and cannot overwrite
+new property after a stale preflight. No armor/offhand/chest/drop fallback.
+
+Full Wrapper1652 tests and guarded Paper inventory probe passed; details in status.
+No player menu/controller is wired, and no native player save/death flow is claimed.
+The approved next safeguard retains only exact unfinished purchase goods across
+death; ordinary inventory and confirmed purchases follow normal server death rules.
+Schema remains84. Live adoption, physical newborn reconciliation and feed/output
+remain unfinished; neither editable prices nor an inventory plan enables a herd.
+
 ## October16 — receipt proof key support
 
 SavedAidProof now explicitly allows PendingLivestockSale.KEY. Its parser and NBT

@@ -1,5 +1,48 @@
 # Civilizations — implementation status and handoff
 
+## October16 — configurable nearby market and inventory exchange foundation
+
+Implemented bounded SQL-owner dairy/chicken quotes from actual eligible staffed
+business stock in present worlds. Fresh reservation rechecks saved supplier,
+position, editable order/payment terms and stock. Accepted orders retain their
+exact terms for recovery after settings/availability changes. Unknown cancelled
+intent creates neither a receipt nor goods/cash. No Paper/JDBC crossing of threads.
+
+New economy.yml livestock-market section controls introductory milk/egg prices,
+egg order count, radius, candidate cap and offer lifetime. Cash conversion reuses
+purchases.trade-value-per-emerald. Defaults: one milk for2 emeralds,4 eggs for1;
+these are editable introductory quotes, not milk/egg bargaining. Missing section
+in installed files stays disabled. Startup wires these settings to the owner API;
+no player command/menu or purchase controller is exposed yet.
+
+Pure storage planning debits exact plain emeralds and one real bucket for milk,
+then merges/splits deliveries within actual item limits. Custom items stay intact;
+insufficient room refuses before mutation. Paper snapshots verify complete writes,
+restore exact contents after provider failures and never overwrite a changed
+inventory when no apply occurred. Armor/offhand/container inventories are untouched.
+Initial headless adapter tests encountered a Paper block-registry lookup through
+Material.isAir; removed that unnecessary lookup by comparing the three air constants.
+No existing application behavior was weakened for test convenience.
+
+Added22 tests, including a seeded3,000-inventory conservation sweep. Focused114
+initial and35 boundary/owner tests passed. Windows .\mvnw.cmd clean verify -B -ntp
+passed1,652 tests (1,650 unit/two packaged integration), zero failures/errors/skips;
+08:19, finished2026-10-16T19:58:48-04:00. Source/tests frozen during final verification.
+
+Guarded Paper26.2 build129 inventory probe passed21:44:00: real ItemStacks and
+virtual CraftInventory snapshots, native egg maximum16/milk1, metadata retention,
+full-space refusal, multi-stack eggs, stale protection and partial-provider restore.
+Not a live-player delivery/death/save test. No helper world/entity/player mutations.
+Fixture83->84 uses the previously implemented empty sale-ledger migration;141
+predecessor tables retained/137 exact, only clock/runtime/capture/ore metadata,
+age delta0; integrity/FKs clean. Fixture stopped, properties restored/helper archived,
+backups retained. Human server untouched. Schema stays84; no new migration here.
+
+P3 stays~68% partial (30/39 resources,1/4 whole groups). Next: actual purchase
+controller/menu and approved selective pending-goods death retention, then safe
+live adoption/feed/output. User approved the death rule while verification finished;
+no decision remains pending. No confirmed player trading or completed livestock gate.
+
 ## October16 — saved player proof for livestock receipts
 
 The existing bounded, read-only SavedAidProof parser now accepts only the new

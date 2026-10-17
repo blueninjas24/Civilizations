@@ -1,5 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October16 — unfinished purchases through player death: approved
+
+User chose “Keep only unfinished purchase items until confirmation”. Only goods
+from the unconfirmed purchase may stay with that player across death until the
+trade is confirmed. Their other items follow ordinary server death rules. Once
+confirmed, the special protection ends. This does not grant broad keep-inventory,
+invulnerability, free containers, refunds or protection for ordinary existing goods.
+The purchase controller must isolate the exact pending goods and preserve once-only
+payment/delivery recovery. Approval recorded; native player-death handling is next.
+No design question remains pending for this safeguard.
+
 ## October16: milk trade containers — approved
 
 User answered: “Yeah they need to bring a bucket.” Players supply an empty

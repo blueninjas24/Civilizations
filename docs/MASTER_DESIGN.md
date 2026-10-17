@@ -1,5 +1,10 @@
 # Civilizations — canonical master design
 
+October16 approved unfinished-purchase rule: retain only the exact pending
+purchase goods through player death until confirmation. Other inventory follows
+normal death rules; confirmed goods lose the temporary protection. No broad
+keep-inventory or invulnerability. This is approved intent; the adapter is next.
+
 October16 approved milk-container rule: players must bring an empty bucket for
 each milk bucket purchased. Fill only from recorded business milk stock under
 agreed payment terms; never include a free iron bucket. Eggs need no container.
