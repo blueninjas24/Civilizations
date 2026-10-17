@@ -29,6 +29,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.ManagedLivestockDeaths livestockDeaths;
     private com.blueninjas24.civilizations.paper.PaperLivestockPresence livestockPresence;
     private com.blueninjas24.civilizations.paper.PaperLivestockNewborns livestockNewborns;
+    private com.blueninjas24.civilizations.paper.PaperLivestockAdoption livestockAdoption;
     private PaperFarmObserver farms;
     private com.blueninjas24.civilizations.paper.PaperWaterObserver waters;
     private com.blueninjas24.civilizations.paper.PaperOreObserver ores;
@@ -83,6 +84,10 @@ public final class Civilizations extends JavaPlugin {
             population.configureLivestockMarket(EconomyConfiguration.readLivestockMarket(economyConfig));
             population.configureLivestockWorkingArea(EconomyConfiguration.readLivestockWorkingArea(economyConfig));
             population.configureLivestockWork(EconomyConfiguration.readLivestock(economyConfig),EconomyConfiguration.readLivestockRuntime(economyConfig));
+            var adoptionPolicy=EconomyConfiguration.readLivestockAdoption(economyConfig);
+            population.configureLivestockAdoption(adoptionPolicy);
+            livestockAdoption=new com.blueninjas24.civilizations.paper.PaperLivestockAdoption(population,adoptionPolicy,getLogger());
+            getServer().getPluginManager().registerEvents(livestockAdoption,this);livestockAdoption.runTaskTimer(this,1,1);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.ManagedLivestockBreedingGuard(
                     population::villageAnimals,()->livestockPolicy.enabled()&&population.status().ready()),this);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.ManagedLivestockProducts(
@@ -104,6 +109,7 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + livestockDeaths.diagnostic()
                             + "; " + livestockPresence.diagnostic()
                             + "; " + livestockNewborns.diagnostic()
+                            + "; " + livestockAdoption.diagnostic()
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
                             + "; " + (fisheryStartup==null?"Fishery startup not started":fisheryStartup.diagnostic())
                             + "; " + (fisheryWorkplaces==null?"Fishery workplace checks not started":fisheryWorkplaces.diagnostic())
@@ -236,6 +242,7 @@ public final class Civilizations extends JavaPlugin {
         if (aid != null) aid.close();
         if (projector != null) projector.close();
         if (lifecycle != null) lifecycle.flush();
+        if(livestockAdoption!=null){livestockAdoption.cancel();livestockAdoption.close();}
         if(livestockNewborns!=null){livestockNewborns.cancel();livestockNewborns.close();}
         if(livestockPresence!=null){livestockPresence.cancel();livestockPresence.flush();}
         if(livestockDeaths!=null){livestockDeaths.cancel();livestockDeaths.flush();}

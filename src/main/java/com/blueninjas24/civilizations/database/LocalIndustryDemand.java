@@ -31,6 +31,13 @@ public final class LocalIndustryDemand {
     private FarmToolUpkeepPolicy farmUpkeep=FarmToolUpkeepPolicy.disabled();
     private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
     private UUID excludedStorageBuyer;
+    private LivestockPolicy livestock=LivestockPolicy.disabled();
+    private LivestockRuntimePolicy herdWork=LivestockRuntimePolicy.disabled();
+    private LivestockWorkingArea herdArea=LivestockWorkingArea.prototype();
+    private java.util.function.BooleanSupplier herdHealthy=()->false;
+    public LocalIndustryDemand withLivestock(LivestockPolicy p,LivestockRuntimePolicy work,LivestockWorkingArea area,java.util.function.BooleanSupplier healthy){
+        livestock=Objects.requireNonNull(p);herdWork=Objects.requireNonNull(work);herdArea=Objects.requireNonNull(area);herdHealthy=Objects.requireNonNull(healthy);return this;
+    }
     LocalIndustryDemand excludingStorageBuyer(UUID business){excludedStorageBuyer=Objects.requireNonNull(business);return this;}
     public LocalIndustryDemand withFarmTools(FarmToolUpkeepPolicy upkeep,FarmToolBudgetPolicy budget){farmUpkeep=Objects.requireNonNull(upkeep);farmBudget=Objects.requireNonNull(budget);return this;}
     public MiningReview reviewMining(UUID town,long now,long maximumAgeMillis,Set<UUID> worlds,int businessLimit)throws SQLException {
@@ -67,6 +74,7 @@ public final class LocalIndustryDemand {
                     if(kind.equals("warehouse"))warehouses.add(id);
                     else if(kind.equals("farming")&&FarmMarketStore.supported(connection,id,new IndustryRepository(connection).store(id).orElseThrow()))continue;
                     else if(kind.equals("mining")&&policy.tools().applies(kind))workshops.add(id);
+                    else if(kind.equals("livestock")&&new LivestockRepository(connection).load(id).isPresent())workshops.add(id);
                     else if(policy.recipes().values().stream().anyMatch(recipe->recipe.industry().equals(kind)))workshops.add(id);
                     else return deferred("Unsupported stored industry requires explicit demand review");
                 }
@@ -99,6 +107,26 @@ public final class LocalIndustryDemand {
             starter.forEach((good,units)->pending.merge(good,units,Math::addExact));
             if(incoming>128)return deferred("Pending cargo review budget exceeded; no partial shortage inferred");
             var store=industry.store(id).orElseThrow();
+            if(founding.business().industry().equals("livestock")&&new LivestockRepository(connection).load(id).isPresent()
+                    &&policy.recipes().values().stream().noneMatch(r->r.industry().equals("livestock"))) {
+                long missing=0,cost=0;
+                var herd=new LivestockRepository(connection).load(id).orElseThrow();
+                Long price=policy.purchasingSupply().unitHundredths().get(herd.feed());
+                if(livestock.enabled()&&herdWork.enabled()&&herdHealthy.getAsBoolean()&&price!=null&&price>0&&incoming<128
+                        &&store.spacePerUnit().containsKey(herd.feed())) {
+                    long work=Math.min(herdWork.siteWorkLimit(),Math.multiplyExact(workers,herdWork.workPerWorker()));
+                    long away=new LivestockPresence(connection).unavailableAdultsRows(id,herd.state().period()+1,herdArea);
+                    var forecast=LivestockHerd.plan(herd.state(),1_000_000,work,store.freeSpace(),0,livestock,herd.species(),true,away);
+                    long target=Math.multiplyExact(forecast.feedUsed(),policy.purchasingSupply().inputPeriods());
+                    long need=Math.max(0,target-store.units().getOrDefault(herd.feed(),0L)-pending.getOrDefault(herd.feed(),0L));
+                    missing=Math.min(need,Math.min(store.hundredths()/price,store.freeSpace()/store.spacePerUnit().get(herd.feed())));cost=missing*price;
+                }
+                var gaps=new TreeMap<Commodity,Long>();var needs=new TreeMap<Commodity,Long>();
+                if(missing>0){needs.put(herd.feed(),missing);long covered=Math.min(localStock.getOrDefault(herd.feed(),0L),missing);
+                    localStock.computeIfPresent(herd.feed(),(good,units)->units-covered);long gap=missing-covered;
+                    if(gap>0){gaps.put(herd.feed(),gap);total.merge(herd.feed(),gap,Math::addExact);}}
+                customers.add(new Customer(id,0,needs,gaps,cost,"Actual staffed herd feed; real cash, held/incoming stock, radius, capture and storage limits"));continue;
+            }
             long toolNeed=founding.business().industry().equals("mining")&&!mutationHealthy.getAsBoolean()?0
                     :new BusinessTools(connection,policy).missingFunded(id,founding.business().industry(),workers,store,pending);
             long toolCost=toolNeed*policy.tools().toolValueHundredths();

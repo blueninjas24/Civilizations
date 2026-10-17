@@ -54,7 +54,12 @@ public final class BusinessStartupGrants {
         Objects.requireNonNull(request);Objects.requireNonNull(species);Objects.requireNonNull(feed);Objects.requireNonNull(grants);
         var observed=Map.copyOf(animals);
         if(!request.founding().business().industry().equals("livestock"))throw new IllegalArgumentException("Dedicated livestock business required");
-        return transaction(()-> {
+        return transaction(()->startLivestockRows(request,species,feed,herdCapacity,observed,grants));
+    }
+    /** Ownership, grant, employees and initial herd share the caller's complete transaction. */
+    Livestock startLivestockRows(WorkshopRequest request,LivestockHerd.Species species,Commodity feed,
+            long herdCapacity,Map<UUID,Integer> observed,StartupGrantPolicy grants)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Livestock startup requires owner transaction");
             var id=request.founding().business().id();var herds=new LivestockRepository(connection);
             // A previously separate/partial legacy setup is not evidence of this atomic opening.
             if(find(id).isPresent()!=herds.load(id).isPresent())throw new Declined("Existing grant/herd needs an explicit transition; no startup retrofit");
@@ -63,7 +68,6 @@ public final class BusinessStartupGrants {
             var started=startStockedRows(request,grants,"livestock");
             var herd=herds.openRows(id,species,feed,herdCapacity,observed);
             return new Livestock(started,herd);
-        });
     }
     /** Trusted caller must revalidate actual water, shoreline and demand; paid firm and habitat commit together. */
     public Fishery startFishery(WorkshopRequest request,FisheryObservation habitat,FishingPolicy fishing,StartupGrantPolicy grants)throws SQLException {

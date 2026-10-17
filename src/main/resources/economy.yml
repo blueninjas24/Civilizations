@@ -836,6 +836,24 @@ livestock:
 # Existing qualified, saved herds use the shared industry clock and paid deliveries.
 # Missing this section in an installed file leaves automatic herd work disabled.
 # Feed prices/coverage come from workshop-supply; no free feed or new money.
+livestock-adoption:
+  enabled: true # Missing section in installed files opts out. Stop server before editing.
+  village-radius: 64
+  clear-radius: 8 # Local fence/gate/wall check, NOT a guarantee about distant pastures.
+  # Use [Civ Protect] for a guaranteed saved claim over supported large pens.
+  minimum-adults: 2
+  maximum-animals: 8
+  observation-millis: 30000 # Repeated complete clear observations, not a single sighting.
+  interval-ticks: 100
+  chunks-per-tick: 1
+  cells-per-tick: 512
+  startup-hundredths: 500
+  capital-hundredths: 2000 # Real protected village grant; no free feed or goods.
+  herd-capacity: 16
+  founder-farming: 1 # Earned farming experience; ownership does not require a second job.
+  worker-farming: 0 # Basic adult care; one worker job per resident.
+  maximum-per-species: 1
+
 livestock-runtime:
   enabled: true
   work-per-worker: 10

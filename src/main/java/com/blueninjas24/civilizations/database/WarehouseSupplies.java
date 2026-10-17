@@ -22,6 +22,9 @@ final class WarehouseSupplies {
     }
     private FarmToolUpkeepPolicy farmUpkeep=FarmToolUpkeepPolicy.disabled();
     private FarmToolBudgetPolicy farmBudget=FarmToolBudgetPolicy.disabled();
+    private LivestockPolicy livestock=LivestockPolicy.disabled();private LivestockRuntimePolicy herdWork=LivestockRuntimePolicy.disabled();
+    private LivestockWorkingArea herdArea=LivestockWorkingArea.prototype();private java.util.function.BooleanSupplier herdHealthy=()->false;
+    WarehouseSupplies withLivestock(LivestockPolicy p,LivestockRuntimePolicy work,LivestockWorkingArea area,java.util.function.BooleanSupplier healthy){livestock=p;herdWork=work;herdArea=area;herdHealthy=healthy;return this;}
     WarehouseSupplies withFarmTools(FarmToolUpkeepPolicy upkeep,FarmToolBudgetPolicy budget){farmUpkeep=Objects.requireNonNull(upkeep);farmBudget=Objects.requireNonNull(budget);return this;}
     String acquireRows(UUID buyer,UUID world,long period,long haulWindow)throws SQLException {
         return acquireRows(buyer,world,period,haulWindow,null);
@@ -38,7 +41,7 @@ final class WarehouseSupplies {
         }
         if(!staffed)return "Restocking deferred: qualified warehouse staff required";
         var town=founding.business().settlementId();
-        var demand=new LocalIndustryDemand(connection,policy,operations,mutationHealthy).withFarmTools(farmUpkeep,farmBudget).excludingStorageBuyer(buyer).review(town,Set.of(world),policy.warehouseSupply().customersPerReview());
+        var demand=new LocalIndustryDemand(connection,policy,operations,mutationHealthy).withFarmTools(farmUpkeep,farmBudget).withLivestock(livestock,herdWork,herdArea,herdHealthy).excludingStorageBuyer(buyer).review(town,Set.of(world),policy.warehouseSupply().customersPerReview());
         if(!demand.complete())return "Restocking deferred: "+demand.explanation();
         var availability=new BusinessOperations(connection,operations);var industry=new IndustryRepository(connection);
         var warehouses=ids(town,"warehouse",policy.supply().warehousesPerReview());
@@ -64,6 +67,9 @@ final class WarehouseSupplies {
                 }
             }else if(b.industry().equals("farming")&&FarmMarketStore.supported(connection,id,industry.store(id).orElseThrow())) {
                 allowed.add(Commodity.FOOD);allowed.add(FarmMarketStore.GRAIN);
+            }else if(b.industry().equals("livestock")&&new LivestockRepository(connection).load(id).isPresent()) {
+                var herd=new LivestockRepository(connection).load(id).orElseThrow();
+                allowed.add(new Commodity(herd.species()==LivestockHerd.Species.COW?"milk":"eggs"));
             }else policy.recipes().values().stream().filter(r->r.industry().equals(b.industry())).forEach(r->allowed.addAll(r.outputs().keySet()));
             var stock=new TreeMap<Commodity,Long>();industry.store(id).orElseThrow().units().forEach((good,units)->{if(allowed.contains(good))stock.put(good,units);});
             var store=industry.store(id).orElseThrow();
@@ -116,7 +122,8 @@ final class WarehouseSupplies {
                 String kind=r.getString(2);
                 var id=UUID.fromString(r.getString(1));
                 boolean farm=kind.equals("farming")&&FarmMarketStore.supported(connection,id,new IndustryRepository(connection).store(id).orElseThrow());
-                if(!kind.equals("mining")&&!farm&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
+                boolean herd=kind.equals("livestock")&&new LivestockRepository(connection).load(id).isPresent();
+                if(!kind.equals("mining")&&!farm&&!herd&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
                 result.add(id);
             }}
         }

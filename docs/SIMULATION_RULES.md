@@ -1,5 +1,12 @@
 # Civilizations — simulation rules and testable examples
 
+October 17 current implementation: bounded approved natural free-range adoption,
+qualified/funded atomic herd startup, paid warehouse/crop-farm feed and timed
+saved-herd production are now connected and verified. Protection, named/human/
+unknown-origin exclusions and absent-world pause remain. See LIVESTOCK_ADOPTION.md
+and PROJECT_STATUS.md; older dated notes below describe their earlier checkpoints.
+Physical slaughter, pen donation and bakery milk/egg consumers remain unfinished.
+
 October17 implementation note: recorded paid births can now materialize on safe
 loaded ground near players and reconcile saved maturity without another head,
 goods or payout. Missing bodies remain unknown, never replacements. Initial

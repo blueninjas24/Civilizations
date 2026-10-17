@@ -60,7 +60,11 @@ public final class PopulationSession implements AutoCloseable {
     private final AtomicReference<Status> status = new AtomicReference<>(new Status(false, 0, 0, 0, 0, null));
     private final AtomicReference<java.util.Map<UUID,String>> settlementNames = new AtomicReference<>(java.util.Map.of());
     private final AtomicReference<java.util.Set<UUID>> villageAnimals=new AtomicReference<>(java.util.Set.of());
-    public java.util.Set<UUID> villageAnimals(){return villageAnimals.get();}
+    private final java.util.Set<UUID> adoptingAnimals=java.util.concurrent.ConcurrentHashMap.newKeySet();
+    public java.util.Set<UUID> villageAnimals(){
+        if(adoptingAnimals.isEmpty())return villageAnimals.get();
+        var result=new java.util.HashSet<>(villageAnimals.get());result.addAll(adoptingAnimals);return java.util.Set.copyOf(result);
+    }
     private final AtomicBoolean livestockHistoryHealthy=new AtomicBoolean(),livestockCaptureGap=new AtomicBoolean();
     private final java.util.Set<UUID> pendingLivestockLosses=java.util.concurrent.ConcurrentHashMap.newKeySet();
     private boolean livestockTrackingStarted;
@@ -69,7 +73,7 @@ public final class PopulationSession implements AutoCloseable {
         if(!status().ready())return "Livestock capture: starting or unavailable";
         if(!livestockHistoryHealthy.get()||livestockCaptureGap.get())return "Livestock capture: incomplete history; review needed before live herd production";
         if(!pendingLivestockLosses.isEmpty())return "Livestock capture: waiting for "+pendingLivestockLosses.size()+" physical loss saves";
-        return "Livestock capture: trusted; saved herd work "+(livestockRuntimePolicy.enabled()&&livestockPolicy.enabled()?"configured":"disabled")+"; automatic adoption unfinished";
+        return "Livestock capture: trusted; saved herd work "+(livestockRuntimePolicy.enabled()&&livestockPolicy.enabled()?"configured":"disabled")+"; automatic adoption "+(adoptionPolicy.enabled()?"configured":"disabled");
     }
     public void markLivestockCaptureGap(){
         if(!livestockCaptureGap.compareAndSet(false,true))return;
@@ -121,6 +125,27 @@ public final class PopulationSession implements AutoCloseable {
     public void configureLivestockWork(com.blueninjas24.civilizations.industry.LivestockPolicy policy,com.blueninjas24.civilizations.industry.LivestockRuntimePolicy work){
         if(started.get())throw new IllegalStateException("Configure herd work before session starts");
         livestockPolicy=java.util.Objects.requireNonNull(policy);livestockRuntimePolicy=java.util.Objects.requireNonNull(work);
+    }
+    private com.blueninjas24.civilizations.industry.LivestockAdoptionPolicy adoptionPolicy=com.blueninjas24.civilizations.industry.LivestockAdoptionPolicy.disabled();
+    public void configureLivestockAdoption(com.blueninjas24.civilizations.industry.LivestockAdoptionPolicy policy){
+        if(started.get())throw new IllegalStateException("Configure adoption before session starts");adoptionPolicy=java.util.Objects.requireNonNull(policy);
+    }
+    private com.blueninjas24.civilizations.database.LivestockInvestment livestockInvestment(){
+        return new com.blueninjas24.civilizations.database.LivestockInvestment(database.getConnection(),adoptionPolicy,livestockPolicy,startupGrantPolicy,settings.population().adulthoodSteps());
+    }
+    public CompletableFuture<java.util.List<com.blueninjas24.civilizations.database.LivestockInvestment.Village>> livestockVillages(){
+        return submit(()->{requireReady();return livestockInvestment().villages();});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.LivestockInvestment.Result> adoptLivestock(
+            com.blueninjas24.civilizations.industry.LivestockOpportunity evidence,java.util.function.BooleanSupplier valid){
+        var ids=evidence.animals().stream().map(com.blueninjas24.civilizations.industry.LivestockObservation.Animal::id).toList();
+        adoptingAnimals.addAll(ids); // Death/product guards see candidates before the SQL handoff.
+        return submit(()->{requireReady();
+            if(economy==null||economyFailure!=null||status.get().remainingMonths()>0||!industryPolicy.enabled()||!livestockRuntimePolicy.enabled())
+                return new com.blueninjas24.civilizations.database.LivestockInvestment.Result(false,null,"Current enabled population/economy and herd runtime required");
+            var result=livestockInvestment().accept(evidence,status.get().completedMonths(),now.getAsLong(),loadedWorlds,()->valid.getAsBoolean()&&livestockCaptureReady());
+            villageAnimals.set(new com.blueninjas24.civilizations.database.AnimalOwnershipRepository(database.getConnection()).villageAnimals());return result;
+        }).whenComplete((result,failure)->adoptingAnimals.removeAll(ids));
     }
     private com.blueninjas24.civilizations.industry.BusinessOperationPolicy operationPolicy=com.blueninjas24.civilizations.industry.BusinessOperationPolicy.disabled();
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();

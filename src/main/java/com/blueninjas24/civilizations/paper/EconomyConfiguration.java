@@ -30,6 +30,7 @@ public final class EconomyConfiguration {
         if (config.contains("farm-market")) rootKeys.add("farm-market");
         if (config.contains("livestock")) rootKeys.add("livestock");
         if (config.contains("livestock-runtime")) rootKeys.add("livestock-runtime");
+        if (config.contains("livestock-adoption")) rootKeys.add("livestock-adoption");
         if (config.contains("livestock-market")) rootKeys.add("livestock-market");
         if (config.contains("livestock-working-area")) rootKeys.add("livestock-working-area");
         if (config.contains("recipes")) rootKeys.add("recipes");
@@ -123,6 +124,7 @@ public final class EconomyConfiguration {
         readFarmMarket(config);
         readLivestock(config);
         readLivestockRuntime(config);
+        readLivestockAdoption(config);
         readLivestockWorkingArea(config);
         readLivestockMarket(config);
         readRecipes(config);
@@ -367,6 +369,12 @@ public final class EconomyConfiguration {
         var s=section(config,"livestock-runtime");exactKeys(s,Set.of("enabled","work-per-worker","site-work-limit"));
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("livestock-runtime.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.LivestockRuntimePolicy(enabled,integer(s,"work-per-worker"),integer(s,"site-work-limit"));
+    }
+    public static com.blueninjas24.civilizations.industry.LivestockAdoptionPolicy readLivestockAdoption(ConfigurationSection config) {
+        if(!config.contains("livestock-adoption"))return com.blueninjas24.civilizations.industry.LivestockAdoptionPolicy.disabled();
+        var s=section(config,"livestock-adoption");exactKeys(s,Set.of("enabled","village-radius","clear-radius","minimum-adults","maximum-animals","observation-millis","interval-ticks","chunks-per-tick","cells-per-tick","startup-hundredths","capital-hundredths","herd-capacity","founder-farming","worker-farming","maximum-per-species"));
+        if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("livestock-adoption.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.LivestockAdoptionPolicy(enabled,smallInteger(s,"village-radius"),smallInteger(s,"clear-radius"),smallInteger(s,"minimum-adults"),smallInteger(s,"maximum-animals"),integer(s,"observation-millis"),smallInteger(s,"interval-ticks"),smallInteger(s,"chunks-per-tick"),smallInteger(s,"cells-per-tick"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),smallInteger(s,"herd-capacity"),integer(s,"founder-farming"),integer(s,"worker-farming"),smallInteger(s,"maximum-per-species"));
     }
     public static com.blueninjas24.civilizations.industry.LivestockPolicy readLivestock(ConfigurationSection config) {
         if(!config.contains("livestock"))return com.blueninjas24.civilizations.industry.LivestockPolicy.disabled();

@@ -6,6 +6,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LivestockConfigurationTest {
+    @Test void adoptionIsEditableStrictAndMissingInstalledSectionOptsOut()throws Exception{
+        var config=new YamlConfiguration();try(var reader=new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
+        assertEquals(com.blueninjas24.civilizations.industry.LivestockAdoptionPolicy.prototype(),EconomyConfiguration.readLivestockAdoption(config));EconomyConfiguration.read(config);
+        config.set("livestock-adoption.clear-radius",4);assertEquals(4,EconomyConfiguration.readLivestockAdoption(config).clearRadius());
+        config.set("livestock-adoption.minimum-adults",1);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.read(config));
+        config.set("livestock-adoption",null);assertFalse(EconomyConfiguration.readLivestockAdoption(config).enabled());EconomyConfiguration.read(config);
+    }
     @Test void liveWorkHasExplicitEditableLimitsAndInstalledFilesOptOut()throws Exception {
         var config=new YamlConfiguration();try(var reader=new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8)){config.load(reader);}
         assertEquals(com.blueninjas24.civilizations.industry.LivestockRuntimePolicy.prototype(),EconomyConfiguration.readLivestockRuntime(config));EconomyConfiguration.read(config);

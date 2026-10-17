@@ -1,5 +1,39 @@
 # Civilizations progress tracker
 
+## October 17 — automatic natural livestock startup and the feed chain verified
+
+Villages can now start a real dairy/chicken business from repeated bounded
+observations of eligible natural animals. Names, leashes, human/unknown origins,
+saved owners, nearby barriers and saved protected pens exclude adoption. A real
+farming-qualified owner, available adult worker and food-protected shared startup
+grant are required. Claims, firm/site, job, cash and initial ages commit together;
+failed funding or saving leaves no orphan ownership. No animal teleport or chunk
+loading. Existing worlds/saves and closed firms retain identity/history.
+
+Warehouses now recognize registered herds, plan their actual funded feed needs,
+and buy grain from real crop-farm surplus. Cash, cargo, feed use and output are
+conserved; herds cannot resell purchased grain as producer output. New strict
+livestock-adoption settings are editable; installed files missing them opt out.
+No migration/reset: schema 88 retained. See LIVESTOCK_ADOPTION.md.
+
+Affected Wrapper verify: 364 unit + 2 packaged integration tests passed, zero
+failures/errors/skips, 1:44, finished 2026-10-17T16:02:53-04:00. After tightening
+the uncertain-observation reset, final package + 14 focused unit/2 packaged checks
+passed, 21.041 seconds, finished 16:03:39 EDT. This is focused validation, not a
+new full-suite claim. Guarded Paper 26.2 build 129 passed 16:04:27 EDT using real
+natural cows and the actual observer/PopulationSession: fence exclusion, repeated
+clear proof, named-animal protection, paid opening and exact durable ownership.
+Test blocks restored/exact bodies removed; private DB retained. Main fixture:
+149 tables retained/142 exact, ordinary metadata and one normal population month
+only; integrity/FKs clean. Server stopped/settings restored/helper archived.
+Human server untouched. Previous 39fd240 hosted Windows and Linux jobs both passed.
+
+One full resource checklist entry is now complete: observed/funded live livestock
+startup and timed operation. Resources advance to 31/39 (79%); whole groups remain
+1/4, with about 68% equally weighted partial progress. Physical slaughter without
+duplicate drops, bakery milk/egg consumption and authorized pen donation remain;
+no credit for those unfinished integrations. No decision is pending for this batch.
+
 ## October17 — automatic saved-herd work and paid feed verified
 
 Existing saved livestock businesses now use the shared industry clock: buy real
@@ -803,7 +837,7 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |30/39|77%|
+| Resources and connected production |31/39|79%|
 | Business lifecycle and competition |14/15|93%|
 | Specialization and final acceptance |0/5|No complete entries yet|
 
