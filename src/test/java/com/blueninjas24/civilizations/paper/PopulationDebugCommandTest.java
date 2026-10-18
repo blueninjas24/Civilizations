@@ -50,7 +50,7 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "settlement", "bad-id"});
             assertEquals(List.of("Settlement ID must be a UUID."), messages); messages.clear();
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "simulate", "1000"});
-            assertEquals(List.of("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>"), messages);
+            assertEquals(List.of("Usage: /civ debug status | observation | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>"), messages);
             assertEquals(0, session.status().targetMonths());
             assertEquals(List.of("status", "settlement"),
                     command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "s"}));
@@ -89,4 +89,31 @@ class PopulationDebugCommandTest {
             assertEquals(List.of("explain", "economy"), command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "e"}));
         }
     }
+    @Test void resourceReportReturnsThroughConfiguredMainThreadDispatcher() throws Exception {
+        var deliveries=new java.util.concurrent.LinkedBlockingQueue<Runnable>();
+        try(var session=session()) {
+            session.start(false,java.util.Set.of()).get(10,java.util.concurrent.TimeUnit.SECONDS);
+            var command=new PopulationDebugCommand(session,()->"observer",deliveries::add);
+            command.onCommand(sender(true),null,"civ",new String[]{"debug","resources"});
+            var delivery=deliveries.poll(10,java.util.concurrent.TimeUnit.SECONDS);assertNotNull(delivery);
+            assertEquals(List.of("Reading saved records; no resources or blocks will be changed."),messages,
+                    "The database owner must not call the sender before main-thread delivery");
+            delivery.run();
+            assertTrue(messages.stream().anyMatch(line->line.startsWith("Resource provenance inventory")));
+            assertTrue(messages.stream().anyMatch(line->line.contains("no current block truth or recovery applied")));
+            assertEquals(List.of("resources"),command.onTabComplete(sender(true),null,"civ",new String[]{"debug","res"}));
+        }
+    }
+    @Test void resourceReportPermissionAndStartupChecksDoNotQueueOrInitializeAnything() {
+        try(var session=session()) {
+            var deliveries=new java.util.ArrayList<Runnable>();
+            var command=new PopulationDebugCommand(session,()->"observer",deliveries::add);
+            command.onCommand(sender(false),null,"civ",new String[]{"debug","resources"});
+            assertEquals(List.of("You do not have permission to inspect Civilizations."),messages);messages.clear();
+            command.onCommand(sender(true),null,"civ",new String[]{"debug","resources"});
+            assertEquals(List.of("Population is still starting; retry shortly."),messages);
+            assertTrue(deliveries.isEmpty());assertFalse(directory.resolve("civilizations.db").toFile().exists());
+        }
+    }
+
 }

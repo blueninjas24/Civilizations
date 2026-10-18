@@ -1,5 +1,48 @@
 # Civilizations Development Log
 
+## October18, 14:12 EDT - read-only resource and workforce review verified
+
+Added admin-only /civ debug resources and /civ debug workforce <settlement-uuid>.
+The first reports separate saved ore/forest trust, remaining mineral shares,
+retirements, deduplicated placement/removal exclusions, timber habitat balances,
+and at most32 world/chunk scopes with an exact omitted count. Active capture's
+clean_stop=false is not mislabeled a crash. It reports saved data, not current
+block truth or recovery approval. Live capture diagnostics remain separate.
+
+The workforce comparison shows saved vacancies, overlapping qualified idle pools,
+actual known business cash and operating blockers. Unknown accounts stay unknown;
+unknown towns and review-budget overflow show no partial comparison. Budgets cover
+32 firms,512 idle candidates and512 saved assignments; profiles/requirements are
+batched and eligibility is compared in memory. It does not pick a winner or change
+hiring order, wages, spending, closure, skills or courses. No player wallet added.
+
+Both reads run on the SQL owner; permission-checked results return via Paper's
+main-thread scheduler. Added seven database report tests and two command cases;
+existing command checks reused. Final affected Wrapper verify/package passed15
+unit +2 packaged integration tests, zero failures/errors/skips,29.947s at14:10:03.
+Checks caught an invalid fixture store deletion and the new report's zero-vs-unknown
+cash bug; corrected without weakening FK enforcement or financial guards. Updated
+an existing usage-text expectation for the new commands. No full local suite repeat.
+
+Actual marked Paper26.2 build129 passed14:10:40: registered resources command queued
+its read and delivered bounded messages only on the main thread. Schema remains94;
+all166 predecessor tables retained,161 exactly; only five normal clock/capture
+metadata tables changed, no aging. Integrity/FKs/capture clean; config unchanged,
+zero probe block changes, original port restored, helper archived, backups retained.
+Human server and main untouched. Read-only report does not certify historical
+provenance or restore trust. Actual recovery remains blocked on the pending user
+choice recorded in DECISIONS_AND_OPEN_QUESTIONS.md. No partial recovery code applied.
+
+Resources35/39, about71% partial Phase3 and1/4 whole groups remain: diagnostics do
+not finish recovery or actual cross-firm competition. Forestry7/7 is verified in
+preceding5508353, pushed to codex/phase3-forestry-runtime. This batch lives on
+codex/phase3-resource-review. Next: approved scoped recovery, then remaining crafts,
+production competition and multi-village acceptance. Canonical roadmap unchanged.
+
+Hosted forestry run39152003696 (5508353) remains in progress; no full green result
+is claimed. Earlier safety run39150215584 (fb1c06e) passed both platforms. This report
+branch receives its own full hosted checks after push.
+
 ## October18, 13:56 EDT - automatic forestry and paid timber chain verified
 
 Villages can now use current loaded-chunk canopy evidence to open a logging

@@ -10,18 +10,32 @@ import java.util.UUID;
 public final class PopulationDebugCommand implements CommandExecutor, TabCompleter {
     private final PopulationSession session;
     private final java.util.function.Supplier<String> observation;
+    private final java.util.function.Consumer<Runnable> dispatch;
     public PopulationDebugCommand(PopulationSession session) { this(session, () -> "Village observer not started"); }
     public PopulationDebugCommand(PopulationSession session, java.util.function.Supplier<String> observation) {
-        this.session = session; this.observation = observation;
+        this(session,observation,null);
+    }
+    public PopulationDebugCommand(PopulationSession session,java.util.function.Supplier<String> observation,java.util.function.Consumer<Runnable> dispatch) {
+        this.session = java.util.Objects.requireNonNull(session);this.observation=java.util.Objects.requireNonNull(observation);this.dispatch=dispatch;
     }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) {
             sender.sendMessage("You do not have permission to inspect Civilizations."); return true;
         }
+        if(args.length==3&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("workforce")) {
+            try{var town=UUID.fromString(args[2]);if(asyncReady(sender))inspect(sender,session.workforceReview(town));}
+            catch(IllegalArgumentException invalid){sender.sendMessage("Settlement ID must be a UUID.");}
+            return true;
+        }
+        if(args.length==2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("resources")) {
+            if(!asyncReady(sender))return true;
+            inspect(sender,session.resourceReview());return true;
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("status")) {
             PopulationDiagnostics.status(session.status(), session.settings()).forEach(sender::sendMessage);
             sender.sendMessage(session.oreTrackingDiagnostic());
+            sender.sendMessage(session.forestTrackingDiagnostic());
             sender.sendMessage(session.industryRuntimeDiagnostic());
             sender.sendMessage(session.livestockCaptureDiagnostic());
             if (session.onlineOnly()) sender.sendMessage("Time policy: server downtime and absent worlds pause; shared calendar is an administrative date, not every world's age.");
@@ -94,14 +108,29 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;
         }
-        sender.sendMessage("Usage: /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>");
+        sender.sendMessage("Usage: /civ debug status | observation | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>");
         return true;
+    }
+
+    private boolean asyncReady(CommandSender sender) {
+        if(!session.status().ready()){sender.sendMessage("Population is still starting; retry shortly.");return false;}
+        if(dispatch==null){sender.sendMessage("Administrative report delivery is not configured.");return false;}
+        return true;
+    }
+    private void inspect(CommandSender sender,java.util.concurrent.CompletableFuture<List<String>> result) {
+        sender.sendMessage("Reading saved records; no resources or blocks will be changed.");
+        result.whenComplete((lines,failure)->dispatch.accept(()->{
+            if(sender instanceof org.bukkit.entity.Player player&&!player.isOnline())return;
+            if(!sender.hasPermission("civilizations.debug"))return;
+            if(failure!=null)sender.sendMessage("Saved report unavailable; check the server log and retry.");
+            else lines.forEach(sender::sendMessage);
+        }));
     }
 
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) return List.of();
         List<String> choices = args.length == 1 ? List.of("debug")
-                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "settlement", "explain", "economy", "businesses") : List.of();
+                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "resources", "workforce", "settlement", "explain", "economy", "businesses") : List.of();
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(java.util.Locale.ROOT);
         return choices.stream().filter(value -> value.startsWith(prefix)).toList();
     }

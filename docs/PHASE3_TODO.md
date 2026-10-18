@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+## October18 - clearer read-only troubleshooting
+
+Admins can now inspect saved resource trust and compare businesses competing for
+qualified workers. The reports change no resources, jobs or money. Focused build/
+tests and actual Paper command delivery passed. Resources35/39, about71% partial
+Phase3 and1/4 whole groups stay unchanged: reporting is not recovery or a new
+hiring policy. Actual resource recovery awaits the user's choice about accepting
+a complete fresh scan versus requiring historical proof. See RESOURCE_REVIEW.md.
+
 ## October18 - automatic logging now works through paid production
 
 Verified on actual isolated Paper: a qualified village opened a logging business,

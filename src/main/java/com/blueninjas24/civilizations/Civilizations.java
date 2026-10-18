@@ -131,7 +131,9 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + (workshopStartup==null?"Automatic workshop startup not started":workshopStartup.diagnostic())
                             + "; " + (craftsmanStartup==null?"Automatic craftsman startup not started":craftsmanStartup.diagnostic())
                             + "; " + (bakeryStartup==null?"Automatic bakery startup not started":bakeryStartup.diagnostic())
-                            + "; " + (warehouseStartup==null?"Automatic warehouse startup not started":warehouseStartup.diagnostic()));
+                            + "; " + (warehouseStartup==null?"Automatic warehouse startup not started":warehouseStartup.diagnostic()),task->{
+                                if(isEnabled())getServer().getScheduler().runTask(Civilizations.this,task);
+                            });
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
             var previewPolicy = EconomyConfiguration.readAidPreview(economyConfig);
             var bargainingPolicy=EconomyConfiguration.readBargaining(economyConfig);

@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October18 - resource recovery authority: pending user answer
+
+A read-only resource inventory and workforce comparison are implemented and
+verified; see RESOURCE_REVIEW.md. No reset/recovery API is applied. Question sent:
+may a server admin approve a complete fresh scan of saved resource coordinates,
+accepting that edits during missing history cannot be reconstructed, or must
+recovery require trusted backup/history proof? Recommendation: explicit operator
+approval plus complete current coverage for reviewed existing resources only;
+unreviewed resources stay paused. Preserve balances, identities and history, never
+refill reserves or clear permanent protections. The acceptance authority is
+consequential under AGENTS.md; elapsed time or a report is not approval.
+
 ## October18 - forestry prototype settings within approved scope
 
 Automatic logging uses the already-approved real-customer, earned-skill and shared

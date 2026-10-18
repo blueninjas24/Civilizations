@@ -732,7 +732,19 @@ public final class PopulationSession implements AutoCloseable {
             pendingForestMutations.decrementAndGet();
         });
     }
-    /** Immutable current samples authorize no land claim; founding rechecks sources, qualifications and actual funds. */
+    public CompletableFuture<List<String>> workforceReview(UUID town){
+        java.util.Objects.requireNonNull(town);
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.WorkforceCompetitionReport(database.getConnection()).read(town,operationPolicy).describe();});
+    }
+    /** Read-only saved records on the SQL owner; no block truth or recovery is inferred. */
+    public CompletableFuture<List<String>> resourceReview(){
+        return submit(()->{requireReady();
+            var lines=new ArrayList<String>();lines.add("Live capture: "+oreTrackingDiagnostic());lines.add("Live capture: "+forestTrackingDiagnostic());
+            lines.addAll(new com.blueninjas24.civilizations.database.ResourceReviewReport(database.getConnection()).read(loadedWorlds).describe().lines().toList());
+            return List.copyOf(lines);
+        });
+    }
+    /** Immutable current samples authorize no land claim; founding independently rechecks startup. */
     public CompletableFuture<Boolean> observeForestSnapshot(UUID town,int chunkX,int chunkZ,com.blueninjas24.civilizations.industry.ForestObservation evidence){
         return submit(()->{requireReady();
             if(!forestDiscoveryReady()||automaticForestry==null||loadedWorlds!=null&&!loadedWorlds.contains(evidence.world()))return false;
