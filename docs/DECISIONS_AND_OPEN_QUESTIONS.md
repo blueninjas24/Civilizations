@@ -1,16 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October18 - resource recovery authority: pending user answer
+## October18 - resource recovery authority: approved
 
-A read-only resource inventory and workforce comparison are implemented and
-verified; see RESOURCE_REVIEW.md. No reset/recovery API is applied. Question sent:
-may a server admin approve a complete fresh scan of saved resource coordinates,
-accepting that edits during missing history cannot be reconstructed, or must
-recovery require trusted backup/history proof? Recommendation: explicit operator
-approval plus complete current coverage for reviewed existing resources only;
-unreviewed resources stay paused. Preserve balances, identities and history, never
-refill reserves or clear permanent protections. The acceptance authority is
-consequential under AGENTS.md; elapsed time or a report is not approval.
+User answered "Go with your recommended": explicit admin approval plus complete
+current coverage may restore reviewed existing resources, accepting that edits
+during missing history cannot be reconstructed. Unreviewed resources stay paused.
+Preserve balances, identities and history; never refill reserves or clear permanent
+protections. This is scoped acceptance, not permission to certify unknown areas or
+automatically trust all future discoveries. A later capture gap invalidates scoped
+approvals. Implementation and verification are reported separately in PROJECT_STATUS.
 
 ## October18 - forestry prototype settings within approved scope
 

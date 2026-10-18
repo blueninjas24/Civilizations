@@ -88,6 +88,8 @@ public final class PopulationSession implements AutoCloseable {
     private boolean trackForests, forestTrackingStarted;
     private final AtomicBoolean forestHistoryHealthy=new AtomicBoolean(),forestCaptureGap=new AtomicBoolean();
     private final AtomicInteger pendingForestMutations=new AtomicInteger();
+    private final AtomicInteger pendingOreMutations=new AtomicInteger();
+    private final java.util.concurrent.atomic.AtomicLong oreMutationRevision=new java.util.concurrent.atomic.AtomicLong();
     private final AtomicReference<String> forestHistoryIssue=new AtomicReference<>("starting");
     private boolean trackOres;
     private final AtomicBoolean oreHistoryHealthy=new AtomicBoolean();
@@ -487,7 +489,10 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
     public String businessSaleDiagnostic(){return listingClockFailure==null?"Saved sale clocks ready; automatic resale "+(resalePolicy.enabled()?"enabled; qualification and real funding required":"disabled in owner settings"):"Sale clock deferred: "+listingClockFailure;}
-    public boolean oreDiscoveryReady() { return trackOres && oreHistoryHealthy.get() && status().ready(); }
+    public boolean oreDiscoveryReady() { return trackOres && oreHistoryHealthy.get() && oreCaptureReady(); }
+    /** Continuous current capture is separate from missing historical provenance. */
+    public boolean oreCaptureReady() { return trackOres&&!oreCaptureGap.get()&&pendingOreMutations.get()==0&&status().ready(); }
+    public long oreMutationRevision(){return oreMutationRevision.get();}
     public String oreTrackingDiagnostic() {
         return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
                 ?"Ore mutation history: trusted; mine startup also checks demand, skills, funding and resource anchors"
@@ -495,6 +500,7 @@ public final class PopulationSession implements AutoCloseable {
     }
     /** Main-thread adapters may mark a gap immediately; no JDBC access or world work occurs here. */
     public void invalidateOreTracking(String reason) {
+        oreMutationRevision.incrementAndGet();
         oreCaptureGap.set(true);oreHistoryHealthy.set(false);oreHistoryIssue.set(java.util.Objects.requireNonNull(reason));
     }
 
@@ -538,12 +544,12 @@ public final class PopulationSession implements AutoCloseable {
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
                 businesses.configureResale(resalePolicy,purchasePolicy,settings.seed());
                 businesses.configureStaffing(staffingPolicy);
-                automaticMines=new com.blueninjas24.civilizations.database.AutomaticMineFounding(database.getConnection(),mineFoundingPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||oreHistoryHealthy.get());
-                automaticQuarries=new com.blueninjas24.civilizations.database.AutomaticQuarryFounding(database.getConnection(),quarryFoundingPolicy,quarryPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||oreHistoryHealthy.get()).withPublicSupplies(villageSupplyPolicy,studyPolicy);
+                automaticMines=new com.blueninjas24.civilizations.database.AutomaticMineFounding(database.getConnection(),mineFoundingPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||(oreHistoryHealthy.get()&&!oreCaptureGap.get()&&pendingOreMutations.get()==0));
+                automaticQuarries=new com.blueninjas24.civilizations.database.AutomaticQuarryFounding(database.getConnection(),quarryFoundingPolicy,quarryPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||(oreHistoryHealthy.get()&&!oreCaptureGap.get()&&pendingOreMutations.get()==0)).withPublicSupplies(villageSupplyPolicy,studyPolicy);
                 automaticForestry=new com.blueninjas24.civilizations.database.AutomaticForestryFounding(database.getConnection(),forestryFoundingPolicy,forestryPolicy,industryPolicy,
                         operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackForests||(forestHistoryHealthy.get()&&!forestCaptureGap.get()&&pendingForestMutations.get()==0))
                         .withPublicSupplies(villageSupplyPolicy,studyPolicy);
-                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||oreHistoryHealthy.get());
+                industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||(!oreCaptureGap.get()&&pendingOreMutations.get()==0));
                 industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
                 industries.configureFishing(fishingPolicy);
                 industries.configureQuarries(quarryPolicy);
@@ -668,6 +674,7 @@ public final class PopulationSession implements AutoCloseable {
             java.util.Collection<VillageObservation.Position> positions, long observedMillis) {
         var frozen = List.copyOf(positions);
         java.util.Objects.requireNonNull(world); java.util.Objects.requireNonNull(worldName);
+        pendingOreMutations.incrementAndGet();oreMutationRevision.incrementAndGet();
         return submit(() -> {
             requireReady();
             try {
@@ -681,6 +688,7 @@ public final class PopulationSession implements AutoCloseable {
             }
         }).whenComplete((result,failure)-> {
             if(trackOres && failure!=null)invalidateOreTracking("placement save failed; reviewed recovery required");
+            pendingOreMutations.decrementAndGet();
         });
     }
 
@@ -698,6 +706,7 @@ public final class PopulationSession implements AutoCloseable {
             java.util.Collection<VillageObservation.Position> placements,java.util.Collection<VillageObservation.Position> removals,long millis,String reason) {
         var placed=List.copyOf(placements);var removed=List.copyOf(removals);
         java.util.Objects.requireNonNull(world);java.util.Objects.requireNonNull(name);
+        pendingOreMutations.incrementAndGet();oreMutationRevision.incrementAndGet();
         return submit(()-> {
             requireReady();
             try {
@@ -708,7 +717,10 @@ public final class PopulationSession implements AutoCloseable {
                 catch(SQLException|RuntimeException fenceFailure){failure.addSuppressed(fenceFailure);}
                 throw failure;
             }
-        }).whenComplete((result,failure)->{if(trackOres&&failure!=null)invalidateOreTracking("mutation save failed; reviewed recovery required");});
+        }).whenComplete((result,failure)->{
+            if(trackOres&&failure!=null)invalidateOreTracking("mutation save failed; reviewed recovery required");
+            pendingOreMutations.decrementAndGet();
+        });
     }
 
     /** Accepted native mutations immediately fence work, then drain on the single SQL owner. */
@@ -735,6 +747,27 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<List<String>> workforceReview(UUID town){
         java.util.Objects.requireNonNull(town);
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.WorkforceCompetitionReport(database.getConnection()).read(town,operationPolicy).describe();});
+    }
+    public CompletableFuture<List<UUID>> mineralRecoveryCandidates(){
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.MineralRecovery(database.getConnection()).deposits();});
+    }
+    public record MineralReview(com.blueninjas24.civilizations.database.MineralRecovery.Plan plan,long revision) {}
+    public CompletableFuture<MineralReview> prepareMineralRecovery(UUID deposit){
+        return submit(()->{requireReady();if(!oreCaptureReady())throw new SQLException("Current ore capture is not ready");
+            long revision=oreMutationRevision();
+            var plan=new com.blueninjas24.civilizations.database.MineralRecovery(database.getConnection()).prepare(deposit);
+            if(!oreCaptureReady()||revision!=oreMutationRevision())throw new SQLException("Capture changed during resource review");
+            return new MineralReview(plan,revision);
+        });
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.MineralRecovery.Receipt> approveMineralRecovery(
+            UUID operation,String actor,MineralReview review,java.util.Map<VillageObservation.Position,Boolean> evidence,long captured){
+        var frozen=java.util.Map.copyOf(evidence);
+        return submit(()->{requireReady();
+            if(loadedWorlds!=null&&!loadedWorlds.contains(review.plan().world()))throw new SQLException("Resource world is absent");
+            return new com.blueninjas24.civilizations.database.MineralRecovery(database.getConnection()).approve(operation,actor,review.plan(),frozen,captured,now.getAsLong(),
+                    ()->oreCaptureReady()&&oreMutationRevision()==review.revision());
+        });
     }
     /** Read-only saved records on the SQL owner; no block truth or recovery is inferred. */
     public CompletableFuture<List<String>> resourceReview(){
@@ -1316,7 +1349,7 @@ public final class PopulationSession implements AutoCloseable {
                             .finish(now.getAsLong(),forestHistoryHealthy.get()&&!forestCaptureGap.get()&&pendingForestMutations.get()==0);}
                         catch(SQLException|RuntimeException failure){logger.log(Level.SEVERE,"Forest capture shutdown fence failed; forestry requires review",failure);}
                     if(trackOres && readyForWork)new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection())
-                            .finish(now.getAsLong(),oreHistoryHealthy.get());
+                            .finish(now.getAsLong(),!oreCaptureGap.get()&&pendingOreMutations.get()==0);
                 } catch(SQLException|RuntimeException failure) {
                     logger.log(Level.SEVERE,"Ore tracking shutdown fence failed; discovery will require reviewed recovery",failure);
                 } finally {

@@ -1,5 +1,49 @@
 # Civilizations Development Log
 
+## October18, 19:31 EDT - scoped mineral recovery verified
+
+Approved admin acceptance plus complete current scans is implemented for existing
+mineral deposits. /civ debug recover-ore list, review <deposit-uuid>, confirm <token>
+keeps preview and explicit approval separate. The second scan must match; saved
+balances, exclusions and current capture must also remain unchanged. Missing or
+protected coordinates lose only their remaining shares. No earned goods, money,
+identity or history is deleted; no refill or global trust reset occurs.
+
+Schema95 adds two initially empty tables: resource_recovery_epochs and
+mineral_recoveries. Approvals apply only to the selected deposit and current capture
+generation. Clean stops preserve approval; crashes/new capture gaps invalidate it.
+Current operational capture is distinct from historical trust. Accepted ore saves
+now fence work immediately while pending, matching the forest safety pattern.
+Discovery/founding remain globally fenced. No forest recovery yet; metadata alone
+certifies no logging. Unsupported bulk editors remain unsupported.
+
+Focused Wrapper verification covered107 affected unit tests across the correction
+checkpoints:106 passed in the broad run, one old-schema comparison corrected and
+all6 cases in its class passed on final rerun; two packaged integration tests passed.
+Twelve new recovery/continuity cases cover scoped actual mining, revocation, exact
+loss, sticky protections, read-only preview, incomplete/stale evidence, rollback,
+replay/expiry and schema94->95 prior-row preservation. Initial compiler imports and
+old-schema fixture tables/comparison were corrected without weakening FK/migrations.
+Final verify/package BUILD SUCCESS19:29:42,17.382s; no repeated full local suite.
+
+Actual isolated Paper26.2 build129 passed19:30:47: private saved four-source coal
+deposit previewed25 lost, explicit confirmation changed100->75, only the AIR
+coordinate retired; global discovery stayed fenced. Main-thread messages verified.
+First native setup refused an unloaded spawn chunk before edits; retry used one
+explicit test-only ticket, removed afterward. All four original AIR states restored,
+three temporary ore blocks changed, no drops. Production adapter never loads chunks.
+Private test DB retained. Main disposable fixture schema95 audit168 predecessor
+tables163 exact; only five routine clock/capture tables changed, zero aging, clean
+integrity/FKs, config byte-identical, port restored, helper archived/backups retained.
+The human server and main remain untouched. Actual registered recovery listing is
+wired; full native review/confirm invokes the same adapter on a private session.
+
+P3 resources35/39, about71% partial and1/4 whole groups unchanged: the combined
+recovery gate still needs forests. Next: forest recovery, broader useful crafts,
+competition and multi-village acceptance. No new gameplay decision required.
+Prior commits4462dae and5508353 now have full successful Windows/Linux CI runs
+39153111684 and39152003696. New recovery work is on codex/phase3-resource-recovery.
+
 ## October18, 14:12 EDT - read-only resource and workforce review verified
 
 Added admin-only /civ debug resources and /civ debug workforce <settlement-uuid>.

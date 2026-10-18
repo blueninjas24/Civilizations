@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+## October18 - saved mines can be reviewed and safely resumed
+
+An admin can now review a saved mine, see any lost resources, and explicitly approve
+its recovery. This preserves earned supplies and history without refilling the mine
+or unlocking unreviewed areas. A later tracking failure requires another review.
+Temporary-database checks and a real isolated Paper approval passed. Forest recovery
+is next, so the combined checklist gate stays open: resources35/39, about71% partial
+Phase3,1/4 whole groups. Human server untouched. No decision needed.
+
 ## October18 - clearer read-only troubleshooting
 
 Admins can now inspect saved resource trust and compare businesses competing for

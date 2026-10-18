@@ -47,6 +47,11 @@ public final class ForestryTrackingRepository {
             if (transition != Transition.BEGIN && previous.isEmpty())
                 throw new SQLException("Forestry tracking has not begun");
 
+            ResourceRecoveryEpochs.transitionRows(connection, "forest",
+                    transition == Transition.BEGIN,
+                    previous.map(State::cleanStop).orElse(false),
+                    transition == Transition.GAP || (transition == Transition.FINISH && !healthy));
+
             boolean trusted;
             if (previous.isEmpty()) {
                 trusted = transition == Transition.BEGIN && healthy && resourceCount() == 0;

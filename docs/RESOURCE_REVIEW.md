@@ -21,10 +21,37 @@ resource refill, protection removal, migration or trust reset occurs. Tests comp
 all persisted rows before/after reporting. Actual native command delivery passed;
 see PROJECT_STATUS.md and DEVLOG.md for evidence and known boundaries.
 
-Recovery policy is pending. Current snapshots cannot reconstruct every edit during
-a tracking gap. The user has been asked whether explicit admin approval plus a
-complete current scan can restore reviewed existing resources, or whether trusted
-backup/history evidence is required. Until answered, these reports apply nothing.
-Neither option authorizes refilling reserves, clearing exclusions, changing owner
-identity, replacing history or certifying unreviewed areas. Cross-firm ranking,
-worker transfers and living-owner closure rules remain separate design work.
+The user approved explicit admin acceptance plus a complete current scan, accepting
+that snapshots cannot reconstruct every edit during a tracking gap. The reports
+above remain read-only. Recovery is a separate explicit command:
+
+- `/civ debug recover-ore list` lists up to32 saved deposit IDs.
+- `/civ debug recover-ore review <deposit-uuid>` scans every saved coordinate and
+  previews its reserve and confirmed loss. All source chunks must remain loaded.
+- `/civ debug recover-ore confirm <token>` accepts the stated historical uncertainty
+  for that deposit, rescans and applies only if evidence, saved balances and current
+  capture are unchanged. The token is bound to that admin and expires in120 seconds.
+
+This restores existing mineral work only. Missing/replaced or protected coordinates
+lose only their remaining shares. Previously earned goods, money, identities,
+exclusions, exhausted coordinates and history stay recorded; no reserves refill.
+Old coordinate evidence without shares adopts only its existing balance under the
+already-approved even-share rule. Abstract deposits with no coordinates cannot be
+reviewed. Nothing is inferred from unloaded chunks or absent worlds.
+
+Schema95 adds initially empty continuity and mineral recovery audit tables. A clean
+restart retains a scoped approval; an unclean stop or later capture gap invalidates
+it. The global trust fence remains false, keeping unreviewed resources and new
+discovery/founding paused. Unsupported editors must be removed or supported capture
+restored before a review; this command does not certify editor compatibility.
+
+Budgets:4096 source coordinates per deposit,128 live block reads per tick, four
+concurrent scans,16 in-flight/prepared reviews; scans expire after30 seconds. Oversize
+or incomplete resources fail explicitly. Current material families: coal, iron,
+stone/deepslate and sand/red sand, matching existing discovery. No chunk loads,
+world edits, drops or ownership claims occur. Forestry recovery remains next work;
+the independent forest continuity metadata alone enables no logging recovery.
+
+Focused temporary-SQLite checks and actual Paper review/confirm passed October18;
+see PROJECT_STATUS/DEVLOG for exact evidence and fixture-only limitations. Cross-firm
+ranking, worker transfers and living-owner closure remain separate design work.

@@ -135,6 +135,7 @@ public final class Civilizations extends JavaPlugin {
                                 if(isEnabled())getServer().getScheduler().runTask(Civilizations.this,task);
                             });
             var command = Objects.requireNonNull(getCommand("civ"), "Missing civ command declaration");
+            debug.configureRecovery(new com.blueninjas24.civilizations.paper.PaperMineralRecovery(this,population));
             var previewPolicy = EconomyConfiguration.readAidPreview(economyConfig);
             var bargainingPolicy=EconomyConfiguration.readBargaining(economyConfig);
             aid = new com.blueninjas24.civilizations.paper.FoodAidTransfers(this,population,previewPolicy,

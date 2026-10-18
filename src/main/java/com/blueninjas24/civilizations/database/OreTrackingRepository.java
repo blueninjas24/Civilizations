@@ -29,6 +29,8 @@ public final class OreTrackingRepository {
         try {
             var previous=load();
             if(!begin && previous.isEmpty())throw new SQLException("Tracking has not begun");
+            ResourceRecoveryEpochs.transitionRows(connection,"ore",begin,
+                    previous.map(State::cleanStop).orElse(false),!begin&&!healthy);
             boolean trusted=previous.map(s->s.trusted() && (!begin || s.cleanStop())).orElse(true) && healthy;
             var state=new State(cleanStop,trusted,now);
             try(var statement=connection.prepareStatement("""

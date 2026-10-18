@@ -237,13 +237,13 @@ class ForestryProvenanceTest {
         }
     }
 
-    /** Exclude only the schema93 and schema94 additions; every schema92 table, including forestry, remains compared. */
+    /** Exclude only additions after schema92; every schema92 table, including forestry, remains compared. */
     private Map<String, List<List<String>>> snapshotIncludingPriorForestry() throws SQLException {
         var result = new TreeMap<String, List<List<String>>>();
         var names = new ArrayList<String>();
         try (var statement = fixture.data.db.getConnection().createStatement();
              var rows = statement.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' " +
-                     "AND name NOT IN ('forestry_tracking','forestry_exclusions','forestry_source_losses','forestry_founder_reviews','forestry_founder_courses') ORDER BY name")) {
+                     "AND name NOT IN ('forestry_tracking','forestry_exclusions','forestry_source_losses','forestry_founder_reviews','forestry_founder_courses','resource_recovery_epochs','mineral_recoveries') ORDER BY name")) {
             while (rows.next()) names.add(rows.getString(1));
         }
         for (var name : names) {

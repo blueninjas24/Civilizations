@@ -272,7 +272,9 @@ public final class IndustryRepository {
         }
     }
     public boolean sourceHistoryTrusted(UUID deposit)throws SQLException {
-        return !hasCoordinateSources(deposit)||new OreTrackingRepository(connection).load().map(OreTrackingRepository.State::trusted).orElse(true);
+        if(!hasCoordinateSources(deposit))return true;
+        if(new OreTrackingRepository(connection).load().map(OreTrackingRepository.State::trusted).orElse(true))return true;
+        return new MineralRecovery(connection).permitted(deposit);
     }
 
     /** Complete processing batches atomically consume delivered inputs and add outputs; no new money. */

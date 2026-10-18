@@ -11,6 +11,8 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
     private final PopulationSession session;
     private final java.util.function.Supplier<String> observation;
     private final java.util.function.Consumer<Runnable> dispatch;
+    private CommandExecutor recovery;
+    public void configureRecovery(CommandExecutor recovery){this.recovery=java.util.Objects.requireNonNull(recovery);}
     public PopulationDebugCommand(PopulationSession session) { this(session, () -> "Village observer not started"); }
     public PopulationDebugCommand(PopulationSession session, java.util.function.Supplier<String> observation) {
         this(session,observation,null);
@@ -22,6 +24,10 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) {
             sender.sendMessage("You do not have permission to inspect Civilizations."); return true;
+        }
+        if(args.length>=2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("recover-ore")) {
+            if(recovery!=null)return recovery.onCommand(sender,command,label,args);
+            sender.sendMessage("Resource recovery is not configured.");return true;
         }
         if(args.length==3&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("workforce")) {
             try{var town=UUID.fromString(args[2]);if(asyncReady(sender))inspect(sender,session.workforceReview(town));}
