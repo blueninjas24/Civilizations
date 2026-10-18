@@ -244,6 +244,8 @@ public final class IndustryRepository {
         if(requested<0||period<0)throw new IllegalArgumentException("Invalid timber work request");
         String terms=terms("logging-v1",business,requested,period,policy);
         var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
+        if (new ForestryTrackingRepository(connection).load().map(state -> !state.trusted()).orElse(false))
+            throw new SQLException("Forestry provenance is untrusted; new timber work requires reviewed recovery");
         var firm=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown logging business"));
         if(!firm.industry().equals("logging"))throw new SQLException("Timber work requires a logging business");
         try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {

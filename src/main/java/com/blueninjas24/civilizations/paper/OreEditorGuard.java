@@ -17,7 +17,7 @@ public final class OreEditorGuard implements Listener {
     private boolean reported;
 
     public OreEditorGuard(PopulationSession session, Logger logger, Collection<String> additional) {
-        this(session::invalidateOreTracking, logger, additional);
+        this(reason->{session.invalidateOreTracking(reason);session.invalidateForestTracking(reason);}, logger, additional);
     }
     OreEditorGuard(Consumer<String> gap, Logger logger, Collection<String> additional) {
         this.gap = Objects.requireNonNull(gap); this.logger = Objects.requireNonNull(logger);
@@ -40,8 +40,8 @@ public final class OreEditorGuard implements Listener {
     void inspect(String name) {
         if (reported || !editors.contains(name.toLowerCase(Locale.ROOT))) return;
         reported = true;
-        String reason = "unsupported bulk editor " + name + "; ore discovery needs reviewed provenance recovery";
+        String reason = "unsupported bulk editor " + name + "; resource discovery needs reviewed provenance recovery";
         gap.accept(reason);
-        logger.warning("New ore discovery paused: " + reason + ". Saved deposits and population remain.");
+        logger.warning("New ore and forest discovery paused: " + reason + ". Saved deposits and population remain.");
     }
 }

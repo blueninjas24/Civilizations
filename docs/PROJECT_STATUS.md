@@ -1,5 +1,70 @@
 # Civilizations — implementation status and handoff
 
+## October18, 13:34 EDT - forestry provenance verified
+
+Native tree placement/growth/removal records now protect saved sources independently
+of ore history. Confirmed loss retires only named supports, reduces standing capacity
+without refilling it, and keeps harvested goods, ownership and business history.
+Saved placement exclusions feed the bounded loaded-chunk forest observer. Untrusted
+capture or pending native saves pause registered logging clocks/work without freezing
+other industries; exact receipt replay and earned backlog remain intact. Legacy saved
+forests without capture history require reviewed recovery rather than silent trust.
+
+Schema93 adds three initially empty tracking/exclusion/source-loss tables. No old
+rows are rewritten. Added8 focused tests plus a disposable-only native helper;
+updated predecessor-preservation fixtures for the three additions. The initial
+clean affected run executed220 unit tests with one incorrect new timeline expectation;
+219 passed. Corrected that test's expected4 rather than5 periods, without changing
+production rules. The affected rerun passed27 units +2 packaged integration tests,
+zero failures/errors/skips,13.359s at13:32:28 EDT. A preceding sandbox-only packaged
+backup failure was a Windows file-move denial; the same check passed outside that
+sandbox against temporary databases. Full hosted suites follow the feature push.
+
+Actual marked Paper26.2 build129 passed13:33:16: accepted growth saved exactly three
+excluded coordinates, cancelled growth saved none, and the ordinary observer then
+rejected that trunk. Nine high-sky fixture blocks restored exactly. Schema92->93
+retained161 predecessor tables,157 exactly; only four normal clock/capture metadata
+tables changed, no aging. Integrity/FKs clean, both captures clean/trusted, old config
+byte-identical, original port restored, helper archived, backups retained. The human
+server and main remain untouched. Native proof covers dispatch/observer integration;
+transactional tests cover stock loss, rollback and restart. No physical logging,
+planting, ownership claim or automatic logging startup is implemented by this batch.
+
+Forestry5/7 detailed steps verified. Overall resources remain34/39 and Phase3 about
+70% partial,1/4 whole groups until the combined live catalogue gate passes. Next:
+qualified/funded automatic logging and real-material founder training, then live
+startup/paid customer acceptance. No new design decision is blocking that work.
+
+## October18, 02:50 EDT — usage-limited forestry protection handoff (UNVERIFIED WIP)
+
+Delegated workers reported the account usage limit. Current local work compiles:
+`.\mvnw.cmd -B -ntp -DskipTests compile` succeeded,7.648s. This was a compile check
+only: no new tests, clean verify, packaged build or native acceptance were run for
+this batch. Do not install the working tree as a verified release. Last verified
+and pushed source remains ac33ed7 on codex/phase3-forestry-runtime; main and the
+human server were not changed. WIP remains local and uncommitted.
+
+Draft schema93 adds empty forestry_tracking, forestry_exclusions and
+forestry_source_losses tables, independent from ore capture. Added native tree
+mutation listener, SQL-owner save/read hooks, clean-stop tracking, sticky source
+exclusions and individual saved-support retirement. New resource opening rejects
+known exclusions/untrusted saved capture; habitat restoration rejects retired
+coordinates. Existing migration fixtures were updated for the three additions;
+these fixture changes have not been tested yet. No live database was migrated.
+
+NEXT REQUIRED before verification/commit: complete independent IndustryRuntime
+forestry accrual/work fence (configureForestry currently retains the old one-arg
+call); prevent direct new logRows extraction/tool spending on untrusted forestry
+history while preserving replay/earned stock; feed saved exclusions into the
+observer (currently environmental-only Set.of()). Review native multi-place/new
+state event details, async drain/pending failure paths, and coordinate budgets.
+Add focused provenance/tracking/transactional92->93 preservation tests and native
+Paper capture proof. Then docs/diff/feature commit/push; continue qualified,
+funded automatic logging startup and live acceptance. No design answer is needed.
+
+Progress receives no new credit: forestry4/7 verified; resources34/39; Phase3 about
+70% partial and1/4 whole milestone groups. Automatic logging remains unfinished.
+
 ## October17, 22:46 — live read-only forest observation verified
 
 Villages can now report nearby canopy-backed standing trunks through the ordinary

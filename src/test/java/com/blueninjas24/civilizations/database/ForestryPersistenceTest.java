@@ -82,7 +82,7 @@ class ForestryPersistenceTest {
         assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE name='forestry_resources'"));
         data.sql("DROP TABLE forestry_supports");new SchemaMigrator().migrate(data.db.getConnection());
         assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(before,snapshot());
-        for(var name:List.of("forestry_resources","forestry_supports","forestry_work","forestry_habitat_changes"))assertEquals(0,data.count(name),name);
+        for(var name:List.of("forestry_resources","forestry_tracking","forestry_exclusions","forestry_source_losses","forestry_supports","forestry_work","forestry_habitat_changes"))assertEquals(0,data.count(name),name);
         try(var s=data.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     private long scalar(String query)throws SQLException {

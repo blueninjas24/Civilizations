@@ -26,6 +26,14 @@ public final class ForestryRepository {
             if(!supports(site).equals(evidence.trunks()))throw new SQLException("Forest footprint changed; explicit transition required");
             return old.orElseThrow(); // A revisit, retune or restart cannot refill or rescale standing timber.
         }
+        var tracking = new ForestryTrackingRepository(c).load();
+        if (tracking.isPresent() && !tracking.orElseThrow().trusted())
+            throw new SQLException("Forestry provenance is untrusted; new resource opening requires reviewed recovery");
+        var provenance = new ForestryProvenance(c);
+        for (var support : evidence.trunks()) {
+            if (provenance.excludes(evidence.world(), support) || sourceLost(evidence.world(), support))
+                throw new SQLException("Forestry evidence includes a protected or retired tree coordinate");
+        }
         var stock=policy.opening(evidence);
         try(var s=c.prepareStatement("INSERT INTO forestry_resources VALUES(?,?,?,?,?,?,?,?)")) {
             s.setString(1,site.toString());s.setString(2,evidence.world().toString());s.setLong(3,stock.capacity());s.setLong(4,stock.capacity());
@@ -89,6 +97,11 @@ public final class ForestryRepository {
             var before=find(site).orElseThrow(()->new SQLException("Unknown forest"));
             if(!world.equals(before.world())||captured<=before.observedMillis()||!supports(site).equals(List.copyOf(sorted.keySet())))
                 throw new SQLException("Forest habitat requires fresh authoritative evidence for every original support");
+            var provenance = new ForestryProvenance(c);
+            for (var entry : sorted.entrySet()) {
+                if (entry.getValue() && (provenance.excludes(world, entry.getKey()) || sourceLost(world, entry.getKey())))
+                    throw new SQLException("Protected or retired forestry support cannot be restored as suitable habitat");
+            }
             long original;try(var s=c.prepareStatement("SELECT capacity FROM forestry_resources WHERE site_id=?")) {
                 s.setString(1,site.toString());try(var r=s.executeQuery()){r.next();original=r.getLong(1);}
             }
@@ -104,6 +117,12 @@ public final class ForestryRepository {
         });
     }
     private void requireRows()throws SQLException {if(c.getAutoCommit())throw new SQLException("Forestry rows require owner transaction");}
+    private boolean sourceLost(UUID world, Position position) throws SQLException {
+        try (var s = c.prepareStatement("SELECT 1 FROM forestry_source_losses WHERE world_id=? AND x=? AND y=? AND z=?")) {
+            s.setString(1, world.toString()); s.setInt(2, position.x()); s.setInt(3, position.y()); s.setInt(4, position.z());
+            try (var r = s.executeQuery()) { return r.next(); }
+        }
+    }
     @FunctionalInterface private interface Work<T>{T run()throws SQLException;}
     private <T>T transaction(Work<T> work)throws SQLException {
         if(!c.getAutoCommit())throw new SQLException("Forestry requires idle SQL owner");c.setAutoCommit(false);

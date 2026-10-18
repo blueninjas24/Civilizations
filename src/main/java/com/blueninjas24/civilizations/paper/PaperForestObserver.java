@@ -16,6 +16,7 @@ public final class PaperForestObserver extends BukkitRunnable {
     private final ForestryObserverPolicy policy;
     private final LongSupplier now;
     private final Deque<Target> targets=new ArrayDeque<>();
+    private java.util.concurrent.CompletableFuture<Set<com.blueninjas24.civilizations.settlement.VillageObservation.Position>> exclusions;
     private ForestScan scan;
     private Target target;
     private EnvironmentalSample latest;
@@ -48,6 +49,11 @@ public final class PaperForestObserver extends BukkitRunnable {
                         +"; snapshot captured at "+captured+"; environmental evidence only, provenance not certified; automatic logging remains off";
                 return;
             }
+            if(exclusions!=null) {
+                if(!exclusions.isDone())return;
+                var protectedCoordinates=exclusions.join();exclusions=null;
+                capture(protectedCoordinates);return;
+            }
             if(targets.isEmpty()&&ticks%policy.intervalTicks()==1) {
                 var homes=new TreeMap<UUID,Home>();var view=session.projectionView().orElseThrow();
                 for(var household:view.population().households()) {
@@ -59,7 +65,13 @@ public final class PaperForestObserver extends BukkitRunnable {
                         .forEach(chunk->targets.addLast(new Target(town,home,chunk))));
             }
             if(targets.isEmpty())return;
-            target=targets.removeFirst();var world=Bukkit.getWorld(target.home().worldId());
+            target=targets.removeFirst();
+            exclusions=session.forestExclusions(target.home().worldId(),target.chunk().x(),target.chunk().z());
+            diagnostic="Forest survey awaiting saved placement exclusions";
+        }catch(RuntimeException failure){scan=null;exclusions=null;diagnostic="Forest survey deferred: "+failure.getMessage();}
+    }
+    private void capture(Set<com.blueninjas24.civilizations.settlement.VillageObservation.Position> protectedCoordinates) {
+            var world=Bukkit.getWorld(target.home().worldId());
             int x=target.chunk().x(),z=target.chunk().z();
             if(world==null||!world.isChunkLoaded(x,z))return;
             int minimumY=(int)Math.max(world.getMinHeight(),(long)target.home().position().y()-policy.verticalRadius());
@@ -74,9 +86,8 @@ public final class PaperForestObserver extends BukkitRunnable {
             int originX=Math.multiplyExact(x,16),originZ=Math.multiplyExact(z,16);
             var bounds=new ForestScan.Bounds(Math.subtractExact(originX,margin),minimumY,Math.subtractExact(originZ,margin),
                     Math.addExact(originX,16+margin),maximumY,Math.addExact(originZ,16+margin));
-            scan=new ForestScan(new PaperForestSource(snapshots,world.getMinHeight(),world.getMaxHeight()),bounds,Set.of(),policy.geometry());
+            scan=new ForestScan(new PaperForestSource(snapshots,world.getMinHeight(),world.getMaxHeight()),bounds,protectedCoordinates,policy.geometry());
             diagnostic="Forest survey scanning loaded chunk "+x+","+z;
-        }catch(RuntimeException failure){scan=null;diagnostic="Forest survey deferred: "+failure.getMessage();}
     }
     private static Home earlier(Home a,Home b) {
         var order=Comparator.comparing(Home::worldId).thenComparingInt(h->h.position().x()).thenComparingInt(h->h.position().y()).thenComparingInt(h->h.position().z());

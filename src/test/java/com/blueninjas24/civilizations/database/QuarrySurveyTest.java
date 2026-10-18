@@ -133,7 +133,7 @@ class QuarrySurveyTest {
         new SchemaMigrator().migrate(db.getConnection());
         assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));
         assertEquals(before,oldTableRows());
-        for(var table:List.of("quarry_opportunities","forestry_work","forestry_supports","forestry_habitat_changes","forestry_resources","quarry_surveys","quarry_survey_members",
+        for(var table:List.of("quarry_opportunities","forestry_work","forestry_supports","forestry_habitat_changes","forestry_resources","forestry_tracking","forestry_exclusions","forestry_source_losses","quarry_surveys","quarry_survey_members",
                 "quarry_founder_reviews","quarry_founder_courses"))assertEquals(0,scalar("SELECT COUNT(*) FROM "+table),table);
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }

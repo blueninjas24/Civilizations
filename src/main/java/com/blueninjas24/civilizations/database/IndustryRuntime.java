@@ -36,11 +36,17 @@ public final class IndustryRuntime {
     public void configureQuarries(QuarryPolicy policy){quarries=Objects.requireNonNull(policy);}
     private FishingPolicy fishing=FishingPolicy.disabled();
     private ForestryPolicy forestry=ForestryPolicy.disabled();
+    private java.util.function.BooleanSupplier forestryHealthy=()->true;
     public void configureForestry(ForestryPolicy policy) {
+        configureForestry(policy, () -> true);
+    }
+    public void configureForestry(ForestryPolicy policy, java.util.function.BooleanSupplier healthy) {
         Objects.requireNonNull(policy);
+        Objects.requireNonNull(healthy);
         if(policy.enabled()&&this.policy.recipes().values().stream().anyMatch(r->r.industry().equals("logging")))
             throw new IllegalArgumentException("A generic logging recipe conflicts with habitat-backed forestry; remove it before enabling forestry-resources");
         forestry=policy;
+        forestryHealthy=healthy;
     }
     private LivestockPolicy livestock=LivestockPolicy.disabled();
     private LivestockRuntimePolicy herdWork=LivestockRuntimePolicy.disabled();
@@ -66,7 +72,7 @@ public final class IndustryRuntime {
         observe(now,worlds,false);
         var pending=new ArrayList<Clock>();
         for(var c:clocks()) if(c.completed()<c.anchor().targetSteps() && (worlds==null || worlds.contains(c.world()))
-                &&(!dedicatedLivestock(c.industry())||herdEnabled())) pending.add(c);
+                &&(!dedicatedLivestock(c.industry())||herdEnabled())&&loggingClockReady(c)) pending.add(c);
         pending.sort(Comparator.comparingInt((Clock c)->c.business().toString().compareTo(cursor)>0?0:1).thenComparing(c->c.business().toString()));
         int done=0;
         for(var c:pending) {
@@ -106,8 +112,11 @@ public final class IndustryRuntime {
                     }
                     cadence=policy.millisPerPeriod();before=new CivilizationTime.Anchor(Math.max(now,before.lastObservedMillis()),0,before.targetSteps());
                 }
+                boolean accruing=(worlds==null || worlds.contains(c.world()))
+                        &&(!dedicatedLivestock(c.industry())||(herdEnabled()&&!new LivestockSlaughter(connection).pending(c.business())))
+                        &&loggingClockReady(c);
                 var after=restart?new CivilizationTime.Anchor(Math.max(now,before.lastObservedMillis()),before.remainderMillis(),before.targetSteps())
-                        :CivilizationTime.accrue(before,now,cadence,(worlds==null || worlds.contains(c.world()))&&(!dedicatedLivestock(c.industry())||(herdEnabled()&&!new LivestockSlaughter(connection).pending(c.business())))?Long.MAX_VALUE:0).anchor();
+                        :CivilizationTime.accrue(before,now,cadence,accruing?Long.MAX_VALUE:0).anchor();
                 try(var s=connection.prepareStatement("UPDATE industry_runtime SET cadence=?,last_ms=?,remainder=?,target=? WHERE business_id=?")) {
                     s.setLong(1,cadence);s.setLong(2,after.lastObservedMillis());s.setLong(3,after.remainderMillis());s.setLong(4,after.targetSteps());s.setString(5,c.business().toString());s.executeUpdate();
                 }
@@ -119,6 +128,11 @@ public final class IndustryRuntime {
         try(var s=connection.prepareStatement("SELECT 1 FROM businesses b JOIN forestry_resources f ON f.site_id=b.site_id WHERE b.id=? AND b.industry='logging'")) {
             s.setString(1,business.toString());try(var r=s.executeQuery()){return r.next();}
         }
+    }
+    private boolean loggingClockReady(Clock clock)throws SQLException {
+        if(!clock.industry().equals("logging")||!registeredForest(clock.business()))return true;
+        return forestry.enabled()&&forestryHealthy.getAsBoolean()
+                &&new ForestryTrackingRepository(connection).load().map(ForestryTrackingRepository.State::trusted).orElse(true);
     }
     private boolean supported(String kind) {return dedicatedLivestock(kind)?livestock.enabled()&&herdWork.enabled():kind.equals("mining") || (kind.equals("logging")&&forestry.enabled()) || (Set.of("quarry","sandpit").contains(kind)&&quarries.enabled()) || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
     private List<Clock> clocks() throws SQLException {
@@ -133,7 +147,9 @@ public final class IndustryRuntime {
     private void work(Clock clock) throws SQLException {
         if(dedicatedLivestock(clock.industry())&&!herdEnabled())return;
         if(dedicatedLivestock(clock.industry())&&new LivestockSlaughter(connection).pending(clock.business()))return;
+        if(!loggingClockReady(clock))return;
         transaction(()-> {
+            if(!loggingClockReady(clock))return null;
             long period=Math.incrementExact(clock.completed());
             var id=clock.business();
             String reason;
@@ -176,6 +192,7 @@ public final class IndustryRuntime {
                 if(!forestry.enabled()||!availability.permitted()||workers==0||forests.find(firm.siteId()).orElseThrow().stock().capacity()==0)
                     reason=industry.logRows(operation,id,0,period,forestry,operations).explanation();
                 else {
+                    if(!loggingClockReady(clock))throw new SQLException("Forestry provenance changed before work; preserve period for reviewed recovery");
                     var supply=tools.acquireRows(id,clock.industry(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),operations);
                     long maximum=Math.min(forestry.siteWorkCapacity(),Math.multiplyExact(workers,forestry.unitsPerWorker()));
                     var wear=tools.prepare(id,clock.industry(),maximum);

@@ -43,6 +43,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperCraftsmanStartup craftsmanStartup;
     private com.blueninjas24.civilizations.paper.PaperWarehouseStartup warehouseStartup;
     private com.blueninjas24.civilizations.paper.OrePlacementTracker orePlacements;
+    private com.blueninjas24.civilizations.paper.ForestMutationTracker forestMutations;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
     private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
     private com.blueninjas24.civilizations.paper.FoodBargainingCommand bargaining;
@@ -120,6 +121,7 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + livestockAdoption.diagnostic()
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
                             + "; " + (quarries==null?"Stone/sand observer not started":quarries.diagnostic())
+                            + "; " + population.forestTrackingDiagnostic()
                             + "; " + (forests==null?"Forest observer not started":forests.diagnostic())
                             + "; " + (fisheryStartup==null?"Fishery startup not started":fisheryStartup.diagnostic())
                             + "; " + (fisheryWorkplaces==null?"Fishery workplace checks not started":fisheryWorkplaces.diagnostic())
@@ -162,6 +164,7 @@ public final class Civilizations extends JavaPlugin {
             purchases.runTaskTimer(this,20,5);
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingTradeInventoryGuard(),this);
             population.configureOreTracking();
+            population.configureForestTracking();
             population.configureWorkplaces(workplaceSettings);
             population.configureWorkshopFounding(EconomyConfiguration.readWorkshopFounding(economyConfig));
             population.configureCraftsman(EconomyConfiguration.readCraftsmanFounding(economyConfig),EconomyConfiguration.readCraftsmanOpportunities(economyConfig));
@@ -196,6 +199,8 @@ public final class Civilizations extends JavaPlugin {
             editorGuard.inspectInstalled(java.util.List.of(getServer().getPluginManager().getPlugins()));
             orePlacements=new com.blueninjas24.civilizations.paper.OrePlacementTracker(population,getLogger());
             getServer().getPluginManager().registerEvents(orePlacements,this);
+            forestMutations=new com.blueninjas24.civilizations.paper.ForestMutationTracker(population,getLogger());
+            getServer().getPluginManager().registerEvents(forestMutations,this);
             var availability = new com.blueninjas24.civilizations.paper.WorldAvailability(population, () -> getServer().getWorlds(), getLogger());
             var startup = population.start(true, availability.snapshot());
             getServer().getPluginManager().registerEvents(availability, this);

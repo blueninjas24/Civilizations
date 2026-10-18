@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 92;
+    static final int CURRENT_VERSION = 93;
 
     @FunctionalInterface
     interface Migration {
@@ -941,7 +941,8 @@ final class SchemaMigrator {
                 LivestockLearning::createSchema,
                 LivestockSlaughter::createSchema,
                 QuarrySurveys::createSchema,
-                ForestryResources::createSchema
+                ForestryResources::createSchema,
+                ForestryProvenance::createSchema
 
 
         ));
@@ -1123,6 +1124,11 @@ final class SchemaMigrator {
                 requireColumns(connection,"forestry_supports",Set.of("world_id","x","y","z","site_id"));
                 requireColumns(connection,"forestry_work",Set.of("operation_id","site_id","business_id","period","opening_units","recovered","harvested","closing_units","before_remainder","after_remainder","policy"));
                 requireColumns(connection,"forestry_habitat_changes",Set.of("operation_id","site_id","evidence","captured_ms","before_capacity","after_capacity","opening_units","lost","closing_units","before_remainder","after_remainder"));
+            }
+            if(migrations.size()>=93) {
+                requireColumns(connection,"forestry_tracking",Set.of("id","clean_stop","trusted","observed_millis"));
+                requireColumns(connection,"forestry_exclusions",Set.of("world_id","x","y","z","observed_ms","reason"));
+                requireColumns(connection,"forestry_source_losses",Set.of("world_id","x","y","z","observed_ms","reason"));
             }
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));

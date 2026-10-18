@@ -20,6 +20,7 @@ final class BusinessTools {
     boolean replacementDue(UUID business,String kind,IndustryRepository.Store store)throws SQLException {
         if(!applies(kind,store))return false;var saved=state(business);
         if(kind.equals("logging")) {
+            if (new ForestryTrackingRepository(connection).load().map(state -> !state.trusted()).orElse(false)) return false;
             var firm=new BusinessRepository(connection).findBusiness(business).orElseThrow();
             var forest=new ForestryRepository(connection).find(firm.siteId());
             if(forest.isEmpty()||forest.orElseThrow().stock().capacity()==0)return false;
