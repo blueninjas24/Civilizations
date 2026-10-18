@@ -1,5 +1,25 @@
 # Civilizations progress tracker
 
+## October17, 22:22 — forestry recognition and timber calculations
+
+Added bounded incremental canopy-backed tree recognition with exact supporting
+coordinates, supplied placement exclusions, explicit incomplete evidence and safe
+outer margins. Added renewable timber calculations with non-1:1 opening capacity,
+gradual fractional renewal, real requested output/work/storage limits, absent-world
+pause, and explicit conservative habitat changes. No live logging business is
+claimed: this slice has no Paper, database, inventory or world mutation. Server
+text-file configuration and saved provenance/habitats remain integration work.
+
+Seven focused tests and Wrapper package passed, zero failures/errors/skips,
+16.628s,22:21:13 EDT; corrected a test-only static method reference before passing.
+No repeated full suite or native run for these isolated domain additions. Schema
+remains91. See FORESTRY.md for changed classes, prototype terms and limits.
+Progress remains34/39 resources, about70% partial Phase3,1/4 whole gates: logging
+needs actual live integration before receiving checklist credit. Quarry source
+263fbe3 is backed up to GitHub; Windows/Linux run39089622441 is in progress, not
+yet claimed passing. Main and the human server remain unchanged. Next: persistent
+forestry evidence/provenance and actual paid timber supply. No decision needed.
+
 ## October17, 22:17 — automatic stone/sand businesses verified
 
 Completed bounded loaded-chunk stone/sand observation, separate current per-chunk
