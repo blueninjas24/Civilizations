@@ -1,5 +1,45 @@
 # Civilizations — implementation status and handoff
 
+## October18, 19:59 EDT - shared existing-business hiring verified
+
+Implemented the user's approved urgent-needs, funded-demand and fair-tie priorities
+for existing non-farm vacancies. The complete village comparison chooses before
+hiring, including businesses outside the current runtime page. It filters real
+vacancies, qualified idle adults, living local owners, source/habitat availability
+and actual funded demand. Existing jobs stay in place; no wages, trades, money,
+forced transfers or closure rules added. Students are consistently excluded from
+hiring and comparison. Five-second throttling also bounds empty reviews.
+
+Schema97 adds two empty allocation state/audit tables. Job, hiring audit, selection
+explanation and saved tie cursor commit together; failure rolls all back. Defaults
+in new economy.yml opt into shared allocation, urgent bakeries/fisheries,5-second
+reviews and bounded reference values; old missing sections retain legacy behavior.
+Default staffing also recognizes bakery/craftsman/livestock vacancies. Invalid edits
+fail before DB startup. See BUSINESS_ALLOCATION.md for budgets and limits.
+
+First focused clean Wrapper verify passed53 unit +2 packaged integration tests,
+38.427s at19:54:31. After bounded empty-review throttling/diagnostic adjustments,
+final affected verify/package passed12 units +2 integrations,31.131s at19:56:37.
+Seven new cases cover funded ranking over UUID order, urgency/ties/value bounds,
+restart fairness/interval, no poaching/spending, atomic audit rollback, no-money/
+world/exhaustion refusal, full-village selection outside a page and strict config.
+Predecessor schema snapshots now exclude only the two new tables; old rows remain
+compared and schema94->current verifies empty additive tables. No full local repeat.
+
+Native isolated Paper26.2 build129 passed19:57:26: the actual PopulationSession pulse
+selected real iron customer demand400 instead of earlier-ID coal demand100; one
+qualified new job, existing smith retained, treasury unchanged. No world edits or
+chunk tickets. Main disposable schema96->97 audit169 predecessor tables164 exact;
+only five routine clock/capture metadata tables changed, no aging, integrity/FKs
+clean, config byte-identical, port restored/helper archived/backups retained.
+Human server and main untouched. Recovery fa486ca hosted checks remain in progress.
+
+Startup investment and farm staffing are not yet covered by this common comparison.
+The combined competition and specialization gates remain open; P3 stays36/39
+resources,14/15 lifecycle,0/5 acceptance, about71.4% partial and1/4 whole groups.
+Next: compare viable resource startup investments, then other startup adapters and
+broader acceptance. The priority decision is approved; no new question is needed.
+
 ## October18, 19:39 EDT - scoped forest recovery verified
 
 Added /civ debug recover-forest list, review <site-uuid>, confirm <token>. Complete

@@ -275,6 +275,7 @@ class MineralRecoveryTest {
         expectedPrior.remove("mineral_recoveries");
         expectedPrior.remove("resource_recovery_epochs");
         expectedPrior.remove("forest_recoveries");
+        expectedPrior.remove("business_allocation_reviews");expectedPrior.remove("business_allocation_state");
 
         SchemaFixtures.rewind(connection,94);
         new SchemaMigrator().migrate(connection);
@@ -283,6 +284,7 @@ class MineralRecoveryTest {
         assertEquals(List.of(), after.remove("mineral_recoveries"));
         assertEquals(List.of(), after.remove("resource_recovery_epochs"));
         assertEquals(List.of(), after.remove("forest_recoveries"));
+        assertEquals(List.of(), after.remove("business_allocation_reviews"));assertEquals(List.of(), after.remove("business_allocation_state"));
         assertEquals(expectedPrior, after, "Migration must preserve every schema-94 table and row value");
         try (var s = connection.createStatement(); var r = s.executeQuery("PRAGMA user_version")) {
             assertTrue(r.next());

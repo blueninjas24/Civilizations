@@ -22,6 +22,10 @@ public final class BusinessRuntime {
     private String cursor = "";
     private AutomaticBusinessResale resale;
     private AutomaticBusinessStaffing staffing;
+    private BusinessCompetition competition;
+    private String competitionDiagnostic="Shared business allocation disabled";
+    private String competitionTownCursor="";
+    public void configureCompetition(BusinessCompetition competition){this.competition=Objects.requireNonNull(competition);}
     private EconomyRuntimeRepository economy;
     private com.blueninjas24.civilizations.industry.CareerStudyPolicy careerPolicy=com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();
     public void configureCareerStudy(EconomyRuntimeRepository economy,com.blueninjas24.civilizations.industry.CareerStudyPolicy policy) {
@@ -52,6 +56,15 @@ public final class BusinessRuntime {
         try(var s=connection.createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM businesses")) { total=r.getLong(1); }
         var ids = page();
         if(ids.isEmpty() && !cursor.isEmpty()) { cursor="";ids=page(); }
+        if(competition!=null&&competition.enabled()&&allowCareers&&staffing!=null) {
+            // Compare every firm in one local village, rather than ranking an arbitrary subset of a business page.
+            var towns=new TreeSet<String>();
+            for(var id:ids){var founding=businesses.findFounding(id).orElseThrow();if(loadedWorlds!=null&&loadedWorlds.contains(founding.site().worldId()))towns.add(founding.business().settlementId().toString());}
+            if(!towns.isEmpty()){
+                String next=towns.higher(competitionTownCursor);if(next==null)next=towns.first();
+                competitionDiagnostic=competition.review(UUID.fromString(next),completedMonth,now,loadedWorlds,staffing);competitionTownCursor=next;
+            }
+        }
         // Cache eligibility changes immediately, even if this business is outside this bounded page.
         cache.replaceAll((id,v)->withPause(v,loadedWorlds));
         for(var id:ids) {
@@ -69,7 +82,7 @@ public final class BusinessRuntime {
                 }
                 new BusinessClosure(connection).closeIfExpired(id,completedMonth);
                 if(allowSales&&resale!=null){resale.review(id,completedMonth,now);b=businesses.findBusiness(id).orElseThrow();}
-                if(staffing!=null)hiring=staffing.review(id,completedMonth);
+                if(staffing!=null)hiring=competition!=null&&competition.enabled()?competitionDiagnostic:staffing.review(id,completedMonth);
                 if(allowCareers&&economy!=null&&careerPolicy.enabled())hiring+="; "+economy.reviewCareerStudy(id,careerPolicy,completedMonth,now);
             }
             int open;

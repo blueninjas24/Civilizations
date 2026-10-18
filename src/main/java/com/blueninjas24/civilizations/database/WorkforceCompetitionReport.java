@@ -39,7 +39,7 @@ public final class WorkforceCompetitionReport {
             lines.add("Read-only workforce comparison for " + settlement + ": " + firms.size() + " firms; "
                     + residentCandidatePool + " living, unassigned residents outside active courses.");
             lines.add("Qualified candidate counts overlap and are not additive. This is not a ranking or hiring decision; "
-                    + "existing automatic hiring visits firms in bounded UUID/page order. No jobs, funds, courses, wages, or closures changed.");
+                    + "actual hiring uses separately configured shared priorities or legacy UUID/page order. No jobs, funds, courses, wages, or closures changed.");
             for (var firm : firms) {
                 lines.add(firm.id() + " [" + firm.industry() + "]: " + firm.workers() + " workers, " + firm.vacancies()
                         + " vacancies, " + firm.qualifiedIdleCandidates() + " skill/age-qualified idle residents, business cash "

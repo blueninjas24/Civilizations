@@ -131,6 +131,8 @@ public final class VillageSupplyPurchases {
     private long hauled(UUID town,long period)throws SQLException {return sum("SELECT units FROM village_supply_orders WHERE settlement_id=? AND period=?",town,period);}
     /** Read-only actual public customer evidence for later resource investment; does not reserve cash or invent a business. */
     public Demand demand(UUID town,Set<UUID> worlds)throws SQLException {return demandAfterSpending(town,worlds,0);}
+    /** Immutable configured reference prices for comparing actual funded public needs. */
+    public Map<Commodity,Long> prices(){return policy.prices();}
     /** Read-only investment preview; the proposed debit is not reserved or posted. */
     public Demand demandAfterSpending(UUID town,Set<UUID> worlds,long proposedDebit)throws SQLException {return demandAfterSpending(town,worlds,proposedDebit,false);}
     /** Planning only: one currently processing future food period may validate linked practice. Never used by orders. */

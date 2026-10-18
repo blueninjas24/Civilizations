@@ -62,6 +62,7 @@ public final class EconomyConfiguration {
         if (config.contains("farm-tool-budget")) rootKeys.add("farm-tool-budget");
         if (config.contains("automatic-career-study")) rootKeys.add("automatic-career-study");
         if (config.contains("automatic-business-staffing")) rootKeys.add("automatic-business-staffing");
+        if (config.contains("business-allocation")) rootKeys.add("business-allocation");
         if (config.contains("business-resale-funding")) rootKeys.add("business-resale-funding");
         if (config.contains("business-operations")) rootKeys.add("business-operations");
         if (config.contains("automatic-business-resale")) rootKeys.add("automatic-business-resale");
@@ -106,6 +107,7 @@ public final class EconomyConfiguration {
         readWarehouseSupply(config);
         readToolUpkeep(config);
         readBusinessStaffing(config);
+        readBusinessAllocation(config);
         readCareerStudy(config);
         readFarmToolBudget(config);
         readFarmTools(config);
@@ -255,6 +257,14 @@ public final class EconomyConfiguration {
             throw new IllegalArgumentException("automatic-business-staffing.industries must be a distinct bounded list");
         var kinds=new HashSet<String>();raw.forEach(x->kinds.add((String)x));
         return new com.blueninjas24.civilizations.industry.BusinessStaffingPolicy(enabled,smallInteger(s,"candidates-per-review"),smallInteger(s,"hires-per-review"),kinds);
+    }
+    public static com.blueninjas24.civilizations.industry.BusinessAllocationPolicy readBusinessAllocation(ConfigurationSection config) {
+        if(!config.contains("business-allocation"))return com.blueninjas24.civilizations.industry.BusinessAllocationPolicy.disabled();
+        var s=section(config,"business-allocation");exactKeys(s,Set.of("enabled","review-millis","urgent-first","urgent-industries","maximum-demand-value-hundredths"));
+        if(!(s.get("enabled") instanceof Boolean enabled)||!(s.get("urgent-first") instanceof Boolean urgent))throw new IllegalArgumentException("Business allocation switches must be true/false");
+        if(!(s.get("urgent-industries") instanceof List<?> raw)||raw.size()>32||raw.stream().anyMatch(x->!(x instanceof String))||new HashSet<>(raw).size()!=raw.size())throw new IllegalArgumentException("Distinct bounded urgent industries required");
+        var kinds=new HashSet<String>();raw.forEach(x->kinds.add((String)x));
+        return new com.blueninjas24.civilizations.industry.BusinessAllocationPolicy(enabled,smallInteger(s,"review-millis"),urgent,kinds,smallInteger(s,"maximum-demand-value-hundredths"));
     }
     public static com.blueninjas24.civilizations.industry.StartupGrantPolicy readStartupGrants(ConfigurationSection config) {
         if(!config.contains("startup-grants"))return com.blueninjas24.civilizations.industry.StartupGrantPolicy.disabled();

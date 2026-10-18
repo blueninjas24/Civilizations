@@ -1,5 +1,13 @@
 # Civilizations progress tracker
 
+## October18 - businesses now compete for available workers
+
+Existing businesses can now be compared across the village before hiring. Urgent
+needs come first, then real paying demand; equally ranked firms take turns across
+restarts. Existing workers stay in their jobs. Focused build/tests and a real
+isolated server check passed. Startup funding and farm staffing still need their
+shared connection, so the combined competition gate stays open. No decision needed.
+
 ## October18 - mine and forest recovery milestone completed
 
 Admins can now review and resume individual saved mines and forests after interrupted

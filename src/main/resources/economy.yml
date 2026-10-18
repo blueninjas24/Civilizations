@@ -203,7 +203,19 @@ automatic-business-staffing:
   enabled: true
   candidates-per-review: 64
   hires-per-review: 2
-  industries: [mining, blacksmith, warehouse, fishing, quarry, sandpit, logging]
+  industries: [mining, blacksmith, warehouse, fishing, quarry, sandpit, logging, bakery, craftsman, livestock]
+
+# Compare a village's real vacancies before hiring. Existing jobs never move.
+# Missing sections preserve the previous hiring policy; installed files are never overwritten.
+# Food urgency is a separate first tier; funded demand then uses existing configured unit prices.
+# Equal priorities rotate using a saved cursor. This first connection covers existing firms;
+# farm staffing and startup investment keep their existing separate adapters for now.
+business-allocation:
+  enabled: true
+  review-millis: 5000
+  urgent-first: true
+  urgent-industries: [bakery, fishing]
+  maximum-demand-value-hundredths: 1000000
 
 # Limited public startup funding for qualified mines/workshops/warehouses. Trusted startup
 # accounting is implemented; automatic founding/selection is still being connected.

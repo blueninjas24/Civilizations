@@ -201,6 +201,10 @@ public final class PopulationSession implements AutoCloseable {
         villageSupplyPolicy=java.util.Objects.requireNonNull(policy);
     }
     private com.blueninjas24.civilizations.industry.BusinessStaffingPolicy staffingPolicy=com.blueninjas24.civilizations.industry.BusinessStaffingPolicy.disabled();
+    private com.blueninjas24.civilizations.industry.BusinessAllocationPolicy allocationPolicy=com.blueninjas24.civilizations.industry.BusinessAllocationPolicy.disabled();
+    public void configureBusinessAllocation(com.blueninjas24.civilizations.industry.BusinessAllocationPolicy policy){
+        if(started.get())throw new IllegalStateException("Configure allocation before startup");allocationPolicy=java.util.Objects.requireNonNull(policy);
+    }
     private com.blueninjas24.civilizations.industry.BusinessResalePolicy resalePolicy=com.blueninjas24.civilizations.industry.BusinessResalePolicy.disabled();
     private com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy farmToolsPolicy=com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy.disabled();
     private com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy farmToolsBudget=com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy.disabled();
@@ -548,6 +552,10 @@ public final class PopulationSession implements AutoCloseable {
                 businesses = new com.blueninjas24.civilizations.database.BusinessRuntime(database.getConnection(),8,1024);
                 businesses.configureResale(resalePolicy,purchasePolicy,settings.seed());
                 businesses.configureStaffing(staffingPolicy);
+                businesses.configureCompetition(new com.blueninjas24.civilizations.database.BusinessCompetition(database.getConnection(),allocationPolicy,staffingPolicy,industryPolicy,operationPolicy,
+                        new com.blueninjas24.civilizations.database.LocalIndustryDemand(database.getConnection(),industryPolicy,operationPolicy,()->!trackOres||oreCaptureReady())
+                                .withFarmTools(farmToolsPolicy,farmToolsBudget).withLivestock(livestockPolicy,livestockRuntimePolicy,livestockWorkingArea,this::livestockCaptureReady),
+                        new com.blueninjas24.civilizations.database.VillageSupplyPurchases(database.getConnection(),villageSupplyPolicy,studyPolicy,operationPolicy)));
                 automaticMines=new com.blueninjas24.civilizations.database.AutomaticMineFounding(database.getConnection(),mineFoundingPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||(oreHistoryHealthy.get()&&!oreCaptureGap.get()&&pendingOreMutations.get()==0));
                 automaticQuarries=new com.blueninjas24.civilizations.database.AutomaticQuarryFounding(database.getConnection(),quarryFoundingPolicy,quarryPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||(oreHistoryHealthy.get()&&!oreCaptureGap.get()&&pendingOreMutations.get()==0)).withPublicSupplies(villageSupplyPolicy,studyPolicy);
                 automaticForestry=new com.blueninjas24.civilizations.database.AutomaticForestryFounding(database.getConnection(),forestryFoundingPolicy,forestryPolicy,industryPolicy,

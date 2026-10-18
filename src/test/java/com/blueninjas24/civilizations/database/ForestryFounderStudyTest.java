@@ -204,7 +204,7 @@ class ForestryFounderStudyTest {
         var names = new ArrayList<String>();
         try (var s = fixture.db.getConnection().createStatement(); var r = s.executeQuery(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' " +
-                        "AND name NOT IN ('forestry_founder_courses','forestry_founder_reviews','resource_recovery_epochs','mineral_recoveries','forest_recoveries') ORDER BY name")) {
+                        "AND name NOT IN ('forestry_founder_courses','forestry_founder_reviews','resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state') ORDER BY name")) {
             while (r.next()) names.add(r.getString(1));
         }
         for (var name : names) {

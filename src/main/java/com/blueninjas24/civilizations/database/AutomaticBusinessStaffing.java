@@ -15,6 +15,10 @@ public final class AutomaticBusinessStaffing {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);
     }
     public String review(UUID business,long step)throws SQLException {
+        return review(business,step,reason->{});
+    }
+    @FunctionalInterface interface ReviewAudit {void save(String reason)throws SQLException;}
+    String review(UUID business,long step,ReviewAudit audit)throws SQLException {
         if(!connection.getAutoCommit())throw new SQLException("Automatic hiring requires idle SQL owner");
         if(step<0)throw new IllegalArgumentException("Negative hiring step");
         if(!policy.enabled())return "Automatic vacancy hiring disabled";
@@ -62,6 +66,7 @@ public final class AutomaticBusinessStaffing {
                     if(nextCursor==null)nextCursor="";
                 }
             }
+            audit.save(reason);
             connection.commit();connection.setAutoCommit(true);
             if(nextCursor!=null){cursors.remove(business);cursors.put(business,nextCursor);while(cursors.size()>4096)cursors.remove(cursors.keySet().iterator().next());}
             return reason;
@@ -72,6 +77,7 @@ public final class AutomaticBusinessStaffing {
         try(var s=connection.prepareStatement("""
             SELECT r.id FROM residents r WHERE r.settlement_id=? AND r.status='ALIVE' AND r.id>?
               AND NOT EXISTS(SELECT 1 FROM business_employment e WHERE e.resident_id=r.id AND e.ended_step IS NULL)
+              AND NOT EXISTS(SELECT 1 FROM resident_courses c WHERE c.resident_id=r.id AND c.status='ACTIVE')
             ORDER BY r.id LIMIT ?
             """)) {
             s.setString(1,town.toString());s.setString(2,cursor);s.setInt(3,policy.candidatesPerReview());
