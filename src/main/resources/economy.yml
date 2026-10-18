@@ -280,6 +280,21 @@ forestry-resources:
   units-per-worker: 4
   site-work-capacity: 16
 
+# Read-only tree canopy evidence around saved homes. It never changes blocks or claims land.
+# Player-placed coordinates are excluded when known; unknown loaded-world evidence remains incomplete.
+# This survey is not provenance proof or authorization to adopt/found a logging business.
+# Existing installed configs without this section keep forestry observation disabled.
+forestry-observer:
+  enabled: true
+  horizontal-radius-chunks: 1  # 0..2; never force-loads chunks.
+  vertical-radius: 24          # 4..64 blocks.
+  cells-per-tick: 512          # 1..4096; geometry evaluation is separately bounded.
+  interval-ticks: 200          # At least 20 ticks.
+  minimum-vertical-logs: 3     # 2..32 connected standing trunk cells.
+  horizontal-canopy-radius: 3  # 1..8 blocks from the trunk.
+  vertical-canopy-radius: 2    # 1..8 blocks above canopy-backed trunk top.
+  maximum-trunk-coordinates: 512 # 1..512 evidence coordinates per observation.
+
 # Read-only exposed stone/sand surveys near each saved village home.
 # Never loads chunks or changes blocks. Surveys supply evidence only; they do not
 # grant excavation rights or alter shared startup-grant and food-protection limits.

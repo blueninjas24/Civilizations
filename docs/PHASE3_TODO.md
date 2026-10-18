@@ -1,5 +1,36 @@
 # Phase 3 — businesses and industry checklist
 
+## October17, 22:46 — live read-only forest observation verified
+
+Villages can now report nearby canopy-backed standing trunks through the ordinary
+Paper observer and /civ debug observation. Snapshots come only from already-loaded
+chunks; bounded work preserves capture time, rejects unknown/oversized evidence,
+and excludes horizontal logs/persistent placed leaves. Observer geometry and pacing
+are editable in economy.yml; missing old sections opt out. Samples are transient
+environmental diagnostics, not ownership proof, saved resources or businesses.
+
+Windows Wrapper affected verify/package passed12 unit +2 packaged integration
+tests, zero failures/errors/skips,24.396s,22:42:20 EDT. Two new configuration tests;
+existing geometry/resource cases reused. Actual Paper26.2 build129 passed22:44:58:
+ordinary observer found exactly the expected trunk, identity/time matched,
+decorative/persistent examples and missing margins were rejected. Nine fixture
+blocks restored exactly, helper-only tickets released. No production chunk loading
+or world mutation. Native probe has an explicit disposable/localhost/zero-player
+guard; never install probe JARs for player use.
+
+Schema remains92. Main fixture retained161 tables,154 exactly; seven normal clock/
+capture/age tables changed by one normal month, identity/status/assets preserved,
+integrity/FKs clean. Private DB created no business/resource/work. Existing config
+byte-identical, original port restored, helper archived, backups retained. Human
+server and main untouched. Backend2f6450b is committed/pushed and its full Linux CI
+passed; Windows remains in progress. Final observer hosted checks follow push.
+
+Forestry details are4/7 verified: geometry, saved resource/work, real paid customers
+and live environment observation. Next: native placement/growth/damage protection,
+then automatically qualified/funded startup and live acceptance. No new gameplay
+decision needed. The combined catalogue gate remains unfinished, so resources stay
+34/39 and P3 about70% partial,1/4 whole groups. See FORESTRY.md for exact boundaries.
+
 ## October17, 22:37 — saved forestry and real timber customers verified
 
 Registered logging firms now have persistent canopy-backed habitat, non-1:1 timber

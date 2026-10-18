@@ -1,5 +1,12 @@
 # Current prototype: a short player checklist
 
+Latest forestry checkpoint: /civ debug observation can show bounded loaded-chunk
+forest surveys when forestry-observer is enabled. These are canopy/shape sightings,
+not proof of ownership or automatic logging. Real saved forestry production and
+paid timber customers are verified in isolated scenarios, but automatic village
+adoption still awaits placement/growth/damage protection. See FORESTRY.md. Older
+economy.yml files are preserved and need explicit opt-in for the survey settings.
+
 October 9 human client checks passed recognition, bread donation, emerald food sale
 with exact inventory changes, and resident persistence after normal restart. Broader
 barter/bargaining/compatibility coverage remains pending. The reported ~15-second

@@ -1,5 +1,60 @@
 # Forestry implementation checkpoint
 
+## October17 — live environmental observation verified
+
+PaperForestObserver now scans already-loaded chunks near saved village homes,
+using immutable center/neighbor snapshots and bounded incremental geometry work.
+PaperForestSource accepts vertical logs and nonpersistent leaves; horizontal logs
+and persistent placed leaves do not qualify. Unknown cells/overflow reject a
+partial frame; outer geometry margins are not negative evidence. Production code
+never loads chunks or modifies blocks. Capture timestamps survive the scan queue.
+
+/civ debug observation reports canopy-backed log counts, chunk and original capture
+time, explicitly marked as environmental evidence with uncertified provenance.
+The latest sample is an immutable in-memory diagnostic, not a saved business or
+claim. Restart clears that sample; saved forestry habitats/work/assets are retained.
+Recorded log placement/growth/removal tracking is still required before automatic
+adoption. Geometry alone cannot certify old natural origin or player permission.
+
+New-file forestry-observer defaults: enabled:true, horizontal-radius-chunks:1,
+vertical-radius:24, cells-per-tick:512, interval-ticks:200,
+minimum-vertical-logs:3, horizontal-canopy-radius:3, vertical-canopy-radius:2,
+maximum-trunk-coordinates:512. All are strict editable settings within bounded
+engineering limits. Missing old-file sections disable observation; installed files
+are preserved. This enables surveys only, not automatic logging businesses.
+
+Windows Wrapper affected verify/package passed12 unit +2 packaged integration
+tests, zero failures/errors/skips,24.396s, October17 22:42:20 EDT. Only two new
+configuration tests were added; existing geometry/resource/config cases were
+reused. No schema change (92), full-suite repetition or speculative gameplay rule.
+Actual pinned Paper26.2 build129 passed22:44:58: the ordinary observer reported
+exactly the three expected trunk coordinates and original private saved-home/time,
+rejected persistent leaves/horizontal logs and unknown neighboring margins, and
+created no businesses. Nine temporary high-sky fixture blocks were verified AIR
+before editing and restored exactly before shutdown; helper-only chunk tickets
+were released. No production force-loading or human-world edits were introduced.
+
+The main disposable fixture retained161 predecessor tables,154 exactly; seven
+routine clock/capture/age tables changed by one normal population month. Resident
+identity/status and assets were retained; integrity/FKs clean. Private proof DB
+also had zero businesses/forests/work. Existing economy.yml was byte-identical,
+original port restored, helper archived and backups retained. Main/human server
+unchanged. Full Linux CI passed the preceding resource checkpoint2f6450b; its
+Windows job was still running here. Final observer hosted verification follows.
+
+| Detailed forestry connection | Status |
+|---|---|
+| Bounded canopy recognition | Verified |
+| Saved renewable habitats and earned work | Verified |
+| Paid timber delivery and real customers | Verified |
+| Live loaded-chunk environmental observer | Verified |
+| Native placement/growth/damage provenance | Pending |
+| Automatic qualified, funded forest businesses | Pending |
+| Complete live acceptance and industry mix | Pending |
+
+These four of seven detailed steps do not complete the weighted Phase3 forestry
+catalogue gate. No new gameplay decision blocks the approved protection work.
+
 ## October17 — saved resources and paid timber chain verified
 
 The trusted backend now saves forestry habitats and runs registered logging firms

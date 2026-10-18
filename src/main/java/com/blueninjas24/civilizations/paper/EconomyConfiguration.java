@@ -38,6 +38,7 @@ public final class EconomyConfiguration {
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
         if (config.contains("quarry-observer")) rootKeys.add("quarry-observer");
+        if (config.contains("forestry-observer")) rootKeys.add("forestry-observer");
         if (config.contains("quarry-founding")) rootKeys.add("quarry-founding");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
         if (config.contains("storage-upgrades")) rootKeys.add("storage-upgrades");
@@ -82,6 +83,7 @@ public final class EconomyConfiguration {
         readForestryResources(config);
         readQuarryFounding(config);
         readQuarryObserver(config);
+        readForestryObserver(config);
         readFishingResources(config);
         readWaterObserver(config);
         readFisheryOpportunities(config);
@@ -361,6 +363,20 @@ public final class EconomyConfiguration {
         return new com.blueninjas24.civilizations.industry.OreObserverPolicy(enabled, smallInteger(s, "vertical-radius"),
                 smallInteger(s, "cells-per-tick"), smallInteger(s, "interval-ticks"),
                 s.contains("horizontal-radius-chunks") ? smallInteger(s, "horizontal-radius-chunks") : 0);
+    }
+    public static com.blueninjas24.civilizations.industry.ForestryObserverPolicy readForestryObserver(ConfigurationSection config) {
+        if (!config.contains("forestry-observer")) return com.blueninjas24.civilizations.industry.ForestryObserverPolicy.disabled();
+        var s = section(config, "forestry-observer");
+        exactKeys(s, Set.of("enabled", "horizontal-radius-chunks", "vertical-radius", "cells-per-tick", "interval-ticks",
+                "minimum-vertical-logs", "horizontal-canopy-radius", "vertical-canopy-radius", "maximum-trunk-coordinates"));
+        if (!(s.get("enabled") instanceof Boolean enabled))
+            throw new IllegalArgumentException("forestry-observer.enabled must be true or false");
+        var geometry = new com.blueninjas24.civilizations.industry.ForestScan.Geometry(
+                smallInteger(s, "minimum-vertical-logs"), smallInteger(s, "horizontal-canopy-radius"),
+                smallInteger(s, "vertical-canopy-radius"), smallInteger(s, "maximum-trunk-coordinates"));
+        return new com.blueninjas24.civilizations.industry.ForestryObserverPolicy(enabled,
+                smallInteger(s, "horizontal-radius-chunks"), smallInteger(s, "vertical-radius"),
+                smallInteger(s, "cells-per-tick"), smallInteger(s, "interval-ticks"), geometry);
     }
     public static com.blueninjas24.civilizations.industry.FarmBusinessPolicy readFarmBusinesses(ConfigurationSection config) {
         if(!config.contains("farm-businesses"))return com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
