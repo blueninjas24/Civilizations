@@ -1,5 +1,11 @@
 # Civilizations — simulation rules and testable examples
 
+October17 quarry implementation: each current loaded-chunk stone/sand frame is
+independent of neighboring and coal/iron frames. Real customers, qualifications,
+food-protected shared grants and finite per-coordinate reserves gate automatic
+startup. Existing productive mine stone counts toward demand; no invented sand
+buyer. No physical excavation. See AUTOMATIC_QUARRIES.md for verified boundaries.
+
 October 17 current implementation: bounded approved natural free-range adoption,
 qualified/funded atomic herd startup, paid warehouse/crop-farm feed and timed
 saved-herd production are now connected and verified. Protection, named/human/

@@ -20,19 +20,28 @@ public final class MineralOpportunities {
     }
     private record Survey(UUID world,long captured,String fingerprint) {}
     private final Connection connection;
-    public MineralOpportunities(Connection connection) { this.connection = Objects.requireNonNull(connection); }
+    private final boolean quarry;
+    public MineralOpportunities(Connection connection) {this(connection,false);}
+    private MineralOpportunities(Connection connection,boolean quarry){this.connection=Objects.requireNonNull(connection);this.quarry=quarry;}
+    /** Independent current frames: common rock must never replace a coal/iron survey. */
+    public static MineralOpportunities quarries(Connection connection){return new MineralOpportunities(connection,true);}
+    private PreparedStatement prepare(String sql)throws SQLException {
+        return connection.prepareStatement(quarry?sql.replace("mineral_opportunities","quarry_opportunities")
+                .replace("mineral_surveys","quarry_surveys").replace("mineral_survey_members","quarry_survey_members"):sql);
+    }
 
     /** Validate and save one bounded survey atomically. Missing observations never erase saved evidence. */
     public List<MineralSurveyReader.Patch> observe(UUID town, List<MineralObservation> observations) throws SQLException {
+        if(quarry)return new QuarryOpportunities(connection).observe(town,observations,Integer.MIN_VALUE,Integer.MIN_VALUE);
         observations = List.copyOf(observations);
         if (!connection.getAutoCommit()) throw new SQLException("Opportunity observation requires idle SQL owner");
         connection.setAutoCommit(false);
         try {
-            var patches = new MineralSurveyReader(connection).read(town, observations);
+            var patches = (quarry?MineralSurveyReader.quarries(connection):new MineralSurveyReader(connection)).read(town, observations);
             var first=observations.getFirst();var fingerprint=fingerprint(observations);var previous=survey(town);
             if(previous!=null && previous.captured()==first.observedMillis() && !previous.fingerprint().equals(fingerprint))
                 throw new SQLException("Same survey capture time has conflicting evidence");
-            try (var insert = connection.prepareStatement("""
+            try (var insert = prepare("""
                     INSERT INTO mineral_opportunities(settlement_id,world_id,x,y,z,mineral,first_seen_millis,last_seen_millis)
                     VALUES(?,?,?,?,?,?,?,?)
                     ON CONFLICT(settlement_id,world_id,x,y,z) DO UPDATE SET
@@ -57,8 +66,14 @@ public final class MineralOpportunities {
         }
     }
 
+    /** Complete single-chunk frame. Empty observations only replace this chunk's membership. */
+    public List<MineralSurveyReader.Patch> observeChunk(UUID town,List<MineralObservation> observations,int chunkX,int chunkZ)throws SQLException {
+        if(!quarry)throw new IllegalStateException("Chunk-scoped observations are a quarry contract");
+        return new QuarryOpportunities(connection).observe(town,observations,chunkX,chunkZ);
+    }
     /** No historical union: missing/stale/absent-world evidence cannot become an automatic startup candidate. */
     public Review review(UUID town,long now,long maximumAgeMillis,Set<UUID> activeWorlds)throws SQLException {
+        if(quarry)return new QuarryOpportunities(connection).review(town,now,maximumAgeMillis,activeWorlds);
         Objects.requireNonNull(town);activeWorlds=activeWorlds==null?Set.of():Set.copyOf(activeWorlds);
         if(now<0 || maximumAgeMillis<1)throw new IllegalArgumentException("Nonnegative time and positive survey lifetime required");
         var survey=survey(town);
@@ -69,7 +84,7 @@ public final class MineralOpportunities {
         if(survey.captured()>now)return unavailable(Status.FUTURE,survey,"Capture lies ahead of the current clock; candidates deferred");
         if(now-survey.captured()>maximumAgeMillis)return unavailable(Status.STALE,survey,"Complete survey expired; new loaded-chunk evidence required");
         var rows=new ArrayList<Evidence>();
-        try(var s=connection.prepareStatement("""
+        try(var s=prepare("""
             SELECT o.*,
               EXISTS(SELECT 1 FROM player_ore_placements p WHERE p.world_id=o.world_id AND p.x=o.x AND p.y=o.y AND p.z=o.z)
               OR EXISTS(SELECT 1 FROM ore_source_removals r WHERE r.world_id=o.world_id AND r.x=o.x AND r.y=o.y AND r.z=o.z) AS excluded,
@@ -94,29 +109,29 @@ public final class MineralOpportunities {
         return new Review(status,survey.world(),survey.captured(),List.of(),reason);
     }
     private Survey survey(UUID town)throws SQLException {
-        try(var s=connection.prepareStatement("SELECT world_id,captured_millis,fingerprint FROM mineral_surveys WHERE settlement_id=?")) {
+        try(var s=prepare("SELECT world_id,captured_millis,fingerprint FROM mineral_surveys WHERE settlement_id=?")) {
             s.setString(1,town.toString());try(var r=s.executeQuery()) {
                 return r.next()?new Survey(UUID.fromString(r.getString(1)),r.getLong(2),r.getString(3)):null;
             }
         }
     }
     private void saveCurrent(UUID town,MineralObservation first,String fingerprint,List<MineralSurveyReader.Patch> patches)throws SQLException {
-        try(var s=connection.prepareStatement("DELETE FROM mineral_survey_members WHERE settlement_id=?")) {
+        try(var s=prepare("DELETE FROM mineral_survey_members WHERE settlement_id=?")) {
             s.setString(1,town.toString());s.executeUpdate();
         }
-        try(var s=connection.prepareStatement("""
+        try(var s=prepare("""
             INSERT INTO mineral_surveys VALUES(?,?,?,?) ON CONFLICT(settlement_id) DO UPDATE SET
             world_id=excluded.world_id,captured_millis=excluded.captured_millis,fingerprint=excluded.fingerprint
             """)) {
             s.setString(1,town.toString());s.setString(2,first.world().toString());s.setLong(3,first.observedMillis());s.setString(4,fingerprint);s.executeUpdate();
         }
-        try(var s=connection.prepareStatement("INSERT INTO mineral_survey_members VALUES(?,?,?,?,?)")) {
+        try(var s=prepare("INSERT INTO mineral_survey_members VALUES(?,?,?,?,?)")) {
             for(var patch:patches)for(var p:patch.evidence().ore()) {
                 s.setString(1,town.toString());s.setString(2,first.world().toString());s.setInt(3,p.x());s.setInt(4,p.y());s.setInt(5,p.z());s.executeUpdate();
             }
         }
     }
-    private static String fingerprint(List<MineralObservation> observations) {
+    static String fingerprint(List<MineralObservation> observations) {
         var text=new StringBuilder("mineral-survey-v1|");
         for(var o:observations) {
             text.append(o.world()).append('|').append(o.observedMillis()).append('|').append(o.mineral().id()).append('|');
@@ -132,7 +147,7 @@ public final class MineralOpportunities {
         Objects.requireNonNull(town);
         if (limit < 1 || limit > 512) throw new IllegalArgumentException("Opportunity page limit must be 1..512");
         var result = new ArrayList<Evidence>();
-        try (var query = connection.prepareStatement("""
+        try (var query = prepare("""
                 SELECT o.*,
                   EXISTS(SELECT 1 FROM player_ore_placements p WHERE p.world_id=o.world_id AND p.x=o.x AND p.y=o.y AND p.z=o.z)
                   OR EXISTS(SELECT 1 FROM ore_source_removals r WHERE r.world_id=o.world_id AND r.x=o.x AND r.y=o.y AND r.z=o.z) AS excluded,

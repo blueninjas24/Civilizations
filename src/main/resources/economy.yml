@@ -203,7 +203,7 @@ automatic-business-staffing:
   enabled: true
   candidates-per-review: 64
   hires-per-review: 2
-  industries: [mining, blacksmith, warehouse, fishing]
+  industries: [mining, blacksmith, warehouse, fishing, quarry, sandpit]
 
 # Limited public startup funding for qualified mines/workshops/warehouses. Trusted startup
 # accounting is implemented; automatic founding/selection is still being connected.
@@ -265,6 +265,35 @@ quarry-resources:
     units-per-batch: 4
     batches-per-worker: 12
     site-batch-capacity: 32
+
+# Read-only exposed stone/sand surveys near each saved village home.
+# Never loads chunks or changes blocks. Surveys supply evidence only; they do not
+# grant excavation rights or alter shared startup-grant and food-protection limits.
+# Existing installed configs without this section opt out of new observation.
+quarry-observer:
+  enabled: true
+  horizontal-radius-chunks: 1  # 0..2; never loads chunks.
+  vertical-radius: 12
+  cells-per-tick: 2048
+  interval-ticks: 200
+
+# Qualified, funded automatic quarry/sandpit startup from live finite evidence.
+# No physical excavation, block placement, or property claim is authorized here.
+# Uses shared village startup grants with existing food protection and grant caps.
+# Existing installed configs without this section opt out of automatic founding.
+quarry-founding:
+  enabled: true
+  settlements-per-pulse: 2
+  patches-per-review: 8
+  founders-per-review: 64
+  survey-lifetime-seconds: 60
+  horizontal-range: 96
+  vertical-range: 48
+  minimum-age-months: 216
+  founder-mining-experience: 10
+  worker-capacity: 2
+  startup-hundredths: 500
+  capital-hundredths: 2000
 
 # Qualified EXISTING employees may keep working after an owner's death while the
 # business awaits succession/resale. No promotion, hiring authority, grants or wages.
@@ -377,11 +406,11 @@ work-learning:
     farming: farming
     livestock: farming # Real animal-care work can qualify employees for later ownership.
     warehouse: commerce
+    quarry: mining
+    sandpit: mining
     fishing: fishing
     craftsman: crafting
     bakery: baking
-    quarry: mining
-    sandpit: mining
 
 # Phase 3 finite mining backend. Timed work runs existing mines; auto founding is pending.
 # Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.
@@ -405,6 +434,7 @@ industry:
     stone: 3
   storage-space-per-unit:
     coal: 1
+    sand: 1
     stone: 1
     iron: 1
     timber: 2
@@ -640,6 +670,7 @@ industry-supply:
   input-unit-hundredths:
     milk: 150
     eggs: 75
+    sand: 100 # Business-only quote; no public starting goods or invented buyers.
 
 # Existing staffed warehouses buy actual extracted mine goods for funded workshop
 # input needs. Uses the same base prices, cargo delay and shared hauling quota.
@@ -750,7 +781,7 @@ automatic-career-study:
   enabled: true
   candidates-per-review: 64
   enrollments-per-review: 1
-  industries: [mining, blacksmith, warehouse, fishing, bakery, craftsman]
+  industries: [mining, blacksmith, warehouse, fishing, bakery, craftsman, quarry, sandpit]
 
 # Starts data-only coal/iron mines for current funded workshop needs, not fake buyers.
 # Requires current trusted exposed ore, a staffed affordable warehouse buyer, real

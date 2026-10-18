@@ -15,6 +15,7 @@ public final class PaperOreObserver extends BukkitRunnable {
     private final PopulationSession session;
     private final OreObserverPolicy policy;
     private final LongSupplier clock;
+    private final boolean quarry;
     private final Deque<Target> targets=new ArrayDeque<>();
     private CompletableFuture<?> pending;
     private OreScan scan;
@@ -25,8 +26,11 @@ public final class PaperOreObserver extends BukkitRunnable {
     private String diagnostic="No live ore survey completed";
     private String lastCompleted;
     public PaperOreObserver(PopulationSession session,OreObserverPolicy policy){this(session,policy,System::currentTimeMillis);}
-    public PaperOreObserver(PopulationSession session,OreObserverPolicy policy,LongSupplier clock){this.session=Objects.requireNonNull(session);this.policy=Objects.requireNonNull(policy);this.clock=Objects.requireNonNull(clock);}
-    public String diagnostic(){return diagnostic+(lastCompleted==null || diagnostic.equals(lastCompleted)?"":"; last completed: "+lastCompleted);}
+    public PaperOreObserver(PopulationSession session,OreObserverPolicy policy,LongSupplier clock){this(session,policy,clock,false);}
+    private PaperOreObserver(PopulationSession session,OreObserverPolicy policy,LongSupplier clock,boolean quarry){this.session=Objects.requireNonNull(session);this.policy=Objects.requireNonNull(policy);this.clock=Objects.requireNonNull(clock);this.quarry=quarry;}
+    public static PaperOreObserver quarries(PopulationSession session,OreObserverPolicy policy){return quarries(session,policy,System::currentTimeMillis);}
+    public static PaperOreObserver quarries(PopulationSession session,OreObserverPolicy policy,LongSupplier clock){return new PaperOreObserver(session,policy,clock,true);}
+    public String diagnostic(){return (quarry?"Stone/sand: ":"")+diagnostic+(lastCompleted==null || diagnostic.equals(lastCompleted)?"":"; last completed: "+lastCompleted);}
     @Override public void run() {
         if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Ore observer requires main thread");
         if(!policy.enabled()){diagnostic="Live ore surveys disabled in economy.yml";return;}
@@ -45,7 +49,7 @@ public final class PaperOreObserver extends BukkitRunnable {
                 var evidence=scan.observations(world.getUID(),snapshotMillis);scan=null;
                 if(evidence.stream().anyMatch(o->!o.complete())){diagnostic="Ore survey discarded: incomplete snapshot evidence";return;}
                 var capturedTarget=target;
-                pending=session.surveyMinerals(target.town(),evidence).thenAccept(patches-> {
+                pending=(quarry?session.surveyQuarries(target.town(),evidence,chunkX,chunkZ):session.surveyMinerals(target.town(),evidence)).thenAccept(patches-> {
                     // Callback touches only this volatile text; never world/entity/chunk APIs.
                     completed="Ore survey: "+patches.size()+" observed patches; "+patches.stream().filter(p->p.savedDeposit()!=null).count()
                             +" linked to saved deposits; snapshot captured at "+evidence.getFirst().observedMillis()+"; town "+capturedTarget.town()
@@ -78,7 +82,8 @@ public final class PaperOreObserver extends BukkitRunnable {
                 int x=Math.addExact(chunkX,offset[0]),z=Math.addExact(chunkZ,offset[1]);
                 if(world.isChunkLoaded(x,z))snapshots.put(new OreSurveyArea.Chunk(x,z),world.getChunkAt(x,z).getChunkSnapshot(false,false,false,false));
             }
-            scan=new OreScan(PaperOreNeighborhood.ores(snapshots,chunkX,chunkZ,world.getMinHeight(),world.getMaxHeight()),chunkX,chunkZ,minimumY,maximumY,Set.of());
+            scan=quarry?OreScan.quarries(PaperOreNeighborhood.quarries(snapshots,chunkX,chunkZ,world.getMinHeight(),world.getMaxHeight()),chunkX,chunkZ,minimumY,maximumY,Set.of())
+                    :new OreScan(PaperOreNeighborhood.ores(snapshots,chunkX,chunkZ,world.getMinHeight(),world.getMaxHeight()),chunkX,chunkZ,minimumY,maximumY,Set.of());
             diagnostic="Ore survey scanning nearby loaded chunk "+chunkX+","+chunkZ;
         } catch(RuntimeException failure){scan=null;pending=null;diagnostic="Ore survey deferred: "+failure.getMessage();}
     }

@@ -34,6 +34,13 @@ observations, skills, supplies, customers and money; not every village gets ever
 business. Phase 3 remains unfinished. Physical excavation and new buildings
 belong to Phase 4.
 
+The latest verified build also supports automatic finite stone quarries and
+sandpits; see AUTOMATIC_QUARRIES.md for opt-in settings in older files. A quarry
+needs a current exposed source, qualified owner, protected real startup funds and
+an actual customer. Existing mine stone can already meet demand. Sandpits need a
+configured sand customer; no default glass industry has been invented. Nothing
+excavates blocks in Phase3, and these businesses are not guaranteed in every town.
+
 1. Stop the test server. Install only target/civilizations-0.0.1-SNAPSHOT.jar in its
    plugins folder, then start it normally. Never install src/test/paper probe JARs
    for player testing. Use the verified Paper/Java combination in DEVELOPMENT.md.

@@ -70,7 +70,7 @@ class LivestockSlaughterTest {
         var herd=f.repo().load(f.business.id()).orElseThrow();var stock=f.db.getIndustryRepository().store(f.business.id()).orElseThrow();SchemaFixtures.rewind(f.db.getConnection(),89);
         f.sql("CREATE VIEW livestock_slaughter AS SELECT 1");assertThrows(SQLException.class,()->new SchemaMigrator().migrate(f.db.getConnection()));assertEquals(89,scalar("PRAGMA user_version"));
         assertEquals(herd,f.repo().load(f.business.id()).orElseThrow());assertEquals(stock,f.db.getIndustryRepository().store(f.business.id()).orElseThrow());
-        f.sql("DROP VIEW livestock_slaughter");new SchemaMigrator().migrate(f.db.getConnection());assertEquals(90,scalar("PRAGMA user_version"));assertEquals(0,f.count("livestock_slaughter"));
+        f.sql("DROP VIEW livestock_slaughter");new SchemaMigrator().migrate(f.db.getConnection());assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(0,f.count("livestock_slaughter"));
         assertEquals(herd,f.repo().load(f.business.id()).orElseThrow());assertEquals(stock,f.db.getIndustryRepository().store(f.business.id()).orElseThrow());
     }
     @Test void activeMatureOffspringUsesItsExistingAliasAndCannotBeReplacedOrCreditedTwice()throws Exception {

@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October17 — stone/sand startup within the approved industry rules
+
+Implemented approved finite quarry/sandpit resources under existing shared grant
+limits, earned mining qualifications and actual funded customers. Chunk-scoped
+current frames are environmental evidence, not land or excavation permission.
+Editable prototype opening/work/yield terms stay saved for existing deposits;
+no restart refill or default invented glass demand. Historical block origins
+remain unknowable, while recorded placements/removals are excluded. No new
+gameplay answer needed. See AUTOMATIC_QUARRIES.md and PROJECT_STATUS.md.
+
 ## October17 — approved bakery scope: prototype implementation
 
 Implemented the approved real grain/milk/egg chain with editable recipes and

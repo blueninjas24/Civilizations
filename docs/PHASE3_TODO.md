@@ -1,5 +1,42 @@
 # Phase 3 — businesses and industry checklist
 
+## October17, 22:17 — automatic stone/sand businesses verified
+
+Completed bounded loaded-chunk stone/sand observation, separate current per-chunk
+frames, actual funded customer selection, gradual real-material founder training,
+and atomic qualified quarry/sandpit startup under the existing protected grant
+limits. Finite reserves feed ordinary timed work and paid warehouse/customer
+deliveries. Existing mine stone counts toward supply; sand needs a real configured
+buyer. No excavation, land claim, invented customers or new money. Settings remain
+editable; older installed files are preserved and missing sections opt out.
+
+Schema91 adds five empty quarry evidence/frame/training tables; no previous rows
+or tables are changed by migration. Existing configured warehouse sand slots are
+added empty with an audit only when a sand customer exists. The preserved bakery
+empty-slot helper retains its existing receipt identities. Neighboring empty
+surveys no longer erase another chunk's prospect, and stale historical scopes do
+not exhaust the current-frame review budget.
+
+Windows clean verify passed1,868 unit +2 packaged integration tests, zero failures,
+errors or skips,14:23, finished22:13:25 EDT. The final per-chunk correction and two
+regressions followed that full run; affected final-source verify/package passed
+56 unit +2 packaged tests, zero failures/errors/skips,39.607s,22:15:27. No final-source
+full-suite result is claimed. Actual Paper26.2 build129 passed22:16:20: ordinary
+read-only observer matched independent terrain; private SQLite founded an actual
+candidate, ran five production periods, delivered paid cargo through a warehouse
+to a producing customer, conserved money after the startup sink, and preserved
+absent-world assets. Fixture-only imports/Windows Java quoting were corrected.
+The stopped main disposable fixture retained152 predecessor tables,148 exactly;
+only four routine metadata tables changed, no resident aging, integrity/FKs clean.
+Settings restored, helper archived, backups retained. Human server untouched.
+
+Resources34/39 (87%), about70% equally weighted partial Phase3; whole groups remain
+1/4. Forestry, broader general crafts, reviewed resource recovery/compatibility,
+competition and emergent-specialization acceptance remain. Next: non-destructive
+forestry environmental evidence and real timber supply. No gameplay answer needed.
+Feature branch: codex/phase3-quarry-startup; main unchanged. GitHub backup follows.
+See AUTOMATIC_QUARRIES.md for files/settings, migration and current limits.
+
 ## October 17, 17:53 — dedicated producers no longer block local trade
 
 Fixed warehouse/demand classification that rejected registered fisheries,
@@ -1101,7 +1138,10 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
       unknown editors/offline edits remain outside provenance guarantees.
 - [x] Split complete observed coal/iron evidence into deterministic connected patches;
       retain coordinate identity and finite reserves on replay.
-- [ ] Connect safe loaded-chunk observation and coherent resource opportunities.
+- [x] Connect safe loaded-chunk observation and coherent resource opportunities
+      for the implemented coal/iron/stone/sand catalogue. Quarry frames are scoped
+      per chunk and independent of coal/iron; newer empty neighbors cannot erase
+      a source. Forestry and the broader catalogue remain separately unfinished.
 - [x] Save latest complete survey membership separately from historical sightings;
       newer empty frames clear candidates, older frames never restore them, and
       read-only owner reviews fence stale/future/absent-world/claimed/excluded ore.

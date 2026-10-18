@@ -34,6 +34,7 @@ public final class Civilizations extends JavaPlugin {
     private PaperFarmObserver farms;
     private com.blueninjas24.civilizations.paper.PaperWaterObserver waters;
     private com.blueninjas24.civilizations.paper.PaperOreObserver ores;
+    private com.blueninjas24.civilizations.paper.PaperOreObserver quarries;
     private com.blueninjas24.civilizations.paper.PaperWorkplaceObserver workplaces;
     private com.blueninjas24.civilizations.paper.PaperWorkplaceOperations workplaceOperations;
     private com.blueninjas24.civilizations.paper.PaperWorkshopStartup workshopStartup;
@@ -117,6 +118,7 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + livestockNewborns.diagnostic()
                             + "; " + livestockAdoption.diagnostic()
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
+                            + "; " + (quarries==null?"Stone/sand observer not started":quarries.diagnostic())
                             + "; " + (fisheryStartup==null?"Fishery startup not started":fisheryStartup.diagnostic())
                             + "; " + (fisheryWorkplaces==null?"Fishery workplace checks not started":fisheryWorkplaces.diagnostic())
                             + "; " + (waters==null?"Water observer not started":waters.diagnostic())
@@ -173,6 +175,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureFisheryShoreline(EconomyConfiguration.readFisheryShoreline(economyConfig));
             population.configureFishing(EconomyConfiguration.readFishingResources(economyConfig));
             population.configureQuarries(EconomyConfiguration.readQuarryResources(economyConfig));
+            population.configureQuarryFounding(EconomyConfiguration.readQuarryFounding(economyConfig));
             population.configureBusinessPurchases(EconomyConfiguration.readBusinessPurchasePolicy(economyConfig));
             population.configureBusinessOperations(EconomyConfiguration.readBusinessOperations(economyConfig));
             population.configureWorkLearning(EconomyConfiguration.readWorkLearning(economyConfig));
@@ -204,6 +207,7 @@ public final class Civilizations extends JavaPlugin {
                         observer = new VillageObserver(Civilizations.this, population, observerSettings);
                         farms = new PaperFarmObserver(population, farmSettings); farms.runTaskTimer(Civilizations.this, 1, 1);
                         ores=new com.blueninjas24.civilizations.paper.PaperOreObserver(population,oreSettings);ores.runTaskTimer(Civilizations.this,1,1);
+                        quarries=com.blueninjas24.civilizations.paper.PaperOreObserver.quarries(population,EconomyConfiguration.readQuarryObserver(economyConfig));quarries.runTaskTimer(Civilizations.this,1,1);
                         waters=new com.blueninjas24.civilizations.paper.PaperWaterObserver(population,waterSettings,getLogger());waters.runTaskTimer(Civilizations.this,1,1);
                         fisheryStartup=new com.blueninjas24.civilizations.paper.PaperFisheryStartup(population,EconomyConfiguration.readFisheryShoreline(economyConfig),waterSettings,getLogger());fisheryStartup.runTaskTimer(Civilizations.this,1,1);
                         fisheryWorkplaces=new com.blueninjas24.civilizations.paper.PaperFisheryWorkplaces(population,EconomyConfiguration.readFisheryShoreline(economyConfig),getLogger());fisheryWorkplaces.runTaskTimer(Civilizations.this,1,1);

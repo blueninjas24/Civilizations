@@ -1,5 +1,68 @@
 # Civilizations Development Log
 
+## October17, 22:17 — automatic stone/sand businesses verified
+
+Completed bounded loaded-chunk stone/sand observation, separate current per-chunk
+frames, actual funded customer selection, gradual real-material founder training,
+and atomic qualified quarry/sandpit startup under the existing protected grant
+limits. Finite reserves feed ordinary timed work and paid warehouse/customer
+deliveries. Existing mine stone counts toward supply; sand needs a real configured
+buyer. No excavation, land claim, invented customers or new money. Settings remain
+editable; older installed files are preserved and missing sections opt out.
+
+Schema91 adds five empty quarry evidence/frame/training tables; no previous rows
+or tables are changed by migration. Existing configured warehouse sand slots are
+added empty with an audit only when a sand customer exists. The preserved bakery
+empty-slot helper retains its existing receipt identities. Neighboring empty
+surveys no longer erase another chunk's prospect, and stale historical scopes do
+not exhaust the current-frame review budget.
+
+Windows clean verify passed1,868 unit +2 packaged integration tests, zero failures,
+errors or skips,14:23, finished22:13:25 EDT. The final per-chunk correction and two
+regressions followed that full run; affected final-source verify/package passed
+56 unit +2 packaged tests, zero failures/errors/skips,39.607s,22:15:27. No final-source
+full-suite result is claimed. Actual Paper26.2 build129 passed22:16:20: ordinary
+read-only observer matched independent terrain; private SQLite founded an actual
+candidate, ran five production periods, delivered paid cargo through a warehouse
+to a producing customer, conserved money after the startup sink, and preserved
+absent-world assets. Fixture-only imports/Windows Java quoting were corrected.
+The stopped main disposable fixture retained152 predecessor tables,148 exactly;
+only four routine metadata tables changed, no resident aging, integrity/FKs clean.
+Settings restored, helper archived, backups retained. Human server untouched.
+
+Resources34/39 (87%), about70% equally weighted partial Phase3; whole groups remain
+1/4. Forestry, broader general crafts, reviewed resource recovery/compatibility,
+competition and emergent-specialization acceptance remain. Next: non-destructive
+forestry environmental evidence and real timber supply. No gameplay answer needed.
+Feature branch: codex/phase3-quarry-startup; main unchanged. GitHub backup follows.
+See AUTOMATIC_QUARRIES.md for files/settings, migration and current limits.
+
+## October 17 — usage-limit handoff: quarry startup work is UNVERIFIED
+
+Both delegated workers stopped with the account usage-limit error during the next
+stone/sand milestone. This is unfinished working-tree work, not a playable feature
+or a passing migration. No build/tests/native server/database operations were run
+for this batch. Do not release or commit it as complete without finishing review.
+Last verified/pushed source remains3cfbc10 on codex/phase3-live-livestock; target
+JAR still comes from that prior passing build. Main and the human server unchanged.
+
+Draft changes: independent QuarrySurveys schema (proposed91, three additive empty
+quarry_* evidence/frame/membership tables), MineralOpportunities.quarries(Connection)
+and MineralSurveyReader.quarries(Connection) factories keeping coal/iron frames
+separate, proposed schema validation, QuarryFoundingPolicy and partial strict
+configuration readers. Config defaults/YAML/tests may be incomplete. No actual
+Paper quarry observer or automatic quarry startup has been connected yet.
+
+Resume: inspect all six draft source files/diff; finish quarry config/defaults and
+regressions; update SchemaFixtures and old preservation expectations for the three
+new empty tables; add survey isolation/rollback tests; implement bounded loaded
+stone/sand observation plus actual customer/skill/shared-grant startup; verify full
+migration build and native integration before any milestone credit/commit/push.
+Do not discard the existing drafts or silently certify them. P3 stays33/39 resources,
+about69.5% partial,1/4 whole groups. No consequential gameplay question is pending.
+Latest user reply reconfirms bounded automatic natural-animal recognition and
+[Civ Protect] for guaranteed large-pasture protection; preserve that existing rule.
+
 ## October 17, 17:53 — dedicated producers no longer block local trade
 
 Fixed warehouse/demand classification that rejected registered fisheries,

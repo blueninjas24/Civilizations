@@ -186,6 +186,7 @@ public final class EconomyRuntimeRepository {
         });
     }
     private MineFounderStudy mineFounderStudy;
+    private QuarryFounderStudy quarryFounderStudy;
     private WorkshopFounderStudy workshopFounderStudy;
     private BakeryFounderStudy bakeryFounderStudy;
     private CraftsmanFounderStudy craftsmanFounderStudy;
@@ -262,6 +263,19 @@ public final class EconomyRuntimeRepository {
             if(period==0)return "Founder study waits for first food assessment";
             accrue(opportunity.town(),now,false);
             return mineFounderStudy.reviewRows(opportunity,period,clock(opportunity.town()).anchor().targetSteps());
+        });
+    }
+    public void configureQuarryFounderStudy(AutomaticQuarryFounding mines,com.blueninjas24.civilizations.industry.CareerStudyPolicy careers,
+                                         com.blueninjas24.civilizations.industry.QuarryFoundingPolicy founding) {
+        if(inUse)throw new IllegalStateException("Configure quarry founder study before economy use");
+        quarryFounderStudy=new QuarryFounderStudy(connection,mines,careers,studyPolicy,founding,adulthood);
+        mines.configureTraining((opportunity,now)-> {
+            if(!hasRuntime(opportunity.town())||!active(opportunity.town()))return "Founder study waits for present-world food economy";
+            var evidence=farm(opportunity.town());if(evidence==null||!evidence.complete())return "Founder study waits for complete food evidence";
+            long period=commodities.read(opportunity.town()).orElseThrow().state().completedPeriods();
+            if(period==0)return "Founder study waits for first food assessment";
+            accrue(opportunity.town(),now,false);
+            return quarryFounderStudy.reviewRows(opportunity,period,clock(opportunity.town()).anchor().targetSteps());
         });
     }
     public ResidentStudy.Course enrollStudy(UUID operation,UUID resident,UUID town,String skill,long now)throws SQLException {
@@ -596,7 +610,9 @@ public final class EconomyRuntimeRepository {
             flows.put(Commodity.FOOD,new Flow(grainPlan.foodOutput(),foodFlow.imports(),foodFlow.households(),foodFlow.industry(),foodFlow.construction(),foodFlow.exports(),foodFlow.events()));
         }
         var study=new ResidentStudy(connection,studyPolicy,adulthood);
-        if(mineFounderStudy!=null)study.withFounderOpportunity(course->mineFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds));
+        if(mineFounderStudy!=null||quarryFounderStudy!=null)study.withFounderOpportunity(course->
+                (mineFounderStudy==null||mineFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds))
+                &&(quarryFounderStudy==null||quarryFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds)));
         if(workshopFounderStudy!=null||warehouseFounderStudy!=null||fisheryFounderStudy!=null||bakeryFounderStudy!=null||craftsmanFounderStudy!=null)study.withFounderPractice(course->{
             var craftsman=craftsmanFounderStudy==null?ResidentStudy.FounderState.READY:craftsmanFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds,clock.anchor().targetSteps()==nextPeriod);
             if(craftsman!=ResidentStudy.FounderState.READY)return craftsman;

@@ -87,6 +87,9 @@ public final class IndustryRuntime {
             }
             for(var c:clocks()) {
                 BakeryCatalogue.ensureRows(connection,c.business(),c.industry(),policy);
+                if(quarries.enabled()&&c.industry().equals("warehouse")&&policy.mining().storageSpacePerUnit().containsKey(com.blueninjas24.civilizations.economy.Commodity.SAND)
+                        &&policy.recipes().values().stream().anyMatch(r->r.inputs().containsKey(com.blueninjas24.civilizations.economy.Commodity.SAND)))
+                    IndustryStockCatalogue.addEmptyRows(connection,c.business(),"sand",policy.mining().storageSpacePerUnit().get(com.blueninjas24.civilizations.economy.Commodity.SAND),"quarry-catalogue-v1");
                 long cadence=c.cadence();var before=c.anchor();
                 if(cadence!=policy.millisPerPeriod()) {
                     if(c.completed()!=before.targetSteps())throw new SQLException("Finish queued industry periods under old cadence before retuning");

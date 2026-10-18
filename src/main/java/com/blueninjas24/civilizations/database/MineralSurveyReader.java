@@ -9,12 +9,15 @@ import java.util.*;
 public final class MineralSurveyReader {
     public record Patch(MineralObservation evidence,UUID savedDeposit,String explanation) {}
     private final Connection connection;
-    public MineralSurveyReader(Connection connection){this.connection=Objects.requireNonNull(connection);}
+    private final boolean quarry;
+    public MineralSurveyReader(Connection connection){this(connection,false);}
+    private MineralSurveyReader(Connection connection,boolean quarry){this.connection=Objects.requireNonNull(connection);this.quarry=quarry;}
+    public static MineralSurveyReader quarries(Connection connection){return new MineralSurveyReader(connection,true);}
     public List<Patch> read(UUID town,List<MineralObservation> observations) throws SQLException {
         observations=List.copyOf(observations);Objects.requireNonNull(town);
-        if(observations.size()!=2 || !observations.get(0).mineral().equals(com.blueninjas24.civilizations.economy.Commodity.COAL)
-                || !observations.get(1).mineral().equals(com.blueninjas24.civilizations.economy.Commodity.IRON))
-            throw new IllegalArgumentException("One bounded coal/iron survey pair required");
+        if(observations.size()!=2 || !observations.get(0).mineral().equals(quarry?com.blueninjas24.civilizations.economy.Commodity.STONE:com.blueninjas24.civilizations.economy.Commodity.COAL)
+                || !observations.get(1).mineral().equals(quarry?com.blueninjas24.civilizations.economy.Commodity.SAND:com.blueninjas24.civilizations.economy.Commodity.IRON))
+            throw new IllegalArgumentException("One bounded matching resource survey pair required");
         var first=observations.getFirst();var second=observations.getLast();
         if(!first.complete() || !second.complete() || !first.world().equals(second.world())
                 || first.observedMillis()!=second.observedMillis() || first.ore().size()+second.ore().size()>512)

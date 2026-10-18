@@ -36,6 +36,8 @@ public final class EconomyConfiguration {
         if (config.contains("livestock-working-area")) rootKeys.add("livestock-working-area");
         if (config.contains("recipes")) rootKeys.add("recipes");
         if (config.contains("ore-observer")) rootKeys.add("ore-observer");
+        if (config.contains("quarry-observer")) rootKeys.add("quarry-observer");
+        if (config.contains("quarry-founding")) rootKeys.add("quarry-founding");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
         if (config.contains("storage-upgrades")) rootKeys.add("storage-upgrades");
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
@@ -76,6 +78,8 @@ public final class EconomyConfiguration {
         readIndustryRuntime(config);
         readStorageUpgrades(config);
         readQuarryResources(config);
+        readQuarryFounding(config);
+        readQuarryObserver(config);
         readFishingResources(config);
         readWaterObserver(config);
         readFisheryOpportunities(config);
@@ -201,6 +205,19 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("automatic-mines.enabled must be true or false");
         var yield=new TreeMap<Commodity,Long>();var raw=section(s,"mineral-yield-per-batch");for(var key:raw.getKeys(false))yield.put(new Commodity(key),integer(raw,key));
         return new com.blueninjas24.civilizations.industry.MineFoundingPolicy(enabled,smallInteger(s,"settlements-per-pulse"),smallInteger(s,"patches-per-review"),smallInteger(s,"founders-per-review"),Math.multiplyExact(integer(s,"survey-lifetime-seconds"),1000),smallInteger(s,"horizontal-range"),smallInteger(s,"vertical-range"),integer(s,"minimum-age-months"),integer(s,"founder-mining-experience"),smallInteger(s,"worker-capacity"),integer(s,"startup-hundredths"),integer(s,"capital-hundredths"),yield);
+    }
+    public static com.blueninjas24.civilizations.industry.QuarryFoundingPolicy readQuarryFounding(ConfigurationSection config) {
+        if (!config.contains("quarry-founding")) return com.blueninjas24.civilizations.industry.QuarryFoundingPolicy.disabled();
+        var s = section(config, "quarry-founding");
+        exactKeys(s, Set.of("enabled", "settlements-per-pulse", "patches-per-review", "founders-per-review",
+                "survey-lifetime-seconds", "horizontal-range", "vertical-range", "minimum-age-months",
+                "founder-mining-experience", "worker-capacity", "startup-hundredths", "capital-hundredths"));
+        if (!(s.get("enabled") instanceof Boolean enabled)) throw new IllegalArgumentException("quarry-founding.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.QuarryFoundingPolicy(enabled,
+                smallInteger(s, "settlements-per-pulse"), smallInteger(s, "patches-per-review"), smallInteger(s, "founders-per-review"),
+                Math.multiplyExact(integer(s, "survey-lifetime-seconds"), 1000), smallInteger(s, "horizontal-range"),
+                smallInteger(s, "vertical-range"), integer(s, "minimum-age-months"), integer(s, "founder-mining-experience"),
+                smallInteger(s, "worker-capacity"), integer(s, "startup-hundredths"), integer(s, "capital-hundredths"));
     }
     public static com.blueninjas24.civilizations.industry.CareerStudyPolicy readCareerStudy(ConfigurationSection config) {
         if(!config.contains("automatic-career-study"))return com.blueninjas24.civilizations.industry.CareerStudyPolicy.disabled();
@@ -331,6 +348,17 @@ public final class EconomyConfiguration {
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("ore-observer.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.OreObserverPolicy(enabled,smallInteger(s,"vertical-radius"),smallInteger(s,"cells-per-tick"),smallInteger(s,"interval-ticks"),
                 s.contains("horizontal-radius-chunks")?smallInteger(s,"horizontal-radius-chunks"):0);
+    }
+    public static com.blueninjas24.civilizations.industry.OreObserverPolicy readQuarryObserver(ConfigurationSection config) {
+        if (!config.contains("quarry-observer")) return com.blueninjas24.civilizations.industry.OreObserverPolicy.disabled();
+        var s = section(config, "quarry-observer");
+        var keys = new HashSet<>(Set.of("enabled", "vertical-radius", "cells-per-tick", "interval-ticks"));
+        if (s.contains("horizontal-radius-chunks")) keys.add("horizontal-radius-chunks");
+        exactKeys(s, keys);
+        if (!(s.get("enabled") instanceof Boolean enabled)) throw new IllegalArgumentException("quarry-observer.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.OreObserverPolicy(enabled, smallInteger(s, "vertical-radius"),
+                smallInteger(s, "cells-per-tick"), smallInteger(s, "interval-ticks"),
+                s.contains("horizontal-radius-chunks") ? smallInteger(s, "horizontal-radius-chunks") : 0);
     }
     public static com.blueninjas24.civilizations.industry.FarmBusinessPolicy readFarmBusinesses(ConfigurationSection config) {
         if(!config.contains("farm-businesses"))return com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();

@@ -1,5 +1,11 @@
 # Civilizations — canonical master design
 
+October17 quarry implementation: current exposed stone/sand, real local customers,
+earned qualifications and shared protected startup funds now support automatic
+finite quarry/sandpit businesses and paid timed deliveries. Environmental evidence
+does not grant excavation or property rights. Sand needs a configured real buyer;
+forestry remains separate. See AUTOMATIC_QUARRIES.md and PROJECT_STATUS.md.
+
 October 17 current implementation: bounded approved natural free-range adoption,
 qualified/funded atomic herd startup, paid warehouse/crop-farm feed and timed
 saved-herd production are now connected and verified. Protection, named/human/

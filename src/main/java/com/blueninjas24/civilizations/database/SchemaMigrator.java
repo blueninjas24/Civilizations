@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 90;
+    static final int CURRENT_VERSION = 91;
 
     @FunctionalInterface
     interface Migration {
@@ -939,7 +939,8 @@ final class SchemaMigrator {
                 LivestockPresence::createSchema,
                 PenProtectionLifecycle::createSchema,
                 LivestockLearning::createSchema,
-                LivestockSlaughter::createSchema
+                LivestockSlaughter::createSchema,
+                QuarrySurveys::createSchema
 
 
         ));
@@ -1109,6 +1110,13 @@ final class SchemaMigrator {
             if(migrations.size()>=88){requireColumns(connection,"active_pen_claims",Set.of("pen_id"));requireColumns(connection,"pen_releases",Set.of("operation_id","pen_id","actor_id","released_millis","reason"));}
             if(migrations.size()>=89){requireColumns(connection,"livestock_learning_reviews",Set.of("business_id","period","work_used","skill","policy","explanation"));requireColumns(connection,"livestock_learning_entries",Set.of("business_id","period","resident_id","before_experience","after_experience"));}
             if(migrations.size()>=90)requireColumns(connection,"livestock_slaughter",Set.of("id","animal_id","business_id","period","world_id","species","meat_units","prepared_ms","state","loss_operation","explanation","terms"));
+            if (migrations.size() >= 91) {
+                requireColumns(connection,"quarry_opportunities",Set.of("settlement_id","world_id","x","y","z","mineral","first_seen_millis","last_seen_millis"));
+                requireColumns(connection,"quarry_surveys",Set.of("settlement_id","world_id","scope_x","scope_z","captured_millis","fingerprint"));
+                requireColumns(connection,"quarry_survey_members",Set.of("settlement_id","world_id","scope_x","scope_z","x","y","z"));
+                requireColumns(connection,"quarry_founder_reviews",Set.of("settlement_id","period","opportunity","after_resident","policy","explanation"));
+                requireColumns(connection,"quarry_founder_courses",Set.of("course_id","settlement_id","world_id","mineral","x","y","z","enrolled_period"));
+            }
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));
                 requireColumns(connection, "residents", Set.of("id", "name", "settlement_id",
