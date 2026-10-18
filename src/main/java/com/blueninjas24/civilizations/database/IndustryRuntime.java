@@ -132,7 +132,7 @@ public final class IndustryRuntime {
     private boolean loggingClockReady(Clock clock)throws SQLException {
         if(!clock.industry().equals("logging")||!registeredForest(clock.business()))return true;
         return forestry.enabled()&&forestryHealthy.getAsBoolean()
-                &&new ForestryTrackingRepository(connection).load().map(ForestryTrackingRepository.State::trusted).orElse(true);
+                &&new IndustryRepository(connection).forestryHistoryTrusted(new BusinessRepository(connection).findBusiness(clock.business()).orElseThrow().siteId());
     }
     private boolean supported(String kind) {return dedicatedLivestock(kind)?livestock.enabled()&&herdWork.enabled():kind.equals("mining") || (kind.equals("logging")&&forestry.enabled()) || (Set.of("quarry","sandpit").contains(kind)&&quarries.enabled()) || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
     private List<Clock> clocks() throws SQLException {

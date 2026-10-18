@@ -88,6 +88,7 @@ public final class PopulationSession implements AutoCloseable {
     private boolean trackForests, forestTrackingStarted;
     private final AtomicBoolean forestHistoryHealthy=new AtomicBoolean(),forestCaptureGap=new AtomicBoolean();
     private final AtomicInteger pendingForestMutations=new AtomicInteger();
+    private final java.util.concurrent.atomic.AtomicLong forestMutationRevision=new java.util.concurrent.atomic.AtomicLong();
     private final AtomicInteger pendingOreMutations=new AtomicInteger();
     private final java.util.concurrent.atomic.AtomicLong oreMutationRevision=new java.util.concurrent.atomic.AtomicLong();
     private final AtomicReference<String> forestHistoryIssue=new AtomicReference<>("starting");
@@ -285,13 +286,16 @@ public final class PopulationSession implements AutoCloseable {
         trackForests=true;
     }
     public boolean forestDiscoveryReady(){return trackForests&&forestHistoryHealthy.get()&&!forestCaptureGap.get()&&pendingForestMutations.get()==0&&status().ready();}
+    public boolean forestCaptureReady(){return trackForests&&!forestCaptureGap.get()&&pendingForestMutations.get()==0&&status().ready();}
+    public long forestMutationRevision(){return forestMutationRevision.get();}
     public String forestTrackingDiagnostic(){
         if(!trackForests)return "Forest tracking: not configured";
-        if(!forestHistoryHealthy.get()||forestCaptureGap.get())return "Forestry paused: "+forestHistoryIssue.get();
+        if(!forestHistoryHealthy.get()||forestCaptureGap.get())return "New forestry discovery/unreviewed work paused: "+forestHistoryIssue.get();
         if(pendingForestMutations.get()>0)return "Forestry paused: waiting for "+pendingForestMutations.get()+" native tree mutation saves";
         return status().ready()?"Forest history: trusted; pending saves 0":"Forest tracking: starting or stopped";
     }
     public void invalidateForestTracking(String reason){
+        forestMutationRevision.incrementAndGet();
         forestCaptureGap.set(true);forestHistoryHealthy.set(false);forestHistoryIssue.set(java.util.Objects.requireNonNull(reason));
     }
     public void configureOreTracking() {
@@ -496,7 +500,7 @@ public final class PopulationSession implements AutoCloseable {
     public String oreTrackingDiagnostic() {
         return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
                 ?"Ore mutation history: trusted; mine startup also checks demand, skills, funding and resource anchors"
-                :"Ore discovery and coordinate-backed mining paused: "+oreHistoryIssue.get();
+                :"New ore discovery/unreviewed coordinate mining paused: "+oreHistoryIssue.get();
     }
     /** Main-thread adapters may mark a gap immediately; no JDBC access or world work occurs here. */
     public void invalidateOreTracking(String reason) {
@@ -553,7 +557,7 @@ public final class PopulationSession implements AutoCloseable {
                 industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
                 industries.configureFishing(fishingPolicy);
                 industries.configureQuarries(quarryPolicy);
-                industries.configureForestry(forestryPolicy,()->!trackForests||(forestHistoryHealthy.get()&&!forestCaptureGap.get()&&pendingForestMutations.get()==0));
+                industries.configureForestry(forestryPolicy,()->!trackForests||(!forestCaptureGap.get()&&pendingForestMutations.get()==0));
                 industries.configureLivestock(livestockPolicy,livestockRuntimePolicy,livestockWorkingArea,this::livestockCaptureReady);
                 industries.start(now.getAsLong());
                 new com.blueninjas24.civilizations.database.BusinessSaleListings(database.getConnection()).resume(now.getAsLong());
@@ -728,7 +732,7 @@ public final class PopulationSession implements AutoCloseable {
             java.util.Collection<VillageObservation.Position> placements,java.util.Collection<VillageObservation.Position> removals,long millis,String reason) {
         var placed=List.copyOf(placements);var removed=List.copyOf(removals);
         java.util.Objects.requireNonNull(world);java.util.Objects.requireNonNull(name);
-        pendingForestMutations.incrementAndGet();
+        pendingForestMutations.incrementAndGet();forestMutationRevision.incrementAndGet();
         return submit(()->{
             requireReady();
             try {
@@ -750,6 +754,25 @@ public final class PopulationSession implements AutoCloseable {
     }
     public CompletableFuture<List<UUID>> mineralRecoveryCandidates(){
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.MineralRecovery(database.getConnection()).deposits();});
+    }
+    public CompletableFuture<List<UUID>> forestRecoveryCandidates(){
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ForestRecovery(database.getConnection()).sites();});
+    }
+    public record ForestReview(com.blueninjas24.civilizations.database.ForestRecovery.Plan plan,long revision) {}
+    public CompletableFuture<ForestReview> prepareForestRecovery(UUID site){
+        return submit(()->{requireReady();if(!forestCaptureReady())throw new SQLException("Current forest capture is not ready");
+            long revision=forestMutationRevision();var plan=new com.blueninjas24.civilizations.database.ForestRecovery(database.getConnection()).prepare(site);
+            if(!forestCaptureReady()||revision!=forestMutationRevision())throw new SQLException("Capture changed during forest review");
+            return new ForestReview(plan,revision);
+        });
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.ForestRecovery.Receipt> approveForestRecovery(
+            UUID operation,String actor,ForestReview review,java.util.Map<VillageObservation.Position,com.blueninjas24.civilizations.database.ForestRecovery.Verdict> evidence,long captured){
+        var frozen=java.util.Map.copyOf(evidence);
+        return submit(()->{requireReady();if(loadedWorlds!=null&&!loadedWorlds.contains(review.plan().resource().world()))throw new SQLException("Forest world is absent");
+            return new com.blueninjas24.civilizations.database.ForestRecovery(database.getConnection()).approve(operation,actor,review.plan(),frozen,captured,now.getAsLong(),
+                    ()->forestCaptureReady()&&forestMutationRevision()==review.revision());
+        });
     }
     public record MineralReview(com.blueninjas24.civilizations.database.MineralRecovery.Plan plan,long revision) {}
     public CompletableFuture<MineralReview> prepareMineralRecovery(UUID deposit){
@@ -1346,7 +1369,7 @@ public final class PopulationSession implements AutoCloseable {
                             .finish(now.getAsLong(),livestockHistoryHealthy.get()&&!livestockCaptureGap.get()&&pendingLivestockLosses.isEmpty());}
                         catch(SQLException|RuntimeException failure){logger.log(Level.SEVERE,"Livestock capture shutdown fence failed; live production requires review",failure);}
                     if(forestTrackingStarted)try{new com.blueninjas24.civilizations.database.ForestryTrackingRepository(database.getConnection())
-                            .finish(now.getAsLong(),forestHistoryHealthy.get()&&!forestCaptureGap.get()&&pendingForestMutations.get()==0);}
+                            .finish(now.getAsLong(),!forestCaptureGap.get()&&pendingForestMutations.get()==0);}
                         catch(SQLException|RuntimeException failure){logger.log(Level.SEVERE,"Forest capture shutdown fence failed; forestry requires review",failure);}
                     if(trackOres && readyForWork)new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection())
                             .finish(now.getAsLong(),!oreCaptureGap.get()&&pendingOreMutations.get()==0);

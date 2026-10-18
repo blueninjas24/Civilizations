@@ -1,5 +1,15 @@
 # Phase 3 — businesses and industry checklist
 
+## October18 - mine and forest recovery milestone completed
+
+Admins can now review and resume individual saved mines and forests after interrupted
+tracking, with a preview and explicit confirmation. Missing resources stay missing;
+earned supplies/history remain. Both flows passed real isolated server checks.
+Resources are now36/39 (92%). Overall Phase3 is about71.4% by the equally weighted
+checklist;1/4 major groups fully complete. This percentage measures milestones,
+not remaining hours. Next: useful crafts, competition and broader acceptance.
+The business priority question is pending; no ranking policy chosen without you.
+
 ## October18 - saved mines can be reviewed and safely resumed
 
 An admin can now review a saved mine, see any lost resources, and explicitly approve
@@ -1279,8 +1289,10 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 - [x] Connect native break/explosion/piston removal capture and immediate/persisted
       production trust guards; verified cancelled/destructive events and actual
       registered listener/SQL-owner wiring on disposable Paper with restored blocks.
-- [ ] Add reviewed recovery/baseline tooling for old coordinate saves or capture gaps;
-      do not silently certify missing mutation history or reset reserves.
+- [x] Add explicitly approved, complete current-scan recovery for saved mineral and
+      forest resources; preserve balances/history/protections and invalidate scoped
+      approvals after a new capture gap. Temporary SQLite and native Paper passed.
+      Unreviewed resources/new discovery remain fenced; no history reconstructed.
 - [x] Bounded exposed coal/iron scanner with supplied exclusion coordinates.
 - [x] Save player-placement exclusions and enforce them against stale discovery.
 - [x] Capture native placements with clean-stop/failure protection and verify on Paper.

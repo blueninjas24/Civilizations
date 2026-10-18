@@ -49,8 +49,25 @@ Budgets:4096 source coordinates per deposit,128 live block reads per tick, four
 concurrent scans,16 in-flight/prepared reviews; scans expire after30 seconds. Oversize
 or incomplete resources fail explicitly. Current material families: coal, iron,
 stone/deepslate and sand/red sand, matching existing discovery. No chunk loads,
-world edits, drops or ownership claims occur. Forestry recovery remains next work;
-the independent forest continuity metadata alone enables no logging recovery.
+world edits, drops or ownership claims occur.
+
+Forest recovery is now available through `/civ debug recover-forest list`,
+`review <site-uuid>` and `confirm <token>`, with the same explicit acceptance and
+admin-bound120-second confirmation. It compares complete loaded snapshots covering
+all original supports and the configured natural-canopy geometry. Excluded/retired
+trunks and protected canopy cannot become positive evidence. Missing/replaced
+trunks get permanent source-loss records; canopy-only damage reduces habitat without
+inventing trunk deaths. Both capacity and available timber are clamped at or below
+their saved values during recovery. Subsequent ordinary productive regrowth stays
+bounded by saved habitat; approval itself adds no timber. Earned stock is untouched.
+
+Forest budgets:512 original supports, at most9 already-loaded chunk snapshots,
+200,000 sampled cells and4,096 scan steps per tick, two concurrent scans,16 total
+prepared/scanning reviews. Unknown geometry, a tree extending beyond the scan bounds,
+an unloaded margin, expired evidence or changed capture refuses approval entirely.
+Schema96 adds one empty forest_recoveries audit table; existing resources/history
+are preserved. Current capture, per-site approval and the global discovery fence
+are separate. Clean shutdown retains approvals; later gaps/crashes revoke them.
 
 Focused temporary-SQLite checks and actual Paper review/confirm passed October18;
 see PROJECT_STATUS/DEVLOG for exact evidence and fixture-only limitations. Cross-firm

@@ -1,5 +1,52 @@
 # Civilizations Development Log
 
+## October18, 19:39 EDT - scoped forest recovery verified
+
+Added /civ debug recover-forest list, review <site-uuid>, confirm <token>. Complete
+loaded snapshots include every saved support and configured natural-canopy geometry,
+with nearby sticky exclusions. A second unchanged scan and explicit same-admin
+approval are required. Missing trunks receive permanent loss records; lost canopy
+reduces habitat without declaring a trunk dead. Review cannot increase saved habitat
+capacity or timber balance, clear protections, alter earned goods or unlock new
+forestry discovery. Unknown/missing chunks and truncated trees refuse approval.
+
+Schema96 adds one initially empty forest_recoveries audit table. Source losses,
+habitat change, approval and balance changes commit together. Same per-site trust
+is used by timed logging, production and tool replacement. Current capture health
+is separate from historical trust; clean restart retains scoped approval, later
+gaps/crashes revoke it. No generic trust reset, editor certification or block edits.
+Budgets512 supports,9 snapshots,200,000 cells,4,096 scan steps/tick, two simultaneous
+scans,16 reviews,30-second scan freshness and120-second admin preview expiry.
+
+Five new temporary-SQLite cases verify actual scoped logging and revocation,
+clean-restart continuity, retained goods/history, permanent coordinate loss,
+canopy-only damage, no refill on reapproval, incomplete/stale/unhealthy/expired
+refusal and audit-failure rollback. Affected verification covered58 unit cases
+across checkpoints:54/55 passed first, the old-schema comparison was corrected,
+all4 cases in that class plus3 founder cases passed; two packaged integration tests
+passed. Final Wrapper verify/package BUILD SUCCESS19:37:28,18.277s. Updated three
+older migration snapshot filters to exclude only newly added tables, preserving
+all predecessor-row comparisons; migration94->current also compares all prior rows.
+No full local-suite repeat. Hosted CI will run the complete cross-platform suite.
+
+Actual isolated Paper26.2 build129 passed19:37:59. A private saved six-support
+forest had one missing trunk: preview and confirmation reduced96 habitat/timber
+to48 because only the other complete tree retained suitable canopy. Exactly one
+trunk retired, all six source identities retained, one approval, global discovery
+still fenced. All eight original AIR states restored after seven temporary log/
+leaf edits; one fixture-only ticket removed. Main disposable schema95->96 audit:
+168 predecessor tables,163 exact; only five routine clock/capture tables changed,
+zero aging, clean integrity/FKs, config unchanged, port restored and helper archived.
+Human server/main untouched. Private test database and backups retained.
+
+Combined reviewed resource recovery milestone is now checked: resources36/39
+(92%), about71.4% equally weighted Phase3 partial checklist,1/4 whole groups. The
+remaining resource gates are broader useful crafts, supported bulk-editor capture,
+and broader live/long-run catalog acceptance. Competition and specialization remain.
+The next allocation rule has been asked: prioritize urgent village needs then real
+funded unmet demand, editable priorities/fair tie rotation, with no forced worker
+moves or closures. Approval is pending; no ranking policy applied yet.
+
 ## October18, 19:31 EDT - scoped mineral recovery verified
 
 Approved admin acceptance plus complete current scans is implemented for existing

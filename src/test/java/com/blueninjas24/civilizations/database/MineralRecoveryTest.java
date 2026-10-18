@@ -269,26 +269,24 @@ class MineralRecoveryTest {
         assertEquals(productionHistory, count("industry_production"));
     }
 
-    @Test void schema94To95CreatesEmptyRecoveryTablesAndPreservesEveryPriorRow() throws Exception {
+    @Test void schema94ToCurrentCreatesEmptyRecoveryTablesAndPreservesEveryPriorRow() throws Exception {
         var connection = fixture.db.getConnection();
         var expectedPrior = new TreeMap<>(snapshot());
         expectedPrior.remove("mineral_recoveries");
         expectedPrior.remove("resource_recovery_epochs");
+        expectedPrior.remove("forest_recoveries");
 
-        try (var s = connection.createStatement()) {
-            s.execute("DROP TABLE mineral_recoveries");
-            s.execute("DROP TABLE resource_recovery_epochs");
-            s.execute("PRAGMA user_version=94");
-        }
+        SchemaFixtures.rewind(connection,94);
         new SchemaMigrator().migrate(connection);
 
         var after = new TreeMap<>(snapshot());
         assertEquals(List.of(), after.remove("mineral_recoveries"));
         assertEquals(List.of(), after.remove("resource_recovery_epochs"));
+        assertEquals(List.of(), after.remove("forest_recoveries"));
         assertEquals(expectedPrior, after, "Migration must preserve every schema-94 table and row value");
         try (var s = connection.createStatement(); var r = s.executeQuery("PRAGMA user_version")) {
             assertTrue(r.next());
-            assertEquals(95, r.getInt(1));
+            assertEquals(SchemaMigrator.CURRENT_VERSION, r.getInt(1));
         }
     }
 }

@@ -6,13 +6,15 @@ import org.bukkit.command.*;
 import java.util.List;
 import java.util.UUID;
 
-/** Admin inspection only. Runs on the server thread and reads no JDBC connections. */
+/** Admin inspection and explicitly confirmed recovery. Reads no JDBC connections on the server thread. */
 public final class PopulationDebugCommand implements CommandExecutor, TabCompleter {
     private final PopulationSession session;
     private final java.util.function.Supplier<String> observation;
     private final java.util.function.Consumer<Runnable> dispatch;
     private CommandExecutor recovery;
     public void configureRecovery(CommandExecutor recovery){this.recovery=java.util.Objects.requireNonNull(recovery);}
+    private CommandExecutor forestRecovery;
+    public void configureForestRecovery(CommandExecutor recovery){this.forestRecovery=java.util.Objects.requireNonNull(recovery);}
     public PopulationDebugCommand(PopulationSession session) { this(session, () -> "Village observer not started"); }
     public PopulationDebugCommand(PopulationSession session, java.util.function.Supplier<String> observation) {
         this(session,observation,null);
@@ -28,6 +30,10 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
         if(args.length>=2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("recover-ore")) {
             if(recovery!=null)return recovery.onCommand(sender,command,label,args);
             sender.sendMessage("Resource recovery is not configured.");return true;
+        }
+        if(args.length>=2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("recover-forest")) {
+            if(forestRecovery!=null)return forestRecovery.onCommand(sender,command,label,args);
+            sender.sendMessage("Forest recovery is not configured.");return true;
         }
         if(args.length==3&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("workforce")) {
             try{var town=UUID.fromString(args[2]);if(asyncReady(sender))inspect(sender,session.workforceReview(town));}

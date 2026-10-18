@@ -244,9 +244,8 @@ public final class IndustryRepository {
         if(requested<0||period<0)throw new IllegalArgumentException("Invalid timber work request");
         String terms=terms("logging-v1",business,requested,period,policy);
         var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
-        if (new ForestryTrackingRepository(connection).load().map(state -> !state.trusted()).orElse(false))
-            throw new SQLException("Forestry provenance is untrusted; new timber work requires reviewed recovery");
         var firm=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown logging business"));
+        if(!forestryHistoryTrusted(firm.siteId()))throw new SQLException("Forestry provenance is untrusted; new timber work requires reviewed recovery");
         if(!firm.industry().equals("logging"))throw new SQLException("Timber work requires a logging business");
         try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
             s.setString(1,business.toString());try(var r=s.executeQuery()){if(r.next()){long last=r.getLong(1);if(!r.wasNull()&&period<=last)throw new SQLException("Forestry period stale or already completed");}}
@@ -275,6 +274,10 @@ public final class IndustryRepository {
         if(!hasCoordinateSources(deposit))return true;
         if(new OreTrackingRepository(connection).load().map(OreTrackingRepository.State::trusted).orElse(true))return true;
         return new MineralRecovery(connection).permitted(deposit);
+    }
+    public boolean forestryHistoryTrusted(UUID site)throws SQLException {
+        return new ForestryTrackingRepository(connection).load().map(ForestryTrackingRepository.State::trusted).orElse(true)
+                ||new ForestRecovery(connection).permitted(site);
     }
 
     /** Complete processing batches atomically consume delivered inputs and add outputs; no new money. */

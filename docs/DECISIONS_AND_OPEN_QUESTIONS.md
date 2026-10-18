@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October18 - shared industry allocation priorities: pending
+
+Before replacing independent per-firm/page-order selection, asked whether scarce
+available workers and protected startup funds should prioritize urgent village
+needs, then the strongest unmet demand from actually funded customers. Recommended
+editable weights and fair rotation on ties; no forced transfers, living-owner
+closure or additional money. Alternative: equal rotating chances among viable
+firms. Existing eligibility, one worker job, ownership and funding protections stay
+required. No allocation policy has been implemented from this pending proposal.
+
 ## October18 - resource recovery authority: approved
 
 User answered "Go with your recommended": explicit admin approval plus complete

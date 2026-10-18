@@ -198,13 +198,13 @@ class ForestryFounderStudyTest {
         }
     }
 
-    /** Compare every schema93 row; only the two schema94 founder tables are migration additions. */
+    /** Compare every schema93 row; exclude only later additive tables. */
     private Map<String, List<List<String>>> snapshotPrior93() throws SQLException {
         var state = new TreeMap<String, List<List<String>>>();
         var names = new ArrayList<String>();
         try (var s = fixture.db.getConnection().createStatement(); var r = s.executeQuery(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' " +
-                        "AND name NOT IN ('forestry_founder_courses','forestry_founder_reviews') ORDER BY name")) {
+                        "AND name NOT IN ('forestry_founder_courses','forestry_founder_reviews','resource_recovery_epochs','mineral_recoveries','forest_recoveries') ORDER BY name")) {
             while (r.next()) names.add(r.getString(1));
         }
         for (var name : names) {

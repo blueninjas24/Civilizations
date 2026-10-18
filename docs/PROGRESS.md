@@ -1,5 +1,15 @@
 # Civilizations progress tracker
 
+## October18 - mine and forest recovery milestone completed
+
+Admins can now review and resume individual saved mines and forests after interrupted
+tracking, with a preview and explicit confirmation. Missing resources stay missing;
+earned supplies/history remain. Both flows passed real isolated server checks.
+Resources are now36/39 (92%). Overall Phase3 is about71.4% by the equally weighted
+checklist;1/4 major groups fully complete. This percentage measures milestones,
+not remaining hours. Next: useful crafts, competition and broader acceptance.
+The business priority question is pending; no ranking policy chosen without you.
+
 ## October18 - saved mines can be reviewed and safely resumed
 
 An admin can now review a saved mine, see any lost resources, and explicitly approve
@@ -1244,7 +1254,7 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |35/39|90%|
+| Resources and connected production |36/39|92%|
 | Business lifecycle and competition |14/15|93%|
 | Specialization and final acceptance |0/5|No complete entries yet|
 
