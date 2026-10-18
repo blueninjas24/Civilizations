@@ -17,6 +17,7 @@ public final class PaperForestObserver extends BukkitRunnable {
     private final LongSupplier now;
     private final Deque<Target> targets=new ArrayDeque<>();
     private java.util.concurrent.CompletableFuture<Set<com.blueninjas24.civilizations.settlement.VillageObservation.Position>> exclusions;
+    private java.util.concurrent.CompletableFuture<Boolean> submitted;
     private ForestScan scan;
     private Target target;
     private EnvironmentalSample latest;
@@ -36,6 +37,7 @@ public final class PaperForestObserver extends BukkitRunnable {
         if(!session.status().ready())return;
         ticks++;
         try {
+            if(submitted!=null&&submitted.isDone()){submitted.join();submitted=null;}
             if(scan!=null) {
                 var world=Bukkit.getWorld(target.home().worldId());
                 if(world==null||!world.isChunkLoaded(target.chunk().x(),target.chunk().z())) {
@@ -45,8 +47,9 @@ public final class PaperForestObserver extends BukkitRunnable {
                 var evidence=scan.observation(world.getUID(),captured);scan=null;
                 if(!evidence.complete()){diagnostic="Forest survey incomplete: unknown geometry or evidence limit; no adoption or habitat loss";return;}
                 latest=new EnvironmentalSample(target.town(),target.chunk().x(),target.chunk().z(),evidence);
+                submitted=session.observeForestSnapshot(target.town(),target.chunk().x(),target.chunk().z(),evidence);
                 lastCompleted=diagnostic="Forest survey: "+evidence.trunks().size()+" canopy-backed log coordinates; chunk "+target.chunk().x()+","+target.chunk().z()
-                        +"; snapshot captured at "+captured+"; environmental evidence only, provenance not certified; automatic logging remains off";
+                        +"; snapshot captured at "+captured+"; environmental evidence only; logging startup independently checks provenance, skills, customers and funds";
                 return;
             }
             if(exclusions!=null) {
@@ -68,7 +71,7 @@ public final class PaperForestObserver extends BukkitRunnable {
             target=targets.removeFirst();
             exclusions=session.forestExclusions(target.home().worldId(),target.chunk().x(),target.chunk().z());
             diagnostic="Forest survey awaiting saved placement exclusions";
-        }catch(RuntimeException failure){scan=null;exclusions=null;diagnostic="Forest survey deferred: "+failure.getMessage();}
+        }catch(RuntimeException failure){scan=null;exclusions=null;submitted=null;diagnostic="Forest survey deferred: "+failure.getMessage();}
     }
     private void capture(Set<com.blueninjas24.civilizations.settlement.VillageObservation.Position> protectedCoordinates) {
             var world=Bukkit.getWorld(target.home().worldId());

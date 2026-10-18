@@ -1,5 +1,12 @@
 # Civilizations — simulation rules and testable examples
 
+October18 forestry implementation: current positive canopy evidence, protected
+sources, real funded customers, earned qualifications and existing capacity now
+support automatic logging. Real-supply study pauses for unknown restart evidence;
+confirmed source loss stops the linked opportunity. Actual paid timber/warehouse/
+craftsman flow is verified without physical felling or land claims. Admin terms
+remain editable; existing configs opt in. See FORESTRY.md for verified boundaries.
+
 October17 forestry backend: saved capacity never refills on repeat opening or
 retuning; earned active-world periods renew gradually and harvest under actual
 qualified work/storage constraints. Real customers pay for owned delivered timber.

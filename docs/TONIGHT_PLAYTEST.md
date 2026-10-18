@@ -1,5 +1,26 @@
 # Current prototype: a short player checklist
 
+## October18 - automatic forestry opt-in and checks
+
+The new build can recognize canopy-backed trees and found logging businesses for
+actual funded timber customers. Existing installed economy.yml files are preserved:
+while stopped, review/copy the shipped forestry-resources, forestry-observer and
+forestry-founding sections to opt in. For first-owner training, also add the shipped
+resident-study.skills.forestry course and logging to automatic-career-study. Keep
+your chosen economy settings; do not replace the whole file blindly. Restart normally.
+
+Use existing /civ debug status and /civ debug observation to read why logging is
+waiting. A forest alone is insufficient: the village needs real funded timber
+demand, protected startup cash and an available qualified owner (or real supplies
+for gradual training). Existing logging capacity suppresses redundant openings.
+A desert without suitable trees should not magically get forestry. Confirm actual
+stock, purchases and jobs through the existing business diagnostics. Trees remain
+physical; felling/construction/expansion is Phase4. Unknown tracking history requires
+review, not deleting the database. The automated Paper proof passed; a human client
+check and long-term balance/compatibility are still useful. Nothing was installed
+on the human server by this development batch.
+
+
 Latest forestry checkpoint: /civ debug observation can show bounded loaded-chunk
 forest surveys when forestry-observer is enabled. These are canopy/shape sightings,
 not proof of ownership or automatic logging. Real saved forestry production and

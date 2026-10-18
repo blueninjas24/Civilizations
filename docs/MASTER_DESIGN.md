@@ -1,5 +1,12 @@
 # Civilizations — canonical master design
 
+October18 forestry implementation: current positive canopy evidence, protected
+sources, real funded customers, earned qualifications and existing capacity now
+support automatic logging. Real-supply study pauses for unknown restart evidence;
+confirmed source loss stops the linked opportunity. Actual paid timber/warehouse/
+craftsman flow is verified without physical felling or land claims. Admin terms
+remain editable; existing configs opt in. See FORESTRY.md for verified boundaries.
+
 October17 forestry backend: saved renewable timber habitats, qualified timed work
 and real paid warehouse/craftsman customers are verified, with editable resource
 terms and protected atomic startup. Live automatic tree adoption remains off until

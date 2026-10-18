@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 93;
+    static final int CURRENT_VERSION = 94;
 
     @FunctionalInterface
     interface Migration {
@@ -942,7 +942,8 @@ final class SchemaMigrator {
                 LivestockSlaughter::createSchema,
                 QuarrySurveys::createSchema,
                 ForestryResources::createSchema,
-                ForestryProvenance::createSchema
+                ForestryProvenance::createSchema,
+                ForestryCourses::createSchema
 
 
         ));
@@ -1129,6 +1130,10 @@ final class SchemaMigrator {
                 requireColumns(connection,"forestry_tracking",Set.of("id","clean_stop","trusted","observed_millis"));
                 requireColumns(connection,"forestry_exclusions",Set.of("world_id","x","y","z","observed_ms","reason"));
                 requireColumns(connection,"forestry_source_losses",Set.of("world_id","x","y","z","observed_ms","reason"));
+            }
+            if(migrations.size()>=94) {
+                requireColumns(connection,"forestry_founder_courses",Set.of("course_id","settlement_id","world_id","x","y","z","enrolled_period"));
+                requireColumns(connection,"forestry_founder_reviews",Set.of("settlement_id","period","opportunity","after_resident","policy","explanation"));
             }
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));

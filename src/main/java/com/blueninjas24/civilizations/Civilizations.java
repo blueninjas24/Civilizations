@@ -121,7 +121,7 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + livestockAdoption.diagnostic()
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
                             + "; " + (quarries==null?"Stone/sand observer not started":quarries.diagnostic())
-                            + "; " + population.forestTrackingDiagnostic()
+                            + "; " + population.forestTrackingDiagnostic()+"; "+population.automaticForestryDiagnostic()
                             + "; " + (forests==null?"Forest observer not started":forests.diagnostic())
                             + "; " + (fisheryStartup==null?"Fishery startup not started":fisheryStartup.diagnostic())
                             + "; " + (fisheryWorkplaces==null?"Fishery workplace checks not started":fisheryWorkplaces.diagnostic())
@@ -181,6 +181,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureFishing(EconomyConfiguration.readFishingResources(economyConfig));
             population.configureQuarries(EconomyConfiguration.readQuarryResources(economyConfig));
             population.configureForestry(EconomyConfiguration.readForestryResources(economyConfig));
+            population.configureForestryFounding(EconomyConfiguration.readForestryFounding(economyConfig));
             population.configureQuarryFounding(EconomyConfiguration.readQuarryFounding(economyConfig));
             population.configureBusinessPurchases(EconomyConfiguration.readBusinessPurchasePolicy(economyConfig));
             population.configureBusinessOperations(EconomyConfiguration.readBusinessOperations(economyConfig));

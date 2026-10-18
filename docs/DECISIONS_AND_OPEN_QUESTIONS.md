@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October18 - forestry prototype settings within approved scope
+
+Automatic logging uses the already-approved real-customer, earned-skill and shared
+protected-grant rules. Editable defaults: complete observations last120 seconds;
+96 horizontal/48 vertical range; adult age216 months; forestry skill10; two worker
+slots;500 startup expense plus2,000 real working capital. Learning consumes2 timber
+and1 stone per active period with target10 and existing shared gain1; no other
+course speed changes. Missing evidence after restart waits, complete confirmed
+loss cancels; absence pauses. These defaults apply to new/opted-in configurations,
+not installed-file overwrites or retroactive resource refills. No new consequential
+rule, physical felling, property transfer or personal wallet was introduced.
+
 ## October17 — stone/sand startup within the approved industry rules
 
 Implemented approved finite quarry/sandpit resources under existing shared grant

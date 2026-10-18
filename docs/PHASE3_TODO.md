@@ -1,5 +1,15 @@
 # Phase 3 — businesses and industry checklist
 
+## October18 - automatic logging now works through paid production
+
+Verified on actual isolated Paper: a qualified village opened a logging business,
+sold timber through a warehouse, and a craftsman made goods in five simulated
+work periods. Money balanced; trees stayed unchanged. Training consumes real
+supplies and waits safely for new evidence after restart. Forestry7/7 detailed
+connections; resources35/39 and about71% partial Phase3,1/4 whole groups. Remaining:
+craft breadth, reviewed recovery, lifecycle competition and multi-village acceptance.
+See FORESTRY.md and PROJECT_STATUS.md for exact checks and limits. No decision needed.
+
 ## October18, 13:34 EDT - forestry provenance verified
 
 Native tree placement/growth/removal records now protect saved sources independently
@@ -1325,7 +1335,7 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 - [x] Extend approved protected startup grants to warehouses under shared caps;
       real empty-store capital/qualified first worker, 908 tests and Paper passed.
       Suitable sites, skilled founders and automatic startup opportunities remain.
-- [ ] Add suitable renewable forestry/fishing opportunities and finite stone/sand
+- [x] Add suitable renewable forestry/fishing opportunities and finite stone/sand
       production as scoped catalog/observation work; do not infer resources from a
       biome alone or claim ores beyond the implemented coal/iron catalog.
 - [ ] Verify live production chains, capacity/depletion and unloaded operation.

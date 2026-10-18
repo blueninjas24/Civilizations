@@ -1,5 +1,58 @@
 # Forestry implementation checkpoint
 
+## October18, 13:56 EDT - automatic forestry and paid timber chain verified
+
+Villages can now use current loaded-chunk canopy evidence to open a logging
+business when real timber demand, a qualified idle owner and protected startup
+funds are available. Excluded/claimed trees, stale or conflicting frames, wrong
+world/chunk, absent worlds and insufficient funds cannot create a firm. A change
+to nearby canopy after capture also requires a new survey. Existing staffed
+logging capacity counts before opening more firms. No trees are felled or claimed.
+
+Prospective owners earn forestry skill gradually using real timber and stone,
+with normal food/material reserves. Unknown evidence after restart pauses study;
+fresh evidence of a lost opportunity cancels it. Server/world absence adds no
+catch-up. Other occupations retain their original one-point study speed.
+
+Schema94 adds two empty founder-course/review tables; captured sources, goods,
+accounts, employment and history are preserved. New-file economy.yml has strict
+editable forestry-founding terms and a forestry course (2 timber +1 stone per
+active study period, target10, shared gain1). Old missing sections opt out and
+installed files are never overwritten. See FORESTRY.md for limits and settings.
+
+The combined affected run executed330 units:326 passed, four new fixture failures
+were corrected (cash funding/overdraw and refusal-text assumptions), along with
+a missing test import. No production guard was weakened. Final affected Wrapper
+verify/package passed34 units +2 packaged integration tests, zero failures/errors/
+skips,25.242s at13:51:56 EDT. Eight startup/study tests and three configuration cases
+were added. Existing predecessor-row preservation suites passed in the combined
+run. Full hosted Windows/Linux verification follows push; it is not claimed here.
+
+Actual Paper26.2 build129 passed13:54:35: ordinary forest observer -> session ->
+qualified funded startup -> paid logger/warehouse/craftsman deliveries -> crafted
+storage fittings in five fixed-clock periods. Exactly six saved supports; all
+cash conserved at32,500 after a real500 startup expense from33,000 fixture funds.
+The private proof accelerated cadence and disabled unrelated tool/storage spending;
+normal configurable upkeep has separate existing tests.
+Nine original AIR blocks restored exactly. A preceding attempt stopped safely
+because the helper's separate read-only connection lacked foreign-key enforcement;
+that helper setting was fixed, failure logs/backups retained, then the full proof
+passed. No production source change was needed for that helper error.
+
+The original93 fixture upgrade retained164 predecessor tables (159 exact); only
+five routine clock/capture metadata tables changed, no aging. Final94 rerun
+retained166 tables (161 exact), clean integrity/FKs/capture. Config byte-identical,
+original port restored, helpers archived, backups retained. Human server/main
+untouched. Private fixture proof does not replace a human playtest or prove broad
+village specialization/long-run balance. Forestry7/7 connections verified; the
+combined basic resource-opportunity gate is now complete. Resources35/39, about71%
+equally weighted partial Phase3,1/4 whole groups. Next: remaining crafts, reviewed
+resource recovery, lifecycle/competition and multi-village acceptance. No new
+gameplay decision was needed for this batch.
+
+Preceding checkpoint fb1c06e passed both hosted Windows/Linux jobs in run39150215584.
+This automatic-startup batch will receive its own full hosted run after push.
+
 ## October18, 13:34 EDT - forestry provenance verified
 
 Native tree placement/growth/removal records now protect saved sources independently
@@ -84,8 +137,8 @@ Windows job was still running here. Final observer hosted verification follows.
 | Paid timber delivery and real customers | Verified |
 | Live loaded-chunk environmental observer | Verified |
 | Native placement/growth/damage provenance | Verified |
-| Automatic qualified, funded forest businesses | Pending |
-| Complete live acceptance and industry mix | Pending |
+| Automatic qualified, funded forest businesses | Verified |
+| Native logging/warehouse/craftsman chain acceptance | Verified |
 
 These four of seven detailed steps do not complete the weighted Phase3 forestry
 catalogue gate. No new gameplay decision blocks the approved protection work.

@@ -278,6 +278,20 @@ public final class EconomyRuntimeRepository {
             return quarryFounderStudy.reviewRows(opportunity,period,clock(opportunity.town()).anchor().targetSteps());
         });
     }
+    private ForestryFounderStudy forestryFounderStudy;
+    public void configureForestryFounderStudy(AutomaticForestryFounding forestry,com.blueninjas24.civilizations.industry.CareerStudyPolicy careers,
+                                             com.blueninjas24.civilizations.industry.ForestryFoundingPolicy founding) {
+        if(inUse)throw new IllegalStateException("Configure forestry founder study before economy use");
+        forestryFounderStudy=new ForestryFounderStudy(connection,forestry,careers,studyPolicy,founding,adulthood);
+        forestry.configureTraining((opportunity,now)-> {
+            if(!hasRuntime(opportunity.town())||!active(opportunity.town()))return "Forestry founder study waits for present-world food economy";
+            var evidence=farm(opportunity.town());if(evidence==null||!evidence.complete())return "Forestry founder study waits for complete food evidence";
+            long period=commodities.read(opportunity.town()).orElseThrow().state().completedPeriods();
+            if(period==0)return "Forestry founder study waits for first food assessment";
+            accrue(opportunity.town(),now,false);
+            return forestryFounderStudy.reviewRows(opportunity,period,clock(opportunity.town()).anchor().targetSteps());
+        });
+    }
     public ResidentStudy.Course enrollStudy(UUID operation,UUID resident,UUID town,String skill,long now)throws SQLException {
         return transaction(()->{
             var study=new ResidentStudy(connection,studyPolicy,adulthood);
@@ -613,7 +627,9 @@ public final class EconomyRuntimeRepository {
         if(mineFounderStudy!=null||quarryFounderStudy!=null)study.withFounderOpportunity(course->
                 (mineFounderStudy==null||mineFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds))
                 &&(quarryFounderStudy==null||quarryFounderStudy.availableRows(course,clock.anchor().lastObservedMillis(),loadedWorlds)));
-        if(workshopFounderStudy!=null||warehouseFounderStudy!=null||fisheryFounderStudy!=null||bakeryFounderStudy!=null||craftsmanFounderStudy!=null)study.withFounderPractice(course->{
+        if(workshopFounderStudy!=null||warehouseFounderStudy!=null||fisheryFounderStudy!=null||bakeryFounderStudy!=null||craftsmanFounderStudy!=null||forestryFounderStudy!=null)study.withFounderPractice(course->{
+            var forestry=forestryFounderStudy==null?ResidentStudy.FounderState.READY:forestryFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds);
+            if(forestry!=ResidentStudy.FounderState.READY)return forestry;
             var craftsman=craftsmanFounderStudy==null?ResidentStudy.FounderState.READY:craftsmanFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds,clock.anchor().targetSteps()==nextPeriod);
             if(craftsman!=ResidentStudy.FounderState.READY)return craftsman;
             var bakery=bakeryFounderStudy==null?ResidentStudy.FounderState.READY:bakeryFounderStudy.stateRows(course,clock.anchor().lastObservedMillis(),loadedWorlds);

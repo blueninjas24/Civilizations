@@ -40,6 +40,7 @@ public final class EconomyConfiguration {
         if (config.contains("quarry-observer")) rootKeys.add("quarry-observer");
         if (config.contains("forestry-observer")) rootKeys.add("forestry-observer");
         if (config.contains("quarry-founding")) rootKeys.add("quarry-founding");
+        if (config.contains("forestry-founding")) rootKeys.add("forestry-founding");
         if (config.contains("ore-provenance")) rootKeys.add("ore-provenance");
         if (config.contains("storage-upgrades")) rootKeys.add("storage-upgrades");
         if (config.contains("industry-runtime")) rootKeys.add("industry-runtime");
@@ -82,6 +83,7 @@ public final class EconomyConfiguration {
         readQuarryResources(config);
         readForestryResources(config);
         readQuarryFounding(config);
+        readForestryFounding(config);
         readQuarryObserver(config);
         readForestryObserver(config);
         readFishingResources(config);
@@ -221,6 +223,19 @@ public final class EconomyConfiguration {
                 smallInteger(s, "settlements-per-pulse"), smallInteger(s, "patches-per-review"), smallInteger(s, "founders-per-review"),
                 Math.multiplyExact(integer(s, "survey-lifetime-seconds"), 1000), smallInteger(s, "horizontal-range"),
                 smallInteger(s, "vertical-range"), integer(s, "minimum-age-months"), integer(s, "founder-mining-experience"),
+                smallInteger(s, "worker-capacity"), integer(s, "startup-hundredths"), integer(s, "capital-hundredths"));
+    }
+    public static com.blueninjas24.civilizations.industry.ForestryFoundingPolicy readForestryFounding(ConfigurationSection config) {
+        if (!config.contains("forestry-founding")) return com.blueninjas24.civilizations.industry.ForestryFoundingPolicy.disabled();
+        var s = section(config, "forestry-founding");
+        exactKeys(s, Set.of("enabled", "settlements-per-pulse", "patches-per-review", "founders-per-review",
+                "survey-lifetime-seconds", "horizontal-range", "vertical-range", "minimum-age-months",
+                "founder-forestry-experience", "worker-capacity", "startup-hundredths", "capital-hundredths"));
+        if (!(s.get("enabled") instanceof Boolean enabled)) throw new IllegalArgumentException("forestry-founding.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.ForestryFoundingPolicy(enabled,
+                smallInteger(s, "settlements-per-pulse"), smallInteger(s, "patches-per-review"), smallInteger(s, "founders-per-review"),
+                Math.multiplyExact(integer(s, "survey-lifetime-seconds"), 1000), smallInteger(s, "horizontal-range"),
+                smallInteger(s, "vertical-range"), integer(s, "minimum-age-months"), integer(s, "founder-forestry-experience"),
                 smallInteger(s, "worker-capacity"), integer(s, "startup-hundredths"), integer(s, "capital-hundredths"));
     }
     public static com.blueninjas24.civilizations.industry.CareerStudyPolicy readCareerStudy(ConfigurationSection config) {

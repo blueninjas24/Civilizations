@@ -324,6 +324,24 @@ quarry-founding:
   startup-hundredths: 500
   capital-hundredths: 2000
 
+# Qualified, funded logging businesses use complete current canopy evidence only.
+# No tree felling, block changes, land claims, or free forestry experience.
+# Practice consumes real timber and stone under the shared resident-study food reserve.
+# Existing installed configs without this section keep automatic forestry founding disabled.
+forestry-founding:
+  enabled: true
+  settlements-per-pulse: 2
+  patches-per-review: 8
+  founders-per-review: 64
+  survey-lifetime-seconds: 120
+  horizontal-range: 96
+  vertical-range: 48
+  minimum-age-months: 216
+  founder-forestry-experience: 10
+  worker-capacity: 2
+  startup-hundredths: 500
+  capital-hundredths: 2000
+
 # Qualified EXISTING employees may keep working after an owner's death while the
 # business awaits succession/resale. No promotion, hiring authority, grants or wages.
 # Real supplies, finite deposits, storage and online-world limits still apply.
@@ -756,6 +774,11 @@ resident-study:
       practice-supplies:
         stone: 1
         timber: 1
+    forestry:
+      target-experience: 10
+      practice-supplies:
+        timber: 2
+        stone: 1
     commerce:
       target-experience: 10
       practice-supplies:
@@ -811,7 +834,7 @@ automatic-career-study:
   enabled: true
   candidates-per-review: 64
   enrollments-per-review: 1
-  industries: [mining, blacksmith, warehouse, fishing, bakery, craftsman, quarry, sandpit]
+  industries: [mining, blacksmith, warehouse, fishing, bakery, craftsman, quarry, sandpit, logging]
 
 # Starts data-only coal/iron mines for current funded workshop needs, not fake buyers.
 # Requires current trusted exposed ore, a staffed affordable warehouse buyer, real

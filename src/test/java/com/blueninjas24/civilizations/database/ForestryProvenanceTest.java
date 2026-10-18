@@ -208,12 +208,14 @@ class ForestryProvenanceTest {
         assertEquals(1, scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='forestry_tracking'"));
         assertEquals(0, scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='forestry_exclusions'"));
         assertEquals(0, scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='forestry_source_losses'"));
+        assertEquals(0, scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='forestry_founder_reviews'"));
+        assertEquals(0, scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='forestry_founder_courses'"));
 
         fixture.data.sql("DROP TABLE forestry_tracking");
         new SchemaMigrator().migrate(fixture.data.db.getConnection());
         assertEquals(SchemaMigrator.CURRENT_VERSION, scalar("PRAGMA user_version"));
         assertEquals(before, snapshotIncludingPriorForestry());
-        for (var table : List.of("forestry_tracking", "forestry_exclusions", "forestry_source_losses"))
+        for (var table : List.of("forestry_tracking", "forestry_exclusions", "forestry_source_losses","forestry_founder_reviews","forestry_founder_courses"))
             assertEquals(0, fixture.data.count(table), table);
         try (var statement = fixture.data.db.getConnection().createStatement();
              var result = statement.executeQuery("PRAGMA foreign_key_check")) {
@@ -235,13 +237,13 @@ class ForestryProvenanceTest {
         }
     }
 
-    /** Exclude only the three schema93 additions; every schema92 table, including forestry, remains compared. */
+    /** Exclude only the schema93 and schema94 additions; every schema92 table, including forestry, remains compared. */
     private Map<String, List<List<String>>> snapshotIncludingPriorForestry() throws SQLException {
         var result = new TreeMap<String, List<List<String>>>();
         var names = new ArrayList<String>();
         try (var statement = fixture.data.db.getConnection().createStatement();
              var rows = statement.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' " +
-                     "AND name NOT IN ('forestry_tracking','forestry_exclusions','forestry_source_losses') ORDER BY name")) {
+                     "AND name NOT IN ('forestry_tracking','forestry_exclusions','forestry_source_losses','forestry_founder_reviews','forestry_founder_courses') ORDER BY name")) {
             while (rows.next()) names.add(rows.getString(1));
         }
         for (var name : names) {
