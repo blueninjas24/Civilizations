@@ -73,6 +73,8 @@ final class WarehouseSupplies {
                 allowed.add(Commodity.FOOD); // Confirmed deliberate slaughter; feed remains unavailable for resale.
             }else if(b.industry().equals("fishing")&&registeredFishery(b.siteId())) {
                 allowed.add(Commodity.FOOD);
+            }else if(b.industry().equals("logging")&&new ForestryRepository(connection).find(b.siteId()).isPresent()) {
+                allowed.add(Commodity.TIMBER);
             }else if(Set.of("quarry","sandpit").contains(b.industry())&&registeredExtraction(b.siteId(),b.industry())) {
                 try(var s=connection.prepareStatement("SELECT y.commodity FROM mineral_yields y JOIN mineral_deposits d ON d.id=y.deposit_id JOIN mineral_discovery m ON m.deposit_id=d.id WHERE d.site_id=? AND m.mineral=?")) {
                     s.setString(1,b.siteId().toString());s.setString(2,b.industry().equals("quarry")?"stone":"sand");try(var r=s.executeQuery()){while(r.next())allowed.add(new Commodity(r.getString(1)));}
@@ -132,8 +134,9 @@ final class WarehouseSupplies {
                 boolean herd=kind.equals("livestock")&&new LivestockRepository(connection).load(id).isPresent();
                 var business=new BusinessRepository(connection).findBusiness(id).orElseThrow();
                 boolean fishery=kind.equals("fishing")&&registeredFishery(business.siteId());
+                boolean forestry=kind.equals("logging")&&new ForestryRepository(connection).find(business.siteId()).isPresent();
                 boolean extraction=Set.of("quarry","sandpit").contains(kind)&&registeredExtraction(business.siteId(),kind);
-                if(!kind.equals("mining")&&!farm&&!herd&&!fishery&&!extraction&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
+                if(!kind.equals("mining")&&!farm&&!herd&&!fishery&&!extraction&&!forestry&&policy.recipes().values().stream().noneMatch(recipe->recipe.industry().equals(kind)))throw new SQLException("Unsupported stored producer industry requires explicit review");
                 result.add(id);
             }}
         }

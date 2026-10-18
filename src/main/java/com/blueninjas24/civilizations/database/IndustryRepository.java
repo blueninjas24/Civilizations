@@ -235,6 +235,35 @@ public final class IndustryRepository {
         return saved;
     }
 
+    /** One caller-earned period. Actual qualified labor, owned storage and renewable habitat constrain timber. */
+    public Receipt log(UUID operation,UUID business,long requested,long period,ForestryPolicy policy)throws SQLException {
+        return transaction(()->logRows(operation,business,requested,period,policy,BusinessOperationPolicy.disabled()));
+    }
+    Receipt logRows(UUID operation,UUID business,long requested,long period,ForestryPolicy policy,BusinessOperationPolicy operations)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Forestry requires active SQL owner transaction");
+        if(requested<0||period<0)throw new IllegalArgumentException("Invalid timber work request");
+        String terms=terms("logging-v1",business,requested,period,policy);
+        var old=receipt(operation,terms);if(old.isPresent())return old.orElseThrow();
+        var firm=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown logging business"));
+        if(!firm.industry().equals("logging"))throw new SQLException("Timber work requires a logging business");
+        try(var s=connection.prepareStatement("SELECT MAX(period) FROM industry_production WHERE business_id=?")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()){if(r.next()){long last=r.getLong(1);if(!r.wasNull()&&period<=last)throw new SQLException("Forestry period stale or already completed");}}
+        }
+        var forests=new ForestryRepository(connection);
+        var forest=forests.find(firm.siteId()).orElseThrow(()->new SQLException("Missing saved canopy-backed forestry resource"));
+        var stock=store(business).orElseThrow(()->new SQLException("Missing timber storage"));
+        var size=stock.spacePerUnit().get(Commodity.TIMBER);if(size==null)throw new SQLException("Forestry store must support timber");
+        var availability=new BusinessOperations(connection,operations).evaluate(business);
+        int workers=forests.qualifiedWorkers(business,operations);
+        var work=forest.stock().advance(policy,true,requested,workers,stock.freeSpace(),size);
+        changeStock(business,Commodity.TIMBER,work.harvested());
+        var saved=save(operation,terms,work.harvested(),availability.explanation()+"; "+work.explanation());
+        try(var s=connection.prepareStatement("INSERT INTO industry_production VALUES(?,?,?)")) {
+            s.setString(1,business.toString());s.setLong(2,period);s.setString(3,operation.toString());s.executeUpdate();
+        }
+        forests.saveWorkRows(operation,business,forest,period,work,policy);return saved;
+    }
+
     public boolean hasCoordinateSources(UUID deposit)throws SQLException {
         try(var s=connection.prepareStatement("SELECT 1 FROM mineral_sources WHERE deposit_id=? LIMIT 1")) {
             s.setString(1,deposit.toString());try(var r=s.executeQuery()){return r.next();}

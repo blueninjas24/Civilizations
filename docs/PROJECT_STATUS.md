@@ -1,5 +1,44 @@
 # Civilizations — implementation status and handoff
 
+## October17, 22:37 — saved forestry and real timber customers verified
+
+Registered logging firms now have persistent canopy-backed habitat, non-1:1 timber
+stock, gradual renewal, normal work clocks, qualified employees and saved forestry
+experience. Actual timber is paid for and delivered through warehouses to funded
+craftsmen. Shared protected startup money, empty stock, first worker and habitat
+commit together; retries, restart, absence, retuning and late failure preserve
+goods/cash/history. Fixed the missing registered-logging timber resale allowance.
+Unqualified or habitat-less work does not request logging tool upkeep.
+
+Schema92 adds four EMPTY resource/support/work/habitat-audit tables. No old rows or
+businesses are retrofitted. Added11 focused tests; existing preservation fixtures
+still compare every predecessor row/table. Forestry resource terms are now editable
+in economy.yml; missing old sections disable the new backend, and installed files
+are preserved. Live automatic tree adoption/founding remains off until native
+provenance and current observation are connected. No physical felling or land claim.
+
+Combined Windows Wrapper affected verify passed170 unit +2 packaged integration
+tests, zero failures/errors/skips,47.667s,22:34:45 EDT. Initial test-only duplicate
+workplace/zero-renewal assumptions were corrected; the chain test caught the actual
+timber resale omission, fixed before the passing rerun. No repeated complete local
+suite; full Windows/Linux CI follows the feature push. Exact final command:
+.\mvnw.cmd -B -ntp verify "-Dtest=ForestryPersistenceTest,ForestryRuntimeTest,ForestryConfigurationTest,ForestScanTest,ForestStockTest,DedicatedProducerChainTest,BusinessStartupGrantsTest,IndustryRuntimeConfigurationTest,EconomyConfigurationTest,QuarrySurveyTest".
+
+Actual marked disposable Paper26.2 build129 reached ready and stopped22:36:00.
+Upgrade91->92 retained157 old tables,153 exactly; only four routine metadata tables
+changed, no resident aging. Integrity/FKs clean, four additions empty, capture clean/
+trusted, economy.yml byte-identical, original port restored, backup retained.
+Human server untouched; no live forest-adoption/native-harvesting result is claimed.
+
+Resources remain34/39, about70% equally weighted partial Phase3,1/4 whole groups:
+the forestry catalog gate still needs live acceptance. Broader crafts, recovery,
+competition and specialization acceptance also remain. No new gameplay answer is
+needed for non-destructive forestry observation/provenance. Next: that live capture
+and qualified/funded automatic startup, then integrated long-run acceptance.
+Feature branch codex/phase3-forestry-runtime; main unchanged. See FORESTRY.md for
+files, config, migration, behavior and limits. Preceding7dd5643 Linux CI passed;
+its full hosted Windows job was still running when this entry was recorded.
+
 ## October17, 22:22 — forestry recognition and timber calculations
 
 Added bounded incremental canopy-backed tree recognition with exact supporting

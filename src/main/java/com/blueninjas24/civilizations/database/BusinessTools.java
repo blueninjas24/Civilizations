@@ -19,6 +19,11 @@ final class BusinessTools {
     boolean applies(String kind,IndustryRepository.Store store){return policy.tools().applies(kind)&&store.spacePerUnit().containsKey(ToolUpkeepPolicy.TOOLS);}
     boolean replacementDue(UUID business,String kind,IndustryRepository.Store store)throws SQLException {
         if(!applies(kind,store))return false;var saved=state(business);
+        if(kind.equals("logging")) {
+            var firm=new BusinessRepository(connection).findBusiness(business).orElseThrow();
+            var forest=new ForestryRepository(connection).find(firm.siteId());
+            if(forest.isEmpty()||forest.orElseThrow().stock().capacity()==0)return false;
+        }
         if(java.util.Set.of("mining","quarry","sandpit").contains(kind)) {
             UUID deposit=null;long remaining=0;int count=0;
             try(var s=connection.prepareStatement("SELECT d.id,d.remaining_batches FROM mineral_deposits d JOIN businesses b ON b.site_id=d.site_id WHERE b.id=? ORDER BY d.id LIMIT 2")) {

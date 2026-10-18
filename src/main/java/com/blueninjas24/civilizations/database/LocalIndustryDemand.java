@@ -76,6 +76,7 @@ public final class LocalIndustryDemand {
                     else if(kind.equals("mining")&&policy.tools().applies(kind))workshops.add(id);
                     else if(kind.equals("livestock")&&new LivestockRepository(connection).load(id).isPresent())workshops.add(id);
                     else if(kind.equals("fishing")&&registeredFishery(id))workshops.add(id);
+                    else if(kind.equals("logging")&&registeredForest(id))workshops.add(id);
                     else if(Set.of("quarry","sandpit").contains(kind)&&registeredExtraction(id,kind))workshops.add(id);
                     else if(policy.recipes().values().stream().anyMatch(recipe->recipe.industry().equals(kind)))workshops.add(id);
                     else return deferred("Unsupported stored industry requires explicit demand review");
@@ -171,6 +172,11 @@ public final class LocalIndustryDemand {
             if(index<0){if(customers.size()>=businessLimit+warehouses.size())return deferred("Combined storage/input customer budget exceeded");customers.add(updated);}else customers.set(index,updated);
         }
         return new Review(true,customers,total,"Fundable workshop inputs and bounded storage fittings after owned/pending goods, shared available warehouse stock and planned spending; planning only, not orders; actual public farm tools "+farmNeed.units());
+    }
+    private boolean registeredForest(UUID business)throws SQLException {
+        try(var s=connection.prepareStatement("SELECT 1 FROM businesses b JOIN forestry_resources f ON f.site_id=b.site_id WHERE b.id=? AND b.industry='logging'")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()){return r.next();}
+        }
     }
     private boolean registeredFishery(UUID business)throws SQLException {
         try(var s=connection.prepareStatement("SELECT 1 FROM businesses b JOIN fishery_resources f ON f.site_id=b.site_id WHERE b.id=? AND b.industry='fishing'")) {

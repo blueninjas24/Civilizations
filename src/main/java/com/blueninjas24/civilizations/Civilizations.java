@@ -175,6 +175,7 @@ public final class Civilizations extends JavaPlugin {
             population.configureFisheryShoreline(EconomyConfiguration.readFisheryShoreline(economyConfig));
             population.configureFishing(EconomyConfiguration.readFishingResources(economyConfig));
             population.configureQuarries(EconomyConfiguration.readQuarryResources(economyConfig));
+            population.configureForestry(EconomyConfiguration.readForestryResources(economyConfig));
             population.configureQuarryFounding(EconomyConfiguration.readQuarryFounding(economyConfig));
             population.configureBusinessPurchases(EconomyConfiguration.readBusinessPurchasePolicy(economyConfig));
             population.configureBusinessOperations(EconomyConfiguration.readBusinessOperations(economyConfig));

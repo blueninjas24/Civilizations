@@ -1,5 +1,69 @@
 # Forestry implementation checkpoint
 
+## October17 — saved resources and paid timber chain verified
+
+The trusted backend now saves forestry habitats and runs registered logging firms
+on the ordinary active-world industry clock. Qualified employees produce actual
+owned timber within habitat, labor and storage limits. Warehouses pay for that
+stock for real workshop needs, then customers pay for delivered inputs. Work can
+earn configurable forestry experience. No player purchase or fake shopper is
+needed for this chain; no personal wage/bank-account system was introduced.
+
+Automatic forest observation/adoption is still disconnected. A trusted caller must
+certify current provenance, suitability and actual customers before opening a
+resource. The normal founding/employment rules enforce its saved qualification
+requirements. There is no player command that bypasses those checks or instantly
+creates a forest business. Live placement/growth capture and observed support
+loss are required before automatic startup is enabled. No physical felling,
+planting, world edits, land claim or use of player chest contents in this slice.
+
+New economy.yml files contain forestry-resources: enabled, minimum-trunk-coordinates,
+stock-per-trunk, maximum-stock, initial-stock-percent, recovery-basis-points,
+units-per-worker and site-work-capacity. These retain the prototype numbers below;
+zero recovery is allowed for admin scenarios. Missing old-file sections opt out,
+and installed files are never rewritten. Work rates/recovery apply forward;
+saved opening capacity/stock are retained through retuning/revisits/restart.
+New defaults also map logging work to forestry experience and permit normal
+vacancy staffing. Tool support remains under the separate editable business-tools
+industry list. Unqualified or habitat-less work cannot trigger logging upkeep.
+
+Schema92 adds four empty tables: forestry_resources, forestry_supports,
+forestry_work and forestry_habitat_changes. Original support coordinates are
+globally reserved to one saved site, including after habitat damage; closed sites
+and history are retained. Opening composes the real shared food-protected grant,
+empty store, first worker and habitat in one transaction. Existing generic startup
+grants cannot be retrofitted as an invented original forestry opening.
+Harvest, stock, period, receipt and experience commit together. Exact retries
+cannot refill, repay or duplicate timber. An explicit habitat transition needs
+fresh authoritative verdicts for every original support; a positive-only scan is
+insufficient. Support return restores capacity, then gradual renewal, not stock.
+
+Windows Wrapper combined affected verify passed170 unit +2 packaged integration
+tests, zero failures/errors/skips,47.667s, October17 22:34:45 EDT. Eleven new tests
+cover saved resource/startup, migration failure/retry with every old table intact,
+habitat transitions, paid logger/warehouse/craftsman production, clock/restart/
+absence, rollback and strict file settings. Existing related tests also ran.
+Initial fixtures reused a workplace coordinate and incorrectly rejected zero
+renewal; corrected. The chain test also caught and fixed the missing timber
+resale allowance for registered forest producers. No assertions were weakened.
+The clean command preceded those fixes; the final affected verify/package above
+passed. Full Windows/Linux verification is delegated to the ordinary hosted build;
+no local full-suite result is claimed for this source.
+
+Actual pinned Paper26.2 build129 booted/upgraded the marked disposable schema91
+fixture, reached population ready and stopped normally at22:36. All157 predecessor
+tables survived,153 exactly; only four routine metadata tables changed, no aging.
+Four new tables were empty, integrity/FKs clean, existing economy.yml byte-identical,
+capture clean/trusted. Original port restored and backups retained. This was a
+bootstrap/preservation smoke check, not live tree recognition or logging adoption.
+The human server and main branch remain unchanged.
+
+The remaining steps at the end of this document now concern live evidence and
+automatic qualified startup; persistent habitats, earned work and paid supply
+are implemented. Logging receives full checklist credit only after live acceptance.
+
+## Earlier checkpoint — pure calculations
+
 October17: plain-Java environmental recognition and renewable timber calculations
 are implemented and tested. They are not yet scheduled live logging businesses.
 No blocks, animals, player inventories or databases are changed by this slice.

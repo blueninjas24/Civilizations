@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 91;
+    static final int CURRENT_VERSION = 92;
 
     @FunctionalInterface
     interface Migration {
@@ -940,7 +940,8 @@ final class SchemaMigrator {
                 PenProtectionLifecycle::createSchema,
                 LivestockLearning::createSchema,
                 LivestockSlaughter::createSchema,
-                QuarrySurveys::createSchema
+                QuarrySurveys::createSchema,
+                ForestryResources::createSchema
 
 
         ));
@@ -1116,6 +1117,12 @@ final class SchemaMigrator {
                 requireColumns(connection,"quarry_survey_members",Set.of("settlement_id","world_id","scope_x","scope_z","x","y","z"));
                 requireColumns(connection,"quarry_founder_reviews",Set.of("settlement_id","period","opportunity","after_resident","policy","explanation"));
                 requireColumns(connection,"quarry_founder_courses",Set.of("course_id","settlement_id","world_id","mineral","x","y","z","enrolled_period"));
+            }
+            if (migrations.size() >= 92) {
+                requireColumns(connection,"forestry_resources",Set.of("site_id","world_id","capacity","habitat_capacity","available","remainder","observed_ms","opening_terms"));
+                requireColumns(connection,"forestry_supports",Set.of("world_id","x","y","z","site_id"));
+                requireColumns(connection,"forestry_work",Set.of("operation_id","site_id","business_id","period","opening_units","recovered","harvested","closing_units","before_remainder","after_remainder","policy"));
+                requireColumns(connection,"forestry_habitat_changes",Set.of("operation_id","site_id","evidence","captured_ms","before_capacity","after_capacity","opening_units","lost","closing_units","before_remainder","after_remainder"));
             }
             if (migrations.size() >= 4) {
                 requireColumns(connection, "households", Set.of("id", "settlement_id", "name"));

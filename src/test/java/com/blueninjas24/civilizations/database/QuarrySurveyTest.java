@@ -133,7 +133,7 @@ class QuarrySurveyTest {
         new SchemaMigrator().migrate(db.getConnection());
         assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));
         assertEquals(before,oldTableRows());
-        for(var table:List.of("quarry_opportunities","quarry_surveys","quarry_survey_members",
+        for(var table:List.of("quarry_opportunities","forestry_work","forestry_supports","forestry_habitat_changes","forestry_resources","quarry_surveys","quarry_survey_members",
                 "quarry_founder_reviews","quarry_founder_courses"))assertEquals(0,scalar("SELECT COUNT(*) FROM "+table),table);
         try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
@@ -165,7 +165,7 @@ class QuarrySurveyTest {
     private Map<String,List<List<String>>> oldTableRows()throws SQLException {
         var state=new TreeMap<String,List<List<String>>>();
         try(var s=db.getConnection().createStatement();var tables=s.executeQuery(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'quarry_%' ORDER BY name")) {
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'quarry_%' AND name NOT LIKE 'forestry_%' ORDER BY name")) {
             var names=new ArrayList<String>();while(tables.next())names.add(tables.getString(1));
             for(var name:names) {
                 var rows=new ArrayList<List<String>>();

@@ -20,6 +20,7 @@ public final class BusinessStartupGrants {
     }
     public record Workshop(BusinessFounding founding,IndustryRepository.Store store,Employment worker,Receipt grant) {}
     public record Fishery(Workshop startup,FisheryRepository.Resource resource) {}
+    public record Forestry(Workshop startup,ForestryRepository.Resource resource) {}
     public record Livestock(Workshop startup,LivestockRepository.Herd herd) {}
     public record WarehouseRequest(BusinessFounding founding,long capacity,Map<Commodity,Long> space,long capital,UUID worker) {
         public WarehouseRequest {
@@ -46,6 +47,24 @@ public final class BusinessStartupGrants {
     public Workshop startWorkshop(WorkshopRequest request,StartupGrantPolicy policy)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(policy);
         return transaction(()->startStockedRows(request,policy,"workshop"));
+    }
+    /** Trusted backend only: caller certifies current forest provenance, demand and site suitability.
+     * Paid founding, initial worker, empty store and habitat share one transaction; no live adoption API. */
+    public Forestry startForestry(WorkshopRequest request,ForestObservation evidence,ForestryPolicy forestry,StartupGrantPolicy grants)throws SQLException {
+        Objects.requireNonNull(request);Objects.requireNonNull(evidence);Objects.requireNonNull(forestry);Objects.requireNonNull(grants);
+        if(!request.founding().business().industry().equals("logging")||!request.space().containsKey(Commodity.TIMBER))
+            throw new IllegalArgumentException("Forestry requires logging industry and timber storage");
+        return transaction(()->startForestryRows(request,evidence,forestry,grants));
+    }
+    Forestry startForestryRows(WorkshopRequest request,ForestObservation evidence,ForestryPolicy forestry,StartupGrantPolicy grants)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Forestry startup requires owner transaction");
+        var id=request.founding().business().id();var forests=new ForestryRepository(connection);
+        if(find(id).isPresent()!=forests.find(request.founding().site().id()).isPresent())
+            throw new Declined("Existing grant/forest needs reviewed transition; no startup retrofit");
+        if(find(id).isPresent()&&new BusinessRepository(connection).findEmployment(firstWorkerId("forestry",id)).isEmpty())
+            throw new Declined("Existing forestry lacks original atomic first-worker episode");
+        var started=startStockedRows(request,grants,"forestry");
+        return new Forestry(started,forests.openRows(started.founding().site().id(),evidence,forestry));
     }
     /** Trusted backend only: caller supplies qualified real opportunity/site and confirmed animal observations.
      * No adoption, animal mutation, initial feed or live scheduling is authorized by this composition. */

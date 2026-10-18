@@ -1,5 +1,11 @@
 # Civilizations — canonical master design
 
+October17 forestry backend: saved renewable timber habitats, qualified timed work
+and real paid warehouse/craftsman customers are verified, with editable resource
+terms and protected atomic startup. Live automatic tree adoption remains off until
+native provenance/current observation is connected. No physical tree modification
+or property claim. See FORESTRY.md and PROJECT_STATUS.md for verified boundaries.
+
 October17 quarry implementation: current exposed stone/sand, real local customers,
 earned qualifications and shared protected startup funds now support automatic
 finite quarry/sandpit businesses and paid timed deliveries. Environmental evidence

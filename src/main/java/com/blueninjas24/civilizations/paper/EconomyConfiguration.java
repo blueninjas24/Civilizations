@@ -19,6 +19,7 @@ public final class EconomyConfiguration {
         if (config.contains("responses")) rootKeys.add("responses");
         if (config.contains("industry")) rootKeys.add("industry");
         if (config.contains("quarry-resources")) rootKeys.add("quarry-resources");
+        if (config.contains("forestry-resources")) rootKeys.add("forestry-resources");
         if (config.contains("fishing-resources")) rootKeys.add("fishing-resources");
         if (config.contains("fishery-shoreline")) rootKeys.add("fishery-shoreline");
         if (config.contains("fishery-founding")) rootKeys.add("fishery-founding");
@@ -78,6 +79,7 @@ public final class EconomyConfiguration {
         readIndustryRuntime(config);
         readStorageUpgrades(config);
         readQuarryResources(config);
+        readForestryResources(config);
         readQuarryFounding(config);
         readQuarryObserver(config);
         readFishingResources(config);
@@ -671,6 +673,19 @@ public final class EconomyConfiguration {
         var s=section(config,"quarry-resources");exactKeys(s,Set.of("enabled","stone","sand"));
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("quarry-resources.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.QuarryPolicy(enabled,quarryTerms(section(s,"stone")),quarryTerms(section(s,"sand")));
+    }
+    public static com.blueninjas24.civilizations.industry.ForestryPolicy readForestryResources(ConfigurationSection config) {
+        if (!config.contains("forestry-resources")) return com.blueninjas24.civilizations.industry.ForestryPolicy.disabled();
+        var s = section(config, "forestry-resources");
+        exactKeys(s, Set.of("enabled", "minimum-trunk-coordinates", "stock-per-trunk", "maximum-stock",
+                "initial-stock-percent", "recovery-basis-points", "units-per-worker", "site-work-capacity"));
+        if (!(s.get("enabled") instanceof Boolean enabled))
+            throw new IllegalArgumentException("forestry-resources.enabled must be true or false");
+        return new com.blueninjas24.civilizations.industry.ForestryPolicy(enabled,
+                smallInteger(s, "minimum-trunk-coordinates"), integer(s, "stock-per-trunk"),
+                integer(s, "maximum-stock"), smallInteger(s, "initial-stock-percent"),
+                smallInteger(s, "recovery-basis-points"), integer(s, "units-per-worker"),
+                integer(s, "site-work-capacity"));
     }
     private static com.blueninjas24.civilizations.industry.QuarryPolicy.Terms quarryTerms(ConfigurationSection s) {
         exactKeys(s,Set.of("reserve-batches-per-block","units-per-batch","batches-per-worker","site-batch-capacity"));

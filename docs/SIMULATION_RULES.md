@@ -1,5 +1,12 @@
 # Civilizations — simulation rules and testable examples
 
+October17 forestry backend: saved capacity never refills on repeat opening or
+retuning; earned active-world periods renew gradually and harvest under actual
+qualified work/storage constraints. Real customers pay for owned delivered timber.
+Explicit complete authoritative habitat loss/return preserves support identity and
+never instantly refills stock. Automatic tree adoption is still disconnected.
+See FORESTRY.md for current settings, migration and validation boundaries.
+
 October17 quarry implementation: each current loaded-chunk stone/sand frame is
 independent of neighboring and coal/iron frames. Real customers, qualifications,
 food-protected shared grants and finite per-coordinate reserves gate automatic

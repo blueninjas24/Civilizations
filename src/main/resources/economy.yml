@@ -203,7 +203,7 @@ automatic-business-staffing:
   enabled: true
   candidates-per-review: 64
   hires-per-review: 2
-  industries: [mining, blacksmith, warehouse, fishing, quarry, sandpit]
+  industries: [mining, blacksmith, warehouse, fishing, quarry, sandpit, logging]
 
 # Limited public startup funding for qualified mines/workshops/warehouses. Trusted startup
 # accounting is implemented; automatic founding/selection is still being connected.
@@ -265,6 +265,20 @@ quarry-resources:
     units-per-batch: 4
     batches-per-worker: 12
     site-batch-capacity: 32
+
+# Renewable timber recognition terms for the data-only forestry backend.
+# Complete canopy-backed trunk evidence is required; saved forests do not refill on edits.
+# These terms do not enable automatic logging, physical felling or land claims.
+# Existing installed configs without this section keep forestry resources disabled.
+forestry-resources:
+  enabled: true
+  minimum-trunk-coordinates: 6
+  stock-per-trunk: 16
+  maximum-stock: 8192
+  initial-stock-percent: 100
+  recovery-basis-points: 100
+  units-per-worker: 4
+  site-work-capacity: 16
 
 # Read-only exposed stone/sand surveys near each saved village home.
 # Never loads chunks or changes blocks. Surveys supply evidence only; they do not
@@ -411,6 +425,7 @@ work-learning:
     fishing: fishing
     craftsman: crafting
     bakery: baking
+    logging: forestry
 
 # Phase 3 finite mining backend. Timed work runs existing mines; auto founding is pending.
 # Minerals are ALWAYS finite: no regeneration, infinite-deposit or refill option.

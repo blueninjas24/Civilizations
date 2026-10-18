@@ -35,6 +35,13 @@ public final class IndustryRuntime {
     private QuarryPolicy quarries=QuarryPolicy.disabled();
     public void configureQuarries(QuarryPolicy policy){quarries=Objects.requireNonNull(policy);}
     private FishingPolicy fishing=FishingPolicy.disabled();
+    private ForestryPolicy forestry=ForestryPolicy.disabled();
+    public void configureForestry(ForestryPolicy policy) {
+        Objects.requireNonNull(policy);
+        if(policy.enabled()&&this.policy.recipes().values().stream().anyMatch(r->r.industry().equals("logging")))
+            throw new IllegalArgumentException("A generic logging recipe conflicts with habitat-backed forestry; remove it before enabling forestry-resources");
+        forestry=policy;
+    }
     private LivestockPolicy livestock=LivestockPolicy.disabled();
     private LivestockRuntimePolicy herdWork=LivestockRuntimePolicy.disabled();
     private LivestockWorkingArea herdArea=LivestockWorkingArea.prototype();
@@ -79,7 +86,8 @@ public final class IndustryRuntime {
             var candidates=new ArrayList<UUID>();
             int scanned=0;
             try(var s=connection.createStatement();var r=s.executeQuery("SELECT b.id,b.industry FROM businesses b JOIN industry_stores k ON k.business_id=b.id WHERE NOT EXISTS(SELECT 1 FROM industry_runtime c WHERE c.business_id=b.id) ORDER BY b.id LIMIT 4097")) {
-                while(r.next()) {scanned++;if(supported(r.getString(2))&&(!dedicatedLivestock(r.getString(2))||new LivestockRepository(connection).load(UUID.fromString(r.getString(1))).isPresent()))candidates.add(UUID.fromString(r.getString(1)));}
+                while(r.next()) {scanned++;if(supported(r.getString(2))&&(!dedicatedLivestock(r.getString(2))||new LivestockRepository(connection).load(UUID.fromString(r.getString(1))).isPresent())
+                        &&(!r.getString(2).equals("logging")||!forestry.enabled()||registeredForest(UUID.fromString(r.getString(1)))))candidates.add(UUID.fromString(r.getString(1)));}
             }
             if(scanned>4096)throw new SQLException("Industry clock enrollment budget exceeded");
             for(var id:candidates)try(var s=connection.prepareStatement("INSERT INTO industry_runtime SELECT ?,?,?,0,COALESCE(MAX(period),0),COALESCE(MAX(period),0) FROM (SELECT period FROM industry_production WHERE business_id=? UNION ALL SELECT period FROM livestock_periods WHERE business_id=?)")) {
@@ -107,7 +115,12 @@ public final class IndustryRuntime {
             return null;
         });
     }
-    private boolean supported(String kind) {return dedicatedLivestock(kind)?livestock.enabled()&&herdWork.enabled():kind.equals("mining") || (Set.of("quarry","sandpit").contains(kind)&&quarries.enabled()) || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
+    private boolean registeredForest(UUID business)throws SQLException {
+        try(var s=connection.prepareStatement("SELECT 1 FROM businesses b JOIN forestry_resources f ON f.site_id=b.site_id WHERE b.id=? AND b.industry='logging'")) {
+            s.setString(1,business.toString());try(var r=s.executeQuery()){return r.next();}
+        }
+    }
+    private boolean supported(String kind) {return dedicatedLivestock(kind)?livestock.enabled()&&herdWork.enabled():kind.equals("mining") || (kind.equals("logging")&&forestry.enabled()) || (Set.of("quarry","sandpit").contains(kind)&&quarries.enabled()) || (kind.equals("fishing") && fishing.enabled()) || (kind.equals("warehouse") && policy.warehouseSupply().enabled()) || policy.recipes().values().stream().anyMatch(r->r.industry().equals(kind));}
     private List<Clock> clocks() throws SQLException {
         var result=new ArrayList<Clock>();
         try(var s=connection.createStatement();var r=s.executeQuery("SELECT c.*,b.industry,p.world_id FROM industry_runtime c JOIN businesses b ON b.id=c.business_id JOIN business_sites p ON p.id=b.site_id ORDER BY c.business_id LIMIT 4097")) {
@@ -155,6 +168,18 @@ public final class IndustryRuntime {
                     long maximum=Math.min(fishing.siteCatchCapacity(),Math.multiplyExact(new BusinessRepository(connection).currentWorkers(id).size(),fishing.catchPerWorker()));
                     var wear=tools.prepare(id,clock.industry(),maximum);
                     var receipt=industry.fishRows(operation,id,wear==null?fishing.siteCatchCapacity():wear.requested(),period,fishing,operations);
+                    reason=supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
+                }
+            }
+            else if(clock.industry().equals("logging")&&registeredForest(id)) {
+                var forests=new ForestryRepository(connection);int workers=forests.qualifiedWorkers(id,operations);
+                if(!forestry.enabled()||!availability.permitted()||workers==0||forests.find(firm.siteId()).orElseThrow().stock().capacity()==0)
+                    reason=industry.logRows(operation,id,0,period,forestry,operations).explanation();
+                else {
+                    var supply=tools.acquireRows(id,clock.industry(),period,clock.anchor().lastObservedMillis()/policy.millisPerPeriod(),operations);
+                    long maximum=Math.min(forestry.siteWorkCapacity(),Math.multiplyExact(workers,forestry.unitsPerWorker()));
+                    var wear=tools.prepare(id,clock.industry(),maximum);
+                    var receipt=industry.logRows(operation,id,wear==null?forestry.siteWorkCapacity():wear.requested(),period,forestry,operations);
                     reason=supply+"; "+receipt.explanation()+"; "+tools.finishRows(operation,id,period,wear,receipt.quantity());
                 }
             }

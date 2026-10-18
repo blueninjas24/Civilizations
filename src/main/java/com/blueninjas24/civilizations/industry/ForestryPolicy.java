@@ -26,4 +26,11 @@ public record ForestryPolicy(boolean enabled, int minimumTrunkCoordinates, long 
     public static ForestryPolicy prototype() {
         return new ForestryPolicy(true, 6, 16, 8192, 100, 100, 4, 16);
     }
+
+    /** Existing installations without forestry resource terms remain opted out. */
+    public static ForestryPolicy disabled() {
+        var p = prototype();
+        return new ForestryPolicy(false, p.minimumTrunkCoordinates(), p.stockPerTrunk(), p.maximumStock(),
+                p.initialStockPercent(), p.recoveryBasisPoints(), p.unitsPerWorker(), p.siteWorkCapacity());
+    }
 }
