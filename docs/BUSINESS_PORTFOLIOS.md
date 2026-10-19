@@ -12,6 +12,12 @@ estate, under the existing retained-cash and percentage limits. The seller's
 family receives the exact payment. Money, ownership, listing completion and audit
 entries save together; failed saves roll everything back.
 
+Estate funding always stays within the target's world, including when new remote
+purchases are disabled. Automatic reviews skip off-world estates rather than
+selecting one and aborting an otherwise valid review. Existing balances are never
+changed by this eligibility check; legacy accounts in the same settlement remain
+eligible without inventing a world binding.
+
 Each acquired branch retains its village, site, founder, local employees, stock,
 cash account and outstanding deliveries. Ordinary local staffing and production
 rules continue. Ownership itself does not ship resources between villages.
@@ -26,5 +32,6 @@ the same saved permanent world ID; names alone cannot authorize a purchase.
 
 Verification lives in `CrossVillageBusinessTest`: real automatic payment,
 retained local assets/jobs, restart replay, disabled/different-world refusal,
-transaction failure recovery and qualified family succession. Broader seeded
+transaction failure recovery, qualified family succession and local-only estate
+funding boundaries. Broader seeded
 acceptance is recorded separately in PROJECT_STATUS.md.

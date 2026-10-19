@@ -2,58 +2,46 @@
 
 Civilizations is a PaperMC plugin that transforms vanilla Minecraft villages into persistent, evolving settlements.
 
-The long-term goal is villages that grow, construct buildings, develop economies,
-trade and form interconnected regional civilizations. Construction is planned; the implemented prototype provides persistent people,
-population and early food economy accounting.
+The long-term goal is villages that grow, build, trade and form regional
+civilizations. The current prototype has persistent people, village economies and
+working business simulations. Physical construction comes in Phase4; regional
+trade and roads come in Phase5.
 
-## Playable population prototype
+## What works now
 
-Villages join automatically when beds and villagers are recognized. Named people,
-households and families persist; the calendar drives births, aging, deaths and moves.
-Nearby villagers reflect saved residents. Managed villagers cannot convert to zombies,
-but still take damage. Administrative diagnostics explain saved population outcomes.
+- Villages are recognized automatically from beds and villagers, including suitable
+  player-built settlements. Named residents, households and families persist;
+  people age, have children, die and migrate. Managed villagers do not become zombies.
+- Villages track food, shortages, supplies and money. Players can donate or sell
+  needed food, negotiate emerald prices, barter for available timber/stone, and
+  buy available village milk/eggs. Bring an empty bucket for milk.
+- Observed farms, basic cow/chicken herds, coal/iron mines, stone/sand extraction,
+  logging, fishing, warehouses, blacksmiths, bakeries and a general craftsman can
+  participate in local production chains. Industry requires suitable observed
+  resources, qualified residents, actual supplies, funding and paying customers.
+- Businesses own goods and cash, buy inputs, wait for delivery and respect storage
+  limits. Real tool upkeep and limited paid storage upgrades create useful demand.
+  Minerals are finite; trees and fish have bounded renewable stocks.
+- Businesses retain founders, employees and history. Qualified family and employees
+  have succession priority; funded buyers can acquire firms, including same-world
+  branches when enabled. Failed sales preserve closed sites and assets.
 
-Use a disposable play world: vanilla trades/professions/inventory are not preserved
-when a moving person's physical villager is recreated. This is a tested foundation,
-not a balanced survival release. See [Phase 1 playtest notes](docs/PHASE1_PLAYTEST.md).
+Server downtime and absent worlds pause progress. Loaded-world businesses can work
+with their chunks unloaded. The plugin does not yet construct buildings, excavate
+mines or fell trees. Toolkits/storage fittings are abstract business goods, rather
+than a complete physical sword, armor or furniture shop catalogue.
 
-Phase 2 now has tested, persistent commodity accounting: reserves, explicit supplies
-and demand, shortage duration and recovery. Live food accounting now uses observed planted fields and saved time; treasury,
-household wellbeing and player trade remain pending. See [accounting scope](docs/COMMODITY_ACCOUNTING.md).
+Start with a separate test world. Recreating a managed villager during movement
+can replace its vanilla trades, profession state and inventory. This remains a
+prototype that needs survival playtesting and tuning. See the
+[Phase3 playtest guide](docs/PHASE3_PLAYTEST.md) for setup, commands, protection and
+known limits, and the [acceptance evidence](docs/PHASE3_ACCEPTANCE.md) for checks.
 
-Prototype economy tuning is in a separate commented `economy.yml`, created under
-`plugins/Civilizations` on first startup. It includes simple famine/feast examples
-and strict validation. Live food supports recorded forward tuning on restart; see [tuning guide](docs/ECONOMY_TUNING.md).
-
-Household needs now retain food demand, housing pressure and shared food conditions
-for each saved economic period. Explicit treasury accounting is separate; automatic
-funding, full prosperity and player transactions remain pending. See
-[household needs and treasury scope](docs/HOUSEHOLD_NEEDS_AND_TREASURY.md).
-
-Villages now select saved planning priorities from food deficits and observed crowded
-homes, with seeded choices and readable explanations. Actual purchase/building execution
-remains pending. See [village priorities](docs/VILLAGE_PRIORITIES.md).
-
-Explicit food delivery accounting now supports saved, retry-safe supplies that
-relieve shortages in future periods. Confirmed player menu donations now feed this
-accounting; `/civ aid` remains a read-only preview. See
-[food delivery scope](docs/FOOD_RELIEF.md).
-
-Players can now hold plain food near a village and use `/civ aid` to preview its
-food value and the village's latest food situation. This takes no items or money;
-donations use a separate confirmed village menu. Conversions
-and range are editable in `economy.yml`. See [player food-aid guide](docs/PLAYER_FOOD_AID.md).
-
-Sneak-right-click a managed villager while holding plain food, then click **Donate
-held food** to give that stack to the village. Normal vanilla trading stays available.
-A saved recovery receipt prevents credit before verified inventory saving. Existing
-owner configs must opt in with `donations.enabled: true`; new configs include it.
-See [food donations and recovery](docs/FOOD_DONATIONS.md). No payout/barter yet.
-
-Villages that choose to seek food now display a voluntary appeal with their latest
-shortage. Sneak-right-click even with an empty hand to read it; reopen holding plain
-food to donate. Appeals remember changing conditions and close after recovery.
-See [village food appeals](docs/FOOD_APPEALS.md).
+Population settings live in `plugins/Civilizations/config.yml`; the commented
+`economy.yml` controls food, resources, recipes, prices, training, grants and upkeep.
+Defaults are supplied, including famine/feast tuning examples. Existing files are
+preserved, so older installations may need to opt into added sections. See the
+[economy tuning guide](docs/ECONOMY_TUNING.md).
 
 ## Core Philosophy
 
@@ -64,7 +52,7 @@ See [village food appeals](docs/FOOD_APPEALS.md).
 - Player creations should be respected and protected.
 - The simulation should create stories naturally rather than relying on scripted events.
 
-## Planned Features
+## Full project vision
 
 - Persistent named settlements
 - Population, food, wealth, safety, and resource simulation

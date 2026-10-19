@@ -1,5 +1,46 @@
 # Civilizations — implementation status and handoff
 
+## Current - Phase3 prototype complete,100%,4/4 milestone groups
+
+All63 current P3 checklist entries are verified: core4/4, resources39/39,
+lifecycle15/15, specialization/acceptance5/5. The initial industry catalogue,
+hybrid farm/livestock/bakery/craft chains, qualified funded competition and
+succession/resale, conditional multi-village ownership, finite/renewable resource
+rules and conservative supported-editor boundary are implemented. Physical growth
+remains Phase4; regional goods/routes remain Phase5. Canonical roadmap unchanged.
+
+Validation: repository `.\mvnw.cmd clean verify` passed1997 unit +3 packaged checks,
+zero failures/errors/skips,15:11 at16:25:34ET. A final review then closed off-world
+estate funding even with new remote purchases disabled, and automatic reviews skip
+invalid estates while retaining legitimate same-settlement legacy accounts.
+Affected36 unit cases pass across focused independent-source runs; final repository
+`-Dtest=CrossVillageBusinessTest verify` passed4 ownership +3 packaged checks,
+22.121s at16:26:23ET, rebuilding the current artifact. No redundant second full run.
+
+Actual Paper mixed8-business/40-pulse, unloaded workplace, paid local trade/craft
+storage/bakery ingredient, capacity/cash, absence/restart checks passed. Ordinary
+pinned-editor bootstrap/fresh generation/edit/undo checks and a real process restart
+passed. All24 old terrain records remained while their previous authority was
+revoked. Separate DB integrity/FK/schema99 audits passed; no migration this batch.
+All disposable servers stopped/helpers archived/ports free. Main remainsc12f7f6;
+human server/world/database/config untouched. See PHASE3_ACCEPTANCE.md for workload
+measurements and explicit compatibility boundaries.
+
+Changed areas: ownership/funding/runtime, editable craft recipes, optional editor
+startup/command/tool guard and bootstrap quarantine, scenario/native helpers,
+README/playtest/progress/decisions/devlog. Human-client survival balance and this
+server's plugin mix still need playtesting; no human test is claimed. No current
+P3 design question remains under the user's delegated recommendations. Next phase
+is the protected physical-growth foundation; no Phase4 block editing has started.
+Final feature backup/hosted CI status is recorded in the closing devlog entry.
+
+Current JAR: `target/civilizations-0.0.1-SNAPSHOT.jar`, SHA256
+`399effd646de21b5a684837efcb8cf5bde3f9a8075578be835efd260268088be`.
+Final combined saved reports cover1998 unit +3 packaged cases across the full run
+and focused follow-up, with zero failures/errors/skips. Helpers, JUnit and external
+WorldEdit libraries are excluded from the production artifact; bundled new-file
+recipe/purchase defaults were checked. Old installed server files remain unchanged.
+
 ## Completion candidate - connected industry and guarded editor runtime verified
 
 Ordinary startup now installs the pinned synchronous WorldEdit adapter. Every

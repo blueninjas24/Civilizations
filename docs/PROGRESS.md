@@ -1,5 +1,32 @@
 # Civilizations progress tracker
 
+## Current - Phase 3 prototype complete
+
+| Phase | What you will experience | Milestones complete | Progress |
+|---|---|---|---|
+| 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
+| 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
+| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 4 / 4 | `██████████` 100% - prototype gate passed |
+| 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
+| 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
+| 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
+| 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
+| 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
+| 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
+
+**Phase 3: `██████████` 100% - all 4 major groups verified.**
+
+Villages can run their local industry economy, pay for real goods, develop different
+business mixes and preserve ownership/history through turnover and restarts. The
+remaining P3 checks passed, including a 2,000-check full build, the final accounting
+follow-up and actual isolated Paper runs. Your server and main were left untouched.
+
+The next development phase is 4: safe physical growth. Buildings, visible excavation
+and felling are still ahead. A human survival playtest and tuning remain useful;
+this is the initial prototype milestone, not a finished public survival release.
+See PHASE3_ACCEPTANCE.md for evidence and PHASE3_PLAYTEST.md for things to try.
+
+
 ## Latest - final P3 candidate is through native acceptance
 
 Eight businesses ran together, traded and made useful goods while every workplace
@@ -1432,22 +1459,22 @@ merchant training and automatic opening are now connected and verified.
 An unemployed adult earns real commerce experience before opening a funded empty
 warehouse; mines must still produce actual stock for it.
 
-Phase 3 has two of four major groups fully complete. Partial work inside the
-remaining groups is also counted in the weighted checklist:
+Phase3 has all four major groups verified for the initial prototype.
+The current scoped checklist is:
 
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
-| Resources and connected production |36/39|92%|
+| Resources and connected production |39/39|100%|
 | Business lifecycle and competition |15/15|100%|
-| Specialization and final acceptance |3/5|60%|
+| Specialization and final acceptance |5/5|100%|
 
-The October13 food-chain additions expand this checklist. Equal weight per group
-gives about88.1% partial checklist completion under the current scope. The former70%
-described the earlier scope. Entries differ
-substantially in size; this is not engineering effort, remaining time or a claim
-that an ordinary village can already start every industry. These counts come from
-PHASE3_TODO.md. The four-group phase-gate bar below still counts whole groups.
+All63 scoped checklist entries are verified. These counts measure implementation
+and automated/native prototype acceptance, rather than hours or release balance.
+PHASE3_TODO.md retains the specific gates and verification boundaries.
+
+<details>
+<summary>Earlier industry integration checkpoints (historical)</summary>
 
 First mining-owner training is now connected: real opportunities sponsor gradual
 practice using actual supplies, then a qualified graduate can found a funded mine.
@@ -1464,30 +1491,20 @@ skills. Automatic first-workshop training/startup and approved marker removal
 pause/restoration are now connected and verified.
 See WORKSHOP_STARTER_SUPPLIES.md and MINE_FOUNDER_TRAINING.md. Your playable server has not been changed.
 
+</details>
+
 Bars count completed milestones in the checklist below. Milestones differ in
 size, so percentages are not estimates of hours, release dates or total project
 completion. A phase is complete only after its canonical roadmap gate is passed.
 Partial work does not fill a completed milestone. These are reporting groups,
 not a replacement for ROADMAP.md or its design requirements.
 
-| Phase | What you will experience | Milestones complete | Progress |
-|---|---|---|---|
-| 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
-| 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 2 / 4 whole groups | `████████▊░` **88% partial checklist** |
-| 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
-| 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
-| 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
-| 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
-| 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
-| 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
-
 ## Phase 1 — prototype gate passed
 
 - [x] Reliable plugin build and automated testing.
 - [x] Settlement saving and safe database upgrade machinery.
 - [x] Repeatable simulation test runner, separate from Minecraft.
-- [x] Validate automatic online builds, disposable server setup and backup recovery. Hosted Windows/Linux CI passed on approved snapshot e85416e; later local work passed Wrapper and real Paper checks. Latest feature branch remains unpushed.
+- [x] Validate automatic online builds, disposable server setup and backup recovery. Hosted Windows/Linux CI passed on approved snapshot e85416e; later local work passed Wrapper and real Paper checks. Current development is backed up on feature branches; see the latest status.
 - [x] Save named individual residents across restarts. Headless storage and actual Paper projection/restart verified.
 - [x] Households, basic family ties and the foundation for jobs. Saved households/relationships/skills and explainable age/skill qualification checks verified. Actual businesses/hiring belong to later phases.
 - [x] Aging, births and deaths. Saved headless rules, visible babies/adulthood, native deaths and simulated death removal verified on Paper.
@@ -1572,16 +1589,19 @@ trade prototype group is complete, advancing Phase 2 to 75%; broader autonomous
 responses/outcome learning still block 100%. Human survival/client/plugin testing
 remains required for release. See PLAYER_BARTER.md.
 
-## Phase 3 — businesses and industry: 2/4 prototype groups verified
+## Phase 3 — businesses and industry: 4/4 prototype groups verified
 
 - [x] Persistent businesses, owners, workers and sites for the basic industry catalog.
-- [ ] Resources and connected production chains.
+- [x] Resources and connected production chains.
 - [x] Business founding, competition, closure and succession.
-- [ ] Emergent specialization and tested business turnover.
+- [x] Emergent specialization and tested business turnover.
 
-Current detailed counts: core4/4, resources36/39, lifecycle15/15 and final
-specialization/acceptance3/5. The earlier farm/processing checkpoint notes below
+Current detailed counts: core4/4, resources39/39, lifecycle15/15 and final
+specialization/acceptance5/5. The earlier farm/processing checkpoint notes below
 remain historical; use PHASE3_TODO.md and latest entries above for current scope.
+
+<details>
+<summary>Earlier Phase3 milestone notes (historical)</summary>
 
 First milestone now has an automatic farm prototype: complete crop surveys locate
 a real site, a qualified available resident starts a farm with actual village funds,
@@ -1616,6 +1636,9 @@ conflicts, world renames and restarts, with transactional evidence and no refill
 Wrapper passed 586 cases and the native synthetic coordinate fixture passed. Actual
 ore scans and automatic nonfood businesses are still unfinished; progress remains
 1/4 (25%) while that next reporting group is partly implemented.
+
+
+</details>
 
 ## Phase 4 — planned
 

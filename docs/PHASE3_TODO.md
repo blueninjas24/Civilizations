@@ -1,5 +1,20 @@
 # Phase 3 — businesses and industry checklist
 
+## October19 - initial Phase3 prototype gate passed:100%,4/4 groups
+
+All63 scoped checklist entries are verified: core4/4, resources39/39, lifecycle15/15,
+specialization/acceptance5/5. Full Wrapper clean verify passed1997 unit +3 packaged
+checks (2000 total), zero failures/errors/skips,15:11. The final estate-world review
+fix passed36 affected unit checks across focused runs and a repository rebuild with
+4 ownership +3 packaged checks,22.121s. Current artifact includes that fix.
+
+Actual mixed8-business/40-pulse Paper, unloaded workplaces, pause/restart, conserved
+goods/cash, guarded WorldEdit/fresh generation and actual process restart passed.
+See PHASE3_ACCEPTANCE.md for scope, measurement and limitations. Human survival/
+server-plugin balance checks remain in PHASE3_PLAYTEST.md; this gate does not claim
+those were completed. Phase4 physical growth and Phase5 regional goods routes remain
+future work. Main/human server untouched; schema99 unchanged.
+
 ## Latest - cross-village ownership and initial craft scope verified
 
 Real paid same-world branch acquisition retains local workers, goods and accounts;
@@ -1380,7 +1395,7 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 - [x] Automatically found/staff real observed farms and produce worker-backed food.
 - [x] Validate founding, retries, restarts and absent-world pause on disposable Paper.
 
-## 2. Resources and connected production — in progress
+## 2. Resources and connected production — initial catalogue verified
 
 - [x] Hybrid farm contributions and owned surplus: capped actual allocation,
       finite storage, tools/skills, replay and preservation of old public goods.
@@ -1416,8 +1431,10 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 - [x] Verify conservative piston movement exclusions on Paper.
 - [x] Conservatively fence recognized/custom unsupported bulk-editor presence and
       later enable events; verify real event and retained recovery gap on Paper.
-- [ ] Certify supported bulk-edit mutation integration before relaxing that fence;
-      unknown editors/offline edits remain outside provenance guarantees.
+- [x] Certify supported bulk-edit mutation integration before relaxing that fence;
+      pinned synchronous WorldEdit bootstrap/fresh generation/edit/undo/restart
+      verified. Older terrain, unknown commands/tools/editors and offline edits
+      retain explicit fences; see WORLDEDIT_CAPTURE.md.
 - [x] Split complete observed coal/iron evidence into deterministic connected patches;
       retain coordinate identity and finite reserves on replay.
 - [x] Connect safe loaded-chunk observation and coherent resource opportunities
@@ -1485,10 +1502,12 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
 - [x] Add suitable renewable forestry/fishing opportunities and finite stone/sand
       production as scoped catalog/observation work; do not infer resources from a
       biome alone or claim ores beyond the implemented coal/iron catalog.
-- [ ] Verify live production chains, capacity/depletion and unloaded operation.
-      Current coal/iron/toolkit operations have focused native checks plus a
-      50-period connected SQLite depletion/accounting regression; wider catalogs
-      and full acceptance remain. See CONNECTED_INDUSTRY_SCENARIO.md.
+- [x] Verify live production chains, capacity/depletion and unloaded operation.
+      Actual8-business mixed resource/warehouse/craft/bakery owner run passed
+      with all workplaces unloaded, actual payments/ingredients, capacity and
+      pause/restart. Fifty-period farm-tool chain verifies complete finite
+      exhaustion; earlier farm/livestock/native checks remain complementary.
+      See PHASE3_ACCEPTANCE.md and CONNECTED_INDUSTRY_SCENARIO.md.
 
 ## 3. Business lifecycle and competition — verified for the basic catalog
 
@@ -1551,7 +1570,7 @@ premises are preferred; physical building reuse remains Phase 4.
 - [x] Restart-safe turnover and failed-transition recovery scenarios for implemented
       inheritance/resale/closure paths; seeded multi-year specialization remains group4.
 
-## 4. Emergent specialization and acceptance — in progress
+## 4. Emergent specialization and acceptance — prototype verified
 
 - [x] Opportunity selection compares viable industries, demand, labor and capital.
       Existing bounded viability adapters feed shared startup priorities; actual
@@ -1563,9 +1582,15 @@ premises are preferred; physical building reuse remains Phase 4.
       Same-seed geology counterfactuals and ten-year actual aging/succession/closure
       scenarios verify divergent paid starts and retained industry outcomes. Wider
       shortage/exceptional-firm and full mixed-catalog acceptance remain below.
-- [ ] Seeded multi-year scenarios cover shortages, failed opportunities, depletion,
+- [x] Seeded multi-year scenarios cover shortages, failed opportunities, depletion,
       closures, succession and exceptional firms without guaranteed outcomes.
-- [ ] Actual disposable Paper startup/runtime/restart, diagnostics and profiling.
+      Geography counterfactuals, two ten-year inheritance/closure histories and
+      ten real-owner years with a qualified funded branch buyer passed. Conditional
+      rich-buyer history is explicit; no promised rich-firm frequency or fake buyers.
+- [x] Actual disposable Paper startup/runtime/restart, diagnostics and profiling.
+      Mixed8-business/40-pulse unloaded work, pause/restart and bounded owner timing
+      passed, plus pinned-editor actual process restart and preserved24 history
+      records. SQL-owner wall times are documented; no20-settlement scale claim.
 - [x] Document playable commands/settings, limitations and a human-client checklist.
       PHASE3_PLAYTEST.md consolidates current commands, setup/settings, legitimate
       waiting reasons, boundaries and an explicitly uncompleted human checklist.

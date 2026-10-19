@@ -1,5 +1,37 @@
 # Civilizations Development Log
 
+## 2026-10-19 - Phase3 prototype gate complete
+
+Completed63 checklist entries across4/4 groups (100% of the initial P3 scope).
+Full Windows Wrapper clean verify passed1997 unit +3 packaged integrations, zero
+failures/errors/skips,15:11,16:25:34ET. Final review closed off-world estate spending
+in local-only purchase mode and added a real automatic-review/eligible-funding
+regression. Thirty-six affected unit cases pass across focused independent-source
+runs; final repository rebuild4 ownership +3 integrations passed22.121s at16:26:23.
+This final accounting follow-up is separate from the preceding full run; no whole
+suite was repeated. Current target JAR includes the follow-up.
+
+Actual mixed8-business/40-pulse Paper catalogue ran with all8 workplace chunks
+unloaded; real production/trade/craft upgrade/bakery inputs, capacity/cash and
+absence/restart passed. Ordinary pinned-editor startup/fresh generation/edit/undo
+and actual process restart passed. All24 terrain-history rows retained, prior
+authority revoked, no chunk loads in the restart helper. Final databases healthy,
+schema99 unchanged, servers stopped/helpers archived/ports free; five test blocks
+restored/ticket released. No human server or main edits.
+
+Updated README/current progress/playtest scope and acceptance/portfolio/editor
+references. Human survival balance/plugin-mix checklist stays explicitly pending.
+Physical construction/excavation/felling remains Phase4; regional shipping Phase5.
+No P3 decision needed. Feature backup and final hosted state follow below.
+
+Delivery branch: `codex/phase3-company-expansion`; commits ac9aac4 and9fedbc0 were
+pushed, and this final accounting/completion batch is backed up on the same branch.
+Earlier ac9aac4 Windows/Linux checks passed; 9fedbc0 Linux passed and Windows was
+still running at the last observation. Hosted checks rerun on the final commit;
+they are not claimed green before results arrive. Final local/native gates above
+are complete. Main remainsc12f7f6 and is neither merged nor pushed.
+Artifact SHA256:399effd646de21b5a684837efcb8cf5bde3f9a8075578be835efd260268088be.
+
 ## 2026-10-19 - P3 completion candidate: mixed runtime and editor bootstrap
 
 Pinned WorldEdit now registers at ordinary startup with fail-closed command/tool/

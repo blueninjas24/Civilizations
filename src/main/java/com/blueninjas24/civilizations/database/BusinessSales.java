@@ -74,7 +74,7 @@ public final class BusinessSales {
         if(q.estateSource()!=null) {
             if(!familyMember(q.buyer(),q.estateSource()))throw new Declined("Buyer cannot spend an unrelated family estate");
             var estateOwner=population.findResident(q.estateSource()).orElseThrow(()->new Declined("Unknown estate family"));
-            if(policy.crossVillagePurchases()&&!BusinessOwnerScope.sameWorld(connection,estateOwner.settlementId(),target.settlementId()))
+            if(!BusinessOwnerScope.sameWorld(connection,estateOwner.settlementId(),target.settlementId()))
                 throw new Declined("Estate funds belong to another world");
             beforeEstate=estate(q.estateSource()).orElseThrow(()->new Declined("Buyer estate does not exist"));
             if(q.estateAmount()>policy.estateAvailable(beforeEstate))throw new Declined("Estate funding limit or balance prevents purchase");

@@ -1,7 +1,7 @@
 # Phase 3 playtest: what to try now
 
-Current October 18 prototype. This guide describes implemented behavior, not a
-claim that Phase 3 or its human acceptance testing is complete. The latest tested
+Current October19 prototype. The initial Phase3 code/native acceptance gate has
+passed; its human-client survival and server-plugin checklist below is still pending. The latest tested
 runtime is Paper 26.2 build 129 with Java 25. Players need a matching Minecraft
 client; no client mod is required.
 
@@ -138,8 +138,13 @@ Save the server log, build/commit identifier and the relevant report when someth
 fails. Describe what you expected and what actually happened. Do not publish logs
 containing private addresses or player information.
 
-Phase 3 remains incomplete: broader useful crafts,
-supported bulk-editor capture and longer specialization/balance acceptance remain.
+The initial Phase3 industry/business prototype gate has passed. Human survival
+balance and this server's plugin mix remain to be assessed. For the narrow pinned
+WorldEdit boundary, read WORLDEDIT_CAPTURE.md; earlier terrain stays guarded.
 Physical construction, farm expansion, tree felling, mine shafts and excavation
 belong to Phase 4. This version can perform data-backed jobs using existing world
 evidence, but it does not yet build or dig visible workplaces.
+
+Qualified owners can now acquire an existing business in another saved village in
+the same world when enabled. Its workers, supplies and accounts remain local;
+ownership alone does not ship goods between villages. See BUSINESS_PORTFOLIOS.md.

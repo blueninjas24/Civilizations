@@ -79,4 +79,25 @@ class CrossVillageBusinessTest {
         assertEquals(f.seller.id(),f.db.getBusinessRepository().findFounding(f.target.business().id()).orElseThrow().business().founderId());
         assertEquals(money,f.money());assertEquals(1,f.count("business_ownership"));
     }
+    @Test void estateCannotSpendAcrossWorldsWhenNewRemotePurchasesAreDisabled()throws Exception {
+        f.db.getPopulationRepository().recordSkillExperience(f.buyer.id(),"farming",10);
+        f.db.getPopulationRepository().insertFamilyTie(new FamilyTie(remoteOwner,f.buyer.id(),FamilyTie.Type.PARENT_CHILD));
+        f.db.getPopulationRepository().updateResident(new Resident(remoteOwner,"Estate family",remoteTown,null,300,Resident.Status.DECEASED));
+        // Explicit fixture estate transferred from declared business capital, never minted by a production rule.
+        f.sql("UPDATE industry_stores SET hundredths=hundredths-10000 WHERE business_id='"+remoteSource+"'");
+        f.sql("INSERT INTO family_estates VALUES('"+remoteOwner+"',10000)");
+        UUID otherWorld=UUID.randomUUID();f.db.getVillageIdentityRepository().observeWorld(otherWorld,"Other fixture world");
+        f.sql("UPDATE settlement_worlds SET world_id='"+otherWorld+"' WHERE settlement_id='"+remoteTown+"'");
+        var sale=new BusinessSales.Request(UUID.randomUUID(),f.target.business().id(),f.seller.id(),f.buyer.id(),1,null,0,remoteOwner,1300);
+        long before=f.money();var localOnly=new BusinessPurchasePolicy(1000,0,100);
+        assertThrows(BusinessSales.Declined.class,()->new BusinessSales(f.db.getConnection(),localOnly).sell(sale));
+        var automatic=new AutomaticBusinessResale(f.db.getConnection(),BusinessResalePolicy.prototype(),localOnly,42);
+        automatic.review(f.target.business().id(),1,1000);
+        assertEquals(before,f.money());assertEquals(0,f.count("business_sales"));
+        f.sql("UPDATE settlement_worlds SET world_id='"+f.world+"' WHERE settlement_id='"+remoteTown+"'");
+        automatic.review(f.target.business().id(),2,2000);
+        automatic.review(f.target.business().id(),3,3000); // A bounded buyer page may wrap before reconsidering changed funds.
+        assertEquals(1,f.count("business_sales"));
+        assertEquals(before,f.money());assertEquals(8700,new BusinessSales(f.db.getConnection(),localOnly).estate(remoteOwner).orElseThrow());
+    }
 }

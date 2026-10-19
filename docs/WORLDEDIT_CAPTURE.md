@@ -39,3 +39,8 @@ cover exact version, command scope and conservative exemptions. The separate
 WorldEditResourceCaptureProbe exercises the actual pinned editor/Paper runtime,
 normal startup, raw writes, removal, undo and failure fences. Final run results are
 recorded in PROJECT_STATUS.md and DEVLOG.md; this document alone is not a test result.
+
+WorldEditRestartProbe additionally verifies an actual server-process restart on
+the same marked fixture. Its24 existing terrain-history rows remain saved while
+their prior authority is revoked; current capture and normal debug status work.
+It performs no world changes or chunk loads and is also excluded from the plugin.

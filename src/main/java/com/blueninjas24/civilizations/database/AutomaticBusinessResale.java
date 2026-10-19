@@ -92,14 +92,15 @@ public final class AutomaticBusinessResale {
     private Source estateSource(UUID buyer,UUID seller,UUID town)throws SQLException {
         try(var s=connection.prepareStatement("""
             SELECT e.decedent_id,e.hundredths FROM family_estates e WHERE e.decedent_id<>?
-            AND (?=0 OR EXISTS(SELECT 1 FROM residents d JOIN settlement_worlds a ON a.settlement_id=d.settlement_id
-                JOIN settlement_worlds b ON b.world_id=a.world_id WHERE d.id=e.decedent_id AND b.settlement_id=?))
+            AND EXISTS(SELECT 1 FROM residents d WHERE d.id=e.decedent_id AND (d.settlement_id=? OR EXISTS(
+                SELECT 1 FROM settlement_worlds a JOIN settlement_worlds b ON b.world_id=a.world_id
+                WHERE a.settlement_id=d.settlement_id AND b.settlement_id=?)))
             AND (EXISTS(SELECT 1 FROM family_ties f WHERE (f.first_id=? AND f.second_id=e.decedent_id) OR (f.second_id=? AND f.first_id=e.decedent_id))
                 OR EXISTS(SELECT 1 FROM family_ties a JOIN family_ties b ON a.first_id=b.first_id
                     WHERE a.type='PARENT_CHILD' AND b.type='PARENT_CHILD' AND a.second_id=? AND b.second_id=e.decedent_id AND a.second_id<>b.second_id))
             ORDER BY e.hundredths DESC,e.decedent_id LIMIT 1
             """)) {
-            s.setString(1,seller.toString());s.setBoolean(2,funding.crossVillagePurchases());s.setString(3,town.toString());
+            s.setString(1,seller.toString());s.setString(2,town.toString());s.setString(3,town.toString());
             for(int i=4;i<=6;i++)s.setString(i,buyer.toString());try(var r=s.executeQuery()){return r.next()?new Source(UUID.fromString(r.getString(1)),r.getLong(2)):null;}
         }
     }
