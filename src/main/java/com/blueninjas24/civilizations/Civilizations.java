@@ -44,6 +44,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperWarehouseStartup warehouseStartup;
     private com.blueninjas24.civilizations.paper.OrePlacementTracker orePlacements;
     private com.blueninjas24.civilizations.paper.ForestMutationTracker forestMutations;
+    private com.blueninjas24.civilizations.paper.GeneratedTerrainObserver generatedTerrain;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
     private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
     private com.blueninjas24.civilizations.paper.FoodBargainingCommand bargaining;
@@ -122,6 +123,7 @@ public final class Civilizations extends JavaPlugin {
                             + "; " + (ores==null?"Ore observer not started":ores.diagnostic())
                             + "; " + (quarries==null?"Stone/sand observer not started":quarries.diagnostic())
                             + "; " + population.forestTrackingDiagnostic()+"; "+population.automaticForestryDiagnostic()
+                            + "; " + (generatedTerrain==null?"New terrain capture not started":generatedTerrain.diagnostic())
                             + "; " + (forests==null?"Forest observer not started":forests.diagnostic())
                             + "; " + (fisheryStartup==null?"Fishery startup not started":fisheryStartup.diagnostic())
                             + "; " + (fisheryWorkplaces==null?"Fishery workplace checks not started":fisheryWorkplaces.diagnostic())
@@ -207,6 +209,8 @@ public final class Civilizations extends JavaPlugin {
             getServer().getPluginManager().registerEvents(orePlacements,this);
             forestMutations=new com.blueninjas24.civilizations.paper.ForestMutationTracker(population,getLogger());
             getServer().getPluginManager().registerEvents(forestMutations,this);
+            generatedTerrain=new com.blueninjas24.civilizations.paper.GeneratedTerrainObserver(population,getLogger());
+            getServer().getPluginManager().registerEvents(generatedTerrain,this);
             var availability = new com.blueninjas24.civilizations.paper.WorldAvailability(population, () -> getServer().getWorlds(), getLogger());
             var startup = population.start(true, availability.snapshot());
             getServer().getPluginManager().registerEvents(availability, this);

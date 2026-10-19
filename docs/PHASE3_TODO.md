@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - edited-world integration groundwork
+
+Actual WorldEdit7.4.4 edit/raw placement/removal/undo checks passed in isolated
+Paper. Positive new-generation capture is now registered and verified on a separate
+no-editor Paper fixture, including clean session restart and gap revocation. Older
+chunks are never backfilled. Neither proof relaxes editor/discovery guards yet:
+complete coordinate eligibility and editor lifecycle coverage remain open.
+P3 remains88.1% partial,2/4 groups; no extra checklist milestone claimed.
+
 ## Latest - edited-terrain foundation verified
 
 Your conservative editor rule is approved and recorded. New evidence can record

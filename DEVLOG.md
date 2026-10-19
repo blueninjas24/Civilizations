@@ -1,5 +1,17 @@
 # Civilizations Development Log
 
+## 2026-10-19 - capture real freshly generated terrain
+
+Added bounded main-thread positive-new-chunk observation, immutable owner-queue
+handoff, per-kind readiness/revision/active-world checks and debug counts. Ordinary
+loads, unavailable capture and overflow stay unknown, with no force loads or backfill.
+Focused clean verify9 unit +3 packaged checks passed21.450s. Fresh no-editor
+Paper26.2-129 proved real new generation, old-load rejection, clean session reopen
+and gap revocation without deleting evidence. Main/private DBs each retained two
+certificates and no people/firms; integrity/FKs clean. Helper archived, server stopped,
+worlds retained; human server untouched. No migration or relaxed discovery guard.
+P3 stays88.1%; coordinate eligibility and optional editor lifecycle remain next.
+
 ## 2026-10-19 - verify optional WorldEdit mutation adapter
 
 Added provided-only WorldEdit Bukkit7.4.4 API, soft dependency, explicit-registration

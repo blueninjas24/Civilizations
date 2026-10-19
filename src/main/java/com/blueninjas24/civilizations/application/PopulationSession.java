@@ -524,6 +524,35 @@ public final class PopulationSession implements AutoCloseable {
     /** Continuous current capture is separate from missing historical provenance. */
     public boolean oreCaptureReady() { return trackOres&&!oreCaptureGap.get()&&pendingOreMutations.get()==0&&status().ready(); }
     public long oreMutationRevision(){return oreMutationRevision.get();}
+    /** Called only for a positive new-chunk event, never for ordinary loads or rescans. */
+    public CompletableFuture<Integer> recordGeneratedTerrain(UUID world,String name,int chunkX,int chunkZ,long observedMillis) {
+        java.util.Objects.requireNonNull(world);
+        if(name==null||name.isBlank()||name.length()>512||observedMillis<0
+                ||chunkX<Math.floorDiv(Integer.MIN_VALUE,16)||chunkX>Math.floorDiv(Integer.MAX_VALUE,16)
+                ||chunkZ<Math.floorDiv(Integer.MIN_VALUE,16)||chunkZ>Math.floorDiv(Integer.MAX_VALUE,16))
+            throw new IllegalArgumentException("Invalid new-terrain observation");
+        boolean ore=oreCaptureReady(),forest=forestCaptureReady();
+        long oreRevision=oreMutationRevision(),forestRevision=forestMutationRevision();
+        if(closing.get()||(!ore&&!forest))return CompletableFuture.completedFuture(0);
+        return submit(()->{
+            requireReady();
+            if(closing.get()||(loadedWorlds!=null&&!loadedWorlds.contains(world)))return 0;
+            boolean saveOre=ore&&oreCaptureReady()&&oreRevision==oreMutationRevision();
+            boolean saveForest=forest&&forestCaptureReady()&&forestRevision==forestMutationRevision();
+            if(!saveOre&&!saveForest)return 0;
+            database.getVillageIdentityRepository().observeWorld(world,name);
+            var epochs=new com.blueninjas24.civilizations.database.ResourceRecoveryEpochs(database.getConnection());
+            var terrain=new com.blueninjas24.civilizations.database.GeneratedTerrainRepository(database.getConnection());
+            int saved=0;
+            for(String kind:java.util.List.of("ore","forest")) {
+                if(kind.equals("ore")?!saveOre:!saveForest)continue;
+                var state=epochs.load(kind);
+                if(state.isPresent()&&state.orElseThrow().healthy()
+                        &&terrain.recordGenerated(kind,world,chunkX,chunkZ,state.orElseThrow().generation(),observedMillis))saved++;
+            }
+            return saved;
+        });
+    }
     public String oreTrackingDiagnostic() {
         return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
                 ?"Ore mutation history: trusted; mine startup also checks demand, skills, funding and resource anchors"

@@ -1,5 +1,28 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - actual new-generation capture
+
+Registered a bounded Paper new-chunk observer. Only positive `isNewChunk()` events
+after current capture is ready may enqueue immutable world/coordinate/time evidence;
+ordinary loads, startup-before-readiness, pending writes, gaps, absent worlds,
+changed mutation revisions and overflow leave terrain unknown. At most eight
+generation saves are in flight; no retry/backfill or production chunk loads.
+The SQL owner checks current per-kind epochs; ore/forest eligibility is independent.
+Debug observation diagnostics show saved/pending/unknown counts for this run.
+
+Focused Wrapper clean verify passed9 unit +3 packaged checks, zero failures/errors/
+skips,21.450s. Two new session tests prove actual queue persistence, negative chunks,
+absent worlds, pending writes, clean reopen, gaps, no old recertification and no
+global trust reset. Fresh disposable Paper26.2-129 without WorldEdit passed real
+generation, existing-load rejection, clean private-session restart and gap revocation.
+Both main/private databases retained two certificates each, no people/businesses;
+integrity/FKs clean. Main epochs healthy; deliberately gapped private epochs unhealthy.
+Helper archived, server stopped, worlds retained; human server/main untouched.
+
+No migration. Certificates are still evidence only: discovery/production paths
+keep their current history gates pending full coordinate-based enforcement. Optional
+editor bootstrap/shutdown also remains conservative. P3 stays88.1% partial,2/4 groups.
+
 ## Latest verified batch - optional WorldEdit write adapter
 
 Added an explicit-registration adapter for WorldEdit Bukkit7.4.4 (Minecraft26.2,

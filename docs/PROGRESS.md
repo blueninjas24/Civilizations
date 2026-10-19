@@ -1,5 +1,13 @@
 # Civilizations progress tracker
 
+## Latest - new terrain is recorded safely
+
+Real newly generated chunks can now receive saved resource-history evidence.
+Ordinary old-chunk loads cannot. Clean restarts preserve evidence; interrupted
+tracking revokes it. Focused build9 unit +3 packaged checks and a fresh no-editor
+Paper generation/restart test passed. This does not yet unlock edited-world discovery:
+the remaining eligibility and editor lifecycle gates stay protected. P3 stays88.1%.
+
 ## Latest - WorldEdit changes verified in an isolated server
 
 The optional adapter correctly records placed resources, removed ore and undo.
