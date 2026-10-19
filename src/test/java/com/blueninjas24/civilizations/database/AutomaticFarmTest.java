@@ -43,6 +43,34 @@ class AutomaticFarmTest {
     }
     private long funds() throws Exception{return new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths();}
     private long output() throws Exception{return runtime.views().get(town).latest().reports().getFirst().flow().production();}
+    private UUID urgentFarmVacancy()throws Exception {
+        settings=new EconomySettings(1,3,2,2,1,4,100,settings.shortages(),Map.of(Commodity.FOOD,0L),settings.baseTradeValues(),settings.pricePercent());
+        runtime=create(policy);observe(1000,true,16,true);runtime.startOnline(1000,Set.of(world));runtime.pulse(2000,false);
+        db.getPopulationRepository().updateResident(new Resident(new UUID(0,3),"Person",town,null,300,Resident.Status.DECEASED));
+        runtime.pulse(3000,false);
+        var farm=FarmEnterprises.businessId(town);assertEquals(1,db.getBusinessRepository().currentWorkers(farm).size());
+        try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT demand-fulfilled FROM needs_periods ORDER BY period DESC LIMIT 1")){assertEquals(1,r.getLong(1));}
+        observe(3001,true,32,true);return farm;
+    }
+    @Test void urgentExistingFieldsClaimIdleWorkerBeforeOtherVacancyWithoutHarvestOrSpending()throws Exception {
+        var farm=urgentFarmVacancy();var owner=new UUID(0,1);var firm=UUID.randomUUID();var site=new BusinessSite(UUID.randomUUID(),town,world,9,64,9,1,"Existing other workplace");
+        var req=new JobRequirements(216,Map.of());
+        db.getBusinessRepository().found(new BusinessFounding(new Business(firm,town,"Other firm",owner,owner,"mining",site.id(),1,0),site,req,req,0,"Existing funded enterprise"));
+        long periods=runtime.views().get(town).account().state().completedPeriods();long production=output();
+        assertEquals(1,runtime.prioritizeUrgentFarmWorkers(Set.of(world),2));
+        new AutomaticBusinessStaffing(db.getConnection(),new BusinessStaffingPolicy(true,64,1,Set.of("mining"))).review(firm,0);
+        assertEquals(2,db.getBusinessRepository().currentWorkers(farm).size());assertTrue(db.getBusinessRepository().currentWorkers(firm).isEmpty());
+        assertEquals(7500,funds());assertEquals(periods,runtime.views().get(town).account().state().completedPeriods());assertEquals(production,output());
+    }
+    @Test void urgentFarmPriorityRequiresPresentWorldAndCompleteCurrentFields()throws Exception {
+        var farm=urgentFarmVacancy();assertEquals(0,runtime.prioritizeUrgentFarmWorkers(Set.of(),2));
+        observe(3002,false,32,true);assertEquals(0,runtime.prioritizeUrgentFarmWorkers(Set.of(world),2));
+        assertEquals(1,db.getBusinessRepository().currentWorkers(farm).size());assertEquals(7500,funds());
+    }
+    @Test void changedPopulationMustBeReassessedBeforeUrgencyClaimsAnotherWorker()throws Exception {
+        var farm=urgentFarmVacancy();person(new UUID(0,5),300);
+        assertEquals(0,runtime.prioritizeUrgentFarmWorkers(Set.of(world),2));assertEquals(1,db.getBusinessRepository().currentWorkers(farm).size());
+    }
     @Test void reliableFieldsFoundAndHireOnceAndReplaceRatherThanDoubleFoodOutput() throws Exception {
         observe(1000,true,32,true);runtime.startOnline(1000,Set.of(world));runtime.pulse(2000,false);
         var business=FarmEnterprises.businessId(town);var saved=db.getBusinessRepository().findFounding(business).orElseThrow();

@@ -88,6 +88,7 @@ public final class FarmEnterprises {
         try(var s=connection.prepareStatement("""
                 SELECT r.id FROM residents r WHERE r.settlement_id=? AND r.status='ALIVE' AND r.age_steps>=?
                 AND NOT EXISTS(SELECT 1 FROM business_employment e WHERE e.resident_id=r.id AND e.ended_step IS NULL)
+                AND NOT EXISTS(SELECT 1 FROM resident_courses c WHERE c.resident_id=r.id AND c.status='ACTIVE')
                 AND COALESCE((SELECT experience FROM resident_skills WHERE resident_id=r.id AND skill='farming'),0)>=?
                 ORDER BY r.id LIMIT 64
                 """)) {

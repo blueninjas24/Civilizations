@@ -1,5 +1,32 @@
 # Civilizations — implementation status and handoff
 
+## October18, 20:16 EDT - urgent existing farms get first access to idle labor
+
+Connected approved urgent-food priority to the existing farm adapter before other
+business vacancy allocation. At most two villages per owner pulse; only an existing
+operating farm, present world, complete crop evidence, real unfilled observed slots
+and a food assessment matching current resident demand qualify. The farm keeps its
+saved skills/capacity and ordinary employment history. No new farm, money, production,
+time advancement, job transfer or invented food is authorized by this hook.
+
+New-file urgent-industries now defaults to farming, bakery and fishing. Existing
+installed lists stay unchanged. Active students are excluded from farm hiring,
+matching non-farm staffing/founder protection. Balanced fields and unrelated
+industries retain their ordinary scheduling. No schema migration; remains98.
+
+Focused clean Wrapper verify/package passed47 unit +2 packaged integration tests,
+zero failures/errors/skips,42.000s at20:13:31. Three new temporary-SQLite scenarios
+prove scarce idle labor reaches the urgent farm before another vacancy, no extra
+food/time/spending, and refusal for absent worlds, partial fields or changed
+population. Existing farm, selection, config and session regressions passed.
+This is SQL-owner/application scheduling without a new Paper API adapter; no new
+native run was claimed for this slice. Earlier staffing and resource-selection
+Paper acceptance remains separately recorded above. Human server and main untouched.
+
+P3 remains about71.4% partial,36/39 resources,14/15 lifecycle and0/5 final acceptance:
+marker/animal startup priority and broader specialization remain. Next is current
+playtest documentation and remaining startup adapters. No new decision needed.
+
 ## October18, 20:09 EDT - shared resource startup investment verified
 
 Resource startups now compete through the approved priorities instead of fixed

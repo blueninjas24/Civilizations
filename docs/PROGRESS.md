@@ -1,5 +1,13 @@
 # Civilizations progress tracker
 
+## October18 - food shortages now get an earlier farm staffing response
+
+An existing farm with usable saved fields can claim idle qualified help before
+other vacancies when the village has a confirmed food shortage. It adds no free
+food or money and cannot take workers from another job or an active course.
+Focused build/tests passed. Broader startup selection and final acceptance remain;
+Phase3 stays about71.4% partial. No decision needed.
+
 ## October18 - resource businesses now compete for startup funding
 
 Mines, quarries/sandpits and logging now compare viable opportunities before one

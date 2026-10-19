@@ -209,12 +209,12 @@ automatic-business-staffing:
 # Missing sections preserve the previous hiring policy; installed files are never overwritten.
 # Food urgency is a separate first tier; funded demand then uses existing configured unit prices.
 # Equal priorities rotate using a saved cursor. This first connection covers existing firms;
-# farm staffing and startup investment keep their existing separate adapters for now.
+# urgent existing farms use their crop-limited adapter first; resource startups are compared too.
 business-allocation:
   enabled: true
   review-millis: 5000
   urgent-first: true
-  urgent-industries: [bakery, fishing]
+  urgent-industries: [farming, bakery, fishing]
   maximum-demand-value-hundredths: 1000000
 
 # Limited public startup funding for qualified mines/workshops/warehouses. Trusted startup

@@ -25,6 +25,6 @@ public record BusinessAllocationPolicy(boolean enabled,long reviewMillis,boolean
                 .thenComparing(c->c.business().toString()));
         return List.copyOf(result);
     }
-    public static BusinessAllocationPolicy prototype(){return new BusinessAllocationPolicy(true,5000,true,Set.of("bakery","fishing"),1_000_000);}
+    public static BusinessAllocationPolicy prototype(){return new BusinessAllocationPolicy(true,5000,true,Set.of("farming","bakery","fishing"),1_000_000);}
     public static BusinessAllocationPolicy disabled(){var p=prototype();return new BusinessAllocationPolicy(false,p.reviewMillis,p.urgentFirst,p.urgentIndustries,p.maximumDemandValue);}
 }

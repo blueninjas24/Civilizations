@@ -1296,6 +1296,9 @@ public final class PopulationSession implements AutoCloseable {
             listingClockFailure=failure.getMessage();
         }
         // Close expired unsold offers before new industry/economy work; refresh is bounded.
+        if(allocationPolicy.enabled()&&allocationPolicy.urgentFirst()&&allocationPolicy.urgentIndustries().contains("farming")
+                &&economy!=null&&economyFailure==null&&status.get().remainingMonths()==0)
+            economy.prioritizeUrgentFarmWorkers(loadedWorlds,2);
         businessView.set(businesses.refresh(status.get().completedMonths(),loadedWorlds,now.getAsLong(),!listingClockSuspended&&listingClockFailure==null));
         if(!industrySuspended)try {industries.pulse(now.getAsLong(),loadedWorlds);industryFailure=null;}
         catch(SQLException|RuntimeException failure) {

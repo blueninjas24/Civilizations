@@ -34,6 +34,44 @@ public final class EconomyRuntimeRepository {
     private String signature;
     private com.blueninjas24.civilizations.industry.FarmBusinessPolicy farmBusinesses=com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
     private FarmEnterprises enterprises;
+    private String urgentFarmCursor="";
+    /** Existing fields get the first chance at idle labor during an actual assessed food shortage.
+     * No new farm, harvest, time advancement or spending is authorized by this scheduling hook. */
+    public int prioritizeUrgentFarmWorkers(Set<UUID> worlds,int maximumTowns)throws SQLException {
+        if(!connection.getAutoCommit())throw new SQLException("Urgent farm staffing requires idle SQL owner");
+        if(maximumTowns<1||maximumTowns>8)throw new IllegalArgumentException("Invalid urgent farm review budget");
+        if(!farmBusinesses.enabled()||enterprises==null||worlds==null)return 0;
+        var towns=urgentFarmPage(maximumTowns);
+        if(towns.isEmpty()&&!urgentFarmCursor.isEmpty()){urgentFarmCursor="";towns=urgentFarmPage(maximumTowns);}
+        int reviewed=0;var firms=new BusinessRepository(connection);
+        for(var town:towns){
+            urgentFarmCursor=town.toString();var evidence=farm(town);
+            if(evidence==null||!evidence.complete()||!worlds.contains(evidence.world()))continue;
+            var saved=firms.findBusiness(FarmEnterprises.businessId(town));
+            if(saved.isEmpty())continue; // Ordinary farm founding stays on its existing path.
+            var firm=saved.orElseThrow();
+            if(!new BusinessOperations(connection,farmOperations).evaluate(firm.id()).permitted())continue;
+            long target=Math.min(firm.workerCapacity(),evidence.plantedCrops()/farms.cropsPerWorker());
+            if(target<=firms.currentWorkers(firm.id()).size())continue;
+            long assessed;
+            try(var s=connection.prepareStatement("SELECT demand FROM needs_periods WHERE settlement_id=? ORDER BY period DESC LIMIT 1")){
+                s.setString(1,town.toString());try(var r=s.executeQuery()){if(!r.next())continue;assessed=r.getLong(1);}
+            }
+            long current;
+            try(var s=connection.prepareStatement("SELECT COALESCE(SUM(CASE WHEN age_steps>=? THEN ? ELSE ? END),0) FROM residents WHERE settlement_id=? AND status='ALIVE'")){
+                s.setLong(1,adulthood);s.setLong(2,settings.adultFoodUnits());s.setLong(3,settings.childFoodUnits());s.setString(4,town.toString());try(var r=s.executeQuery()){r.next();current=r.getLong(1);}
+            }
+            if(current!=assessed)continue; // A changed population needs a fresh assessment before priority is inferred.
+            enterpriseReasons.put(town,"Urgent assessed food need: "+enterprises.prepare(evidence,farms.cropsPerWorker()));reviewed++;
+        }
+        return reviewed;
+    }
+    private List<UUID> urgentFarmPage(int maximum)throws SQLException {
+        var result=new ArrayList<UUID>();
+        try(var s=connection.prepareStatement("SELECT n.settlement_id FROM needs_periods n JOIN economy_accounts e ON e.settlement_id=n.settlement_id AND e.completed_periods=n.period WHERE n.demand>n.fulfilled AND n.settlement_id>? ORDER BY n.settlement_id LIMIT ?")){
+            s.setString(1,urgentFarmCursor);s.setInt(2,maximum);try(var r=s.executeQuery()){while(r.next())result.add(UUID.fromString(r.getString(1)));}
+        }return List.copyOf(result);
+    }
     private com.blueninjas24.civilizations.industry.WorkLearningPolicy learningPolicy=com.blueninjas24.civilizations.industry.WorkLearningPolicy.disabled();
     private com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy farmToolPolicy=com.blueninjas24.civilizations.industry.FarmToolUpkeepPolicy.disabled();
     private com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy farmToolBudget=com.blueninjas24.civilizations.industry.FarmToolBudgetPolicy.disabled();

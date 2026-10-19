@@ -3,15 +3,23 @@
 The user approved urgent village needs first, then unmet demand from real funded
 customers, with editable priorities and fair rotation on ties. This first verified
 connection applies to vacancies at existing non-farm businesses and selection among
-viable resource startup adapters. The separate farm and marker/animal startup
-adapters remain next work.
+viable resource startup adapters. Existing farms also receive the urgent-food
+scheduling hook below; marker/animal startup comparison remains next work.
 No worker is transferred, no wage wallet is created and no living-owner firm closes.
 
 New-file `business-allocation` in economy.yml enables the comparison. Missing old
 sections opt out; installed files are never overwritten. Set `urgent-first`,
 `urgent-industries`, `review-millis` and `maximum-demand-value-hundredths`. Defaults:
-urgent bakeries/fisheries when the latest saved food assessment has unmet meals,
+urgent farms/bakeries/fisheries when the latest saved food assessment has unmet meals,
 5-second reviews, and1,000,000 maximum reference-value hundredths per candidate.
+When enabled, an existing farm with complete saved fields and an actual unmet-meal
+assessment gets a bounded staffing pass before other vacancies. The assessment
+must still match current resident needs; the world must be present and the saved
+farm must be operating. This uses its existing crop-limited qualifications/capacity,
+never creates a new farm, advances time, produces food, pays money or moves jobs.
+At most two villages are visited per pulse. Incomplete fields, absent worlds and
+changed population wait. Active students are excluded from farm hiring as well.
+
 Ordinary input-supply and village-purchase unit prices value funded shortages;
 coal quantities therefore do not automatically outweigh rarer goods. The default
 automatic-staffing catalog now also includes bakeries, craftsmen and livestock.
