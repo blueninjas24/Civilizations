@@ -168,7 +168,18 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();
             if(economy==null||economyFailure!=null||status.get().remainingMonths()>0||!industryPolicy.enabled()||!livestockRuntimePolicy.enabled())
                 return new com.blueninjas24.civilizations.database.LivestockInvestment.Result(false,null,"Current enabled population/economy and herd runtime required");
-            var result=livestockInvestment().accept(evidence,status.get().completedMonths(),now.getAsLong(),loadedWorlds,()->valid.getAsBoolean()&&livestockCaptureReady());
+            var investment=livestockInvestment();com.blueninjas24.civilizations.database.ResourceInvestment.StartupAudit audit=()->{};
+            if(allocationPolicy.enabled()) {
+                var prepared=investment.prepare(evidence,status.get().completedMonths(),now.getAsLong(),loadedWorlds,()->valid.getAsBoolean()&&livestockCaptureReady());
+                if(prepared.request().isEmpty())return new com.blueninjas24.civilizations.database.LivestockInvestment.Result(false,null,prepared.explanation());
+                var request=prepared.request().orElseThrow();
+                var product=new com.blueninjas24.civilizations.economy.Commodity(evidence.species()==com.blueninjas24.civilizations.industry.LivestockHerd.Species.COW?"milk":"eggs");
+                var proposal=new com.blueninjas24.civilizations.database.ResourceInvestment.Proposal(request.founding().business().id(),"livestock",Set.of(product),
+                        Math.addExact(request.founding().startupHundredths(),request.capital()),prepared.explanation());
+                try {audit=resourceInvestment.livestockApproval(evidence.settlement(),proposal,status.get().completedMonths(),now.getAsLong(),loadedWorlds);}
+                catch(com.blueninjas24.civilizations.database.BusinessStartupGrants.Declined waiting){return new com.blueninjas24.civilizations.database.LivestockInvestment.Result(false,null,waiting.getMessage());}
+            }
+            var result=investment.accept(evidence,status.get().completedMonths(),now.getAsLong(),loadedWorlds,()->valid.getAsBoolean()&&livestockCaptureReady(),audit);
             villageAnimals.set(new com.blueninjas24.civilizations.database.AnimalOwnershipRepository(database.getConnection()).villageAnimals());return result;
         }).whenComplete((result,failure)->adoptingAnimals.removeAll(ids));
     }

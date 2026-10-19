@@ -96,6 +96,9 @@ public final class ResourceInvestment {
         }catch(SQLException|RuntimeException failure){attempts.remove(town);throw failure;}
     }
     private Comparison compare(UUID town,long step,long now,Set<UUID> worlds,String cursor)throws SQLException {
+        return compare(town,step,now,worlds,cursor,Optional.empty());
+    }
+    private Comparison compare(UUID town,long step,long now,Set<UUID> worlds,String cursor,Optional<Proposal> liveHerd)throws SQLException {
         var pressure=industry.enabled()&&!industry.supply().enabled()
                 ?new LocalIndustryDemand.Review(true,List.of(),Map.of(),"Private automatic input purchases disabled; public demand reviewed separately")
                 :demand.review(town,worlds,32);
@@ -125,6 +128,7 @@ public final class ResourceInvestment {
             if(!fishing.orElseThrow().kind().equals("fishing"))throw new SQLException("Expected one fishing startup proposal");
             proposals.add(fishing.orElseThrow());
         }
+        if(liveHerd.isPresent())proposals.add(liveHerd.orElseThrow());
         var candidates=new ArrayList<BusinessAllocationPolicy.Candidate>();
         for(var p:proposals){
             var publicNeeds=publicDemand.demandAfterSpending(town,worlds,p.debit());long value=0;
@@ -134,7 +138,8 @@ public final class ResourceInvestment {
                 long contribution=units>policy.maximumDemandValue()/price?policy.maximumDemandValue():units*price;
                 value=Math.min(policy.maximumDemandValue(),value+contribution);
             }
-            if(value>0)candidates.add(new BusinessAllocationPolicy.Candidate(p.id(),false,value));
+            // Preserve existing eligible first-herd startup at zero demand, behind all funded alternatives.
+            if(value>0||liveHerd.filter(h->h.id().equals(p.id())).isPresent())candidates.add(new BusinessAllocationPolicy.Candidate(p.id(),false,value));
         }
         return new Comparison(List.copyOf(proposals),policy.rank(candidates,cursor),
                 "No currently viable qualified/funded resource startup: "+String.join("; ",notes)+"; funded shortages "+pressure.uncovered());
@@ -144,8 +149,15 @@ public final class ResourceInvestment {
         return confirmationApproval(town,proposed,step,now,worlds);
     }
     public StartupAudit confirmationApproval(UUID town,UUID proposed,long step,long now,Set<UUID> worlds)throws SQLException {
-        if(!c.getAutoCommit())throw new SQLException("Marker comparison requires idle owner");
-        if(step<0||now<0)throw new IllegalArgumentException("Invalid marker investment time");
+        return confirmationApproval(town,proposed,step,now,worlds,Optional.empty());
+    }
+    public StartupAudit livestockApproval(UUID town,Proposal liveHerd,long step,long now,Set<UUID> worlds)throws SQLException {
+        if(!liveHerd.kind().equals("livestock"))throw new IllegalArgumentException("Expected qualified live herd proposal");
+        return confirmationApproval(town,liveHerd.id(),step,now,worlds,Optional.of(liveHerd));
+    }
+    private StartupAudit confirmationApproval(UUID town,UUID proposed,long step,long now,Set<UUID> worlds,Optional<Proposal> liveHerd)throws SQLException {
+        if(!c.getAutoCommit())throw new SQLException("Shared startup comparison requires idle owner");
+        if(step<0||now<0)throw new IllegalArgumentException("Invalid startup investment time");
         if(!policy.enabled())return ()->{};
         if(worlds==null)throw new BusinessStartupGrants.Declined("Shared startup waits for known worlds");
         String cursor="";long sequence=0,last=0;
@@ -153,11 +165,11 @@ public final class ResourceInvestment {
             s.setString(1,town.toString());try(var r=s.executeQuery()){if(r.next()){cursor=r.getString(1);sequence=r.getLong(2);last=r.getLong(3);}}
         }
         if(sequence>0&&(now<last||now-last<policy.reviewMillis()))throw new BusinessStartupGrants.Declined("Shared startup waiting for review interval");
-        var comparison=compare(town,step,now,worlds,cursor);
+        var comparison=compare(town,step,now,worlds,cursor,liveHerd);
         if(comparison.ranked().isEmpty())throw new BusinessStartupGrants.Declined(comparison.explanation());
         var selected=comparison.ranked().getFirst();
         var proposal=comparison.proposals().stream().filter(p->p.id().equals(selected.business())).findFirst().orElseThrow();
-        if(!(proposal.marker()||proposal.kind().equals("fishing"))||!proposal.id().equals(proposed))throw new BusinessStartupGrants.Declined("Shared startup priority currently selects "+proposal.kind()+" "+proposal.id()+"; nothing spent");
+        if(!(proposal.marker()||proposal.kind().equals("fishing")||liveHerd.filter(h->h.id().equals(proposal.id())).isPresent())||!proposal.id().equals(proposed))throw new BusinessStartupGrants.Declined("Shared startup priority currently selects "+proposal.kind()+" "+proposal.id()+"; nothing spent");
         long before=lastGrant(),next=Math.incrementExact(sequence),observed=Math.max(now,last);
         return ()->saveRows(town,proposal,selected,comparison.ranked(),before,next,step,observed);
     }
@@ -176,7 +188,7 @@ public final class ResourceInvestment {
         }
         if(business==null)return; // Revalidation refused a now-stale opportunity; no grant or cursor advancement.
         var firm=new BusinessRepository(c).findBusiness(business).orElseThrow();
-        if(!firm.industry().equals(p.kind())||(p.marker()&&!business.equals(p.id())))throw new SQLException("Startup grant does not match selected industry/business");
+        if(!firm.industry().equals(p.kind())||((p.marker()||p.kind().equals("livestock"))&&!business.equals(p.id())))throw new SQLException("Startup grant does not match selected industry/business");
         try(var s=c.prepareStatement("INSERT INTO resource_investment_reviews VALUES(?,?,?,?,?,?,?,?,?,?)")){
             s.setString(1,business.toString());s.setString(2,town.toString());s.setLong(3,next);s.setString(4,p.id().toString());s.setString(5,p.kind());s.setLong(6,step);s.setLong(7,now);
             s.setLong(8,selected.fundedDemandValue());s.setString(9,policy.toString());s.setString(10,p.evidence()+"; compared "+ranked+"; actual protected startup revalidated; no new money");s.executeUpdate();

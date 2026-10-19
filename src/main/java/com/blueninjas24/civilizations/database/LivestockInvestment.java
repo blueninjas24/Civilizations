@@ -13,6 +13,7 @@ import java.util.function.BooleanSupplier;
 public final class LivestockInvestment {
     public record Village(UUID town,UUID world,Position center) {}
     public record Result(boolean opened,UUID business,String explanation) {}
+    public record Preparation(Optional<BusinessStartupGrants.WorkshopRequest> request,String explanation) {}
     private final Connection connection;
     private final LivestockAdoptionPolicy policy;
     private final LivestockPolicy livestock;
@@ -35,7 +36,19 @@ public final class LivestockInvestment {
         if(result.size()>1024)throw new SQLException("Livestock village review exceeds 1024; paging required");
         return List.copyOf(result);
     }
+    /** Read-only proof/qualification/budget review; acceptance independently revalidates before claims. */
+    public Preparation prepare(LivestockOpportunity opportunity,long step,long now,Set<UUID> worlds,BooleanSupplier valid)throws SQLException {
+        Objects.requireNonNull(opportunity);Objects.requireNonNull(valid);
+        if(step<0||now<0)throw new IllegalArgumentException("Invalid founding time");
+        if(!connection.getAutoCommit())throw new SQLException("Livestock preparation requires idle SQL owner");connection.setAutoCommit(false);
+        try {var result=prepareRows(opportunity,step,now,worlds==null?Set.of():worlds,valid);connection.commit();return result;}
+        catch(SQLException|RuntimeException failure){try{connection.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
+        finally{connection.setAutoCommit(true);}
+    }
     public Result accept(LivestockOpportunity opportunity,long step,long now,Set<UUID> worlds,BooleanSupplier valid)throws SQLException {
+        return accept(opportunity,step,now,worlds,valid,()->{});
+    }
+    public Result accept(LivestockOpportunity opportunity,long step,long now,Set<UUID> worlds,BooleanSupplier valid,ResourceInvestment.StartupAudit audit)throws SQLException {
         Objects.requireNonNull(opportunity);Objects.requireNonNull(valid);
         if(step<0||now<0)throw new IllegalArgumentException("Invalid founding time");
         if(!connection.getAutoCommit())throw new SQLException("Livestock investment requires idle SQL owner");
@@ -43,33 +56,33 @@ public final class LivestockInvestment {
         try {
             var result=acceptRows(opportunity,step,now,worlds==null?Set.of():worlds,valid);
             if(!valid.getAsBoolean())throw new BusinessStartupGrants.Declined("Animal evidence or capture changed before startup committed");
-            connection.commit();return result;
+            if(result.opened())audit.save();connection.commit();return result;
         }catch(BusinessStartupGrants.Declined declined){connection.rollback();return new Result(false,null,declined.getMessage());}
         catch(SQLException|RuntimeException failure){try{connection.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
         finally{connection.setAutoCommit(true);}
     }
-    private Result acceptRows(LivestockOpportunity o,long step,long now,Set<UUID> worlds,BooleanSupplier valid)throws SQLException {
-        if(!policy.enabled()||!livestock.enabled()||!valid.getAsBoolean())return no("Livestock adoption/work disabled or capture untrusted");
-        if(!worlds.contains(o.world())||o.capturedMillis()>now||now-o.capturedMillis()>10000||o.observedMillis()<policy.observationMillis())return no("Fresh repeated complete local proof and present world required");
+    private Preparation prepareRows(LivestockOpportunity o,long step,long now,Set<UUID> worlds,BooleanSupplier valid)throws SQLException {
+        if(!policy.enabled()||!livestock.enabled()||!valid.getAsBoolean())return none("Livestock adoption/work disabled or capture untrusted");
+        if(!worlds.contains(o.world())||o.capturedMillis()>now||now-o.capturedMillis()>10000||o.observedMillis()<policy.observationMillis())return none("Fresh repeated complete local proof and present world required");
         var known=villages();
         var village=known.stream().filter(v->v.town().equals(o.settlement())&&v.world().equals(o.world())).findFirst();
-        if(village.isEmpty())return no("Saved living village/world unavailable");
-        if(o.animals().size()>policy.maximumAnimals()||o.animals().stream().filter(LivestockObservation.Animal::adult).count()<policy.minimumAdults())return no("Insufficient adults or animal review limit exceeded");
+        if(village.isEmpty())return none("Saved living village/world unavailable");
+        if(o.animals().size()>policy.maximumAnimals()||o.animals().stream().filter(LivestockObservation.Animal::adult).count()<policy.minimumAdults())return none("Insufficient adults or animal review limit exceeded");
         for(var animal:o.animals()) {
             if(!LivestockOpportunity.natural(animal)||distance(animal.position(),village.orElseThrow().center())>square(policy.villageRadius())
                     ||Math.abs((long)animal.position().y()-village.orElseThrow().center().y())>policy.villageRadius()
                     ||Math.abs((long)animal.position().x()-o.site().x())>policy.clearRadius()||Math.abs((long)animal.position().z()-o.site().z())>policy.clearRadius()
-                    ||Math.abs((long)animal.position().y()-o.site().y())>2)return no("Animal origin, protection flags or local distance ineligible");
+                    ||Math.abs((long)animal.position().y()-o.site().y())>2)return none("Animal origin, protection flags or local distance ineligible");
             var nearest=known.stream().filter(v->v.world().equals(o.world())).min(Comparator.comparingLong((Village v)->distance(animal.position(),v.center())).thenComparing(v->v.town().toString())).orElseThrow();
-            if(!nearest.town().equals(o.settlement()))return no("Another saved living village is closer; no overlapping automatic claim");
-            if(new AnimalOwnershipRepository(connection).load(animal.id()).isPresent())return no("Animal already has permanent ownership; no automatic transfer");
-            if(!new PenProtectionRepository(connection).atAll(o.world(),animal.position().y(),animal.position().x(),animal.position().z()).isEmpty())return no("Animal is inside a saved protected area");
+            if(!nearest.town().equals(o.settlement()))return none("Another saved living village is closer; no overlapping automatic claim");
+            if(new AnimalOwnershipRepository(connection).load(animal.id()).isPresent())return none("Animal already has permanent ownership; no automatic transfer");
+            if(!new PenProtectionRepository(connection).atAll(o.world(),animal.position().y(),animal.position().x(),animal.position().z()).isEmpty())return none("Animal is inside a saved protected area");
         }
         try(var s=connection.prepareStatement("""
             SELECT COUNT(*) FROM livestock_herds h JOIN businesses b ON b.id=h.business_id
             WHERE b.settlement_id=? AND h.species=? AND NOT EXISTS(SELECT 1 FROM business_closures c WHERE c.business_id=b.id)
             """)) {
-            s.setString(1,o.settlement().toString());s.setString(2,o.species().name());try(var r=s.executeQuery()){r.next();if(r.getLong(1)>=policy.maximumPerSpecies())return no("Village already has its configured open herd allowance for this species");}
+            s.setString(1,o.settlement().toString());s.setString(2,o.species().name());try(var r=s.executeQuery()){r.next();if(r.getLong(1)>=policy.maximumPerSpecies())return none("Village already has its configured open herd allowance for this species");}
         }
         var candidates=new ArrayList<UUID>();var population=new PopulationRepository(connection);UUID founder=null,worker=null;
         try(var s=connection.prepareStatement("SELECT id FROM residents WHERE settlement_id=? AND status='ALIVE' AND age_steps>=? ORDER BY id LIMIT 256")) {
@@ -80,18 +93,27 @@ public final class LivestockInvestment {
             if(founder==null&&WorkEligibility.evaluate(person,profile,requirements(policy.founderFarming())).eligible())founder=id;
             if(worker==null&&WorkEligibility.evaluate(person,profile,requirements(policy.workerFarming())).eligible()&&available(id))worker=id;
         }
-        if(founder==null||worker==null)return no("Waiting for a farming-qualified owner and an available adult worker; no free skill or duplicate job");
+        if(founder==null||worker==null)return none("Waiting for a farming-qualified owner and an available adult worker; no free skill or duplicate job");
         var ordered=o.animals().stream().sorted(Comparator.comparing(a->a.id().toString())).toList();
         String key=o.settlement()+":"+o.world()+":"+o.species()+":"+ordered.getFirst().id();
         UUID business=id("civilizations:free-range-business-v1:"+key),site=id("civilizations:free-range-site-v1:"+key);
         // A repeated old observation cannot silently create a replacement for a closed firm.
-        if(new BusinessRepository(connection).findBusiness(business).isPresent())return no("This initial animal group already has business history");
+        if(new BusinessRepository(connection).findBusiness(business).isPresent())return none("This initial animal group already has business history");
         String reason="Repeated loaded natural free-range proof; local clearance radius="+policy.clearRadius()+"; "+policy;
         var p=o.site();var location=new BusinessSite(site,o.settlement(),o.world(),p.x(),p.y(),p.z(),o.capturedMillis(),reason);
         var firm=new Business(business,o.settlement(),o.species()==LivestockHerd.Species.COW?"Dairy farm":"Chicken farm",founder,founder,"livestock",site,2,step);
         var founding=new BusinessFounding(firm,location,requirements(policy.founderFarming()),requirements(policy.workerFarming()),policy.startupHundredths(),reason);
         var product=o.species()==LivestockHerd.Species.COW?new Commodity("milk"):new Commodity("eggs");
         var request=new BusinessStartupGrants.WorkshopRequest(founding,256,Map.of(new Commodity("grain"),1L,product,1L),policy.capitalHundredths(),worker);
+        var budget=new BusinessStartupGrants(connection).previewRows(o.settlement(),"livestock",policy.startupHundredths(),policy.capitalHundredths(),grants);
+        if(!budget.eligible())return none(budget.reason());
+        return new Preparation(Optional.of(request),"Qualified local owner/worker, unowned natural animals and protected grant ready; nothing reserved");
+    }
+    private Result acceptRows(LivestockOpportunity o,long step,long now,Set<UUID> worlds,BooleanSupplier valid)throws SQLException {
+        var prepared=prepareRows(o,step,now,worlds,valid);
+        if(prepared.request().isEmpty())return no(prepared.explanation());
+        var request=prepared.request().orElseThrow();var business=request.founding().business().id();
+        var ordered=o.animals().stream().sorted(Comparator.comparing(a->a.id().toString())).toList();
         var animals=new TreeMap<UUID,Integer>();var ownership=new AnimalOwnershipRepository(connection);
         for(var animal:ordered){
             ownership.recordRows(new AnimalOwnershipRepository.Claim(animal.id(),o.world(),LivestockAdoption.Ownership.VILLAGE,null,o.settlement(),now,"Automatic natural free-range adoption; business="+business));
@@ -107,6 +129,7 @@ public final class LivestockInvestment {
         }
     }
     private JobRequirements requirements(long skill){return new JobRequirements(adulthood,skill==0?Map.of():Map.of("farming",skill));}
+    private static Preparation none(String reason){return new Preparation(Optional.empty(),reason);}
     private static Result no(String reason){return new Result(false,null,reason);}
     private static UUID id(String text){return UUID.nameUUIDFromBytes(text.getBytes(StandardCharsets.UTF_8));}
     private static long square(long n){return n*n;}

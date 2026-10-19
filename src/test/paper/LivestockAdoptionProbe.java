@@ -47,6 +47,7 @@ public final class LivestockAdoptionProbe extends JavaPlugin {
         check(new PaperFreeRangeSource(world).cell(new com.blueninjas24.civilizations.settlement.VillageObservation.Position(x-1,y,z+1))==FreeRangeScan.Cell.BARRIER,"Actual fence must block clearance");
         data=getDataFolder().toPath().resolve("run-"+UUID.randomUUID());check(!Files.exists(data),"Fresh private database required");
         work=CompletableFuture.runAsync(()->{try{seed();session=new PopulationSession(data.toFile(),getLogger(),PopulationSession.Settings.prototype(),System::currentTimeMillis,economy(),FarmObservation.Policy.prototype());
+            if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))session.configureBusinessAllocation(BusinessAllocationPolicy.prototype());
             var policy=new LivestockAdoptionPolicy(true,8,2,2,8,1000,20,4,4096,500,2000,16,1,0,1);
             session.configureLivestockAdoption(policy);session.configureLivestockWork(LivestockPolicy.prototype(),LivestockRuntimePolicy.prototype());
             session.configureIndustryRuntime(new IndustryRuntimePolicy(true,1000,8,IndustryPolicy.prototype(),Map.of(),new WorkshopSupplyPolicy(true,1,8,Map.of(new Commodity("grain"),25L))));
@@ -73,9 +74,24 @@ public final class LivestockAdoptionProbe extends JavaPlugin {
                 check(new TreasuryRepository(db.getConnection()).load(town).orElseThrow().hundredths()==7500,"One real protected startup grant");
                 try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT business_id FROM livestock_herds")){check(r.next(),"One saved herd");var herd=UUID.fromString(r.getString(1));check(!r.next(),"No duplicate herd");check(db.getIndustryRepository().store(herd).orElseThrow().hundredths()==2000,"Real starting cash");check(new LivestockRepository(db.getConnection()).load(herd).orElseThrow().state().adults()==2,"Only real initial adults");}
                 try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){check(!r.next(),"Clean FKs");}
+                if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*),SUM(demand_value) FROM resource_investment_reviews WHERE industry='livestock'")) {
+                    check(r.next()&&r.getLong(1)==1&&r.getLong(2)==0,"One shared fallback herd startup audit without invented demand");
+                }
             }finally{db.close();}
-            restore();getLogger().info("LIVESTOCK_ADOPTION_PROBE_PASSED actual natural cows, fence exclusion, repeated bounded local clearance, named-animal protection, production PaperLivestockAdoption and PopulationSession, paid atomic herd startup, exact durable ownership/cash; private database; test blocks restored and exact test bodies removed");getServer().shutdown();stage=3;
+            restore();getLogger().info("LIVESTOCK_ADOPTION_PROBE_PASSED actual natural cows, fence exclusion, repeated bounded local clearance, named-animal protection, production PaperLivestockAdoption and PopulationSession, paid atomic herd startup, exact durable ownership/cash; private database; test blocks restored and exact test bodies removed");
+            if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))getLogger().info("NATIVE SHARED LIVESTOCK SELECTION PASS: real repeated free-range proof and protected paid herd startup share one atomic selection audit; no fabricated demand, test bodies removed and blocks/ticket restored");
+            getServer().shutdown();stage=3;
         }
     }
-    private void restore(){if(adoption!=null){adoption.close();adoption=null;}if(session!=null){session.close();session=null;}for(var cow:cows)cow.remove();cows.clear();for(var entry:originals.entrySet())entry.getKey().setBlockData(entry.getValue(),false);originals.clear();if(chunk!=null){chunk.removePluginChunkTicket(this);chunk=null;}}
+    private void restore(){
+        if(adoption!=null){adoption.close();adoption=null;}if(session!=null){session.close();session=null;}
+        int bodies=cows.size(),blocks=originals.size();
+        for(var cow:cows)cow.remove();
+        for(var entry:originals.entrySet())entry.getKey().setBlockData(entry.getValue(),false);
+        boolean removed=cows.stream().noneMatch(Cow::isValid);
+        boolean restored=originals.entrySet().stream().allMatch(e->e.getKey().getBlockData().getAsString().equals(e.getValue().getAsString()));
+        cows.clear();originals.clear();if(chunk!=null){chunk.removePluginChunkTicket(this);chunk=null;}
+        check(removed&&restored,"Exact fixture bodies/blocks must be restored");
+        if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))getLogger().info("SHARED LIVESTOCK FIXTURE RESTORED: "+bodies+" exact test bodies removed; "+blocks+" original block states verified; fixture ticket released");
+    }
 }

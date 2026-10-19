@@ -94,8 +94,9 @@ Urgent assessed food shortages give existing farms first access to qualified idl
 help. Other existing vacancies compare urgency and funded demand. Mines,
 quarries/sandpits, logging and marker-backed workshops/warehouses compare viable
 startup proposals before receiving one protected grant. Fisheries also participate,
-with safe shoreline confirmation still required. Livestock still needs the combined
-competition connection. Existing workers are not forcibly moved, and selection creates no
+with safe shoreline confirmation still required. Fresh eligible livestock proofs
+also compete before adoption; existing first-herd eligibility waits behind funded
+alternatives rather than inventing customers. Existing workers are not forcibly moved, and selection creates no
 money or supplies.
 
 Minerals, stone and sand have finite saved reserves; observing them again or
@@ -137,7 +138,7 @@ Save the server log, build/commit identifier and the relevant report when someth
 fails. Describe what you expected and what actually happened. Do not publish logs
 containing private addresses or player information.
 
-Phase 3 remains incomplete: combined startup competition, broader useful crafts,
+Phase 3 remains incomplete: broader useful crafts,
 supported bulk-editor capture and longer specialization/balance acceptance remain.
 Physical construction, farm expansion, tree felling, mine shafts and excavation
 belong to Phase 4. This version can perform data-backed jobs using existing world

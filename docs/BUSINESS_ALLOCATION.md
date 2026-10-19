@@ -4,7 +4,8 @@ The user approved urgent village needs first, then unmet demand from real funded
 customers, with editable priorities and fair rotation on ties. This first verified
 connection applies to vacancies at existing non-farm businesses and selection among
 viable resource and marker startup adapters. Existing farms also receive the urgent-food
-scheduling hook below; animal startup comparison remains next work.
+scheduling hook below. Fresh eligible livestock proofs also join the comparison
+at their existing adoption handoff.
 No worker is transferred, no wage wallet is created and no living-owner firm closes.
 
 New-file `business-allocation` in economy.yml enables the comparison. Missing old
@@ -95,6 +96,22 @@ available to the selector and existing-business staffing. This contributes no
 private demand and does not treat an incomplete enabled review as complete. Public
 orders still require their own real funds and matching current saved assessment.
 
+Livestock adoption now has a read-only eligibility/budget preparation. Only the
+actual freshly delivered animal proof competes during its SQL-owner handoff;
+there is no persisted speculative herd, queued ownership claim or chunk loading.
+It compares against the currently viable resource, marker and fishery proposals,
+then the existing adoption transaction rechecks animals/ownership/protection,
+qualified owner/available worker, capture and protected funds before writing.
+Claims, grant, actual herd/store/job and selection audit/cursor commit together.
+
+Existing approved first-herd eligibility is preserved when no established paying
+customer exists: that candidate has zero funded-demand value and loses to every
+positive funded alternative. This creates no fictional buyer or consumption. All
+normal species allowances and grant/food-budget limits still apply. New resource
+or workshop proposals without their required funded customers remain ineligible.
+Proposals not yet physically observed cannot be compared; discovery/history still
+affects which opportunities are available. Workers retain their current jobs.
+
 Schema97 adds initially empty `business_allocation_state` and
 `business_allocation_reviews`. Hiring, its existing audit, selection explanation and
 saved tie cursor commit together. Failure rolls back all of them. Review throttling
@@ -102,9 +119,10 @@ also covers complete comparisons with no candidate, without adding empty histori
 rows on every pulse. The report remains read-only; business diagnostics show the
 configured selection result. Marker-confirmed workshops/warehouses retain their
 existing acceptance adapters with the shared choice now connected. Fishing uses
-its existing bank confirmation with the same ledger. Livestock adoption does not
-yet share this startup comparison; do not call the whole
-specialization/competition gate done.
+its existing bank confirmation with the same ledger; eligible animal proofs use
+the same selection at adoption. The basic competition/lifecycle checklist gate is
+now verified. Broader multi-village/multi-year specialization and balance acceptance
+remain separate unfinished milestones.
 
 Seven new focused cases plus existing staffing/demand/runtime/migration tests passed.
 Actual disposable Paper owner-pulse acceptance selected iron shortage value400 over

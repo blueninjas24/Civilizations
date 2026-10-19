@@ -1,5 +1,49 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - livestock allocation completes basic competition
+
+Separated a read-only qualified herd/budget preparation from ownership/grant
+writes. At the existing actual Paper adoption handoff, a freshly delivered eligible
+herd competes with current resource, marker and water proposals. No speculative
+animals/ownership are saved or queued. Normal adoption revalidates every original
+origin/protection/range/nearest-village/qualification/capture/funding condition
+before claiming animals. Ownership, paid grant/store/job/herd and selection history/
+cursor share one transaction; failure restores all, retry opens once.
+
+Preserved the already-approved first-herd eligibility without an established buyer:
+its funded value is zero, behind every positive funded alternative. No fake demand,
+consumer, profit or new budget. Existing species/grant limits and protected food
+funds remain. Other startup adapters retain their actual customer requirements.
+Available known observations are compared; unseen future opportunities cannot be.
+Existing farm-food scheduling and no-poaching/one-worker-job protections remain.
+
+Focused Wrapper clean verify/package passed48 units +2 packaged integrations,
+zero failures/errors/skips,32.505s. Three new temporary SQLite cases prove read-only
+preparation/zero-demand compatibility, real funded-priority deferral without claims,
+and complete late-audit rollback/retry. Existing adoption, protection, source/
+marker/fishery selection and session regressions pass. No schema migration (98).
+Refreshed the final JAR after diagnostic wording only: package with tests skipped
+passed17.180s; the48+2 checks above were not unnecessarily repeated.
+
+Actual isolated Paper26.2-129 passed ordinary repeated natural-animal adoption:
+an actual fence blocked adoption; after removal only the two unnamed eligible cows
+joined, while the named third stayed protected. One real2500 grant/debit (500 fee,
+2000 business cash), one actual worker, durable exact ownership/herd and one zero-
+demand selection record verified after private close/reopen. Three exact fixture
+bodies removed,324 original block states verified restored, test ticket released.
+Server stopped. Main disposable DB173 tables,165 exact, eight normal clock/capture/
+resident tables changed with one normal age month and exact retained identities/
+statuses/ages. Integrity/FKs/config/capture and private assets/audit clean. Original
+port restored, helper archived, backups/audit retained. Human server/main untouched.
+
+Basic lifecycle/competition15/15 and bounded viable opportunity selection now pass.
+Core4/4, resources36/39, final specialization/acceptance2/5: equal group weighting
+83.1% partial P3,2/4 whole groups. This is not full Phase3 or human/long-run acceptance.
+Remaining resources: useful craft breadth, supported bulk-editor capture, broad
+catalog acceptance; remaining final entries: contrasting geography/history,
+seeded multi-year scenarios and integrated native profiling/acceptance.
+Latest full hosted checks follow push. No new design decision required.
+
 ## Latest verified batch - fisheries join shared startup allocation
 
 A qualified funded water proposal now competes with resource and marker startups.

@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - basic competition milestone completed
+
+Fresh eligible herds now compare against other viable startups before animals or
+money change hands. First-herd eligibility stays behind actual funded customers;
+protection and food budgets remain. Focused build and real isolated adoption passed.
+The basic lifecycle/competition and opportunity-selection entries are verified:
+P3 about83% partial,2/4 whole groups. Longer specialization/balance acceptance,
+craft breadth and editor compatibility remain. No new decision needed.
+
 ## Latest - fishing joins shared startup priorities
 
 Qualified fisheries now compete for protected startup funds alongside resource
@@ -1414,7 +1423,7 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
       50-period connected SQLite depletion/accounting regression; wider catalogs
       and full acceptance remain. See CONNECTED_INDUSTRY_SCENARIO.md.
 
-## 3. Business lifecycle and competition — in progress
+## 3. Business lifecycle and competition — verified for the basic catalog
 
 Approved October 9: eligible industry-qualified family first, then a qualified
 employee, otherwise an affordable qualified sale with configurable valuation and
@@ -1424,7 +1433,13 @@ owner before implementing transfer. Test qualification, capital conservation,
 retry/rollback/restart, estate eligibility and no invented funds. Suitable vacant
 premises are preferred; physical building reuse remains Phase 4.
 
-- [ ] Explainable pause/closure/reassessment and competition for workers/capital.
+- [x] Explainable pause/closure/reassessment and competition for workers/capital.
+      Complete bounded local staffing, urgent existing-farm labor, protected
+      resource/marker/water startup ranking and actual eligible herd handoff are
+      connected. Funded demand/ties, no-poaching, current qualification, real
+      budgets, rollback/replay/restart and ordinary Paper adapters verified.
+      Existing first-herd eligibility is retained at zero demand behind funded
+      alternatives. Wider multi-year specialization remains group4.
 - [x] Preserve closed firms, sites, inventories and employment history.
 - [x] Saved unsold-offer expiry closes operation/releases jobs atomically while
       retaining stock/cash/resources/sites/history; immediate expiry guards,
@@ -1469,9 +1484,14 @@ premises are preferred; physical building reuse remains Phase 4.
 - [x] Restart-safe turnover and failed-transition recovery scenarios for implemented
       inheritance/resale/closure paths; seeded multi-year specialization remains group4.
 
-## 4. Emergent specialization and acceptance — pending
+## 4. Emergent specialization and acceptance — in progress
 
-- [ ] Opportunity selection compares viable industries, demand, labor and capital.
+- [x] Opportunity selection compares viable industries, demand, labor and capital.
+      Existing bounded viability adapters feed shared startup priorities; actual
+      loaded marker/bank/animal proof still revalidates before paid acceptance.
+      Resource/marker/fishery/herd SQL cases and native ordinary adapters passed.
+      This verifies selection, not the remaining contrasting-geography or seeded
+      multi-year acceptance milestones.
 - [ ] Different geography/history produces different mixes; no universal industry list.
 - [ ] Seeded multi-year scenarios cover shortages, failed opportunities, depletion,
       closures, succession and exceptional firms without guaranteed outcomes.

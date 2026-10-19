@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - basic competition milestone completed
+
+Fresh eligible herds now compare against other viable startups before animals or
+money change hands. First-herd eligibility stays behind actual funded customers;
+protection and food budgets remain. Focused build and real isolated adoption passed.
+The basic lifecycle/competition and opportunity-selection entries are verified:
+P3 about83% partial,2/4 whole groups. Longer specialization/balance acceptance,
+craft breadth and editor compatibility remain. No new decision needed.
+
 ## Latest - fishing joins shared startup priorities
 
 Qualified fisheries now compete for protected startup funds alongside resource
@@ -1307,18 +1316,18 @@ merchant training and automatic opening are now connected and verified.
 An unemployed adult earns real commerce experience before opening a funded empty
 warehouse; mines must still produce actual stock for it.
 
-Phase 3 has one of four major groups fully complete. The partial work inside the
-other groups is now shown here instead of being hidden behind a fixed25% bar:
+Phase 3 has two of four major groups fully complete. Partial work inside the
+remaining groups is also counted in the weighted checklist:
 
 | Phase3 group | Completed checklist entries | Partial checklist progress |
 |---|---:|---:|
 | Businesses, owners, workers and sites |4/4|100%|
 | Resources and connected production |36/39|92%|
-| Business lifecycle and competition |14/15|93%|
-| Specialization and final acceptance |1/5|20%|
+| Business lifecycle and competition |15/15|100%|
+| Specialization and final acceptance |2/5|40%|
 
 The October13 food-chain additions expand this checklist. Equal weight per group
-gives about76.4% partial checklist completion under the current scope. The former70%
+gives about83.1% partial checklist completion under the current scope. The former70%
 described the earlier scope. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from
@@ -1349,7 +1358,7 @@ not a replacement for ROADMAP.md or its design requirements.
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 1 / 4 | `██▌░░░░░░░` 25% whole gates; **70% partial checklist** |
+| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 2 / 4 whole groups | `████████▎░` **83% partial checklist** |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -1447,12 +1456,16 @@ trade prototype group is complete, advancing Phase 2 to 75%; broader autonomous
 responses/outcome learning still block 100%. Human survival/client/plugin testing
 remains required for release. See PLAYER_BARTER.md.
 
-## Phase 3 — automatic farm businesses: 1/4 prototype groups verified
+## Phase 3 — businesses and industry: 2/4 prototype groups verified
 
-- [x] Persistent businesses, owners, workers and sites. Automatic field enterprise verified on actual Paper; other industries remain next.
+- [x] Persistent businesses, owners, workers and sites for the basic industry catalog.
 - [ ] Resources and connected production chains.
-- [ ] Business founding, competition, closure and succession.
+- [x] Business founding, competition, closure and succession.
 - [ ] Emergent specialization and tested business turnover.
+
+Current detailed counts: core4/4, resources36/39, lifecycle15/15 and final
+specialization/acceptance2/5. The earlier farm/processing checkpoint notes below
+remain historical; use PHASE3_TODO.md and latest entries above for current scope.
 
 First milestone now has an automatic farm prototype: complete crop surveys locate
 a real site, a qualified available resident starts a farm with actual village funds,
