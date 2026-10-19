@@ -391,6 +391,10 @@ ore-observer:
 # The store must support every input/output with positive storage-space-per-unit.
 # Inputs, outputs and work rates may be tuned; saved production history is immutable.
 # Timed work and automatic input purchases require their separate settings below.
+# Bakeries and the one general craftsman may have several named recipes (32 total).
+# Craftsmen use the first recipe by ID that can work with owned materials/storage;
+# Otherwise use paid incoming ingredients, affordable warehouse inputs, then baseline.
+# New products need real buyers and saved store support; adding recipes grants neither.
 recipes:
   craft_storage_fittings:
     industry: craftsman

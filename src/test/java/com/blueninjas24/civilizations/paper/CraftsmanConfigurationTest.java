@@ -5,6 +5,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 class CraftsmanConfigurationTest {
     YamlConfiguration config(){return YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8));}
+    @Test void multipleCraftRecipesAreReadWithoutRewritingSettingsOrRelaxingOtherIndustryLimits() {
+        var c=config();
+        c.set("recipes.z_stone_fittings.industry","craftsman");c.set("recipes.z_stone_fittings.inputs.stone",3);
+        c.set("recipes.z_stone_fittings.outputs.storage_fittings",1);c.set("recipes.z_stone_fittings.batches-per-worker",1);c.set("recipes.z_stone_fittings.site-batch-capacity",4);
+        var before=c.saveToString();var policy=EconomyConfiguration.readIndustryRuntime(c);
+        assertEquals(2,policy.recipes().values().stream().filter(r->r.industry().equals("craftsman")).count());assertEquals(before,c.saveToString());
+        c.set("recipes.z_stone_fittings.industry","blacksmith");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readIndustryRuntime(c));
+    }
     @Test void explicitEditablePrototypeAndMissingInstalledSectionsRemainUnchanged() {
         var c=config();EconomyConfiguration.read(c);assertEquals(WorkshopFoundingPolicy.prototype(),EconomyConfiguration.readCraftsmanFounding(c));assertEquals(WorkshopOpportunityPolicy.prototype(),EconomyConfiguration.readCraftsmanOpportunities(c));
         c.set("craftsman-founding.founder-crafting-experience",20);c.set("craftsman-opportunities.capital-hundredths",5000);

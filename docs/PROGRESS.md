@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - configurable multi-recipe craftsman
+
+The same general workshop can now use several editable recipes, skip unavailable
+starter materials and select actual owned/incoming/affordable warehouse inputs.
+No extra occupations, free products or catalogue rewrites. The final focused
+build passed14 unit +2 packaged checks; actual isolated Paper paid opening,
+production, customer sale, replay and absence passed with the fixture restored.
+Broader useful products/customers remain open; P3 stays83.1% partial,2/4 groups.
+
 ## Latest - geography changes actual startup choices
 
 With identical people, money and customers, observed coal produces a mine,

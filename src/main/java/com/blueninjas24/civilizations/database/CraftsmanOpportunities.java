@@ -32,8 +32,8 @@ public final class CraftsmanOpportunities {
         try(var s=c.prepareStatement("SELECT 1 FROM businesses WHERE settlement_id=? AND industry='craftsman' LIMIT 1")) {
             s.setString(1,town.toString());try(var r=s.executeQuery()){if(r.next())return no("Existing craftsman identity retained; no duplicate first firm around closure/vacancy");}
         }
-        var recipe=industry.recipes().values().stream().filter(r->r.industry().equals("craftsman")&&r.outputs().keySet().equals(Set.of(StorageUpgrades.FITTINGS))).sorted(Comparator.comparing(ProductionRecipe::id)).findFirst();
-        if(recipe.isEmpty())return no("Configured craftsman fitting recipe required");
+        var recipes=industry.recipes().values().stream().filter(r->r.industry().equals("craftsman")&&r.outputs().keySet().equals(Set.of(StorageUpgrades.FITTINGS))).sorted(Comparator.comparing(ProductionRecipe::id)).toList();
+        if(recipes.isEmpty())return no("Configured craftsman fitting recipe required");
         var funding=new BusinessStartupGrants(c).previewRows(town,"craftsman",policy.startupHundredths(),policy.capitalHundredths(),grants);
         if(!funding.eligible())return no("Protected craftsman startup funding unavailable: "+funding.reason());
         var demand=new StorageUpgradeDemand(c,industry.storageUpgrades(),operations).review(town,worlds,64,Map.of());
@@ -41,12 +41,21 @@ public final class CraftsmanOpportunities {
         long wanted=0;for(var need:demand.needs())wanted=Math.addExact(wanted,need.units());
         var supplied=availableFittings(town,markers.candidates().getFirst().world(),worlds);
         if(supplied.isEmpty())return no("Fitting supplier review cap exceeded; no partial shortage inferred");
-        long uncovered=Math.max(0,wanted-supplied.orElseThrow());var selected=recipe.orElseThrow();
-        if(uncovered<selected.outputs().get(StorageUpgrades.FITTINGS))return no("No uncovered current funded storage-fitting customer for one batch");
+        long uncovered=Math.max(0,wanted-supplied.orElseThrow());
         var weights=industry.mining().storageSpacePerUnit();var weight=weights.get(StorageUpgrades.FITTINGS);
-        if(weight==null||selected.outputs().get(StorageUpgrades.FITTINGS)>policy.capacity()/weight)return no("Craftsman output batch cannot fit configured storage");
-        var bundle=WorkshopStarterPlan.review(selected,1,starter,policy.capitalHundredths(),policy.capacity(),industry.mining().localHaulUnitsPerPeriod(),WorkshopPublicStock.read(c,town),weights);
-        if(!bundle.eligible())return no("Paid public-surplus starter unavailable: "+bundle.explanation());
+        var publicStock=WorkshopPublicStock.read(c,town);
+        ProductionRecipe selected=null;WorkshopStarterPlan.Review bundle=null;
+        String unavailable="No uncovered current funded storage-fitting customer for one batch";
+        for(var recipe:recipes) {
+            if(uncovered<recipe.outputs().get(StorageUpgrades.FITTINGS))continue;
+            if(weight==null||recipe.outputs().get(StorageUpgrades.FITTINGS)>policy.capacity()/weight) {
+                unavailable="Craftsman output batch cannot fit configured storage";continue;
+            }
+            var candidate=WorkshopStarterPlan.review(recipe,1,starter,policy.capitalHundredths(),policy.capacity(),industry.mining().localHaulUnitsPerPeriod(),publicStock,weights);
+            if(!candidate.eligible()){unavailable="Paid public-surplus starter unavailable: "+candidate.explanation();continue;}
+            selected=recipe;bundle=candidate;break;
+        }
+        if(selected==null)return no(unavailable);
         Position center;try(var s=c.prepareStatement("SELECT center_x,center_y,center_z FROM settlements WHERE id=?")) {
             s.setString(1,town.toString());try(var r=s.executeQuery()){if(!r.next())throw new SQLException("Missing craftsman settlement");center=new Position(r.getInt(1),r.getInt(2),r.getInt(3));}
         }

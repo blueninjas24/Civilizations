@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /** Guarded disposable qualified opening and real Paper point-confirmation proof. Never included in the plugin JAR. */
 public final class CraftsmanAutomaticStartupProbe extends JavaPlugin {
+    private final boolean multipleRecipes=Boolean.getBoolean("civilizations.probe.multiCraftRecipes");
     private boolean authorized;private Block marker;private BlockData original;private Chunk fixtureChunk;
     private volatile PopulationSession session;private PaperCraftsmanStartup startup;
     private record Ready(File folder,UUID town,UUID owner,UUID buyer,UUID world,CraftsmanInvestment.Draft draft,IndustryRuntimePolicy industry,long timber,long stone) {}
@@ -42,6 +43,14 @@ public final class CraftsmanAutomaticStartupProbe extends JavaPlugin {
             // Helper-only acceleration and explicit starting test capital/materials.
             c.set("pace.seconds-per-period",1);c.set("industry-runtime.real-millis-per-period",1000);
             c.set("starting-units-per-resident.food",100);c.set("starting-units-per-resident.timber",40);c.set("starting-units-per-resident.stone",20);
+            if(multipleRecipes) {
+                c.set("starting-units-per-resident.timber",0);
+                c.set("recipes.z_stone_fittings.industry","craftsman");
+                c.set("recipes.z_stone_fittings.inputs.stone",3);
+                c.set("recipes.z_stone_fittings.outputs.storage_fittings",1);
+                c.set("recipes.z_stone_fittings.batches-per-worker",1);
+                c.set("recipes.z_stone_fittings.site-batch-capacity",4);
+            }
             var economySettings=EconomyConfiguration.read(c);var industry=EconomyConfiguration.readIndustryRuntime(c);
             long base=System.currentTimeMillis()-1000;db.initialize();UUID town=UUID.randomUUID(),owner=UUID.randomUUID(),merchant=UUID.randomUUID(),buyer=UUID.randomUUID();
             db.saveSettlement(new Settlement(town,"Automatic craftsman fixture","Fixture",x,y,z,2,0,0));
@@ -66,6 +75,7 @@ public final class CraftsmanAutomaticStartupProbe extends JavaPlugin {
             session.configureCraftsman(EconomyConfiguration.readCraftsmanFounding(c),EconomyConfiguration.readCraftsmanOpportunities(c));
             session.configureMineFounding(MineFoundingPolicy.disabled(),EconomyConfiguration.readStartupGrants(c));session.start(false,Set.of(worldId)).get(10,TimeUnit.SECONDS);
             var draft=session.prepareCraftsmanInvestment(town).get(5,TimeUnit.SECONDS).draft().orElseThrow();
+            if(multipleRecipes)check(draft.supplies().recipe().id().equals("z_stone_fittings"),"Available alternate recipe selected without timber");
             return new Ready(folder,town,owner,buyer,worldId,draft,industry,timber,stone);
         }catch(Exception failure){throw new CompletionException(failure);}finally{db.close();}});
         new BukkitRunnable(){int ticks;CompletableFuture<Void> finished;@Override public void run(){try {
@@ -75,9 +85,9 @@ public final class CraftsmanAutomaticStartupProbe extends JavaPlugin {
             if(!startup.diagnostic().contains("Automatic craftsman started"))return;
             finished=CompletableFuture.runAsync(()->{session.close();session=null;var db=new DatabaseManager(ready.folder(),getLogger());try {
                 db.initialize();var id=ready.draft().anchor().business();check(db.getBusinessRepository().findBusiness(id).isPresent(),"Paper cycle founded qualified business");
-                check(new TreasuryRepository(db.getConnection()).load(ready.town()).orElseThrow().hundredths()==21000,"One real grant, actual starter payment returned to treasury");
-                var store=db.getIndustryRepository().store(id).orElseThrow();check(store.hundredths()==2500,"Actual paid starter ingredients");
-                check(stock(db,ready.town(),"timber")==ready.timber()-3&&stock(db,ready.town(),"stone")==ready.stone()-1,"Actual public surplus spent once");
+                check(new TreasuryRepository(db.getConnection()).load(ready.town()).orElseThrow().hundredths()==(multipleRecipes?20400:21000),"One real grant, actual starter payment returned to treasury");
+                var store=db.getIndustryRepository().store(id).orElseThrow();check(store.hundredths()==(multipleRecipes?3100:2500),"Actual paid starter ingredients");
+                check(stock(db,ready.town(),"timber")==ready.timber()-(multipleRecipes?0:3)&&stock(db,ready.town(),"stone")==ready.stone()-(multipleRecipes?3:1),"Actual public surplus spent once");
                 var oldReview=new CraftsmanOpportunities(db.getConnection(),WorkshopOpportunityPolicy.disabled(),ready.industry(),StartupGrantPolicy.disabled(),WorkshopStarterPolicy.disabled(),BusinessOperationPolicy.prototype());
                 new CraftsmanInvestment(db.getConnection(),oldReview,WorkshopFoundingPolicy.disabled(),WorkshopOpportunityPolicy.disabled(),ready.industry(),StartupGrantPolicy.disabled(),WorkshopStarterPolicy.disabled(),216,0)
                         .accept(ready.draft(),new WorkplaceOperations.Confirmation(ready.draft().anchor(),true,System.currentTimeMillis()),System.currentTimeMillis(),Set.of(ready.world()));
@@ -86,10 +96,11 @@ public final class CraftsmanAutomaticStartupProbe extends JavaPlugin {
                 for(int n=1;n<=3;n++)runtime.pulse(now+n*ready.industry().millisPerPeriod(),Set.of(ready.world()));
                 store=db.getIndustryRepository().store(id).orElseThrow();var customer=db.getIndustryRepository().store(ready.buyer()).orElseThrow();
                 check(customer.capacity()==200&&customer.units().get(Commodity.COAL)==80,"Actual customer's paid fitting installed");
-                check(store.hundredths()==4500&&customer.hundredths()==4000&&store.units().get(StorageUpgrades.FITTINGS)==0,"Actual manufactured fitting sold exactly once");
+                check(store.hundredths()==(multipleRecipes?5100:4500)&&customer.hundredths()==4000&&store.units().get(StorageUpgrades.FITTINGS)==0,"Actual manufactured fitting sold exactly once");
                 check(store.hundredths()+customer.hundredths()+new TreasuryRepository(db.getConnection()).load(ready.town()).orElseThrow().hundredths()==29500,"Cash conserved except recorded500 startup expense");
                 runtime.pulse(now+1000000,Set.of());check(store.equals(db.getIndustryRepository().store(id).orElseThrow()),"Absent-world exact pause");
                 try(var s=db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){check(!r.next(),"Fixture foreign keys");}
+                if(multipleRecipes)getLogger().info("NATIVE MULTIPLE CRAFT RECIPES PASS: unavailable baseline skipped; paid alternate starter, actual production, sale, replay and absence verified");
             }catch(Exception failure){throw new CompletionException(failure);}finally{db.close();}});
         }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"CRAFTSMAN_AUTOMATIC_STARTUP_PROBE_FAILED",failure);cancel();getServer().shutdown();}}}.runTaskTimer(this,20,1);
     }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"CRAFTSMAN_AUTOMATIC_STARTUP_PROBE_FAILED",failure);if(authorized)getServer().shutdown();}}

@@ -1,5 +1,40 @@
 # Processing workshops — bakeries and general craftsman
 
+## Latest - several recipes in the same general workshop
+
+Admins may now add several `industry: craftsman` entries under `recipes` in
+`economy.yml`; the existing global32-recipe cap remains. The worker considers
+supported recipes in alphabetical recipe-ID order, preferring actual productive
+owned inputs/storage, then paid incoming ingredients, then a bounded complete
+review of affordable real warehouse stock. The supported baseline remains the
+fallback for normal input planning. No incoming item is usable before delivery.
+A recipe selects work, not a guaranteed finished-goods customer.
+
+For example, this optional alternative can accompany `craft_storage_fittings`:
+
+```yaml
+recipes:
+  # Keep your other existing entries here. Do not add a second recipes: section.
+  z_stone_fittings:
+    industry: craftsman
+    inputs:
+      stone: 3
+    outputs:
+      storage_fittings: 1
+    batches-per-worker: 1
+    site-batch-capacity: 4
+```
+
+This is an optional abstract fitting recipe, not a default balance change or a
+physical chest. Startup can choose it when timber is unavailable, provided actual
+fitting customers, protected public surplus, qualification, prices, funding and
+marker checks pass. Runtime buys only actual offered warehouse goods with its
+own money. Product/ingredient storage sizes and prices still need explicit setup.
+Old saved catalogues stay fixed; adding an unsupported new product does not grant
+space or stock. Wider furniture products, household purchasing and physical
+construction remain separate work. Final temporary-database and isolated Paper
+verification is recorded in PROJECT_STATUS/DEVLOG; schema remains98.
+
 ## October16 — gradual first-craftsman study and productive work learning
 
 A first-craftsman opportunity can now sponsor one eligible unemployed adult.

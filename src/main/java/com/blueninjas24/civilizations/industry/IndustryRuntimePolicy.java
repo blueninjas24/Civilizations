@@ -18,8 +18,8 @@ public record IndustryRuntimePolicy(boolean enabled, long millisPerPeriod, int b
         for (var e : recipes.entrySet()) {
             var industry=e.getValue().industry();
             if (!e.getKey().equals(e.getValue().id()) || Set.of("mining","warehouse").contains(industry)
-                    || (!industry.equals("bakery")&&!industries.add(industry)))
-                throw new IllegalArgumentException("One named runtime recipe per non-bakery industry required");
+                    || (!Set.of("bakery","craftsman").contains(industry)&&!industries.add(industry)))
+                throw new IllegalArgumentException("Only bakery and craftsman support multiple named runtime recipes");
             if(tools.applies(e.getValue().industry())&&e.getValue().inputs().containsKey(ToolUpkeepPolicy.TOOLS))
                 throw new IllegalArgumentException("Tool upkeep cannot also consume tools as a recipe ingredient in the same industry");
         }

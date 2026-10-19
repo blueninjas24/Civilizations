@@ -13,6 +13,7 @@ final class BakeryRecipeChoice {
             BusinessOperationPolicy operations, long budget) throws SQLException {
         var repository = new IndustryRepository(c);
         var firm = new BusinessRepository(c).findBusiness(business).orElseThrow();
+        if (firm.industry().equals("craftsman")) return CraftRecipeChoice.select(c, business, policy, operations, budget);
         if (!firm.industry().equals("bakery")) return policy.recipes().values().stream()
                 .filter(r -> r.industry().equals(firm.industry())).sorted(Comparator.comparing(ProductionRecipe::id)).findFirst();
         var store = repository.store(business).orElseThrow();

@@ -49,6 +49,42 @@ class CraftsmanInvestmentTest {
     }
     void qualify()throws SQLException{f.database.getPopulationRepository().recordSkillExperience(candidate,"crafting",10);}
     long units(Commodity good)throws SQLException{return new CommodityRepository(f.database.getConnection()).read(f.town).orElseThrow().state().stocks().get(good).units();}
+    @Test void alternateEditableRecipeCanOpenProduceAndSellWithoutUnavailableBaselineMaterials()throws Exception {
+        qualify();f.sql("UPDATE economy_stocks SET units=0 WHERE commodity='timber'");
+        var alternative=new ProductionRecipe("z_stone_fittings","craftsman",Map.of(Commodity.STONE,3L),Map.of(StorageUpgrades.FITTINGS,1L),1,4);
+        var recipes=new TreeMap<>(runtime.recipes());recipes.put(alternative.id(),alternative);
+        runtime=new IndustryRuntimePolicy(runtime.enabled(),runtime.millisPerPeriod(),runtime.businessesPerPulse(),runtime.mining(),recipes,
+                runtime.supply(),runtime.warehouseSupply(),runtime.tools(),runtime.storageUpgrades());
+        var d=draft();assertEquals(alternative,d.supplies().recipe());long stone=units(Commodity.STONE);
+        var opened=engine().accept(d,proof(d,true),1000,Set.of(f.world));
+        assertEquals(stone-3,units(Commodity.STONE));assertEquals(0,units(Commodity.TIMBER));assertEquals(3100,opened.store().hundredths());
+        // Incoming paid starter materials guide choice but cannot become products before delivery.
+        assertEquals(alternative,craftChoice(d,runtime));
+        assertEquals(0,f.industry.store(d.anchor().business()).orElseThrow().units().get(StorageUpgrades.FITTINGS));
+        var live=new IndustryRuntime(f.database.getConnection(),runtime,BusinessOperationPolicy.prototype());live.start(1000);
+        assertEquals(0,live.pulse(1500,Set.of(f.world)));
+        for(long time=2000;time<=6000;time+=1000)live.pulse(time,Set.of(f.world));
+        var buyer=f.industry.store(f.warehouse.id()).orElseThrow();var maker=f.industry.store(d.anchor().business()).orElseThrow();
+        assertEquals(200,buyer.capacity());assertEquals(5100,maker.hundredths());assertEquals(0,maker.units().get(StorageUpgrades.FITTINGS));
+        assertEquals(29500,new TreasuryRepository(f.database.getConnection()).load(f.town).orElseThrow().hundredths()+buyer.hundredths()+maker.hundredths()+f.stock(f.shop).hundredths());
+        var before=snapshot();engine().accept(d,proof(d,true),1000,Set.of(f.world));assertEquals(before,snapshot());
+        // With the paid starter consumed, an actual affordable warehouse route still selects the alternate.
+        f.sql("UPDATE industry_stock SET units=3 WHERE business_id='"+f.warehouse.id()+"' AND commodity='stone'");
+        before=snapshot();assertEquals(alternative,craftChoice(d,runtime));assertEquals(before,snapshot());
+        f.sql("UPDATE industry_stores SET hundredths=0 WHERE business_id='"+d.anchor().business()+"'");
+        assertEquals(ProductionRecipe.storageFittings(),craftChoice(d,runtime),"An unaffordable optional recipe cannot justify purchasing");
+    }
+    @Test void oldCraftStoreCatalogueIsRetainedWhenAdminsAddOtherProducts()throws Exception {
+        qualify();var d=draft();engine().accept(d,proof(d,true),1000,Set.of(f.world));
+        var unsupported=new ProductionRecipe("a_new_product","craftsman",Map.of(Commodity.STONE,1L),Map.of(new Commodity("lamp"),1L),1,1);
+        var recipes=new TreeMap<>(runtime.recipes());recipes.put(unsupported.id(),unsupported);
+        var changed=new IndustryRuntimePolicy(true,1000,8,runtime.mining(),recipes,runtime.supply(),runtime.warehouseSupply(),runtime.tools(),runtime.storageUpgrades());
+        var before=snapshot();assertEquals(ProductionRecipe.storageFittings(),craftChoice(d,changed));
+        assertEquals(before,snapshot());assertFalse(f.industry.store(d.anchor().business()).orElseThrow().units().containsKey(new Commodity("lamp")));
+    }
+    ProductionRecipe craftChoice(CraftsmanInvestment.Draft draft,IndustryRuntimePolicy policy)throws SQLException {
+        return CraftRecipeChoice.select(f.database.getConnection(),draft.anchor().business(),policy,BusinessOperationPolicy.prototype(),f.industry.store(draft.anchor().business()).orElseThrow().hundredths()).orElseThrow();
+    }
     @Test void currentCustomerReviewIsReadOnlyAndMissingSkillIsNeverGranted()throws Exception {
         var before=snapshot();assertEquals(1,opportunities().review(f.town,1000,Set.of(f.world)).candidates().size());assertTrue(engine().prepare(f.town,0,1000,Set.of(f.world)).draft().isEmpty());assertEquals(before,snapshot());
         qualify();var d=draft();before=snapshot();assertEquals(candidate,d.startup().worker());assertEquals(d,draft());assertEquals(before,snapshot());

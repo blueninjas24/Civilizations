@@ -1,5 +1,38 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - one craftsman can use multiple editable recipes
+
+Removed the one-recipe restriction for the general craftsman (32 total runtime
+recipes remain the cap). Stable recipe IDs break ties. Current owned ingredients
+and storage choose productive work first; paid incoming ingredients guide future
+orders without becoming production inputs. A bounded complete warehouse review
+can select an affordable alternate; otherwise the supported baseline establishes
+normal input demand. Only saved supported products participate: old store catalogues
+are never silently expanded. Other industry recipe limits remain unchanged.
+
+First opening now checks actual fitting customers and each fitting recipe's paid
+starter feasibility, rather than giving up on an unavailable first recipe. No new
+occupation, free material, guaranteed sales, household wallet, default price or
+construction permission. The default product remains useful storage fittings;
+broader furniture/customer coverage remains open, so P3 stays83.1% partial.
+
+Final focused Wrapper clean verify/package passed14 units +2 packaged integrations,
+zero failures/errors/skips,26.998s. Earlier focused regression passed32 units +2
+integrations,31.362s (craft training, configuration and bakery/livestock chain),
+plus the initial13 craft/config cases,22.319s. Three new cases cover alternative
+paid opening/production/customer/conservation/replay, real affordable warehouse
+choice, pending-goods protection, retained catalogues and strict YAML parsing.
+No whole local suite repeated. Schema remains98.
+
+Final isolated Paper26.2-129 ordinary SQL-owner/Paper startup passed: without timber,
+a configured alternate bought three real stone for900, manufactured one fitting
+and sold it for2000 to the actual crowded warehouse. Exactly one500 startup fee;
+20400 village cash +9100 business cash =29500 retained. Replay/absence, integrity/
+FKs passed. One original AIR block restored, fixture ticket released, server stopped.
+Main disposable DB173 tables:168 exact, only five normal clock/capture tables
+changed; no resident aging or asset changes. Port restored/helper archived,
+backups/audit retained. Human server and main untouched. No decision required.
+
 ## Latest verified batch - geography and finite-resource longer scenarios
 
 Three temporary SQLite counterfactuals use the same seed, people, customers and
