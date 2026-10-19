@@ -1,5 +1,32 @@
 # Civilizations Development Log
 
+## Latest verified batch - geography and family history change industry outcomes
+
+Two seeded ten-year scenarios now run actual monthly demographic aging/mortality,
+bounded industry work, ordinary family-first succession, qualification-based hiring,
+real buyer review, saved sale deadlines and retained closure. The same seed42,
+people and geology diverge only in saved heir mining experience: a qualified heir
+keeps the mine; an unqualified family with no actual funded qualified buyer cannot,
+and its unsold business closes. The elderly fixture uses unmodified prototype
+mortality; no death is forced. Sale deadline acceleration is fixture-only.
+
+Actual mine work earns goods before the scenario. Close/reopen halfway retains
+people/clock, resources, cash and work receipts without offline accrual. Immutable
+founder, one grant, ownership/closure/job history, retained store/source and exact
+99500 total village/business/estate cash remain. Closed work cannot consume its
+reserves or assets. Foreign keys clean. No application, schema or human save changes.
+
+Final focused Wrapper `-Dtest=IndustryHistoryScenarioTest clean verify` passed2
+unit scenarios +2 packaged integrations, zero failures/errors/skips,50.234s.
+Initial scenario run also passed2 cases,38.938s; a final assertion was narrowed to
+the closed firm's actual assets so other businesses may legitimately keep working.
+Combined with the earlier three geography counterfactuals, this verifies different
+geography/history producing different industry outcomes without universal lists.
+Final group advances2/5->3/5; equal group progress88.1% partial,2/4 whole groups.
+The broad multi-year shortage/exceptional-firm and integrated mixed-catalog native/
+profiling gates still remain open. Useful craft breadth/editor compatibility remain.
+No new gameplay decision required. Main and human server untouched.
+
 ## Latest verified batch - one craftsman can use multiple editable recipes
 
 Removed the one-recipe restriction for the general craftsman (32 total runtime

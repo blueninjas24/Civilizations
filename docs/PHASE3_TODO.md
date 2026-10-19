@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - different histories produce different business outcomes
+
+Ten real demographic years now verify an aging owner's qualified family can keep
+a mine, while an unqualified family with no funded buyer reaches a retained closure.
+Restart preserves people, goods, resources and money. Together with the coal/stone/
+neither scenarios this closes the geography/history milestone. Focused build passed
+2 scenarios +2 packaged checks. P3 about88% partial,2/4 whole groups. Broader mixed-
+catalog acceptance, exceptional firms, useful craft breadth and editor support remain.
+
 ## Latest - configurable multi-recipe craftsman
 
 The same general workshop can now use several editable recipes, skip unavailable
@@ -1510,7 +1519,10 @@ premises are preferred; physical building reuse remains Phase 4.
       Resource/marker/fishery/herd SQL cases and native ordinary adapters passed.
       This verifies selection, not the remaining contrasting-geography or seeded
       multi-year acceptance milestones.
-- [ ] Different geography/history produces different mixes; no universal industry list.
+- [x] Different geography/history produces different mixes; no universal industry list.
+      Same-seed geology counterfactuals and ten-year actual aging/succession/closure
+      scenarios verify divergent paid starts and retained industry outcomes. Wider
+      shortage/exceptional-firm and full mixed-catalog acceptance remain below.
 - [ ] Seeded multi-year scenarios cover shortages, failed opportunities, depletion,
       closures, succession and exceptional firms without guaranteed outcomes.
 - [ ] Actual disposable Paper startup/runtime/restart, diagnostics and profiling.

@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - different histories produce different business outcomes
+
+Ten real demographic years now verify an aging owner's qualified family can keep
+a mine, while an unqualified family with no funded buyer reaches a retained closure.
+Restart preserves people, goods, resources and money. Together with the coal/stone/
+neither scenarios this closes the geography/history milestone. Focused build passed
+2 scenarios +2 packaged checks. P3 about88% partial,2/4 whole groups. Broader mixed-
+catalog acceptance, exceptional firms, useful craft breadth and editor support remain.
+
 ## Latest - configurable multi-recipe craftsman
 
 The same general workshop can now use several editable recipes, skip unavailable
@@ -1342,10 +1351,10 @@ remaining groups is also counted in the weighted checklist:
 | Businesses, owners, workers and sites |4/4|100%|
 | Resources and connected production |36/39|92%|
 | Business lifecycle and competition |15/15|100%|
-| Specialization and final acceptance |2/5|40%|
+| Specialization and final acceptance |3/5|60%|
 
 The October13 food-chain additions expand this checklist. Equal weight per group
-gives about83.1% partial checklist completion under the current scope. The former70%
+gives about88.1% partial checklist completion under the current scope. The former70%
 described the earlier scope. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from
@@ -1376,7 +1385,7 @@ not a replacement for ROADMAP.md or its design requirements.
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 2 / 4 whole groups | `████████▎░` **83% partial checklist** |
+| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 2 / 4 whole groups | `████████▊░` **88% partial checklist** |
 | 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -1482,7 +1491,7 @@ remains required for release. See PLAYER_BARTER.md.
 - [ ] Emergent specialization and tested business turnover.
 
 Current detailed counts: core4/4, resources36/39, lifecycle15/15 and final
-specialization/acceptance2/5. The earlier farm/processing checkpoint notes below
+specialization/acceptance3/5. The earlier farm/processing checkpoint notes below
 remain historical; use PHASE3_TODO.md and latest entries above for current scope.
 
 First milestone now has an automatic farm prototype: complete crop surveys locate
