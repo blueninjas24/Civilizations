@@ -90,7 +90,7 @@ class ForestryPersistenceTest {
     }
     private Map<String,List<List<String>>> snapshot()throws SQLException {
         var result=new TreeMap<String,List<List<String>>>();var names=new ArrayList<String>();
-        try(var s=data.db.getConnection().createStatement();var r=s.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'forestry_%' AND name NOT IN ('resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state') ORDER BY name")){while(r.next())names.add(r.getString(1));}
+        try(var s=data.db.getConnection().createStatement();var r=s.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'forestry_%' AND name NOT IN ('resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state','resource_investment_reviews','resource_investment_state') ORDER BY name")){while(r.next())names.add(r.getString(1));}
         for(var name:names) {
             var rows=new ArrayList<List<String>>();
             try(var s=data.db.getConnection().createStatement();var r=s.executeQuery("SELECT * FROM \""+name+"\"")) {

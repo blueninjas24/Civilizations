@@ -110,6 +110,9 @@ public final class AutomaticForestryFounding {
     }
 
     public String review(UUID town, long step, long now, Set<UUID> worlds) throws SQLException {
+        return review(town,step,now,worlds,()->{});
+    }
+    String review(UUID town,long step,long now,Set<UUID> worlds,ResourceInvestment.StartupAudit audit)throws SQLException {
         if (step < 0 || now < 0) throw new IllegalArgumentException("Invalid forestry founding observation time");
         pruneFrames(now);
         if (!enabled()) return "Automatic forestry founding disabled";
@@ -119,6 +122,7 @@ public final class AutomaticForestryFounding {
         try {
             String result = reviewRows(town, step, now, worlds == null ? Set.of() : Set.copyOf(worlds));
             if (!provenanceHealthy.getAsBoolean()) throw new BusinessStartupGrants.Declined("Forestry provenance trust changed during startup; all assets rolled back");
+            audit.save();
             connection.commit(); connection.setAutoCommit(true); return result;
         } catch (SQLException | RuntimeException failure) {
             try { connection.rollback(); connection.setAutoCommit(true); }
@@ -328,7 +332,7 @@ public final class AutomaticForestryFounding {
         return false;
     }
 
-    private UUID founder(UUID town) throws SQLException {
+    UUID founder(UUID town) throws SQLException {
         var candidates = new ArrayList<UUID>();
         try (var s = connection.prepareStatement("""
             SELECT r.id FROM residents r WHERE r.settlement_id=? AND r.status='ALIVE' AND r.age_steps>=?
@@ -345,6 +349,7 @@ public final class AutomaticForestryFounding {
             if (new PopulationRepository(connection).findWorkProfile(candidate).orElseThrow().experience().getOrDefault("forestry", 0L) >= policy.founderExperience()) return candidate;
         return null;
     }
+    long investmentCost(){return Math.addExact(policy.startupHundredths(),policy.capitalHundredths());}
 
     private Position center(UUID town) throws SQLException {
         try (var s = connection.prepareStatement("SELECT center_x,center_y,center_z FROM settlements WHERE id=?")) {

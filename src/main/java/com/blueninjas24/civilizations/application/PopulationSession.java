@@ -177,6 +177,8 @@ public final class PopulationSession implements AutoCloseable {
     private com.blueninjas24.civilizations.industry.StartupGrantPolicy startupGrantPolicy=com.blueninjas24.civilizations.industry.StartupGrantPolicy.disabled();
     private com.blueninjas24.civilizations.database.AutomaticMineFounding automaticMines;
     private volatile String automaticMineDiagnostic="Automatic mine founding disabled";
+    private com.blueninjas24.civilizations.database.ResourceInvestment resourceInvestment;
+    private volatile String resourceInvestmentDiagnostic="Shared resource startup comparison awaiting current opportunities";
     private com.blueninjas24.civilizations.industry.ForestryFoundingPolicy forestryFoundingPolicy=com.blueninjas24.civilizations.industry.ForestryFoundingPolicy.disabled();
     private com.blueninjas24.civilizations.database.AutomaticForestryFounding automaticForestry;
     private volatile String automaticForestryDiagnostic="Automatic logging startup disabled";
@@ -392,7 +394,7 @@ public final class PopulationSession implements AutoCloseable {
     }
     public String industryRuntimeDiagnostic() {
         return !industryPolicy.enabled()?"Timed industry disabled in economy.yml":industryFailure!=null
-                ?"Timed industry deferred: "+industryFailure:"Timed industry active for saved firms; "+automaticMineDiagnostic+"; "+automaticQuarryDiagnostic+"; "+automaticForestryDiagnostic;
+                ?"Timed industry deferred: "+industryFailure:"Timed industry active for saved firms; "+(allocationPolicy.enabled()?resourceInvestmentDiagnostic:automaticMineDiagnostic+"; "+automaticQuarryDiagnostic+"; "+automaticForestryDiagnostic);
     }
     public void configureBusinessPurchases(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy policy) {
         if(started.get())throw new IllegalStateException("Configure business purchases before session starts");
@@ -561,6 +563,10 @@ public final class PopulationSession implements AutoCloseable {
                 automaticForestry=new com.blueninjas24.civilizations.database.AutomaticForestryFounding(database.getConnection(),forestryFoundingPolicy,forestryPolicy,industryPolicy,
                         operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackForests||(forestHistoryHealthy.get()&&!forestCaptureGap.get()&&pendingForestMutations.get()==0))
                         .withPublicSupplies(villageSupplyPolicy,studyPolicy);
+                resourceInvestment=new com.blueninjas24.civilizations.database.ResourceInvestment(database.getConnection(),allocationPolicy,industryPolicy,automaticMines,automaticQuarries,automaticForestry,
+                        new com.blueninjas24.civilizations.database.LocalIndustryDemand(database.getConnection(),industryPolicy,operationPolicy,()->!trackOres||oreCaptureReady())
+                                .withFarmTools(farmToolsPolicy,farmToolsBudget).withLivestock(livestockPolicy,livestockRuntimePolicy,livestockWorkingArea,this::livestockCaptureReady),
+                        new com.blueninjas24.civilizations.database.VillageSupplyPurchases(database.getConnection(),villageSupplyPolicy,studyPolicy,operationPolicy));
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||(!oreCaptureGap.get()&&pendingOreMutations.get()==0));
                 industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
                 industries.configureFishing(fishingPolicy);
@@ -1303,21 +1309,28 @@ public final class PopulationSession implements AutoCloseable {
                 economyFailure = failure.getMessage();
             }
         }
-        if(mineFoundingPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null) {
+        if(allocationPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null){
+            try{resourceInvestmentDiagnostic=resourceInvestment.pulse(status.get().completedMonths(),now.getAsLong(),loadedWorlds);}
+            catch(SQLException|RuntimeException failure){
+                if(!java.util.Objects.equals(resourceInvestmentDiagnostic,"Shared resource investment deferred: "+failure.getMessage()))logger.log(Level.SEVERE,"Shared resource investment deferred; grants remain retryable",failure);
+                resourceInvestmentDiagnostic="Shared resource investment deferred: "+failure.getMessage();
+            }
+        }
+        if(!allocationPolicy.enabled()&&mineFoundingPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null) {
             try {automaticMineDiagnostic=automaticMines.pulse(status.get().completedMonths(),now.getAsLong(),loadedWorlds);}
             catch(SQLException|RuntimeException failure) {
                 if(!java.util.Objects.equals(automaticMineDiagnostic,"Mine founding deferred: "+failure.getMessage()))logger.log(Level.SEVERE,"Automatic mine founding deferred; startup assets remain retryable",failure);
                 automaticMineDiagnostic="Mine founding deferred: "+failure.getMessage();
             }
         }
-        if(forestryFoundingPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null) {
+        if(!allocationPolicy.enabled()&&forestryFoundingPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null) {
             try{automaticForestryDiagnostic=automaticForestry.pulse(status.get().completedMonths(),now.getAsLong(),loadedWorlds);}
             catch(SQLException|RuntimeException failure){
                 if(!java.util.Objects.equals(automaticForestryDiagnostic,"Logging startup deferred: "+failure.getMessage()))logger.log(Level.SEVERE,"Automatic logging startup deferred; assets remain retryable",failure);
                 automaticForestryDiagnostic="Logging startup deferred: "+failure.getMessage();
             }
         }
-        if(quarryFoundingPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null) {
+        if(!allocationPolicy.enabled()&&quarryFoundingPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null) {
             try {automaticQuarryDiagnostic=automaticQuarries.pulse(status.get().completedMonths(),now.getAsLong(),loadedWorlds);}
             catch(SQLException|RuntimeException failure) {
                 if(!java.util.Objects.equals(automaticQuarryDiagnostic,"Quarry founding deferred: "+failure.getMessage()))logger.log(Level.SEVERE,"Automatic quarry founding deferred; startup assets remain retryable",failure);

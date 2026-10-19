@@ -212,6 +212,8 @@ public final class AutomaticForestryProbe extends JavaPlugin {
                         "Qualified founder and protected 500+2000 grant debit must be persisted");
                 check(scalarReadOnly("SELECT COUNT(*) FROM business_employment e JOIN businesses b ON b.id=e.business_id WHERE b.industry='logging' AND e.ended_step IS NULL") == 1,
                         "Exactly one real first worker episode must be hired");
+                if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))
+                    check(scalarReadOnly("SELECT COUNT(*) FROM resource_investment_reviews WHERE industry='logging'")==1,"Shared resource selection and grant must have one atomic audit");
                 check(world.getBlockAt(expectedTrunks.getFirst().x(), expectedTrunks.getFirst().y(), expectedTrunks.getFirst().z()).getType() == Material.OAK_LOG,
                         "Founding must leave all physical trees unchanged");
                 clock.set(clock.get() + 1000);
@@ -233,6 +235,7 @@ public final class AutomaticForestryProbe extends JavaPlugin {
                             "Treasury plus all business stores must conserve 33,000 less the 500 startup expense");
                     getLogger().info("NATIVE AUTOMATIC FORESTRY PASS: current Paper evidence founded qualified logging; paid logging-to-warehouse-to-craftsman shipments produced storage fittings within "
                             + chainSteps + " fixed-clock periods, with all six supports and unchanged trees; cash ledger retained 32,500");
+                    if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))getLogger().info("NATIVE SHARED RESOURCE INVESTMENT PASS: ordinary owner pulse selected and audited logging before the paid timber chain; one grant, no refill or extra funds");
                     getServer().getPluginManager().disablePlugin(this); getServer().shutdown();
                     stage = 9;
                     return;
@@ -327,6 +330,7 @@ public final class AutomaticForestryProbe extends JavaPlugin {
         var created = new PopulationSession(folder.toFile(), getLogger(), populationSettings, clock::get,
                 economySettings, FarmObservation.Policy.prototype());
         created.configureForestTracking();
+        if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))created.configureBusinessAllocation(BusinessAllocationPolicy.prototype());
         created.configureForestry(forestry);
         created.configureForestryFounding(founding);
         created.configureIndustryRuntime(industry);
@@ -412,6 +416,7 @@ public final class AutomaticForestryProbe extends JavaPlugin {
                     "Every original fixture block state must be restored exactly");
         }
         originals.clear();
+        getLogger().info("AUTOMATIC FORESTRY BLOCK RESTORATION PASS: all nine original AIR states restored");
         getLogger().info("AUTOMATIC FORESTRY FIXTURE RESTORED: nine original AIR block states");
     }
 

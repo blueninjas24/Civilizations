@@ -1,5 +1,13 @@
 # Phase 3 — businesses and industry checklist
 
+## October18 - resource businesses now compete for startup funding
+
+Mines, quarries/sandpits and logging now compare viable opportunities before one
+receives a protected grant. Stronger paying demand can win; failed saves undo the
+whole investment. Tested both competing choices and a real logging-to-craftsman
+chain on the isolated server. Farm and other startup paths remain to connect, so
+the combined competition gate stays open. No new decision needed.
+
 ## October18 - businesses now compete for available workers
 
 Existing businesses can now be compared across the village before hiring. Urgent

@@ -1,5 +1,49 @@
 # Civilizations — implementation status and handoff
 
+## October18, 20:09 EDT - shared resource startup investment verified
+
+Resource startups now compete through the approved priorities instead of fixed
+mine/logging/quarry invocation order. Comparison uses each adapter's current viable
+proposal, qualified idle founder, protected real grant and actual funded demand.
+Public need is recomputed after that proposal's startup debit. Existing source,
+warehouse, capacity, placement/provenance and range checks remain; the selected
+adapter repeats them before committing. Founder study remains on its normal path.
+One initialized village per owner pulse, bounded5-second village reviews; no
+exhaustive ranking of every ore patch or invented resource opportunities.
+
+Schema98 adds two empty resource investment state/audit tables. Actual grant,
+startup spending, empty store capital, first job, business/source history, selection
+explanation and saved tie cursor commit together. A late audit failure rolls all
+back. Old missing allocation sections retain separate resource startup scheduling.
+Marker-confirmed workshops/warehouses, fishing/livestock acceptance and farm staffing
+still need their shared integrations. No new governance, wages or closure rules.
+
+Focused broad check covered89 units:86 passed, three new fixture failures showed
+food assessment stale after adding a sixth resident. Refreshed the fixture food
+period using its original deterministic priority seed; all four new resource
+investment cases passed on final verify, with two packaged integrations. Final
+BUILD SUCCESS20:06:37,16.889s. Tests prove funded mine300 beats feasible quarry200,
+quarry can win when the mining customer lacks funds, grant/resource/job/cursor
+rollback, interval and no-world/no-skill/no-money/stale evidence refusal. Existing
+85 resource/session/migration cases remained passing; no full local-suite repeat.
+
+Native isolated Paper26.2 build129 passed20:07:12: enabled shared selection on the
+existing ordinary forest observer/private PopulationSession fixture. Selected and
+audited one logging startup, then paid logger->warehouse->craftsman deliveries
+produced fittings in five fixed-clock periods. Exactly one grant and six original
+supports,32,500 total cash after the known500 expense; no refill or extra funds.
+All nine original AIR fixture states restored, test-only3x3 tickets removed.
+Main disposable schema97->98 audit171 predecessor tables166 exact, only five normal
+clock/capture metadata changes, no aging, integrity/FKs clean, config byte-identical,
+port restored/helper archived/backups retained. Human server and main untouched.
+
+Shared staffing b3fa3f1 is committed/pushed on codex/phase3-industry-competition.
+This batch continues that feature branch. P3 remains36/39 resources,14/15 lifecycle,
+0/5 acceptance, about71.4% partial and1/4 whole groups: combined capital/worker
+competition is not falsely checked while other adapters remain independent.
+Next: remaining farm and marker/animal startup paths, then broader acceptance.
+No new consequential decision is needed for the approved priority rule.
+
 ## October18, 19:59 EDT - shared existing-business hiring verified
 
 Implemented the user's approved urgent-needs, funded-demand and fair-tie priorities

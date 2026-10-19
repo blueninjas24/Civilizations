@@ -49,6 +49,9 @@ public final class AutomaticQuarryFounding {
         }return result;
     }
     public String review(UUID town,long step,long now,Set<UUID> worlds)throws SQLException {
+        return review(town,step,now,worlds,()->{});
+    }
+    String review(UUID town,long step,long now,Set<UUID> worlds,ResourceInvestment.StartupAudit audit)throws SQLException {
         if(step<0||now<0)throw new IllegalArgumentException("Invalid mine founding observation time");
         if(!policy.enabled()||!resources.enabled()||!industry.enabled())return "Automatic quarry/sandpit founding disabled";
         if(!mutationHealthy.getAsBoolean())return "Quarry founding paused: immediate ore mutation trust guard";
@@ -57,6 +60,7 @@ public final class AutomaticQuarryFounding {
         try {
             String result=reviewRows(town,step,now,worlds==null?Set.of():Set.copyOf(worlds));
             if(!mutationHealthy.getAsBoolean())throw new BusinessStartupGrants.Declined("Ore mutation trust changed during startup; all assets rolled back");
+            audit.save();
             connection.commit();connection.setAutoCommit(true);return result;
         }catch(SQLException|RuntimeException failure) {
             try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);throw failure;}
@@ -141,7 +145,7 @@ public final class AutomaticQuarryFounding {
             try(var r=s.executeQuery()){return r.next();}
         }
     }
-    private UUID founder(UUID town)throws SQLException {
+    UUID founder(UUID town)throws SQLException {
         var candidates=new ArrayList<UUID>();
         try(var s=connection.prepareStatement("""
             SELECT r.id FROM residents r WHERE r.settlement_id=? AND r.status='ALIVE' AND r.age_steps>=?
@@ -155,6 +159,7 @@ public final class AutomaticQuarryFounding {
         for(var candidate:candidates)if(new PopulationRepository(connection).findWorkProfile(candidate).orElseThrow().experience().getOrDefault("mining",0L)>=policy.founderExperience())return candidate;
         return null;
     }
+    long investmentCost(){return Math.addExact(policy.startupHundredths(),policy.capitalHundredths());}
     private boolean existingCapacity(UUID town,Commodity mineral,long needed)throws SQLException {
         var firms=new ArrayList<UUID>();
         try(var s=connection.prepareStatement("SELECT b.id FROM businesses b JOIN industry_stores k ON k.business_id=b.id WHERE b.settlement_id=? AND b.industry IN('mining','quarry','sandpit') ORDER BY b.id LIMIT 65")) {

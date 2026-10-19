@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 97;
+    static final int CURRENT_VERSION = 98;
 
     @FunctionalInterface
     interface Migration {
@@ -946,7 +946,8 @@ final class SchemaMigrator {
                 ForestryCourses::createSchema,
                 MineralRecovery::createSchema,
                 ForestRecovery::createSchema,
-                BusinessCompetition::createSchema
+                BusinessCompetition::createSchema,
+                ResourceInvestment::createSchema
 
 
         ));
@@ -1142,6 +1143,10 @@ final class SchemaMigrator {
             if(migrations.size()>=97){
                 requireColumns(connection,"business_allocation_state",Set.of("settlement_id","last_business","sequence","observed_ms"));
                 requireColumns(connection,"business_allocation_reviews",Set.of("settlement_id","sequence","business_id","observed_step","observed_ms","urgent","demand_value","policy","explanation"));
+            }
+            if(migrations.size()>=98){
+                requireColumns(connection,"resource_investment_state",Set.of("settlement_id","last_proposal","sequence","observed_ms"));
+                requireColumns(connection,"resource_investment_reviews",Set.of("business_id","settlement_id","sequence","proposal","industry","observed_step","observed_ms","demand_value","policy","explanation"));
             }
             if(migrations.size()>=94) {
                 requireColumns(connection,"forestry_founder_courses",Set.of("course_id","settlement_id","world_id","x","y","z","enrolled_period"));
