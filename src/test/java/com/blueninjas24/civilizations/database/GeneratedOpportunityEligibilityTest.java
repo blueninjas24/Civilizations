@@ -56,4 +56,18 @@ class GeneratedOpportunityEligibilityTest {
             }
         } finally {f.close();}
     }
+    @Test void scopedCurrentEvidenceCanWinAnActualPaidIndustryInvestmentWithoutGlobalTrust()throws Exception {
+        var scenario=new ResourceInvestmentTest();scenario.directory=directory;scenario.setup();
+        try {
+            var f=scenario.fixture;var c=f.db.getConnection();var tracking=new OreTrackingRepository(c);
+            tracking.markGap(1100);tracking.begin(1200);
+            scenario.review(2000);assertEquals(0,scenario.count("startup_grants"));assertEquals(60000,f.cash());
+            var epoch=new ResourceRecoveryEpochs(c).load("ore").orElseThrow();
+            assertTrue(new GeneratedTerrainRepository(c).recordGenerated("ore",f.world,2,0,epoch.generation(),1500));
+            String result=scenario.review(7000);assertTrue(result.contains("mining"),result);
+            assertEquals(1,f.firms("mining"));assertEquals(0,f.firms("quarry"));
+            assertEquals(1,scenario.count("startup_grants"));assertEquals(57500,f.cash());
+            assertFalse(tracking.load().orElseThrow().trusted());
+        } finally {scenario.close();}
+    }
 }

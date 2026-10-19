@@ -167,7 +167,7 @@ public final class AutomaticForestryFounding {
         if (connection.getAutoCommit()) throw new SQLException("Forestry opportunity requires owner transaction");
         if (now < 0) throw new IllegalArgumentException("Invalid forestry founding observation time");
         pruneFrames(now);
-        if (!enabled() || !provenanceTrusted()) return new Selection(null, "Forestry founding disabled or provenance trust unavailable");
+        if (!enabled() || !provenanceHealthy.getAsBoolean()) return new Selection(null, "Forestry founding disabled or provenance trust unavailable");
         var pressure = new LocalIndustryDemand(connection, industry, operations, provenanceHealthy).review(town, worlds, 64);
         if (!pressure.complete()) return new Selection(null, "Forestry founding waits: " + pressure.explanation());
         var demand = new TreeMap<>(pressure.uncovered());
@@ -216,12 +216,15 @@ public final class AutomaticForestryFounding {
 
     private synchronized List<Frame> currentFrames(UUID town, long now, Set<UUID> worlds) throws SQLException {
         var result = new ArrayList<Frame>();
+        boolean trusted = new ForestryTrackingRepository(connection).load()
+                .map(ForestryTrackingRepository.State::trusted).orElse(true);
         for (var frame : frames.values()) {
             if (!frame.town().equals(town)) continue;
             if (!frame.evidence().complete()) continue;
             long captured = frame.evidence().observedMillis();
             if (captured > now || now - captured > policy.surveyLifetimeMillis()) continue;
             if (!worlds.contains(frame.evidence().world())) continue;
+            if (!trusted && !generatedTerrainCovers(frame)) continue;
             result.add(frame);
         }
         if (!result.isEmpty()) {
@@ -248,14 +251,23 @@ public final class AutomaticForestryFounding {
     }
 
     enum EvidenceState {UNKNOWN,PRESENT,ABSENT}
-    synchronized EvidenceState evidenceState(Opportunity saved,long now) {
+    synchronized EvidenceState currentEvidenceState(Opportunity saved,long now,Set<UUID> worlds) throws SQLException {
+        if (!provenanceHealthy.getAsBoolean() || now < 0 || worlds == null) return EvidenceState.UNKNOWN;
         var origin=saved.origin();var frame=frames.get(frameKey(saved.town(),Math.floorDiv(origin.x(),16),Math.floorDiv(origin.z(),16)));
-        if(frame==null||!frame.evidence().complete()||!frame.evidence().world().equals(saved.patch().world())
+        if(frame==null||!frame.evidence().complete()
+                ||!frame.evidence().world().equals(saved.patch().world()) || !worlds.contains(frame.evidence().world())
                 ||frame.evidence().observedMillis()>now||now-frame.evidence().observedMillis()>policy.surveyLifetimeMillis())return EvidenceState.UNKNOWN;
+        boolean trusted = new ForestryTrackingRepository(connection).load()
+                .map(ForestryTrackingRepository.State::trusted).orElse(true);
+        if (!trusted && !generatedTerrainCovers(frame)) return EvidenceState.UNKNOWN;
         return frame.evidence().trunks().contains(origin)?EvidenceState.PRESENT:EvidenceState.ABSENT;
     }
-    boolean provenanceTrusted()throws SQLException {
-        return provenanceHealthy.getAsBoolean()&&new ForestryTrackingRepository(connection).load().map(ForestryTrackingRepository.State::trusted).orElse(true);
+
+    private boolean generatedTerrainCovers(Frame frame) throws SQLException {
+        var evidence = frame.evidence();
+        return evidence.complete() && !evidence.trunks().isEmpty()
+                && new GeneratedTerrainRepository(connection).covers("forest", evidence.world(),
+                        evidence.trunks(), evidence.observedMillis());
     }
 
     private synchronized void pruneFrames(long now) {

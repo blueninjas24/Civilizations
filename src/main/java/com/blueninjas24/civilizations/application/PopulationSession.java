@@ -309,6 +309,7 @@ public final class PopulationSession implements AutoCloseable {
     public long forestMutationRevision(){return forestMutationRevision.get();}
     public String forestTrackingDiagnostic(){
         if(!trackForests)return "Forest tracking: not configured";
+        if(forestCaptureReady()&&!forestHistoryHealthy.get())return "Forest history incomplete: older terrain requires reviewed recovery; certified new terrain can qualify";
         if(!forestHistoryHealthy.get()||forestCaptureGap.get())return "New forestry discovery/unreviewed work paused: "+forestHistoryIssue.get();
         if(pendingForestMutations.get()>0)return "Forestry paused: waiting for "+pendingForestMutations.get()+" native tree mutation saves";
         return status().ready()?"Forest history: trusted; pending saves 0":"Forest tracking: starting or stopped";
@@ -524,6 +525,22 @@ public final class PopulationSession implements AutoCloseable {
     /** Continuous current capture is separate from missing historical provenance. */
     public boolean oreCaptureReady() { return trackOres&&!oreCaptureGap.get()&&pendingOreMutations.get()==0&&status().ready(); }
     public long oreMutationRevision(){return oreMutationRevision.get();}
+    /** Main-thread scanners ask the SQL owner before sampling an otherwise untrusted chunk. */
+    public CompletableFuture<Boolean> canSurveyResourceChunk(String kind,UUID world,int chunkX,int chunkZ,long capturedMillis) {
+        if(!java.util.Set.of("ore","forest").contains(kind))throw new IllegalArgumentException("Unknown resource kind");
+        java.util.Objects.requireNonNull(world);
+        var point=new VillageObservation.Position(Math.multiplyExact(chunkX,16),0,Math.multiplyExact(chunkZ,16));
+        if(capturedMillis<0)throw new IllegalArgumentException("Negative resource snapshot time");
+        return submit(()->{
+            requireReady();
+            boolean ore=kind.equals("ore");
+            if(ore?!oreCaptureReady():!forestCaptureReady())return false;
+            if(loadedWorlds!=null&&!loadedWorlds.contains(world))return false;
+            if(ore?oreHistoryHealthy.get():forestHistoryHealthy.get())return true;
+            return new com.blueninjas24.civilizations.database.GeneratedTerrainRepository(database.getConnection())
+                    .covers(kind,world,java.util.List.of(point),capturedMillis);
+        });
+    }
     /** Called only for a positive new-chunk event, never for ordinary loads or rescans. */
     public CompletableFuture<Integer> recordGeneratedTerrain(UUID world,String name,int chunkX,int chunkZ,long observedMillis) {
         java.util.Objects.requireNonNull(world);
@@ -554,7 +571,8 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
     public String oreTrackingDiagnostic() {
-        return !trackOres?"Ore placement tracking: not configured":oreDiscoveryReady()
+        return !trackOres?"Ore placement tracking: not configured":oreCaptureReady()&&!oreHistoryHealthy.get()
+                ?"Ore history incomplete: older terrain requires reviewed recovery; certified new terrain can qualify":oreDiscoveryReady()
                 ?"Ore mutation history: trusted; mine startup also checks demand, skills, funding and resource anchors"
                 :"New ore discovery/unreviewed coordinate mining paused: "+oreHistoryIssue.get();
     }
@@ -608,10 +626,10 @@ public final class PopulationSession implements AutoCloseable {
                         new com.blueninjas24.civilizations.database.LocalIndustryDemand(database.getConnection(),industryPolicy,operationPolicy,()->!trackOres||oreCaptureReady())
                                 .withFarmTools(farmToolsPolicy,farmToolsBudget).withLivestock(livestockPolicy,livestockRuntimePolicy,livestockWorkingArea,this::livestockCaptureReady),
                         new com.blueninjas24.civilizations.database.VillageSupplyPurchases(database.getConnection(),villageSupplyPolicy,studyPolicy,operationPolicy)));
-                automaticMines=new com.blueninjas24.civilizations.database.AutomaticMineFounding(database.getConnection(),mineFoundingPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||(oreHistoryHealthy.get()&&!oreCaptureGap.get()&&pendingOreMutations.get()==0));
-                automaticQuarries=new com.blueninjas24.civilizations.database.AutomaticQuarryFounding(database.getConnection(),quarryFoundingPolicy,quarryPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||(oreHistoryHealthy.get()&&!oreCaptureGap.get()&&pendingOreMutations.get()==0)).withPublicSupplies(villageSupplyPolicy,studyPolicy);
+                automaticMines=new com.blueninjas24.civilizations.database.AutomaticMineFounding(database.getConnection(),mineFoundingPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||oreCaptureReady());
+                automaticQuarries=new com.blueninjas24.civilizations.database.AutomaticQuarryFounding(database.getConnection(),quarryFoundingPolicy,quarryPolicy,industryPolicy,operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackOres||oreCaptureReady()).withPublicSupplies(villageSupplyPolicy,studyPolicy);
                 automaticForestry=new com.blueninjas24.civilizations.database.AutomaticForestryFounding(database.getConnection(),forestryFoundingPolicy,forestryPolicy,industryPolicy,
-                        operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackForests||(forestHistoryHealthy.get()&&!forestCaptureGap.get()&&pendingForestMutations.get()==0))
+                        operationPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed(),()->!trackForests||forestCaptureReady())
                         .withPublicSupplies(villageSupplyPolicy,studyPolicy);
                 resourceInvestment=new com.blueninjas24.civilizations.database.ResourceInvestment(database.getConnection(),allocationPolicy,industryPolicy,automaticMines,automaticQuarries,automaticForestry,
                         new com.blueninjas24.civilizations.database.LocalIndustryDemand(database.getConnection(),industryPolicy,operationPolicy,()->!trackOres||oreCaptureReady())
@@ -654,7 +672,7 @@ public final class PopulationSession implements AutoCloseable {
                     economy.configureBakeryFounderStudy(new com.blueninjas24.civilizations.database.BakeryOpportunities(database.getConnection(),bakeryOpportunityPolicy,industryPolicy,
                             startupGrantPolicy,workshopStarterPolicy,villageSupplyPolicy,studyPolicy,operationPolicy,bakeryMarketPolicy),bakeryFoundingPolicy,careerStudyPolicy);
                     economy.configureWarehouseFounderStudy(new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
-                        operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get()),warehouseFoundingPolicy,careerStudyPolicy);
+                        operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreCaptureReady()),warehouseFoundingPolicy,careerStudyPolicy);
                     economy.configureMineFounderStudy(automaticMines,careerStudyPolicy,mineFoundingPolicy);
                     economy.configureQuarryFounderStudy(automaticQuarries,careerStudyPolicy,quarryFoundingPolicy);
                     economy.configureForestryFounderStudy(automaticForestry,careerStudyPolicy,forestryFoundingPolicy);
@@ -895,7 +913,10 @@ public final class PopulationSession implements AutoCloseable {
     /** Immutable current samples authorize no land claim; founding independently rechecks startup. */
     public CompletableFuture<Boolean> observeForestSnapshot(UUID town,int chunkX,int chunkZ,com.blueninjas24.civilizations.industry.ForestObservation evidence){
         return submit(()->{requireReady();
-            if(!forestDiscoveryReady()||automaticForestry==null||loadedWorlds!=null&&!loadedWorlds.contains(evidence.world()))return false;
+            if(!forestCaptureReady()||automaticForestry==null||loadedWorlds!=null&&!loadedWorlds.contains(evidence.world()))return false;
+            if(!forestHistoryHealthy.get()&&!evidence.trunks().isEmpty()
+                    &&!new com.blueninjas24.civilizations.database.GeneratedTerrainRepository(database.getConnection())
+                    .covers("forest",evidence.world(),evidence.trunks(),evidence.observedMillis()))return false;
             return automaticForestry.observe(town,chunkX,chunkZ,evidence);
         });
     }
@@ -910,7 +931,7 @@ public final class PopulationSession implements AutoCloseable {
         var frozen=List.copyOf(observations);
         return submit(()-> {
             // Accepted owner work drains during close; public readiness becomes false immediately.
-            requireReady();if(!trackOres || !oreHistoryHealthy.get())throw new SQLException("Live ore tracking is not ready; survey paused");
+            requireReady();if(!oreCaptureReady())throw new SQLException("Live ore tracking is not ready; survey paused");
             if(loadedWorlds!=null && frozen.stream().anyMatch(o->!loadedWorlds.contains(o.world())))
                 throw new SQLException("Survey world is absent; no live resource observation");
             return new com.blueninjas24.civilizations.database.MineralOpportunities(database.getConnection()).observe(town,frozen);
@@ -922,7 +943,7 @@ public final class PopulationSession implements AutoCloseable {
             List<com.blueninjas24.civilizations.industry.MineralObservation> observations) {
         var frozen=List.copyOf(observations);
         return submit(()->{requireReady();
-            if(!trackOres||!oreHistoryHealthy.get())throw new SQLException("Finite resource tracking is not ready; quarry survey paused");
+            if(!oreCaptureReady())throw new SQLException("Finite resource tracking is not ready; quarry survey paused");
             if(loadedWorlds==null||frozen.stream().anyMatch(o->!loadedWorlds.contains(o.world())))throw new SQLException("Quarry survey world absent or availability unknown");
             return com.blueninjas24.civilizations.database.MineralOpportunities.quarries(database.getConnection()).observe(town,frozen);
         });
@@ -931,7 +952,7 @@ public final class PopulationSession implements AutoCloseable {
             List<com.blueninjas24.civilizations.industry.MineralObservation> observations,int chunkX,int chunkZ) {
         var frozen=List.copyOf(observations);
         return submit(()->{requireReady();
-            if(!trackOres||!oreHistoryHealthy.get())throw new SQLException("Finite resource tracking is not ready; quarry survey paused");
+            if(!oreCaptureReady())throw new SQLException("Finite resource tracking is not ready; quarry survey paused");
             if(loadedWorlds==null||frozen.stream().anyMatch(o->!loadedWorlds.contains(o.world())))throw new SQLException("Quarry survey world absent or availability unknown");
             return com.blueninjas24.civilizations.database.MineralOpportunities.quarries(database.getConnection()).observeChunk(town,frozen,chunkX,chunkZ);
         });
@@ -951,7 +972,7 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<com.blueninjas24.civilizations.database.MineralOpportunities.Review> currentMineralOpportunities(UUID town,long maximumAgeMillis) {
         return submit(()-> {
             requireReady();
-            if(!trackOres || !oreHistoryHealthy.get())throw new SQLException("Live ore tracking is not ready; candidate review paused");
+            if(!oreCaptureReady())throw new SQLException("Live ore tracking is not ready; candidate review paused");
             return new com.blueninjas24.civilizations.database.MineralOpportunities(database.getConnection())
                 .review(town,now.getAsLong(),maximumAgeMillis,loadedWorlds);
         });
@@ -961,7 +982,7 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<com.blueninjas24.civilizations.database.LocalIndustryDemand.MiningReview> miningInputDemand(UUID town,long maximumAgeMillis,int businessLimit) {
         return submit(()-> {
             requireReady();
-            if(!trackOres||!oreHistoryHealthy.get())throw new SQLException("Live ore tracking is not ready; mining demand review paused");
+            if(!oreCaptureReady())throw new SQLException("Live ore tracking is not ready; mining demand review paused");
             return new com.blueninjas24.civilizations.database.LocalIndustryDemand(database.getConnection(),industryPolicy,operationPolicy)
                 .reviewMining(town,now.getAsLong(),maximumAgeMillis,loadedWorlds,businessLimit);
         });
@@ -1066,7 +1087,7 @@ public final class PopulationSession implements AutoCloseable {
             if(!workplacePolicy.enabled()||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL))
                 return new com.blueninjas24.civilizations.database.WarehouseOpportunities.Review(java.util.List.of(),"Barrel recognition disabled");
             return new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
-                operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get()).review(town,now.getAsLong(),loadedWorlds);
+                operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreCaptureReady()).review(town,now.getAsLong(),loadedWorlds);
         });
     }
     private Optional<com.blueninjas24.civilizations.database.ResourceInvestment.Proposal> preparedFisheryInvestment(UUID town,long step,long observed,Set<UUID> worlds)throws SQLException {
@@ -1100,7 +1121,7 @@ public final class PopulationSession implements AutoCloseable {
     }
     private com.blueninjas24.civilizations.database.WarehouseInvestment warehouseInvestment() {
         var evidence=new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
-                operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get());
+                operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreCaptureReady());
         return new com.blueninjas24.civilizations.database.WarehouseInvestment(database.getConnection(),evidence,warehouseFoundingPolicy,warehouseOpportunityPolicy,
                 industryPolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed());
     }

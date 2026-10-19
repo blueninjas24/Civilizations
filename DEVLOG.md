@@ -1,5 +1,23 @@
 # Civilizations Development Log
 
+## 2026-10-19 - wire live scoped surveys and funded industry startup
+
+Connected SQL-owner chunk preflight to the ordinary bounded ore observer and
+current-capture guards to surveys/demand/paid startups. Forestry admission checks
+whole current frames, and prospective-owner study resolves actual cached evidence
+instead of its identity-only timestamp-zero placeholder. Unknown evidence waits;
+global historical trust stays false. Focused clean verify47 unit +3 packaged checks
+passed44.680s. Peer review corrected only diagnostic wording; refreshed package
+passed17.128s, no repeated tests.
+
+Fresh no-editor Paper26.2-129 scheduled observer passed actual new generation,
+old-chunk refusal, one excluded coal and one timestamped unclaimed opportunity.
+No business, reserves or cash created. Private DB has18 certificates (new neighbors
+also generate events), main34; both healthy current epochs/integrity/FKs, private
+global ore history still untrusted. Four AIR fixtures restored, tickets released,
+helper archived/server stopped/worlds retained. No migration, human server change
+or WorldEdit presence exemption. P3 stays88.1%; editor lifecycle remains next.
+
 ## 2026-10-19 - filter scoped opportunities and prevent retroactive trust
 
 Current mineral/quarry views filter exact generated coordinates under sticky global

@@ -1,5 +1,15 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - scoped new-terrain runtime verified
+
+Positive generation now feeds the ordinary ore scanner's owner-queue preflight,
+current opportunity reads and paid mine/logging startup. Old unverified areas and
+placed sources remain blocked. Focused47 unit +3 packaged checks and an actual
+fresh Paper scheduled scan passed; fixture restored/stopped. Prospective logging
+owners use complete current frames for study eligibility. The optional editor's
+bootstrap/shutdown/late-enable coverage remains open, so no bulk-editor gate is
+checked yet. P3 stays88.1% partial,2/4 whole groups.
+
 ## Latest - edited-world integration groundwork
 
 Actual WorldEdit7.4.4 edit/raw placement/removal/undo checks passed in isolated

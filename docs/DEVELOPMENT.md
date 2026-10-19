@@ -1,5 +1,32 @@
 # Development and recovery procedures
 
+## October19 - disposable generated-terrain and optional editor checks
+
+The helpers in `src/test/paper` are separately compiled test plugins and are never
+included in the Civilizations artifact. Use only a fresh marked disposable localhost
+server with no players; each refuses an unmarked server or a different port. Never
+install these helpers into a human playtest or production server.
+
+`WorldEditResourceCaptureProbe` requires WorldEdit Bukkit7.4.4 and exercises real
+BEFORE_CHANGE editing, raw placement, one-block source retirement, tree undo,
+unchanged writes and unsupported-thread fencing against its private database. Use
+the official runtime artifact and verify its published checksum. It restores five
+original AIR blocks, releases its existing-chunk ticket and stops the fixture.
+
+`GeneratedTerrainCaptureProbe` runs without WorldEdit. It confirms real positive
+new-chunk events, ordinary-load rejection, clean session restart and gap revocation.
+It explicitly generates one fresh distant chunk as fixture setup only; the production
+listener never loads or generates terrain. Keep the disposable world for audit.
+
+`ScopedOreSurveyProbe` also runs without WorldEdit and creates an isolated sticky-
+untrusted ore history with healthy current capture. Real generated-chunk evidence
+must allow the scheduled Paper ore observer while an old loaded chunk stays blocked.
+One fixture coal coordinate is protected; only the other may become a current saved
+opportunity, with no business, deposit or money created. Restore all four AIR block
+states before releasing its helper tickets. Audit integrity, foreign keys, current
+epochs and exact resource/cash outcomes after shutdown; archive helpers outside
+the plugins folder. Do not mistake direct fixture block setup for player adoption.
+
 ## October17 — user-approved focused validation workflow
 
 The user requested fewer repeated exhaustive checks and larger feature batches.

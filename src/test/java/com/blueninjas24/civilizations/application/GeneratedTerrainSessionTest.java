@@ -67,6 +67,12 @@ class GeneratedTerrainSessionTest {
             assertEquals(0,save(reopened,world,-1,-1));
             assertEquals(2,save(reopened,world,3,3));
             assertFalse(reopened.oreDiscoveryReady()); // Scoped evidence never resets global historical trust.
+            assertTrue(reopened.canSurveyResourceChunk("ore",world,3,3,1000).get(5,TimeUnit.SECONDS));
+            assertFalse(reopened.canSurveyResourceChunk("ore",world,3,3,999).get(5,TimeUnit.SECONDS));
+            assertFalse(reopened.canSurveyResourceChunk("ore",world,2,2,1000).get(5,TimeUnit.SECONDS));
+            assertTrue(reopened.canSurveyResourceChunk("forest",world,3,3,1000).get(5,TimeUnit.SECONDS));
+            assertTrue(reopened.oreTrackingDiagnostic().contains("certified new terrain"));
+            assertTrue(reopened.forestTrackingDiagnostic().contains("certified new terrain"));
         }
         assertFalse(covered("ore",-1,-1));assertTrue(covered("ore",48,48));
         assertTrue(covered("forest",63,63));assertFalse(covered("forest",32,32));

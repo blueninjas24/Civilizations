@@ -76,8 +76,8 @@ final class ForestryFounderStudy {
                 saved=new AutomaticForestryFounding.Opportunity(UUID.fromString(r.getString("settlement_id")),observation);
             }
         }
-        if(!enabled()||worlds==null||!worlds.contains(saved.patch().world())||!forestry.provenanceTrusted())return ResidentStudy.FounderState.WAIT;
-        var evidence=forestry.evidenceState(saved,now);
+        if(!enabled()||worlds==null||!worlds.contains(saved.patch().world()))return ResidentStudy.FounderState.WAIT;
+        var evidence=forestry.currentEvidenceState(saved,now,worlds);
         if(evidence==AutomaticForestryFounding.EvidenceState.UNKNOWN)return ResidentStudy.FounderState.WAIT;
         if(evidence==AutomaticForestryFounding.EvidenceState.ABSENT)return ResidentStudy.FounderState.CANCEL;
         try{return forestry.opportunityRows(saved.town(),now,worlds,saved).opportunity()!=null?ResidentStudy.FounderState.READY:ResidentStudy.FounderState.CANCEL;}

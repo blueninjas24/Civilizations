@@ -1,5 +1,40 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - live scoped surveys and industry startup
+
+Live ore/quarry scans now preflight otherwise-untrusted chunks on the SQL owner,
+retain the target while that bounded query runs, and scan only currently permitted
+loaded terrain. Old/absent/unavailable chunks stay skipped. Session survey/demand/
+startup callbacks distinguish healthy current capture from historical trust; SQL
+current-coordinate and paid-opening checks remain authoritative. Forestry filters
+entire current frames and resumes prospective-owner study only from the actual
+complete cached frame, never the saved course's timestamp-zero identity placeholder.
+Unavailable/uncertified evidence waits. Diagnostics explain scoped availability.
+
+Focused clean verify passed47 unit +3 packaged checks, zero failures/errors/skips,
+44.680s. Added actual shared paid mine investment and scoped qualified logging
+founding cases, plus session preflight/time/diagnostics checks. Existing mine/quarry/
+forestry startup and study regressions passed. Read-only peer review found only a
+diagnostic wording issue; corrected it and refreshed package successfully,17.128s,
+without repeating tests.
+
+Actual fresh no-editor Paper26.2-129 passed the scheduled scoped ore observer:
+real new-generation events permit a fresh chunk while old loaded terrain remains
+blocked under sticky-untrusted global history; one protected coal coordinate stayed
+excluded and exactly one unclaimed opportunity retained its real capture timestamp.
+No business, source reserve or cash created. Private DB retains two synthetic people,
+one exclusion and18 generation certificates; main DB34 certificates, no people/firms.
+Neighbor generation legitimately produces additional positive events. Both DBs are
+schema99, integrity/FKs clean, current epochs healthy; private ore global trust stays
+false. Four original AIR blocks restored, both fixture tickets released, helper
+archived, server stopped and worlds retained. Human server/main untouched.
+
+No migration. Ordinary WorldEdit presence still fences capture: its bootstrap/late-
+enable/shutdown integration remains unfinished. Scoped new-terrain support is now
+wired and verified separately; no bulk-editor milestone is claimed early. P3 remains
+88.1% partial,2/4 whole groups. Next: complete optional editor lifecycle safely, then
+remaining useful craft breadth and combined long-run/native acceptance.
+
 ## Latest verified batch - scoped current opportunities and evidence timing
 
 Current mineral/quarry reviews now return only candidate coordinates with current

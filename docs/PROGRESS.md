@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - live villages can use verified fresh terrain after a history gap
+
+The normal scanner now reaches certified new chunks while older unknown chunks
+stay blocked. Actual paid mine/logging startup checks pass without restoring global
+trust or creating free money. A fresh Paper server confirmed the scheduled scan,
+protected ore and saved evidence; test blocks restored and server stopped.
+Focused build47 unit +3 packaged checks passed. WorldEdit startup/shutdown support
+is still unfinished, so the larger milestone and P3 percentage stay88.1%.
+
 ## Latest - old sightings cannot borrow trust from new terrain
 
 Current resource lists can distinguish verified fresh chunks from older unknown

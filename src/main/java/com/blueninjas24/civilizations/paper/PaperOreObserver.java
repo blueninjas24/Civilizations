@@ -18,6 +18,8 @@ public final class PaperOreObserver extends BukkitRunnable {
     private final boolean quarry;
     private final Deque<Target> targets=new ArrayDeque<>();
     private CompletableFuture<?> pending;
+    private CompletableFuture<Boolean> eligibility;
+    private boolean approvedTarget;
     private OreScan scan;
     private Target target;
     private int chunkX,chunkZ;
@@ -34,12 +36,18 @@ public final class PaperOreObserver extends BukkitRunnable {
     @Override public void run() {
         if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Ore observer requires main thread");
         if(!policy.enabled()){diagnostic="Live ore surveys disabled in economy.yml";return;}
-        if(!session.oreDiscoveryReady()){scan=null;targets.clear();diagnostic="Live ore surveys paused: tracking not ready";return;}
+        if(!session.oreCaptureReady()){scan=null;targets.clear();eligibility=null;approvedTarget=false;diagnostic="Live ore surveys paused: tracking not ready";return;}
         ticks++;
         try {
             if(pending!=null) {
                 if(!pending.isDone())return;
                 pending.join();pending=null;
+            }
+            if(eligibility!=null) {
+                if(!eligibility.isDone())return;
+                boolean allowed=eligibility.join();eligibility=null;
+                if(!allowed){diagnostic="Ore survey skipped: chunk unavailable or lacks current provenance";return;}
+                approvedTarget=true;
             }
             if(scan!=null) {
                 var world=Bukkit.getWorld(target.home().worldId());
@@ -59,7 +67,7 @@ public final class PaperOreObserver extends BukkitRunnable {
             }
             // Publish one completed result before the next target can overwrite its explanation.
             if(completed!=null){lastCompleted=completed;diagnostic=completed;completed=null;return;}
-            if(targets.isEmpty() && ticks%policy.intervalTicks()==1) {
+            if(!approvedTarget&&targets.isEmpty() && ticks%policy.intervalTicks()==1) {
                 var view=session.projectionView().orElseThrow();var homes=new TreeMap<UUID,Home>();
                 for(var household:view.population().households()) {
                     var home=view.identities().homes().get(household.id());
@@ -69,8 +77,15 @@ public final class PaperOreObserver extends BukkitRunnable {
                 homes.forEach((town,home)->OreSurveyArea.around(home.position().x(),home.position().z(),policy.horizontalRadiusChunks())
                         .forEach(chunk->targets.addLast(new Target(town,home,chunk))));
             }
-            if(targets.isEmpty())return;
-            target=targets.removeFirst();var world=Bukkit.getWorld(target.home().worldId());
+            if(!approvedTarget) {
+                if(targets.isEmpty())return;
+                target=targets.removeFirst();
+                if(!session.oreDiscoveryReady()) {
+                    eligibility=session.canSurveyResourceChunk("ore",target.home().worldId(),target.chunk().x(),target.chunk().z(),clock.getAsLong());
+                    diagnostic="Ore survey awaiting scoped chunk provenance";return;
+                }
+            }
+            approvedTarget=false;var world=Bukkit.getWorld(target.home().worldId());
             chunkX=target.chunk().x();chunkZ=target.chunk().z();
             if(world==null || !world.isChunkLoaded(chunkX,chunkZ))return;
             int minimumY=(int)Math.max(world.getMinHeight(),(long)target.home().position().y()-policy.verticalRadius());
@@ -85,7 +100,7 @@ public final class PaperOreObserver extends BukkitRunnable {
             scan=quarry?OreScan.quarries(PaperOreNeighborhood.quarries(snapshots,chunkX,chunkZ,world.getMinHeight(),world.getMaxHeight()),chunkX,chunkZ,minimumY,maximumY,Set.of())
                     :new OreScan(PaperOreNeighborhood.ores(snapshots,chunkX,chunkZ,world.getMinHeight(),world.getMaxHeight()),chunkX,chunkZ,minimumY,maximumY,Set.of());
             diagnostic="Ore survey scanning nearby loaded chunk "+chunkX+","+chunkZ;
-        } catch(RuntimeException failure){scan=null;pending=null;diagnostic="Ore survey deferred: "+failure.getMessage();}
+        } catch(RuntimeException failure){scan=null;pending=null;eligibility=null;approvedTarget=false;diagnostic="Ore survey deferred: "+failure.getMessage();}
     }
     private volatile String completed;
     private static Home earlier(Home a,Home b) {

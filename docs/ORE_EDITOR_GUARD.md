@@ -1,5 +1,25 @@
 # Unsupported bulk-editor provenance fence
 
+## Current integration status (October19)
+
+The normal presence fence below remains active. An optional explicit-registration
+WorldEdit Bukkit7.4.4 adapter now has a provided-only API dependency and was verified
+with actual edits, raw placements, ore removal, undo and failure fencing on isolated
+Paper26.2-129. It is not yet registered by ordinary plugin startup; unsupported
+editors, later enable and uncertain lifecycle coverage still fence current capture.
+
+Schema99 stores positive new-generation evidence for exact world/chunks/resource
+kinds and healthy capture epochs. Older chunks are never backfilled. Normal new-
+chunk observation is bounded and never loads chunks. Scoped SQL authorization
+requires all resource supports, appropriate observation times and current capture;
+placed/removed exclusions and explicit old-resource recovery are retained. A clean
+restart preserves certificates; a capture gap revokes them without deleting history.
+The live new-terrain scanner/startup path is being verified independently of editor
+lifecycle. These additions do not certify arbitrary plugin writes, offline edits,
+hot reload or older WorldEdit history. See PROJECT_STATUS.md for current checks.
+
+The historical implementation/verification notes below describe the original fence.
+
 OreEditorGuard inspects installed plugin descriptor names before the live SQL owner
 starts, and listens for later Paper PluginEnableEvent notifications. WorldEdit,
 FastAsyncWorldEdit and VoxelSniper names are matched case-insensitively. Installed
