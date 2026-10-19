@@ -4,7 +4,7 @@ The user approved urgent village needs first, then unmet demand from real funded
 customers, with editable priorities and fair rotation on ties. This first verified
 connection applies to vacancies at existing non-farm businesses and selection among
 viable resource and marker startup adapters. Existing farms also receive the urgent-food
-scheduling hook below; fishing/animal startup comparison remains next work.
+scheduling hook below; animal startup comparison remains next work.
 No worker is transferred, no wage wallet is created and no living-owner firm closes.
 
 New-file `business-allocation` in economy.yml enables the comparison. Missing old
@@ -82,14 +82,28 @@ rewrite or renamed table. A high-priority provisional marker can temporarily del
 other startups until confirmed or its existing observation expires; this never
 loads a chunk to obtain proof. Selection does not guarantee a completed future sale.
 
+Fisheries now contribute one qualified funded water opportunity as well. A winning
+water proposal waits for the existing Paper shoreline/water confirmation. Its
+priority key identifies the saved water footprint; the actual bank-specific
+business/site identity is unchanged. The normal acceptance revalidates current
+water, qualified founder, funding and the safe bank before committing its selection
+audit with the grant, job, habitat and empty store. A later bank relocation or
+restart neither changes that historical selection nor grants another startup.
+
+Explicitly disabling private automatic input purchases leaves public food demand
+available to the selector and existing-business staffing. This contributes no
+private demand and does not treat an incomplete enabled review as complete. Public
+orders still require their own real funds and matching current saved assessment.
+
 Schema97 adds initially empty `business_allocation_state` and
 `business_allocation_reviews`. Hiring, its existing audit, selection explanation and
 saved tie cursor commit together. Failure rolls back all of them. Review throttling
 also covers complete comparisons with no candidate, without adding empty historical
 rows on every pulse. The report remains read-only; business diagnostics show the
 configured selection result. Marker-confirmed workshops/warehouses retain their
-existing acceptance adapters with the shared choice now connected. Fishing and
-livestock adoption do not yet share this startup comparison; do not call the whole
+existing acceptance adapters with the shared choice now connected. Fishing uses
+its existing bank confirmation with the same ledger. Livestock adoption does not
+yet share this startup comparison; do not call the whole
 specialization/competition gate done.
 
 Seven new focused cases plus existing staffing/demand/runtime/migration tests passed.

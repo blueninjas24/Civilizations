@@ -1,5 +1,13 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - fishing joins shared startup priorities
+
+Qualified fisheries now compete for protected startup funds alongside resource
+businesses and workshops. Real water/bank checks remain, and public food customers
+still work when private workshop purchasing is switched off. Focused build/tests
+and actual isolated startup/catch/recovery/restart passed. Livestock allocation is
+next; the combined gate stays open, P3 remains76.4% partial and1/4 whole groups.
+
 ## Latest - workshops and warehouses share startup priorities
 
 Qualified marker-backed businesses now compete with mines, quarries and logging

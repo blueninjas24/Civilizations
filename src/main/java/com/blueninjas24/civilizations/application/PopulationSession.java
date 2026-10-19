@@ -371,7 +371,15 @@ public final class PopulationSession implements AutoCloseable {
         return new com.blueninjas24.civilizations.database.FisheryInvestment(database.getConnection(),opportunities,fisheryFoundingPolicy,fisheryOpportunityPolicy,industryPolicy,waterPolicy,fisheryShorelinePolicy,startupGrantPolicy,settings.population().adulthoodSteps(),settings.seed());
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.BusinessStartupGrants.Fishery> acceptFisheryInvestment(com.blueninjas24.civilizations.database.FisheryInvestment.Proposal proposal,com.blueninjas24.civilizations.industry.ShorelineEvidence evidence) {
-        return submit(()->{requireReady();return fisheryInvestment().accept(proposal,evidence,now.getAsLong(),loadedWorlds,fishingPolicy);});
+        return submit(()->{
+            requireReady();var investment=fisheryInvestment();
+            com.blueninjas24.civilizations.database.ResourceInvestment.StartupAudit audit=()->{};
+            if(allocationPolicy.enabled()&&database.getBusinessRepository().findBusiness(investment.businessId(proposal,evidence)).isEmpty()) {
+                if(economyFailure!=null||status.get().remainingMonths()>0)throw new com.blueninjas24.civilizations.database.BusinessStartupGrants.Declined("Shared fishery startup waits for current population and healthy saved food assessment");
+                audit=resourceInvestment.confirmationApproval(proposal.opportunity().town(),com.blueninjas24.civilizations.database.FisheryInvestment.selectionId(proposal.opportunity()),status.get().completedMonths(),now.getAsLong(),loadedWorlds);
+            }
+            return investment.accept(proposal,evidence,now.getAsLong(),loadedWorlds,fishingPolicy,audit);
+        });
     }
     /** Live water/bank caller may sponsor or refresh one supply-backed future first-owner course. */
     public CompletableFuture<String> reviewFisheryFounderStudy(com.blueninjas24.civilizations.database.FisheryOpportunities.Opportunity opportunity,com.blueninjas24.civilizations.industry.ShorelineEvidence bank) {
@@ -567,7 +575,7 @@ public final class PopulationSession implements AutoCloseable {
                 resourceInvestment=new com.blueninjas24.civilizations.database.ResourceInvestment(database.getConnection(),allocationPolicy,industryPolicy,automaticMines,automaticQuarries,automaticForestry,
                         new com.blueninjas24.civilizations.database.LocalIndustryDemand(database.getConnection(),industryPolicy,operationPolicy,()->!trackOres||oreCaptureReady())
                                 .withFarmTools(farmToolsPolicy,farmToolsBudget).withLivestock(livestockPolicy,livestockRuntimePolicy,livestockWorkingArea,this::livestockCaptureReady),
-                        new com.blueninjas24.civilizations.database.VillageSupplyPurchases(database.getConnection(),villageSupplyPolicy,studyPolicy,operationPolicy)).withMarkerCandidates(this::preparedMarkerInvestments);
+                        new com.blueninjas24.civilizations.database.VillageSupplyPurchases(database.getConnection(),villageSupplyPolicy,studyPolicy,operationPolicy)).withMarkerCandidates(this::preparedMarkerInvestments).withFisheryCandidate(this::preparedFisheryInvestment);
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||(!oreCaptureGap.get()&&pendingOreMutations.get()==0));
                 industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
                 industries.configureFishing(fishingPolicy);
@@ -991,6 +999,12 @@ public final class PopulationSession implements AutoCloseable {
             return new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
                 operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get()).review(town,now.getAsLong(),loadedWorlds);
         });
+    }
+    private Optional<com.blueninjas24.civilizations.database.ResourceInvestment.Proposal> preparedFisheryInvestment(UUID town,long step,long observed,Set<UUID> worlds)throws SQLException {
+        if(!fisheryShorelinePolicy.enabled()||!waterPolicy.enabled()||!fishingPolicy.enabled())return Optional.empty();
+        return fisheryInvestment().prepare(town,step,observed,worlds).proposal().map(p->new com.blueninjas24.civilizations.database.ResourceInvestment.Proposal(
+                com.blueninjas24.civilizations.database.FisheryInvestment.selectionId(p.opportunity()),"fishing",Set.of(com.blueninjas24.civilizations.economy.Commodity.FOOD),
+                Math.addExact(fisheryOpportunityPolicy.startupHundredths(),fisheryOpportunityPolicy.capitalHundredths()),"Qualified funded water opportunity; actual safe shoreline proof still required"));
     }
     /** Current SQL-only preflights; actual marker reads remain with the existing Paper startup adapters. */
     private List<com.blueninjas24.civilizations.database.ResourceInvestment.Proposal> preparedMarkerInvestments(UUID town,long step,long observed,Set<UUID> worlds)throws SQLException {

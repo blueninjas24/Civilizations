@@ -58,7 +58,9 @@ public final class BusinessCompetition {
         try {
         var workforce=new WorkforceCompetitionReport(c).read(town,operations);
         if(!workforce.complete())return "Shared allocation deferred: "+workforce.explanation();
-        var needs=demand.review(town,worlds,32);
+        var needs=industry.enabled()&&!industry.supply().enabled()
+                ?new LocalIndustryDemand.Review(true,List.of(),Map.of(),"Private automatic input purchases disabled; public demand reviewed separately")
+                :demand.review(town,worlds,32);
         if(!needs.complete())return "Shared allocation deferred: "+needs.explanation();
         var publicNeeds=publicDemand.demand(town,worlds);
         var funded=new TreeMap<>(needs.uncovered());publicNeeds.fundedUnits().forEach((g,q)->funded.merge(g,q,Math::addExact));

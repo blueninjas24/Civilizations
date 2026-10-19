@@ -93,8 +93,9 @@ not yet a full physical sword/armor/furniture shop catalog.
 Urgent assessed food shortages give existing farms first access to qualified idle
 help. Other existing vacancies compare urgency and funded demand. Mines,
 quarries/sandpits, logging and marker-backed workshops/warehouses compare viable
-startup proposals before receiving one protected grant. Fishing and livestock
-still need the combined competition connection. Existing workers are not forcibly moved, and selection creates no
+startup proposals before receiving one protected grant. Fisheries also participate,
+with safe shoreline confirmation still required. Livestock still needs the combined
+competition connection. Existing workers are not forcibly moved, and selection creates no
 money or supplies.
 
 Minerals, stone and sand have finite saved reserves; observing them again or

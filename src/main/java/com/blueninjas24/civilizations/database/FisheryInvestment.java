@@ -3,6 +3,7 @@ package com.blueninjas24.civilizations.database;
 import com.blueninjas24.civilizations.industry.*;
 import com.blueninjas24.civilizations.population.*;
 import java.sql.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /** Read-only qualified preparation. No invented shoreline anchor, experience, reservation or founding. */
@@ -62,6 +63,9 @@ public final class FisheryInvestment {
     }
     /** Fresh caller-verified bank and current SQL opportunity/owner qualification commit with all paid startup rows. */
     public BusinessStartupGrants.Fishery accept(Proposal proposal,ShorelineEvidence evidence,long now,Set<UUID> worlds,FishingPolicy fishing)throws SQLException {
+        return accept(proposal,evidence,now,worlds,fishing,()->{});
+    }
+    public BusinessStartupGrants.Fishery accept(Proposal proposal,ShorelineEvidence evidence,long now,Set<UUID> worlds,FishingPolicy fishing,ResourceInvestment.StartupAudit audit)throws SQLException {
         Objects.requireNonNull(proposal);Objects.requireNonNull(evidence);Objects.requireNonNull(fishing);
         if(!connection.getAutoCommit())throw new SQLException("Fishery acceptance requires idle SQL owner");connection.setAutoCommit(false);
         try {
@@ -78,9 +82,15 @@ public final class FisheryInvestment {
                 }
             }else if(!firms.findFounding(existing.orElseThrow().id()).orElseThrow().equals(request.founding()))throw new SQLException("Fishery founding identity reused with changed terms");
             var result=new BusinessStartupGrants(connection).startShoreFisheryRows(request,proposal.opportunity().water(),water.minimumDepth(),shoreline.maximumRise(),shoreline.maximumDistance(),evidence,now,terms.evidenceLifetimeMillis(),fishing,grants);
-            connection.commit();connection.setAutoCommit(true);return result;
+            audit.save();connection.commit();connection.setAutoCommit(true);return result;
         }catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
     }
+    /** Stable water opportunity key; the eventual bank-specific business ID remains unchanged. */
+    public static UUID selectionId(FisheryOpportunities.Opportunity opportunity) {
+        String key=opportunity.town()+":"+opportunity.water().evidence().world()+":"+opportunity.water().evidence().columns();
+        return UUID.nameUUIDFromBytes(("civilizations:startup-fishery-choice-v1:"+key).getBytes(StandardCharsets.UTF_8));
+    }
+    public UUID businessId(Proposal proposal,ShorelineEvidence evidence){return draft(proposal,evidence).founding().business().id();}
     private BusinessStartupGrants.WorkshopRequest draft(Proposal proposal,ShorelineEvidence evidence) {
         var opportunity=proposal.opportunity();var p=evidence.origin();
         String key=opportunity.town()+":"+opportunity.water().evidence().world()+":"+opportunity.water().evidence().columns()+":"+p;

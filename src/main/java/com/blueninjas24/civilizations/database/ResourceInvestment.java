@@ -21,6 +21,9 @@ public final class ResourceInvestment {
     private record Comparison(List<Proposal> proposals,List<BusinessAllocationPolicy.Candidate> ranked,String explanation) {}
     private MarkerCandidates markers=(town,step,now,worlds)->List.of();
     public ResourceInvestment withMarkerCandidates(MarkerCandidates candidates){markers=Objects.requireNonNull(candidates);return this;}
+    @FunctionalInterface public interface FisheryCandidate {Optional<Proposal> prepare(UUID town,long step,long now,Set<UUID> worlds)throws SQLException;}
+    private FisheryCandidate fishery=(town,step,now,worlds)->Optional.empty();
+    public ResourceInvestment withFisheryCandidate(FisheryCandidate candidate){fishery=Objects.requireNonNull(candidate);return this;}
     private final Connection c;private final BusinessAllocationPolicy policy;private final IndustryRuntimePolicy industry;
     private final AutomaticMineFounding mines;private final AutomaticQuarryFounding quarries;private final AutomaticForestryFounding forestry;
     private final LocalIndustryDemand demand;private final VillageSupplyPurchases publicDemand;
@@ -79,7 +82,7 @@ public final class ResourceInvestment {
             var comparison=compare(town,step,now,worlds,cursor);var proposals=comparison.proposals();var ranked=comparison.ranked();
             if(ranked.isEmpty())return comparison.explanation();
             var selected=ranked.getFirst();var proposal=proposals.stream().filter(p->p.id().equals(selected.business())).findFirst().orElseThrow();
-            if(proposal.marker())return "Shared startup choice "+proposal.kind()+" "+proposal.id()+" awaits fresh loaded workplace confirmation; nothing reserved or spent";
+            if(proposal.marker()||proposal.kind().equals("fishing"))return "Shared startup choice "+proposal.kind()+" "+proposal.id()+" awaits fresh loaded "+(proposal.marker()?"workplace":"shoreline/water")+" confirmation; nothing reserved or spent";
             long before=lastGrant();
             long next=Math.incrementExact(sequence),observed=Math.max(now,last);
             StartupAudit audit=()->saveRows(town,proposal,selected,ranked,before,next,step,observed);
@@ -93,7 +96,10 @@ public final class ResourceInvestment {
         }catch(SQLException|RuntimeException failure){attempts.remove(town);throw failure;}
     }
     private Comparison compare(UUID town,long step,long now,Set<UUID> worlds,String cursor)throws SQLException {
-        var pressure=demand.review(town,worlds,32);if(!pressure.complete())return new Comparison(List.of(),List.of(),"Resource investment deferred: "+pressure.explanation());
+        var pressure=industry.enabled()&&!industry.supply().enabled()
+                ?new LocalIndustryDemand.Review(true,List.of(),Map.of(),"Private automatic input purchases disabled; public demand reviewed separately")
+                :demand.review(town,worlds,32);
+        if(!pressure.complete())return new Comparison(List.of(),List.of(),"Resource investment deferred: "+pressure.explanation());
         var proposals=new ArrayList<Proposal>();
         var notes=new ArrayList<String>();
         // These existing selectors validate observation age/coverage, protections, existing capacity,
@@ -114,6 +120,11 @@ public final class ResourceInvestment {
         var markerProposals=List.copyOf(markers.prepare(town,step,now,worlds));
         if(markerProposals.size()>4||markerProposals.stream().anyMatch(p->!p.marker()))throw new SQLException("Complete bounded marker startup comparison required");
         proposals.addAll(markerProposals);
+        var fishing=fishery.prepare(town,step,now,worlds);
+        if(fishing.isPresent()) {
+            if(!fishing.orElseThrow().kind().equals("fishing"))throw new SQLException("Expected one fishing startup proposal");
+            proposals.add(fishing.orElseThrow());
+        }
         var candidates=new ArrayList<BusinessAllocationPolicy.Candidate>();
         for(var p:proposals){
             var publicNeeds=publicDemand.demandAfterSpending(town,worlds,p.debit());long value=0;
@@ -130,6 +141,9 @@ public final class ResourceInvestment {
     }
     /** Called on the same SQL-owner task immediately before the normal marker startup transaction. */
     public StartupAudit markerApproval(UUID town,UUID proposed,long step,long now,Set<UUID> worlds)throws SQLException {
+        return confirmationApproval(town,proposed,step,now,worlds);
+    }
+    public StartupAudit confirmationApproval(UUID town,UUID proposed,long step,long now,Set<UUID> worlds)throws SQLException {
         if(!c.getAutoCommit())throw new SQLException("Marker comparison requires idle owner");
         if(step<0||now<0)throw new IllegalArgumentException("Invalid marker investment time");
         if(!policy.enabled())return ()->{};
@@ -143,7 +157,7 @@ public final class ResourceInvestment {
         if(comparison.ranked().isEmpty())throw new BusinessStartupGrants.Declined(comparison.explanation());
         var selected=comparison.ranked().getFirst();
         var proposal=comparison.proposals().stream().filter(p->p.id().equals(selected.business())).findFirst().orElseThrow();
-        if(!proposal.marker()||!proposal.id().equals(proposed))throw new BusinessStartupGrants.Declined("Shared startup priority currently selects "+proposal.kind()+" "+proposal.id()+"; nothing spent");
+        if(!(proposal.marker()||proposal.kind().equals("fishing"))||!proposal.id().equals(proposed))throw new BusinessStartupGrants.Declined("Shared startup priority currently selects "+proposal.kind()+" "+proposal.id()+"; nothing spent");
         long before=lastGrant(),next=Math.incrementExact(sequence),observed=Math.max(now,last);
         return ()->saveRows(town,proposal,selected,comparison.ranked(),before,next,step,observed);
     }

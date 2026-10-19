@@ -1,5 +1,46 @@
 # Civilizations Development Log
 
+## Latest verified batch - fisheries join shared startup allocation
+
+A qualified funded water proposal now competes with resource and marker startups.
+Its stable selection key identifies the observed water footprint; actual existing
+bank-derived business/site UUID rules are unchanged. A winner waits for the normal
+Paper water/shoreline proof. Final acceptance compares again, then revalidates and
+commits the grant, first job, empty stock, bounded habitat and selection audit/cursor
+in one transaction. Failure rolls back all; exact existing startup replay does not
+rerank or add an audit. No physical construction, docks, resource refill or new money.
+
+Kept public food customers independent of the private automatic-input-purchase
+switch: explicitly disabled private purchases contribute no private demand while
+public funds/assessment checks remain. Enabled incomplete reviews still defer.
+This also applies to shared existing-business staffing. Fishery acceptance retains
+valid saved/headless food-assessment support instead of requiring a separate
+running food engine; actual current population/backlog/failure guards remain.
+
+Focused clean Wrapper verify/package passed56 units +2 packaged integrations,
+zero failures/errors/skips,37.570s. Three new temporary-SQLite cases cover real
+water/bank startup with private buying disabled, full late-audit rollback/retry,
+and funded public-food-driven hiring with private purchases off. Two ran in the
+main verify; the last additional hiring case passed separately in10.615s. Existing
+fishery, mixed resource/marker selection, competition and session regressions passed.
+Initial compile found a missing charset import; fixed before verification.
+
+Actual isolated Paper26.2-129 passed ordinary water observation, qualified automatic
+shoreline startup, one paid selection/grant, timed catches/earned experience,
+same-habitat bank recovery, absent-world pause and restart. No block/entity edits;
+fixture-only ticket removed, server stopped. Main disposable remains schema98:
+173 prior tables,163 exact, ten ordinary clock/capture/same-field observation
+tables changed; one normal age month, identical resident identities/status and
+exact corresponding ages. Integrity/FKs/config/capture clean; private grant/job/
+habitat/selection/history and9500 conserved remaining cash verified. Original port
+restored, helper archived, backups/audit retained. Native helper's old schema70
+assertion updated to98; an initial private-class compile reference was corrected
+before any server setup, without exposing application internals.
+
+No migration or human-server/main change. Full hosted verification follows push.
+P3 remains76.4% partial,1/4 whole groups; livestock startup allocation and broader
+specialization acceptance remain. No new design answer required.
+
 ## Latest verified batch - marker workplaces share protected startup selection
 
 Connected the four existing qualified marker adapters (blacksmith, warehouse,
