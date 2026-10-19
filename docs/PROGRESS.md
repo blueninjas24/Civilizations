@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - WorldEdit changes verified in an isolated server
+
+The optional adapter correctly records placed resources, removed ore and undo.
+Removing one ore block loses only that block's remaining share; placed trees never
+become natural supplies through undo. Unsafe capture pauses resource use. Focused
+build and actual WorldEdit/Paper checks passed; test blocks restored, server stopped.
+Normal startup still keeps the conservative editor guard until the full lifecycle
+and new-terrain connection is verified. P3 remains88.1%,2/4 complete groups.
+
 ## Latest - edited-terrain foundation verified
 
 Your conservative editor rule is approved and recorded. New evidence can record

@@ -1,5 +1,29 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - optional WorldEdit write adapter
+
+Added an explicit-registration adapter for WorldEdit Bukkit7.4.4 (Minecraft26.2,
+Java25), with provided-only API dependency and optional load ordering. It observes
+actual loaded Bukkit block states before/after synchronous editor writes, including
+raw writes and undo. Finite ore/stone/sand and tree changes use the pre-write save
+barrier; unchanged repeats add nothing. Off-thread, unloaded, ambiguous, detached
+or incomplete capture fences both resource histories. It never cancels editor work.
+
+Focused Wrapper clean verify passed8 unit +3 packaged integration checks,21.105s;
+the tightened live-world read then packaged successfully,17.110s. Packaging verifies
+WorldEdit/EngineHub/Guava are not bundled. Actual checksum-verified WorldEdit7.4.4
+and Paper26.2-129 in a fresh marked localhost fixture passed ore removal (only its
+ten-batch share), raw iron placement, finite stone placement/repeat, tree placement/
+undo, unchanged coal and unsupported off-thread fencing. No free goods, money or
+terrain certificates. Both schema99 databases passed integrity/FK checks; all five
+original AIR blocks restored, ticket released, helper archived, server stopped.
+
+Main's existing editor-presence guard is deliberately unchanged and this adapter
+is not yet registered by normal startup: complete lifecycle/generation integration
+is still required before claiming supported editor discovery. No migration or human
+server changes. P3 remains88.1% partial,2/4 whole groups. Next: bounded generation
+event capture and lifecycle-safe use of scoped certificates. No new design question.
+
 ## Latest verified batch - scoped terrain evidence and external-write barrier
 
 Recorded the approved edited-world rule. Schema99 adds one initially empty

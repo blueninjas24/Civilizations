@@ -14,6 +14,18 @@ class DatabaseBackupIT {
     @TempDir
     Path directory;
 
+    @Test void optionalEditorAndItsLibrariesAreNotBundledIntoThePlugin() throws Exception {
+        try(var jar=new java.util.jar.JarFile(System.getProperty("civilizations.packagedJar"))) {
+            assertNotNull(jar.getEntry("com/blueninjas24/civilizations/paper/WorldEditResourceCapture.class"));
+            assertFalse(jar.stream().anyMatch(entry->entry.getName().startsWith("com/sk89q/worldedit/")
+                    ||entry.getName().startsWith("com/google/common/")||entry.getName().startsWith("org/enginehub/")),
+                    "Optional WorldEdit APIs and their libraries must remain provided by the editor plugin");
+            try(var input=jar.getInputStream(jar.getEntry("plugin.yml"))) {
+                assertTrue(new String(input.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8).contains("softdepend: [WorldEdit]"));
+            }
+        }
+    }
+
     @Test
     void packagedJarRunsBackupWithoutPaperOrTestDependencies() throws Exception {
         Path source = directory.resolve("source.db");

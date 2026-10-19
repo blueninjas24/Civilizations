@@ -1,5 +1,22 @@
 # Civilizations Development Log
 
+## 2026-10-19 - verify optional WorldEdit mutation adapter
+
+Added provided-only WorldEdit Bukkit7.4.4 API, soft dependency, explicit-registration
+loaded-world write adapter and guarded native helper. Actual Bukkit before/after
+states confirm resource mutations before owner-queue saves; return values alone
+cannot certify writes. Unchanged repeats are idempotent; raw edits and undo are
+captured; ambiguous/off-thread/detached writes fence both histories. No main guard
+exemption or ordinary registration yet; lifecycle and generated-terrain wiring follow.
+
+Focused clean verify8 unit +3 packaged checks passed21.105s; live-read tightening
+packaged17.110s. Fresh disposable Paper26.2-129 + checksum-verified WorldEdit7.4.4
+passed real edit/raw removal/placement/undo/repeat and off-thread fencing. Removing
+one coal block retired only its10-unit share; other10 retained, zero bonus goods/
+certificates, expected funds preserved. Main/private DB integrity/FKs clean. Restored
+all five AIR fixtures, released ticket, archived helper and stopped server. Existing
+test save, human server and main unchanged. No milestone credit: P3 stays88.1%.
+
 ## Latest verified batch - scoped terrain evidence and external-write barrier
 
 Recorded the approved edited-world rule. Schema99 adds one initially empty
