@@ -45,8 +45,15 @@ public final class AutomaticBusinessResale {
         }
         if(listing.status()!=BusinessSaleListings.Status.OPEN)return save(id,business.ownerId(),"",step,now,"Saved sale offer "+listing.status()+"; accepted terms retained");
         var candidates=new ArrayList<UUID>();String cursor=cursor(id,business.ownerId());
-        try(var s=connection.prepareStatement("SELECT id FROM residents WHERE settlement_id=? AND status='ALIVE' AND id>? ORDER BY id LIMIT ?")) {
-            s.setString(1,business.settlementId().toString());s.setString(2,cursor);s.setInt(3,policy.buyersPerReview());try(var r=s.executeQuery()){while(r.next())candidates.add(UUID.fromString(r.getString(1)));}
+        try(var s=connection.prepareStatement("""
+                SELECT r.id FROM residents r WHERE r.status='ALIVE' AND r.id>?
+                AND (r.settlement_id=? OR (?=1 AND EXISTS(
+                    SELECT 1 FROM settlement_worlds a JOIN settlement_worlds b ON b.world_id=a.world_id
+                    WHERE a.settlement_id=r.settlement_id AND b.settlement_id=?)))
+                ORDER BY r.id LIMIT ?
+                """)) {
+            s.setString(1,cursor);s.setString(2,business.settlementId().toString());s.setBoolean(3,funding.crossVillagePurchases());
+            s.setString(4,business.settlementId().toString());s.setInt(5,policy.buyersPerReview());try(var r=s.executeQuery()){while(r.next())candidates.add(UUID.fromString(r.getString(1)));}
         }
         if(candidates.isEmpty()&&!cursor.isEmpty())return save(id,business.ownerId(),"",step,now,"Buyer page wrapped; saved offer/funds retained");
         String next=candidates.isEmpty()?"":candidates.getLast().toString();
@@ -55,8 +62,8 @@ public final class AutomaticBusinessResale {
         int qualified=0;
         var succession=new BusinessSuccession(connection);var sales=new BusinessSales(connection,funding);
         for(var buyer:candidates) {
-            if(!succession.qualifiedBuyer(buyer,id))continue;qualified++;
-            var source=businessSource(buyer,business.settlementId(),id);var estate=estateSource(buyer,business.ownerId());
+            if(!succession.qualifiedBuyer(buyer,id,funding.crossVillagePurchases()))continue;qualified++;
+            var source=businessSource(buyer,business.settlementId(),id);var estate=estateSource(buyer,business.ownerId(),business.settlementId());
             long estateAvailable=estate==null?0:funding.estateAvailable(estate.cash());
             long estateAmount=Math.min(listing.price(),estateAvailable),cashAmount=listing.price()-estateAmount;
             if(cashAmount>0&&(source==null||funding.businessAvailable(source.cash())<cashAmount))continue;
@@ -71,23 +78,29 @@ public final class AutomaticBusinessResale {
     private Source businessSource(UUID buyer,UUID town,UUID target)throws SQLException {
         try(var s=connection.prepareStatement("""
             SELECT b.id,s.hundredths FROM businesses b JOIN industry_stores s ON s.business_id=b.id
-            WHERE b.owner_id=? AND b.settlement_id=? AND b.id<>?
+            WHERE b.owner_id=? AND (b.settlement_id=? OR (?=1 AND EXISTS(
+                SELECT 1 FROM settlement_worlds a JOIN settlement_worlds t ON t.world_id=a.world_id
+                WHERE a.settlement_id=b.settlement_id AND t.settlement_id=?))) AND b.id<>?
             AND NOT EXISTS(SELECT 1 FROM business_closures c WHERE c.business_id=b.id)
             AND NOT EXISTS(SELECT 1 FROM business_sale_listings l WHERE l.business_id=b.id AND l.seller_id=b.owner_id AND l.status='EXPIRED')
             ORDER BY s.hundredths DESC,b.id LIMIT 1
             """)) {
-            s.setString(1,buyer.toString());s.setString(2,town.toString());s.setString(3,target.toString());try(var r=s.executeQuery()){return r.next()?new Source(UUID.fromString(r.getString(1)),r.getLong(2)):null;}
+            s.setString(1,buyer.toString());s.setString(2,town.toString());s.setBoolean(3,funding.crossVillagePurchases());
+            s.setString(4,town.toString());s.setString(5,target.toString());try(var r=s.executeQuery()){return r.next()?new Source(UUID.fromString(r.getString(1)),r.getLong(2)):null;}
         }
     }
-    private Source estateSource(UUID buyer,UUID seller)throws SQLException {
+    private Source estateSource(UUID buyer,UUID seller,UUID town)throws SQLException {
         try(var s=connection.prepareStatement("""
             SELECT e.decedent_id,e.hundredths FROM family_estates e WHERE e.decedent_id<>?
+            AND (?=0 OR EXISTS(SELECT 1 FROM residents d JOIN settlement_worlds a ON a.settlement_id=d.settlement_id
+                JOIN settlement_worlds b ON b.world_id=a.world_id WHERE d.id=e.decedent_id AND b.settlement_id=?))
             AND (EXISTS(SELECT 1 FROM family_ties f WHERE (f.first_id=? AND f.second_id=e.decedent_id) OR (f.second_id=? AND f.first_id=e.decedent_id))
                 OR EXISTS(SELECT 1 FROM family_ties a JOIN family_ties b ON a.first_id=b.first_id
                     WHERE a.type='PARENT_CHILD' AND b.type='PARENT_CHILD' AND a.second_id=? AND b.second_id=e.decedent_id AND a.second_id<>b.second_id))
             ORDER BY e.hundredths DESC,e.decedent_id LIMIT 1
             """)) {
-            s.setString(1,seller.toString());for(int i=2;i<=4;i++)s.setString(i,buyer.toString());try(var r=s.executeQuery()){return r.next()?new Source(UUID.fromString(r.getString(1)),r.getLong(2)):null;}
+            s.setString(1,seller.toString());s.setBoolean(2,funding.crossVillagePurchases());s.setString(3,town.toString());
+            for(int i=4;i<=6;i++)s.setString(i,buyer.toString());try(var r=s.executeQuery()){return r.next()?new Source(UUID.fromString(r.getString(1)),r.getLong(2)):null;}
         }
     }
     private long rank(UUID business,UUID seller,UUID buyer){return UUID.nameUUIDFromBytes((seed+":"+business+":"+seller+":"+buyer).getBytes(java.nio.charset.StandardCharsets.UTF_8)).getMostSignificantBits();}

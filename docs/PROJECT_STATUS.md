@@ -1,5 +1,30 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - qualified ownership across villages and craft defaults
+
+The user approved same-world cross-village acquisition and delegated remaining P3
+prototype decisions. Qualified buyers can now fund an existing branch with real
+owned business cash/eligible estate money. Local jobs, stock, accounts, deliveries
+and founding history remain; acquisition creates no shipping or extra worker job.
+Runtime/staffing/competition recognize valid remote ownership. Qualified family
+can inherit a saved branch. Old files opt in with the new funding key; new files
+enable it. Different-world/disabled purchases, failed payments, replay and family
+succession are covered by three new temporary-database cases. No schema change.
+
+The general craftsman now bundles two editable fitting recipes for actual funded
+business storage customers. Household furnishings await actual construction demand
+in Phase4; no fictional household spending is added to complete a catalogue.
+See BUSINESS_PORTFOLIOS.md and PROCESSING_WORKSHOPS.md. The initial craft entry is
+complete; combined catalogue/native and editor certification gates remain.
+
+Affected178 unit cases pass across the focused run and targeted corrections/reruns;
+the successful reruns also passed all3 packaged integration checks. The first run
+caught a missing fixture treasury and an outdated legacy-recipe test expectation;
+both were fixed. Cross-village rerun15.358s; defaults rerun16.900s. Previous source
+commit3b29bd3 has confirmed successful Windows/Linux hosted checks. This is not yet
+a full-suite result for the new batch. P3 is88.7% partial,2/4 whole groups.
+Main and the human server remain untouched. Combined acceptance work continues.
+
 ## Latest verified follow-up - retain accepted shutdown observations
 
 Hosted Linux found one PopulationSessionTest error after scoped live wiring: public

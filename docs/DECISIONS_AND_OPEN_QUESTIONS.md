@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October19 - cross-village purchases and remaining P3 defaults: approved
+
+User answered "Yes absolutely" to qualified same-world purchases of existing
+businesses in other villages with real business/estate funds, separate local
+employees/goods/accounts, retained operating reserves and no automatic shipping.
+User also delegated the remaining P3 decisions to the recommended approach without
+further questions. Record configurable prototype rules and their reasons here;
+preserve locked design, world safety, clean main and Phase4/5 boundaries. This
+approval does not count implementation or acceptance gates as completed.
+
 ## October19 - qualified purchases between villages: awaiting answer
 
 Unlimited qualified ownership is already approved. MASTER_DESIGN.md also plans rare

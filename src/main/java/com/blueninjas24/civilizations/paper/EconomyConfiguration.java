@@ -311,9 +311,16 @@ public final class EconomyConfiguration {
     public static com.blueninjas24.civilizations.industry.BusinessPurchasePolicy readBusinessPurchasePolicy(ConfigurationSection config) {
         if(!config.contains("business-resale-funding"))return com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled();
         var s=section(config,"business-resale-funding");
-        exactKeys(s,Set.of("minimum-retained-business-cash-hundredths","maximum-spare-business-percent","maximum-estate-percent"));
+        var allowed=new java.util.HashSet<>(Set.of("minimum-retained-business-cash-hundredths","maximum-spare-business-percent","maximum-estate-percent"));
+        if(s.contains("allow-cross-village-purchases"))allowed.add("allow-cross-village-purchases");
+        exactKeys(s,allowed);
+        boolean cross=false;
+        if(s.contains("allow-cross-village-purchases")) {
+            if(!(s.get("allow-cross-village-purchases") instanceof Boolean value))throw new IllegalArgumentException("allow-cross-village-purchases must be true or false");
+            cross=value;
+        }
         return new com.blueninjas24.civilizations.industry.BusinessPurchasePolicy(integer(s,"minimum-retained-business-cash-hundredths"),
-                smallInteger(s,"maximum-spare-business-percent"),smallInteger(s,"maximum-estate-percent"));
+                smallInteger(s,"maximum-spare-business-percent"),smallInteger(s,"maximum-estate-percent"),cross);
     }
     public static com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy readWarehouseFounding(ConfigurationSection config) {
         if(!config.contains("warehouse-founding"))return com.blueninjas24.civilizations.industry.WarehouseFoundingPolicy.disabled();

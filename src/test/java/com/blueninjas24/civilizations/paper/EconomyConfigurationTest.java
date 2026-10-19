@@ -20,7 +20,7 @@ class EconomyConfigurationTest {
         assertEquals(0,EconomyConfiguration.read(c).startingReserves(10).get(new Commodity("grain")));
         c.set("bakery-founding.founder-baking-experience",20);assertEquals(20,EconomyConfiguration.readBakeryFounding(c).founderExperience());
         c.set("bakery-opportunities.capital-hundredths",3000);assertEquals(3000,EconomyConfiguration.readBakeryOpportunities(c).capitalHundredths());EconomyConfiguration.read(c);
-        c.set("bakery-founding",null);c.set("bakery-opportunities",null);c.set("recipes.bakery_bread",null);c.set("recipes.bakery_cake",null);c.set("recipes.craft_storage_fittings",null);
+        c.set("bakery-founding",null);c.set("bakery-opportunities",null);c.set("recipes.bakery_bread",null);c.set("recipes.bakery_cake",null);c.set("recipes.craft_storage_fittings",null);c.set("recipes.craft_storage_fittings_stone",null);
         assertFalse(EconomyConfiguration.readBakeryFounding(c).enabled());assertFalse(EconomyConfiguration.readBakeryOpportunities(c).enabled());assertEquals(Set.of("smith_tools"),EconomyConfiguration.readRecipes(c).keySet());EconomyConfiguration.read(c);
     }
     @Test void invalidBakeryTermsFailBeforeDatabaseStartup()throws Exception {
@@ -240,6 +240,10 @@ class EconomyConfigurationTest {
         var config=defaults();assertEquals(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.prototype(),EconomyConfiguration.readBusinessPurchasePolicy(config));
         config.set("business-resale-funding.maximum-spare-business-percent",50);EconomyConfiguration.read(config);
         assertEquals(2500,EconomyConfiguration.readBusinessPurchasePolicy(config).businessAvailable(6000));
+        config.set("business-resale-funding.allow-cross-village-purchases",null);
+        assertFalse(EconomyConfiguration.readBusinessPurchasePolicy(config).crossVillagePurchases());
+        config.set("business-resale-funding.allow-cross-village-purchases","yes");
+        assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readBusinessPurchasePolicy(config));
         config.set("business-resale-funding",null);EconomyConfiguration.read(config);
         assertEquals(com.blueninjas24.civilizations.industry.BusinessPurchasePolicy.disabled(),EconomyConfiguration.readBusinessPurchasePolicy(config));
     }

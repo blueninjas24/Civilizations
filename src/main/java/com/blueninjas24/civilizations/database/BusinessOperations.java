@@ -21,8 +21,8 @@ public final class BusinessOperations {
         if(WorkplaceOperations.paused(connection,id))return new Availability(false,"Paused: workplace marker missing; restore the same saved anchor; assets/history retained");
         var b=businesses.findBusiness(id).orElseThrow(()->new SQLException("Unknown operating business"));
         var owner=population.findResident(b.ownerId()).orElseThrow(()->new SQLException("Missing business owner"));
-        if(owner.status()==Resident.Status.ALIVE&&owner.settlementId().equals(b.settlementId()))
-            return new Availability(true,"Living local owner");
+        if(BusinessOwnerScope.available(connection,owner,b))
+            return new Availability(true,"Living owner in the same world; workplace and employees remain local");
         if(owner.status()!=Resident.Status.DECEASED||!policy.enabled()||!policy.continueStaffedAfterOwnerDeath())
             return new Availability(false,"Paused: owner unavailable; inheritance not assumed");
         var requirements=businesses.findFounding(id).orElseThrow().workerRequirements();

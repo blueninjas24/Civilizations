@@ -2,16 +2,24 @@ package com.blueninjas24.civilizations.paper;
 import com.blueninjas24.civilizations.industry.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
+import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 class CraftsmanConfigurationTest {
     YamlConfiguration config(){return YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8));}
     @Test void multipleCraftRecipesAreReadWithoutRewritingSettingsOrRelaxingOtherIndustryLimits() {
         var c=config();
-        c.set("recipes.z_stone_fittings.industry","craftsman");c.set("recipes.z_stone_fittings.inputs.stone",3);
-        c.set("recipes.z_stone_fittings.outputs.storage_fittings",1);c.set("recipes.z_stone_fittings.batches-per-worker",1);c.set("recipes.z_stone_fittings.site-batch-capacity",4);
+        var baseline=c.getConfigurationSection("recipes.craft_storage_fittings");var stone=c.getConfigurationSection("recipes.craft_storage_fittings_stone");
+        assertNotNull(baseline);assertNotNull(stone);
+        assertEquals("craftsman",stone.getString("industry"));assertEquals(3,stone.getInt("inputs.stone"));
+        assertEquals(1,stone.getInt("outputs.storage_fittings"));assertEquals(1,stone.getInt("batches-per-worker"));assertEquals(4,stone.getInt("site-batch-capacity"));
         var before=c.saveToString();var policy=EconomyConfiguration.readIndustryRuntime(c);
-        assertEquals(2,policy.recipes().values().stream().filter(r->r.industry().equals("craftsman")).count());assertEquals(before,c.saveToString());
-        c.set("recipes.z_stone_fittings.industry","blacksmith");assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readIndustryRuntime(c));
+        assertEquals(2,policy.recipes().values().stream().filter(r->r.industry().equals("craftsman")).count());
+        assertEquals(Set.of("craft_storage_fittings","craft_storage_fittings_stone"),policy.recipes().values().stream().filter(r->r.industry().equals("craftsman")).map(ProductionRecipe::id).collect(java.util.stream.Collectors.toSet()));
+        assertEquals(before,c.saveToString());
+        c.set("recipes.craft_storage_fittings_stone.inputs.stone",4);
+        assertEquals(4,EconomyConfiguration.readIndustryRuntime(c).recipes().get("craft_storage_fittings_stone").inputs().get(new com.blueninjas24.civilizations.economy.Commodity("stone")));
+        c.set("recipes.craft_storage_fittings_stone.industry","blacksmith");
+        assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readIndustryRuntime(c));
     }
     @Test void explicitEditablePrototypeAndMissingInstalledSectionsRemainUnchanged() {
         var c=config();EconomyConfiguration.read(c);assertEquals(WorkshopFoundingPolicy.prototype(),EconomyConfiguration.readCraftsmanFounding(c));assertEquals(WorkshopOpportunityPolicy.prototype(),EconomyConfiguration.readCraftsmanOpportunities(c));

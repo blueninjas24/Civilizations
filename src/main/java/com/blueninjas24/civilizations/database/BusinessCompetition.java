@@ -72,7 +72,7 @@ public final class BusinessCompetition {
         for(var firm:workforce.firms()) {
             if(!firm.available()||firm.vacancies()==0||firm.qualifiedIdleCandidates()==0||!staffing.industries().contains(firm.industry()))continue;
             var saved=firms.findBusiness(firm.id()).orElseThrow();var owner=people.findResident(saved.ownerId()).orElseThrow();
-            if(step<saved.foundedStep()||owner.status()!=Resident.Status.ALIVE||!owner.settlementId().equals(town))continue;
+            if(step<saved.foundedStep()||!BusinessOwnerScope.available(c,owner,saved))continue;
             var outputs=outputs(firm.id(),saved.siteId(),firm.industry());if(outputs.isEmpty())continue;
             long value=0;
             for(var good:outputs) {

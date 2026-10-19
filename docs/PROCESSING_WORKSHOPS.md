@@ -1,5 +1,22 @@
 # Processing workshops — bakeries and general craftsman
 
+## Current Phase 3 craft scope
+
+The new-file recipe catalogue now includes two editable general-craftsman
+recipes for storage fittings: the baseline consumes three timber and one stone;
+the alternate consumes three stone. Both make the same useful product for the
+existing real, funded business storage-upgrade customers. The baseline recipe ID
+sorts first and remains preferred when its owned inputs and storage permit work;
+the alternate is available when the baseline cannot work. These defaults add no
+customers or money. Existing installed economy files are never rewritten, so
+administrators must opt in by editing their own recipe catalogue if desired.
+
+This completes the initial general-workshop scope: one general craft industry,
+multiple editable useful recipes and actual business demand. Household
+furnishings and physical furniture construction are not implemented. Household
+non-food purchasing would need a real household demand/accounting path; physical
+construction and furnishing projects belong to Phase 4.
+
 ## Latest - several recipes in the same general workshop
 
 Admins may now add several `industry: craftsman` entries under `recipes` in
@@ -10,12 +27,11 @@ review of affordable real warehouse stock. The supported baseline remains the
 fallback for normal input planning. No incoming item is usable before delivery.
 A recipe selects work, not a guaranteed finished-goods customer.
 
-For example, this optional alternative can accompany `craft_storage_fittings`:
+The bundled defaults include an alternate stone-based fitting recipe:
 
 ```yaml
 recipes:
-  # Keep your other existing entries here. Do not add a second recipes: section.
-  z_stone_fittings:
+  craft_storage_fittings_stone:
     industry: craftsman
     inputs:
       stone: 3
@@ -25,15 +41,17 @@ recipes:
     site-batch-capacity: 4
 ```
 
-This is an optional abstract fitting recipe, not a default balance change or a
-physical chest. Startup can choose it when timber is unavailable, provided actual
-fitting customers, protected public surplus, qualification, prices, funding and
-marker checks pass. Runtime buys only actual offered warehouse goods with its
-own money. Product/ingredient storage sizes and prices still need explicit setup.
+This is an abstract fitting recipe, not a physical chest. Its shorter baseline
+recipe ID sorts first, so normal work still prefers the timber-and-stone recipe
+when it can proceed; the alternate covers actual fitting customers when only
+stone inputs are available. Automatic startup still requires actual fitting
+customers, protected public surplus, qualification, prices, funding and marker
+checks. Runtime buys only actual offered warehouse goods with its own money.
+Product/ingredient storage sizes and prices still need explicit setup.
 Old saved catalogues stay fixed; adding an unsupported new product does not grant
 space or stock. Wider furniture products, household purchasing and physical
 construction remain separate work. Final temporary-database and isolated Paper
-verification is recorded in PROJECT_STATUS/DEVLOG; schema remains98.
+verification is recorded in PROJECT_STATUS/DEVLOG; the recipe update adds no migration.
 
 ## October16 — gradual first-craftsman study and productive work learning
 

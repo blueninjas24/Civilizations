@@ -370,6 +370,9 @@ business-operations:
 # Set both percentages to 0 to forbid new purchases. No grants or personal wallets.
 # Existing files without this complete section disable new purchases; accepted history remains.
 business-resale-funding:
+  # Same-world ownership only; workers, goods and accounts stay at each business.
+  # Older files without this key keep local-only purchases. No goods shipping.
+  allow-cross-village-purchases: true
   minimum-retained-business-cash-hundredths: 1000
   maximum-spare-business-percent: 25
   maximum-estate-percent: 100
@@ -401,6 +404,16 @@ recipes:
     inputs:
       timber: 3
       stone: 1
+    outputs:
+      storage_fittings: 1
+    batches-per-worker: 1
+    site-batch-capacity: 4
+  craft_storage_fittings_stone:
+    # Alternate input route for the same real business upgrade customers.
+    # The baseline recipe sorts first and remains preferred when its inputs work.
+    industry: craftsman
+    inputs:
+      stone: 3
     outputs:
       storage_fittings: 1
     batches-per-worker: 1

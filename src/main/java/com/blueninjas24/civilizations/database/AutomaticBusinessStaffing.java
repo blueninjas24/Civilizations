@@ -35,7 +35,7 @@ public final class AutomaticBusinessStaffing {
             if(!policy.industries().contains(b.industry()))reason="Industry outside automatic hiring policy";
             else if(step<b.foundedStep())reason="Hiring cannot predate saved founding";
             else if(BusinessClosure.blocked(connection,business))reason="Closed or sale deadline expired; no hires";
-            else if(owner.status()!=Resident.Status.ALIVE||!owner.settlementId().equals(b.settlementId()))reason="Owner unavailable; existing staff only until succession/sale";
+            else if(!BusinessOwnerScope.available(connection,owner,b))reason="Owner unavailable; existing staff only until succession/sale";
             else {
                 int assigned;
                 try(var s=connection.prepareStatement("SELECT COUNT(*) FROM business_employment WHERE business_id=? AND ended_step IS NULL")) {
@@ -61,7 +61,7 @@ public final class AutomaticBusinessStaffing {
                         businesses.hireRows(operation,business,candidate,step);
                         try(var s=connection.prepareStatement("INSERT INTO business_hiring_reviews VALUES(?,?,?)")) {
                             s.setString(1,operation.toString());s.setString(2,policy.toString());
-                            s.setString(3,"Living local owner "+b.ownerId()+"; qualified unemployed local resident fills actual vacancy; requirements "+requirements);s.executeUpdate();
+                            s.setString(3,"Living same-world owner "+b.ownerId()+"; qualified unemployed local resident fills actual vacancy; requirements "+requirements);s.executeUpdate();
                         }
                         if(++hired>=Math.min(vacancies,policy.hiresPerReview()))break;
                     }

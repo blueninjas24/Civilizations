@@ -60,17 +60,22 @@ public final class BusinessSales {
             throw new Declined("Sale requires the current deceased owner");
         if(q.step()<target.foundedStep()||q.step()<lastTransferStep(q.business()))throw new SQLException("Sale predates ownership history");
         if(succession.candidate(q.business()).isPresent())throw new Declined("Qualified successor takes priority over resale");
-        if(!succession.qualifiedBuyer(q.buyer(),q.business()))throw new Declined("Buyer is not eligible for this industry");
+        if(!succession.qualifiedBuyer(q.buyer(),q.business(),policy.crossVillagePurchases()))throw new Declined("Buyer is not eligible for this industry or purchase scope");
         long beforeBusiness=0,beforeEstate=0;
         if(q.cashSource()!=null) {
             var payer=businesses.findBusiness(q.cashSource()).orElseThrow(()->new SQLException("Unknown buyer business"));
-            if(!payer.ownerId().equals(q.buyer())||!payer.settlementId().equals(target.settlementId()))
-                throw new Declined("Buyer does not own a local funding business");
+            if(!payer.ownerId().equals(q.buyer())
+                    ||(!policy.crossVillagePurchases()&&!payer.settlementId().equals(target.settlementId()))
+                    ||!BusinessOwnerScope.sameWorld(connection,payer.settlementId(),target.settlementId()))
+                throw new Declined("Buyer does not own a funding business within the permitted world/scope");
             beforeBusiness=new IndustryRepository(connection).store(q.cashSource()).orElseThrow(()->new Declined("Buyer business has no cash account")).hundredths();
             if(q.cashAmount()>policy.businessAvailable(beforeBusiness))throw new Declined("Business funding limit or retained cash prevents purchase");
         }
         if(q.estateSource()!=null) {
             if(!familyMember(q.buyer(),q.estateSource()))throw new Declined("Buyer cannot spend an unrelated family estate");
+            var estateOwner=population.findResident(q.estateSource()).orElseThrow(()->new Declined("Unknown estate family"));
+            if(policy.crossVillagePurchases()&&!BusinessOwnerScope.sameWorld(connection,estateOwner.settlementId(),target.settlementId()))
+                throw new Declined("Estate funds belong to another world");
             beforeEstate=estate(q.estateSource()).orElseThrow(()->new Declined("Buyer estate does not exist"));
             if(q.estateAmount()>policy.estateAvailable(beforeEstate))throw new Declined("Estate funding limit or balance prevents purchase");
         }

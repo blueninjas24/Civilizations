@@ -1,5 +1,24 @@
 # Civilizations Development Log
 
+## 2026-10-19 - real paid branch ownership and initial craft catalogue
+
+Approved same-world cross-village purchases now use qualified buyers and actual
+owned business/eligible estate cash, preserving local employees, stock, accounts,
+shipments and founder history. Runtime/staffing/competition allow valid remote
+owners; qualified family succession preserves the branch. Missing old YAML key
+remains local-only; new defaults enable purchases. No migration or regional shipping.
+Added3 temporary SQLite cases covering automatic payment, world/scope refusal,
+failure rollback, replay and inheritance. General craft defaults add alternate
+stone fittings alongside timber/stone, using real business storage customers;
+no invented household purchases before Phase4 construction.
+
+Affected178 unit checks pass across focused run/corrections; successful reruns
+also passed3 packaged integrations (ownership15.358s, defaults16.900s). Corrected
+fixture treasury setup and legacy catalogue expectation; no failed case hidden.
+Previous3b29bd3 hosted Windows/Linux success confirmed. New batch full CI pending.
+P3 initial craft gate complete,88.7% partial/2 complete groups; remaining acceptance
+continues. Human server and main untouched; schema99 unchanged.
+
 ## 2026-10-19 - fix accepted shutdown-drain regression
 
 Hosted Linux caught one existing PopulationSession shutdown-drain case after live

@@ -1,5 +1,20 @@
 # Business storage fittings — Phase 3
 
+## General craftsman product and demand scope
+
+The general craftsman now has two editable new-file recipes for the same
+storage-fitting product: three timber plus one stone, or three stone. Both serve
+the actual funded business storage-upgrade demand described below. The baseline
+recipe ID sorts first and is preferred when its real inputs and storage permit
+production; the alternate gives the business another viable input route. These
+are abstract goods and existing-capacity improvements, not household furnishings
+or physical construction. Existing server configuration files are never rewritten
+to add either recipe.
+
+This satisfies the initial Phase 3 craft-workshop scope of editable useful
+recipes and real business customers. Household furnishing purchases need a real
+household demand/accounting path; physical furniture projects remain Phase 4 work.
+
 Businesses can buy actual craftsman-made fittings to increase the usable capacity
 of an existing stockroom. This is the approved limited upgrade rule, not physical
 building construction or permission to change player blocks. Gradual first-owner training and qualified automatic founding are now connected.

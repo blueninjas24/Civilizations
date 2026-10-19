@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - businesses can acquire a branch in another village
+
+A qualified owner can pay real money for an existing same-world business. Its
+workers and supplies stay local; nobody gains a second job or free transport.
+Failed payments undo the whole purchase. The general craftsman also has two
+editable ways to make useful storage fittings for paying businesses. Focused
+checks pass; combined industry/editor acceptance continues. P3 is88.7% partial,
+2/4 complete groups. Previous feature commit passed Windows and Linux CI.
+
 ## Latest - shutdown saving corrected; one business-expansion decision pending
 
 The broader hosted run caught an already-accepted observation being refused during

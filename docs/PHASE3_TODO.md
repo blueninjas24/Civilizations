@@ -1,5 +1,15 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - cross-village ownership and initial craft scope verified
+
+Real paid same-world branch acquisition retains local workers, goods and accounts;
+qualification, reserve limits, failed-save rollback, replay and family succession
+pass. One general craft occupation now has two editable fitting recipes and actual
+funded business customers; furniture/household construction demand remains Phase4.
+Affected178 unit checks and3 packaged integrations pass across focused reruns.
+The craft entry is completed; combined/native and editor gates remain open.
+P3 is88.7% partial,2/4 whole groups. No migration or human server/main changes.
+
 ## Latest - scoped new-terrain runtime verified
 
 Positive generation now feeds the ordinary ore scanner's owner-queue preflight,
@@ -1382,8 +1392,10 @@ unimplemented; no instant profession conversion. See COMMERCE_LEARNING.md.
       operation; no assumed animals, forced chunks or duplicate physical herds.
 - [x] Connected bakeries with real grain/egg/milk ingredients, appropriate recipes,
       qualified staff, owned stock, actual purchases and collective food customers.
-- [ ] One general craft workshop with editable useful recipes and actual household/
-      business demand; specialized craft occupations deferred.
+- [x] One general craft workshop with editable useful recipes and actual household/
+      business demand; specialized craft occupations deferred. Two fitting recipes
+      serve real paid business storage upgrades; household furnishings await real
+      Phase4 projects rather than fictional P3 purchases.
 
 - [x] Finite geological reserves, shared ore/rock work, bounded business storage.
 - [x] Paid local warehouse transactions and unavailable-until-delivered cargo.

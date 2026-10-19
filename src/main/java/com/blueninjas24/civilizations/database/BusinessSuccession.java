@@ -72,12 +72,17 @@ public final class BusinessSuccession {
         return Optional.empty();
     }
     boolean qualifiedBuyer(UUID resident,UUID business)throws SQLException {
+        return qualifiedBuyer(resident,business,false);
+    }
+    boolean qualifiedBuyer(UUID resident,UUID business,boolean crossVillage)throws SQLException {
         var b=businesses.findBusiness(business).orElseThrow(()->new SQLException("Unknown business"));
+        var person=population.findResident(resident).orElseThrow(()->new SQLException("Unknown buyer"));
+        if(!crossVillage&&!person.settlementId().equals(b.settlementId()))return false;
         return qualified(resident,b,businesses.findFounding(business).orElseThrow().founderRequirements());
     }
     private boolean qualified(UUID candidate,Business business,JobRequirements requirements)throws SQLException {
         var person=population.findResident(candidate).orElseThrow(()->new SQLException("Missing succession family member"));
-        if(!person.settlementId().equals(business.settlementId())
+        if(!BusinessOwnerScope.sameWorld(connection,person.settlementId(),business.settlementId())
                 ||!WorkEligibility.evaluate(person,population.findWorkProfile(candidate).orElseThrow(),requirements).eligible())return false;
         // Inheritance does not silently abandon an existing occupation in another industry.
         try(var s=connection.prepareStatement("SELECT 1 FROM business_employment e JOIN businesses b ON b.id=e.business_id WHERE e.resident_id=? AND e.ended_step IS NULL AND b.industry<>? LIMIT 1")) {

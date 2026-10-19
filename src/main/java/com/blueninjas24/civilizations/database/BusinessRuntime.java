@@ -98,7 +98,8 @@ public final class BusinessRuntime {
                 s.setString(1,b.ownerId().toString());s.setString(2,b.founderId().toString());
                 try(var r=s.executeQuery()) {
                     if(!r.next())throw new SQLException("Business resident identity missing");
-                    founder=r.getString(1);owner=r.getString(2);available=r.getString(3).equals("ALIVE") && r.getString(4).equals(b.settlementId().toString());
+                    founder=r.getString(1);owner=r.getString(2);available=r.getString(3).equals("ALIVE")
+                            &&BusinessOwnerScope.sameWorld(connection,UUID.fromString(r.getString(4)),b.settlementId());
                 }
             }
             var view=new View(id,b.settlementId(),site.worldId(),b.name(),b.industry(),founder,owner,available,b.workerCapacity(),
