@@ -9,6 +9,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OreEditorGuardTest {
+    @Test void registeredPinnedEditorExemptionNeverExemptsAnotherEditorOrAChangedBoot() {
+        var gaps=new ArrayList<String>();var pinned=plugin("WorldEdit");
+        var active=new java.util.concurrent.atomic.AtomicBoolean(true);
+        var guard=new OreEditorGuard(gaps::add,Logger.getAnonymousLogger(),List.of(),p->p==pinned&&active.get());
+        guard.inspectInstalled(List.of(pinned));assertTrue(gaps.isEmpty());
+        guard.inspectInstalled(List.of(plugin("VoxelSniper")));assertEquals(1,gaps.size());
+        gaps.clear();active.set(false);
+        var restarted=new OreEditorGuard(gaps::add,Logger.getAnonymousLogger(),List.of(),p->p==pinned&&active.get());
+        restarted.inspectInstalled(List.of(pinned));assertEquals(1,gaps.size());
+    }
     private static Plugin plugin(String name) {
         return (Plugin) Proxy.newProxyInstance(Plugin.class.getClassLoader(), new Class<?>[]{Plugin.class}, (p,m,a) -> {
             if (m.getName().equals("getName")) return name;

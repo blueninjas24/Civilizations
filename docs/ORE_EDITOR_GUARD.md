@@ -2,11 +2,14 @@
 
 ## Current integration status (October19)
 
-The normal presence fence below remains active. An optional explicit-registration
-WorldEdit Bukkit7.4.4 adapter now has a provided-only API dependency and was verified
-with actual edits, raw placements, ore removal, undo and failure fencing on isolated
-Paper26.2-129. It is not yet registered by ordinary plugin startup; unsupported
-editors, later enable and uncertain lifecycle coverage still fence current capture.
+The conservative presence fence remains for unsupported editors. Normal startup
+now registers the narrow WorldEdit Bukkit7.4.4+7546-f9e033f adapter when that exact
+enabled version is present without FAWE. Every such startup quarantines all earlier
+terrain because queued onLoad chunk deletion precedes capture. Only actual new
+generation under healthy current capture can qualify automatically. Unsupported
+commands, bound tools, versions, late enable and uncertain lifecycle coverage fence
+capture. Actual isolated Paper startup/fresh generation/edit/raw placement/removal/
+undo checks passed. See WORLDEDIT_CAPTURE.md for the complete supported boundary.
 
 Schema99 stores positive new-generation evidence for exact world/chunks/resource
 kinds and healthy capture epochs. Older chunks are never backfilled. Normal new-
@@ -14,11 +17,13 @@ chunk observation is bounded and never loads chunks. Scoped SQL authorization
 requires all resource supports, appropriate observation times and current capture;
 placed/removed exclusions and explicit old-resource recovery are retained. A clean
 restart preserves certificates; a capture gap revokes them without deleting history.
-The live new-terrain scanner/startup path is being verified independently of editor
+The live new-terrain scanner/startup path is verified with the guarded editor
 lifecycle. These additions do not certify arbitrary plugin writes, offline edits,
 hot reload or older WorldEdit history. See PROJECT_STATUS.md for current checks.
 
-The historical implementation/verification notes below describe the original fence.
+The historical implementation/verification notes below describe the original fence
+and the earlier lifecycle blocker; the bootstrap quarantine above resolves that
+blocker without certifying older terrain.
 
 Lifecycle audit of the checksum-verified7.4.4 runtime confirmed onLoad may invoke
 `ChunkDeleter.runFromFile` for queued chunk deletions. This bypasses EditSession

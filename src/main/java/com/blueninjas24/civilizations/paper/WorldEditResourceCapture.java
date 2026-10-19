@@ -17,31 +17,76 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+import org.bukkit.plugin.Plugin;
 
 /** Optional, explicit-registration adapter. Installing it never certifies earlier editor history. */
 public final class WorldEditResourceCapture implements AutoCloseable {
     private final PopulationSession session;
     private final Logger logger;
     private final AtomicBoolean registered=new AtomicBoolean(),failed=new AtomicBoolean();
+    private volatile Plugin registeredPlugin;
+    private volatile boolean legacyHistoryQuarantined;
 
     public WorldEditResourceCapture(PopulationSession session,Logger logger) {
         this.session=Objects.requireNonNull(session);this.logger=Objects.requireNonNull(logger);
     }
 
-    public void register() {
+    /**
+     * Install only after the caller has independently fenced legacy resource history.
+     * This adapter cannot establish what happened before its listener became active.
+     */
+    public void register(boolean legacyHistoryQuarantined) {
         if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Register WorldEdit capture on the server thread");
         var plugin=Bukkit.getPluginManager().getPlugin("WorldEdit");
-        if(plugin==null||!plugin.isEnabled()||Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit")!=null
-                ||!plugin.getPluginMeta().getVersion().matches("7\\.4\\.4(?:[+\\-].*)?"))
-            throw new IllegalStateException("Resource capture currently targets the verified WorldEdit 7.4.4 Bukkit adapter only");
+        boolean fastAsyncWorldEditPresent=Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit")!=null;
+        if(!WorldEditCapturePolicy.supportsPlugin(plugin,fastAsyncWorldEditPresent))
+            throw new IllegalStateException("Resource capture requires the checksum-verified WorldEdit 7.4.4+7546-f9e033f Bukkit runtime without FastAsyncWorldEdit");
+        if(!legacyHistoryQuarantined)
+            throw new IllegalStateException("Legacy ore and forest history must remain untrusted before WorldEdit capture starts");
         if(!registered.compareAndSet(false,true))throw new IllegalStateException("WorldEdit capture already registered");
-        try {WorldEdit.getInstance().getEventBus().register(this);}
-        catch(RuntimeException|LinkageError failure){registered.set(false);failClosed("WorldEdit hook registration failed");throw failure;}
+        try {
+            this.registeredPlugin=plugin;
+            this.legacyHistoryQuarantined=true;
+            WorldEdit.getInstance().getEventBus().register(this);
+        } catch(RuntimeException|LinkageError failure){registered.set(false);registeredPlugin=null;this.legacyHistoryQuarantined=false;failClosed("WorldEdit hook registration failed");throw failure;}
+    }
+
+    /** Compatibility check used by the startup presence guard; successful edits alone are not a certificate. */
+    public boolean certifiesPresenceOf(Plugin plugin) {
+        return registered.get()&&!failed.get()&&legacyHistoryQuarantined&&plugin==registeredPlugin
+                &&WorldEditCapturePolicy.supportsPlugin(plugin,
+                        Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit")!=null);
+    }
+
+    public boolean isRegisteredForCurrentBoot() {return registered.get()&&!failed.get()&&legacyHistoryQuarantined;}
+
+    @Subscribe(priority=com.sk89q.worldedit.util.eventbus.EventHandler.Priority.VERY_EARLY)
+    public void onCommand(com.sk89q.worldedit.event.platform.CommandEvent event) {
+        String reason=WorldEditCapturePolicy.unsupportedEditorCommandReason(event.getArguments());
+        if(!reason.isEmpty())failClosed(reason);
+    }
+    @Subscribe(priority=com.sk89q.worldedit.util.eventbus.EventHandler.Priority.VERY_EARLY)
+    public void onBlockInteraction(com.sk89q.worldedit.event.platform.BlockInteractEvent event) {
+        if(event.getCause() instanceof com.sk89q.worldedit.entity.Player player)inspectBoundTool(player);
+    }
+    @Subscribe(priority=com.sk89q.worldedit.util.eventbus.EventHandler.Priority.VERY_EARLY)
+    public void onPlayerInput(com.sk89q.worldedit.event.platform.PlayerInputEvent event) {
+        inspectBoundTool(event.getPlayer());
+    }
+    private void inspectBoundTool(com.sk89q.worldedit.entity.Player player) {
+        if(!Bukkit.isPrimaryThread()){failClosed("Off-thread WorldEdit interaction");return;}
+        var local=WorldEdit.getInstance().getSessionManager().get(player);
+        if(!local.isToolControlEnabled())return;
+        if(local.hasSuperPickAxe()
+                ||local.getTool(player.getItemInHand(com.sk89q.worldedit.util.HandSide.MAIN_HAND).getType())!=null
+                ||local.getTool(player.getItemInHand(com.sk89q.worldedit.util.HandSide.OFF_HAND).getType())!=null)
+            failClosed("WorldEdit bound tools/brushes are outside the verified command scope");
     }
 
     @Subscribe public void onEditSession(EditSessionEvent event) {
-        if(event.getStage()!=EditSession.Stage.BEFORE_CHANGE||event.getWorld()==null)return;
+        if(event.getStage()!=EditSession.Stage.BEFORE_CHANGE)return;
         if(!registered.get()||!Bukkit.isPrimaryThread()){failClosed("Unsupported off-thread or detached WorldEdit session");return;}
+        if(event.getWorld()==null){failClosed("WorldEdit edit session has no classifiable world");return;}
         World world=Bukkit.getWorld(event.getWorld().getName());
         if(world==null){failClosed("WorldEdit world identity unavailable");return;}
         var worldId=world.getUID();var name=world.getName();
@@ -90,10 +135,17 @@ public final class WorldEditResourceCapture implements AutoCloseable {
         if(failed.compareAndSet(false,true))logger.warning(reason+"; resource provenance requires reviewed recovery; saved assets remain.");
     }
 
+    /** Called by the command listener before an unreviewed WorldEdit operation can mutate the world. */
+    public void rejectUnsupportedOperation(String reason) {
+        String detail=Objects.requireNonNull(reason).trim();
+        if(detail.isEmpty()||detail.length()>512)detail="unsupported WorldEdit operation";
+        failClosed(detail);
+    }
+
     @Override public void close() {
         if(registered.compareAndSet(true,false)) {
             try {WorldEdit.getInstance().getEventBus().unregister(this);}
-            finally {failClosed("WorldEdit resource hook detached");}
+            finally {registeredPlugin=null;legacyHistoryQuarantined=false;failClosed("WorldEdit resource hook detached");}
         }
     }
 }

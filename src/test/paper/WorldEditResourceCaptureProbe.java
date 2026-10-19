@@ -51,6 +51,7 @@ public final class WorldEditResourceCaptureProbe extends JavaPlugin {
     private boolean authorized, fixturePrepared, ticketed, restored;
     private CompletableFuture<Void> seeded, started, offThreadFence, stopped;
     private CompletableFuture<Set<Position>> oreRows, forestRows;
+    private CompletableFuture<Boolean> generationProof;
 
     private void check(boolean condition, String message) {
         if (!condition) throw new IllegalStateException(message);
@@ -141,6 +142,8 @@ public final class WorldEditResourceCaptureProbe extends JavaPlugin {
             new OreTrackingRepository(db.getConnection()).finish(now + 1, true);
             new ForestryTrackingRepository(db.getConnection()).begin(now);
             new ForestryTrackingRepository(db.getConnection()).finish(now + 1, true);
+            new OreTrackingRepository(db.getConnection()).markGap(now + 2);
+            new ForestryTrackingRepository(db.getConnection()).markGap(now + 2);
         } finally { db.close(); }
     }
 
@@ -150,6 +153,20 @@ public final class WorldEditResourceCaptureProbe extends JavaPlugin {
             case 0 -> {
                 if (!seeded.isDone()) return;
                 seeded.join();
+                var plugin=getServer().getPluginManager().getPlugin("Civilizations");
+                var ownerField=plugin.getClass().getDeclaredField("population");ownerField.setAccessible(true);
+                var ordinary=(PopulationSession)ownerField.get(plugin);
+                if(!ordinary.status().ready())return;
+                check(ordinary.oreCaptureReady()&&ordinary.forestCaptureReady()
+                        &&!ordinary.oreDiscoveryReady()&&!ordinary.forestDiscoveryReady(),
+                        "Normal startup must install current WorldEdit capture while quarantining bootstrap history");
+                int freshX=2048,freshZ=-2048;
+                check(!world.isChunkGenerated(freshX,freshZ),"Fresh editor fixture chunk must not exist");
+                world.getChunkAt(freshX,freshZ); // Explicit disposable-fixture generation, never production simulation.
+                long observed=System.currentTimeMillis();
+                generationProof=ordinary.canSurveyResourceChunk("ore",worldId,freshX,freshZ,observed)
+                        .thenCombine(ordinary.canSurveyResourceChunk("forest",worldId,freshX,freshZ,observed),(ore,forest)->ore&&forest)
+                        .thenCombine(ordinary.canSurveyResourceChunk("ore",worldId,chunkX,chunkZ,observed),(fresh,old)->fresh&&!old);
                 session = new PopulationSession(folder.toFile(), getLogger(), PopulationSession.Settings.prototype(), System::currentTimeMillis);
                 session.configureOreTracking();
                 session.configureForestTracking();
@@ -159,10 +176,13 @@ public final class WorldEditResourceCaptureProbe extends JavaPlugin {
             case 1 -> {
                 if (!started.isDone()) return;
                 started.join();
-                check(session.oreCaptureReady() && session.forestCaptureReady(),
-                        "Private session must begin with healthy current ore and forest capture");
+                if(!generationProof.isDone())return;
+                check(generationProof.join(),"Ordinary WorldEdit boot must authorize only actual newly generated terrain");
+                check(session.oreCaptureReady() && session.forestCaptureReady()
+                                && !session.oreDiscoveryReady() && !session.forestDiscoveryReady(),
+                        "Legacy history must stay untrusted while current capture remains available");
                 capture = new WorldEditResourceCapture(session, getLogger());
-                capture.register();
+                capture.register(true); // The synthetic fixture deliberately keeps legacy history untrusted.
                 runWorldEditChanges();
                 oreRows = session.orePlacementsInChunk(worldId, chunkX, chunkZ, 512);
                 forestRows = session.forestExclusions(worldId, chunkX, chunkZ);
@@ -175,8 +195,13 @@ public final class WorldEditResourceCaptureProbe extends JavaPlugin {
                         "WorldEdit raw iron and the first stone placement must be excluded");
                 check(forest.contains(positions.get(3)), "WorldEdit tree placement and undo must retain forest exclusion");
                 check(!forest.contains(positions.get(4)), "Ordinary stone must not create forest provenance");
-                check(session.oreCaptureReady() && session.forestCaptureReady(),
-                        "Supported synchronous edits must preserve current capture readiness");
+                check(session.oreCaptureReady() && session.forestCaptureReady()
+                                && !session.oreDiscoveryReady() && !session.forestDiscoveryReady(),
+                        "Supported synchronous edits must preserve current capture without trusting legacy history");
+                capture.onCommand(new com.sk89q.worldedit.event.platform.CommandEvent(
+                        BukkitAdapter.adapt(getServer().getConsoleSender()),"/regen"));
+                check(!session.oreCaptureReady()&&!session.forestCaptureReady(),
+                        "Unreviewed non-extent command must fence before any operation executes");
                 check(blocks[0].getType() == Material.AIR && blocks[1].getType() == Material.COAL_ORE
                                 && blocks[2].getType() == Material.IRON_ORE && blocks[3].getType() == Material.AIR
                                 && blocks[4].getType() == Material.STONE,
@@ -204,7 +229,7 @@ public final class WorldEditResourceCaptureProbe extends JavaPlugin {
             case 4 -> {
                 if (!stopped.isDone()) return;
                 stopped.join();
-                getLogger().info("NATIVE WORLDEDIT RESOURCE CAPTURE PASS: supported edit session, raw iron placement and one stone placement saved ore exclusions; actual removal retired only its ten-batch source share; tree placement and undo remained excluded; unchanged repeats added no duplicate provenance; off-thread event fenced both captures; no generated terrain certificates or bonus goods");
+                getLogger().info("NATIVE WORLDEDIT RESOURCE CAPTURE PASS: ordinary bootstrap quarantined older terrain and certified actual fresh generation; supported edit session, raw iron placement and one stone placement saved ore exclusions; actual removal retired only its ten-batch source share; tree placement and undo remained excluded; unchanged repeats added no duplicate provenance; unsupported command and off-thread fences retained; private edits created no generated terrain certificates or bonus goods");
                 Bukkit.getScheduler().cancelTasks(this);
                 getServer().shutdown();
             }

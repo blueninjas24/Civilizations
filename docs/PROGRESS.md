@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - final P3 candidate is through native acceptance
+
+Eight businesses ran together, traded and made useful goods while every workplace
+chunk stayed unloaded. Pause/restart, money and storage checks passed. A ten-year
+simulation also passed, and guarded WorldEdit startup now distinguishes old terrain
+from verified fresh generation. One full regression build is running before the
+remaining phase gates are checked off. Previous milestone remains88.7%; the
+candidate is not yet reported as100%. Human server/main are untouched.
+
 ## Latest - businesses can acquire a branch in another village
 
 A qualified owner can pay real money for an existing same-world business. Its

@@ -1,5 +1,21 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October19 - remaining P3 prototype recommendations selected under delegation
+
+User authorized recommended decisions for the rest of P3 without more questions.
+The initial general craftsman serves real funded storage-upgrade customers with
+two editable fitting recipes. Household furniture awaits actual Phase4 projects;
+no personal wallets, fictional household purchases or extra crafting occupations.
+
+Pinned WorldEdit support is deliberately narrow: synchronous reviewed commands
+and the extent hook, with earlier terrain quarantined on every editor bootstrap.
+Queued startup chunk deletion cannot be observed retroactively. Fresh generation
+can qualify under healthy current capture; old certificates/history remain saved
+but cannot silently authorize work. Unsupported commands, tools, editor versions,
+asynchronous writes and reload intervals retain the fence. This trades convenience
+for preserved resources and explicit recovery rather than creating provenance.
+No locked roadmap phase is moved and no physical construction/shipping is added.
+
 ## October19 - cross-village purchases and remaining P3 defaults: approved
 
 User answered "Yes absolutely" to qualified same-world purchases of existing

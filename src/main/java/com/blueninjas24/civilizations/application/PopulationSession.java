@@ -95,6 +95,7 @@ public final class PopulationSession implements AutoCloseable {
     private final java.util.concurrent.atomic.AtomicLong oreMutationRevision=new java.util.concurrent.atomic.AtomicLong();
     private final AtomicReference<String> forestHistoryIssue=new AtomicReference<>("starting");
     private boolean trackOres;
+    private String unverifiedResourceHistory;
     private final AtomicBoolean oreHistoryHealthy=new AtomicBoolean();
     private final AtomicBoolean oreCaptureGap=new AtomicBoolean();
     private final AtomicReference<String> oreHistoryIssue=new AtomicReference<>("starting");
@@ -322,6 +323,13 @@ public final class PopulationSession implements AutoCloseable {
     public void configureOreTracking() {
         if(started.get())throw new IllegalStateException("Configure ore tracking before session starts");
         trackOres=true;
+    }
+    /** Editors may act before enable: quarantine earlier terrain, then capture only this boot's new terrain. */
+    public void configureUnverifiedResourceHistory(String reason) {
+        if(started.get())throw new IllegalStateException("Configure resource bootstrap before session starts");
+        unverifiedResourceHistory=java.util.Objects.requireNonNull(reason).trim();
+        if(unverifiedResourceHistory.isEmpty()||unverifiedResourceHistory.length()>512)
+            throw new IllegalArgumentException("Resource bootstrap reason must contain 1..512 characters");
     }
     public void configureIndustryRuntime(com.blueninjas24.civilizations.industry.IndustryRuntimePolicy policy) {
         if(started.get())throw new IllegalStateException("Configure industry runtime before session starts");
@@ -609,13 +617,25 @@ public final class PopulationSession implements AutoCloseable {
                 villageAnimals.set(new com.blueninjas24.civilizations.database.AnimalOwnershipRepository(database.getConnection()).villageAnimals());
                 new com.blueninjas24.civilizations.database.WorkplaceOperations(database.getConnection()).configure(workplaceOperationPolicy);
                 if(trackOres) {
-                    var fence=new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection()).begin(now.getAsLong());
+                    var tracking=new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection());
+                    var fence=tracking.begin(now.getAsLong());
+                    if(unverifiedResourceHistory!=null) {
+                        tracking.markGap(now.getAsLong());
+                        fence=tracking.begin(now.getAsLong());
+                        oreHistoryIssue.set(unverifiedResourceHistory);
+                    }
                     oreHistoryHealthy.set(fence.trusted() && !oreCaptureGap.get());
                     if(oreCaptureGap.get())new com.blueninjas24.civilizations.database.OreTrackingRepository(database.getConnection()).markGap(now.getAsLong());
                     if(!fence.trusted())oreHistoryIssue.set("unclean stop, capture gap or upgraded source coverage; reviewed recovery required");
                 }
                 if(trackForests) {
-                    var fence=new com.blueninjas24.civilizations.database.ForestryTrackingRepository(database.getConnection()).begin(now.getAsLong());
+                    var tracking=new com.blueninjas24.civilizations.database.ForestryTrackingRepository(database.getConnection());
+                    var fence=tracking.begin(now.getAsLong());
+                    if(unverifiedResourceHistory!=null) {
+                        tracking.markGap(now.getAsLong());
+                        fence=tracking.begin(now.getAsLong());
+                        forestHistoryIssue.set(unverifiedResourceHistory);
+                    }
                     forestTrackingStarted=true;
                     forestHistoryHealthy.set(fence.trusted()&&!forestCaptureGap.get());
                     if(forestCaptureGap.get())new com.blueninjas24.civilizations.database.ForestryTrackingRepository(database.getConnection()).markGap(now.getAsLong());

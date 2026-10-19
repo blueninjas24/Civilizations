@@ -45,6 +45,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.OrePlacementTracker orePlacements;
     private com.blueninjas24.civilizations.paper.ForestMutationTracker forestMutations;
     private com.blueninjas24.civilizations.paper.GeneratedTerrainObserver generatedTerrain;
+    private com.blueninjas24.civilizations.paper.WorldEditResourceCapture worldEditCapture;
     private com.blueninjas24.civilizations.paper.FoodAidTransfers aid;
     private com.blueninjas24.civilizations.paper.FoodPurchaseTransfers purchases;
     private com.blueninjas24.civilizations.paper.FoodBargainingCommand bargaining;
@@ -201,8 +202,23 @@ public final class Civilizations extends JavaPlugin {
             population.configureFarmTools(EconomyConfiguration.readFarmTools(economyConfig),EconomyConfiguration.readFarmToolBudget(economyConfig));
             population.configureUpkeepContributions(EconomyConfiguration.readUpkeepContributions(economyConfig));
             population.configureAutomaticResale(EconomyConfiguration.readAutomaticResale(economyConfig));
+            var editorPlugin=getServer().getPluginManager().getPlugin("WorldEdit");
+            if(com.blueninjas24.civilizations.paper.WorldEditCapturePolicy.supportsPlugin(editorPlugin,
+                    getServer().getPluginManager().getPlugin("FastAsyncWorldEdit")!=null)) {
+                // WorldEdit may perform queued changes during onLoad, before our listeners exist.
+                population.configureUnverifiedResourceHistory("WorldEdit bootstrap: earlier terrain requires reviewed recovery");
+                worldEditCapture=new com.blueninjas24.civilizations.paper.WorldEditResourceCapture(population,getLogger());
+                try {
+                    worldEditCapture.register(true);
+                    getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.WorldEditCommandGuard(worldEditCapture),this);
+                    getLogger().info("Verified WorldEdit synchronous capture active; only fresh terrain captured this boot can qualify automatically.");
+                } catch(RuntimeException|LinkageError failure) {
+                    population.invalidateOreTracking("WorldEdit registration unavailable");population.invalidateForestTracking("WorldEdit registration unavailable");
+                    getLogger().log(Level.WARNING,"WorldEdit resource capture failed; resource work remains guarded",failure);
+                }
+            }
             var editorGuard = new com.blueninjas24.civilizations.paper.OreEditorGuard(population, getLogger(),
-                    EconomyConfiguration.readAdditionalOreEditors(economyConfig));
+                    EconomyConfiguration.readAdditionalOreEditors(economyConfig),plugin->worldEditCapture!=null&&worldEditCapture.certifiesPresenceOf(plugin));
             getServer().getPluginManager().registerEvents(editorGuard, this);
             editorGuard.inspectInstalled(java.util.List.of(getServer().getPluginManager().getPlugins()));
             orePlacements=new com.blueninjas24.civilizations.paper.OrePlacementTracker(population,getLogger());
@@ -277,6 +293,7 @@ public final class Civilizations extends JavaPlugin {
         if(livestockNewborns!=null){livestockNewborns.cancel();livestockNewborns.close();}
         if(livestockPresence!=null){livestockPresence.cancel();livestockPresence.flush();}
         if(livestockDeaths!=null){livestockDeaths.cancel();livestockDeaths.flush();}
+        if(worldEditCapture!=null)worldEditCapture.close();
         if (population != null) population.close();
         getLogger().info("Civilizations has been disabled.");
     }

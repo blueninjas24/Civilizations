@@ -1,5 +1,30 @@
 # Civilizations Development Log
 
+## 2026-10-19 - P3 completion candidate: mixed runtime and editor bootstrap
+
+Pinned WorldEdit now registers at ordinary startup with fail-closed command/tool/
+disable scope. Every bootstrap quarantines earlier provenance before a new healthy
+epoch; this covers unobserved onLoad queued deletions without blessing old terrain.
+PopulationSession bootstrap regression checks revoke old certificates and permit
+new-only capture. No migration/reset/asset deletion. Exact limits documented.
+
+New ten-year actual-owner scenario passed: real shortages/extraction, ordinary
+elder death, qualified rich remote acquisition, real funds, absence/restart/history.
+Fixture corrections kept its saved seed consistent and gave the rare buyer enough
+actual declared capital to cover valued goods. Historical food deficits remain
+evidence even when later population demand changes. Targeted1 unit +3 integration
+verify passed41.039s. Full final regression is running, not claimed passed yet.
+
+Actual mixed Paper8-business/40-pulse acceptance passed real production/paid trade/
+craft storage installation/bakery grain use, capacity/cash, absence/restart and
+all8 workplace chunks remaining unloaded. Average323ms/max1203ms owner wait wall
+time under concurrent Maven load; default30-second cadence unchanged/no scale claim.
+Separate WorldEdit/Paper ordinary bootstrap/fresh generation/raw/set/removal/undo/
+failure checks passed. Five test blocks restored, ticket released,4 finalDBs
+integrity/FK/schema99 good, helpers archived, servers stopped/ports free.
+Human server/main untouched. Previousac9aac4 Windows/Linux CI confirmed green.
+Phase acceptance/status checklist waits for the final full build.
+
 ## 2026-10-19 - real paid branch ownership and initial craft catalogue
 
 Approved same-world cross-village purchases now use qualified buyers and actual

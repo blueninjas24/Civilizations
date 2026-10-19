@@ -1,5 +1,39 @@
 # Civilizations — implementation status and handoff
 
+## Completion candidate - connected industry and guarded editor runtime verified
+
+Ordinary startup now installs the pinned synchronous WorldEdit adapter. Every
+editor bootstrap quarantines earlier resource history (including potential queued
+onLoad deletion), rotates capture epochs and permits only actual fresh generation.
+Unreviewed commands/tools, off-thread/unloaded writes, disable/reload and unsupported
+editors remain fenced. The exact supported boundary is in WORLDEDIT_CAPTURE.md.
+No schema change, trust reset, resource refill or deletion of old assets/history.
+
+The new ten-year PopulationSession scenario passed with genuine food deficits,
+finite production, ordinary elder mortality, a sufficiently funded qualified
+same-world branch buyer, real sale/estate money, absence and midpoint restart.
+Existing coal/stone/neither and qualified/unqualified family scenarios provide the
+contrasting outcomes. The targeted scenario Wrapper verify passed1 unit +3 packaged
+checks in41.039s. Earlier focused editor/capture checks passed; final full regression
+is running before accepting the whole phase.
+
+Actual Paper26.2-129/Java25 mixed run passed:8 real saved businesses,40 timed pulses,
+finite coal/stone, renewable logging/fish, real paid warehouse inputs, craft fitting
+production/customer installation, bakery grain processing, bounded storage and
+conserved cash. All8 workplace chunks remained unloaded. Average323ms/max1203ms
+awaited SQL-owner pulse wall time during concurrent full Maven build; production
+defaults remain30 seconds,8 firms/pulse. This is not Paper tick time or a scale claim.
+
+Separate actual pinned-editor run passed ordinary startup and positive fresh chunk
+generation under sticky historical distrust, raw/set/removal/undo exclusions and
+unsafe-operation fences. Five fixture AIR blocks restored/ticket released. All4
+final fixture databases passed schema99/integrity/foreign-key audit; both servers
+stopped, helpers archived outside plugins, ports free. Human server/main untouched.
+See PHASE3_ACCEPTANCE.md. Final checklist/phase acceptance waits for the full build;
+the prior milestone report remains88.7% until that result is known. ac9aac4 has
+confirmed successful hosted Windows/Linux builds; this newer batch is not yet
+claimed as passing hosted CI.
+
 ## Latest verified batch - qualified ownership across villages and craft defaults
 
 The user approved same-world cross-village acquisition and delegated remaining P3

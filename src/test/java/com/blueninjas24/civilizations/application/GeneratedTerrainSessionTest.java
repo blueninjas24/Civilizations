@@ -77,4 +77,28 @@ class GeneratedTerrainSessionTest {
         assertFalse(covered("ore",-1,-1));assertTrue(covered("ore",48,48));
         assertTrue(covered("forest",63,63));assertFalse(covered("forest",32,32));
     }
+    @Test void editorBootstrapRevokesEarlierCertificatesButCapturesOnlyNewTerrainThisBoot()throws Exception {
+        try(var first=session()) {
+            first.start(false,Set.of(world)).get(5,TimeUnit.SECONDS);
+            assertEquals(2,save(first,world,0,0));
+        }
+        assertTrue(covered("ore",0,0));
+        try(var edited=session()) {
+            edited.configureUnverifiedResourceHistory("Editor bootstrap is outside live capture");
+            edited.start(false,Set.of(world)).get(5,TimeUnit.SECONDS);
+            assertFalse(edited.oreDiscoveryReady());assertFalse(edited.forestDiscoveryReady());
+            assertTrue(edited.oreCaptureReady());assertTrue(edited.forestCaptureReady());
+            assertFalse(covered("ore",0,0));assertFalse(covered("forest",0,0));
+            assertEquals(0,save(edited,world,0,0)); // Loading old terrain cannot backfill its certificate.
+            assertEquals(2,save(edited,world,1,1));
+            assertTrue(covered("ore",16,16));assertTrue(covered("forest",16,16));
+            assertThrows(IllegalStateException.class,()->edited.configureUnverifiedResourceHistory("Too late"));
+        }
+        try(var restarted=session()) {
+            restarted.configureUnverifiedResourceHistory("Every editor bootstrap is unverified");
+            restarted.start(false,Set.of(world)).get(5,TimeUnit.SECONDS);
+            assertFalse(covered("ore",16,16));assertFalse(covered("forest",16,16));
+            assertEquals(2,save(restarted,world,2,2));
+        }
+    }
 }
