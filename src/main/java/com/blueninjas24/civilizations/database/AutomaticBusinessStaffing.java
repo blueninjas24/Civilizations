@@ -15,10 +15,13 @@ public final class AutomaticBusinessStaffing {
         this.connection=Objects.requireNonNull(connection);this.policy=Objects.requireNonNull(policy);
     }
     public String review(UUID business,long step)throws SQLException {
-        return review(business,step,reason->{});
+        return review(business,step,reason->{},false);
     }
     @FunctionalInterface interface ReviewAudit {void save(String reason)throws SQLException;}
     String review(UUID business,long step,ReviewAudit audit)throws SQLException {
+        return review(business,step,audit,true);
+    }
+    private String review(UUID business,long step,ReviewAudit audit,boolean reserveStudents)throws SQLException {
         if(!connection.getAutoCommit())throw new SQLException("Automatic hiring requires idle SQL owner");
         if(step<0)throw new IllegalArgumentException("Negative hiring step");
         if(!policy.enabled())return "Automatic vacancy hiring disabled";
@@ -43,8 +46,8 @@ public final class AutomaticBusinessStaffing {
                 else {
                     var requirements=businesses.findFounding(business).orElseThrow().workerRequirements();
                     String cursor=cursors.getOrDefault(business,"");
-                    var candidates=page(b.settlementId(),cursor);
-                    if(candidates.isEmpty()&&!cursor.isEmpty())candidates=page(b.settlementId(),"");
+                    var candidates=page(b.settlementId(),cursor,reserveStudents);
+                    if(candidates.isEmpty()&&!cursor.isEmpty())candidates=page(b.settlementId(),"",reserveStudents);
                     int hired=0;
                     for(var candidate:candidates) {
                         nextCursor=candidate.toString();
@@ -72,15 +75,15 @@ public final class AutomaticBusinessStaffing {
             return reason;
         }catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
     }
-    private List<UUID> page(UUID town,String cursor)throws SQLException {
+    private List<UUID> page(UUID town,String cursor,boolean reserveStudents)throws SQLException {
         var result=new ArrayList<UUID>();
         try(var s=connection.prepareStatement("""
             SELECT r.id FROM residents r WHERE r.settlement_id=? AND r.status='ALIVE' AND r.id>?
               AND NOT EXISTS(SELECT 1 FROM business_employment e WHERE e.resident_id=r.id AND e.ended_step IS NULL)
-              AND NOT EXISTS(SELECT 1 FROM resident_courses c WHERE c.resident_id=r.id AND c.status='ACTIVE')
+              AND (?=0 OR NOT EXISTS(SELECT 1 FROM resident_courses c WHERE c.resident_id=r.id AND c.status='ACTIVE'))
             ORDER BY r.id LIMIT ?
             """)) {
-            s.setString(1,town.toString());s.setString(2,cursor);s.setInt(3,policy.candidatesPerReview());
+            s.setString(1,town.toString());s.setString(2,cursor);s.setInt(3,reserveStudents?1:0);s.setInt(4,policy.candidatesPerReview());
             try(var r=s.executeQuery()){while(r.next())result.add(UUID.fromString(r.getString(1)));}
         }
         return result;

@@ -79,9 +79,14 @@ class WarehouseFounderStudyTest {
         assertEquals(1,scalar("SELECT COUNT(*) FROM resident_courses WHERE status='CANCELLED'"));assertEquals(0,xp());
     }
     @Test void schema63FailedUpgradeRollsBackAllNewTablesAndRetriesPreservingEveryOldRow()throws Exception {
-        var before=fixture.snapshot();SchemaFixtures.rewind(fixture.db.getConnection(),62);fixture.sql("CREATE VIEW warehouse_founder_courses AS SELECT 1");
+        var before=fixture.snapshot();
+        // Current fixture setup records an ore epoch that did not exist in schema62.
+        // Rewinding deliberately removes it; an upgrade must create an empty epoch table.
+        assertFalse(before.remove("resource_recovery_epochs").isEmpty());
+        SchemaFixtures.rewind(fixture.db.getConnection(),62);fixture.sql("CREATE VIEW warehouse_founder_courses AS SELECT 1");
         assertThrows(SQLException.class,()->new SchemaMigrator().migrate(fixture.db.getConnection()));assertEquals(62,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='warehouse_founder_reviews'"));
-        fixture.sql("DROP VIEW warehouse_founder_courses");new SchemaMigrator().migrate(fixture.db.getConnection());assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(before,fixture.snapshot());
+        fixture.sql("DROP VIEW warehouse_founder_courses");new SchemaMigrator().migrate(fixture.db.getConnection());assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));
+        var after=fixture.snapshot();assertEquals(List.of(),after.remove("resource_recovery_epochs"));assertEquals(before,after);
         try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     @Test void actualSqlOwnerSponsorsMerchantThenPreparesAndAcceptsEarnedOwner()throws Exception {

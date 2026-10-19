@@ -93,7 +93,7 @@ public final class BusinessCompetition {
             try(var s=c.prepareStatement("INSERT INTO business_allocation_state VALUES(?,?,?,?) ON CONFLICT(settlement_id) DO UPDATE SET last_business=excluded.last_business,sequence=excluded.sequence,observed_ms=excluded.observed_ms")) {
                 s.setString(1,town.toString());s.setString(2,chosen.business().toString());s.setLong(3,next);s.setLong(4,observed);s.executeUpdate();
             }
-        })+"; shared priority: urgent="+chosen.urgent()+", funded unmet value="+chosen.fundedDemandValue()+", compared "+ranked.size()+" viable firms";
+        })+"; shared priority for village "+town+", selected business "+chosen.business()+": urgent="+chosen.urgent()+", funded unmet value="+chosen.fundedDemandValue()+", compared "+ranked.size()+" viable firms";
         }catch(SQLException|RuntimeException failure){attempts.remove(town);throw failure;}
     }
     private Set<Commodity> outputs(UUID business,UUID site,String kind)throws SQLException {

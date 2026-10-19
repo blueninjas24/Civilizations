@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## October18 - broader regression findings fixed
+
+A full check found stale migration-test comparisons and one legacy trainee-hiring
+regression. Corrected both; every failed case and the affected hiring checks passed
+in a focused rebuild:60 unit checks plus2 packaged integrations. The remaining1928
+checks passed in the earlier broad run. Latest full hosted verification is pending;
+this is not a claim of a green full suite yet. No new gameplay gate completed:
+Phase3 stays76.4% partial,1/4 whole groups. Human server/main untouched.
+
 ## October18 - current playtest instructions and easier village lookup
 
 Admins can list saved village names/IDs and use Tab to complete IDs in reports.

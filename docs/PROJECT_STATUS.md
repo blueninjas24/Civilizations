@@ -1,5 +1,38 @@
 # Civilizations — implementation status and handoff
 
+## October18, 20:40 EDT - full-regression findings corrected
+
+The full local Wrapper clean verify ran1951 units:1928 passed,23 failed, no errors
+or skips,13:52 at20:37:36. Twenty-two failures were stale predecessor snapshot
+expectations after additive schemas95-98; one was a real legacy hiring regression
+introduced by the new shared student reservation. This run failed and did not
+reach packaging/integration tests; it is not recorded as a green full suite.
+
+Updated17 migration fixture suites. The common helper requires all seven additive
+tables to exist and be empty before removing them from an earlier-schema snapshot;
+all predecessor row/constraint/rollback assertions remain. The warehouse fixture
+takes a current snapshot before rewinding to62, so its current-only ore epoch is
+explicitly distinguished: it cannot survive a simulated schema that never had it,
+and upgrading must create an empty epoch table. All other saved assets stay equal.
+No application migration, production-data reset or relaxed runtime guard.
+
+Restored disabled/missing shared-allocation legacy hiring: an already-qualified
+trainee can take a real vacancy and the existing study loop then cancels their
+course. Shared allocation still reserves active students, matching its complete
+workforce comparison. Added one temporary-SQLite regression proving both paths;
+existing fishing study/hiring regression passes. Selection diagnostics now name
+the chosen village/business to avoid confusing a shared result with every page firm.
+
+Final focused Wrapper clean verify/package passed60 unit +2 packaged integrations,
+zero failures/errors/skips,1:03 at20:39:36. It reran every failed case and complete
+directly affected staffing/career/competition/report classes; no repeated full local
+suite. Full hosted Windows/Linux verification follows the feature push. This is
+cumulative coverage, not a claim that the corrected full hosted run is already green.
+No new Paper API adapter/native run, schema remains98, human server/main untouched.
+
+P3 stays76.4% partial,1/4 whole groups. Next: remaining marker/animal startup
+competition and broader specialization acceptance. No new design decision.
+
 ## October18 - bounded hosted failure counts
 
 Added a failure-only CI summary for existing JUnit reports on Windows/Linux. It

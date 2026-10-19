@@ -33,6 +33,14 @@ or untrusted finite sources and forests without habitat are excluded. Current
 owned/incoming goods and actual customer funds affect the existing demand review.
 Firms with neither funded demand nor configured urgency cannot claim a worker.
 
+The student reservation belongs to shared allocation. Disabled/missing shared
+settings retain legacy hiring, including a trainee who has already earned the
+actual job requirement; the existing study loop then cancels that employed
+resident's course. Enabling shared priorities waits until study releases them.
+Neither mode skips the saved job's age/skill checks or grants extra experience.
+Shared selection diagnostics name the village and selected business explicitly,
+so a result shown alongside a bounded page is not mistaken for every firm's hire.
+
 Urgency is the first tier; bounded funded shortage value is second. Equal priorities
 rotate after the last selected business. A bounded candidate page still determines
 which qualified person can be hired; it can take another turn to reach a late

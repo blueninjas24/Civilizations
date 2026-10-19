@@ -28,7 +28,8 @@ class BusinessCompetitionTest {
     long count(String table)throws Exception{try(var s=fixture.db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){return r.getLong(1);}}
     @Test void strongestRealFundedDemandWinsOverEarlierUuidWithoutSpendingOrChangingExistingJobs()throws Exception {
         var smithJob=fixture.db.getBusinessRepository().currentWorkers(fixture.smith);long money=new TreasuryRepository(fixture.db.getConnection()).load(fixture.town).orElseThrow().hundredths();
-        assertTrue(review(1000).contains("funded unmet value=400"));
+        String diagnostic=review(1000);assertTrue(diagnostic.contains("funded unmet value=400"));
+        assertTrue(diagnostic.contains("village "+fixture.town));assertTrue(diagnostic.contains("selected business "+second));
         assertEquals(1,fixture.db.getBusinessRepository().currentWorkers(second).size());assertTrue(fixture.db.getBusinessRepository().currentWorkers(fixture.mine).isEmpty());
         assertEquals(smithJob,fixture.db.getBusinessRepository().currentWorkers(fixture.smith));
         assertEquals(money,new TreasuryRepository(fixture.db.getConnection()).load(fixture.town).orElseThrow().hundredths());
@@ -59,5 +60,18 @@ class BusinessCompetitionTest {
         runtime.refresh(1,Set.of(fixture.world),1000,false);
         assertEquals(1,fixture.db.getBusinessRepository().currentWorkers(second).size());
         assertEquals(1,count("business_allocation_reviews"));
+    }
+    @Test void sharedAllocationReservesStudentsWhileDisabledLegacyHiringKeepsItsExistingRule()throws Exception {
+        var c=fixture.db.getConnection();var firms=fixture.db.getBusinessRepository();
+        firms.hire(UUID.randomUUID(),fixture.warehouse,fixture.owner,0);
+        var learner=UUID.randomUUID();fixture.db.getPopulationRepository().insertResident(new Resident(learner,"Fixture learner",fixture.town,null,300,Resident.Status.ALIVE));
+        new CommodityRepository(c).initialize(fixture.town,Map.of(Commodity.STONE,10L,Commodity.TIMBER,10L),new com.blueninjas24.civilizations.economy.CommodityAccounting.Policy(5000,12500,20000,3));
+        c.setAutoCommit(false);
+        try {new ResidentStudy(c,StudyPolicy.prototype(),216).enrollRows(UUID.randomUUID(),learner,fixture.town,"mining",0);c.commit();}
+        finally {c.setAutoCommit(true);}
+        assertTrue(review(1000).contains("no viable"));assertTrue(firms.currentWorkers(second).isEmpty());
+        assertEquals(0,count("business_allocation_reviews"));
+        new AutomaticBusinessStaffing(c,staffing).review(second,1);
+        assertEquals(learner,firms.currentWorkers(second).getFirst().residentId());
     }
 }
