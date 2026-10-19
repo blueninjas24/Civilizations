@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - edited-terrain foundation verified
+
+Your conservative editor rule is approved and recorded. New evidence can record
+only freshly generated terrain under a current capture epoch; old areas are never
+backfilled. External writes now hold resource readiness through their save, with
+safe failure/shutdown handling. Focused build31 unit +2 packaged checks and actual
+isolated upgrade/startup passed; all old assets remain. Live editor/generation
+wiring is next, so P3 remains88.1% partial,2/4 whole groups.
+
 ## Latest - different histories produce different business outcomes
 
 Ten real demographic years now verify an aging owner's qualified family can keep

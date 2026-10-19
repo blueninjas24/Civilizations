@@ -1,5 +1,40 @@
 # Civilizations Development Log
 
+## Latest verified batch - scoped terrain evidence and external-write barrier
+
+Recorded the approved edited-world rule. Schema99 adds one initially empty
+`generated_resource_chunks` table; no historical terrain is backfilled. Certificates
+bind exact world/chunk/resource kind to current healthy capture epochs. Negative
+coordinates use floor division; replay retains the first timestamp, and a later gap
+revokes coverage without permitting the same old chunk to certify itself anew.
+Global history, placement exclusions, resource balances and recovery rights stay intact.
+This backend is not yet connected to generation events or automatic discovery.
+
+External adapters now have a bounded pre-write reservation that holds ore/forest
+readiness until their accepted owner-queue saves finish. Explicit unchanged outcomes
+write nothing; exceptions, unconfirmed outcomes, failed handoffs and interrupted
+shutdown remain fenced. Reservation and shutdown ordering are synchronized. No Paper
+object crosses the owner queue; no current native listener/guard is relaxed.
+
+Focused first checks passed49 units,25.847s. Final Wrapper clean verify/package
+passed31 units +2 packaged integrations, zero failures/errors/skips,27.072s.
+Eight new cases cover generated-terrain persistence/epoch gaps/rollback, complete
+schema98 preservation/failure/retry and external-write outcomes/actual session
+persistence/shutdown. Existing migration/recovery/startup regressions pass.
+No repeated complete local suite; hosted checks follow feature push.
+
+Actual isolated Paper26.2-129 upgraded98->99 and passed the ordinary paid alternate
+craft startup/production/customer/replay/absence check. All173 predecessor tables
+preserved:168 exact, five routine clock/capture tables changed, no resident aging.
+The new table remains empty; no terrain was certified. Integrity/FKs clean, original
+one-block fixture restored, ticket released, server stopped, original port restored,
+helper archived and backups/audit retained. Human server/main untouched.
+
+P3 stays88.1% partial,2/4 whole groups: this is verified foundation, not certified
+WorldEdit support. Next is the optional actual edit hook and complete lifecycle/
+generation wiring; older unsupported editor presence still fences discovery.
+No new design answer required.
+
 ## Latest - optional editor provenance decision pending
 
 WorldEdit integration research identified a necessary trust-scope decision before

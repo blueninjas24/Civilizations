@@ -6,14 +6,15 @@ import java.sql.SQLException;
 /** Reconstruct prior schema shapes only inside test-owned temporary databases. */
 final class SchemaFixtures {
     private SchemaFixtures() {}
-    /** Additive schemas95-98 must create only empty tables in earlier migration fixtures. */
+    /** Additive schemas95-99 must create only empty tables in earlier migration fixtures. */
     static void removeEmptyRecoveryAndAllocationAdditions(java.util.Map<String,? extends java.util.List<?>> snapshot) {
         for(var table:java.util.List.of("mineral_recoveries","resource_recovery_epochs","forest_recoveries",
-                "business_allocation_state","business_allocation_reviews","resource_investment_state","resource_investment_reviews"))
+                "business_allocation_state","business_allocation_reviews","resource_investment_state","resource_investment_reviews","generated_resource_chunks"))
             org.junit.jupiter.api.Assertions.assertEquals(java.util.List.of(),snapshot.remove(table),table+" must exist and start empty");
     }
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<99)statement.execute("DROP TABLE IF EXISTS generated_resource_chunks");
             if(version<98){statement.execute("DROP TABLE IF EXISTS resource_investment_reviews");statement.execute("DROP TABLE IF EXISTS resource_investment_state");}
             if(version<97){statement.execute("DROP TABLE IF EXISTS business_allocation_reviews");statement.execute("DROP TABLE IF EXISTS business_allocation_state");}
             if(version<96)statement.execute("DROP TABLE IF EXISTS forest_recoveries");

@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## Latest - scoped edited-world provenance: approved
+
+User answered "Yes. Keep going as long as you can" to the proposed rule. Older
+unverified editor areas stay blocked from automatic new ore/forest discovery;
+terrain newly generated under uninterrupted active capture may become eligible.
+Existing saved sources retain the already-approved explicit admin/current-scan
+recovery. This does not certify older pasted blocks, clear placement exclusions,
+refill deposits or waive source identity. Engineering integration and verification
+remain required; the historical pending entry below records the proposal only.
+
 ## Latest - edited-world provenance for optional WorldEdit support: awaiting answer
 
 To complete the optional bulk-editor compatibility gate, proposed initial scope

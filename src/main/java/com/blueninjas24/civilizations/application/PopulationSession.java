@@ -85,6 +85,7 @@ public final class PopulationSession implements AutoCloseable {
     private final AtomicReference<PopulationState> snapshot = new AtomicReference<>();
     private final AtomicReference<ProjectionView> projectionView = new AtomicReference<>();
     private final AtomicBoolean started = new AtomicBoolean(), closing = new AtomicBoolean();
+    private final Object externalCaptureLock=new Object();
     private final AtomicInteger queued = new AtomicInteger();
     private boolean trackForests, forestTrackingStarted;
     private final AtomicBoolean forestHistoryHealthy=new AtomicBoolean(),forestCaptureGap=new AtomicBoolean();
@@ -737,6 +738,34 @@ public final class PopulationSession implements AutoCloseable {
             return new com.blueninjas24.civilizations.database.OrePlacementRepository(database.getConnection())
                     .inChunk(world,chunkX,chunkZ,maximumPositions);
         });
+    }
+
+    /** Reserve readiness before an external editor writes; never access Paper or JDBC from this entry point. */
+    public ResourceMutationCapture beginExternalResourceMutation() {
+        synchronized(externalCaptureLock) {
+            if(!status().ready()||closing.get()||(!trackOres&&!trackForests)
+                    ||(trackOres&&oreCaptureGap.get())||(trackForests&&forestCaptureGap.get()))
+                throw new IllegalStateException("Current external resource capture is not ready");
+            boolean ore=trackOres,forest=trackForests;
+            if(ore){pendingOreMutations.incrementAndGet();oreMutationRevision.incrementAndGet();}
+            if(forest){pendingForestMutations.incrementAndGet();forestMutationRevision.incrementAndGet();}
+            if((ore&&pendingOreMutations.get()>256)||(forest&&pendingForestMutations.get()>256)) {
+                if(ore){invalidateOreTracking("External resource capture budget exceeded");pendingOreMutations.decrementAndGet();}
+                if(forest){invalidateForestTracking("External resource capture budget exceeded");pendingForestMutations.decrementAndGet();}
+                throw new IllegalStateException("External resource capture budget exceeded");
+            }
+            return new ResourceMutationCapture(()-> {
+                if(ore)pendingOreMutations.decrementAndGet();
+                if(forest)pendingForestMutations.decrementAndGet();
+            },reason->{if(ore)invalidateOreTracking(reason);if(forest)invalidateForestTracking(reason);},changes-> {
+                var writes=new java.util.ArrayList<CompletableFuture<?>>();
+                if(ore&&(!changes.orePlacements().isEmpty()||!changes.oreRemovals().isEmpty()))
+                    writes.add(recordOreMutations(changes.world(),changes.worldName(),changes.orePlacements(),changes.oreRemovals(),changes.observedMillis(),changes.reason()));
+                if(forest&&(!changes.forestPlacements().isEmpty()||!changes.forestRemovals().isEmpty()))
+                    writes.add(recordForestMutations(changes.world(),changes.worldName(),changes.forestPlacements(),changes.forestRemovals(),changes.observedMillis(),changes.reason()));
+                return CompletableFuture.allOf(writes.toArray(CompletableFuture[]::new));
+            });
+        }
     }
 
     /** One native mutation: immutable placements and actual removed origins share one transaction. */
@@ -1432,7 +1461,9 @@ public final class PopulationSession implements AutoCloseable {
     }
 
     @Override public void close() {
-        if (closing.compareAndSet(false, true)) {
+        boolean beginClose;
+        synchronized(externalCaptureLock){beginClose=closing.compareAndSet(false,true);}
+        if (beginClose) {
             var previous = status.get();
             status.set(new Status(false, previous.completedMonths(), previous.targetMonths(), previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
             var scheduled = timer; if (scheduled != null) scheduled.cancel(false);
