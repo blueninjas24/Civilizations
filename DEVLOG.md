@@ -1,5 +1,19 @@
 # Civilizations Development Log
 
+## 2026-10-19 - apply complete generated coverage to resource opening/work
+
+Added complete saved mineral/forest coverage reads with bounded coordinates and
+permanent-world checks. Paid resource opening and subsequent work may use current
+healthy generated-terrain proof without clearing sticky global trust, exclusions or
+recovery requirements elsewhere. Partial coverage, placed ore and epoch gaps remain
+blocked; replay cannot refill reserves or treasury. Three new actual paid-start/work
+cases passed. Initial37 checks exposed one outdated schema91 snapshot; hosted Linux
+also found schema93's equivalent. Corrected both predecessor snapshots and explicitly
+asserted the new table empty. Final clean verify7 unit +3 packaged checks passed
+21.777s; corrected founder-study class3 checks passed12.099s. The other resource/
+recovery checks passed in the initial run and were not repeated. No migration,
+ordinary survey/editor guard exemption, human server change or new milestone credit.
+
 ## 2026-10-19 - capture real freshly generated terrain
 
 Added bounded main-thread positive-new-chunk observation, immutable owner-queue

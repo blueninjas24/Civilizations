@@ -154,6 +154,42 @@ public final class GeneratedTerrainRepository {
         }
     }
 
+    /** All saved coordinates must be covered; a certificate for one block cannot unlock a vein. */
+    public boolean coversMineral(UUID deposit) throws SQLException {
+        return coversSaved("ore",deposit,"""
+                SELECT e.world_id,e.x,e.y,e.z,d.world_id
+                FROM mineral_evidence e JOIN mineral_discovery d ON d.deposit_id=e.deposit_id
+                WHERE e.deposit_id=? ORDER BY e.world_id,e.x,e.y,e.z LIMIT 65537
+                """);
+    }
+
+    /** A retained forest requires its entire original support footprint, including lost supports. */
+    public boolean coversForest(UUID site) throws SQLException {
+        return coversSaved("forest",site,"""
+                SELECT s.world_id,s.x,s.y,s.z,r.world_id
+                FROM forestry_supports s JOIN forestry_resources r ON r.site_id=s.site_id
+                WHERE s.site_id=? ORDER BY s.world_id,s.x,s.y,s.z LIMIT 65537
+                """);
+    }
+
+    private boolean coversSaved(String kind,UUID resource,String sql)throws SQLException {
+        Objects.requireNonNull(resource,"resource");
+        UUID world=null;var positions=new java.util.ArrayList<VillageObservation.Position>();
+        try(var statement=connection.prepareStatement(sql)) {
+            statement.setString(1,resource.toString());
+            try(var rows=statement.executeQuery()) {
+                while(rows.next()) {
+                    if(positions.size()==MAX_COVERAGE_POSITIONS)throw new SQLException("Saved resource coverage exceeds complete read budget");
+                    var rowWorld=UUID.fromString(rows.getString(1));
+                    if(!rows.getString(1).equals(rows.getString(5))||(world!=null&&!world.equals(rowWorld)))
+                        throw new SQLException("Saved resource coverage disagrees on world identity");
+                    world=rowWorld;positions.add(new VillageObservation.Position(rows.getInt(2),rows.getInt(3),rows.getInt(4)));
+                }
+            }
+        }
+        return world!=null&&!positions.isEmpty()&&covers(kind,world,positions);
+    }
+
     private void requireIdleOwner() throws SQLException {
         if (!connection.getAutoCommit()) throw new SQLException("Generated terrain capture requires idle SQL owner");
     }

@@ -27,7 +27,8 @@ public final class ForestryRepository {
             return old.orElseThrow(); // A revisit, retune or restart cannot refill or rescale standing timber.
         }
         var tracking = new ForestryTrackingRepository(c).load();
-        if (tracking.isPresent() && !tracking.orElseThrow().trusted())
+        if (tracking.isPresent() && !tracking.orElseThrow().trusted()
+                && !new GeneratedTerrainRepository(c).covers("forest",evidence.world(),evidence.trunks()))
             throw new SQLException("Forestry provenance is untrusted; new resource opening requires reviewed recovery");
         var provenance = new ForestryProvenance(c);
         for (var support : evidence.trunks()) {

@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - resource permission checks use complete evidence
+
+New terrain evidence can now authorize paid resource opening and work in the
+database without trusting old areas. Every saved source block must be covered;
+partial proof, placed ore and later tracking gaps remain blocked. Money and resource
+balances survive replay. Focused checks passed; two outdated migration-test
+expectations were also corrected. Automatic survey/editor integration is still
+unfinished, so P3 remains88.1% rather than claiming that milestone early.
+
 ## Latest - new terrain is recorded safely
 
 Real newly generated chunks can now receive saved resource-history evidence.

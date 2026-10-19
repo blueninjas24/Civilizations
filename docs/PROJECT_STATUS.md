@@ -1,5 +1,31 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - complete scoped resource eligibility
+
+Paid mineral discovery and new forest opening now accept complete current generated-
+terrain coverage when global history is sticky-untrusted. Production requires every
+saved source/support coordinate to belong to a certified chunk in the current healthy
+epoch; partial coverage cannot unlock a vein or forest. Source/world identity, placed/
+removed exclusions, paid startup, retained reserve/yield terms, replay and explicit
+admin recovery remain authoritative. A new gap revokes scoped permission immediately
+through the existing runtime barrier and persistently through epoch invalidation.
+
+Three new temporary-database cases verify partial cross-chunk refusal/atomicity,
+fully covered paid opening and extraction, no refill on replay, placed-ore refusal,
+forest work, conserved cash and gap revocation without creating recovery approvals.
+Initial focused run37 cases:36 passed; one old schema91 snapshot expected no schema99
+table. Hosted Linux independently identified that and a schema93 snapshot equivalent.
+Both fixtures now exclude the later table from predecessor comparisons and explicitly
+assert it starts empty. Final focused clean verify passed7 unit +3 packaged checks,
+21.777s; the second affected class passed3 cases,12.099s. The remaining resource/
+recovery regressions passed in the initial run and were not repeated.
+
+No migration. Main survey/review/founding and editor-presence guards remain conservative;
+this batch completes SQL opening/work authorization, not automatic edited-world startup.
+No further native server run claimed for these SQL-only changes. Human server/main
+untouched. P3 stays88.1% partial,2/4 groups. Next: enforce coordinate coverage in current
+opportunity reads, then connect live adapters and finish editor lifecycle coverage.
+
 ## Latest verified batch - actual new-generation capture
 
 Registered a bounded Paper new-chunk observer. Only positive `isNewChunk()` events

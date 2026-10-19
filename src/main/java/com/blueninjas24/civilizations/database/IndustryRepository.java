@@ -273,11 +273,13 @@ public final class IndustryRepository {
     public boolean sourceHistoryTrusted(UUID deposit)throws SQLException {
         if(!hasCoordinateSources(deposit))return true;
         if(new OreTrackingRepository(connection).load().map(OreTrackingRepository.State::trusted).orElse(true))return true;
-        return new MineralRecovery(connection).permitted(deposit);
+        return new MineralRecovery(connection).permitted(deposit)
+                ||new GeneratedTerrainRepository(connection).coversMineral(deposit);
     }
     public boolean forestryHistoryTrusted(UUID site)throws SQLException {
         return new ForestryTrackingRepository(connection).load().map(ForestryTrackingRepository.State::trusted).orElse(true)
-                ||new ForestRecovery(connection).permitted(site);
+                ||new ForestRecovery(connection).permitted(site)
+                ||new GeneratedTerrainRepository(connection).coversForest(site);
     }
 
     /** Complete processing batches atomically consume delivered inputs and add outputs; no new money. */
