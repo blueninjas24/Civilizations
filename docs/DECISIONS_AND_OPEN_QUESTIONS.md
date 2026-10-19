@@ -1,5 +1,23 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 19 — Phase 4 foundation approved; physical authority remains bounded
+
+User authorized proceeding to P4 while human P3 playtesting is deferred, configurable
+prototype defaults and small original vanilla-style starter plans. Physical tests
+remain confined to disposable test worlds and explicitly approved development
+areas. No human server deployment, main merge or main push was authorized.
+Consequential ownership, demolition or player-protection rules still require a
+question when they block meaningful progress; P3 delegation does not silently
+settle new P4 rules.
+
+Initial implementation uses editable YAML plans, clockwise rotation after an
+optional authored-X mirror, staged abstract costs/work and functional anchors.
+Admin inspection is read-only and grants no consent. Saved proposals freeze
+reviewed inputs and permanent world/village identity; they do not create assets,
+reserve stock or authorize placement. Saved land/pen checks and road-first site
+planning remain subsequent work. No locked design or roadmap has changed.
+
+
 ## October19 - remaining P3 prototype recommendations selected under delegation
 
 User authorized recommended decisions for the rest of P3 without more questions.

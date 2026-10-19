@@ -1,5 +1,31 @@
 # Civilizations — implementation status and handoff
 
+## Current — Phase 4 authored-plan foundation, 25% (4/16 items, 1/4 groups)
+
+P4 runs on `codex/phase4-construction-foundation`, based on completed P3 085b351.
+Both hosted Windows/Linux checks for that P3 checkpoint were verified green.
+Original editable path/storehouse plans, native rotations/mirroring, bounded
+read-only admin previews and immutable SQLite draft snapshots are implemented.
+No building placement, funding, land approval or function activation is enabled.
+Draft storage is an API; previews do not yet save projects. Saved pen/protection
+checks and actual road-first planning are subsequent work, explicitly unclaimed.
+
+Focused Windows Wrapper clean verify passed 28 unit +3 packaged integration
+checks, zero failures/errors/skips, 21.630s at 17:37:56 ET. Actual isolated Paper
+checks passed native doors/pillars, installed catalogue, router permissions and
+invalid block states. Probe made no world-block/entity changes; server stopped.
+Migration 100 only adds frozen world/village-linked proposals; no existing rows
+are reset. Current target JAR now includes P4; the P3 artifact reference below is
+historical. Human server/world/config/database and main are untouched.
+
+See PHASE4_CHECKLIST.md and CONSTRUCTION.md for current scope, commands, evidence
+and remaining gates. Human P3 playtesting stays deferred, not claimed completed.
+Next: persistent approval/protection and interruption-safe staged work. No current
+question blocks these foundations; consequential live ownership/demolition/player
+protection decisions still need approval where the canonical rules leave them open.
+
+
+
 ## Current - Phase3 prototype complete,100%,4/4 milestone groups
 
 All63 current P3 checklist entries are verified: core4/4, resources39/39,

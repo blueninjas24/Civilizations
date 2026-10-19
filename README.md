@@ -7,6 +7,11 @@ civilizations. The current prototype has persistent people, village economies an
 working business simulations. Physical construction comes in Phase4; regional
 trade and roads come in Phase5.
 
+Phase4 has begun with editable original starter plans and read-only admin site
+previews. Nothing places blocks yet. See [construction tools](docs/CONSTRUCTION.md)
+and the [P4 checklist](docs/PHASE4_CHECKLIST.md). P3's human survival playtest remains
+pending while protected construction foundations proceed separately.
+
 ## What works now
 
 - Villages are recognized automatically from beds and villagers, including suitable

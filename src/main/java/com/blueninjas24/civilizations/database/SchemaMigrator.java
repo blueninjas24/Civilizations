@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 99;
+    static final int CURRENT_VERSION = 100;
 
     @FunctionalInterface
     interface Migration {
@@ -948,7 +948,8 @@ final class SchemaMigrator {
                 ForestRecovery::createSchema,
                 BusinessCompetition::createSchema,
                 ResourceInvestment::createSchema,
-                GeneratedTerrainRepository::createSchema
+                GeneratedTerrainRepository::createSchema,
+                ConstructionDraftRepository::createSchema
 
 
         ));
@@ -1149,6 +1150,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"resource_investment_state",Set.of("settlement_id","last_proposal","sequence","observed_ms"));
                 requireColumns(connection,"resource_investment_reviews",Set.of("business_id","settlement_id","sequence","proposal","industry","observed_step","observed_ms","demand_value","policy","explanation"));
             }
+            if(migrations.size()>=100)requireColumns(connection,"construction_drafts",Set.of("id","settlement_id","world_id","origin_x","origin_y","origin_z","rotation","mirrored","template_hash","template_snapshot","created_ms"));
             if(migrations.size()>=99)requireColumns(connection,"generated_resource_chunks",Set.of("kind","world_id","chunk_x","chunk_z","generation","observed_ms"));
             if(migrations.size()>=94) {
                 requireColumns(connection,"forestry_founder_courses",Set.of("course_id","settlement_id","world_id","x","y","z","enrolled_period"));

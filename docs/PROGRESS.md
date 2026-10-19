@@ -1,18 +1,25 @@
 # Civilizations progress tracker
 
-## Current - Phase 3 prototype complete
+## Current — Phase 4 started; Phase 3 prototype complete
 
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 4 / 4 | `██████████` 100% - prototype gate passed |
-| 4. Physical Growth | Villages build and improve structures gradually | 0 / 4 | `░░░░░░░░░░` 0% |
+| 4. Physical Growth | Villages build and improve structures gradually | 1 / 4 | `██▌░░░░░░░` 25% — plans/previews; no block placement yet |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
 | 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
 | 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
 | 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
+
+**Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
+
+Editable starter plans, safe read-only admin previews and saved frozen proposals
+are ready. Actual building, paid work, land protection, upgrades and acceptance
+remain ahead. See PHASE4_CHECKLIST.md for the four groups; percentages measure
+verified checklist scope, not time. Human P3 playtesting is still deferred.
 
 **Phase 3: `██████████` 100% - all 4 major groups verified.**
 

@@ -1,0 +1,20 @@
+# Original authored Civilizations path segment; not regional road generation.
+format: 1
+id: starter_path
+revision: 1
+name: Small stone path
+attribution: Original Civilizations starter build
+purpose: path
+size: {x: 5, y: 1, z: 1}
+palette:
+  C: minecraft:cobblestone
+stages:
+  - id: surface
+    work: 5
+    materials: {stone: 2}
+    layers:
+      - y: 0
+        rows: [CCCCC]
+anchors:
+  - {role: road, at: [-1, -1, 0], facing: west}
+  - {role: road, at: [5, -1, 0], facing: east}

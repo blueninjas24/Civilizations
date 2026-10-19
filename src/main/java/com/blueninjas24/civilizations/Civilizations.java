@@ -53,6 +53,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.LivestockSaleTransfers livestockSales;
     private com.blueninjas24.civilizations.paper.LivestockMarketMenu livestockMarket;
     private com.blueninjas24.civilizations.paper.PaperPenControls pens;
+    private com.blueninjas24.civilizations.paper.PaperConstructionPreview construction;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
     private com.blueninjas24.civilizations.paper.PaperFisheryStartup fisheryStartup;
@@ -160,8 +161,15 @@ public final class Civilizations extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new com.blueninjas24.civilizations.paper.PendingLivestockItems(),this);
             pens=new com.blueninjas24.civilizations.paper.PaperPenControls(population,penSettings,getLogger());
             pens.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(pens,this);
+            try {
+                construction=new com.blueninjas24.civilizations.paper.PaperConstructionPreview(
+                        com.blueninjas24.civilizations.paper.PaperConstructionLibrary.load(this));
+                construction.runTaskTimer(this,1,1);
+            }catch(IOException|InvalidConfigurationException|IllegalArgumentException invalid) {
+                getLogger().log(Level.WARNING,"Construction previews disabled; fix construction/*.yml and restart. Population and economy remain active.",invalid);
+            }
             var router=new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
-                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining,barterCommand,livestockMarket,pens);
+                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining,barterCommand,livestockMarket,pens,construction);
             command.setExecutor(router);command.setTabCompleter(router);bargaining.runTaskTimer(this,1,1);
             // Poll completed transfer stages promptly; each adapter still caps work at four players.
             // Five-second polling multiplied the wait across save/ledger stages during playtesting.
@@ -269,6 +277,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(construction!=null)construction.cancel();
         if(pens!=null){pens.cancel();pens.close();}
         if(livestockMarket!=null)livestockMarket.close();
         if(livestockSales!=null)livestockSales.close();

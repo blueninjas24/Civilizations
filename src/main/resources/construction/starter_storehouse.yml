@@ -1,0 +1,48 @@
+# Original authored Civilizations build. Distribution follows the repository's license.
+# Dot skips a cell; it never clears a block. Costs are prototype abstract commodity units.
+format: 1
+id: starter_storehouse
+revision: 1
+name: Small timber storehouse
+attribution: Original Civilizations starter build
+purpose: storage
+size: {x: 5, y: 4, z: 5}
+palette:
+  C: minecraft:cobblestone
+  P: minecraft:oak_planks
+  L: minecraft:oak_log[axis=y]
+  B: minecraft:barrel[facing=up,open=false]
+  D: minecraft:oak_door[facing=north,half=lower,hinge=left,open=false,powered=false]
+  U: minecraft:oak_door[facing=north,half=upper,hinge=left,open=false,powered=false]
+stages:
+  - id: foundation
+    work: 25
+    materials: {stone: 8}
+    layers:
+      - y: 0
+        rows: [CCCCC, CCCCC, CCCCC, CCCCC, CCCCC]
+  - id: walls
+    work: 36
+    materials: {timber: 12}
+    layers:
+      - y: 1
+        rows: [LPDPL, P...P, P...P, P...P, LPPPL]
+      - y: 2
+        rows: [LPUPL, P...P, P...P, P...P, LPPPL]
+  - id: roof
+    work: 25
+    materials: {timber: 8}
+    layers:
+      - y: 3
+        rows: [PPPPP, PPPPP, PPPPP, PPPPP, PPPPP]
+  - id: fittings
+    work: 4
+    materials: {storage_fittings: 1}
+    layers:
+      - y: 1
+        rows: ['.....', '.B...', '.....', '.....', '.....']
+anchors:
+  - {role: entrance, at: [2, 1, 0], facing: north}
+  - {role: road, at: [2, -1, -1], facing: north}
+  - {role: work, at: [2, 1, 2], facing: north}
+  - {role: storage, at: [1, 1, 1], facing: north}

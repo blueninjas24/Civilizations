@@ -1,5 +1,24 @@
 # Civilizations Development Log
 
+## 2026-10-19 — Phase 4 authored-plan foundation
+
+Started `codex/phase4-construction-foundation` from P3 085b351 after verifying
+its hosted Windows/Linux green. Added immutable versioned construction domain,
+bounded strict YAML reader, two original starter resources, native orientation
+adapter, read-only admin catalogue/site scan and frozen proposal repository.
+Migration 100 adds only `construction_drafts` with permanent world/village FK;
+no reset, land permission, spending, block editing or building activation.
+
+Focused Wrapper clean verify passed 28 unit +3 packaged integration checks,
+zero failures/errors/skips, 21.630s at 17:37:56 ET. Initial sandbox-restricted
+backup integration failed on a Windows temporary-file move; normal-environment
+rerun passed. Native disposable Paper probe passed all eight door/geometry
+orientations, pillar rotation, installed resources, router permissions/completion
+and invalid edited-material rejection. Fixture file restored; no block/entity
+changes by helper. Human server/main untouched. Added construction guide and
+P4 milestone checklist: 4/16, 25%, 1/4 complete groups. Human playtest deferred.
+
+
 ## 2026-10-19 - Phase3 prototype gate complete
 
 Completed63 checklist entries across4/4 groups (100% of the initial P3 scope).
