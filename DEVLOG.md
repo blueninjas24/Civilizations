@@ -1,5 +1,51 @@
 # Civilizations Development Log
 
+## Latest verified batch - marker workplaces share protected startup selection
+
+Connected the four existing qualified marker adapters (blacksmith, warehouse,
+bakery, craftsman) to resource startup comparison. Up to one proposal per adapter
+joins the bounded mineral/quarry/logging choices, valued against actual funded
+unmet needs after the proposed public startup debit. Recipes contribute their
+prepared outputs; warehouses their admitted catalog. No new grant allowance,
+skills, sources, goods, course enrollment, property rights or Paper chunk loading.
+
+A selected provisional marker waits for its existing main-thread loaded point
+check. Acceptance compares again on the SQL owner; normal current marker, owner,
+inputs, budget and capture checks remain. All four existing transactions now
+compose the selection audit with the paid grant/first job/store/cargo. A mismatched
+actual industry/business refuses the audit. Exact accepted replay preserves its
+existing receipt without another ranking or cursor advance. Existing schema98
+selection tables admit these industry kinds already; no migration/data rewrite.
+
+Focused clean Wrapper verify/package passed59 units +2 packaged integrations,
+zero failures/errors/skips,58.457s (latest log). Added3 real-workshop temporary DB
+cases,1 mixed marker/resource adapter comparison and an additional shared-enabled
+variant of the actual PopulationSession training/startup scenario. They prove
+waiting/no reservations, missing proof refusal, late-audit full rollback/retry,
+one grant/audit/replay, real SQL-owner wiring and an actual resource winning after
+a higher-priority marker proposal is withdrawn. Existing four adapter suites pass.
+Two initial compile checks found constructor punctuation and a missing Set import;
+fixed before verification. No passing claim for those failed compile attempts.
+
+Actual isolated Paper26.2-129 passed: ordinary timed supply-backed training,
+Paper workshop startup review/point confirmation, real paid founding, marker
+removal/wrong replacement/restoration, absent-world pause and restart. One shared
+blacksmith selection/audit survived, money29500 after the500 actual startup expense,
+two actual jobs, one starter cargo and20 practice-material spending entries.
+The original AIR block restored; fixture-only ticket removed; server stopped.
+Main disposable DB remains98 with173 tables,166 exact; seven changed tables contain
+normal clocks/capture and same-field reobservation metadata, zero aging. Initial
+audit conservatively refused the farm observation changes; read-only inspection
+proved only an old partial->complete rescan and fresh timestamps, with identical
+fields/grain counts/identities. Strict recheck passed integrity/FKs/config/capture
+and private business invariants. Failed initial audit and final proof retained.
+Port restored/helper archived. Human server/main unchanged.
+
+Previous b0cf334 full hosted verification is now confirmed SUCCESS on Windows and
+Linux (run39181828920). Latest marker work gets a new full hosted run after push.
+P3 remains76.4% partial,1/4 whole groups: fishing/livestock startup priority and
+broader specialization acceptance still remain. No new gameplay decision.
+
 ## October18, 20:40 EDT - full-regression findings corrected
 
 The full local Wrapper clean verify ran1951 units:1928 passed,23 failed, no errors

@@ -52,6 +52,9 @@ public final class WarehouseInvestment {
         });
     }
     public BusinessStartupGrants.Warehouse accept(Draft draft,WorkplaceOperations.Confirmation evidence,long now,Set<UUID> worlds)throws SQLException {
+        return accept(draft,evidence,now,worlds,()->{});
+    }
+    public BusinessStartupGrants.Warehouse accept(Draft draft,WorkplaceOperations.Confirmation evidence,long now,Set<UUID> worlds,ResourceInvestment.StartupAudit audit)throws SQLException {
         Objects.requireNonNull(draft);Objects.requireNonNull(evidence);
         if(now<0)throw new IllegalArgumentException("Invalid warehouse acceptance time");
         if(!draft.anchor().equals(evidence.anchor()))throw new BusinessStartupGrants.Declined("Loaded barrel proof does not match proposed fixed anchor");
@@ -71,7 +74,7 @@ public final class WarehouseInvestment {
                 }
             } else if(!firms.findFounding(business).orElseThrow().equals(draft.startup().founding()))throw new SQLException("Accepted warehouse identity reused with changed founding");
             return new BusinessStartupGrants(connection).startMarkerWarehouseRows(draft.startup(),grants,worlds,evidence,now);
-        });
+        },audit);
     }
     private Draft draft(WarehouseOpportunities.Opportunity opportunity,UUID founder,long step) {
         var marker=opportunity.workplace();var p=marker.position();String key=opportunity.town()+":"+marker.world()+":"+p.x()+":"+p.y()+":"+p.z();
@@ -88,8 +91,11 @@ public final class WarehouseInvestment {
     private static Preparation none(String reason){return new Preparation(Optional.empty(),reason);}
     @FunctionalInterface private interface Work<T>{T run()throws SQLException;}
     private <T>T transaction(Work<T> work)throws SQLException {
+        return transaction(work,()->{});
+    }
+    private <T>T transaction(Work<T> work,ResourceInvestment.StartupAudit audit)throws SQLException {
         if(!connection.getAutoCommit())throw new SQLException("Warehouse investment requires idle SQL owner");connection.setAutoCommit(false);
-        try{var result=work.run();connection.commit();return result;}
+        try{var result=work.run();audit.save();connection.commit();return result;}
         catch(SQLException|RuntimeException failure){try{connection.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
         finally{connection.setAutoCommit(true);}
     }

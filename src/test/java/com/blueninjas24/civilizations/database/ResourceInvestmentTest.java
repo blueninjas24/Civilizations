@@ -66,4 +66,15 @@ class ResourceInvestmentTest {
         investment=service();review(2000);assertEquals(0,count("startup_grants"));
         fixture.sql("UPDATE treasuries SET hundredths=60000");investment=service();review(1_000_000);assertEquals(0,count("startup_grants"));
     }
+    @Test void markerAdapterCanOutrankResourceStartupsWithoutSpendingUntilItProvesTheWorkplace()throws Exception {
+        var proposed=new UUID(9,9);
+        // Simulates the trusted marker-preparation bridge; real qualification/proof/paid acceptance is covered by MarkerInvestmentTest.
+        investment.withMarkerCandidates((town,step,now,worlds)->List.of(new ResourceInvestment.Proposal(proposed,"warehouse",
+                Set.of(Commodity.COAL,Commodity.STONE),2500,"Prepared marker adapter fixture")));
+        String result=review(2000);assertTrue(result.contains("warehouse "+proposed+" awaits fresh"),result);
+        assertEquals(0,count("startup_grants"));assertEquals(60000,fixture.cash());assertEquals(0,count("resource_investment_state"));
+        assertThrows(BusinessStartupGrants.Declined.class,()->investment.markerApproval(fixture.town,new UUID(9,8),1,2000,Set.of(fixture.world)));
+        investment.withMarkerCandidates((town,step,now,worlds)->List.of());
+        assertTrue(review(7000).contains("mining, funded demand value 300"));assertEquals(1,count("startup_grants"));
+    }
 }

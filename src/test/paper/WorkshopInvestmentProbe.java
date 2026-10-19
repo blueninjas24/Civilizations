@@ -62,6 +62,7 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
     private PopulationSession owner() {
         var d=PopulationSession.Settings.prototype();var population=new PopulationSession.Settings(0,d.millisPerMonth(),d.maximumOfflineMonths(),d.monthsPerBatch(),d.population(),d.migration(),d.recognition(),d.enrollment());
         var session=new PopulationSession(folder.toFile(),getLogger(),population,System::currentTimeMillis,settings,FarmObservation.Policy.prototype());
+        if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))session.configureBusinessAllocation(BusinessAllocationPolicy.prototype());
         session.configureFarmBusinesses(new FarmBusinessPolicy(true,1,0,216,0));session.configureFarmTools(upkeep,FarmToolBudgetPolicy.prototype());session.configureWorkLearning(WorkLearningPolicy.prototype());
         session.configureBusinessOperations(BusinessOperationPolicy.prototype());session.configureIndustryRuntime(industry);session.configureWorkplaces(WorkplaceObserverPolicy.prototype());
         session.configureStudy(StudyPolicy.prototype());session.configureCareerStudy(CareerStudyPolicy.prototype());
@@ -112,10 +113,13 @@ public final class WorkshopInvestmentProbe extends JavaPlugin {
                     require(scalar("SELECT hundredths FROM treasuries")+scalar("SELECT hundredths FROM industry_stores WHERE business_id='"+business+"'")==29500,"Training/startup/marker changes lost real money");
                     require(scalar("SELECT COUNT(*) FROM business_employment WHERE ended_step IS NULL")==2&&scalar("SELECT COUNT(*) FROM workshop_starter_orders")==1,"Marker changes lost workers or cargo");
                     require(scalar("SELECT COUNT(*) FROM resident_courses WHERE status='COMPLETED'")==1&&scalar("SELECT COUNT(*) FROM study_spending")==20,"First owner did not earn ten actual two-material practice periods");
+                    if(Boolean.getBoolean("civilizations.probe.sharedAllocation"))require(scalar("SELECT COUNT(*) FROM resource_investment_reviews WHERE industry='blacksmith'")==1
+                            &&scalar("SELECT sequence FROM resource_investment_state")==1,"Shared marker selection must survive restart with exactly one paid startup audit");
                     observer.cancel();observer=null;world.getBlockAt(4,y,4).setBlockData(original,false);placed=false;
                     require(world.getBlockAt(4,y,4).getBlockData().getAsString().equals(original.getAsString()),"Temporary block not exactly restored");
                     getLogger().info("NATIVE WORKSHOP INVESTMENT PASS: unskilled fixture adult earned ten supply-backed practice periods through normal SQL timer, automatic Paper review/table proof/paid startup for real farm customer; scheduled marker lifecycle, absence/restart, conserved money/jobs/cargo/history; temporary block restored");
                     cancel();getServer().getPluginManager().disablePlugin(WorkshopInvestmentProbe.this);
+                    if(Boolean.getBoolean("civilizations.probe.sharedAllocation")){getLogger().info("NATIVE SHARED MARKER INVESTMENT PASS: ordinary Paper review/point proof and SQL-owner paid grant share one selection audit across absence/restart; original block restored and fixture ticket released");getServer().shutdown();}
                 }catch(Exception failure){cancel();getLogger().log(java.util.logging.Level.SEVERE,"NATIVE WORKSHOP INVESTMENT FAIL",failure);getServer().getPluginManager().disablePlugin(WorkshopInvestmentProbe.this);}}
             }.runTaskTimer(this,1,1);
         }catch(Exception failure){getLogger().log(java.util.logging.Level.SEVERE,"Workplace operation fixture refused",failure);getServer().getPluginManager().disablePlugin(this);}

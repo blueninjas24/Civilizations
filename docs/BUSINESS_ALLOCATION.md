@@ -3,8 +3,8 @@
 The user approved urgent village needs first, then unmet demand from real funded
 customers, with editable priorities and fair rotation on ties. This first verified
 connection applies to vacancies at existing non-farm businesses and selection among
-viable resource startup adapters. Existing farms also receive the urgent-food
-scheduling hook below; marker/animal startup comparison remains next work.
+viable resource and marker startup adapters. Existing farms also receive the urgent-food
+scheduling hook below; fishing/animal startup comparison remains next work.
 No worker is transferred, no wage wallet is created and no living-owner firm closes.
 
 New-file `business-allocation` in economy.yml enables the comparison. Missing old
@@ -65,14 +65,32 @@ selection audit and tie cursor commit together. Refused/stale opportunities crea
 no approval or cursor advancement. Founder study continues through the existing
 economy system; comparison does not award skills or buy practice supplies.
 
+Qualified blacksmith, warehouse, bakery and craftsman preparations now join the
+same comparison, one proposal per enabled marker adapter. Workshops use their
+prepared recipe's outputs; warehouses can supply their admitted storage catalog.
+The four existing preparation methods retain their actual funding, skills, inputs,
+customer and marker-evidence checks. Comparison adds no course or reservation.
+If a marker wins, the owner pulse waits for its normal Paper adapter to confirm
+the already-loaded point. Unknown/unloaded or removed markers cannot spend funds.
+Acceptance compares again immediately before normal startup revalidation.
+
+The actual grant, stock/cargo, first job and selection audit/cursor commit in that
+startup's existing transaction. Audit failure rolls everything back. Saved exact
+startup replays bypass a new comparison and do not add another selection record.
+The existing schema98 ledger also stores these marker kinds; no migration, row
+rewrite or renamed table. A high-priority provisional marker can temporarily delay
+other startups until confirmed or its existing observation expires; this never
+loads a chunk to obtain proof. Selection does not guarantee a completed future sale.
+
 Schema97 adds initially empty `business_allocation_state` and
 `business_allocation_reviews`. Hiring, its existing audit, selection explanation and
 saved tie cursor commit together. Failure rolls back all of them. Review throttling
 also covers complete comparisons with no candidate, without adding empty historical
 rows on every pulse. The report remains read-only; business diagnostics show the
-configured selection result. Marker-confirmed workshops/warehouses, fishing and
-livestock adoption retain their existing acceptance adapters. They do not yet share
-this startup comparison; do not call the whole specialization/competition gate done.
+configured selection result. Marker-confirmed workshops/warehouses retain their
+existing acceptance adapters with the shared choice now connected. Fishing and
+livestock adoption do not yet share this startup comparison; do not call the whole
+specialization/competition gate done.
 
 Seven new focused cases plus existing staffing/demand/runtime/migration tests passed.
 Actual disposable Paper owner-pulse acceptance selected iron shortage value400 over

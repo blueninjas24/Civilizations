@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.LongSupplier;
@@ -566,7 +567,7 @@ public final class PopulationSession implements AutoCloseable {
                 resourceInvestment=new com.blueninjas24.civilizations.database.ResourceInvestment(database.getConnection(),allocationPolicy,industryPolicy,automaticMines,automaticQuarries,automaticForestry,
                         new com.blueninjas24.civilizations.database.LocalIndustryDemand(database.getConnection(),industryPolicy,operationPolicy,()->!trackOres||oreCaptureReady())
                                 .withFarmTools(farmToolsPolicy,farmToolsBudget).withLivestock(livestockPolicy,livestockRuntimePolicy,livestockWorkingArea,this::livestockCaptureReady),
-                        new com.blueninjas24.civilizations.database.VillageSupplyPurchases(database.getConnection(),villageSupplyPolicy,studyPolicy,operationPolicy));
+                        new com.blueninjas24.civilizations.database.VillageSupplyPurchases(database.getConnection(),villageSupplyPolicy,studyPolicy,operationPolicy)).withMarkerCandidates(this::preparedMarkerInvestments);
                 industries = new com.blueninjas24.civilizations.database.IndustryRuntime(database.getConnection(),industryPolicy,operationPolicy,learningPolicy,()->!trackOres||(!oreCaptureGap.get()&&pendingOreMutations.get()==0));
                 industries.configureFarmToolDemand(farmToolsPolicy,farmToolsBudget);
                 industries.configureFishing(fishingPolicy);
@@ -952,7 +953,7 @@ public final class PopulationSession implements AutoCloseable {
             if(economy==null||economyFailure!=null||status.get().remainingMonths()>0||!workplacePolicy.enabled()
                     ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.CRAFTING_TABLE))
                 throw new com.blueninjas24.civilizations.database.BusinessStartupGrants.Declined("Craftsman acceptance waits for enabled current food/population/crafting-table evidence");
-            return craftsmanInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds);
+            return craftsmanInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds,markerInvestmentAudit(draft.startup().founding().business()));
         });
     }
     private com.blueninjas24.civilizations.database.BakeryInvestment bakeryInvestment() {
@@ -978,7 +979,7 @@ public final class PopulationSession implements AutoCloseable {
             if(economy==null||economyFailure!=null||status.get().remainingMonths()>0||!workplacePolicy.enabled()
                     ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMOKER))
                 throw new com.blueninjas24.civilizations.database.BusinessStartupGrants.Declined("Bakery acceptance waits for enabled current food/population/smoker evidence");
-            return bakeryInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds);
+            return bakeryInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds,markerInvestmentAudit(draft.startup().founding().business()));
         });
     }
     /** Read-only mineral-chain warehouse prospects; never claims a marker or pays a grant. */
@@ -990,6 +991,29 @@ public final class PopulationSession implements AutoCloseable {
             return new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
                 operationPolicy,startupGrantPolicy,mineFoundingPolicy,()->!trackOres||oreHistoryHealthy.get()).review(town,now.getAsLong(),loadedWorlds);
         });
+    }
+    /** Current SQL-only preflights; actual marker reads remain with the existing Paper startup adapters. */
+    private List<com.blueninjas24.civilizations.database.ResourceInvestment.Proposal> preparedMarkerInvestments(UUID town,long step,long observed,Set<UUID> worlds)throws SQLException {
+        var proposals=new java.util.ArrayList<com.blueninjas24.civilizations.database.ResourceInvestment.Proposal>();
+        if(!workplacePolicy.enabled())return List.of();
+        if(workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE))
+            workshopInvestment().prepare(town,step,observed,worlds).draft().ifPresent(d->addMarkerProposal(proposals,d.startup().founding(),d.startup().capital(),d.supplies().recipe().outputs().keySet()));
+        if(workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL))
+            warehouseInvestment().prepare(town,step,observed,worlds).draft().ifPresent(d->addMarkerProposal(proposals,d.startup().founding(),d.startup().capital(),d.startup().space().keySet()));
+        if(workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.CRAFTING_TABLE))
+            craftsmanInvestment().prepare(town,step,observed,worlds).draft().ifPresent(d->addMarkerProposal(proposals,d.startup().founding(),d.startup().capital(),d.supplies().recipe().outputs().keySet()));
+        if(workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMOKER))
+            bakeryInvestment().prepare(town,step,observed,worlds).draft().ifPresent(d->addMarkerProposal(proposals,d.startup().founding(),d.startup().capital(),d.supplies().recipe().outputs().keySet()));
+        return List.copyOf(proposals);
+    }
+    private void addMarkerProposal(List<com.blueninjas24.civilizations.database.ResourceInvestment.Proposal> proposals,
+            com.blueninjas24.civilizations.industry.BusinessFounding founding,long capital,Set<com.blueninjas24.civilizations.economy.Commodity> products) {
+        proposals.add(new com.blueninjas24.civilizations.database.ResourceInvestment.Proposal(founding.business().id(),founding.business().industry(),products,
+                Math.addExact(founding.startupHundredths(),capital),"Qualified current marker preflight; final loaded point proof required; "+founding.reason()));
+    }
+    private com.blueninjas24.civilizations.database.ResourceInvestment.StartupAudit markerInvestmentAudit(com.blueninjas24.civilizations.industry.Business business)throws SQLException {
+        if(!allocationPolicy.enabled()||database.getBusinessRepository().findBusiness(business.id()).isPresent())return ()->{};
+        return resourceInvestment.markerApproval(business.settlementId(),business.id(),status.get().completedMonths(),now.getAsLong(),loadedWorlds);
     }
     private com.blueninjas24.civilizations.database.WarehouseInvestment warehouseInvestment() {
         var evidence=new com.blueninjas24.civilizations.database.WarehouseOpportunities(database.getConnection(),warehouseOpportunityPolicy,industryPolicy,
@@ -1027,7 +1051,7 @@ public final class PopulationSession implements AutoCloseable {
             if(economy==null||economyFailure!=null||status.get().remainingMonths()>0||!workplacePolicy.enabled()
                     ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.BARREL))
                 throw new com.blueninjas24.civilizations.database.BusinessStartupGrants.Declined("Warehouse acceptance waits for enabled current food/population/barrel evidence");
-            return warehouseInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds);
+            return warehouseInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds,markerInvestmentAudit(draft.startup().founding().business()));
         });
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.WorkshopInvestment.Preparation> prepareWorkshopInvestment(UUID town) {
@@ -1085,7 +1109,7 @@ public final class PopulationSession implements AutoCloseable {
             if(economy==null||economyFailure!=null||status.get().remainingMonths()>0||!workplacePolicy.enabled()
                     ||!workplacePolicy.kinds().contains(com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.SMITHING_TABLE))
                 throw new com.blueninjas24.civilizations.database.BusinessStartupGrants.Declined("Workshop acceptance waits for enabled current food/population/marker evidence");
-            return workshopInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds);
+            return workshopInvestment().accept(draft,confirmation,now.getAsLong(),loadedWorlds,markerInvestmentAudit(draft.startup().founding().business()));
         });
     }
     /** Internal delivery bridge; source adapter must first establish the actual goods/consent. */

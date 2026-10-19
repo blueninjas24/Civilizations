@@ -91,11 +91,13 @@ class WorkshopFounderStudyTest {
         runtime=runtime(4000,10,WorkshopFoundingPolicy.disabled());assertTrue(runtime.reviewWorkshopFounderStudy(fixture.town,4000).contains("disabled"));runtime.pulse(5000,false);
         assertEquals(1,xp());assertEquals(1,scalar("SELECT COUNT(*) FROM resident_courses WHERE status='ACTIVE'"));assertEquals(1,scalar("SELECT COUNT(*) FROM study_spending"));
     }
-    @Test void automaticSqlOwnerReviewSponsorsStudyThenReturnsEarnedFounderForAcceptance()throws Exception {
+    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
+    void automaticSqlOwnerReviewSponsorsStudyThenReturnsEarnedFounderForAcceptance(boolean sharedPriorities)throws Exception {
         fixture.db.close();var time=new java.util.concurrent.atomic.AtomicLong(3000);
         var original=com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype();
         var settings=new com.blueninjas24.civilizations.application.PopulationSession.Settings(0,original.millisPerMonth(),original.maximumOfflineMonths(),original.monthsPerBatch(),original.population(),original.migration(),original.recognition(),original.enrollment());
         try(var session=new com.blueninjas24.civilizations.application.PopulationSession(directory.toFile(),java.util.logging.Logger.getLogger("WorkshopFounderTest"),settings,time::get,fixture.settings,FarmObservation.Policy.prototype())) {
+            if(sharedPriorities)session.configureBusinessAllocation(BusinessAllocationPolicy.prototype());
             session.configureFarmBusinesses(new FarmBusinessPolicy(true,1,0,216,0));session.configureFarmTools(fixture.upkeep,FarmToolBudgetPolicy.prototype());session.configureWorkLearning(WorkLearningPolicy.prototype());
             session.configureBusinessOperations(BusinessOperationPolicy.prototype());session.configureIndustryRuntime(fixture.industry);session.configureWorkplaces(WorkplaceObserverPolicy.prototype());
             session.configureWorkshopOpportunities(WorkshopOpportunityPolicy.prototype(),fixture.starter);session.configureWorkshopFounding(WorkshopFoundingPolicy.prototype());session.configureMineFounding(MineFoundingPolicy.disabled(),StartupGrantPolicy.prototype());
@@ -106,5 +108,6 @@ class WorkshopFounderStudyTest {
             session.acceptWorkshopInvestment(proposal,new WorkplaceOperations.Confirmation(proposal.anchor(),true,13000)).get(5,java.util.concurrent.TimeUnit.SECONDS);
         }
         fixture.open();assertEquals(10,xp());assertEquals(1,scalar("SELECT COUNT(*) FROM startup_grants"));assertEquals(28500,new TreasuryRepository(fixture.db.getConnection()).load(fixture.town).orElseThrow().hundredths());
+        assertEquals(sharedPriorities?1:0,scalar("SELECT COUNT(*) FROM resource_investment_reviews"));
     }
 }

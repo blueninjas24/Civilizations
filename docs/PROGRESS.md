@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - workshops and warehouses share startup priorities
+
+Qualified marker-backed businesses now compete with mines, quarries and logging
+for the same protected startup funds. Fresh workplace confirmation is still needed;
+failed saves undo the entire opening. Focused build/tests and an actual isolated
+Paper training/startup/restart passed. Previous full Windows/Linux builds are green.
+Fishing and livestock remain to connect, so the combined gate stays open and P3
+stays76.4% partial,1/4 whole groups. No decision needed.
+
 ## October18 - broader regression findings fixed
 
 A full check found stale migration-test comparisons and one legacy trainee-hiring

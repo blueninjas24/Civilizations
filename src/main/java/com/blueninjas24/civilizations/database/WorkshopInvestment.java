@@ -54,6 +54,9 @@ public final class WorkshopInvestment {
         });
     }
     public BusinessStartupGrants.Workshop accept(Draft draft,WorkplaceOperations.Confirmation evidence,long now,Set<UUID> worlds)throws SQLException {
+        return accept(draft,evidence,now,worlds,()->{});
+    }
+    public BusinessStartupGrants.Workshop accept(Draft draft,WorkplaceOperations.Confirmation evidence,long now,Set<UUID> worlds,ResourceInvestment.StartupAudit audit)throws SQLException {
         Objects.requireNonNull(draft);Objects.requireNonNull(evidence);
         if(!draft.anchor().equals(evidence.anchor()))throw new BusinessStartupGrants.Declined("Loaded marker proof does not match proposed fixed anchor");
         return transaction(()-> {
@@ -72,7 +75,7 @@ public final class WorkshopInvestment {
                 }
             } else if(!firms.findFounding(business).orElseThrow().equals(draft.startup().founding()))throw new SQLException("Accepted workshop identity reused with changed founding");
             return new BusinessStartupGrants(connection).startMarkerWorkshopRows(draft.startup(),grants,draft.supplies(),starter,worlds,evidence,now);
-        });
+        },audit);
     }
     private Draft draft(WorkshopOpportunities.Opportunity opportunity,UUID founder,long step) {
         var marker=opportunity.workplace();var p=marker.position();String key=opportunity.town()+":"+marker.world()+":"+p.x()+":"+p.y()+":"+p.z();
@@ -90,8 +93,11 @@ public final class WorkshopInvestment {
     private static Preparation none(String reason){return new Preparation(Optional.empty(),reason);}
     @FunctionalInterface private interface Work<T>{T run()throws SQLException;}
     private <T>T transaction(Work<T> work)throws SQLException {
+        return transaction(work,()->{});
+    }
+    private <T>T transaction(Work<T> work,ResourceInvestment.StartupAudit audit)throws SQLException {
         if(!connection.getAutoCommit())throw new SQLException("Investment requires idle SQL owner");connection.setAutoCommit(false);
-        try{var result=work.run();connection.commit();return result;}
+        try{var result=work.run();audit.save();connection.commit();return result;}
         catch(SQLException|RuntimeException failure){try{connection.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
         finally{connection.setAutoCommit(true);}
     }

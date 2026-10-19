@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - workshops and warehouses share startup priorities
+
+Qualified marker-backed businesses now compete with mines, quarries and logging
+for the same protected startup funds. Fresh workplace confirmation is still needed;
+failed saves undo the entire opening. Focused build/tests and an actual isolated
+Paper training/startup/restart passed. Previous full Windows/Linux builds are green.
+Fishing and livestock remain to connect, so the combined gate stays open and P3
+stays76.4% partial,1/4 whole groups. No decision needed.
+
 ## October18 - food shortages now get an earlier farm staffing response
 
 An existing farm with usable saved fields can claim idle qualified help before
