@@ -59,6 +59,23 @@ class GeneratedResourceEligibilityTest {
             assertEquals(0,f.count("mineral_recoveries"));assertEquals(1,f.count("player_ore_placements"));
         } finally {f.close();}
     }
+    @Test void laterGenerationCannotUnlockAnOlderSavedDepositWithoutExplicitRecovery()throws Exception {
+        var f=new MiningStartupRepositoryTest();f.directory=directory;f.prepare();
+        try {
+            var opened=f.startup.start(f.request);var deposit=opened.discovery().deposit().id();
+            var c=f.db.getConnection();beginScoped(c,"ore");
+            var epoch=new ResourceRecoveryEpochs(c).load("ore").orElseThrow();
+            assertTrue(new GeneratedTerrainRepository(c).recordGenerated("ore",f.world,0,0,epoch.generation(),20));
+            var industry=f.db.getIndustryRepository();assertFalse(industry.sourceHistoryTrusted(deposit));
+            // A new observation can retain identity, but cannot rewrite the original discovery time or grant recovery.
+            var evidence=f.request.evidence();
+            new MineralDiscoveryRepository(c).discover(f.request.founding().site().id(),
+                    new MineralObservation(f.world,30,true,evidence.mineral(),evidence.ore()),f.request.batchesPerOre(),f.request.bundle());
+            assertFalse(industry.sourceHistoryTrusted(deposit));
+            assertEquals(8,industry.deposit(deposit).orElseThrow().remainingBatches());
+            assertEquals(0,f.count("mineral_recoveries"));assertEquals(8500,f.treasury());
+        } finally {f.close();}
+    }
     @Test void forestOpeningAndWorkUseCompleteSavedSupportsAndRemainRevocable()throws Exception {
         var f=new ForestryPersistenceTest();f.directory=directory;f.setup();
         try {

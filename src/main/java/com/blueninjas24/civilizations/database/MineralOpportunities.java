@@ -79,8 +79,7 @@ public final class MineralOpportunities {
         var survey=survey(town);
         if(survey==null)return new Review(Status.MISSING,null,-1,List.of(),"No complete current survey; historical sightings are insufficient");
         if(!activeWorlds.contains(survey.world()))return unavailable(Status.INACTIVE_WORLD,survey,"World absent or availability unknown; candidates paused");
-        if(new OreTrackingRepository(connection).load().map(s->!s.trusted()).orElse(true))
-            return unavailable(Status.TRACKING_GAP,survey,"Ore mutation history is unavailable or requires reviewed recovery");
+        boolean trusted=new OreTrackingRepository(connection).load().map(OreTrackingRepository.State::trusted).orElse(false);
         if(survey.captured()>now)return unavailable(Status.FUTURE,survey,"Capture lies ahead of the current clock; candidates deferred");
         if(now-survey.captured()>maximumAgeMillis)return unavailable(Status.STALE,survey,"Complete survey expired; new loaded-chunk evidence required");
         var rows=new ArrayList<Evidence>();
@@ -101,6 +100,13 @@ public final class MineralOpportunities {
                             new Commodity(r.getString("mineral")),r.getLong("first_seen_millis"),r.getLong("last_seen_millis"),false,null));
                 }
             }
+        }
+        if(!trusted) {
+            if(!rows.isEmpty()) {
+                var covered=new GeneratedTerrainRepository(connection).coveredPositions("ore",survey.world(),rows.stream().map(Evidence::position).toList(),survey.captured());
+                rows.removeIf(row->!covered.contains(row.position()));
+            }
+            if(rows.isEmpty())return unavailable(Status.TRACKING_GAP,survey,"No current candidates with complete generated-terrain provenance; reviewed recovery required for older terrain");
         }
         return new Review(Status.CURRENT,survey.world(),survey.captured(),rows,
             "Current complete survey: "+rows.size()+" visible unclaimed coordinates; demand, site, skills and funding still required");

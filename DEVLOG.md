@@ -1,5 +1,17 @@
 # Civilizations Development Log
 
+## 2026-10-19 - filter scoped opportunities and prevent retroactive trust
+
+Current mineral/quarry views filter exact generated coordinates under sticky global
+gaps, retain older history and derive eligible quarry capture time. Positive admission
+requires complete proof; empty frames only clear candidates. Generation timestamps
+must precede resource observations; saved resource production retains its original
+opening cutoff, so later certificates cannot silently authorize older sources.
+Focused clean verify37 unit +3 packaged checks passed28.796s; one additional saved-
+source chronology regression passed10.472s. Three new cases; no whole suite repeat,
+new migration/native run or live guard exemption. P3 stays88.1%; ordinary adapter/
+founder wiring and optional editor lifecycle remain next. Human server untouched.
+
 ## 2026-10-19 - apply complete generated coverage to resource opening/work
 
 Added complete saved mineral/forest coverage reads with bounded coordinates and

@@ -46,7 +46,7 @@ public final class MineralDiscoveryRepository {
         if(rate<1 || rate>1_000_000_000 || bundle.isEmpty() || bundle.size()>32 || !bundle.containsKey(observation.mineral())
                 || bundle.values().stream().anyMatch(v->v<1 || v>1_000_000))throw new IllegalArgumentException("Invalid finite discovery terms");
         if(new OreTrackingRepository(connection).load().map(state->!state.trusted()).orElse(false)
-                &&!new GeneratedTerrainRepository(connection).covers("ore",observation.world(),observation.ore()))
+                &&!new GeneratedTerrainRepository(connection).covers("ore",observation.world(),observation.ore(),observation.observedMillis()))
             throw new SQLException("Ore placement history incomplete; automatic discovery requires reviewed recovery");
         var placements=new OrePlacementRepository(connection);
         for(var position:observation.ore())if(placements.excludes(observation.world(),position))

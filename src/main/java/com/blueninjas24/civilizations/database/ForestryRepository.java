@@ -28,7 +28,7 @@ public final class ForestryRepository {
         }
         var tracking = new ForestryTrackingRepository(c).load();
         if (tracking.isPresent() && !tracking.orElseThrow().trusted()
-                && !new GeneratedTerrainRepository(c).covers("forest",evidence.world(),evidence.trunks()))
+                && !new GeneratedTerrainRepository(c).covers("forest",evidence.world(),evidence.trunks(),evidence.observedMillis()))
             throw new SQLException("Forestry provenance is untrusted; new resource opening requires reviewed recovery");
         var provenance = new ForestryProvenance(c);
         for (var support : evidence.trunks()) {

@@ -1,5 +1,12 @@
 # Civilizations progress tracker
 
+## Latest - old sightings cannot borrow trust from new terrain
+
+Current resource lists can distinguish verified fresh chunks from older unknown
+areas. A later terrain record cannot make an old survey or mine trustworthy.
+Focused build37 unit +3 packaged checks and one added chronology regression passed.
+The live startup/editor connection is still unfinished, so P3 remains88.1%.
+
 ## Latest - resource permission checks use complete evidence
 
 New terrain evidence can now authorize paid resource opening and work in the

@@ -104,9 +104,15 @@ public final class GeneratedTerrainRepository {
 
     /** Checks that every distinct chunk touched by the supplied block positions has a current certificate. */
     public boolean covers(String kind, UUID worldId, Collection<VillageObservation.Position> positions) throws SQLException {
+        return covers(kind,worldId,positions,Long.MAX_VALUE);
+    }
+
+    /** Resource evidence must not predate the generation that establishes its natural origin. */
+    public boolean covers(String kind, UUID worldId, Collection<VillageObservation.Position> positions,long evidenceMillis) throws SQLException {
         requireKind(kind);
         Objects.requireNonNull(worldId, "worldId");
         Objects.requireNonNull(positions, "positions");
+        if(evidenceMillis<0)throw new IllegalArgumentException("Negative resource evidence time");
         if (positions.isEmpty() || positions.size() > MAX_COVERAGE_POSITIONS)
             throw new IllegalArgumentException("Coverage positions must contain between 1 and "
                     + MAX_COVERAGE_POSITIONS + " entries");
@@ -122,7 +128,7 @@ public final class GeneratedTerrainRepository {
         UUID generation = current.orElseThrow().generation();
         try (var statement = connection.prepareStatement("""
                 SELECT 1 FROM generated_resource_chunks
-                WHERE kind=? AND world_id=? AND chunk_x=? AND chunk_z=? AND generation=?
+                WHERE kind=? AND world_id=? AND chunk_x=? AND chunk_z=? AND generation=? AND observed_ms<=?
                 """)) {
             for (Chunk chunk : chunks) {
                 statement.setString(1, kind);
@@ -130,6 +136,7 @@ public final class GeneratedTerrainRepository {
                 statement.setInt(3, chunk.x());
                 statement.setInt(4, chunk.z());
                 statement.setString(5, generation.toString());
+                statement.setLong(6,evidenceMillis);
                 try (var result = statement.executeQuery()) {
                     if (!result.next()) return false;
                 }
@@ -154,10 +161,27 @@ public final class GeneratedTerrainRepository {
         }
     }
 
+    /** Filter current candidates without allowing a covered neighbor to authorize older terrain. */
+    public Set<VillageObservation.Position> coveredPositions(String kind,UUID world,
+            Collection<VillageObservation.Position> positions,long evidenceMillis)throws SQLException {
+        requireKind(kind);Objects.requireNonNull(world);Objects.requireNonNull(positions);
+        if(positions.isEmpty()||positions.size()>MAX_COVERAGE_POSITIONS)
+            throw new IllegalArgumentException("Invalid bounded coverage positions");
+        var chunks=new java.util.HashMap<Chunk,Boolean>();var result=new HashSet<VillageObservation.Position>();
+        for(var position:positions) {
+            Objects.requireNonNull(position);
+            var chunk=new Chunk(Math.floorDiv(position.x(),16),Math.floorDiv(position.z(),16));
+            Boolean covered=chunks.get(chunk);
+            if(covered==null){covered=covers(kind,world,java.util.List.of(position),evidenceMillis);chunks.put(chunk,covered);}
+            if(covered)result.add(position);
+        }
+        return Set.copyOf(result);
+    }
+
     /** All saved coordinates must be covered; a certificate for one block cannot unlock a vein. */
     public boolean coversMineral(UUID deposit) throws SQLException {
         return coversSaved("ore",deposit,"""
-                SELECT e.world_id,e.x,e.y,e.z,d.world_id
+                SELECT e.world_id,e.x,e.y,e.z,d.world_id,d.observed_millis
                 FROM mineral_evidence e JOIN mineral_discovery d ON d.deposit_id=e.deposit_id
                 WHERE e.deposit_id=? ORDER BY e.world_id,e.x,e.y,e.z LIMIT 65537
                 """);
@@ -166,15 +190,16 @@ public final class GeneratedTerrainRepository {
     /** A retained forest requires its entire original support footprint, including lost supports. */
     public boolean coversForest(UUID site) throws SQLException {
         return coversSaved("forest",site,"""
-                SELECT s.world_id,s.x,s.y,s.z,r.world_id
+                SELECT s.world_id,s.x,s.y,s.z,r.world_id,b.observed_millis
                 FROM forestry_supports s JOIN forestry_resources r ON r.site_id=s.site_id
+                JOIN business_sites b ON b.id=s.site_id
                 WHERE s.site_id=? ORDER BY s.world_id,s.x,s.y,s.z LIMIT 65537
                 """);
     }
 
     private boolean coversSaved(String kind,UUID resource,String sql)throws SQLException {
         Objects.requireNonNull(resource,"resource");
-        UUID world=null;var positions=new java.util.ArrayList<VillageObservation.Position>();
+        UUID world=null;long observed=Long.MAX_VALUE;var positions=new java.util.ArrayList<VillageObservation.Position>();
         try(var statement=connection.prepareStatement(sql)) {
             statement.setString(1,resource.toString());
             try(var rows=statement.executeQuery()) {
@@ -184,10 +209,11 @@ public final class GeneratedTerrainRepository {
                     if(!rows.getString(1).equals(rows.getString(5))||(world!=null&&!world.equals(rowWorld)))
                         throw new SQLException("Saved resource coverage disagrees on world identity");
                     world=rowWorld;positions.add(new VillageObservation.Position(rows.getInt(2),rows.getInt(3),rows.getInt(4)));
+                    observed=Math.min(observed,rows.getLong(6));
                 }
             }
         }
-        return world!=null&&!positions.isEmpty()&&covers(kind,world,positions);
+        return world!=null&&!positions.isEmpty()&&covers(kind,world,positions,observed);
     }
 
     private void requireIdleOwner() throws SQLException {

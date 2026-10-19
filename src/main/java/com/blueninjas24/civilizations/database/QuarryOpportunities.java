@@ -68,7 +68,7 @@ final class QuarryOpportunities {
         var first=frames.getFirst();var world=first.world();
         if(frames.stream().anyMatch(f->!f.world().equals(world)))throw new SQLException("Quarry frames disagree on permanent world identity");
         if(!worlds.contains(world))return view(MineralOpportunities.Status.INACTIVE_WORLD,world,first.captured(),List.of(),"Quarry world absent or availability unknown");
-        if(new OreTrackingRepository(c).load().map(s->!s.trusted()).orElse(true))return view(MineralOpportunities.Status.TRACKING_GAP,world,first.captured(),List.of(),"Finite resource mutation history requires reviewed recovery");
+        boolean trusted=new OreTrackingRepository(c).load().map(OreTrackingRepository.State::trusted).orElse(false);
         var current=frames.stream().filter(f->f.captured()<=now&&now-f.captured()<=lifetime).toList();
         if(current.isEmpty())return view(first.captured()>now?MineralOpportunities.Status.FUTURE:MineralOpportunities.Status.STALE,world,first.captured(),List.of(),"Quarry evidence is future or stale; fresh loaded-chunk evidence required");
         var rows=new LinkedHashMap<Position,MineralOpportunities.Evidence>();
@@ -91,6 +91,17 @@ final class QuarryOpportunities {
             }}
         }
         long captured=current.stream().mapToLong(Frame::captured).min().orElseThrow();
+        if(!trusted) {
+            if(!rows.isEmpty()) {
+                var covered=new HashSet<Position>();var byCapture=new TreeMap<Long,List<Position>>();
+                for(var row:rows.values())byCapture.computeIfAbsent(row.lastSeenMillis(),ignored->new ArrayList<>()).add(row.position());
+                var terrain=new GeneratedTerrainRepository(c);
+                for(var entry:byCapture.entrySet())covered.addAll(terrain.coveredPositions("ore",world,entry.getValue(),entry.getKey()));
+                rows.keySet().retainAll(covered);
+            }
+            if(rows.isEmpty())return view(MineralOpportunities.Status.TRACKING_GAP,world,captured,List.of(),"No current quarry candidates with generated-terrain provenance; older terrain requires reviewed recovery");
+            captured=rows.values().stream().mapToLong(MineralOpportunities.Evidence::lastSeenMillis).min().orElseThrow();
+        }
         return view(MineralOpportunities.Status.CURRENT,world,captured,List.copyOf(rows.values()),"Current complete quarry chunk frames: "+current.size()+"; "+rows.size()+" visible unclaimed coordinates; no historical union");
     }
     private static void key(PreparedStatement s,UUID town,int x,int z)throws SQLException {s.setString(1,town.toString());s.setInt(2,x);s.setInt(3,z);}

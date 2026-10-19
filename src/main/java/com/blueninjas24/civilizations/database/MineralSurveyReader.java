@@ -24,7 +24,8 @@ public final class MineralSurveyReader {
             throw new SQLException("Complete consistent bounded mineral evidence required");
         var coordinates=new HashSet<Position>(first.ore());
         for(var p:second.ore())if(!coordinates.add(p))throw new SQLException("Survey assigns two minerals to one coordinate");
-        if(new OreTrackingRepository(connection).load().map(s->!s.trusted()).orElse(false))
+        if(new OreTrackingRepository(connection).load().map(s->!s.trusted()).orElse(false)
+                &&!coordinates.isEmpty()&&!new GeneratedTerrainRepository(connection).covers("ore",first.world(),coordinates,first.observedMillis()))
             throw new SQLException("Ore tracking gap; survey paused");
         try(var s=connection.prepareStatement("SELECT world_id FROM settlement_worlds WHERE settlement_id=?")) {
             s.setString(1,town.toString());try(var r=s.executeQuery()) {

@@ -1,5 +1,28 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - scoped current opportunities and evidence timing
+
+Current mineral/quarry reviews now return only candidate coordinates with current
+generation proof when global history is untrusted. Older sightings remain stored;
+neighboring fresh frames cannot authorize them. Positive survey admission requires
+complete coverage; empty frames can safely remove candidates without establishing
+resources. Quarry review preserves the actual capture time of eligible frames.
+
+Tightened chronology: source evidence must follow its chunk's generation evidence.
+A later certificate cannot bless an older survey or saved mine. Saved mineral opening
+time and original forest workplace time remain the cutoff for scoped production;
+explicit recovery is still required for older saved resources. No global trust reset,
+resource refill, cash transfer or recovery approval is introduced.
+
+Focused clean verify passed37 unit +3 packaged checks, zero failures/errors/skips,
+28.796s. Two new opportunity cases cover old/new mixed terrain, capture times,
+protection and empty frames. One added old-source chronology case passed separately,
+10.472s; no already-passing suite was repeated. Existing mineral/quarry validation,
+current-frame, paid opening/work cases passed. No new native run or migration claimed.
+Live adapter/founder/editor lifecycle gates remain conservative and unfinished;
+P3 stays88.1% partial,2/4 groups. Next: connect those gates using the verified SQL
+eligibility rather than weakening historical trust. Human server/main untouched.
+
 ## Latest verified batch - complete scoped resource eligibility
 
 Paid mineral discovery and new forest opening now accept complete current generated-
