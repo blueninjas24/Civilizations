@@ -1,5 +1,14 @@
 # Phase 3 — businesses and industry checklist
 
+## Latest - geography changes actual startup choices
+
+With identical people, money and customers, observed coal produces a mine,
+stone a quarry, and neither produces neither. Eighty industry periods preserve
+finite reserves/goods/payments through absence, restart and rediscovery. Focused
+Wrapper build passed8 unit +2 packaged checks. Customer/storage limits can stop
+production without fake demand. Broader geography/history and population-year
+acceptance remain open; P3 stays83.1% partial,2/4 whole groups.
+
 ## Latest - basic competition milestone completed
 
 Fresh eligible herds now compare against other viable startups before animals or

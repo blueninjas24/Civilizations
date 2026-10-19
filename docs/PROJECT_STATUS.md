@@ -1,5 +1,24 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified batch - geography and finite-resource longer scenarios
+
+Three temporary SQLite counterfactuals use the same seed, people, customers and
+budget, changing only current geology: coal opens a mine, stone a quarry, neither
+opens neither. Eighty real industry periods exercise paid warehouse/processing
+flows, finite drawdown, a twenty-period absent-world interval and an offline
+close/reopen. No extra startup fee, downtime backlog, revisit refill or invented
+consumer/cash. The quarry exhausts; coal byproduct storage/customer constraints
+can legitimately retain some reserve. Rediscovery preserves balances and goods.
+
+Focused Wrapper `-Dtest=ResourceGeographyScenarioTest,ResourceInvestmentTest clean
+verify` passed8 unit cases +2 packaged integrations, zero failures/errors/skips,
+47.978s. An initial scenario assumption that every mine must fully exhaust was
+incorrect: finite customer/storage limits legitimately stop extraction. Corrected
+the fixture expectation rather than removing goods or changing the application.
+No application, schema or human-server change. These are industry periods, not
+population years; multi-year demographic/history and full mixed-catalog acceptance
+remain open. P3 stays83.1% partial,2/4 whole groups. No new decision needed.
+
 ## Latest verified batch - livestock allocation completes basic competition
 
 Separated a read-only qualified herd/budget preparation from ownership/grant
