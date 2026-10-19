@@ -20,6 +20,12 @@ hot reload or older WorldEdit history. See PROJECT_STATUS.md for current checks.
 
 The historical implementation/verification notes below describe the original fence.
 
+Lifecycle audit of the checksum-verified7.4.4 runtime confirmed onLoad may invoke
+`ChunkDeleter.runFromFile` for queued chunk deletions. This bypasses EditSession
+setBlock hooks. No deletion was executed during the audit. The ordinary presence
+fence must remain until startup/shutdown and non-extent mutations are covered;
+successful set/raw-set/undo capture is necessary but insufficient for full support.
+
 OreEditorGuard inspects installed plugin descriptor names before the live SQL owner
 starts, and listens for later Paper PluginEnableEvent notifications. WorldEdit,
 FastAsyncWorldEdit and VoxelSniper names are matched case-insensitively. Installed

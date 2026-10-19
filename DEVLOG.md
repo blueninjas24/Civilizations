@@ -1,5 +1,22 @@
 # Civilizations Development Log
 
+## 2026-10-19 - fix accepted shutdown-drain regression
+
+Hosted Linux caught one existing PopulationSession shutdown-drain case after live
+scoped wiring; local reproduction confirmed23 passed/1 error. Owner observation/
+demand reads no longer confuse public shutdown readiness with accepted queue work.
+Real capture gaps still refuse evidence; pending mutations still block spending
+and apply sticky exclusions in queue order. Final clean verify30 unit +3 packaged
+checks passed26.963s; no whole-suite repetition or new native run. Hosted builds
+remain pending on the corrected commit, not falsely green.
+
+Pinned WorldEdit bytecode audit also confirmed queued chunk deletion in onLoad,
+outside ordinary EditSession hooks. Kept normal editor presence fenced; no chunk
+deletion was run. Asked the new cross-village purchase rule needed for rare firms:
+same-world qualified paid acquisitions with separate local assets, shipping later.
+No answer assumed or gameplay implemented for that question. No migration, human
+server or main changes. P3 stays88.1% partial,2/4 groups.
+
 ## 2026-10-19 - wire live scoped surveys and funded industry startup
 
 Connected SQL-owner chunk preflight to the ordinary bounded ore observer and

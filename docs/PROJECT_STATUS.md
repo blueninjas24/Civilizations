@@ -1,5 +1,32 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified follow-up - retain accepted shutdown observations
+
+Hosted Linux found one PopulationSessionTest error after scoped live wiring: public
+readiness correctly became false on shutdown, but an already accepted survey then
+refused to drain. Reproduced that class locally (23 passed,1 error). Owner-queue
+observation/demand reads now retain the accepted-work contract while rejecting real
+capture gaps. Later queued mutations still filter saved evidence; paid startup/work
+guards retain their pending-mutation barrier. Current capture continuity is separate
+from public readiness in owner callbacks. New submissions stay rejected on close.
+
+Final focused Wrapper clean verify passed30 unit +3 packaged checks, zero failures/
+errors/skips,26.963s, including the existing actual drain/removal/restart regression.
+No duplicate full local suite or new native run. Hosted builds must rerun on the
+corrected feature commit; previous Linux failure is not reported as passing.
+No migration; main and human server untouched. P3 remains88.1% partial,2/4 groups.
+
+Remaining editor audit found the pinned WorldEdit runtime can process queued chunk
+deletions during onLoad, outside the EditSession block hook. Ordinary editor presence
+therefore remains fenced until lifecycle and non-extent operations are covered; a
+successful set/undo probe alone cannot certify full editor compatibility. Nothing
+was deleted or executed by this audit; it inspected the checksum-verified artifact.
+
+A product question is pending for the remaining rare multi-settlement-firm gate:
+may qualified owners buy an existing business in another village in the same world,
+using approved real business/estate funding while local staff/goods/accounts remain
+separate? No remote purchases or automatic goods transport are implemented or assumed.
+
 ## Latest verified batch - live scoped surveys and industry startup
 
 Live ore/quarry scans now preflight otherwise-untrusted chunks on the SQL owner,

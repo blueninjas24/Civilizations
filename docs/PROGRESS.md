@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## Latest - shutdown saving corrected; one business-expansion decision pending
+
+The broader hosted run caught an already-accepted observation being refused during
+shutdown. That is fixed; the affected build passed30 unit +3 packaged checks.
+Pending world changes still block spending. Full hosted checks are rerunning.
+Editor support remains guarded because some WorldEdit operations bypass its normal
+block hook. P3 stays88.1%. The next rare-company rule needs your answer about buying
+existing businesses in other villages; no automatic shipping is proposed.
+
 ## Latest - live villages can use verified fresh terrain after a history gap
 
 The normal scanner now reaches certified new chunks while older unknown chunks

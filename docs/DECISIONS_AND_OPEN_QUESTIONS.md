@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October19 - qualified purchases between villages: awaiting answer
+
+Unlimited qualified ownership is already approved. MASTER_DESIGN.md also plans rare
+multi-settlement firms, but existing sales require a buyer from the same settlement.
+Question sent: may a qualified living owner buy an existing business in another
+village in the same world using approved actual business cash/family estate funds?
+Recommended prototype retains each site's local employees, stock and business cash
+accounts, owner qualification and one worker job, funding/reserve limits and full
+payment receipts. No free capital or automatic cross-village goods shipments;
+transport remains Phase5. Alternative: local purchases only for now. This is a new
+cross-village investment rule; no answer is inferred and no implementation begun.
+
 ## Latest - scoped edited-world provenance: approved
 
 User answered "Yes. Keep going as long as you can" to the proposed rule. Older
