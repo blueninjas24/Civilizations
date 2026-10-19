@@ -1,5 +1,9 @@
 # Current prototype: a short player checklist
 
+**For the current consolidated instructions, use [PHASE3_PLAYTEST.md](PHASE3_PLAYTEST.md).**
+The dated notes below retain earlier checkpoints; their unfinished-feature wording
+may have been superseded. They are not the current release checklist.
+
 ## October18 - automatic forestry opt-in and checks
 
 The new build can recognize canopy-backed trees and found logging businesses for

@@ -10,8 +10,9 @@ Use `/civ debug workforce <settlement-uuid>` to see operating firms, vacancies,
 qualified idle candidates, and known business funds. Counts can overlap: the same
 resident can qualify for several jobs and can still hold only one worker job.
 Missing cash records are unknown. The report selects nobody and makes no wage,
-closure, funding, training or hiring changes. Current bounded hiring still follows
-its existing page order. Large/unknown reviews fail explicitly without showing a
+closure, funding, training or hiring changes. Separately configured shared hiring
+now compares urgency and real funded demand; missing/disabled allocation settings
+retain legacy page-order staffing. See BUSINESS_ALLOCATION.md. Large/unknown reviews fail explicitly without showing a
 partial comparison as complete. Limits:32 firms,512 idle candidates,512 saved
 worker assignments and bounded profile/requirement rows.
 

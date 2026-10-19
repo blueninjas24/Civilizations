@@ -27,6 +27,15 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
         if (!sender.hasPermission("civilizations.debug")) {
             sender.sendMessage("You do not have permission to inspect Civilizations."); return true;
         }
+        if(args.length==2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("villages")) {
+            if(!session.status().ready()){sender.sendMessage("Population is still starting; retry shortly.");return true;}
+            var names=session.settlementNames();sender.sendMessage("Known villages: "+names.size()+"; showing at most32 saved IDs.");
+            names.entrySet().stream().sorted(java.util.Map.Entry.comparingByKey()).limit(32)
+                    .forEach(e->sender.sendMessage(e.getKey()+" : "+e.getValue()));
+            if(names.size()>32)sender.sendMessage((names.size()-32)+" more villages omitted; ID completion also accepts a prefix.");
+            if(names.isEmpty())sender.sendMessage("No saved villages yet; visit a loaded village with beds and villagers.");
+            return true;
+        }
         if(args.length>=2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("recover-ore")) {
             if(recovery!=null)return recovery.onCommand(sender,command,label,args);
             sender.sendMessage("Resource recovery is not configured.");return true;
@@ -120,7 +129,7 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;
         }
-        sender.sendMessage("Usage: /civ debug status | observation | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>");
+        sender.sendMessage("Usage: /civ debug status | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest");
         return true;
     }
 
@@ -141,8 +150,12 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
 
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("civilizations.debug")) return List.of();
+        if(args.length==3&&args[0].equalsIgnoreCase("debug")&&java.util.Set.of("workforce","settlement","explain","economy","businesses").contains(args[1].toLowerCase(java.util.Locale.ROOT))) {
+            String prefix=args[2].toLowerCase(java.util.Locale.ROOT);
+            return session.settlementNames().keySet().stream().map(UUID::toString).filter(id->id.startsWith(prefix)).sorted().limit(32).toList();
+        }
         List<String> choices = args.length == 1 ? List.of("debug")
-                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "resources", "workforce", "settlement", "explain", "economy", "businesses") : List.of();
+                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "observation", "villages", "resources", "workforce", "settlement", "explain", "economy", "businesses", "recover-ore", "recover-forest") : List.of();
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(java.util.Locale.ROOT);
         return choices.stream().filter(value -> value.startsWith(prefix)).toList();
     }

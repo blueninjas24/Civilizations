@@ -1,5 +1,14 @@
 # Civilizations progress tracker
 
+## October18 - current playtest instructions and easier village lookup
+
+Admins can list saved village names/IDs and use Tab to complete IDs in reports.
+The new PHASE3_PLAYTEST.md explains current interactions, industry waiting reasons,
+settings and a human checklist. Lookup/build checks passed; the human checklist
+itself is still uncompleted. This completes one documentation acceptance entry:
+final acceptance1/5, overall about76.4% partial, still1/4 whole groups complete.
+The increase reflects a completed checklist item, not extra gameplay or hours saved.
+
 ## October18 - food shortages now get an earlier farm staffing response
 
 An existing farm with usable saved fields can claim idle qualified help before
@@ -1280,10 +1289,10 @@ other groups is now shown here instead of being hidden behind a fixed25% bar:
 | Businesses, owners, workers and sites |4/4|100%|
 | Resources and connected production |36/39|92%|
 | Business lifecycle and competition |14/15|93%|
-| Specialization and final acceptance |0/5|No complete entries yet|
+| Specialization and final acceptance |1/5|20%|
 
 The October13 food-chain additions expand this checklist. Equal weight per group
-gives about71% partial checklist completion under the current scope. The former70%
+gives about76.4% partial checklist completion under the current scope. The former70%
 described the earlier scope. Entries differ
 substantially in size; this is not engineering effort, remaining time or a claim
 that an ordinary village can already start every industry. These counts come from

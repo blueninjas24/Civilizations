@@ -1459,7 +1459,11 @@ premises are preferred; physical building reuse remains Phase 4.
 - [ ] Seeded multi-year scenarios cover shortages, failed opportunities, depletion,
       closures, succession and exceptional firms without guaranteed outcomes.
 - [ ] Actual disposable Paper startup/runtime/restart, diagnostics and profiling.
-- [ ] Document playable commands/settings, limitations and a human-client checklist.
+- [x] Document playable commands/settings, limitations and a human-client checklist.
+      PHASE3_PLAYTEST.md consolidates current commands, setup/settings, legitimate
+      waiting reasons, boundaries and an explicitly uncompleted human checklist.
+      Admin saved-village lookup and bounded full-ID completion are tested. This
+      documentation milestone does not claim a completed human playtest.
 
 ## Shared rules and phase boundaries
 

@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## October18 - current Phase3 playtest guide and saved-village lookup
+
+Added admin-only /civ debug villages using the ready session cache, with32 sorted
+saved IDs and an exact omitted count. Report arguments now offer full-ID prefix
+completion (maximum32); unauthorized users receive no saved IDs. Startup lookup
+does not create/open a database. No world access, SQL on the Paper thread, gameplay
+change or schema migration; remains98.
+
+PHASE3_PLAYTEST.md consolidates safe installation, actual sneak-right-click food
+interaction, bargaining/barter, livestock market/buckets/protection, diagnostics,
+editable clock/configuration boundaries, current industry behavior and an explicitly
+uncompleted human checklist. Older TONIGHT_PLAYTEST notes now point to this guide.
+Corrected stale workforce documentation about legacy versus configured shared hiring.
+
+Focused Wrapper clean verify/package passed10 command unit tests +2 packaged
+integration tests, zero failures/errors/skips,19.173s at20:18:06 EDT. Two new cases
+cover startup/permission safety and35 saved villages with bounded lookup/completion.
+This cache-only command change adds no new Paper world adapter; no new native
+runtime or human acceptance is claimed. Full hosted suites follow the feature push.
+Human server and main untouched.
+
+The documented-playtest acceptance entry is now complete: final group1/5; resources
+36/39, lifecycle14/15, core4/4. Equal group weighting gives about76.4% partial P3,
+still1/4 whole groups complete. This is a documentation milestone, not a claim
+of additional gameplay or finished long-run acceptance. Remaining combined startup
+competition, useful crafts, bulk-editor capture and specialization checks stay open.
+No new design question; continue scoped competition and acceptance work.
+
 ## October18, 20:16 EDT - urgent existing farms get first access to idle labor
 
 Connected approved urgent-food priority to the existing farm adapter before other

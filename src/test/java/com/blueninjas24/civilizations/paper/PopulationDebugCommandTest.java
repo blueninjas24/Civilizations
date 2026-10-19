@@ -50,7 +50,7 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "settlement", "bad-id"});
             assertEquals(List.of("Settlement ID must be a UUID."), messages); messages.clear();
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "simulate", "1000"});
-            assertEquals(List.of("Usage: /civ debug status | observation | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>"), messages);
+            assertEquals(List.of("Usage: /civ debug status | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest"), messages);
             assertEquals(0, session.status().targetMonths());
             assertEquals(List.of("status", "settlement"),
                     command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "s"}));
@@ -113,6 +113,30 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(true),null,"civ",new String[]{"debug","resources"});
             assertEquals(List.of("Population is still starting; retry shortly."),messages);
             assertTrue(deliveries.isEmpty());assertFalse(directory.resolve("civilizations.db").toFile().exists());
+        }
+    }
+    @Test void villageLookupBeforeStartupDoesNotOpenDatabaseAndNeverLeaksIdsToNonAdmins() {
+        try(var session=session()){
+            var command=new PopulationDebugCommand(session);
+            command.onCommand(sender(true),null,"civ",new String[]{"debug","villages"});
+            assertEquals(List.of("Population is still starting; retry shortly."),messages);messages.clear();
+            command.onCommand(sender(false),null,"civ",new String[]{"debug","villages"});
+            assertEquals(List.of("You do not have permission to inspect Civilizations."),messages);
+            assertTrue(command.onTabComplete(sender(false),null,"civ",new String[]{"debug","businesses",""}).isEmpty());
+            assertFalse(directory.resolve("civilizations.db").toFile().exists());
+        }
+    }
+    @Test void savedVillageLookupAndIdCompletionAreBoundedAndUseTheReadyCache()throws Exception {
+        var db=new com.blueninjas24.civilizations.database.DatabaseManager(directory.toFile(),Logger.getLogger("VillageLookupTest"));
+        try{db.initialize();for(int n=1;n<=35;n++)db.saveSettlement(new com.blueninjas24.civilizations.settlement.Settlement(new java.util.UUID(0,n),"Village "+n,"Fixture",0,64,0,1,0,0));}
+        finally{db.close();}
+        try(var session=session()){
+            session.start(false,java.util.Set.of()).get(10,java.util.concurrent.TimeUnit.SECONDS);
+            var command=new PopulationDebugCommand(session);command.onCommand(sender(true),null,"civ",new String[]{"debug","villages"});
+            assertEquals(34,messages.size());assertTrue(messages.getFirst().contains("Known villages: 35"));assertTrue(messages.getLast().contains("3 more villages omitted"));
+            var ids=command.onTabComplete(sender(true),null,"civ",new String[]{"debug","businesses",""});assertEquals(32,ids.size());
+            assertEquals(new java.util.UUID(0,1).toString(),ids.getFirst());
+            var last=new java.util.UUID(0,35).toString();assertEquals(List.of(last),command.onTabComplete(sender(true),null,"civ",new String[]{"debug","workforce",last}));
         }
     }
 

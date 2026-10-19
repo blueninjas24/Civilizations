@@ -7,7 +7,7 @@ description: Evolving, autonomous civilizations for Minecraft.
 commands:
   civ:
     description: Civilizations pen protection, village food aid, bargaining, livestock market and administrative diagnostics.
-    usage: /civ market or /civ aid [settlement UUID] or /civ bargain <emeralds|accept> [settlement UUID] or /civ barter <timber|stone|accept> [settlement UUID] or /civ debug status | observation | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid>
+    usage: /civ market or /civ aid [settlement UUID] or /civ bargain <emeralds|accept> [settlement UUID] or /civ barter <timber|stone|accept> [settlement UUID] or /civ debug status | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest
 permissions:
   civilizations.pen.admin:
     description: Explicitly resolve uncertain livestock pen ownership with preview and confirmation.
@@ -19,7 +19,7 @@ permissions:
     description: Bargain and confirm village food sales and buy stocked livestock products.
     default: true
   civilizations.debug:
-    description: Inspect saved Civilizations population and calendar state.
+    description: Inspect Civilizations state and explicitly confirm scoped resource recovery.
     default: op
   civilizations.aid.preview:
     description: Preview held food for a nearby village without transferring items.
