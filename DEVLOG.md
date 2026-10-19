@@ -1,5 +1,23 @@
 # Civilizations Development Log
 
+## October18 - bounded hosted failure counts
+
+Added a failure-only CI summary for existing JUnit reports on Windows/Linux. It
+publishes at most20 source-verified test class names and integer failure/error counts.
+Names must match a Java identifier pattern and an existing test-source path.
+No case names, arguments, failure messages, fixture data or test output are exported.
+No credential access or action dependency. Disposable PowerShell smoke passed:
+source/count selection, private argument/message omission, unknown-source refusal
+and missing-report fallback. No Maven rerun was needed for this workflow-only slice.
+
+The older fa486ca hosted run failed on both platforms. Public annotations gave only
+the exit code. Approval review rejected Git credential extraction and the initial
+proposal to publish failure messages. Neither action ran. Continued with local
+reproduction and reduced this change to source class names and aggregate counts.
+The full local run identified stale predecessor snapshot expectations; their fixes
+are still being validated. No gameplay, schema, human server or gate change.
+P3 remains76.4% partial.
+
 ## October18 - current Phase3 playtest guide and saved-village lookup
 
 Added admin-only /civ debug villages using the ready session cache, with32 sorted

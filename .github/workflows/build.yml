@@ -39,3 +39,23 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: sh ./mvnw --batch-mode --no-transfer-progress clean verify
+      - name: Summarize test failures
+        if: failure()
+        shell: pwsh
+        run: |
+          # Publish only source-verified class names and counts, never fixture values/messages.
+          $reports = Get-ChildItem target/surefire-reports/TEST-*.xml, target/failsafe-reports/TEST-*.xml -ErrorAction SilentlyContinue
+          $shown = 0
+          foreach ($report in $reports) {
+            [xml]$suite = Get-Content -LiteralPath $report.FullName -Raw
+            $suiteName = [string]$suite.testsuite.name
+            if ($suiteName -notmatch '^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$') { continue }
+            $sourceFile = 'src/test/java/' + $suiteName.Replace('.', '/') + '.java'
+            if (-not (Test-Path -LiteralPath $sourceFile -PathType Leaf)) { continue }
+            $failures = [int]$suite.testsuite.failures
+            $errors = [int]$suite.testsuite.errors
+            if ($failures + $errors -eq 0 -or $shown -ge 20) { continue }
+            Write-Output "::error title=JUnit suite failed::${suiteName}: $failures failures; $errors errors. Reproduce this class locally for details."
+            $shown++
+          }
+          if ($shown -eq 0) { Write-Output 'No source-verified JUnit failure summary available; inspect the preceding build step.' }
