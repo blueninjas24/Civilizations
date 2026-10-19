@@ -1,5 +1,16 @@
 # Civilizations progress tracker
 
+## Latest - optional editor provenance decision pending
+
+WorldEdit integration research identified a necessary trust-scope decision before
+relaxing the existing conservative presence guard. The user has been asked whether
+previously unverified edited terrain stays blocked while newly generated terrain
+under uninterrupted capture can become eligible. Existing source-by-source admin
+recovery is unchanged. No answer is assumed; no editor dependency, installation,
+new certificate or guard exemption has been added. The pending question and primary
+API references are recorded in DECISIONS_AND_OPEN_QUESTIONS.md. This does not block
+playing the current supported non-editor setup. P3 remains88.1% partial,2/4 groups.
+
 ## Latest - different histories produce different business outcomes
 
 Ten real demographic years now verify an aging owner's qualified family can keep

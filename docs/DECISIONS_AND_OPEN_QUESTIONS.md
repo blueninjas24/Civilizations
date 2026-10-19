@@ -1,5 +1,30 @@
 # Civilizations — locked decisions and unresolved questions
 
+## Latest - edited-world provenance for optional WorldEdit support: awaiting answer
+
+To complete the optional bulk-editor compatibility gate, proposed initial scope
+is synchronous supported WorldEdit changes through its documented BEFORE_CHANGE
+extent hook. A pre-write pending barrier must cover the world write and queued
+SQL completion; confirmed successful changes update existing ore/forest provenance.
+Failures, partial/unloaded/off-thread edits, overflow and unsupported editors stay
+fail-closed. Hook installation alone cannot certify older unobserved editor history.
+No integration/dependency, guard exemption or new trust certificate is implemented.
+
+Question sent to user: may older/unverified editor areas remain blocked for new
+resource discovery while terrain newly generated under uninterrupted active
+capture becomes eligible? Existing saved resources keep the already-approved
+explicit admin/current-scan recovery. Alternative: keep WorldEdit unsupported for
+now. This would extend provenance scope, so it needs an explicit decision rather
+than treating API hookup as proof of old natural origins. No answer is inferred.
+
+Engineering references: [WorldEdit edit sessions](https://worldedit.enginehub.org/en/latest/api/concepts/edit-sessions/)
+and [extents](https://worldedit.enginehub.org/en/latest/api/concepts/extents/).
+The documented bottom hook includes raw changes; an earlier history-stage hook
+would miss bypasses. Optional integration still requires a pinned verified plugin,
+real edits/undo/failure/restart checks and lifecycle coverage before support claims.
+Current editor presence fences remain unchanged. This does not prevent playtesting
+on a server without these unsupported editors.
+
 ## October18 - shared industry allocation priorities: approved
 
 User answered "Yes. Keep going." to the recommendation. Scarce
