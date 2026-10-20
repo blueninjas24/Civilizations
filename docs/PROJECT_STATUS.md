@@ -57,7 +57,9 @@ Implemented and verified:
   Old cow/chicken receipt defaults and data are preserved; milk/egg retail excludes
   sheep. Wool is colour-neutral; old files missing only sheep use editable defaults.
 
-Validation: latest focused Windows Wrapper clean verify86 unit +3 packaged
+Validation: latest migrant-work guard Wrapper clean verify27 unit +3 packaged
+checks passed39.336s, zero failures/errors/skips; same-world migration preserves
+source work and does not block destination food. Earlier86+3
 checks passed59.632s, zero failures/errors/skips; preceding public-work migration/
 forest/study batch passed78+3 in51.257s. Actual disposable Paper completed a paid
 public path: real protected supplier payment, earned delivery, five saved work
@@ -80,7 +82,10 @@ selection/scheduling, private employee labor diversion, later-stage/native recon
 completed building/housing activation, vacancy reuse, upgrades/maintenance and
 full autonomous growth acceptance. The paid path test verified funded public work,
 not home occupancy or ordinary autonomous construction. Normal gameplay still cannot place construction blocks.
-No design question currently blocks the next scoped work. Feature pushes are
+Next live housing/vacancy work needs the existing-home reuse choice recorded in
+DECISIONS_AND_OPEN_QUESTIONS.md: guarded occupancy of unprotected suitable existing
+homes, or only known Civilizations-built homes. No existing house is claimed or
+assigned while this is pending. Feature pushes are
 permitted; never merge/push main. Hosted current candidate status must be checked
 by commit; local passing tests are not a claim of hosted Windows/Linux green.
 Workflow concurrency now lets an existing run finish across new backup pushes,

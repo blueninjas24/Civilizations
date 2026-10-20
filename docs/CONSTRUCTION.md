@@ -263,3 +263,9 @@ waiting preserved assets/world state; original cells restored. Both DBs at107
 passed integrity/FK checks, server stopped and helper archived. This test does not
 claim automatic discovery, free seed supplies in gameplay, private labor or home
 capacity activation.
+
+Migration guard: same-numbered public-work receipts follow the resident across
+villages. Such a receipt excludes them from that period's new builder pool rather
+than causing a late uniqueness failure that rolls back food. Two-village migration
+coverage passed in the focused27+3 clean verify39.336s. Current prototype clock
+identity remains conservative; no extra effort is awarded by relocating a worker.

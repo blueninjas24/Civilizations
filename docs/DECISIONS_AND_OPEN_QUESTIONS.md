@@ -1,5 +1,19 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October20 — existing-home reuse needs a decision
+
+Before connecting the live vacancy/housing planner, asked whether suitable empty
+existing houses near a village may be used automatically when complete beds and
+saved-protection checks pass. Minecraft cannot reliably establish whether an old
+home was generated or player-built. Proposed configurable guarded occupancy that
+leaves blocks/chest contents alone and grants no right to sell or rebuild it.
+Alternative: only reuse positively known Civilizations-built homes.
+
+Pending human answer. Existing pure vacancy proposals still require confirmed
+village-owned permitted homes; no old house is adopted or assigned by this proposal.
+The approved ownership of newly village-funded homes remains unchanged. Other
+completed construction foundation work is independent of this question.
+
 ## October 19 — temporary building labor, public homes and sheep approved
 
 User explicitly approved configurable temporary construction labor: unemployed

@@ -133,10 +133,11 @@ public final class ConstructionPublicWork {
             AND NOT EXISTS(SELECT 1 FROM business_employment e WHERE e.resident_id=r.id AND e.ended_step IS NULL)
             AND NOT EXISTS(SELECT 1 FROM businesses b WHERE b.owner_id=r.id AND NOT EXISTS(SELECT 1 FROM business_closures x WHERE x.business_id=b.id))
             AND NOT EXISTS(SELECT 1 FROM resident_courses x WHERE x.resident_id=r.id AND x.status='ACTIVE')
+            AND NOT EXISTS(SELECT 1 FROM construction_public_work w WHERE w.resident_id=r.id AND w.period=?)
             AND NOT EXISTS(SELECT 1 FROM study_reviews v JOIN resident_courses x ON x.id=v.course_id WHERE x.resident_id=r.id AND v.period=? AND v.after_experience>v.before_experience)
             ORDER BY r.id LIMIT 1025
             """)) {
-            s.setString(1,town.toString());s.setLong(2,period);try(var r=s.executeQuery()){while(r.next()) {
+            s.setString(1,town.toString());s.setLong(2,period);s.setLong(3,period);try(var r=s.executeQuery()){while(r.next()) {
                 var id=UUID.fromString(r.getString(1));if(used.contains(id))continue;
                 result.add(new ConstructionLaborPolicy.Worker(people.findResident(id).orElseThrow(),people.findWorkProfile(id).orElseThrow(),null,effort));
             }}

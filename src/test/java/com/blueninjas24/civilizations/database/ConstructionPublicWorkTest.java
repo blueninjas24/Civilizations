@@ -80,6 +80,30 @@ class ConstructionPublicWorkTest {
         assertEquals(Map.of(Commodity.STONE,12L),f.orders().stock(f.publicDraft.id()));
         f.f.sql("DROP TRIGGER reject_builder");runtime.pulse(6000,false);assertEquals(10,work());assertEquals(1,count("construction_public_work"));
     }
+    @Test void migrationCannotCountTheSameResidentPeriodTwiceOrBlockDestinationFoodAccounting()throws Exception {
+        materials(12);var oldRuntime=runtime(true);oldRuntime.pulse(6000,false);assertEquals(10,work());
+        var source=f.f.town;var world=f.f.world;f.close();
+        var destination=new ConstructionSupplyOrdersTest();destination.directory=directory;
+        destination.f=new BusinessStartupGrantsTest();destination.f.world=world;destination.siteOffset=1000;
+        try {
+            destination.setup();
+            var q=new ConstructionSupplyOrders.Request(UUID.randomUUID(),destination.publicDraft.id(),destination.seller,Source.VILLAGE,null,Commodity.STONE,12,2);
+            destination.orders().purchase(q,destination.proof(destination.publicDraft),3001,Set.of(world));
+            destination.f.economy.pulse(4000,false);assertEquals(1,ConstructionSupplyOrders.deliveryOnly(destination.c()).deliverReady(Set.of(world),16));
+            destination.c().setAutoCommit(false);
+            try {
+                destination.f.db.getPopulationRepository().updateMigratedResident(new Resident(worker,"Fixture migrant builder",destination.f.town,null,300,Resident.Status.ALIVE),source);
+                destination.c().commit();
+            }finally{destination.c().setAutoCommit(true);}
+            var active=new EconomyRuntimeRepository(destination.c(),destination.f.settings,FarmObservation.Policy.prototype(),216);
+            active.configureFarmBusinesses(FarmBusinessPolicy.prototype());active.configureConstruction(new ConstructionLaborPolicy(true,2,1,10,25));active.startOnline(4000,Set.of(world));
+            active.pulse(5000,false);assertEquals(10,new ConstructionPublicWork(destination.c()).work(destination.publicDraft.id(),0));
+            // Period5 was already worked in the source village; its receipt remains immutable history.
+            assertDoesNotThrow(()->active.pulse(6000,false));
+            assertEquals(5,active.views().get(destination.f.town).account().state().completedPeriods());
+            assertEquals(10,new ConstructionPublicWork(destination.c()).work(destination.publicDraft.id(),0));
+        }finally{destination.close();f.f.open();}
+    }
     @Test void version106UpgradeKeepsPaidCargoAndBalancesThroughFailureAndRetry()throws Exception {
         materials(12);long money=f.money();var saved=f.orders().find(order).orElseThrow();
         SchemaFixtures.rewind(f.c(),106);f.f.sql("CREATE TABLE construction_stage_work(blocker INTEGER)");

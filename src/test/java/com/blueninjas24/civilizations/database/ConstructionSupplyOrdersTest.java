@@ -17,21 +17,21 @@ import org.junit.jupiter.params.provider.EnumSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConstructionSupplyOrdersTest {
-    @TempDir Path directory;BusinessStartupGrantsTest f;UUID seller,buyer;IndustryRuntimePolicy runtime;
+    @TempDir Path directory;BusinessStartupGrantsTest f;UUID seller,buyer;IndustryRuntimePolicy runtime;int siteOffset;
     ConstructionDraft privateDraft,publicDraft;
     @BeforeEach void setup()throws Exception {
-        f=new BusinessStartupGrantsTest();f.directory=directory;f.setup();
+        if(f==null)f=new BusinessStartupGrantsTest();f.directory=directory;f.setup();
         var other=UUID.randomUUID();f.db.getPopulationRepository().insertResident(new Resident(other,"Fixture builder",f.town,null,300,Resident.Status.ALIVE));
         var firms=f.db.getBusinessRepository();
         for(boolean source:List.of(true,false)) {
-            var founding=f.producer("warehouse",source?f.person:other,source?20:40,0).founding();firms.found(founding);
+            var founding=f.producer("warehouse",source?f.person:other,(source?20:40)+siteOffset,0).founding();firms.found(founding);
             var id=founding.business().id();firms.hire(UUID.randomUUID(),id,source?f.person:other,0);
             f.db.getIndustryRepository().openStore(id,256,Map.of(Commodity.STONE,1L,Commodity.TIMBER,1L,new Commodity("wool"),1L),source?0:4000);
             if(source)seller=id;else buyer=id;
         }
         f.sql("UPDATE industry_stock SET units=20 WHERE business_id='"+seller+"'");
         f.economy.pulse(3000,false);f.sql("INSERT INTO industry_runtime VALUES('"+buyer+"',1000,3000,0,2,2)");
-        runtime=policy(128);privateDraft=draft("starter_storehouse",100);publicDraft=draft("starter_home",120);
+        runtime=policy(128);privateDraft=draft("starter_storehouse",100+siteOffset);publicDraft=draft("starter_home",120+siteOffset);
     }
     @AfterEach void close(){f.db.close();}
     IndustryRuntimePolicy policy(long haul){var p=IndustryPolicy.prototype();var transport=new IndustryPolicy(p.depositBatchesPerObservedOre(),p.batchesPerWorker(),p.siteBatchCapacity(),p.storageCapacity(),1,haul,p.miningBundle(),p.storageSpacePerUnit());return new IndustryRuntimePolicy(true,1000,8,transport,Map.of(),WorkshopSupplyPolicy.disabled(),new WarehouseSupplyPolicy(true,16,16),ToolUpkeepPolicy.disabled());}

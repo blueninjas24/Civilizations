@@ -1,5 +1,18 @@
 # Civilizations Development Log
 
+## 2026-10-20 — migrant labor receipts cannot block food accounting
+
+Final review found a resident moving between villages could be selected for a
+same-numbered period already present in their saved public work history. SQLite
+correctly refused duplicate labor, but the late refusal would also roll back the
+destination's food period. Eligibility now excludes that saved receipt before
+selection. A two-village same-world migration test verifies the old history stays
+intact, no duplicate work is awarded and destination food accounting continues.
+Focused clean verify27 unit +3 packaged checks passed39.336s with zero failures,
+errors or skips. Initial second-village fixture reused workplace coordinates;
+separated its sites and ensured cleanup before the passing run. No migration
+change; schema107 remains. Existing-home reuse choice is pending, not implemented.
+
 ## 2026-10-20 — earned public building labor, stage escrow and paid native acceptance
 
 Schema107 adds public resident/period work receipts and frozen stage material

@@ -7,7 +7,7 @@
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 4 / 4 | `██████████` 100% - prototype gate passed |
-| 4. Physical Growth | Villages build and improve structures gradually | 1 / 4 | `██▌░░░░░░░` 25% — plans/previews; no block placement yet |
+| 4. Physical Growth | Villages build and improve structures gradually | 1 / 4 | `██▌░░░░░░░` 25% — plans, paid-work foundation; automatic building pending |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
 | 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
@@ -22,7 +22,8 @@ start new projects or place buildings.
 Public projects can now earn real unemployed villagers' building time and set aside
 materials once per stage. A paid five-block path passed a disposable Minecraft
 check from supplier payment through saved work to physical placement. Normal-server
-automatic building and private staff work are still ahead.
+automatic building and private staff work are still ahead. Migrants cannot be
+counted twice for the same saved work period or block destination food accounting.
 
 Editable starter plans, read-only admin previews and saved frozen proposals
 are ready, including a four-bed home. Buffered land checks, labor proposals,
@@ -32,7 +33,7 @@ an actual server restart. Saved project sites now refuse overlapping reservation
 materials can return safely without duplication. Household planning now prefers
 suitable empty village homes before proposing construction; live assignments remain ahead. Sheep can now supply real feed-backed wool for future beds; construction
 purchases now move real money and supplier goods into delayed project cargo; automatic
-orders and household activation are still ahead. Live automatic construction is not enabled. Actual building, paid work, land protection, upgrades and acceptance
+orders and household activation are still ahead. Live automatic construction is not enabled. Live building, private labor, production land protection, upgrades and acceptance
 remain ahead. See PHASE4_CHECKLIST.md for the four groups; percentages measure
 verified checklist scope, not time. Human P3 playtesting is still deferred.
 
