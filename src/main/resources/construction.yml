@@ -39,3 +39,8 @@ village:
   maximum-purchase: 5000
   per-period-limit: 5000
   purposes: [home, path]
+
+# Whole-household planning only; this does not enable building or spend funds.
+# Reuse verified village-owned vacancies first; incomplete surveys block new homes.
+housing:
+  maximum-new-proposals: 1

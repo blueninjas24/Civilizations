@@ -106,3 +106,9 @@ October19 unused-stock follow-up: complete returns preserve goods/history and
 wait for source capacity. Prepared native work cannot take the shortcut. Passing
 80+3 focused build includes rollback/restart/version104 preservation; schema105
 adds return receipts only. No demand/work/activation gate completed by this API.
+
+October19 housing follow-up: pure whole-household proposals reuse verified permitted
+vacancies first and wait for complete evidence, fitting plans and absent worlds.
+Bed capacity requires complete distinct anchored pairs. Focused55+3 and native
+all-orientation/settings checks pass at schema105. No live housing assignment or
+autonomous demand-to-funded-project gate is claimed; count remains4/16.

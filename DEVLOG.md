@@ -1,5 +1,27 @@
 # Civilizations Development Log
 
+## 2026-10-19 — whole-household vacancy-first proposals and verified bed capacity
+
+Added a bounded deterministic housing planner that reuses verified permitted
+village-owned vacancies before new whole-household proposals. Existing projects
+prevent duplicates; unknown vacancy surveys and absent worlds pause new demand.
+No family is split to fit a too-small template, and no player/private/wrong-world
+home can be appropriated. The editable housing.maximum-new-proposals cap defaults
+to1 for old files without rewriting them. This planner changes no live household,
+occupancy, money, site or world; the real data/coordinator adapter remains future.
+
+Home capacity now counts distinct complete native bed pairs with matching foot
+anchors/facing. Missing halves, duplicate/misleading anchors, occupied beds and
+unanchored extra beds cannot advertise capacity. Every native orientation is
+validated before a HOME template is offered. Focused Wrapper clean verify55 unit
++3 packaged checks passed32.984s, zero failures/errors/skips. An initially malformed
+test was already rejected by the old template constructor; corrected the fixture
+and reran the affected build. Actual disposable Paper passed all native rotations,
+mirrors, installed settings, catalogue/router/permissions and invalid edit checks.
+No block writes; server stopped, helper archived, schema105 DB integrity/FKs clean.
+No migration change or human server/main modification. P4 stays25%,4/16 items.
+
+
 ## 2026-10-19 — return unused construction stock without loss or duplication
 
 Schema105 adds saved material return rows with original-reservation foreign keys,

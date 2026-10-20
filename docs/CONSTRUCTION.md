@@ -164,3 +164,23 @@ native outcome is uncertain. Original transfer receipts remain immutable history
 available() excludes fully returned goods. Only a complete unused-material return
 unlocks the unused-site release path. This API is not a live cancellation command,
 and does not authorize refunding consumed materials or removing buildings.
+
+## Whole-household proposal planning
+
+HousingProjectPlanner is a bounded deterministic domain API, not a live assignment
+or building scheduler. It offers a known suitable unreserved village-owned vacancy
+before a new whole-household plan, never reusing one vacancy twice in a review.
+Private or wrong-world homes are excluded. Existing household projects suppress
+duplicates, incomplete vacancy surveys block new construction proposals, and
+absent worlds pause them. A family larger than every supported plan waits for a
+fitting plan rather than splitting or constructing an unusable home.
+
+construction.yml housing.maximum-new-proposals defaults to1, supports1..64 and
+uses that safe default without rewriting old files missing the optional section.
+Proposals grant no funds, work, permission, occupancy or capacity. Live household/
+registered-home evidence and owner validation are still required.
+
+A HOME template must have distinct anchored bed feet with complete matching head
+blocks and native facing, no occupied states, and no extra unanchored beds. The
+original home verifies four real pairs in all eight orientations. This validates
+authored planned capacity; only a future completed-world check can activate it.

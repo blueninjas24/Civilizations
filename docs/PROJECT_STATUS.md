@@ -17,6 +17,11 @@ Implemented and verified:
   proposals. Quotes do not spend; labor proposals do not earn work yet.
 - Exact-draft site reservations refuse overlap. Protected empty player plots and
   later protections block material debits; unused releases retain site history.
+- Whole-household housing proposals reuse confirmed village-owned vacancies first,
+  retain pending projects, pause on incomplete surveys/absent worlds, refuse plans
+  too small for a whole family and obey an editable proposal cap. This is a pure
+  planner, not an occupancy or live discovery adapter. Authored housing capacity
+  requires complete distinct bed pairs with matching anchors/facing.
 - Real owned private-business materials move into recorded onsite stockpiles.
   Unused goods can return exactly once, waiting intact if source storage is full.
   Only after full return can an unstarted site release; any prepared block intent
@@ -28,15 +33,18 @@ Implemented and verified:
   Old cow/chicken receipt defaults and data are preserved; milk/egg retail excludes
   sheep. Wool is colour-neutral; old files missing only sheep use editable defaults.
 
-Validation: latest focused Windows Wrapper clean verify80 unit +3 packaged
-integration checks passed44.340s, zero failures/errors/skips. Earlier affected
+Validation: latest focused Windows Wrapper clean verify55 unit +3 packaged
+integration checks passed32.984s; previous material/migration batch passed80+3
+in44.340s. All zero failures/errors/skips. Earlier affected
 livestock351/353 passed; the two integration issues were corrected and affected
 checks passed73+3. Sites/protection/migration follow-ups passed77+3 and51+3.
 Actual disposable Paper verified sheep paid-feed/wool/births, money/goods
 conservation, owner restart and pause guards, plus native shear events. Another
 fixture completed120 native home blocks/four bed pairs over two JVM starts,
 recovering a60-write/59-ack boundary and restoring all121 original cells.
-Fixture DBs healthy/FK-clean at104; servers stopped and helpers archived. The
+Home-restart fixture DBs healthy/FK-clean at104. Latest native all-orientation
+home-capacity/catalogue/settings/router validation also passed, with a healthy
+schema105 DB. Servers stopped and helpers archived. The
 first home-restart attempt refused unloaded chunks; corrected test-only staging
 reopens at most four generated saved-footprint chunks. Simulation/writer do not
 load chunks. Schema105 adds only saved material returns; latest change is SQL-only.
@@ -47,7 +55,7 @@ upgrade,104 site reservations,105 material returns. No automatic DB resets.
 Migration rollback and preservation tests use temporary databases. Back up before
 upgrading; older plugin versions refuse newer schemas.
 
-Remaining: construction demand and real supplier procurement (including public
+Remaining: live housing demand/vacancy/occupancy adapters and real supplier procurement (including public
 projects), actual labor booking/subtraction from normal production, stage work/
 material consumption, current-write production protections/editor compatibility,
 completed building/housing activation, vacancy reuse, upgrades/maintenance and

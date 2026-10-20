@@ -30,7 +30,7 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
         var plugin=(JavaPlugin)getServer().getPluginManager().getPlugin("Civilizations");require(plugin!=null&&plugin.isEnabled(),"Production plugin active");
         var library=PaperConstructionLibrary.load(plugin);require(library.templates().size()==3,"Three installed original templates");
         require(library.funding().equals(com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy.prototype())&&library.land().buildingBuffer()==4
-                &&library.labor().equals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype()),"Installed construction policy defaults");
+                &&library.labor().equals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype())&&library.housing().maximumNewProposals()==1,"Installed construction policy defaults");
         var source=library.templates().get("starter_storehouse");var sourceHash=source.fingerprint();
         for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true)) {
             var transform=new Transform(rotation,mirror);var plan=PaperConstructionLibrary.prepare(source,transform);
