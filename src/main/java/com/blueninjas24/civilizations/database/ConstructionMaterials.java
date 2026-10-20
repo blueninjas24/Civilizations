@@ -5,7 +5,7 @@ import com.blueninjas24.civilizations.economy.Commodity;
 import java.sql.*;
 import java.util.*;
 
-/** SQL-owner transfer of already-owned business materials into a retained on-site stockpile. No cash fee or writes. */
+/** Initial transfer receipts are immutable history; available() reports goods still held. No cash fee or native writes. */
 public final class ConstructionMaterials {
     public record Authority(UUID draft,UUID world,long checkedMillis,boolean worldLoaded,boolean siteCleared) {
         public Authority{Objects.requireNonNull(draft);Objects.requireNonNull(world);if(checkedMillis<0)throw new IllegalArgumentException("Negative construction authority time");}
@@ -99,5 +99,10 @@ public final class ConstructionMaterials {
                 return Optional.of(new Receipt(operation,draft.id(),business,r.getLong("reserved_ms"),held));
             }
         }
+    }
+    public Map<Commodity,Long> available(UUID operation)throws SQLException {
+        var receipt=find(operation).orElseThrow(()->new SQLException("Unknown construction reservation"));
+        if(new ConstructionMaterialReturns(connection).returned(operation))return Map.of();
+        var stock=new TreeMap<Commodity,Long>();receipt.materials().forEach(i->stock.put(i.commodity(),i.units()));return Collections.unmodifiableMap(stock);
     }
 }

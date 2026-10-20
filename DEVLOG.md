@@ -1,5 +1,23 @@
 # Civilizations Development Log
 
+## 2026-10-19 — return unused construction stock without loss or duplication
+
+Schema105 adds saved material return rows with original-reservation foreign keys,
+exact operation identity and commodity before/after quantities. Unstarted projects
+return all goods atomically to their source, or wait intact for unreserved storage
+space. Cash does not change. Late failures roll back stock and receipts together;
+restart retries cannot return twice. Any prepared physical intent blocks this
+shortcut. Available stock is separate from immutable initial transfer history.
+An unstarted funded site may release only after its complete return is recorded.
+No automatic cancellation, disposal, payment/refund rule or native write is added.
+
+Focused Wrapper clean verify80 unit +3 packaged integration checks passed44.340s,
+zero failures/errors/skips. Added exact replay/restart, full-store wait, rollback,
+started-work refusal and version104 preservation/recovery cases. Historical
+migration fixtures separately assert the additive empty returns table. Human
+server/world/database/main untouched; P4 stays25%,4/16 whole checklist items.
+
+
 ## 2026-10-19 — saved construction sites and full home/JVM recovery
 
 Schema104 adds permanent world/draft-linked scheduler site reservations. Overlaps

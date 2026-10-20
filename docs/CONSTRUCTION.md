@@ -122,8 +122,8 @@ Schema102 adds private-business material reservation receipts/items. A fresh
 trusted site check and actual owned stock are required for new reservations.
 Stock moves atomically into a recorded onsite pile, releasing business capacity;
 no cash is charged for goods already owned. Exact retry returns the same receipt.
-Public procurement, stage consumption and safe cancellation/return capacity are
-not implemented. Prepared authored logs receive sticky forestry exclusions in the
+Public procurement and stage consumption are not implemented. Unstarted private
+stockpiles now have the all-or-wait return path below. Prepared authored logs receive sticky forestry exclusions in the
 same transaction as their write intent, before native placement.
 
 Basic sheep/wool support is now implemented as the approved supplier extension.
@@ -142,8 +142,8 @@ that shortcut. There is no player-facing reservation/release command yet.
 
 Material debits now require the matching active reservation and recheck newly saved
 player protection inside the same transaction. Existing receipt replay changes
-no stock and does not refresh physical authority. Cancellation/returns for held
-assets are still future work.
+no stock and does not refresh physical authority. Unused held assets now have the return path below; started projects still need
+reviewed physical recovery.
 
 ConstructionHomeRestartProbe demonstrated120 actual native home blocks and four
 bed pairs across two JVM runs, including a placed-but-unacknowledged block. It
@@ -151,3 +151,16 @@ restored all121 original cells afterward. Only the marked private fixture stages
 its bounded previously generated chunks on restart; the actual writer never
 loads chunks. The test grants no completed home capacity, paid work or normal
 server construction authority.
+
+## Returning unused materials
+
+Schema105 records complete returns with before/after stock quantities and permanent
+links to original reservation items. An unstarted project's goods return to their
+source store exactly once, with no fee or cash transfer. Incoming cargo reservations
+count against capacity. If the source lacks space, the whole pile stays saved onsite
+and the operation remains unclaimed for a later retry. There is no overflow disposal
+or partial return. A prepared block intent refuses this shortcut even when its
+native outcome is uncertain. Original transfer receipts remain immutable history;
+available() excludes fully returned goods. Only a complete unused-material return
+unlocks the unused-site release path. This API is not a live cancellation command,
+and does not authorize refunding consumed materials or removing buildings.

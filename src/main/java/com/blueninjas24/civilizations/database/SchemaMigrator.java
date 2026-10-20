@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 104;
+    static final int CURRENT_VERSION = 105;
 
     @FunctionalInterface
     interface Migration {
@@ -953,7 +953,8 @@ final class SchemaMigrator {
                 ConstructionBlockJournal::createSchema,
                 ConstructionMaterials::createSchema,
                 SheepMigration::apply,
-                ConstructionSiteReservations::createSchema
+                ConstructionSiteReservations::createSchema,
+                ConstructionMaterialReturns::createSchema
 
 
         ));
@@ -1155,6 +1156,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"resource_investment_reviews",Set.of("business_id","settlement_id","sequence","proposal","industry","observed_step","observed_ms","demand_value","policy","explanation"));
             }
             if(migrations.size()>=102){requireColumns(connection,"construction_material_reservations",Set.of("operation_id","draft_id","business_id","reserved_ms"));requireColumns(connection,"construction_material_items",Set.of("operation_id","commodity","units","before_units","after_units"));}
+            if(migrations.size()>=105)requireColumns(connection,"construction_material_returns",Set.of("return_operation","reservation_operation","commodity","units","before_units","after_units","returned_ms"));
             if(migrations.size()>=104)requireColumns(connection,"construction_site_reservations",Set.of("draft_id","world_id","min_x","max_x","reserved_ms","released_ms"));
             if(migrations.size()>=101)requireColumns(connection,"construction_block_journal",Set.of("operation_id","draft_id","ordinal","world_x","world_y","world_z","before_state","after_state","state"));
             if(migrations.size()>=100)requireColumns(connection,"construction_drafts",Set.of("id","settlement_id","world_id","origin_x","origin_y","origin_z","rotation","mirrored","template_hash","template_snapshot","created_ms"));

@@ -101,3 +101,8 @@ four-bed home completed120 blocks over two JVM starts after a60-write/59-ack
 checkpoint; all121 originals restored. Both fixture DBs healthy/FK-clean at104.
 This strengthens recovery evidence but does not finish funded/labor/occupancy
 construction acceptance or enable normal growth; whole-gate count stays4/16.
+
+October19 unused-stock follow-up: complete returns preserve goods/history and
+wait for source capacity. Prepared native work cannot take the shortcut. Passing
+80+3 focused build includes rollback/restart/version104 preservation; schema105
+adds return receipts only. No demand/work/activation gate completed by this API.

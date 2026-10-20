@@ -1,142 +1,61 @@
 # Civilizations — implementation status and handoff
 
-## Current — saved sites and actual home restart recovery verified
+## Current — Phase4 construction foundation; sheep, sites and unused-material recovery
 
-Schema104 adds permanent world/draft-linked scheduler site reservations. Overlaps
-are refused, empty protected player plots stay excluded, reservations appear in
-read-only previews, and only an unused proposal can release its footprint.
-Funded/started sites retain history until explicit future returns/ownership handling.
-New material reservations now require the exact draft's active site and fresh
-world/site evidence, with saved player protections rechecked in the same SQL
-transaction. A receipt replay is not fresh physical authority or permission.
+Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
+4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
+human survival testing remains deferred. No deployment to the user's server.
 
-Focused Wrapper clean verify passed77 unit +3 packaged checks,44.448s; exact-draft
-proof follow-up passed51 unit +3 packaged checks,33.368s. All zero failures/errors/
-skips. Historical migration snapshots retain old rows and assert the new empty
-reservation table separately. Schema103 collision/rollback recovery is covered.
+Implemented and verified:
+- Three original editable plans: path, storehouse and four-bed home; strict native
+  palettes and all eight rotations/mirrors, read-only bounded admin previews.
+- Frozen world/village-linked drafts, deterministic road-adjacent site search,
+  saved plot exclusions and conservative buffered clear-land screening.
+- Durable ordered block intents, authored-log forestry exclusions and a writer
+  obtainable only inside marked, explicitly bounded disposable test servers.
+- Editable protected village/private spending eligibility and temporary labor
+  proposals. Quotes do not spend; labor proposals do not earn work yet.
+- Exact-draft site reservations refuse overlap. Protected empty player plots and
+  later protections block material debits; unused releases retain site history.
+- Real owned private-business materials move into recorded onsite stockpiles.
+  Unused goods can return exactly once, waiting intact if source storage is full.
+  Only after full return can an unstarted site release; any prepared block intent
+  requires reviewed physical recovery. Original transfer receipts remain history;
+  available() reports current held goods. No cash or materials are created.
+- Approved sheep/wool extension reuses ownership/protection, actual grants/feed/
+  labor/storage, breeding reserves, age/birth/presence and deliberate-death rules.
+  Player/dispenser shearing is blocked only for positively saved village sheep.
+  Old cow/chicken receipt defaults and data are preserved; milk/egg retail excludes
+  sheep. Wool is colour-neutral; old files missing only sheep use editable defaults.
 
-Actual marked disposable Paper built a120-block/four-bed home across two JVM
-runs. First run stopped after60 native writes/59 acknowledgements; second recovered
-the pending after-state once, retained the site, completed all120 states and restored
-all121 original cells. Both fixture DBs passed integrity/FK checks at104; all120
-journal entries are applied. Server stopped, helper archived. This is physical
-recovery evidence, not paid construction or housing-capacity activation.
+Validation: latest focused Windows Wrapper clean verify80 unit +3 packaged
+integration checks passed44.340s, zero failures/errors/skips. Earlier affected
+livestock351/353 passed; the two integration issues were corrected and affected
+checks passed73+3. Sites/protection/migration follow-ups passed77+3 and51+3.
+Actual disposable Paper verified sheep paid-feed/wool/births, money/goods
+conservation, owner restart and pause guards, plus native shear events. Another
+fixture completed120 native home blocks/four bed pairs over two JVM starts,
+recovering a60-write/59-ack boundary and restoring all121 original cells.
+Fixture DBs healthy/FK-clean at104; servers stopped and helpers archived. The
+first home-restart attempt refused unloaded chunks; corrected test-only staging
+reopens at most four generated saved-footprint chunks. Simulation/writer do not
+load chunks. Schema105 adds only saved material returns; latest change is SQL-only.
+See DEVLOG.md and CONSTRUCTION.md for detailed evidence and earlier checkpoints.
 
-The first restart attempt correctly refused unloaded chunks. Corrected test-only
-staging reopens at most four already-generated saved-footprint chunks; the writer
-and normal simulation still never load chunks. Failed evidence retained, helper
-archived. Human server/main unchanged. P4 stays25%,4/16 complete checklist items;
-procurement, booked labor, real completion/occupancy and growth remain unfinished.
+Schema100 drafts,101 journal,102 held stock,103 preserved species-constraint
+upgrade,104 site reservations,105 material returns. No automatic DB resets.
+Migration rollback and preservation tests use temporary databases. Back up before
+upgrading; older plugin versions refuse newer schemas.
 
-## Current — sheep and wool supplier support verified
-
-Approved sheep support now shares existing natural-animal recognition, saved
-ownership/protected pens, real startup funding, paid feed/work/storage, breeding
-reserves, saved age/birth/presence and deliberate-death accounting. Wool is an
-abstract colour-neutral commodity. Saved village sheep cannot duplicate it through
-player or dispenser shearing; unclaimed/player sheep remain vanilla. The milk/egg
-retail menu excludes sheep rather than treating them as chickens. Actual construction
-procurement/demand and home activation are still unfinished; no automatic houses yet.
-
-Migration103 transactionally expands four species CHECK constraints, preserving
-rows, keys, indexes, triggers and historical default receipt fingerprints. Actual
-version102 populated cow history survives the upgrade and an injected late failure
-rolls back safely with foreign-key enforcement restored. No existing herd reset.
-Old economy.yml files lacking sheep use validated defaults without being rewritten;
-existing missing whole livestock/runtime/adoption sections retain their opt-outs.
-
-Focused Windows Wrapper clean verify passed73 unit +3 packaged integration checks,
-zero failures/errors/skips,42.991s. Earlier broader livestock run passed351/353;
-two integration issues were fixed and affected checks rerun. The corrected sandbox
-run passed unit tests but hit a backup-file move restriction; normal-environment
-verification above passed. Actual isolated Paper SHEEP runtime passed paid feed,
-wool/births, saved cash/goods conservation, owner restart, absence/downtime and
-capture-fence pauses, plus native player/dispenser shear guards. Fixture stopped;
-both private DBs passed integrity/FKs at103. This is not human playtesting or native
-sheep newborn/slaughter acceptance. P4 remains25%,4/16 full checklist items.
-
-## Current — P4 home, guarded land checks and reserved materials
-
-Three original plans now include a four-bed home (120 blocks; 12 stone, 36 timber,
-12 wool). Native Paper verified all eight bed orientations/mirrors and existing
-palette/router checks. The disposable fixture stopped cleanly; its schema102 DB
-passed integrity and foreign-key checks. No human server was used.
-
-Buffered clear-land previews reject nearby buildings, crops, fences, protected
-empty columns and incomplete evidence. Editable temporary labor proposals only
-select eligible unemployed public workers or a business's own staff; no work is
-booked yet. Schema102 reserves actual owned business materials into a saved onsite
-stockpile atomically, with exact retry, insufficient-stock and rollback checks.
-It charges no second fee for already-owned goods. Public procurement, stage use,
-returns, normal-production labor subtraction and live placement remain unfinished.
-Authored construction logs now receive durable forestry exclusions in the same
-transaction as their prepared write intent, preventing natural-resource adoption.
-
-Windows Wrapper clean verify passed 68 focused unit +3 packaged integration tests,
-zero failures/errors/skips (38.279s). Three historical forestry snapshot fixtures
-were corrected after hosted CI exposed omitted additive construction tables;
-those preservation tests pass locally. Hosted P4 green is not yet claimed.
-P4 remains25%,4/16 items,1/4 complete groups. Sheep/wool was approved as the next
-supplier extension; it is not implemented in this checkpoint. Main untouched.
-
-## Current — P4 recovery, road-site search, funding and saved protection foundations
-
-Continuing on `codex/phase4-construction-foundation`. The first batch is backed up
-as 3f3c5f1. Added bounded deterministic road-adjacent site search, a durable ordered
-block-intent journal, read-only saved-plot protection through the SQL owner queue,
-and editable business/village construction spending eligibility in construction.yml.
-User approved owner-funded business projects, village-funded basic homes/local
-roads with food/upkeep protection, automatic nearby growth and guarded recognition
-of unmarked clear land; uncertain sites pause and existing structures/claims remain
-excluded. These approvals are intent, not claims of a completed automatic builder.
-
-Focused Wrapper clean verify passed 58 unit +3 packaged integration checks, zero
-failures/errors/skips, 37.359s. Schema 101 adds only the block journal after schema
-100 frozen drafts. Historical migration fixtures were updated for additive tables;
-version98/99/100 preservation, rollback and restart/corruption checks pass.
-Actual disposable Paper placed five blocks, retried without duplicates, reopened
-its private DB between physical write and acknowledgement, preserved a deliberately
-changed block and waited for a remote unloaded chunk without loading it. Original
-five cells restored, test tickets released, helper archived, server stopped; both
-fixture DBs passed integrity/FK/schema101 audits. This was a DB-reopen crash window,
-not a full process-restart construction acceptance or production activation.
-
-The initial physical attempt correctly waited when an empty server unloaded test
-chunks; its cleanup also failed, so the verified disposable process was stopped.
-The corrected helper holds only already-loaded test chunks and always requests
-shutdown after failure. No human server/database/world/config or main changes.
-Normal gameplay still cannot place blocks: the sole writer factory requires the
-marked localhost disposable server and an explicit test footprint. No economics
-or land approval is inferred from a draft/journal/quote. Automatic demand-to-project,
-purchases/reservations, production land recognition and building activation remain
-unwired. P4 stays25%,4/16 items,1/4 complete groups; partial work is not a finished gate.
-
-
-## Current — Phase 4 authored-plan foundation, 25% (4/16 items, 1/4 groups)
-
-P4 runs on `codex/phase4-construction-foundation`, based on completed P3 085b351.
-Both hosted Windows/Linux checks for that P3 checkpoint were verified green.
-Original editable path/storehouse plans, native rotations/mirroring, bounded
-read-only admin previews and immutable SQLite draft snapshots are implemented.
-No building placement, funding, land approval or function activation is enabled.
-Draft storage is an API; previews do not yet save projects. Saved pen/protection
-checks and actual road-first planning are subsequent work, explicitly unclaimed.
-
-Focused Windows Wrapper clean verify passed 28 unit +3 packaged integration
-checks, zero failures/errors/skips, 21.630s at 17:37:56 ET. Actual isolated Paper
-checks passed native doors/pillars, installed catalogue, router permissions and
-invalid block states. Probe made no world-block/entity changes; server stopped.
-Migration 100 only adds frozen world/village-linked proposals; no existing rows
-are reset. Current target JAR now includes P4; the P3 artifact reference below is
-historical. Human server/world/config/database and main are untouched.
-
-See PHASE4_CHECKLIST.md and CONSTRUCTION.md for current scope, commands, evidence
-and remaining gates. Human P3 playtesting stays deferred, not claimed completed.
-Next: persistent approval/protection and interruption-safe staged work. No current
-question blocks these foundations; consequential live ownership/demolition/player
-protection decisions still need approval where the canonical rules leave them open.
-
-
+Remaining: construction demand and real supplier procurement (including public
+projects), actual labor booking/subtraction from normal production, stage work/
+material consumption, current-write production protections/editor compatibility,
+completed building/housing activation, vacancy reuse, upgrades/maintenance and
+full autonomous growth acceptance. The physical native test did not claim funded
+work or home occupancy. Normal gameplay still cannot place construction blocks.
+No design question currently blocks the next scoped work. Feature pushes are
+permitted; never merge/push main. Hosted current candidate status must be checked
+by commit; local passing tests are not a claim of hosted Windows/Linux green.
 
 ## Current - Phase3 prototype complete,100%,4/4 milestone groups
 
