@@ -46,6 +46,12 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Explicit plot/building/unit geometry and bounded canonical snapshots now support
+stacked apartments, shared circulation and multi-room single-family declarations.
+Overlaps and duplicate/out-of-unit beds are rejected. This is not current-world
+habitability, a consent registry or occupancy/capacity activation. See
+BUILDING_LAYOUTS.md; no additional checklist item is complete.
+
 Road-adjacent candidate search is deterministic, bounded by64 road seeds,256
 candidates and65,536 cell reviews, and explains rejected candidates. Unknown
 protection evidence blocks the search. It is not yet the live automatic land

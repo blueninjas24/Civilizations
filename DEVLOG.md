@@ -1,5 +1,23 @@
 # Civilizations Development Log
 
+## 2026-10-20 — explicit building and dwelling-unit geometry
+
+Added immutable plain-Java BuildingLayout and bounded versioned snapshots with
+stable building/village/world/unit identities and semantic fingerprints. Separate
+plot/structure/shared/private geometry supports stacked apartments and irregular
+multi-room single-family declarations. Reject overlapping regions, duplicate unit
+identity, invalid entrances, incomplete/reused bed pairs and oversized/overflowing
+bounds. Geometry grants no ownership, donation consent or usable housing capacity.
+
+Added nine focused tests. Windows Wrapper command:
+`.\mvnw.cmd -Dtest=BuildingLayoutTest,HousingProjectPlannerTest,ConstructionTemplateTest,ConstructionTemplateSnapshotTest clean verify`
+passed18 unit +3 packaged integration checks in21.721s, no failures/errors/skips.
+No Paper API changes/native run; no schema migration (still107), live server,
+world/save or main changes. Added BUILDING_LAYOUTS.md and updated status/progress/
+checklist; the handbook's planned-controls labels remain accurate. P4 remains25%,
+4/16 complete items. Next: current-world inspection and transactional permission/
+occupancy records before exposing donation or apartment controls.
+
 ## 2026-10-20 — first living player and server handbook
 
 Marked PDF artifacts binary in .gitattributes to prevent Windows line-ending

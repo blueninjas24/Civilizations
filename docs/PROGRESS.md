@@ -21,6 +21,12 @@ P4 controls separately, with21 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
 
+Building/unit geometry now distinguishes shared space, separate apartments and
+multi-room family homes, with overlap/bed checks and frozen layout snapshots.
+It does not yet grant consent or usable housing; live inspection, registration
+and household assignment remain ahead. Focused build:18 unit +3 packaged checks
+passed. This partial foundation does not complete another checklist milestone.
+
 Design agreed: player buildings need explicit donation; donors will be able to
 reclaim donated housing, and explicit building exclusions provide extra protection.
 Those controls are planned, not implemented; no milestone percentage changes.

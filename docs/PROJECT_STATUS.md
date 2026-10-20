@@ -16,6 +16,15 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- BuildingLayout now separates plot/structure, shared areas and explicit dwelling
+  units with stable world/village/building/unit identities. Stacked apartments and
+  multi-room family homes retain distinct meanings; overlapping private/shared
+  areas and duplicate/out-of-unit bed pairs are rejected. Canonical bounded
+  snapshots freeze geometry only. No registry, consent, live inspection, occupancy
+  or usable capacity is enabled; schema remains107. See BUILDING_LAYOUTS.md.
+  Focused Wrapper clean verify18 unit +3 packaged checks passed21.721s, no failures,
+  errors or skips. Nine new checks; no Minecraft/server changes. The handbook's
+  planned-controls labels remain accurate; there is no new player-facing control.
 - Public construction work now runs inside actual earned food periods. Only
   eligible unemployed non-owner adults with unspent time can work; farm employees
   and students are excluded. Legacy all-adult farm output cannot double as builders.
