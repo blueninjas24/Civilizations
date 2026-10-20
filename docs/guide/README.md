@@ -20,6 +20,8 @@ plots and apartments are planned, not working controls.
 4. Render the PDF with Poppler and inspect every page, including wrapped command
    syntax, tables, page numbers, bookmarks and chapter links. Keep QA images in a
    temporary folder rather than publishing them as guide assets.
+   PDFs are explicitly marked binary in .gitattributes so Windows checkout does
+   not rewrite line endings inside their byte-offset-based structure.
 5. Commit the editable source, builder and final PDF together. Add screenshots
    after actual controls exist. No Maven/server/database operation is required for
    a prose-only handbook update.

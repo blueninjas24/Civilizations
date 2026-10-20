@@ -2,6 +2,9 @@
 
 ## 2026-10-20 — first living player and server handbook
 
+Marked PDF artifacts binary in .gitattributes to prevent Windows line-ending
+conversion; verified the committed PDF bytes match the visually reviewed output.
+
 Created a23-page PDF with overview/TL DR, linked chapter list,21 feature/reference
 chapters, player/admin/protection/recovery command glossaries, terms, a connected
 village example, permissions, tuning, troubleshooting and safe update/backup
