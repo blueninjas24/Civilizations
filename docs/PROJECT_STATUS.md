@@ -1,5 +1,29 @@
 # Civilizations — implementation status and handoff
 
+## Current — P4 home, guarded land checks and reserved materials
+
+Three original plans now include a four-bed home (120 blocks; 12 stone, 36 timber,
+12 wool). Native Paper verified all eight bed orientations/mirrors and existing
+palette/router checks. The disposable fixture stopped cleanly; its schema102 DB
+passed integrity and foreign-key checks. No human server was used.
+
+Buffered clear-land previews reject nearby buildings, crops, fences, protected
+empty columns and incomplete evidence. Editable temporary labor proposals only
+select eligible unemployed public workers or a business's own staff; no work is
+booked yet. Schema102 reserves actual owned business materials into a saved onsite
+stockpile atomically, with exact retry, insufficient-stock and rollback checks.
+It charges no second fee for already-owned goods. Public procurement, stage use,
+returns, normal-production labor subtraction and live placement remain unfinished.
+Authored construction logs now receive durable forestry exclusions in the same
+transaction as their prepared write intent, preventing natural-resource adoption.
+
+Windows Wrapper clean verify passed 68 focused unit +3 packaged integration tests,
+zero failures/errors/skips (38.279s). Three historical forestry snapshot fixtures
+were corrected after hosted CI exposed omitted additive construction tables;
+those preservation tests pass locally. Hosted P4 green is not yet claimed.
+P4 remains25%,4/16 items,1/4 complete groups. Sheep/wool was approved as the next
+supplier extension; it is not implemented in this checkpoint. Main untouched.
+
 ## Current — P4 recovery, road-site search, funding and saved protection foundations
 
 Continuing on `codex/phase4-construction-foundation`. The first batch is backed up

@@ -31,9 +31,9 @@ before-states at the actual write boundary.
 
 ## Editable starter files
 
-On first startup, the plugin copies two original files to
+On first startup, the plugin copies three original files to
 `plugins/Civilizations/construction/`: `starter_path.yml` and
-`starter_storehouse.yml`. Existing files are preserved. Stop the server to edit,
+`starter_storehouse.yml` and `starter_home.yml`. Existing files are preserved. Stop the server to edit,
 then restart; there is no live reload yet. An invalid template disables construction
 previews with a logged reason while population/economy remain available.
 
@@ -50,7 +50,7 @@ empty player fields cannot be identified retroactively; reserved empty plots can
 confirmed fenced-area protection. The automatic recognizer is not connected yet.
 Ordinary gameplay will not require admin-approved build zones under this decision.
 
-The initial native palette supports cobblestone, oak planks/logs/doors and barrels.
+The initial native palette supports cobblestone, oak planks/logs/doors, barrels and white beds.
 Unknown types/properties and unsupported materials are rejected before preview.
 This is an intentionally small supported catalogue, not a schematic importer.
 More palettes, structures, terrain adaptation and authoring tools remain future work.
@@ -59,7 +59,9 @@ distribution rights when importing other people's buildings in a future importer
 
 Costs are editable abstract units, not one physical item per placed block. The
 storehouse has 83 blocks across four stages, 90 work units, 8 stone, 20 timber and
-1 storage fitting. These are plan metadata; no funding or material transfer occurs.
+1 storage fitting. The home has 120 blocks, 120 work, 12 stone, 36 timber and 12 wool. These
+are editable abstract costs, with no free material supply. Player previews do
+not reserve stock or transfer funds.
 
 ## Saved proposals
 
@@ -104,3 +106,22 @@ preserved a changed block and left a remote chunk unloaded. This is not a full
 process-restart or complete-building acceptance. Production writes must additionally
 coordinate resource provenance (including placed logs), fresh claims, paid materials,
 real available labor, completion checks and active use before the live gate opens.
+
+## Guarded land, labor and owned stock (not a live builder)
+
+Optional land/labor settings default safely for existing construction.yml files;
+files are never silently rewritten. A bounded four-block buffer rejects nearby
+non-ground structures, crops, fences, water and unknown evidence. Complete saved
+protected columns remain excluded. This flat-site screen performs no grading.
+
+Labor proposals cap public workers and private staff time, select deterministically
+and preserve total available effort. They do not book labor or reduce production
+yet; both must be connected together before work credits can be earned.
+
+Schema102 adds private-business material reservation receipts/items. A fresh
+trusted site check and actual owned stock are required for new reservations.
+Stock moves atomically into a recorded onsite pile, releasing business capacity;
+no cash is charged for goods already owned. Exact retry returns the same receipt.
+Public procurement, stage consumption and safe cancellation/return capacity are
+not implemented. Prepared authored logs receive sticky forestry exclusions in the
+same transaction as their write intent, before native placement.

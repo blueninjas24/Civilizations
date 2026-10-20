@@ -9,6 +9,13 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConstructionTemplateConfigurationTest {
+    @org.junit.jupiter.api.Test void originalFamilyHomeHasFourBedAnchorsAndRequiresRealWool()throws Exception {
+        var home=ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+        org.junit.jupiter.api.Assertions.assertEquals(120,home.blockCount());
+        org.junit.jupiter.api.Assertions.assertEquals(4,home.anchors().stream().filter(a->a.role()==com.blueninjas24.civilizations.construction.ConstructionTemplate.Role.BED).count());
+        org.junit.jupiter.api.Assertions.assertEquals(12,home.materials().get(new com.blueninjas24.civilizations.economy.Commodity("wool")));
+        org.junit.jupiter.api.Assertions.assertEquals(36,home.materials().get(com.blueninjas24.civilizations.economy.Commodity.TIMBER));
+    }
     private String source(String id)throws Exception {
         try(var input=getClass().getResourceAsStream("/construction/"+id+".yml")){assertNotNull(input);return new String(input.readAllBytes(),StandardCharsets.UTF_8);}
     }

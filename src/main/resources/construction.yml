@@ -4,6 +4,20 @@
 # Existing materials are not charged again. Future purchases must pay a real supplier.
 # No separate construction wage/personal-wallet system is introduced.
 format: 1
+land:
+  # Avoid nearby buildings, crops, fences, trees, water and unknown obstacles in this many blocks.
+  # This is a bounded visual heuristic: unmarked empty player fields are indistinguishable.
+  # Confirmed fenced plots remain protected, including empty plots.
+  building-buffer: 4
+labor:
+  # These settings describe proposed allocations; live construction scheduling is not enabled yet.
+  # Village work uses unemployed adults; businesses use only their own qualified staff.
+  # Construction replaces some normal work; it never creates extra effort or changes permanent jobs.
+  enabled: true
+  village-workers: 2
+  business-workers: 1
+  effort-per-worker: 100
+  business-share-percent: 25
 business:
   enabled: true
   # Preserve operating cash plus the larger of upkeep reserve and known essential obligations.

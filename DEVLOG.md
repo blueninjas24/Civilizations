@@ -1,5 +1,23 @@
 # Civilizations Development Log
 
+## 2026-10-19 — P4 home, land screen, labor proposals and material reservations
+
+Added an original four-bed home and native bed palette; actual disposable Paper
+verified all rotations/mirrors, catalogue/routing and invalid-edit rejection.
+No block writes in this probe; clean shutdown and schema102 integrity/FK checks.
+Added conservative buffered land previews, configurable temporary labor proposals
+and atomic private-business stock reservations. Reserved units remain in an onsite
+stockpile; no cash/materials are invented. Stage consumption, cancellation returns,
+public procurement and actual labor booking are subsequent work. Schema102 adds
+reservation receipts/items only. Prepared authored logs get forestry exclusions
+atomically, including rollback on exclusion failure.
+
+Focused Wrapper clean verify68 unit +3 packaged integration tests passed38.279s,
+zero failures/errors/skips. Fixed three CI-discovered forestry snapshot fixtures
+without weakening row-preservation assertions; hosted P4 rerun remains required.
+Recorded user approvals for temporary labor, village-owned housing and basic sheep.
+P4 stays25%,4/16 items. Human server/main remain untouched.
+
 ## 2026-10-19 — P4 ordered writes, native recovery and editable budget foundation
 
 Added bounded deterministic infill search beside observed roads, saved before/after

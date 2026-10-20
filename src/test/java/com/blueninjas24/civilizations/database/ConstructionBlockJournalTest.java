@@ -62,11 +62,25 @@ class ConstructionBlockJournalTest {
     }
     @Test void migration100PreservesFrozenDraftAndCorruptIntentCannotReachAWriter()throws Exception {
         try(var c=open()) {
-            var draft=fixture(c);try(var s=c.createStatement()){s.execute("DROP TABLE construction_block_journal");s.execute("PRAGMA user_version=100");}
+            var draft=fixture(c);SchemaFixtures.rewind(c,100);
             new SchemaMigrator().migrate(c);assertEquals(draft,new ConstructionDraftRepository(c).find(draft.id()).orElseThrow());
             var journal=new ConstructionBlockJournal(c);var op=UUID.randomUUID();journal.prepare(op,draft.id(),0,"minecraft:cobblestone");
             try(var s=c.createStatement()){s.execute("UPDATE construction_block_journal SET world_x=1234");}
             assertThrows(SQLException.class,()->journal.find(op));
+        }
+    }
+    @Test void authoredLogsAreExcludedBeforeWritingAndAnExclusionFailureRollsBackTheIntent()throws Exception {
+        try(var c=open()) {
+            fixture(c);var template=new ConstructionTemplate("beam",1,"Beam","Original test",Purpose.PATH,new Size(1,1,1),
+                    List.of(new Stage("frame",1,Map.of(com.blueninjas24.civilizations.economy.Commodity.TIMBER,1L),Map.of(new Position(0,0,0),"minecraft:oak_log[axis=y]"))),List.of());
+            var draft=new ConstructionDraft(UUID.randomUUID(),town,world,new Position(20,64,20),Transform.identity(),template,1000);
+            new ConstructionDraftRepository(c).save(draft);var journal=new ConstructionBlockJournal(c);var operation=UUID.randomUUID();
+            try(var s=c.createStatement()){s.execute("CREATE TRIGGER refuse_authored_log AFTER INSERT ON forestry_exclusions BEGIN SELECT RAISE(ABORT,'fixture failure'); END");}
+            assertThrows(SQLException.class,()->journal.prepare(operation,draft.id(),0,"minecraft:oak_log[axis=y]"));assertTrue(journal.find(operation).isEmpty());assertTrue(c.getAutoCommit());
+            try(var s=c.createStatement()){s.execute("DROP TRIGGER refuse_authored_log");}
+            journal.prepare(operation,draft.id(),0,"minecraft:oak_log[axis=y]");journal.prepare(operation,draft.id(),0,"minecraft:oak_log[axis=y]");
+            assertTrue(new ForestryProvenance(c).excludes(world,new com.blueninjas24.civilizations.settlement.VillageObservation.Position(20,64,20)));
+            try(var s=c.createStatement();var r=s.executeQuery("SELECT count(*) FROM forestry_exclusions")){assertTrue(r.next());assertEquals(1,r.getInt(1));}
         }
     }
 }

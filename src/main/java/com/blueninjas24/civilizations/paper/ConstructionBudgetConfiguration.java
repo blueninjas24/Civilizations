@@ -9,9 +9,25 @@ import java.util.*;
 public final class ConstructionBudgetConfiguration {
     private ConstructionBudgetConfiguration(){}
     public static ConstructionBudgetPolicy read(ConfigurationSection root) {
-        Objects.requireNonNull(root);keys(root,Set.of("format","business","village"));
+        Objects.requireNonNull(root);var rootKeys=root.getKeys(false);
+        if(!rootKeys.containsAll(Set.of("format","business","village"))||!Set.of("format","business","village","land","labor").containsAll(rootKeys))throw new IllegalArgumentException("Missing or unknown construction settings");
         if(number(root,"format")!=1)throw new IllegalArgumentException("Unsupported construction funding format");
         return new ConstructionBudgetPolicy(account(root.getConfigurationSection("business")),account(root.getConfigurationSection("village")));
+    }
+    public static com.blueninjas24.civilizations.construction.ConstructionLandPolicy land(ConfigurationSection root) {
+        if(!root.contains("land"))return new com.blueninjas24.civilizations.construction.ConstructionLandPolicy(4);
+        var section=root.getConfigurationSection("land");if(section==null)throw new IllegalArgumentException("Invalid construction land settings");keys(section,Set.of("building-buffer"));
+        long buffer=number(section,"building-buffer");if(buffer<0||buffer>16)throw new IllegalArgumentException("Construction building buffer must be 0..16");
+        return new com.blueninjas24.civilizations.construction.ConstructionLandPolicy((int)buffer);
+    }
+    public static com.blueninjas24.civilizations.construction.ConstructionLaborPolicy labor(ConfigurationSection root) {
+        if(!root.contains("labor"))return com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype();
+        var section=root.getConfigurationSection("labor");if(section==null)throw new IllegalArgumentException("Invalid construction labor settings");
+        keys(section,Set.of("enabled","village-workers","business-workers","effort-per-worker","business-share-percent"));
+        if(!(section.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("Construction labor enabled must be true/false");
+        long village=number(section,"village-workers"),business=number(section,"business-workers"),effort=number(section,"effort-per-worker"),share=number(section,"business-share-percent");
+        if(village<1||village>64||business<1||business>64||effort<1||effort>10_000||share<1||share>100)throw new IllegalArgumentException("Invalid construction labor bounds");
+        return new com.blueninjas24.civilizations.construction.ConstructionLaborPolicy(enabled,(int)village,(int)business,(int)effort,(int)share);
     }
     private static ConstructionBudgetPolicy.Account account(ConfigurationSection section) {
         if(section==null)throw new IllegalArgumentException("Missing construction funding account");

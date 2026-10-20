@@ -41,4 +41,19 @@ class ConstructionBudgetConfigurationTest {
         assertThrows(IllegalArgumentException.class,()->read(defaults().replace("maximum-purchase:","maximum-puchase:")));
         assertThrows(IllegalArgumentException.class,()->read(defaults().replace("purposes: [home, path]","purposes: [home, home]")));
     }
+    @Test void bufferedRecognitionIsEditableAndEarlierFundingFilesKeepTheSafeDefault()throws Exception {
+        var yaml=new YamlConfiguration();yaml.loadFromString(defaults());
+        assertEquals(4,ConstructionBudgetConfiguration.land(yaml).buildingBuffer());
+        yaml.set("land.building-buffer",8);assertEquals(8,ConstructionBudgetConfiguration.land(yaml).buildingBuffer());
+        yaml.set("land.building-buffer",17);assertThrows(IllegalArgumentException.class,()->ConstructionBudgetConfiguration.land(yaml));
+        yaml.set("land",null);assertEquals(4,ConstructionBudgetConfiguration.land(yaml).buildingBuffer());
+        assertEquals(ConstructionBudgetPolicy.prototype(),ConstructionBudgetConfiguration.read(yaml));
+    }
+    @Test void laborSharesAreEditableAndOldFilesReceiveDefaultsWithoutRewriting()throws Exception {
+        var yaml=new YamlConfiguration();yaml.loadFromString(defaults());
+        assertEquals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype(),ConstructionBudgetConfiguration.labor(yaml));
+        yaml.set("labor.business-share-percent",50);assertEquals(50,ConstructionBudgetConfiguration.labor(yaml).businessSharePercent());
+        yaml.set("labor.business-share-percent",101);assertThrows(IllegalArgumentException.class,()->ConstructionBudgetConfiguration.labor(yaml));
+        yaml.set("labor",null);assertEquals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype(),ConstructionBudgetConfiguration.labor(yaml));
+    }
 }

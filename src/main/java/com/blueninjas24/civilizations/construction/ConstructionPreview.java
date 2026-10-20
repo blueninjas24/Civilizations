@@ -17,7 +17,7 @@ public final class ConstructionPreview {
     public record Observation(UUID world,Position origin,long observedMillis,boolean complete,boolean entityObstruction,Map<Position,Cell> cells) {
         public Observation {Objects.requireNonNull(world);Objects.requireNonNull(origin);cells=Map.copyOf(cells);if(observedMillis<0||cells.size()>MAX_OBSERVATION_CELLS)throw new IllegalArgumentException("Invalid site observation");}
     }
-    public enum Issue { NO_APPROVED_AREA, WRONG_WORLD, STALE_OR_FUTURE, INCOMPLETE, ENTITY_PRESENT, PROTECTED, OBSTRUCTED, UNSUPPORTED, ROAD_REQUIRED }
+    public enum Issue { NO_APPROVED_AREA, WRONG_WORLD, STALE_OR_FUTURE, INCOMPLETE, ENTITY_PRESENT, PROTECTED, OBSTRUCTED, UNSUPPORTED, ROAD_REQUIRED,LAND_UNSUITABLE }
     public record Assessment(Bounds footprint,int plannedBlocks,Set<Issue> issues) {
         public Assessment{issues=Set.copyOf(issues);}
         public boolean suitable(){return issues.isEmpty();}

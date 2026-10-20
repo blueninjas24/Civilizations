@@ -50,7 +50,7 @@ class ConstructionDraftRepositoryTest {
     @Test void migrationFrom99PreservesExistingVillageAndCanReopenWithoutReset()throws Exception {
         var draft=draft();
         try(var c=open()) {
-            village(c);try(var s=c.createStatement()){s.execute("DROP TABLE construction_block_journal");s.execute("DROP TABLE construction_drafts");s.execute("PRAGMA user_version=99");}
+            village(c);SchemaFixtures.rewind(c,99);
             new SchemaMigrator().migrate(c);
             try(var s=c.createStatement();var rows=s.executeQuery("PRAGMA user_version")){assertEquals(SchemaMigrator.CURRENT_VERSION,rows.getInt(1));}
             assertEquals(draft,new ConstructionDraftRepository(c).save(draft));

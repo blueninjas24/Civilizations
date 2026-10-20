@@ -1,0 +1,51 @@
+# Original Civilizations starter home. Distribution follows the repository's license.
+# Four real beds; wool is required and is never seeded or conjured by this plan.
+format: 1
+id: starter_home
+revision: 1
+name: Small village family home
+attribution: Original Civilizations starter build
+purpose: home
+size: {x: 6, y: 4, z: 6}
+palette:
+  C: minecraft:cobblestone
+  P: minecraft:oak_planks
+  L: minecraft:oak_log[axis=y]
+  D: minecraft:oak_door[facing=north,half=lower,hinge=left,open=false,powered=false]
+  U: minecraft:oak_door[facing=north,half=upper,hinge=left,open=false,powered=false]
+  F: minecraft:white_bed[facing=south,occupied=false,part=foot]
+  H: minecraft:white_bed[facing=south,occupied=false,part=head]
+stages:
+  - id: foundation
+    work: 36
+    materials: {stone: 12}
+    layers:
+      - y: 0
+        rows: [CCCCCC, CCCCCC, CCCCCC, CCCCCC, CCCCCC, CCCCCC]
+  - id: walls
+    work: 40
+    materials: {timber: 16}
+    layers:
+      - y: 1
+        rows: [LPDPPL, P....P, P....P, P....P, P....P, LPPPPL]
+      - y: 2
+        rows: [LPUPPL, P....P, P....P, P....P, P....P, LPPPPL]
+  - id: roof
+    work: 36
+    materials: {timber: 12}
+    layers:
+      - y: 3
+        rows: [PPPPPP, PPPPPP, PPPPPP, PPPPPP, PPPPPP, PPPPPP]
+  - id: beds
+    work: 8
+    materials: {timber: 8, wool: 12}
+    layers:
+      - y: 1
+        rows: [......, ......, .FFFF., .HHHH., ......, ......]
+anchors:
+  - {role: entrance, at: [2, 1, 0], facing: north}
+  - {role: road, at: [2, -1, -1], facing: north}
+  - {role: bed, at: [1, 1, 2], facing: south}
+  - {role: bed, at: [2, 1, 2], facing: south}
+  - {role: bed, at: [3, 1, 2], facing: south}
+  - {role: bed, at: [4, 1, 2], facing: south}

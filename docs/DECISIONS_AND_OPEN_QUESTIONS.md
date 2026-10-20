@@ -1,5 +1,21 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 19 — temporary building labor, public homes and sheep approved
+
+User explicitly approved configurable temporary construction labor: unemployed
+eligible adults for public homes/roads, business employees for their own premises.
+Their construction effort must replace normal productive effort; proposals alone
+are not earned work. No forced job transfers or new personal wallets.
+
+Village-funded homes remain village-owned, assigned to households. Vacant homes
+return to the reuse pool; they are not gifted inheritable family property.
+
+Add basic sheep and wool support so the four-bed plan can acquire real wool
+without initially depending on player donations. Reuse livestock ownership,
+protection, feed/work, breeding reserves and absence rules; do not seed free wool
+or reset existing herds. This approval extends the livestock catalogue, not all
+possible animals or construction functionality.
+
 ## October 19 — P4 funding and automatic land recognition approved
 
 User explicitly selected:

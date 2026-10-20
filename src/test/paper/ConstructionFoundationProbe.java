@@ -28,7 +28,9 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
     }
     private void verify()throws Exception {
         var plugin=(JavaPlugin)getServer().getPluginManager().getPlugin("Civilizations");require(plugin!=null&&plugin.isEnabled(),"Production plugin active");
-        var library=PaperConstructionLibrary.load(plugin);require(library.templates().size()==2,"Two installed original templates");
+        var library=PaperConstructionLibrary.load(plugin);require(library.templates().size()==3,"Three installed original templates");
+        require(library.funding().equals(com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy.prototype())&&library.land().buildingBuffer()==4
+                &&library.labor().equals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype()),"Installed construction policy defaults");
         var source=library.templates().get("starter_storehouse");var sourceHash=source.fingerprint();
         for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true)) {
             var transform=new Transform(rotation,mirror);var plan=PaperConstructionLibrary.prepare(source,transform);
@@ -41,6 +43,19 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
             for(var stage:plan.stages())for(var block:stage.blocks().entrySet())require(plan.size().contains(block.getKey()),"All native placements inside bounds");
         }
         require(source.fingerprint().equals(sourceHash),"Native preparation cannot mutate source blueprint");
+        var home=library.templates().get("starter_home");require(home.blockCount()==120,"Original four-bed home geometry");
+        for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true)) {
+            var plan=PaperConstructionLibrary.prepare(home,new Transform(rotation,mirror));var beds=plan.stages().getLast().blocks();int feet=0;
+            for(var entry:beds.entrySet()) {
+                var bed=(org.bukkit.block.data.type.Bed)getServer().createBlockData(entry.getValue());
+                if(bed.getPart()!=org.bukkit.block.data.type.Bed.Part.FOOT)continue;feet++;
+                var facing=bed.getFacing();var headAt=entry.getKey().plus(new Position(facing.getModX(),0,facing.getModZ()));
+                require(beds.containsKey(headAt),"Rotated bed head follows native facing");
+                var head=(org.bukkit.block.data.type.Bed)getServer().createBlockData(beds.get(headAt));
+                require(head.getPart()==org.bukkit.block.data.type.Bed.Part.HEAD&&head.getFacing()==facing,"Paired native bed states agree");
+            }
+            require(feet==4,"Four complete bed pairs in every orientation");
+        }
         var beam=new ConstructionTemplate("beam",1,"Beam","Original test",Purpose.PATH,new Size(2,1,1),List.of(new Stage("frame",1,
                 Map.of(new com.blueninjas24.civilizations.economy.Commodity("timber"),1L),Map.of(new Position(0,0,0),"minecraft:oak_log[axis=x]"))),List.of());
         var rotated=PaperConstructionLibrary.prepare(beam,new Transform(Rotation.CLOCKWISE_90,false));

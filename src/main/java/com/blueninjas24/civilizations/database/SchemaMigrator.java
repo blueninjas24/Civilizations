@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 101;
+    static final int CURRENT_VERSION = 102;
 
     @FunctionalInterface
     interface Migration {
@@ -950,7 +950,8 @@ final class SchemaMigrator {
                 ResourceInvestment::createSchema,
                 GeneratedTerrainRepository::createSchema,
                 ConstructionDraftRepository::createSchema,
-                ConstructionBlockJournal::createSchema
+                ConstructionBlockJournal::createSchema,
+                ConstructionMaterials::createSchema
 
 
         ));
@@ -1151,6 +1152,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"resource_investment_state",Set.of("settlement_id","last_proposal","sequence","observed_ms"));
                 requireColumns(connection,"resource_investment_reviews",Set.of("business_id","settlement_id","sequence","proposal","industry","observed_step","observed_ms","demand_value","policy","explanation"));
             }
+            if(migrations.size()>=102){requireColumns(connection,"construction_material_reservations",Set.of("operation_id","draft_id","business_id","reserved_ms"));requireColumns(connection,"construction_material_items",Set.of("operation_id","commodity","units","before_units","after_units"));}
             if(migrations.size()>=101)requireColumns(connection,"construction_block_journal",Set.of("operation_id","draft_id","ordinal","world_x","world_y","world_z","before_state","after_state","state"));
             if(migrations.size()>=100)requireColumns(connection,"construction_drafts",Set.of("id","settlement_id","world_id","origin_x","origin_y","origin_z","rotation","mirrored","template_hash","template_snapshot","created_ms"));
             if(migrations.size()>=99)requireColumns(connection,"generated_resource_chunks",Set.of("kind","world_id","chunk_x","chunk_z","generation","observed_ms"));

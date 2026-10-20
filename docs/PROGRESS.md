@@ -17,7 +17,8 @@
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
 Editable starter plans, read-only admin previews and saved frozen proposals
-are ready. Road-site search, protected budget quotes and a journal have progressed;
+are ready, including a four-bed home. Buffered land checks, labor proposals,
+owned-material reservations, protected budget quotes and a journal have progressed;
 a disposable test placed and restored five blocks, including interruption/conflict
 checks. Live automatic construction is not enabled. Actual building, paid work, land protection, upgrades and acceptance
 remain ahead. See PHASE4_CHECKLIST.md for the four groups; percentages measure
