@@ -82,7 +82,7 @@ class ForestryPersistenceTest {
         assertEquals(0,scalar("SELECT COUNT(*) FROM sqlite_master WHERE name='forestry_resources'"));
         data.sql("DROP TABLE forestry_supports");new SchemaMigrator().migrate(data.db.getConnection());
         assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(before,snapshot());
-        for(var name:List.of("forestry_resources","forestry_tracking","forestry_exclusions","forestry_source_losses","forestry_founder_reviews","forestry_founder_courses","forestry_supports","forestry_work","forestry_habitat_changes","generated_resource_chunks","construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns"))assertEquals(0,data.count(name),name);
+        for(var name:List.of("forestry_resources","forestry_tracking","forestry_exclusions","forestry_source_losses","forestry_founder_reviews","forestry_founder_courses","forestry_supports","forestry_work","forestry_habitat_changes","generated_resource_chunks","construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders"))assertEquals(0,data.count(name),name);
         try(var s=data.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
     private long scalar(String query)throws SQLException {
@@ -90,7 +90,7 @@ class ForestryPersistenceTest {
     }
     private Map<String,List<List<String>>> snapshot()throws SQLException {
         var result=new TreeMap<String,List<List<String>>>();var names=new ArrayList<String>();
-        try(var s=data.db.getConnection().createStatement();var r=s.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'forestry_%' AND name NOT IN ('resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state','resource_investment_reviews','resource_investment_state','generated_resource_chunks','construction_drafts','construction_block_journal','construction_material_reservations','construction_material_items','construction_site_reservations','construction_material_returns') ORDER BY name")){while(r.next())names.add(r.getString(1));}
+        try(var s=data.db.getConnection().createStatement();var r=s.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'forestry_%' AND name NOT IN ('resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state','resource_investment_reviews','resource_investment_state','generated_resource_chunks','construction_drafts','construction_block_journal','construction_material_reservations','construction_material_items','construction_site_reservations','construction_material_returns','construction_supply_orders') ORDER BY name")){while(r.next())names.add(r.getString(1));}
         for(var name:names) {
             var rows=new ArrayList<List<String>>();
             try(var s=data.db.getConnection().createStatement();var r=s.executeQuery("SELECT * FROM \""+name+"\"")) {

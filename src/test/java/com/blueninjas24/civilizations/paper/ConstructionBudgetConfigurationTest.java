@@ -55,12 +55,20 @@ class ConstructionBudgetConfigurationTest {
         yaml.set("labor.business-share-percent",50);assertEquals(50,ConstructionBudgetConfiguration.labor(yaml).businessSharePercent());
         yaml.set("labor.business-share-percent",101);assertThrows(IllegalArgumentException.class,()->ConstructionBudgetConfiguration.labor(yaml));
         yaml.set("labor",null);assertEquals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype(),ConstructionBudgetConfiguration.labor(yaml));
-    }    @Test void householdProposalLimitIsEditableStrictAndOldFilesKeepOneWithoutRewrite()throws Exception {
+    }
+    @Test void householdProposalLimitIsEditableStrictAndOldFilesKeepOneWithoutRewrite()throws Exception {
         var yaml=new YamlConfiguration();yaml.loadFromString(defaults());
         assertEquals(1,ConstructionBudgetConfiguration.housing(yaml).maximumNewProposals());
         yaml.set("housing.maximum-new-proposals",3);assertEquals(3,ConstructionBudgetConfiguration.housing(yaml).maximumNewProposals());
         yaml.set("housing.maximum-new-proposals",1.5);assertThrows(IllegalArgumentException.class,()->ConstructionBudgetConfiguration.housing(yaml));
         yaml.set("housing",null);assertEquals(1,ConstructionBudgetConfiguration.housing(yaml).maximumNewProposals());assertFalse(yaml.contains("housing"));
+    }
+    @Test void constructionPricesAreEditableAndOldFilesKeepExplicitPrototypeDefaults()throws Exception {
+        var yaml=new YamlConfiguration();yaml.loadFromString(defaults());
+        assertEquals(com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy.prototype(),ConstructionBudgetConfiguration.supplies(yaml));
+        yaml.set("supplies.prices.wool",150);assertEquals(150,ConstructionBudgetConfiguration.supplies(yaml).prices().get(new com.blueninjas24.civilizations.economy.Commodity("wool")));
+        yaml.set("supplies.prices.wool",0);assertThrows(IllegalArgumentException.class,()->ConstructionBudgetConfiguration.supplies(yaml));
+        yaml.set("supplies",null);assertEquals(com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy.prototype(),ConstructionBudgetConfiguration.supplies(yaml));assertFalse(yaml.contains("supplies"));
     }
 
 }

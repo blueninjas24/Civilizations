@@ -44,3 +44,14 @@ village:
 # Reuse verified village-owned vacancies first; incomplete surveys block new homes.
 housing:
   maximum-new-proposals: 1
+
+# Reference prices per actual unit, in the existing hundredths ledger. No goods seeded.
+# Uses existing industry local-delivery periods and shared haul limits/cadence.
+# API only until live demand/project scheduling is connected.
+supplies:
+  enabled: true
+  prices:
+    stone: 25
+    timber: 40
+    wool: 100
+    storage_fittings: 200

@@ -54,6 +54,9 @@ public final class ConstructionMaterials {
             if(!authority.draft().equals(draft.id())||!authority.world().equals(draft.world())||!authority.worldLoaded()||!authority.siteCleared()||authority.checkedMillis()>now||now-authority.checkedMillis()>5000)
                 throw new SQLException("Fresh complete land authority and loaded world required before reserving supplies");
             new ConstructionSiteReservations(connection).requireActiveRows(draft);
+            try(var s=connection.prepareStatement("SELECT 1 FROM construction_supply_orders WHERE draft_id=? LIMIT 1")) {
+                s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Paid supply and owned-stock routes cannot double-fund the same project");}
+            }
             var founding=new BusinessRepository(connection).findFounding(business).orElseThrow(()->new SQLException("Unknown construction owner"));
             if(!founding.business().settlementId().equals(draft.settlement())||!founding.site().worldId().equals(draft.world()))throw new SQLException("Construction supplies must belong to this village and world");
             BusinessClosure.requireOpen(connection,business);

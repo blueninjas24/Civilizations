@@ -69,6 +69,9 @@ public final class ConstructionSiteReservations {
             var saved=find(draftId).orElseThrow(()->new SQLException("Construction site not reserved"));
             if(!saved.active())return saved;
             if(now<saved.reservedMillis())throw new SQLException("Construction release precedes reservation");
+            try(var s=c.prepareStatement("SELECT 1 FROM construction_supply_orders WHERE draft_id=? LIMIT 1")) {
+                s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Paid supplier cargo/stock retains its project site until reviewed return handling");}
+            }
             try(var s=c.prepareStatement("SELECT 1 FROM construction_block_journal WHERE draft_id=? LIMIT 1")) {
                 s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Started construction requires reviewed physical recovery and site history");}
             }

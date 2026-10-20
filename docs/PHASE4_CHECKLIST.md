@@ -112,3 +112,15 @@ vacancies first and wait for complete evidence, fitting plans and absent worlds.
 Bed capacity requires complete distinct anchored pairs. Focused55+3 and native
 all-orientation/settings checks pass at schema105. No live housing assignment or
 autonomous demand-to-funded-project gate is claimed; count remains4/16.
+
+## October20 partial — real supplier cargo
+
+Schema106 adds atomic private/public supplier purchases with actual money/goods,
+protected budgets, current population/clock evidence, shared local hauling and
+earned owner-period delivery. Configurable construction supply prices are loaded
+without rewriting old settings. Frozen costs prevent overbuying; paid and owned
+stock routes cannot double-fund a project. Restart/replay/late-failure and upgrade
+preservation checks passed in a focused Wrapper clean verify82 unit +3 packaged
+integrations (64s, no failures/errors/skips). Paid cargo stays saved; no cancellation
+shortcut or automatic project/order coordinator yet. No additional whole gate is
+complete;4/16 remains25%. Prior checkpoint b204a22 passed both hosted OS builds.

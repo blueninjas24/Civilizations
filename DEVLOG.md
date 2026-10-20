@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## 2026-10-20 — real construction supplier purchases and earned delivery
+
+Added schema106 supplier receipts, protected actual private/public payment and
+stock transfer, fixed funding identity, exact replay, bounded frozen-need orders
+and project-owned cargo. Uses existing earned purchaser clocks and shared local
+hauling, including ordinary industry/storage upgrades; no extra transport budget
+or project clock. Missing/short public food assessment and stale/mismatched site
+evidence refuse spending. New editable construction.yml supply prices preserve
+old config defaults. Paid assets cannot release their site or double-fund an owned
+stock reservation. Cancellation, stage consumption and automatic orders remain
+unfinished; normal world placement remains disabled.
+
+Focused Windows Wrapper clean verify passed82 unit +3 packaged checks in64s,
+zero failures/errors/skips. Temporary SQLite tests cover both payers, actual owner
+runtime delivery, restart, no duplication, limits, shared hauling, late-trigger
+rollback and version105 migration failure/retry preserving existing data. Initial
+fixture compile error and a wrong pre-existing treasury expectation were corrected
+before the passing run. Prior checkpoints b204a22 and288801d passed full hosted
+Windows/Linux verification. No real server/database/main changes. P4 stays25%.
+
 ## 2026-10-19 — let hosted Windows verification finish between backups
 
 Feature pushes repeatedly cancelled the longer Windows migration job before it

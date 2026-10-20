@@ -23,7 +23,8 @@ disposable tests placed/restored a path and a full four-bed home, including
 an actual server restart. Saved project sites now refuse overlapping reservations, and unused reserved
 materials can return safely without duplication. Household planning now prefers
 suitable empty village homes before proposing construction; live assignments remain ahead. Sheep can now supply real feed-backed wool for future beds; construction
-purchasing and household activation are still ahead. Live automatic construction is not enabled. Actual building, paid work, land protection, upgrades and acceptance
+purchases now move real money and supplier goods into delayed project cargo; automatic
+orders and household activation are still ahead. Live automatic construction is not enabled. Actual building, paid work, land protection, upgrades and acceptance
 remain ahead. See PHASE4_CHECKLIST.md for the four groups; percentages measure
 verified checklist scope, not time. Human P3 playtesting is still deferred.
 

@@ -10,7 +10,7 @@ public final class ConstructionBudgetConfiguration {
     private ConstructionBudgetConfiguration(){}
     public static ConstructionBudgetPolicy read(ConfigurationSection root) {
         Objects.requireNonNull(root);var rootKeys=root.getKeys(false);
-        if(!rootKeys.containsAll(Set.of("format","business","village"))||!Set.of("format","business","village","land","labor","housing").containsAll(rootKeys))throw new IllegalArgumentException("Missing or unknown construction settings");
+        if(!rootKeys.containsAll(Set.of("format","business","village"))||!Set.of("format","business","village","land","labor","housing","supplies").containsAll(rootKeys))throw new IllegalArgumentException("Missing or unknown construction settings");
         if(number(root,"format")!=1)throw new IllegalArgumentException("Unsupported construction funding format");
         return new ConstructionBudgetPolicy(account(root.getConfigurationSection("business")),account(root.getConfigurationSection("village")));
     }
@@ -19,6 +19,15 @@ public final class ConstructionBudgetConfiguration {
         var section=root.getConfigurationSection("land");if(section==null)throw new IllegalArgumentException("Invalid construction land settings");keys(section,Set.of("building-buffer"));
         long buffer=number(section,"building-buffer");if(buffer<0||buffer>16)throw new IllegalArgumentException("Construction building buffer must be 0..16");
         return new com.blueninjas24.civilizations.construction.ConstructionLandPolicy((int)buffer);
+    }
+    public static com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy supplies(ConfigurationSection root) {
+        if(!root.contains("supplies"))return com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy.prototype();
+        var section=root.getConfigurationSection("supplies");if(section==null)throw new IllegalArgumentException("Invalid construction supply settings");
+        keys(section,Set.of("enabled","prices"));if(!(section.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("Supply enabled must be true/false");
+        var prices=section.getConfigurationSection("prices");if(prices==null)throw new IllegalArgumentException("Construction supply prices required");
+        var values=new TreeMap<com.blueninjas24.civilizations.economy.Commodity,Long>();
+        for(var key:prices.getKeys(false))values.put(new com.blueninjas24.civilizations.economy.Commodity(key),number(prices,key));
+        return new com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy(enabled,values);
     }
     public static com.blueninjas24.civilizations.construction.HousingProjectPlanner housing(ConfigurationSection root) {
         if(!root.contains("housing"))return com.blueninjas24.civilizations.construction.HousingProjectPlanner.prototype();

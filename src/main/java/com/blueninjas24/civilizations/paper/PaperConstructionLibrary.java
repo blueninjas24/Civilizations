@@ -20,15 +20,17 @@ public final class PaperConstructionLibrary {
     private final com.blueninjas24.civilizations.construction.ConstructionLandPolicy land;
     private final com.blueninjas24.civilizations.construction.ConstructionLaborPolicy labor;
     private final com.blueninjas24.civilizations.construction.HousingProjectPlanner housing;
+    private final com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy supplies;
     public PaperConstructionLibrary(Map<String,ConstructionTemplate> templates) {
-        this(templates,com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy.prototype(),new com.blueninjas24.civilizations.construction.ConstructionLandPolicy(4),com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype(),com.blueninjas24.civilizations.construction.HousingProjectPlanner.prototype());
+        this(templates,com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy.prototype(),new com.blueninjas24.civilizations.construction.ConstructionLandPolicy(4),com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype(),com.blueninjas24.civilizations.construction.HousingProjectPlanner.prototype(),com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy.prototype());
     }
-    private PaperConstructionLibrary(Map<String,ConstructionTemplate> templates,com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding,com.blueninjas24.civilizations.construction.ConstructionLandPolicy land,com.blueninjas24.civilizations.construction.ConstructionLaborPolicy labor,com.blueninjas24.civilizations.construction.HousingProjectPlanner housing) {
+    private PaperConstructionLibrary(Map<String,ConstructionTemplate> templates,com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding,com.blueninjas24.civilizations.construction.ConstructionLandPolicy land,com.blueninjas24.civilizations.construction.ConstructionLaborPolicy labor,com.blueninjas24.civilizations.construction.HousingProjectPlanner housing,com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy supplies) {
         this.templates=Collections.unmodifiableMap(new TreeMap<>(templates));
         this.funding=Objects.requireNonNull(funding);
         this.land=Objects.requireNonNull(land);
         this.labor=Objects.requireNonNull(labor);
         this.housing=Objects.requireNonNull(housing);
+        this.supplies=Objects.requireNonNull(supplies);
     }
     public static PaperConstructionLibrary load(JavaPlugin plugin)throws IOException,org.bukkit.configuration.InvalidConfigurationException {
         requireMainThread();var result=new TreeMap<String,ConstructionTemplate>();
@@ -48,13 +50,14 @@ public final class PaperConstructionLibrary {
             // All eight orientations must validate before a template is offered to an administrator.
             for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true))prepare(template,new Transform(rotation,mirror));
         }
-        return new PaperConstructionLibrary(result,funding,ConstructionBudgetConfiguration.land(yaml),ConstructionBudgetConfiguration.labor(yaml),ConstructionBudgetConfiguration.housing(yaml));
+        return new PaperConstructionLibrary(result,funding,ConstructionBudgetConfiguration.land(yaml),ConstructionBudgetConfiguration.labor(yaml),ConstructionBudgetConfiguration.housing(yaml),ConstructionBudgetConfiguration.supplies(yaml));
     }
     public Map<String,ConstructionTemplate> templates(){return templates;}
     public com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding(){return funding;}
     public com.blueninjas24.civilizations.construction.ConstructionLandPolicy land(){return land;}
     public com.blueninjas24.civilizations.construction.ConstructionLaborPolicy labor(){return labor;}
     public com.blueninjas24.civilizations.construction.HousingProjectPlanner housing(){return housing;}
+    public com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy supplies(){return supplies;}
     /** Resolve native block states on the server thread. Returned records contain no mutable Paper state. */
     public static ConstructionTemplate prepare(ConstructionTemplate template,Transform transform) {
         requireMainThread();var states=new HashMap<String,String>();var stages=new ArrayList<Stage>();

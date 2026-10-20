@@ -184,3 +184,28 @@ A HOME template must have distinct anchored bed feet with complete matching head
 blocks and native facing, no occupied states, and no extra unanchored beds. The
 original home verifies four real pairs in all eight orientations. This validates
 authored planned capacity; only a future completed-world check can activate it.
+
+
+## Real supplier purchases (schema106)
+
+ConstructionSupplyOrders buys only frozen material needs from qualified operating
+local suppliers using actual stock and real private/village funds. Funding source
+is fixed by the first purchase. Owned-stock and paid-supply routes cannot mix in
+one project; this conservative prototype prevents double funding. Paid orders are
+bounded to128/project and cannot exceed the plan even while cargo is pending.
+Fresh exact-draft evidence, active site and current saved protections are required.
+Public spending requires a current complete fed population assessment; existing
+food/upkeep and period spending limits apply. No extra project wallet or clock.
+
+Cargo shares ordinary industry hauling capacity (including storage upgrades), and
+arrives only after the purchaser's existing earned industry/food periods advance.
+Absent worlds do not deliver. Stock appears at the project, never as a second copy
+in the purchaser's normal store. Exact replay preserves the original payment and
+arrival even after restart or disabling new purchasing. Late SQL failures roll
+back payer, supplier, stock and receipt together. supplies.enabled and positive
+supplies.prices in construction.yml are editable, with defaults for old files.
+
+This remains a backend API: no automatic project orders or native building writes
+are enabled. Paid cargo has no cancellation/refund shortcut yet; its saved assets
+and site remain retained. Stage consumption, real booked work and the live project
+coordinator must be connected before ordinary construction is enabled.

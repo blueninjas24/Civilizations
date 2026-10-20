@@ -1,12 +1,20 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 construction foundation; sheep, sites and unused-material recovery
+## Current — Phase4 construction foundation; real supplier purchases and delivery
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Implemented and verified:
+- Construction supplier purchases atomically debit real private/village money and
+  supplier stock, preserving protected operating/food reserves and current fed
+  population checks. Prepaid cargo uses existing owner clocks and shared local
+  haul limits; only earned delivery makes it available at the project. Exact
+  replay/restart and late SQL failures do not duplicate money or goods. Editable
+  supplies prices use defaults for old files. This is a backend API, not automatic
+  project founding, orders or block placement. Paid cargo is retained; cancellation
+  and stage consumption are still ahead.
 - Three original editable plans: path, storehouse and four-bed home; strict native
   palettes and all eight rotations/mirrors, read-only bounded admin previews.
 - Frozen world/village-linked drafts, deterministic road-adjacent site search,
@@ -33,7 +41,11 @@ Implemented and verified:
   Old cow/chicken receipt defaults and data are preserved; milk/egg retail excludes
   sheep. Wool is colour-neutral; old files missing only sheep use editable defaults.
 
-Validation: latest focused Windows Wrapper clean verify55 unit +3 packaged
+Validation: latest focused Windows Wrapper clean verify82 unit +3 packaged
+integration checks passed64s, zero failures/errors/skips. Includes supplier payment,
+actual earned owner-clock delivery, shared transport, protected budgets, restart
+and version105 upgrade rollback/retry. Hosted b204a22 and288801d both passed full
+Windows/Linux verification; this newer batch needs its own hosted result. Earlier55+3
 integration checks passed32.984s; previous material/migration batch passed80+3
 in44.340s. All zero failures/errors/skips. Earlier affected
 livestock351/353 passed; the two integration issues were corrected and affected
@@ -47,16 +59,16 @@ home-capacity/catalogue/settings/router validation also passed, with a healthy
 schema105 DB. Servers stopped and helpers archived. The
 first home-restart attempt refused unloaded chunks; corrected test-only staging
 reopens at most four generated saved-footprint chunks. Simulation/writer do not
-load chunks. Schema105 adds only saved material returns; latest change is SQL-only.
+load chunks. Schema106 adds supplier order receipts; latest change is SQL/config only.
 See DEVLOG.md and CONSTRUCTION.md for detailed evidence and earlier checkpoints.
 
 Schema100 drafts,101 journal,102 held stock,103 preserved species-constraint
-upgrade,104 site reservations,105 material returns. No automatic DB resets.
+upgrade,104 site reservations,105 material returns,106 supplier orders. No automatic DB resets.
 Migration rollback and preservation tests use temporary databases. Back up before
 upgrading; older plugin versions refuse newer schemas.
 
-Remaining: live housing demand/vacancy/occupancy adapters and real supplier procurement (including public
-projects), actual labor booking/subtraction from normal production, stage work/
+Remaining: live housing demand/vacancy/occupancy adapters, automatic procurement
+selection/scheduling, actual labor booking/subtraction from normal production, stage work/
 material consumption, current-write production protections/editor compatibility,
 completed building/housing activation, vacancy reuse, upgrades/maintenance and
 full autonomous growth acceptance. The physical native test did not claim funded

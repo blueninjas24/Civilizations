@@ -215,7 +215,7 @@ class ForestryProvenanceTest {
         new SchemaMigrator().migrate(fixture.data.db.getConnection());
         assertEquals(SchemaMigrator.CURRENT_VERSION, scalar("PRAGMA user_version"));
         assertEquals(before, snapshotIncludingPriorForestry());
-        for (var table : List.of("forestry_tracking", "forestry_exclusions", "forestry_source_losses","forestry_founder_reviews","forestry_founder_courses","generated_resource_chunks","construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns"))
+        for (var table : List.of("forestry_tracking", "forestry_exclusions", "forestry_source_losses","forestry_founder_reviews","forestry_founder_courses","generated_resource_chunks","construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders"))
             assertEquals(0, fixture.data.count(table), table);
         try (var statement = fixture.data.db.getConnection().createStatement();
              var result = statement.executeQuery("PRAGMA foreign_key_check")) {
@@ -243,7 +243,7 @@ class ForestryProvenanceTest {
         var names = new ArrayList<String>();
         try (var statement = fixture.data.db.getConnection().createStatement();
              var rows = statement.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' " +
-                     "AND name NOT IN ('forestry_tracking','forestry_exclusions','forestry_source_losses','forestry_founder_reviews','forestry_founder_courses','resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state','resource_investment_reviews','resource_investment_state','generated_resource_chunks','construction_drafts','construction_block_journal','construction_material_reservations','construction_material_items','construction_site_reservations','construction_material_returns') ORDER BY name")) {
+                     "AND name NOT IN ('forestry_tracking','forestry_exclusions','forestry_source_losses','forestry_founder_reviews','forestry_founder_courses','resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state','resource_investment_reviews','resource_investment_state','generated_resource_chunks','construction_drafts','construction_block_journal','construction_material_reservations','construction_material_items','construction_site_reservations','construction_material_returns','construction_supply_orders') ORDER BY name")) {
             while (rows.next()) names.add(rows.getString(1));
         }
         for (var name : names) {
