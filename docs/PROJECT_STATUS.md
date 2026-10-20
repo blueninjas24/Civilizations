@@ -1,5 +1,33 @@
 # Civilizations — implementation status and handoff
 
+## Current — saved sites and actual home restart recovery verified
+
+Schema104 adds permanent world/draft-linked scheduler site reservations. Overlaps
+are refused, empty protected player plots stay excluded, reservations appear in
+read-only previews, and only an unused proposal can release its footprint.
+Funded/started sites retain history until explicit future returns/ownership handling.
+New material reservations now require the exact draft's active site and fresh
+world/site evidence, with saved player protections rechecked in the same SQL
+transaction. A receipt replay is not fresh physical authority or permission.
+
+Focused Wrapper clean verify passed77 unit +3 packaged checks,44.448s; exact-draft
+proof follow-up passed51 unit +3 packaged checks,33.368s. All zero failures/errors/
+skips. Historical migration snapshots retain old rows and assert the new empty
+reservation table separately. Schema103 collision/rollback recovery is covered.
+
+Actual marked disposable Paper built a120-block/four-bed home across two JVM
+runs. First run stopped after60 native writes/59 acknowledgements; second recovered
+the pending after-state once, retained the site, completed all120 states and restored
+all121 original cells. Both fixture DBs passed integrity/FK checks at104; all120
+journal entries are applied. Server stopped, helper archived. This is physical
+recovery evidence, not paid construction or housing-capacity activation.
+
+The first restart attempt correctly refused unloaded chunks. Corrected test-only
+staging reopens at most four already-generated saved-footprint chunks; the writer
+and normal simulation still never load chunks. Failed evidence retained, helper
+archived. Human server/main unchanged. P4 stays25%,4/16 complete checklist items;
+procurement, booked labor, real completion/occupancy and growth remain unfinished.
+
 ## Current — sheep and wool supplier support verified
 
 Approved sheep support now shares existing natural-animal recognition, saved

@@ -7,8 +7,8 @@ import java.util.*;
 
 /** SQL-owner transfer of already-owned business materials into a retained on-site stockpile. No cash fee or writes. */
 public final class ConstructionMaterials {
-    public record Authority(UUID world,long checkedMillis,boolean worldLoaded,boolean siteCleared) {
-        public Authority{Objects.requireNonNull(world);if(checkedMillis<0)throw new IllegalArgumentException("Negative construction authority time");}
+    public record Authority(UUID draft,UUID world,long checkedMillis,boolean worldLoaded,boolean siteCleared) {
+        public Authority{Objects.requireNonNull(draft);Objects.requireNonNull(world);if(checkedMillis<0)throw new IllegalArgumentException("Negative construction authority time");}
     }
     public record Held(Commodity commodity,long units,long beforeUnits,long afterUnits){}
     public record Receipt(UUID operation,UUID draft,UUID business,long reservedMillis,List<Held> materials) {
@@ -51,8 +51,9 @@ public final class ConstructionMaterials {
                 connection.commit();connection.setAutoCommit(true);return saved;
             }
             var draft=new ConstructionDraftRepository(connection).find(draftId).orElseThrow(()->new SQLException("Unknown construction draft"));
-            if(!authority.world().equals(draft.world())||!authority.worldLoaded()||!authority.siteCleared()||authority.checkedMillis()>now||now-authority.checkedMillis()>5000)
+            if(!authority.draft().equals(draft.id())||!authority.world().equals(draft.world())||!authority.worldLoaded()||!authority.siteCleared()||authority.checkedMillis()>now||now-authority.checkedMillis()>5000)
                 throw new SQLException("Fresh complete land authority and loaded world required before reserving supplies");
+            new ConstructionSiteReservations(connection).requireActiveRows(draft);
             var founding=new BusinessRepository(connection).findFounding(business).orElseThrow(()->new SQLException("Unknown construction owner"));
             if(!founding.business().settlementId().equals(draft.settlement())||!founding.site().worldId().equals(draft.world()))throw new SQLException("Construction supplies must belong to this village and world");
             BusinessClosure.requireOpen(connection,business);

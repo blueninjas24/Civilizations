@@ -57,7 +57,7 @@ class SheepPersistenceTest {
             f.sql(old);f.sql("INSERT INTO "+table+"_legacy SELECT * FROM "+table);f.sql("DROP TABLE "+table);f.sql("ALTER TABLE "+table+"_legacy RENAME TO "+table);
             for(var sql:extras)f.sql(sql);
         }
-        f.sql("PRAGMA user_version=102");f.sql("PRAGMA foreign_keys=ON");
+        f.sql("DROP TABLE construction_site_reservations");f.sql("PRAGMA user_version=102");f.sql("PRAGMA foreign_keys=ON");
     }
     @Test void actualVersion102RowsAndReceiptsSurviveConstraintUpgradeAndLateRollback()throws Exception {
         f.openHerd();f.feed(100);var op=new UUID(0,100);var before=f.advance(op,1);legacy();

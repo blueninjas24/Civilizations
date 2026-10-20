@@ -19,8 +19,8 @@
 Editable starter plans, read-only admin previews and saved frozen proposals
 are ready, including a four-bed home. Buffered land checks, labor proposals,
 owned-material reservations, protected budget quotes and a journal have progressed;
-a disposable test placed and restored five blocks, including interruption/conflict
-checks. Sheep can now supply real feed-backed wool for future beds; construction
+disposable tests placed/restored a path and a full four-bed home, including
+an actual server restart. Saved project sites now refuse overlapping reservations. Sheep can now supply real feed-backed wool for future beds; construction
 purchasing and household activation are still ahead. Live automatic construction is not enabled. Actual building, paid work, land protection, upgrades and acceptance
 remain ahead. See PHASE4_CHECKLIST.md for the four groups; percentages measure
 verified checklist scope, not time. Human P3 playtesting is still deferred.

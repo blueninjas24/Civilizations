@@ -93,3 +93,11 @@ October19 supplier follow-up: sheep/wool shares existing livestock accounting,
 protection and saved identity. Focused73 unit +3 packaged checks and actual Paper
 SHEEP paid-feed/clock/conservation/pause/shear-guard checks pass. No house demand,
 public procurement, booked construction labor or automatic building activation yet.
+
+October19 site/restart follow-up: exact-draft saved site reservations reject
+overlap and newly protected plots before material debit, with unused-only release
+and retained history. Focused77+3 and exact-proof51+3 builds pass. Actual native
+four-bed home completed120 blocks over two JVM starts after a60-write/59-ack
+checkpoint; all121 originals restored. Both fixture DBs healthy/FK-clean at104.
+This strengthens recovery evidence but does not finish funded/labor/occupancy
+construction acceptance or enable normal growth; whole-gate count stays4/16.

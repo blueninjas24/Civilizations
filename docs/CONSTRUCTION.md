@@ -129,3 +129,25 @@ same transaction as their write intent, before native placement.
 Basic sheep/wool support is now implemented as the approved supplier extension.
 Wool requires actual herd feed/labor/storage; beds are never seeded for free.
 Construction purchases and home occupancy activation remain subsequent work.
+
+## Saved sites and full-house recovery
+
+Schema104 saves scheduler reservations for frozen footprints, without granting
+land ownership or physical write permission. Active reservations exclude their
+columns from other projects/previews, across heights. New reservations require
+fresh complete evidence tied to the exact draft and world, plus current saved
+protection checks. Overlaps are refused atomically. Unused reservations can be
+released with history retained; funded/started sites cannot be released through
+that shortcut. There is no player-facing reservation/release command yet.
+
+Material debits now require the matching active reservation and recheck newly saved
+player protection inside the same transaction. Existing receipt replay changes
+no stock and does not refresh physical authority. Cancellation/returns for held
+assets are still future work.
+
+ConstructionHomeRestartProbe demonstrated120 actual native home blocks and four
+bed pairs across two JVM runs, including a placed-but-unacknowledged block. It
+restored all121 original cells afterward. Only the marked private fixture stages
+its bounded previously generated chunks on restart; the actual writer never
+loads chunks. The test grants no completed home capacity, paid work or normal
+server construction authority.
