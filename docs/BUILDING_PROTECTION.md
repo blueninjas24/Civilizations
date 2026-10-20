@@ -107,3 +107,12 @@ and authorization while still checking current authority before submission. Nati
 Paper proof preceded these final SQL/retry guards; the final focused checks cover
 those guards. A further native rerun was not executed: automatic approval review
 could not complete because the account usage limit was reached.
+
+## Covered-bed setting
+
+config.yml building-protection.require-covered-beds defaults true. The existing
+read-only housing report applies this policy and identifies uncovered beds. Both
+halves require safe overhead cover inside the declared structure with clear bed
+headroom. Set false and restart to permit outdoor beds; support/access/real paired
+beds still apply. Old configs get true without being rewritten. This setting
+cannot enable donation controls, occupancy or normal construction.

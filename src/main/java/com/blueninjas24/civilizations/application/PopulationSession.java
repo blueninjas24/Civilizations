@@ -1351,6 +1351,29 @@ public final class PopulationSession implements AutoCloseable {
             com.blueninjas24.civilizations.construction.BuildingLayout layout,boolean permitted) {
         return submit(()->buildingConsents().donation(buildingContext(player,world,permitted,false,false),layout,now.getAsLong()));
     }
+    public record HomeDonationPreview(com.blueninjas24.civilizations.construction.HomeDeclaration.Review review,
+                                      BuildingConsentRequests.Preview consent) {}
+    /** Explicit one-home declaration: current region proof -> qualified layout -> bounded consent preview. No save or occupancy. */
+    public CompletableFuture<HomeDonationPreview> previewSingleHomeDonation(UUID player,UUID world,UUID building,UUID village,
+            com.blueninjas24.civilizations.construction.BuildingLayout.Bounds plot,
+            com.blueninjas24.civilizations.construction.BuildingLayout.Bounds structure,
+            com.blueninjas24.civilizations.construction.ConstructionTemplate.Position entrance,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Observation observation,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy,boolean permitted) {
+        return submit(()->{
+            requireBuildingWorld(world,observation.world());
+            if(!permitted)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Home donation preview is not permitted");
+            try(var s=database.getConnection().prepareStatement("SELECT 1 FROM settlement_worlds WHERE settlement_id=? AND world_id=?")) {
+                s.setString(1,village.toString());s.setString(2,world.toString());
+                try(var r=s.executeQuery()){if(!r.next())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Village does not belong to this saved world");}
+            }
+            com.blueninjas24.civilizations.construction.HomeDeclaration.Review review;
+            try {review=com.blueninjas24.civilizations.construction.HomeDeclaration.singleHousehold(building,village,world,plot,structure,entrance,observation,now.getAsLong(),policy);}
+            catch(IllegalArgumentException invalid){throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined(invalid.getMessage());}
+            if(!review.passes())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Declared home fails bed/access/cover checks: "+review.assessment().issues()+"/"+review.assessment().units());
+            return new HomeDonationPreview(review,buildingConsents().donation(buildingContext(player,world,permitted,false,false),review.layout(),now.getAsLong()));
+        });
+    }
     public CompletableFuture<BuildingConsentRequests.Preview> previewBuildingReclamation(UUID player,UUID world,UUID building,boolean permitted,boolean administrator) {
         return submit(()->buildingConsents().reclamation(buildingContext(player,world,false,permitted,administrator),building,now.getAsLong()));
     }
@@ -1379,9 +1402,15 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<com.blueninjas24.civilizations.construction.DwellingInspection.Assessment> inspectBuildingBeds(
             com.blueninjas24.civilizations.construction.BuildingLayout layout,
             com.blueninjas24.civilizations.construction.DwellingInspection.Observation observation,long now) {
+        return inspectBuildingBeds(layout,observation,now,com.blueninjas24.civilizations.construction.DwellingInspection.Policy.prototype());
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.construction.DwellingInspection.Assessment> inspectBuildingBeds(
+            com.blueninjas24.civilizations.construction.BuildingLayout layout,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Observation observation,long now,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy) {
         return submit(()->{
             requireBuildingWorld(layout.world(),observation.world());
-            return com.blueninjas24.civilizations.construction.DwellingInspection.inspect(layout,observation,now,30_000);
+            return com.blueninjas24.civilizations.construction.DwellingInspection.inspect(layout,observation,now,30_000,policy);
         });
     }
     private void requireBuildingWorld(UUID expected,UUID current)throws SQLException {

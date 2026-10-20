@@ -30,9 +30,12 @@ public final class PaperDwellingReview extends BukkitRunnable implements Command
     private final BiFunction<BuildingLayout,Long,Survey> surveys;private final LongSupplier clock;private final Logger logger;
     private final LinkedHashMap<UUID,Request> requests=new LinkedHashMap<>();private boolean closed;
     public PaperDwellingReview(PopulationSession session,Logger logger) {
+        this(session,DwellingInspection.Policy.prototype(),logger);
+    }
+    public PaperDwellingReview(PopulationSession session,DwellingInspection.Policy policy,Logger logger) {
         this(new Owner(){
             public CompletableFuture<BuildingRegistry.Entry> find(UUID id,UUID actor,boolean admin,UUID world){return session.buildingInspectionLayout(id,actor,admin,world);}
-            public CompletableFuture<DwellingInspection.Assessment> inspect(BuildingLayout layout,DwellingInspection.Observation observation,long now){return session.inspectBuildingBeds(layout,observation,now);}
+            public CompletableFuture<DwellingInspection.Assessment> inspect(BuildingLayout layout,DwellingInspection.Observation observation,long now){return session.inspectBuildingBeds(layout,observation,now,policy);}
         },Bukkit::getPlayer,(layout,now)->new PaperDwellingSurvey(layout,now)::advance,System::currentTimeMillis,logger);
     }
     public PaperDwellingReview(Owner owner,Function<UUID,Player> players,BiFunction<BuildingLayout,Long,Survey> surveys,LongSupplier clock,Logger logger) {
@@ -79,7 +82,7 @@ public final class PaperDwellingReview extends BukkitRunnable implements Command
                 if(now<assessment.capturedMillis()||now-assessment.capturedMillis()>30_000) {
                     player.sendMessage("Building inspection evidence expired; inspect again.");requests.remove(r.actor);continue;
                 }
-                player.sendMessage("Housing bed/access inspection: "+r.entry.layout().id()+". Read-only; roof, consent, occupancy and usable capacity are separate checks.");
+                player.sendMessage("Housing bed/access/cover inspection: "+r.entry.layout().id()+". Covered beds required: "+assessment.policy().requireCoveredBeds()+". Read-only; consent, occupancy and usable capacity are separate checks.");
                 if(!assessment.issues().isEmpty())player.sendMessage("Unverified building evidence: "+issues(assessment.issues())+". Previous housing state is unchanged.");
                 else {
                     player.sendMessage("Accessible declared beds: "+assessment.accessibleBeds()+" across "+assessment.units().size()+" declared units.");
@@ -100,6 +103,7 @@ public final class PaperDwellingReview extends BukkitRunnable implements Command
             case WRONG_WORLD->"world differs";case LAYOUT_CHANGED->"layout changed";case STALE_OR_FUTURE->"evidence expired";
             case INCOMPLETE->"world/chunk/cell evidence incomplete";case ENTRANCE_UNSAFE->"entrance blocked or unsafe";
             case BED_CHANGED->"bed pair changed";case BED_UNSUPPORTED->"bed lacks safe support";case BED_OBSTRUCTED->"bed headroom blocked";
+            case BED_UNCOVERED->"bed lacks overhead cover inside declared structure";
             case UNDECLARED_PRIVATE_BED->"extra undeclared bed";case UNIT_UNREACHABLE->"unit entrance unreachable";
             case BED_UNREACHABLE->"bed unreachable";case PATH_BUDGET->"access review budget exhausted";
         }).collect(java.util.stream.Collectors.joining(", "));

@@ -12,7 +12,7 @@ import java.util.*;
 public final class DwellingInspectionProbe extends JavaPlugin {
     private final Map<Position,String> originals=new TreeMap<>();
     private World world;private BuildingLayout layout;private PaperDwellingSurvey survey;
-    private Position broken;private int phase,ticks;private boolean authorized;
+    private Position broken,roof;private String bedState;private int phase,ticks;private boolean authorized;
     @Override public void onEnable() {
         try {
             var root=getServer().getWorldContainer().toPath().toRealPath();
@@ -30,11 +30,38 @@ public final class DwellingInspectionProbe extends JavaPlugin {
                     var result=DwellingInspection.inspect(layout,observation,System.currentTimeMillis(),5000);
                     require(observation.complete() && result.accessibleBeds()==4,"Four real beds and closed wooden-door access: "+result.issues()+"/"+result.units());
                     broken=layout.units().getFirst().beds().getFirst().head();
+                    bedState=world.getBlockAt(broken.x(),broken.y(),broken.z()).getBlockData().getAsString();
                     world.getBlockAt(broken.x(),broken.y(),broken.z()).setType(Material.AIR,false);
                     survey=new PaperDwellingSurvey(layout,System.currentTimeMillis());phase=2;
                 }else if(phase==2) {
                     var result=DwellingInspection.inspect(layout,observation,System.currentTimeMillis(),5000);
                     require(result.accessibleBeds()==0 && result.units().get(layout.units().getFirst().id()).issues().contains(DwellingInspection.Issue.BED_CHANGED),"Missing real bed half rejects the declared unit");
+                    world.getBlockAt(broken.x(),broken.y(),broken.z()).setBlockData(getServer().createBlockData(bedState),false);
+                    var foot=layout.units().getFirst().beds().getFirst().foot();roof=foot.plus(new Position(0,2,0));
+                    world.getBlockAt(roof.x(),roof.y(),roof.z()).setType(Material.AIR,false);
+                    survey=new PaperDwellingSurvey(layout,System.currentTimeMillis());phase=3;
+                }else if(phase==3) {
+                    var result=DwellingInspection.inspect(layout,observation,System.currentTimeMillis(),5000);
+                    require(result.accessibleBeds()==0 && result.units().get(layout.units().getFirst().id()).issues().contains(DwellingInspection.Issue.BED_UNCOVERED),"Missing roof over one bed half rejects default housing");
+                    require(DwellingInspection.inspect(layout,observation,System.currentTimeMillis(),5000,new DwellingInspection.Policy(false)).accessibleBeds()==4,"Explicit outdoor policy retains bed/access checks");
+                    world.getBlockAt(roof.x(),roof.y(),roof.z()).setType(Material.GLASS,false);
+                    survey=new PaperDwellingSurvey(layout,System.currentTimeMillis());phase=4;
+                }else if(phase==4) {
+                    require(DwellingInspection.inspect(layout,observation,System.currentTimeMillis(),5000).accessibleBeds()==4,"Glass roof provides native cover");
+                    world.getBlockAt(roof.x(),roof.y(),roof.z()).setBlockData(getServer().createBlockData("minecraft:oak_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"),false);
+                    survey=new PaperDwellingSurvey(layout,System.currentTimeMillis());phase=5;
+                }else if(phase==5) {
+                    require(DwellingInspection.inspect(layout,observation,System.currentTimeMillis(),5000).accessibleBeds()==4,"Stair roof provides cover without becoming a traversable full-block route");
+                    world.getBlockAt(roof.x(),roof.y(),roof.z()).setBlockData(getServer().createBlockData("minecraft:oak_stairs[facing=north,half=bottom,shape=straight,waterlogged=true]"),false);
+                    survey=new PaperDwellingSurvey(layout,System.currentTimeMillis());phase=6;
+                }else if(phase==6) {
+                    require(DwellingInspection.inspect(layout,observation,System.currentTimeMillis(),5000).accessibleBeds()==0,"Waterlogged roof is not safe cover");
+                    world.getBlockAt(roof.x(),roof.y(),roof.z()).setType(Material.OAK_PLANKS,false);
+                    survey=PaperDwellingSurvey.forHomeDeclaration(world.getUID(),layout.structure(),System.currentTimeMillis());phase=7;
+                }else if(phase==7) {
+                    var declaration=HomeDeclaration.singleHousehold(layout.id(),layout.settlement(),world.getUID(),layout.plot(),layout.structure(),layout.entrance(),observation,System.currentTimeMillis(),DwellingInspection.Policy.prototype());
+                    require(declaration.passes()&&declaration.layout().units().size()==1&&declaration.assessment().accessibleBeds()==4,"Native selected region becomes one reviewed family home, not four apartments");
+                    require(declaration.layout().units().getFirst().id().equals(layout.units().getFirst().id()),"Stable declaration identity agrees with authored home identity");
                     var offset=new Position(16000,0,16000);var far=translated(layout,offset);
                     require(!world.isChunkLoaded(far.structure().min().x()>>4,far.structure().min().z()>>4),"Remote target starts unloaded");
                     var unknown=new PaperDwellingSurvey(far,System.currentTimeMillis()).advance(256,System.currentTimeMillis()).orElseThrow();
@@ -42,7 +69,7 @@ public final class DwellingInspectionProbe extends JavaPlugin {
                     require(!world.isChunkLoaded(far.structure().min().x()>>4,far.structure().min().z()>>4),"Survey never force-loads remote target");
                     var absent=new BuildingLayout(UUID.randomUUID(),layout.settlement(),UUID.randomUUID(),layout.kind(),layout.plot(),layout.structure(),layout.entrance(),layout.shared(),layout.units());
                     require(!new PaperDwellingSurvey(absent,System.currentTimeMillis()).advance(64,System.currentTimeMillis()).orElseThrow().complete(),"Absent world stays incomplete");
-                    restore();getLogger().info("P4_DWELLING_INSPECTION_PASS: four actual bed pairs/closed wooden door; broken bed rejected; bounded loaded-only reads; absent/unloaded worlds incomplete; original144 cells restored; no consent/occupancy/world-loading authority");
+                    restore();getLogger().info("P4_DWELLING_INSPECTION_PASS: four actual bed pairs/closed wooden door; broken bed and missing roof rejected; explicit outdoor override; native glass/stair cover; waterlogged roof refused; bounded region becomes one stable reviewed family-home declaration; absent/unloaded worlds incomplete; original144 cells restored; no consent/occupancy/world-loading authority");
                     cancel();getServer().shutdown();
                 }
             }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"P4_DWELLING_INSPECTION_FAIL",failure);try{restore();}finally{cancel();getServer().shutdown();}}}}.runTaskTimer(this,1,1);

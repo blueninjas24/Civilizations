@@ -1,13 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October20 — open: covered sleeping areas for usable donated housing
+## October20 — approved: covered sleeping areas for housing
 
-Before live household assignments, decide whether donated housing needs a roof
-above its sleeping area or outdoor beds may qualify. Recommendation: covered beds,
-with editable rules, alongside existing real-bed/support/headroom/access checks.
-Asked the user; answer pending. Do not turn the bed/access assessment into usable
-housing capacity or silently choose enclosure/weather rules while this is open.
-Explicit off-limits protection and saved consent are independent of habitability.
+The user approved requiring roofs over beds, with an editable setting. Both real
+bed halves need observed safe overhead cover inside the declared structure.
+The prototype checks cover, support, headroom and access; it does not introduce
+rent, wall-quality scoring, automatic apartment inference or household splitting.
+Admins may explicitly allow outdoor beds through config.yml building-protection.
+require-covered-beds=false; all other bed/access rules remain. Missing/unloaded
+world evidence is unknown, not housing loss. Consent and occupancy remain separate.
 
 ## October20 — players may declare ownership for first building donation
 

@@ -166,7 +166,8 @@ public final class Civilizations extends JavaPlugin {
             try {
                 var buildingSettings=com.blueninjas24.civilizations.paper.BuildingProtectionSettings.read(getConfig());
                 buildings=new com.blueninjas24.civilizations.paper.PaperBuildingProtection(population,buildingSettings,getLogger());
-                dwellingReview=new com.blueninjas24.civilizations.paper.PaperDwellingReview(population,getLogger());
+                dwellingReview=new com.blueninjas24.civilizations.paper.PaperDwellingReview(population,
+                        new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(buildingSettings.requireCoveredBeds()),getLogger());
                 buildings.configureInspection(dwellingReview);dwellingReview.runTaskTimer(this,1,1);
                 buildings.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(buildings,this);
             }catch(IllegalArgumentException invalid){getLogger().log(Level.WARNING,"Building protection disabled; fix building-protection settings and restart.",invalid);}

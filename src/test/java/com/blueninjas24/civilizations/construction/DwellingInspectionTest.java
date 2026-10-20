@@ -19,7 +19,7 @@ class DwellingInspectionTest {
     }
     private Map<Position,Cell> cells(BuildingLayout layout) {
         var result=new HashMap<Position,Cell>();
-        for(var pos:DwellingInspection.requiredCells(layout))result.put(pos,Cell.of(pos.y()==0?Type.SUPPORT:Type.PASSABLE));
+        for(var pos:DwellingInspection.requiredCells(layout))result.put(pos,Cell.of(pos.y()==0||pos.y()==layout.structure().max().y()?Type.SUPPORT:Type.PASSABLE));
         for(var unit:layout.units())for(var bed:unit.beds()) {
             result.put(bed.foot(),Cell.bed(false,"minecraft:white_bed",bed.facing()));
             result.put(bed.head(),Cell.bed(true,"minecraft:white_bed",bed.facing()));
@@ -68,6 +68,25 @@ class DwellingInspectionTest {
         cells.put(p(4,1,5),Cell.bed(true,"minecraft:white_bed",Direction.EAST));
         var result=inspect(layout,cells);assertEquals(1,result.accessibleBeds());
         assertTrue(result.units().get(a).issues().contains(Issue.UNDECLARED_PRIVATE_BED));
+    }
+    @Test void bothBedHalvesNeedObservedOverheadCoverAndOnlyExplicitPolicyAllowsOutdoorBeds() {
+        var layout=layout();var cells=cells(layout);var roof=p(1,3,5);cells.put(roof,Cell.of(Type.PASSABLE));
+        var checked=inspect(layout,cells);assertTrue(checked.policy().requireCoveredBeds());
+        assertEquals(0,checked.units().get(a).accessibleBeds());assertEquals(1,checked.units().get(b).accessibleBeds());
+        assertTrue(checked.units().get(a).issues().contains(Issue.BED_UNCOVERED));
+        var outdoor=DwellingInspection.inspect(layout,new Observation(world,layout.fingerprint(),1000,true,cells),1000,5000,new Policy(false));
+        assertEquals(2,outdoor.accessibleBeds());assertFalse(outdoor.policy().requireCoveredBeds());
+        // Partial roof shapes can shelter beds, but hazards/leaves/unknown blocked cells cannot.
+        cells.put(roof,Cell.of(Type.COVER));assertEquals(2,inspect(layout,cells).accessibleBeds());
+        for(var type:List.of(Type.BLOCKED,Type.HAZARD,Type.PASSABLE)) {
+            cells.put(roof,Cell.of(type));assertTrue(inspect(layout,cells).units().get(a).issues().contains(Issue.BED_UNCOVERED));
+        }
+        cells.put(roof,Cell.of(Type.COVER));cells.put(p(2,3,5),Cell.of(Type.PASSABLE));
+        assertTrue(inspect(layout,cells).units().get(a).issues().contains(Issue.BED_UNCOVERED));
+        // Turning off cover never bypasses missing real beds or headroom checks.
+        cells.put(p(1,2,5),Cell.of(Type.BLOCKED));
+        outdoor=DwellingInspection.inspect(layout,new Observation(world,layout.fingerprint(),1000,true,cells),1000,5000,new Policy(false));
+        assertEquals(0,outdoor.units().get(a).accessibleBeds());assertTrue(outdoor.units().get(a).issues().contains(Issue.BED_OBSTRUCTED));
     }
 
     @Test void accessCannotCrossAnotherHouseholdsPrivateRooms() {

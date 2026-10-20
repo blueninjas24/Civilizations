@@ -58,6 +58,9 @@ pen-protection:
 # Players declare ownership; this governs Civilizations, not other players/plugins.
 # Selected X/Z columns are protected at every height, even after the sign is removed.
 building-protection:
+  # Usable housing defaults to covered sleeping areas. False still requires real safe, accessible beds.
+  # Cover must be observed inside the declared structure; does not enable occupancy or construction.
+  require-covered-beds: true
   enabled: true
   maximum-edge: 128
   maximum-area: 4096

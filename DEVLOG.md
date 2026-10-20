@@ -1,5 +1,46 @@
 # Civilizations Development Log
 
+## 2026-10-20 — configurable covered beds and inspected home declarations
+
+Recorded the user's yes to covered sleeping areas. Added DwellingInspection.Policy
+and BED_UNCOVERED: both real bed halves need safe observed overhead cover inside
+the declared structure. One bounded cover-column index avoids per-bed world scans.
+Safe glass/slabs/stairs can provide roof-only evidence; hazards/waterlogged shapes
+cannot. Partial roofs do not become traversable floor geometry. The old bed/access
+rules still apply when admins explicitly disable cover. Assessment retains its
+applied policy, and the live read-only report identifies cover failures.
+config.yml building-protection.require-covered-beds defaults true; missing old
+keys get defaults, malformed values fail safely. Existing saves are untouched.
+
+Added HomeDeclaration: explicit one-family region -> stable one-unit layout ->
+current bed/access/cover assessment, never apartment inference or automatic consent.
+PaperDwellingSurvey can collect a bounded raw region before a layout exists.
+The SQL-owner previewSingleHomeDonation bridge checks village/world membership,
+present world, permission, complete/fresh evidence and existing protections before
+issuing a separate ownership confirmation. Preview creates no building; explicit
+confirmation registers reviewed geometry/use permission only. No live donation
+UI, occupancy/capacity activation or normal automatic block placement yet.
+
+Focused `.\mvnw.cmd -Dtest=HomeDeclarationTest,HomeDonationPreviewTest,DwellingInspectionTest,HomeBuildingLayoutTest,PaperDwellingReviewTest,PaperBuildingProtectionTest,PopulationSessionTest clean verify`
+passed51 unit +3 packaged checks in30.476s, zero failures/errors/skips. Two new pure
+declaration scenarios, a temporary-SQLite preview/explicit-confirm integration,
+roof/override/per-unit and strict settings checks included. Corrected an ambiguous
+Java Policy import and an initially underpopulated test village; application
+recognition rules unchanged. Earlier roof-only focus48+3 passed29.947s.
+
+Final actual checksum-verified Paper26.2 build129 passed broken bed/missing roof,
+native glass/stair roofs, waterlogged refusal, explicit outdoor override and raw
+region -> stable one-home/four-bed declaration. Absent worlds and remote chunks
+stayed incomplete/unloaded. Restored144 original cells, stopped fixture, archived
+helper; post-stop schema108 integrity/FKs clean. Earlier roof-only native check
+also passed. No user-server/world/save or main changes. Schema remains108.
+
+Updated canonical decision/status/progress/checklist, inspection/config notes and
+living handbook0.5. Rendered and reviewed all24 PDF pages;22 chapter links/bookmarks
+and consistent0.5 footers checked. P4 stays4/16 milestones (25%); the roof decision is closed.
+Next: live selection/donation confirmation, edit-aware qualification, saved
+household occupancy/reclamation and vacancy reuse before automatic home demand.
+
 ## 2026-10-20 — bounded live saved-housing inspection reports
 
 Completed the previously local plot-controls commit ec4d74e and pushed it to the

@@ -5,7 +5,10 @@ import java.util.*;
 
 /** Editable bounded player-declared exclusions; cannot enable automatic construction or donation. */
 public record BuildingProtectionSettings(boolean enabled,int maximumEdge,int maximumArea,int maximumRequests,
-                                         int previewSeconds,int selectionSeconds) {
+                                         int previewSeconds,int selectionSeconds,boolean requireCoveredBeds) {
+    public BuildingProtectionSettings(boolean enabled,int maximumEdge,int maximumArea,int maximumRequests,int previewSeconds,int selectionSeconds) {
+        this(enabled,maximumEdge,maximumArea,maximumRequests,previewSeconds,selectionSeconds,true);
+    }
     public BuildingProtectionSettings {
         if(maximumEdge<1||maximumEdge>512||maximumArea<1||maximumArea>262144||maximumRequests<1||maximumRequests>32
                 ||previewSeconds<10||previewSeconds>300||selectionSeconds<30||selectionSeconds>1800)
@@ -15,11 +18,12 @@ public record BuildingProtectionSettings(boolean enabled,int maximumEdge,int max
     public static BuildingProtectionSettings read(ConfigurationSection root) {
         var section=root.getConfigurationSection("building-protection");var d=prototype();
         if(section==null){if(root.contains("building-protection"))throw new IllegalArgumentException("building-protection must be a section");return d;}
-        if(!Set.of("enabled","maximum-edge","maximum-area","maximum-requests","preview-seconds","selection-seconds").containsAll(section.getKeys(false)))
+        if(!Set.of("enabled","maximum-edge","maximum-area","maximum-requests","preview-seconds","selection-seconds","require-covered-beds").containsAll(section.getKeys(false)))
             throw new IllegalArgumentException("Unknown building-protection setting");
         Object enabled=section.get("enabled",d.enabled());if(!(enabled instanceof Boolean flag))throw new IllegalArgumentException("building-protection.enabled must be true/false");
+        Object covered=section.get("require-covered-beds",d.requireCoveredBeds());if(!(covered instanceof Boolean roof))throw new IllegalArgumentException("building-protection.require-covered-beds must be true/false");
         return new BuildingProtectionSettings(flag,integer(section,"maximum-edge",d.maximumEdge()),integer(section,"maximum-area",d.maximumArea()),
-                integer(section,"maximum-requests",d.maximumRequests()),integer(section,"preview-seconds",d.previewSeconds()),integer(section,"selection-seconds",d.selectionSeconds()));
+                integer(section,"maximum-requests",d.maximumRequests()),integer(section,"preview-seconds",d.previewSeconds()),integer(section,"selection-seconds",d.selectionSeconds()),roof);
     }
     private static int integer(ConfigurationSection section,String key,int fallback) {
         var value=section.get(key,fallback);

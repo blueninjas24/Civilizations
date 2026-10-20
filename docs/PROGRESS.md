@@ -29,8 +29,8 @@ Players can now outline and explicitly protect a selected plot using commands
 or a building-protection sign. Sign removal leaves saved protection intact; owners
 can confirm releases or resize by protecting a replacement first. Other recorded
 owners remain protected. This adds a usable protection tool, while donation/unit
-selection, housing assignment and normal construction remain ahead. A covered-bed
-qualification choice is pending. These partial gates keep the total at25%.
+selection, housing assignment and normal construction remain ahead. Covered beds are now the approved configurable default, and the declaration/consent
+preview bridge is built; live donation and assignments remain ahead. These partial gates keep the total at25%.
 
 Saved building consent/protection history now survives retries and reclamation;
 reclaimed player buildings remain protected from new construction. Bed/access

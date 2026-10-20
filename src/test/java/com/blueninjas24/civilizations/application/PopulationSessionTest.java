@@ -69,7 +69,7 @@ class PopulationSessionTest {
             var cells=new java.util.HashMap<com.blueninjas24.civilizations.construction.ConstructionTemplate.Position,
                     com.blueninjas24.civilizations.construction.DwellingInspection.Cell>();
             for(var position:com.blueninjas24.civilizations.construction.DwellingInspection.requiredCells(layout))cells.put(position,
-                    com.blueninjas24.civilizations.construction.DwellingInspection.Cell.of(position.y()==64?
+                    com.blueninjas24.civilizations.construction.DwellingInspection.Cell.of(position.y()==64||position.y()==67?
                             com.blueninjas24.civilizations.construction.DwellingInspection.Type.SUPPORT:
                             com.blueninjas24.civilizations.construction.DwellingInspection.Type.PASSABLE));
             for(var bed:unit.beds()) {

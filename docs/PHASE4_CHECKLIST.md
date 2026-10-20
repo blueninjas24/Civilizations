@@ -46,11 +46,17 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Covered beds are now the configurable default. Complete region evidence can become
+one reviewed single-family declaration and a separate SQL-owner consent preview;
+no apartments inferred from bed count, no save on preview, no new player donation
+command or occupancy activation. This closes the roof policy question, not a whole
+permission/assignment milestone.
+
 Saved housing now has a read-only /civ building inspect report for the recorded
 owner/admin in the saved world. One global256-cell/tick budget, four requests and
 expiry/current-authority checks bound live work. Separate per-unit bed/access
 results never activate housing, register a donation or erase prior capacity on
-incomplete evidence. Full qualification/assignment still awaits the roof decision.
+incomplete evidence. Covered beds are approved and inspected; edit-aware qualification/assignment remains.
 No additional whole milestone is complete.
 
 Normal-server off-limits plot controls now select bounded corners, display a
@@ -59,8 +65,8 @@ Native Paper verified actual sign interaction, no claim on preview, saved full-h
 columns surviving sign removal and confirmed owner release retaining history.
 Foreign recorded owner/site conflicts are refused; own overlapping replacement
 plots allow continuous protection while resizing. This does not complete the full
-permission/write-boundary or occupancy milestone. Housing qualification is awaiting
-a covered-sleeping-area decision before live assignments.
+permission/write-boundary or occupancy milestone. Covered sleeping-area qualification is now approved and checked; live assignments
+remain unfinished.
 
 Schema108 saves frozen building/unit records, reviewed consent/reclamation history
 and explicit building exclusions/releases. Existing construction protection checks

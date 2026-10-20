@@ -31,7 +31,7 @@ class PaperDwellingReviewTest {
     private CompletableFuture<BuildingRegistry.Entry> lookup;
     private Observation observation() {
         var cells=new HashMap<Position,Cell>();
-        for(var p:DwellingInspection.requiredCells(layout))cells.put(p,Cell.of(p.y()==0?Type.SUPPORT:Type.PASSABLE));
+        for(var p:DwellingInspection.requiredCells(layout))cells.put(p,Cell.of(p.y()==0||p.y()==3?Type.SUPPORT:Type.PASSABLE));
         cells.put(new Position(2,1,2),Cell.bed(false,"minecraft:white_bed",Direction.EAST));
         if(!broken)cells.put(new Position(3,1,2),Cell.bed(true,"minecraft:white_bed",Direction.EAST));
         return new Observation(worldId,layout.fingerprint(),time,complete,cells);

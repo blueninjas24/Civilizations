@@ -1,13 +1,13 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 live plot controls and saved-housing diagnostics; housing qualification pending
+## Current — Phase4 live plot controls and saved-housing diagnostics; covered housing qualification approved
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is the24-page edition0.4, with
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is the24-page edition0.5, with
 22 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
@@ -16,6 +16,24 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- Approved covered-bed rule: config.yml building-protection.require-covered-beds
+  defaults true (old files receive the default). Both bed halves need observed
+  overhead cover within the declared structure, alongside support/headroom/access.
+  Glass, slabs and stairs provide roof-only evidence; waterlogged/hazardous blocks
+  and leaves are not cover. Partial roof shapes remain blocked for walking routes.
+  The read-only report shows the applied rule and explains missing cover.
+- HomeDeclaration converts explicit single-family region evidence into one stable
+  unit with its real observed bed pairs, then reviews its frozen layout. The queued
+  previewSingleHomeDonation bridge validates saved village/world membership, current
+  complete evidence, configured policy, eligibility and existing protection before
+  issuing a separate ownership-confirmation preview. Preview saves no building;
+  explicit ownership confirmation is still required. This API is not a working
+  player donation interface, household assignment or capacity activation.
+  Final focused clean verify51 unit +3 packaged checks passed30.476s, no failures,
+  errors or skips. Actual private Paper passed missing-roof/broken-bed refusal,
+  glass/stair cover, explicit outdoor override, waterlogged refusal and bounded
+  region -> one stable four-bed family declaration. Restored144 cells, fixture
+  stopped/helper archived; schema108 integrity/FKs healthy. No user server touched.
 - /civ building inspect <building UUID> now orchestrates read-only saved-housing
   diagnosis for the recorded donor/current administrator in the building's world.
   All players share256 cell reads/tick and at most4 requests; expiry, disconnect,
@@ -45,8 +63,8 @@ Implemented and verified:
   errors or skips. Native Paper proof passed before the final tested overlap/retry
   guards; an extra native rerun was blocked by account approval-review usage limits.
   Plot controls are committed/pushed at ec4d74e. GitHub main remains unchanged.
-  See BUILDING_PROTECTION.md. Covered sleeping-area eligibility is awaiting the
-  user's choice before live housing assignment; bed/access proof alone grants no capacity.
+  See BUILDING_PROTECTION.md. Covered sleeping-area eligibility is now approved
+  and checked; inspection alone still grants no occupancy or usable capacity.
 - The approved player-declaration policy now has an SQL-owner confirmation workflow:
   one exact player/layout/token, bounded expiring previews, separate explicit
   ownership affirmation, present-world/current-permission checks and saved-donor

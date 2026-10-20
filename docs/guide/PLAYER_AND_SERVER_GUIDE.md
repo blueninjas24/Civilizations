@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.4 | 20 October 2026 | Player and server owner edition
+Living draft 0.5 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline ec4d74e plus verified read-only housing inspection; housing adoption remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline 8ca9f86 plus verified covered-bed qualification; housing adoption remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -134,9 +134,9 @@ A unit needs suitable usable capacity, a reachable entrance and non-overlapping 
 
 ### Inspect saved housing
 
-/civ building inspect <building UUID> reviews an already registered housing layout in your current world. Only its recorded donor or an administrator may inspect it. It reports accessible declared beds and reasons such as broken bed pairs, blocked headroom or unreachable units. Missing chunks produce an unverified report, not lost housing.
+/civ building inspect <building UUID> reviews an already registered housing layout in your current world. Only its recorded donor or an administrator may inspect it. It reports accessible declared beds and reasons such as broken pairs, missing cover or unreachable units. Missing chunks produce an unverified report, not lost housing.
 
-This command cannot register a new house. Donation controls remain unfinished, so most existing servers have no eligible saved layouts yet. Inspection grants no occupancy or usable capacity; roof rules and safe assignment are separate work.
+This command cannot register a new house. Donation controls remain unfinished, so most existing servers have no eligible saved layouts yet. Covered beds are required by default; both halves need overhead cover inside the declared building. Admins can change require-covered-beds under building-protection in config.yml. Inspection still grants no occupancy or usable capacity.
 
 ### What empty means
 
@@ -556,7 +556,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.4 adds read-only saved-housing bed/access reports alongside confirmed off-limits plots. Housing donation/assignment remains unfinished, with covered sleeping-area eligibility still awaiting a decision. Village-owned apartments defer rent and landlords.
+Edition 0.5 adds configurable covered-bed qualification to saved-housing reports. Housing donation/assignment remains unfinished. Village-owned apartments defer rent and landlords.
 
 
 ## 22 Protect a building plot

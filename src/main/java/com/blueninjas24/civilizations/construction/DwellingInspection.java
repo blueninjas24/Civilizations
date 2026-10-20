@@ -8,9 +8,13 @@ import java.util.*;
 public final class DwellingInspection {
     private DwellingInspection() {}
     public static final int MAX_PATH_VISITS = 262_144;
-    public enum Type { PASSABLE, SUPPORT, BLOCKED, HAZARD, UNKNOWN, BED_FOOT, BED_HEAD }
+    public enum Type { PASSABLE, SUPPORT, COVER, BLOCKED, HAZARD, UNKNOWN, BED_FOOT, BED_HEAD }
+    /** Prototype housing rule; disabling cover never disables bed/support/access checks. */
+    public record Policy(boolean requireCoveredBeds) {
+        public static Policy prototype(){return new Policy(true);}
+    }
     public enum Issue { WRONG_WORLD, LAYOUT_CHANGED, STALE_OR_FUTURE, INCOMPLETE, ENTRANCE_UNSAFE,
-        BED_CHANGED, BED_UNSUPPORTED, BED_OBSTRUCTED, UNDECLARED_PRIVATE_BED, UNIT_UNREACHABLE, BED_UNREACHABLE, PATH_BUDGET }
+        BED_CHANGED, BED_UNSUPPORTED, BED_OBSTRUCTED, BED_UNCOVERED, UNDECLARED_PRIVATE_BED, UNIT_UNREACHABLE, BED_UNREACHABLE, PATH_BUDGET }
     /** PASSABLE means two-sided safe traversability; native classification must be conservative. */
     public record Cell(Type type, String bedMaterial, Direction facing) {
         public Cell {
@@ -39,21 +43,28 @@ public final class DwellingInspection {
         private final UUID world;
         private final String layoutHash;
         private final long capturedMillis;
+        private final Policy policy;
         private final Set<Issue> issues;
         private final Map<UUID,UnitResult> units;
-        private Assessment(Observation observation,Set<Issue> issues,Map<UUID,UnitResult> units) {
+        private Assessment(Observation observation,Policy policy,Set<Issue> issues,Map<UUID,UnitResult> units) {
             world=observation.world();layoutHash=observation.layoutHash();capturedMillis=observation.capturedMillis();
+            this.policy=policy;
             this.issues=Set.copyOf(issues);this.units=Map.copyOf(units);
         }
         public UUID world(){return world;}
         public String layoutHash(){return layoutHash;}
         public long capturedMillis(){return capturedMillis;}
+        public Policy policy(){return policy;}
         public Set<Issue> issues(){return issues;}
         public Map<UUID,UnitResult> units(){return units;}
         public int accessibleBeds(){return units.values().stream().mapToInt(UnitResult::accessibleBeds).sum();}
     }
 
     public static Assessment inspect(BuildingLayout layout,Observation observation,long now,long maxAgeMillis) {
+        return inspect(layout,observation,now,maxAgeMillis,Policy.prototype());
+    }
+    public static Assessment inspect(BuildingLayout layout,Observation observation,long now,long maxAgeMillis,Policy policy) {
+        Objects.requireNonNull(policy);
         if(layout.kind()!=Kind.HOUSING) throw new IllegalArgumentException("Dwelling inspection requires housing");
         if(now<0 || maxAgeMillis<1 || maxAgeMillis>60_000) throw new IllegalArgumentException("Invalid inspection freshness limit");
         var issues=EnumSet.noneOf(Issue.class);var results=new TreeMap<UUID,UnitResult>();
@@ -63,10 +74,16 @@ public final class DwellingInspection {
         var required=cells(layout.structure());
         if(!observation.complete() || !observation.cells().keySet().equals(required)
                 || observation.cells().values().stream().anyMatch(c->c.type()==Type.UNKNOWN))issues.add(Issue.INCOMPLETE);
-        if(!issues.isEmpty())return new Assessment(observation,issues,results);
+        if(!issues.isEmpty())return new Assessment(observation,policy,issues,results);
         var observed=observation.cells();
+        // One bounded pass, rather than a vertical world scan for every bed.
+        record Column(int x,int z){}
+        var covers=new HashMap<Column,Integer>();
+        if(policy.requireCoveredBeds())observed.forEach((p,c)->{
+            if(c.type()==Type.SUPPORT||c.type()==Type.COVER)covers.merge(new Column(p.x(),p.z()),p.y(),Math::max);
+        });
         if(!standable(layout.entrance(),observed)) {
-            issues.add(Issue.ENTRANCE_UNSAFE);return new Assessment(observation,issues,results);
+            issues.add(Issue.ENTRANCE_UNSAFE);return new Assessment(observation,policy,issues,results);
         }
         var shared=new HashSet<Position>();layout.shared().forEach(b->shared.addAll(cells(b)));
         int[] visits={0};
@@ -81,6 +98,10 @@ public final class DwellingInspection {
                         || head.facing()!=bed.facing() || !Objects.equals(foot.bedMaterial(),head.bedMaterial()))unitIssues.add(Issue.BED_CHANGED);
                 if(!support(shift(bed.foot(),0,-1,0),observed) || !support(shift(bed.head(),0,-1,0),observed))unitIssues.add(Issue.BED_UNSUPPORTED);
                 if(!passable(shift(bed.foot(),0,1,0),observed) || !passable(shift(bed.head(),0,1,0),observed))unitIssues.add(Issue.BED_OBSTRUCTED);
+                if(policy.requireCoveredBeds())for(var half:List.of(bed.foot(),bed.head())) {
+                    var cover=covers.get(new Column(half.x(),half.z()));
+                    if(cover==null||(long)cover<(long)half.y()+2)unitIssues.add(Issue.BED_UNCOVERED);
+                }
             }
             for(var p:privateSpace) {
                 var type=observed.get(p).type();
@@ -97,7 +118,7 @@ public final class DwellingInspection {
             }
             results.put(unit.id(),new UnitResult(unit.id(),unitIssues.isEmpty()?unit.declaredBeds():0,unitIssues));
         }
-        return new Assessment(observation,issues,results);
+        return new Assessment(observation,policy,issues,results);
     }
 
     public static Set<Position> requiredCells(BuildingLayout layout) { return Collections.unmodifiableSet(cells(layout.structure())); }

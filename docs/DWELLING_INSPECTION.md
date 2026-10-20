@@ -34,7 +34,7 @@ Routes require supported two-block-high standing space and cardinal steps of at
 most one block with head clearance. No vertical flying or diagonal corner edges.
 The shared path-visit budget is262,144 per assessment; a budget-exhausted unit is
 explicitly unverified. The result reports accessible bed pairs, not legal or fully
-habitable village capacity. Roof/enclosure quality, broader building condition,
+habitable village capacity. Overhead cover is now checked by default. Full enclosure quality, broader building condition,
 permission, occupancy and current protection remain separate gates.
 
 ## Paper read boundary
@@ -53,7 +53,8 @@ observations are immutable and exact retry returns the same observation.
 Native classification is deliberately narrow: air and wooden doors can provide
 access; actual beds retain material/part/facing; safe non-gravity full occluding
 blocks provide support. Known damaging blocks and waterlogged shapes are unsafe.
-Unsupported partial shapes, vegetation, fluids and non-wooden doors stay blocked.
+Safe stairs/slabs and full glass blocks provide roof-only cover evidence. They do
+not become traversable standing routes. Vegetation, fluids and non-wooden doors stay blocked.
 Native stair/slab geometry needs a later collision-shape extension; the current
 domain route proof supports ordinary full-block steps. This may reject a usable
 building, so an unsuccessful review is not demolition or ownership evidence.
@@ -104,10 +105,51 @@ also allowed after reclamation; this does not reinstate donation rights.
 
 This is for saved layouts, not arbitrary beds or a new donation workflow. Existing
 servers without registered layouts receive an explicit unknown-building response.
-Roof/enclosure choice, edit-aware revalidation and live assignments remain ahead.
+Covered beds are approved and now checked; full enclosure, edit-aware revalidation
+and live assignments remain ahead.
 Focused Wrapper clean verify passed47 unit +3 packaged checks in30.231s, zero
 failures/errors/skips. Four new adapter checks cover queue/global budget, current
 authority/world/disconnect/expiry/close, partial evidence, failures and diagnostic
 results. Expanded temporary-SQLite owner checks verify saved donor/admin lookup,
 wrong world/unknown identity refusal and read-only assessment preserving consent.
 No new native Paper run was performed for this orchestration batch.
+
+## Covered sleeping areas and explicit home declarations
+
+DwellingInspection.Policy records whether overhead cover was required in each
+assessment. Default true: both halves of every declared bed need a safe cover
+cell at least two blocks above the bed's block, inside the surveyed structure.
+A single bounded pass indexes cover columns. The floor of a room above can also
+provide cover. Leaves, hazards, waterlogged shapes and unknown blocked cells do
+not. Safe solid blocks and roof-only glass/stairs/slabs can qualify. Cover is not
+proof of complete walls, weather simulation or occupancy authority. Setting false
+still requires real paired beds, headroom, support and reachable private access.
+
+HomeDeclaration.singleHousehold is an explicit one-home operation: complete,
+fresh region evidence tied to world/selection -> stable one-unit geometry -> exact
+layout-bound inspection. It never guesses apartments or splits one home per bed.
+PaperDwellingSurvey.forHomeDeclaration collects the same bounded loaded-only
+region without a pre-existing bed declaration. All cells, floor and roof must lie
+inside the selected structure; no distant roof or incomplete scan can fill gaps.
+
+PopulationSession.previewSingleHomeDonation runs that review on the SQL owner,
+requires a village in the saved present world and a permitted caller, and refuses
+failed inspection before issuing the existing player-bound consent preview.
+No building is registered by preview. Existing explicit ownership confirmation
+remains necessary. No live donation UI, edit-aware capacity activation or household
+assignment is introduced by these APIs.
+
+Final covered-declaration verification: focused Wrapper clean verify51 unit
++3 packaged checks passed30.476s, no failures/errors/skips. This includes two
+new declaration scenarios, one temporary-SQLite end-to-end preview/explicit save
+scenario, covered-bed per-unit/override coverage and strict configuration checks.
+The first helper compile had an ambiguous Java Policy import; narrowed imports.
+The initial test fixture had only one villager, below existing recognition rules;
+corrected to two adults without changing application recognition behavior.
+
+Actual Paper26.2 build129 passed missing native bed/roof refusal, glass/stair cover,
+waterlogged refusal, explicit outdoor override and raw-region conversion to one
+stable four-bed family declaration. Remote chunks stayed unloaded; absent worlds
+incomplete. Restored144 original cells, stopped the marked private server and
+archived its helper. Read-only post-stop database integrity/FKs were clean at108.
+No user-server save, housing capacity, inventory or real world was modified.

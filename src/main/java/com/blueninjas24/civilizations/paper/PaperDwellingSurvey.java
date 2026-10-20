@@ -15,7 +15,8 @@ import java.util.*;
  * A future owner adapter must budget surveys globally and revalidate before activating housing. */
 public final class PaperDwellingSurvey {
     public static final int MAX_CELLS_PER_ADVANCE=256;
-    private final BuildingLayout layout;
+    private final UUID worldId;
+    private final BuildingLayout.Bounds bounds;
     private final String hash;
     private final long started;
     private int x,y,z,remaining;
@@ -24,20 +25,26 @@ public final class PaperDwellingSurvey {
     private Observation finished;
 
     public PaperDwellingSurvey(BuildingLayout layout,long now) {
-        requireMainThread();this.layout=Objects.requireNonNull(layout);
-        if(layout.kind()!=BuildingLayout.Kind.HOUSING || now<0)throw new IllegalArgumentException("Housing and valid survey time required");
-        hash=layout.fingerprint();started=now;
-        var bounds=layout.structure();x=bounds.min().x();y=bounds.min().y();z=bounds.min().z();remaining=Math.toIntExact(bounds.volume());
+        this(layout.world(),layout.structure(),layout.fingerprint(),now);
+        if(layout.kind()!=BuildingLayout.Kind.HOUSING)throw new IllegalArgumentException("Housing survey required");
+    }
+    public static PaperDwellingSurvey forHomeDeclaration(UUID world,BuildingLayout.Bounds structure,long now) {
+        return new PaperDwellingSurvey(world,structure,com.blueninjas24.civilizations.construction.HomeDeclaration.regionHash(world,structure),now);
+    }
+    private PaperDwellingSurvey(UUID world,BuildingLayout.Bounds bounds,String hash,long now) {
+        requireMainThread();worldId=Objects.requireNonNull(world);this.bounds=Objects.requireNonNull(bounds);this.hash=Objects.requireNonNull(hash);
+        if(now<0||bounds.volume()>BuildingLayout.MAX_STRUCTURE_VOLUME)throw new IllegalArgumentException("Invalid housing survey time/volume");
+        started=now;x=bounds.min().x();y=bounds.min().y();z=bounds.min().z();remaining=Math.toIntExact(bounds.volume());
     }
     /** Caller schedules subsequent advances; this class registers no task and writes no blocks. */
     public Optional<Observation> advance(int budget,long now) {
         requireMainThread();
         if(budget<1 || budget>MAX_CELLS_PER_ADVANCE || now<0)throw new IllegalArgumentException("Invalid dwelling survey budget/time");
         if(finished!=null)return Optional.of(finished);
-        World world=Bukkit.getWorld(layout.world());
+        World world=Bukkit.getWorld(worldId);
         if(world==null || now<started || now-started>30_000){incomplete=true;remaining=0;}
         if(world!=null) {
-            var b=layout.structure();var border=world.getWorldBorder();
+            var b=bounds;var border=world.getWorldBorder();
             if(!border.isInside(new Location(world,b.min().x(),b.min().y(),b.min().z()))
                     || !border.isInside(new Location(world,b.max().x(),b.max().y(),b.max().z()))) {incomplete=true;remaining=0;}
         }
@@ -50,14 +57,13 @@ public final class PaperDwellingSurvey {
         }
         if(remaining>0)return Optional.empty();
         if(world!=null) {
-            var bounds=layout.structure();
             for(int x=bounds.min().x()>>4;x<=bounds.max().x()>>4;x++)for(int z=bounds.min().z()>>4;z<=bounds.max().z()>>4;z++)
                 if(!world.isChunkLoaded(x,z))incomplete=true;
         }
-        finished=new Observation(layout.world(),hash,started,!incomplete,cells);return Optional.of(finished);
+        finished=new Observation(worldId,hash,started,!incomplete,cells);return Optional.of(finished);
     }
     private Position next() {
-        var p=new Position(x,y,z);var bounds=layout.structure();
+        var p=new Position(x,y,z);
         if(--remaining>0) {
             if(x<bounds.max().x())x++;
             else {x=bounds.min().x();if(z<bounds.max().z())z++;else{z=bounds.min().z();y++;}}
@@ -74,6 +80,9 @@ public final class PaperDwellingSurvey {
         if(material.isAir() || data instanceof Door && Tag.WOODEN_DOORS.isTagged(material))return Cell.of(Type.PASSABLE);
         // Unsupported partial shapes, fluids, vegetation and iron/copper doors stay blocked.
         if(material.isSolid() && material.isOccluding() && !material.hasGravity())return Cell.of(Type.SUPPORT);
+        // Roof-only evidence: does not pretend partial shapes are supported walking routes.
+        if(Tag.STAIRS.isTagged(material)||Tag.SLABS.isTagged(material)||material==Material.GLASS
+                ||material==Material.TINTED_GLASS||material.name().endsWith("_STAINED_GLASS"))return Cell.of(Type.COVER);
         return Cell.of(Type.BLOCKED);
     }
     private static void requireMainThread(){if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Dwelling block reads require server thread");}
