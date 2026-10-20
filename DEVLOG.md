@@ -1,5 +1,14 @@
 # Civilizations Development Log
 
+## 2026-10-19 — let hosted Windows verification finish between backups
+
+Feature pushes repeatedly cancelled the longer Windows migration job before it
+could finish, while Linux completed. Changed workflow concurrency to retain an
+already-running verification across newer pushes. The per-ref concurrency group,
+read-only permissions, pinned actions, both OS jobs and full clean verify command
+are unchanged. Reviewed the one-boolean YAML change; no redundant code tests.
+Current hosted candidate results remain pending, not reported as passed.
+
 ## 2026-10-19 — whole-household vacancy-first proposals and verified bed capacity
 
 Added a bounded deterministic housing planner that reuses verified permitted

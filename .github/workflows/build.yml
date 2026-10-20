@@ -10,7 +10,8 @@ permissions:
 
 concurrency:
   group: build-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Small feature backups must not repeatedly cancel the slower Windows migration run.
+  cancel-in-progress: false
 
 jobs:
   verify:

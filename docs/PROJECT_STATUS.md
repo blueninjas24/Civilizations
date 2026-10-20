@@ -64,6 +64,8 @@ work or home occupancy. Normal gameplay still cannot place construction blocks.
 No design question currently blocks the next scoped work. Feature pushes are
 permitted; never merge/push main. Hosted current candidate status must be checked
 by commit; local passing tests are not a claim of hosted Windows/Linux green.
+Workflow concurrency now lets an existing run finish across new backup pushes,
+so frequent commits no longer continually cancel the slower Windows checks.
 
 ## Current - Phase3 prototype complete,100%,4/4 milestone groups
 
