@@ -116,3 +116,11 @@ halves require safe overhead cover inside the declared structure with clear bed
 headroom. Set false and restart to permit outdoor beds; support/access/real paired
 beds still apply. Old configs get true without being rewritten. This setting
 cannot enable donation controls, occupancy or normal construction.
+
+## Single-home follow-up
+
+Corner commands also accept exact x/y/z to include physical floor and roof blocks.
+The separate civilizations.building.donate permission can use selection without
+granting exclusion authority. /civ building home <village UUID> performs an explicit
+one-home donation review and separate ownership confirmation; see HOME_DONATIONS.md.
+Existing protection/release commands still do not donate homes or adopt animals.

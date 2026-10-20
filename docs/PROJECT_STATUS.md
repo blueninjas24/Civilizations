@@ -1,14 +1,14 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 live plot controls and saved-housing diagnostics; covered housing qualification approved
+## Current — Phase4 live single-home donation permission; household assignment pending
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is the24-page edition0.5, with
-22 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is the25-page edition0.6, with
+23 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
 owned units follow the same occupancy direction as homes. No live unit control is
@@ -16,6 +16,24 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- Players can now select explicit floor-to-roof corners (feet or exact x/y/z),
+  stand at the entrance and run /civ building home <village UUID>. A bounded native
+  region review leads to a separate clickable ownership declaration and saved use
+  permission. Saved village IDs Tab-complete. One-family semantics are explicit;
+  apartments are not inferred. No first-donation administrator requirement.
+  Edited selections, world/permission changes, expiry and failed evidence cannot
+  confirm a stale home. Cancelhome discards unsubmitted work only; accepted saves
+  drain on disconnect/stop. Expected failures remain visible; exact retries use
+  the frozen SQL-owner preview. No title, inventory, occupancy or capacity transfer.
+- civilizations.building.donate defaults true. building-protection.enabled gates
+  live donation. Four requests per housing tool; read-only inspections and new-home
+  donation scans each use128 cells/tick, a combined ceiling256 for all players.
+  No live reclamation, apartment editor, household assignment or automatic building.
+  Final focused clean verify34 unit +3 packaged checks passed23.261s, no failures,
+  errors or skips. Actual private Paper verified installed donation permission and
+  root home-route completion plus the existing protection lifecycle. This native
+  run did not perform end-to-end home donation; see HOME_DONATIONS.md. Schema108
+  unchanged; no user-server/world deployment or changes.
 - Approved covered-bed rule: config.yml building-protection.require-covered-beds
   defaults true (old files receive the default). Both bed halves need observed
   overhead cover within the declared structure, alongside support/headroom/access.
@@ -27,8 +45,8 @@ Implemented and verified:
   previewSingleHomeDonation bridge validates saved village/world membership, current
   complete evidence, configured policy, eligibility and existing protection before
   issuing a separate ownership-confirmation preview. Preview saves no building;
-  explicit ownership confirmation is still required. This API is not a working
-  player donation interface, household assignment or capacity activation.
+  explicit ownership confirmation is still required. The live adapter above now uses this API; it still grants no household assignment
+  or capacity activation.
   Final focused clean verify51 unit +3 packaged checks passed30.476s, no failures,
   errors or skips. Actual private Paper passed missing-roof/broken-bed refusal,
   glass/stair cover, explicit outdoor override, waterlogged refusal and bounded
@@ -36,10 +54,10 @@ Implemented and verified:
   stopped/helper archived; schema108 integrity/FKs healthy. No user server touched.
 - /civ building inspect <building UUID> now orchestrates read-only saved-housing
   diagnosis for the recorded donor/current administrator in the building's world.
-  All players share256 cell reads/tick and at most4 requests; expiry, disconnect,
+  All inspection players share128 cell reads/tick and at most4 requests; expiry, disconnect,
   world/permission changes and missing chunks cannot become occupancy/capacity loss.
   Main-thread block evidence is reviewed on the SQL-owner worker, with per-unit
-  reasons and capped chat output. No fresh donation/assignment is enabled; servers
+  reasons and capped chat output. This inspection alone enables no donation/assignment; servers
   without registered layouts receive an explicit unknown-building response.
   Focused clean verify passed47 unit +3 packaged checks in30.231s, no failures,
   errors or skips. Four new adapter checks and expanded temporary-SQLite owner
@@ -80,7 +98,8 @@ Implemented and verified:
   Stale/changed/unauthorized confirmations fail; exact retries cannot restore a
   later-reclaimed donation or released exclusion. Construction protection includes
   saved building plots even after reclamation. No household capacity or title is
-  changed. This is a trusted-owner backend, not working donation signs/commands;
+  changed. This is a trusted-owner backend; single-home commands are now connected above,
+  while donation signs remain unfinished;
   players explicitly declaring ownership for first donation is approved; no mandatory
   first-donation administrator approval. See BUILDING_REGISTRY.md and DECISIONS_AND_OPEN_QUESTIONS.md.
 - Bed/access inspection now checks complete fresh world/layout evidence, actual

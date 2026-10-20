@@ -56,6 +56,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperConstructionPreview construction;
     private com.blueninjas24.civilizations.paper.PaperBuildingProtection buildings;
     private com.blueninjas24.civilizations.paper.PaperDwellingReview dwellingReview;
+    private com.blueninjas24.civilizations.paper.PaperHomeDonation homeDonations;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
     private com.blueninjas24.civilizations.paper.PaperFisheryStartup fisheryStartup;
@@ -169,6 +170,12 @@ public final class Civilizations extends JavaPlugin {
                 dwellingReview=new com.blueninjas24.civilizations.paper.PaperDwellingReview(population,
                         new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(buildingSettings.requireCoveredBeds()),getLogger());
                 buildings.configureInspection(dwellingReview);dwellingReview.runTaskTimer(this,1,1);
+                if(buildingSettings.enabled()) {
+                    homeDonations=new com.blueninjas24.civilizations.paper.PaperHomeDonation(population,
+                            new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(buildingSettings.requireCoveredBeds()),buildings::selectedHomeBounds,getLogger());
+                    buildings.configureHomes(homeDonations);homeDonations.runTaskTimer(this,1,1);
+                    getServer().getPluginManager().registerEvents(homeDonations,this);
+                }
                 buildings.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(buildings,this);
             }catch(IllegalArgumentException invalid){getLogger().log(Level.WARNING,"Building protection disabled; fix building-protection settings and restart.",invalid);}
             try {
@@ -288,6 +295,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(homeDonations!=null){homeDonations.cancel();homeDonations.close();}
         if(dwellingReview!=null){dwellingReview.cancel();dwellingReview.close();}
         if(buildings!=null){buildings.cancel();buildings.close();}
         if(construction!=null)construction.cancel();

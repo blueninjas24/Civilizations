@@ -46,7 +46,7 @@ class PaperDwellingReviewTest {
     private void start(PaperDwellingReview r,UUID actor){r.onCommand(player(actor),null,"civ",new String[]{"building","inspect",building.toString()});}
     @Test void reportsRealBedFailuresAndIncompleteEvidenceWithoutClaimingHousingActivation() {
         var r=review(true);start(r,donor);assertEquals(0,reads);r.run();
-        assertEquals(256,reads);assertEquals(1,inspections);assertTrue(messages.stream().anyMatch(s->s.contains("1 accessible beds")));
+        assertEquals(128,reads);assertEquals(1,inspections);assertTrue(messages.stream().anyMatch(s->s.contains("1 accessible beds")));
         assertTrue(messages.stream().anyMatch(s->s.contains("usable capacity are separate")));
         broken=true;messages.clear();start(r,donor);r.run();assertTrue(messages.stream().anyMatch(s->s.contains("bed pair changed")));
         complete=false;messages.clear();start(r,donor);r.run();assertTrue(messages.getLast().contains("Previous housing state is unchanged"));
@@ -55,8 +55,8 @@ class PaperDwellingReviewTest {
         admin=true;var r=review(true);
         for(int i=0;i<5;i++)start(r,new UUID(0,10+i));
         assertEquals(4,lookups);assertTrue(messages.getLast().contains("busy"));
-        r.run();assertEquals(256,reads);assertEquals(1,inspections);
-        r.run();assertEquals(512,reads);assertEquals(2,inspections);
+        r.run();assertEquals(128,reads);assertEquals(1,inspections);
+        r.run();assertEquals(256,reads);assertEquals(2,inspections);
     }
     @Test void currentAuthorityWorldDisconnectExpiryAndCloseCancelUnsubmittedScans() {
         admin=true;var r=review(false);start(r,donor);admin=false;r.run();assertEquals(0,reads);assertTrue(messages.getLast().contains("authority changed"));

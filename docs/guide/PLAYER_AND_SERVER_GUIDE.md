@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.5 | 20 October 2026 | Player and server owner edition
+Living draft 0.6 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -12,14 +12,14 @@ This guide explains what you can do now, why the systems behave as they do, and 
 - Villages containing villagers and beds are recognized automatically after complete loaded-area observation. There is no join command.
 - Hold supported plain food and sneak-right-click a managed villager to open village supplies. Wait for the final donation or trade confirmation.
 - Use /civ market near a qualifying livestock business to buy stocked milk or eggs. Bring your own empty bucket for milk.
-- Industry simulation works today. Ordinary automatic construction, apartments, building donations and repossession are unfinished.
+- Industry simulation and single-home donation permission work today. Automatic construction, household assignment, apartments and repossession are unfinished.
 - Server downtime and absent worlds pause new simulation time. An unloaded chunk does not prove death or destruction.
 
 ### Read the status first
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline 8ca9f86 plus verified covered-bed qualification; housing adoption remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline 0c6abdd plus verified single-home donation controls; household assignment remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -47,6 +47,7 @@ Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. 
 - 20 Terms and a connected village example
 - 21 Roadmap and maintaining this guide
 - 22 Protect a building plot
+- 23 Donate a single-family home
 
 ## 1 Your first village session
 
@@ -136,7 +137,7 @@ A unit needs suitable usable capacity, a reachable entrance and non-overlapping 
 
 /civ building inspect <building UUID> reviews an already registered housing layout in your current world. Only its recorded donor or an administrator may inspect it. It reports accessible declared beds and reasons such as broken pairs, missing cover or unreachable units. Missing chunks produce an unverified report, not lost housing.
 
-This command cannot register a new house. Donation controls remain unfinished, so most existing servers have no eligible saved layouts yet. Covered beds are required by default; both halves need overhead cover inside the declared building. Admins can change require-covered-beds under building-protection in config.yml. Inspection still grants no occupancy or usable capacity.
+This inspection command cannot register a house. Chapter 23 explains the separate single-home donation controls. Covered beds are required by default; both halves need overhead cover inside the declared building. Admins can change require-covered-beds under building-protection in config.yml. Inspection still grants no occupancy or usable capacity.
 
 ### What empty means
 
@@ -146,17 +147,17 @@ Related chapters: donation and construction. Sources: DECISIONS_AND_OPEN_QUESTIO
 
 ## 5 Donate protect and reclaim buildings
 
-Status: Explicit off-limits plot protection is available. Building donation, apartment selection and housing reclamation remain planned.
+Status: Off-limits protection and single-home donation permission are available. Household assignments, apartment selection and housing reclamation remain unfinished.
 
 ### Explicit consent
 
 Player-built homes, workplaces and decorative buildings are off limits without a clear confirmed donation. Beds, workstations and location inside a village are not consent. Old uncertain structures must not be guessed into permission.
 
-Players will explicitly declare that an unrecorded building belongs to them; first donation will not require admin approval. This trust policy cannot override another recorded donor or saved protection. A sign alone grants nothing. The proposed flow is to mark the donation, declare its use, inspect the footprint and confirm its scope. Final sign names and commands remain unfinished.
+Players explicitly declare that an unrecorded home belongs to them; first donation does not require admin approval. This trust policy cannot override another recorded donor or saved protection. A sign alone grants nothing. Chapter 23 gives working single-home commands. Business/apartment donation controls and donation signs remain unfinished.
 
 ### Boundaries and extra protection
 
-For an off-limits plot, select opposite corners and preview its visible outline before confirming ownership. Chapter 22 gives the commands and optional protection sign. Selected X/Z columns are excluded at every height. Boundaries for donated buildings and separate apartments remain planned; more land does not create beds or production.
+For an off-limits plot, select opposite corners and preview its visible outline before confirming ownership. Chapter 22 gives the commands and optional protection sign. Selected X/Z columns are excluded at every height. Single homes use explicit floor-to-roof corners; separate apartment boundaries remain planned. More land does not create beds or production.
 
 Saved protection survives sign removal. Private buildings still need explicit donation even without this extra marker. Protection governs Civilizations construction; it does not prevent other players editing or vanilla villagers walking through. Releasing an exclusion changes construction permission; housing reclamation remains planned.
 
@@ -441,7 +442,7 @@ Sneak-right-click a managed villager with supported plain food for donation/sale
 
 civilizations.aid.preview permits previews; civilizations.aid.donate permits donations; civilizations.trade permits trading and stocked livestock purchases. They default to ordinary players, but server owners can change permissions/settings.
 
-Off-limits building plot selection/protection/release commands are available in Chapter 22. Building-donate, apartment, repossess and rent controls remain unfinished.
+Off-limits building plot selection/protection/release commands are available in Chapter 22. Single-home donation commands are in Chapter 23. Apartment, repossess and rent controls remain unfinished.
 
 Sources: plugin.yml, FoodAidPreviewCommand, FoodBargainingCommand, FoodBarterCommand and LivestockMarketMenu.
 
@@ -556,7 +557,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.5 adds configurable covered-bed qualification to saved-housing reports. Housing donation/assignment remains unfinished. Village-owned apartments defer rent and landlords.
+Edition 0.6 adds explicit single-family-home donation controls. Household assignment, apartment controls and reclamation remain unfinished. Village-owned apartments defer rent and landlords.
 
 
 ## 22 Protect a building plot
@@ -595,3 +596,36 @@ Editing corners invalidates old buttons. Resize by protecting a replacement befo
 config.yml building-protection defaults: 4,096 columns, edge 128, 16 players, 60-second confirmations and 300-second selections. Invalid settings disable only these controls. Restart after editing.
 
 civilizations.building.protect defaults true; civilizations.building.admin defaults op and permits confirmed release of another player's exclusion. This is not general anti-grief protection or proof of authorship. See BUILDING_PROTECTION.md.
+
+
+## 23 Donate a single-family home
+
+Status: Available for village-use permission only. Families do not move in yet; usable housing capacity is not activated.
+
+### Prepare and review
+
+- Select opposite corners with /civ building corner1 and corner2. With no coordinates these use your feet position. Include the entire building, floor blocks and roof.
+- For exact selection use /civ building corner1 <x> <y> <z> and corner2 <x> <y> <z>. This avoids trying to stand inside walls. Minecraft's F3 display helps locate block coordinates.
+- Stand at the entrance inside the selection. Run /civ building home <village UUID>; Tab offers saved village IDs.
+- Wait for the review. Check the village, three-dimensional bounds and bed count. This declares ONE family home, regardless of bedrooms or beds.
+- Click Confirm: I own and donate this home. Wait for the final saved message.
+
+You must own the building. This grants village use, not title, contents or occupied housing. Another recorded donor, protected pen/plot or reserved project can block donation. Do not confirm a building belonging to someone else.
+
+### Commands and safeguards
+
+| Command | Meaning |
+|---|---|
+| /civ building home <village UUID> | Scan and preview one family-home donation |
+| /civ building confirmhome <token> owned | Manual form of the confirmation button |
+| /civ building cancelhome | Cancel an unsubmitted scan or preview |
+
+A changed selection, different world, lost permission, expired evidence or missing chunks prevents confirmation. Cancellation cannot undo an already submitted save. A failed save never announces success; review the server log before retrying the same confirmation.
+
+Beds must be real, paired, supported, clear and reachable from the chosen entrance. Covered sleeping areas are required by default. Partial stairs/slabs do not yet prove walking access, so some usable buildings can be conservatively refused.
+
+### Settings and current limits
+
+civilizations.building.donate defaults true; no first-donation admin approval is required. building-protection.enabled controls availability; require-covered-beds controls overhead cover. Restart after editing config.yml. All live housing tools together read at most 256 cells per tick, with four reviews per tool and timeouts.
+
+No donation sign, apartment editor, reclamation command, household assignment or normal automatic construction is enabled. Registration protects the saved footprint even after future reclamation. Related chapters: housing, protection and construction.

@@ -16,8 +16,8 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
-A24-page living player/server handbook now documents current features and planned
-P4 controls separately, with22 chapters, linked contents and command references.
+A25-page living player/server handbook now documents current features and planned
+P4 controls separately, with23 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
 
@@ -25,12 +25,15 @@ A read-only saved-housing inspection command now explains bed/access failures pe
 unit, with shared scan limits. It cannot create a donation, assign households or
 activate capacity; most servers have no registered housing layouts yet.
 
+Players can also review and explicitly donate one selected family home, with
+saved-village completion, safe confirmations and a read-only inspection report.
+This saves use permission; no residents move and no housing capacity is activated.
+
 Players can now outline and explicitly protect a selected plot using commands
 or a building-protection sign. Sign removal leaves saved protection intact; owners
 can confirm releases or resize by protecting a replacement first. Other recorded
-owners remain protected. This adds a usable protection tool, while donation/unit
-selection, housing assignment and normal construction remain ahead. Covered beds are now the approved configurable default, and the declaration/consent
-preview bridge is built; live donation and assignments remain ahead. These partial gates keep the total at25%.
+owners remain protected. This adds a usable protection tool, while apartment-unit
+selection, housing assignment and normal construction remain ahead. Covered beds are now the approved configurable default, and single-home donation permission controls now work; live assignments remain ahead. These partial gates keep the total at25%.
 
 Saved building consent/protection history now survives retries and reclamation;
 reclaimed player buildings remain protected from new construction. Bed/access

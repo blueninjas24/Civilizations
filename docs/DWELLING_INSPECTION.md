@@ -89,8 +89,8 @@ No donation, occupancy, population capacity or earned construction was activated
 
 ## Read-only inspection command - October20
 
-PaperDwellingReview queues at most4 requests, one per actor. All requests share
-one256-cell advance per tick, never a per-player multiplier. A request expires
+PaperDwellingReview queues at most4 requests, one per actor. Inspection requests share
+one128-cell advance per tick, never a per-player multiplier. A request expires
 at30 seconds; disconnect, world changes and permission loss discard pending output.
 Only the saved donor or a current building administrator may inspect. Registry
 lookup and bounded pure path review run on PopulationSession's owner worker;
@@ -136,8 +136,8 @@ PopulationSession.previewSingleHomeDonation runs that review on the SQL owner,
 requires a village in the saved present world and a permitted caller, and refuses
 failed inspection before issuing the existing player-bound consent preview.
 No building is registered by preview. Existing explicit ownership confirmation
-remains necessary. No live donation UI, edit-aware capacity activation or household
-assignment is introduced by these APIs.
+remains necessary. These APIs now have the explicit single-home controls described in HOME_DONATIONS.md.
+Edit-aware capacity activation and household assignment remain unfinished.
 
 Final covered-declaration verification: focused Wrapper clean verify51 unit
 +3 packaged checks passed30.476s, no failures/errors/skips. This includes two
@@ -153,3 +153,8 @@ stable four-bed family declaration. Remote chunks stayed unloaded; absent worlds
 incomplete. Restored144 original cells, stopped the marked private server and
 archived its helper. Read-only post-stop database integrity/FKs were clean at108.
 No user-server save, housing capacity, inventory or real world was modified.
+
+Latest controls: inspection reports now use128 cell reads/tick, reserving128 for
+new home donation scans; combined live housing maximum256 per tick. Saved home
+permission can be registered through HOME_DONATIONS.md; inspection alone still
+changes neither consent nor capacity. No automatic household occupancy is enabled.

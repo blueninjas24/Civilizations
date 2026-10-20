@@ -15,7 +15,8 @@ import java.util.logging.*;
 
 /** Bounded, read-only diagnostics for saved housing; never consent or usable capacity. */
 public final class PaperDwellingReview extends BukkitRunnable implements CommandExecutor,AutoCloseable {
-    public static final int MAX_REQUESTS=4,CELLS_PER_TICK=256;
+    // The other128 cells belong to PaperHomeDonation: total live housing reads <=256/tick.
+    public static final int MAX_REQUESTS=4,CELLS_PER_TICK=128;
     public interface Owner {
         CompletableFuture<BuildingRegistry.Entry> find(UUID building,UUID player,boolean administrator,UUID world);
         CompletableFuture<DwellingInspection.Assessment> inspect(BuildingLayout layout,DwellingInspection.Observation observation,long now);

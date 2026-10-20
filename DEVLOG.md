@@ -1,5 +1,41 @@
 # Civilizations Development Log
 
+## 2026-10-20 — player-facing single-home donation permission
+
+Continued after the covered-home checkpoint0c6abdd (pushed). Added PaperHomeDonation:
+/civ building home <village UUID>, bounded scan, one-family preview, separate
+clickable/explicit ownership confirmation and saved village-use permission.
+Known saved IDs Tab-complete; no admin-first requirement. Selection can use exact
+x/y/z, avoiding standing inside walls/floor/roof blocks. Permission defaults true
+under civilizations.building.donate; donors can select without gaining exclusion
+rights. building-protection.enabled gates availability. No donation sign, apartment
+inference, title transfer, inventory changes, household movement or active capacity.
+No reclamation UI before displacement/capacity reconciliation exists.
+
+Four donor reviews maximum, one per actor. Inspection and donation each have128
+cell reads/tick, total live housing maximum256 regardless of player count. Edited
+selection, world/permission changes, expiry and disconnect invalidate unsubmitted
+work. Already accepted saves drain, never a pretend cancellation. Expected failures
+are explicit; failed saves retain the exact frozen owner preview for a deliberate
+retry. Close cancels only unsubmitted previews while Session drains accepted work.
+
+Final `.\mvnw.cmd -Dtest=PaperHomeDonationTest,HomeDonationPreviewTest,HomeDeclarationTest,DwellingInspectionTest,PaperDwellingReviewTest,PaperBuildingProtectionTest,BuildingConsentRequestsTest clean verify`
+passed34 unit +3 packaged integration checks23.261s, zero failures/errors/skips.
+Four new controller checks plus exact-coordinate selection coverage included;
+existing actual temporary-SQLite consent/ownership/qualification checks also pass.
+Actual private Paper26.2 build129 verified startup/default donation permission and
+configured home-route completion, plus the existing real-sign owner/release/history
+lifecycle. Native run did not execute the complete home-donation UI; real-region
+roof/declaration proof preceded this adapter and synthetic-Player/SQL tests cover
+its workflow. Human client coverage remains. Fixture restored/stopped/helper
+archived; post-stop databases108/integrity-ok/FK-clean. No actual user server touched.
+
+Updated HOME_DONATIONS.md, registry/inspection/protection notes, status/progress/
+checklist and handbook0.6 alongside the new controls. Rendered/reviewed25 pages,
+checked23 linked chapter bookmarks and matching0.6 footers. P4 stays4/16 (25%); the useful
+building/occupancy milestone remains open. Next: persisted household occupancy,
+safe reclamation/capacity reconciliation and vacancy-first automatic home projects.
+
 ## 2026-10-20 — configurable covered beds and inspected home declarations
 
 Recorded the user's yes to covered sleeping areas. Added DwellingInspection.Policy

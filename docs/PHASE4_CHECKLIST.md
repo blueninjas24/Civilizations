@@ -48,13 +48,14 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 Covered beds are now the configurable default. Complete region evidence can become
 one reviewed single-family declaration and a separate SQL-owner consent preview;
-no apartments inferred from bed count, no save on preview, no new player donation
-command or occupancy activation. This closes the roof policy question, not a whole
+no apartments inferred from bed count, no save on preview. A player single-home
+donation command now confirms permission; occupancy activation remains unfinished. This closes the roof policy question, not a whole
 permission/assignment milestone.
 
 Saved housing now has a read-only /civ building inspect report for the recorded
-owner/admin in the saved world. One global256-cell/tick budget, four requests and
-expiry/current-authority checks bound live work. Separate per-unit bed/access
+owner/admin in the saved world. Inspection uses128 cells/tick, reserving128 for
+donation scans: combined housing maximum256/tick, four requests per tool.
+Expiry/current-authority checks bound live work. Separate per-unit bed/access
 results never activate housing, register a donation or erase prior capacity on
 incomplete evidence. Covered beds are approved and inspected; edit-aware qualification/assignment remains.
 No additional whole milestone is complete.

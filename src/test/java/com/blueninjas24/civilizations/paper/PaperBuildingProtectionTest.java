@@ -95,6 +95,14 @@ class PaperBuildingProtectionTest {
         config.set("building-protection.maximum-area",1.5);assertThrows(IllegalArgumentException.class,()->BuildingProtectionSettings.read(config));
         config.set("building-protection.maximum-area",1024);config.set("building-protection.typo",1);assertThrows(IllegalArgumentException.class,()->BuildingProtectionSettings.read(config));
     }
+    @Test void explicitThreeDimensionalCornersIncludeFloorAndRoofWithoutReadingWorldBlocks() {
+        var c=controls();location=new Location(world,2,65,2);
+        command(c,"building","corner1","0","64","0");command(c,"building","corner2","4","68","4");
+        assertEquals(new Bounds(new Position(0,64,0),new Position(4,68,4)),c.selectedHomeBounds(player));
+        command(c,"building","corner2","bad","68","4");
+        assertEquals(new Bounds(new Position(0,64,0),new Position(4,68,4)),c.selectedHomeBounds(player));
+        command(c,"building","protect");confirm(c,token());assertEquals(1,owner.protects);
+    }
     @Test void failedReleaseRetryFreezesOriginalTimeAndAuthorityWhileStillCheckingCurrentPermission() {
         var c=controls();preview(c);confirm(c,token());command(c,"building","release",owner.saved.id().toString());c.run();
         UUID releaseToken=UUID.fromString(((net.kyori.adventure.text.event.ClickEvent.Payload.Text)buttons.getLast().clickEvent().payload()).value().split(" ")[3]);

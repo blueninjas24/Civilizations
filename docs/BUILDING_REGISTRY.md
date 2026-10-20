@@ -56,11 +56,11 @@ is clipped to the bounded local construction footprint; no world chunks are load
 ## Not yet available
 
 Live off-limits exclusion sign/plot selection and confirmed release now use this
-backend; see BUILDING_PROTECTION.md. There is still no live building donation,
-reclamation or apartment-assignment interface. No client writes registry rows directly. A separate current-world
+backend; see BUILDING_PROTECTION.md. Single-family home donation permission now has a live selection/review/confirmation
+interface. Reclamation and apartment assignment remain unfinished. No client writes registry rows directly. A separate current-world
 bed/access inspector now exists (DWELLING_INSPECTION.md), without full habitability
-or activation authority. Occupancy assignment, changed-layout revisions and a safe
-authenticated confirmation interface are subsequent work. Donation permission is
+or activation authority. Occupancy assignment and changed-layout revisions are
+subsequent work; explicit one-home confirmation is now connected. Donation permission is
 not current habitability, availability, private property title or block-write consent.
 
 The handbook now documents the live off-limits controls separately from planned

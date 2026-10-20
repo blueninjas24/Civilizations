@@ -43,6 +43,7 @@ public final class BuildingProtectionProbe extends JavaPlugin {
         var plugin=(JavaPlugin)getServer().getPluginManager().getPlugin("Civilizations");check(plugin!=null&&plugin.isEnabled(),"Production plugin active");
         check(BuildingProtectionSettings.read(plugin.getConfig()).equals(BuildingProtectionSettings.prototype()),"Installed editable settings defaults");
         check(getServer().getPluginManager().getPermission(PaperBuildingProtection.MANAGE).getDefault()==PermissionDefault.TRUE,"Ordinary-player permission default");
+        check(getServer().getPluginManager().getPermission(PaperHomeDonation.PERMISSION).getDefault()==PermissionDefault.TRUE,"Home donation is available to explicitly confirming players");
         check(getServer().getPluginManager().getPermission(PaperBuildingProtection.ADMIN).getDefault()==PermissionDefault.OP,"Admin release override stays operator-only");
         var output=new ArrayList<String>();var console=(CommandSender)Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{CommandSender.class},(p,m,a)->switch(m.getName()){
             case "hasPermission","isPermissionSet","isOp"->true;case "sendMessage"->{for(var item:a)if(item instanceof String s)output.add(s);yield null;}
@@ -50,6 +51,7 @@ public final class BuildingProtectionProbe extends JavaPlugin {
         plugin.getCommand("civ").execute(console,"civ",new String[]{"building","protect"});
         check(output.stream().anyMatch(s->s.contains("in game")),"Production root routes building commands separately");
         check(plugin.getCommand("civ").tabComplete(console,"civ",new String[]{"building","cor"}).contains("corner1"),"Production tab completion delegates");
+        check(plugin.getCommand("civ").tabComplete(console,"civ",new String[]{"building","ho"}).contains("home"),"Installed root routes expose configured home donation controls");
         world=getServer().getWorlds().getFirst();var spawn=world.getSpawnLocation();x=spawn.getBlockX()+4;z=spawn.getBlockZ()+4;
         check(world.isChunkLoaded(x>>4,z>>4),"Already-loaded test sign chunk");ticket=world.getChunkAt(x>>4,z>>4);ticket.addPluginChunkTicket(this);
         y=world.getHighestBlockYAt(x,z)+1;signBlock=world.getBlockAt(x,y,z);check(signBlock.getType().isAir(),"Fixture sign replaces only air");original=signBlock.getBlockData();

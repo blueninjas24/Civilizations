@@ -43,7 +43,11 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     private final Map<UUID,Release> releases=new HashMap<>();private final Map<UUID,Pending> pending=new HashMap<>();
     private boolean closed;
     private CommandExecutor inspection;
+    private CommandExecutor homes;
     public void configureInspection(CommandExecutor inspection){this.inspection=Objects.requireNonNull(inspection);}
+    public void configureHomes(CommandExecutor homes){this.homes=Objects.requireNonNull(homes);}
+    /** Immutable selection only; caller supplies its own current action permission checks. */
+    public Bounds selectedHomeBounds(Player player){prune();return bounds(player);}
     public PaperBuildingProtection(PopulationSession session,BuildingProtectionSettings settings,Logger logger) {
         this(new Owner(){public boolean ready(){return session.status().ready();}
             public CompletableFuture<Exclusion> protect(Exclusion request,String name){return session.protectBuilding(request,name,true);}
@@ -78,9 +82,12 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
             throw new IllegalArgumentException("Plot exceeds configured edge/area limits");return bounds;
     }
     private void corner(Player player,boolean first) {
+        corner(player,first,null);
+    }
+    private void corner(Player player,boolean first,Position specified) {
         var id=player.getUniqueId();var w=player.getWorld().getUID();var old=selections.get(id);
         if(old==null||!old.world().equals(w))old=new Selection(w,null,null,now.getAsLong());
-        var p=player.getLocation();var position=new Position(p.getBlockX(),p.getBlockY(),p.getBlockZ());
+        var p=player.getLocation();var position=specified==null?new Position(p.getBlockX(),p.getBlockY(),p.getBlockZ()):specified;
         var selection=new Selection(w,first?position:old.first(),first?old.second():position,now.getAsLong());
         if(selection.first()!=null&&selection.second()!=null)selectedBounds(selection.first(),selection.second(),settings);
         selections.put(id,selection);proposals.remove(id);releases.remove(id);
@@ -111,6 +118,16 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!(sender instanceof Player player)){sender.sendMessage("Use building protection in game.");return true;}
+        if(args.length>1&&Set.of("home","confirmhome","cancelhome").contains(args[1].toLowerCase(Locale.ROOT))) {
+            if(homes!=null)return homes.onCommand(sender,command,label,args);
+            player.sendMessage("Home donation controls are unavailable.");return true;
+        }
+        if(!permitted(player)&&player.hasPermission(PaperHomeDonation.PERMISSION)&&(args.length==2||args.length==5)
+                &&Set.of("corner1","corner2").contains(args[1].toLowerCase(Locale.ROOT))) {
+            if(closed||!settings.enabled()||!owner.ready()||!room(player.getUniqueId())){player.sendMessage("Building selection is unavailable or busy.");return true;}
+            try{corner(player,args[1].equalsIgnoreCase("corner1"),coordinates(args));}catch(IllegalArgumentException invalid){player.sendMessage("Building selection: "+invalid.getMessage());}
+            return true;
+        }
         if(!available(player))return true;var id=player.getUniqueId();String action=args.length>1?args[1].toLowerCase(Locale.ROOT):"";
         if(action.equals("inspect")) {
             if(inspection!=null)return inspection.onCommand(sender,command,label,args);
@@ -124,7 +141,7 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
         if(pending.containsKey(id)){player.sendMessage("Your building protection request is still finishing.");return true;}
         if(!room(id)){player.sendMessage("Building protection review busy; retry shortly.");return true;}
         try {
-            if((action.equals("corner1")||action.equals("corner2"))&&args.length==2){corner(player,action.equals("corner1"));return true;}
+            if((action.equals("corner1")||action.equals("corner2"))&&(args.length==2||args.length==5)){corner(player,action.equals("corner1"),coordinates(args));return true;}
             if((action.equals("preview")||action.equals("protect"))&&args.length==2){preview(player);return true;}
             if(action.equals("confirm")&&args.length==4&&args[3].equalsIgnoreCase("owned")) {
                 UUID token=UUID.fromString(args[2]);var proposed=proposals.get(id);
@@ -160,6 +177,7 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
         }catch(IllegalArgumentException|ArithmeticException invalid){player.sendMessage("Building protection: "+invalid.getMessage());return true;}
         player.sendMessage("/civ building corner1 | corner2 | protect | here | release <ID> | inspect <building ID> | cancel. Previews have clickable confirmation.");return true;
     }
+    private static Position coordinates(String[] args){return args.length==5?new Position(Integer.parseInt(args[2]),Integer.parseInt(args[3]),Integer.parseInt(args[4])):null;}
     @EventHandler(priority=EventPriority.HIGH,ignoreCancelled=true)
     public void interact(PlayerInteractEvent event) {
         if(event.getHand()!=EquipmentSlot.HAND||event.getAction()!=org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK||event.getClickedBlock()==null)return;
@@ -192,8 +210,11 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
         }
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
-        if(!sender.hasPermission(MANAGE)&&!sender.hasPermission(ADMIN))return List.of();
-        return args.length==2?List.of("corner1","corner2","preview","protect","here","release","inspect","cancel").stream().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList():List.of();
+        if(args.length==3&&args[1].equalsIgnoreCase("home")&&homes instanceof TabCompleter completer)return completer.onTabComplete(sender,command,alias,args);
+        if(args.length!=2)return List.of();var options=new ArrayList<String>();
+        if(sender.hasPermission(MANAGE)||sender.hasPermission(ADMIN))options.addAll(List.of("corner1","corner2","preview","protect","here","release","inspect","cancel"));
+        if(homes!=null&&sender.hasPermission(PaperHomeDonation.PERMISSION))options.addAll(List.of("corner1","corner2","home","cancelhome"));
+        return options.stream().distinct().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();
     }
     @Override public void close(){closed=true;selections.clear();proposals.clear();releases.clear();pending.clear();}
 }
