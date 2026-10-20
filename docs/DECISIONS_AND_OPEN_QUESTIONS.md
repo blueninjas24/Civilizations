@@ -1,5 +1,17 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October20 — pending: gradual transition from legacy housing
+
+Existing enrollment assigns bed groups to families and rewrites their capacity on
+complete scans. P4 introduces explicitly inspected homes with separate saved
+occupancy; using both capacity sources blindly would double-count beds. Asked the
+user whether to preserve existing families/current housing while gradually moving
+whole families into inspected donated or Civ-built homes as needed (recommended),
+or require all existing homes to qualify immediately. No answer recorded yet.
+Unrecorded buildings gain no new alteration/use rights through either proposal.
+The schema109 occupancy backend preserves legacy capacity and resident identity;
+live transition/capacity replacement is deliberately not enabled pending the choice.
+
 ## October20 — approved: covered sleeping areas for housing
 
 The user approved requiring roofs over beds, with an editable setting. Both real

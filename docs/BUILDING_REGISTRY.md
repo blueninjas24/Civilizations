@@ -31,8 +31,10 @@ authenticated administrator can reclaim; unconfirmed requests fail.
 A redonation may restore the same recorded donor/layout after reclamation and
 fresh confirmation. It must pass current protection checks. This backend does not
 transfer building title, demolish blocks, remove residents, move household funds
-or activate usable bed capacity. Household displacement is still to be connected
-to a saved occupancy registry before reclamation is offered in normal gameplay.
+or activate usable bed capacity. Schema109 now withdraws saved dwelling assignments
+in the same transaction as reclamation, retaining departure history. Live capacity
+reconciliation remains necessary before offering reclamation in normal gameplay;
+see DWELLING_OCCUPANCY.md.
 
 ## Protection and overlap
 

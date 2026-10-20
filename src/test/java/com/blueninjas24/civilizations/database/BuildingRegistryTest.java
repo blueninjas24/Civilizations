@@ -188,7 +188,7 @@ class BuildingRegistryTest {
             assertEquals(107,count(c,"PRAGMA user_version"));assertEquals(0,count(c,"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='building_records'"));
             assertEquals(7,count(c,"SELECT population FROM settlements"));assertEquals(8,count(c,"SELECT beds FROM settlements"));
             try(var s=c.createStatement()){s.execute("DROP TABLE building_units");}
-            new SchemaMigrator().migrate(c);assertEquals(108,count(c,"PRAGMA user_version"));
+            new SchemaMigrator().migrate(c);assertEquals(SchemaMigrator.CURRENT_VERSION,count(c,"PRAGMA user_version"));
             assertEquals(0,count(c,"SELECT count(*) FROM building_records"));healthy(c);
             var registry=new BuildingRegistry(c);registry.donate(UUID.randomUUID(),home(10),donor,owner,null,1000);
         }

@@ -134,7 +134,9 @@ public final class BuildingRegistry {
             var replay = event(operation); if (replay.isPresent()) { exact(replay.get(),requested); return replay.get(); }
             requirePrevious(saved.latest(),expectedPrevious,now);
             if (saved.latest() == null || saved.latest().action() != Action.DONATE) throw new Declined("Building has no active donation to reclaim");
-            append(requested); return requested;
+            append(requested);
+            DwellingOccupancy.reclaimed(connection,building,operation,now);
+            return requested;
         });
     }
 

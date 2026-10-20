@@ -1,5 +1,58 @@
 # Civilizations Development Log
 
+## 2026-10-20 — saved whole-household dwelling occupancy
+
+Continued from pushed home-control checkpoint f0d67b2 on
+codex/phase4-construction-foundation. Added DwellingOccupancy, separate from
+existing bed-group capacity: immutable complete housing reviews, current unit
+status, exclusive whole-household assignments and retained departure history.
+Assignments require current permission, same present world/village, current cover
+policy, fresh qualified beds and room for every saved living family member.
+Unknown frames cannot erase a review or occupancy. Damaged complete evidence can
+record zero beds without deleting the family. Vacancy uses saved assignments,
+not visible entities. Moves and reclamation withdraw/replace assignments atomically;
+injected SQL failures retain the prior home/consent. Historical retries never
+restore old occupancy or evict later redonations. Only a saved zero living-member
+count permits empty-household release. No Paper calls or chunk loading.
+
+Schema109 adds six empty tables and one history index transactionally. All older
+rows, household_capacity, resident/family IDs, buildings, goods and budgets remain.
+A package-scoped historical-schema test harness creates genuine108 fixtures using
+the real ordered DDL; failed109 migration rolls back before a clean successful
+retry. Updated old migration rewind/snapshot fixtures for the six additive tables.
+Temporary SQLite tests cover seven occupancy/upgrade scenarios, including reopen,
+exclusive units, whole-family eligibility, unknown/stale/policy/damage evidence,
+move failure/retry, reclamation rollback/redonation and death/reuse.
+
+Initial focused run exposed an old fixture still expecting schema108; corrected
+that test-owned rewind and expected version. The next focused run passed35 unit
+checks but failed a packaged backup file rename under Windows sandbox permissions.
+No application workaround was introduced. The full host-permission run also found
+four older forestry/generated-terrain migration fixtures whose additive table
+lists stopped at108. Extended their expected empty-table sets through109 while
+retaining exact predecessor-row comparisons. Final results are recorded below;
+no unrun success is claimed.
+
+Full `.\mvnw.cmd clean verify` completed2143 unit tests in16:37:2139 passed,
+four failed only on those pre109 table-list expectations; no errors/skips. After
+the test-only corrections, final
+`.\mvnw.cmd -Dtest=DwellingOccupancyTest,SchemaMigratorTest,BuildingRegistryTest,BuildingConsentRequestsTest,HomeDonationPreviewTest,ForestryFounderStudyTest,ForestryPersistenceTest,ForestryProvenanceTest,GeneratedTerrainMigrationTest clean verify`
+passed49 unit +3 packaged integration checks in37.179s, zero failures/errors/skips.
+This includes every failed fixture and the packaged backup/simulation harness.
+The whole suite was not rerun after those test-only fixture corrections.
+
+Added DWELLING_OCCUPANCY.md; updated registry notes, status, checklist, progress
+and handbook0.7. Rendered/reviewed all25 pages,23 linked chapter bookmarks and0.7
+footers. This batch adds backend records, not live relocation/capacity, apartment
+editing, reclamation UI or automatic construction. P4 remains4/16 (25%).
+No native Paper rerun for this SQL-only batch; no user server/database/world touched.
+
+Pending user choice: preserve existing families and legacy housing while gradually
+assigning inspected donated/Civ-built homes (recommended), or immediately require
+every old home to qualify. Existing enrollment rewrites bed-group capacity; simply
+adding P4 capacity would be overwritten/double-counted. No silent transition is
+enabled. Next is the chosen capacity/enrollment reconciliation and live assignment.
+
 ## 2026-10-20 — player-facing single-home donation permission
 
 Continued after the covered-home checkpoint0c6abdd (pushed). Added PaperHomeDonation:

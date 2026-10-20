@@ -20,6 +20,15 @@ A25-page living player/server handbook now documents current features and planne
 P4 controls separately, with23 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
+Saved housing assignments now preserve which whole family occupies each unit,
+prevent double-booking, and retain move/reclamation history transactionally.
+Installing this backend does not move residents or replace existing bed capacity.
+The transition for existing villages awaits a user choice. Live assignment,
+reclamation controls and automatic homes remain ahead; P4 stays4/16 (25%).
+Final focused Wrapper build:49 unit +3 packaged checks passed, including corrected
+older migration fixtures. The preceding full run's four fixture failures and
+passing rerun are recorded in DEVLOG.md; no second full-suite success is claimed.
+
 
 A read-only saved-housing inspection command now explains bed/access failures per
 unit, with shared scan limits. It cannot create a donation, assign households or

@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.6 | 20 October 2026 | Player and server owner edition
+Living draft 0.7 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline 0c6abdd plus verified single-home donation controls; household assignment remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 109 adds saved dwelling occupancy records. Single-home donation controls are available; live household assignment remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -365,7 +365,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 108 includes construction and building-consent history. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 109 includes construction, building-consent and household-occupancy history. New occupancy records begin empty; existing families and bed capacity are preserved. Live family moves and capacity replacement are not enabled. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -557,7 +557,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.6 adds explicit single-family-home donation controls. Household assignment, apartment controls and reclamation remain unfinished. Village-owned apartments defer rent and landlords.
+Edition 0.7 adds saved housing-assignment and departure records behind the scenes. Live household assignment, apartment controls and reclamation remain unfinished. Single-family-home donation permission is available. Village-owned apartments defer rent and landlords.
 
 
 ## 22 Protect a building plot

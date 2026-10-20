@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 108;
+    static final int CURRENT_VERSION = 109;
 
     @FunctionalInterface
     interface Migration {
@@ -957,7 +957,8 @@ final class SchemaMigrator {
                 ConstructionMaterialReturns::createSchema,
                 ConstructionSupplyOrders::createSchema,
                 ConstructionPublicWork::createSchema,
-                BuildingRegistry::createSchema
+                BuildingRegistry::createSchema,
+                DwellingOccupancy::createSchema
 
 
         ));
@@ -1081,6 +1082,11 @@ final class SchemaMigrator {
                 """);
     }
     // Tests can inject a failing step to verify real SQLite rollback and recovery.
+    /** Historical-schema test harness using the real ordered migrations; never performs a downgrade. */
+    static SchemaMigrator throughVersion(int version) {
+        if(version<1||version>CURRENT_VERSION)throw new IllegalArgumentException("Invalid historical schema version");
+        return new SchemaMigrator(new SchemaMigrator().migrations.subList(0,version));
+    }
     SchemaMigrator(List<Migration> migrations) {
         this.migrations = List.copyOf(migrations);
     }
@@ -1159,6 +1165,14 @@ final class SchemaMigrator {
                 requireColumns(connection,"resource_investment_reviews",Set.of("business_id","settlement_id","sequence","proposal","industry","observed_step","observed_ms","demand_value","policy","explanation"));
             }
             if(migrations.size()>=102){requireColumns(connection,"construction_material_reservations",Set.of("operation_id","draft_id","business_id","reserved_ms"));requireColumns(connection,"construction_material_items",Set.of("operation_id","commodity","units","before_units","after_units"));}
+            if(migrations.size()>=109){
+                requireColumns(connection,"dwelling_reviews",Set.of("operation_id","building_id","consent_id","fingerprint","observed_ms","recorded_ms","require_cover"));
+                requireColumns(connection,"dwelling_review_units",Set.of("review_id","unit_id","beds","issues"));
+                requireColumns(connection,"dwelling_current_reviews",Set.of("building_id","review_id"));
+                requireColumns(connection,"dwelling_assignments",Set.of("operation_id","household_id","unit_id","review_id","previous_assignment","at_ms"));
+                requireColumns(connection,"dwelling_active_occupancy",Set.of("household_id","unit_id","assignment_id"));
+                requireColumns(connection,"dwelling_departures",Set.of("operation_id","assignment_id","reason","consent_id","at_ms"));
+            }
             if(migrations.size()>=108){
                 requireColumns(connection,"building_records",Set.of("id","settlement_id","world_id","donor_id","layout_hash","layout_snapshot","min_x","max_x","created_ms"));
                 requireColumns(connection,"building_units",Set.of("id","building_id","declared_beds"));

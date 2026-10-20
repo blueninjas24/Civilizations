@@ -46,6 +46,13 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Schema109 adds separate whole-household occupancy/history and current inspected
+vacancy records. Exclusive assignments, moves, empty-household releases and
+reclamation share transactional history and safe exact retries. Existing capacity
+and families are preserved. Live assignment/capacity reconciliation is still
+pending the existing-village transition decision; this does not complete another
+milestone. See DWELLING_OCCUPANCY.md.
+
 Covered beds are now the configurable default. Complete region evidence can become
 one reviewed single-family declaration and a separate SQL-owner consent preview;
 no apartments inferred from bed count, no save on preview. A player single-home

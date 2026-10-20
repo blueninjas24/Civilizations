@@ -1,13 +1,13 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 live single-home donation permission; household assignment pending
+## Current — Phase4 saved dwelling occupancy; live capacity integration pending
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is the25-page edition0.6, with
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is the25-page edition0.7, with
 23 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
@@ -16,6 +16,20 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- Schema109 adds saved housing reviews, whole-household assignments and departure
+  history. Unit exclusivity, exact retry safety, transactional moves/reclamation,
+  current donation/cover policy and fresh complete evidence are checked. Families,
+  old capacity and all older rows remain unchanged; new tables begin empty.
+  Unknown evidence never erases occupancy. Only saved deaths of all household
+  members can release an empty unit. No Paper calls or forced chunk loading.
+  This is a SQL-owner backend, not live family relocation/capacity activation.
+  Existing bed-group transition is awaiting the user's choice; see
+  DWELLING_OCCUPANCY.md and DECISIONS_AND_OPEN_QUESTIONS.md. Reclamation UI,
+  apartment editing and vacancy-first automatic homes remain unfinished.
+  Final focused clean verify49 unit +3 packaged checks passed37.179s. Broader2143
+  run passed2139 and exposed four outdated migration-fixture table lists; all four
+  were corrected and included in the passing rerun. No second full-suite/native
+  rerun is claimed; see DEVLOG.md. No actual user-server changes.
 - Players can now select explicit floor-to-roof corners (feet or exact x/y/z),
   stand at the entrance and run /civ building home <village UUID>. A bounded native
   region review leads to a separate clickable ownership declaration and saved use
