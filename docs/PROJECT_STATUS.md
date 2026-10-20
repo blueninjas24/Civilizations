@@ -1,5 +1,38 @@
 # Civilizations — implementation status and handoff
 
+## Current — P4 recovery, road-site search, funding and saved protection foundations
+
+Continuing on `codex/phase4-construction-foundation`. The first batch is backed up
+as 3f3c5f1. Added bounded deterministic road-adjacent site search, a durable ordered
+block-intent journal, read-only saved-plot protection through the SQL owner queue,
+and editable business/village construction spending eligibility in construction.yml.
+User approved owner-funded business projects, village-funded basic homes/local
+roads with food/upkeep protection, automatic nearby growth and guarded recognition
+of unmarked clear land; uncertain sites pause and existing structures/claims remain
+excluded. These approvals are intent, not claims of a completed automatic builder.
+
+Focused Wrapper clean verify passed 58 unit +3 packaged integration checks, zero
+failures/errors/skips, 37.359s. Schema 101 adds only the block journal after schema
+100 frozen drafts. Historical migration fixtures were updated for additive tables;
+version98/99/100 preservation, rollback and restart/corruption checks pass.
+Actual disposable Paper placed five blocks, retried without duplicates, reopened
+its private DB between physical write and acknowledgement, preserved a deliberately
+changed block and waited for a remote unloaded chunk without loading it. Original
+five cells restored, test tickets released, helper archived, server stopped; both
+fixture DBs passed integrity/FK/schema101 audits. This was a DB-reopen crash window,
+not a full process-restart construction acceptance or production activation.
+
+The initial physical attempt correctly waited when an empty server unloaded test
+chunks; its cleanup also failed, so the verified disposable process was stopped.
+The corrected helper holds only already-loaded test chunks and always requests
+shutdown after failure. No human server/database/world/config or main changes.
+Normal gameplay still cannot place blocks: the sole writer factory requires the
+marked localhost disposable server and an explicit test footprint. No economics
+or land approval is inferred from a draft/journal/quote. Automatic demand-to-project,
+purchases/reservations, production land recognition and building activation remain
+unwired. P4 stays25%,4/16 items,1/4 complete groups; partial work is not a finished gate.
+
+
 ## Current — Phase 4 authored-plan foundation, 25% (4/16 items, 1/4 groups)
 
 P4 runs on `codex/phase4-construction-foundation`, based on completed P3 085b351.

@@ -26,9 +26,9 @@ no land, goods, cash, workers or capacity. No existing business is activated by 
 
 Partial: a conservative pure site review and bounded main-thread read-only scan
 check air/interior space, ground support, entities and a dirt-path entrance.
-Unloaded chunks are incomplete evidence. No land approval is inferred. Existing
-saved protections are explicitly not evaluated by this preview yet, so it always
-reports missing development permission and cannot authorize work.
+Unloaded chunks are incomplete evidence. No land approval is inferred. Saved confirmed fenced-area
+protections are now evaluated through the SQL owner queue. Automatic land screening
+and current-write authority are unfinished, so a preview still cannot authorize work.
 
 ## 3. Paid staged work and useful buildings — 0/4
 
@@ -43,6 +43,35 @@ reports missing development permission and cannot authorize work.
 - [ ] Protected player land, changed blocks/entities, unavailable worlds/chunks and editor compatibility acceptance.
 - [ ] Existing P1–P3 economy/population regression plus hosted Windows/Linux green for the completed phase candidate.
 - [ ] Administrator settings/playtest guide and accurate progress/status/release candidate, with remaining survival tuning stated.
+
+## Partial work after the first gate
+
+Road-adjacent candidate search is deterministic, bounded by64 road seeds,256
+candidates and65,536 cell reviews, and explains rejected candidates. Unknown
+protection evidence blocks the search. It is not yet the live automatic land
+recognizer or a road/path expansion planner.
+
+Ordered SQLite block intents and a development-only native writer now demonstrate
+physical placement, exact retry, interrupted acknowledgement and changed-block
+conflict handling. The sole writer factory requires the marked localhost disposable
+server and explicit test bounds. No normal server writer, demolition, repair approval
+workflow, financial/material reservation or building activation is enabled.
+
+construction.yml contains approved editable funding eligibility for private business
+projects and village homes/roads, with food plus essential upkeep/committed funds
+protected. Quotes do not spend. Read-only preview checks now include saved confirmed
+fenced plots via the SQL owner, including empty plots and release history. Broader
+land recognition and current-write protection verification remain incomplete.
+
+Latest focused build:58 unit +3 packaged integrations, zero failures/errors/skips,
+37.359s. Actual private Paper: five blocks placed, exact retries, DB reopen after
+write/before ack, conflicting block retained, remote chunk stayed unloaded. Original
+cells restored, test tickets released, helper archived/server stopped, schema101
+integrity/FKs healthy. This is not a full process-restart or building acceptance.
+An earlier native fixture unloaded its targets and had failed cleanup; only that
+verified disposable process was stopped. Corrected test holds already-loaded chunks.
+No human server or main modifications. These partial results do not complete any
+additional whole gate yet; completion remains4/16 (25%).
 
 ## Evidence — first batch, October 19
 

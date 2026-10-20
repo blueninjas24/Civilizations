@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import com.blueninjas24.civilizations.database.ConstructionLandRepository.Column;
 
 /** Read-only, bounded main-thread inspection. There is deliberately no placement or approval command. */
 public final class PaperConstructionPreview extends BukkitRunnable implements CommandExecutor,TabCompleter {
@@ -20,16 +22,20 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
             Material.COBBLED_DEEPSLATE,Material.DIRT,Material.GRASS_BLOCK,Material.DIRT_PATH,Material.COARSE_DIRT,
             Material.ROOTED_DIRT,Material.ANDESITE,Material.DIORITE,Material.GRANITE,Material.SANDSTONE,Material.RED_SANDSTONE,Material.BEDROCK);
     private final PaperConstructionLibrary library;
+    private final java.util.function.BiFunction<UUID,Bounds,CompletableFuture<Set<Column>>> protectionReader;
     private final LinkedHashMap<UUID,Request> pending=new LinkedHashMap<>();
     private static final class Request {
         final UUID player,world;final ConstructionTemplate template;final Position origin;final long started;
         final ArrayDeque<Position> remaining;final Map<Position,Cell> cells=new HashMap<>();boolean incomplete;
+        CompletableFuture<Set<Column>> protections;
         Request(Player player,ConstructionTemplate template,Position origin) {
             this.player=player.getUniqueId();world=player.getWorld().getUID();this.template=template;this.origin=origin;
             started=System.currentTimeMillis();remaining=new ArrayDeque<>(ConstructionPreview.requiredCells(template,Transform.identity(),origin));
         }
     }
-    public PaperConstructionPreview(PaperConstructionLibrary library){this.library=Objects.requireNonNull(library);}
+    public PaperConstructionPreview(PaperConstructionLibrary library){this(library,null);}
+    public PaperConstructionPreview(PaperConstructionLibrary library,java.util.function.BiFunction<UUID,Bounds,CompletableFuture<Set<Column>>> protectionReader){this.library=Objects.requireNonNull(library);this.protectionReader=protectionReader;}
+    static boolean stableSupport(Material material){return SUPPORT.contains(material);}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!sender.hasPermission(PERMISSION)){sender.sendMessage("You do not have permission to preview construction.");return true;}
         if(args.length==2&&args[1].equalsIgnoreCase("templates")) {
@@ -50,7 +56,14 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
             if(forward.lengthSquared()<0.01)forward=new org.bukkit.util.Vector(0,0,1);
             location.add(forward.normalize().multiply(8));
             var origin=new Position(location.getBlockX()-template.size().x()/2,player.getLocation().getBlockY(),location.getBlockZ()-template.size().z()/2);
-            pending.put(player.getUniqueId(),new Request(player,template,origin));
+            var request=new Request(player,template,origin);
+            if(protectionReader!=null) {
+                var required=ConstructionPreview.requiredCells(template,Transform.identity(),origin);
+                var bounds=new Bounds(new Position(required.stream().mapToInt(Position::x).min().orElseThrow(),origin.y()-1,required.stream().mapToInt(Position::z).min().orElseThrow()),
+                        new Position(required.stream().mapToInt(Position::x).max().orElseThrow(),origin.y()+template.size().y()-1,required.stream().mapToInt(Position::z).max().orElseThrow()));
+                request.protections=protectionReader.apply(request.world,bounds);
+            }
+            pending.put(player.getUniqueId(),request);
             sender.sendMessage("Checking a site eight blocks ahead. Preview only; no blocks, items or money will change.");
         }catch(IllegalArgumentException|ArithmeticException invalid){sender.sendMessage("Cannot preview this plan: "+invalid.getMessage());}
         return true;
@@ -69,13 +82,19 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
                 var block=world.getBlockAt(p.x(),p.y(),p.z());
                 request.cells.put(p,new Cell(block.getType().isAir(),SUPPORT.contains(block.getType()),block.getType()==Material.DIRT_PATH,false));
             }
-            if(request.remaining.isEmpty()) {finish(player,world,request);iterator.remove();}
+            if(request.remaining.isEmpty()&&(request.protections==null||request.protections.isDone())) {finish(player,world,request);iterator.remove();}
             if(budget==0)break;
         }
     }
     private void finish(Player player,World world,Request request) {
         var bounds=ConstructionPreview.footprint(request.template,Transform.identity(),request.origin);
         boolean complete=!request.incomplete;
+        boolean protectionComplete=request.protections!=null;
+        if(protectionComplete)try {
+            var protectedColumns=request.protections.join();
+            request.cells.replaceAll((p,c)->new Cell(c.air(),c.stableSupport(),c.road(),c.protectedWork()||protectedColumns.contains(new Column(p.x(),p.z()))));
+        }catch(java.util.concurrent.CompletionException|java.util.concurrent.CancellationException failed){protectionComplete=false;player.sendMessage("Saved protection could not be checked; this site remains blocked.");}
+        if(!protectionComplete)complete=false;
         // Recheck chunk availability before the entity query, which must never load missing chunks.
         for(int x=bounds.minimum().x()>>4;x<=bounds.maximum().x()>>4;x++)for(int z=bounds.minimum().z()>>4;z<=bounds.maximum().z()>>4;z++)
             if(!world.isChunkLoaded(x,z))complete=false;
@@ -85,11 +104,11 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
         var result=ConstructionPreview.assess(request.template,Transform.identity(),request.world,request.origin,frame,null,now,30_000);
         player.sendMessage("Plan "+request.template.id()+" at "+request.origin.x()+", "+request.origin.y()+", "+request.origin.z()+": "+result.plannedBlocks()+" blocks; work "+request.template.work()+"; materials "+request.template.materials());
         player.sendMessage("Site findings: "+result.issues().stream().sorted().map(PaperConstructionPreview::explain).toList());
-        player.sendMessage("No development area is approved. Saved land protections are not checked yet. This preview cannot authorize construction; terrain must be checked again before any future work.");
+        player.sendMessage((protectionComplete?"Saved fenced-area protections checked. ":"Saved protection coverage incomplete. ")+"Automatic land eligibility is not verified yet. This preview cannot authorize construction; terrain and protection must be checked again before any future work.");
     }
     private static String explain(Issue issue){return switch(issue){
-        case NO_APPROVED_AREA->"development permission required";case WRONG_WORLD->"wrong world";
-        case STALE_OR_FUTURE->"expired observation";case INCOMPLETE->"unloaded or out-of-height cells";
+        case NO_APPROVED_AREA->"validated construction permission required";case WRONG_WORLD->"wrong world";
+        case STALE_OR_FUTURE->"expired observation";case INCOMPLETE->"incomplete terrain or saved protection evidence";
         case ENTITY_PRESENT->"entity in building space";case PROTECTED->"protected area";
         case OBSTRUCTED->"existing blocks in building space";case UNSUPPORTED->"uneven or unsupported ground";
         case ROAD_REQUIRED->"entrance needs a dirt-path connection";};}

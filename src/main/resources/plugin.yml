@@ -7,7 +7,7 @@ author: Blueninjas24
 description: Evolving, autonomous civilizations for Minecraft.
 commands:
   civ:
-    description: Civilizations pen protection, village food aid, bargaining, livestock market and administrative diagnostics.
+    description: Civilizations construction previews, pen protection, village food aid, bargaining, livestock market and administrative diagnostics.
     usage: /civ market or /civ aid [settlement UUID] or /civ bargain <emeralds|accept> [settlement UUID] or /civ barter <timber|stone|accept> [settlement UUID] or /civ debug status | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest
 permissions:
   civilizations.construction.preview:

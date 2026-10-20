@@ -1331,6 +1331,11 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<java.util.List<UUID>> protectedPensAt(UUID world,int y,int x,int z) {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.PenProtectionRepository(database.getConnection()).atAll(world,y,x,z);});
     }
+    /** Immutable saved-claim view for read-only main-thread construction inspection; never grants land rights. */
+    public CompletableFuture<java.util.Set<com.blueninjas24.civilizations.database.ConstructionLandRepository.Column>> constructionProtections(
+            UUID world,com.blueninjas24.civilizations.construction.ConstructionPreview.Bounds bounds) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionLandRepository(database.getConnection()).protectedColumns(world,bounds);});
+    }
     /** Actual loaded-world name captured by the trusted Paper adapter; unknown worlds need no town. */
     public CompletableFuture<com.blueninjas24.civilizations.industry.PenProtection> protectPen(
             com.blueninjas24.civilizations.industry.PenProtection pen,boolean authorized,String worldName) {

@@ -1,0 +1,27 @@
+# Construction budget prototype. Money is in hundredths of an emerald: 100 = 1 emerald.
+# These are eligibility limits, not automatic charges or permission to place blocks.
+# Physical work is currently restricted to marked disposable tests; editing this file cannot enable it.
+# Existing materials are not charged again. Future purchases must pay a real supplier.
+# No separate construction wage/personal-wallet system is introduced.
+format: 1
+business:
+  enabled: true
+  # Preserve operating cash plus the larger of upkeep reserve and known essential obligations.
+  minimum-cash: 500
+  food-reserve-periods: 0
+  cash-per-food-unit: 200
+  essential-upkeep-reserve: 500
+  maximum-purchase: 10000
+  per-period-limit: 20000
+  purposes: [storage, workshop, dock]
+village:
+  enabled: true
+  # Protect max(minimum cash, demand * food periods * price), PLUS essential upkeep.
+  # Existing committed obligations are protected in addition to these amounts.
+  minimum-cash: 2500
+  food-reserve-periods: 2
+  cash-per-food-unit: 200
+  essential-upkeep-reserve: 1000
+  maximum-purchase: 5000
+  per-period-limit: 5000
+  purposes: [home, path]

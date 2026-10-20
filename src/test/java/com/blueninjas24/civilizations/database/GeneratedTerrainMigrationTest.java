@@ -42,6 +42,8 @@ class GeneratedTerrainMigrationTest {
             new SchemaMigrator().migrate(connection);
             assertEquals(SchemaMigrator.CURRENT_VERSION, scalar(connection, "PRAGMA user_version"));
             Map<String, List<List<String>>> after = snapshot(connection, "");
+            for(var additive:List.of("construction_drafts","construction_block_journal"))
+                assertEquals(List.of(),after.remove(additive),"Later construction additions must start empty");
             assertEquals(before.size() + 1, after.size());
             List<List<String>> newTable = after.remove("generated_resource_chunks");
             assertEquals(List.of(), newTable);

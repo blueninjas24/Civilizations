@@ -16,11 +16,21 @@ public final class PaperConstructionLibrary {
     private static final Set<Material> SUPPORTED=Set.of(Material.COBBLESTONE,Material.OAK_PLANKS,
             Material.OAK_LOG,Material.BARREL,Material.OAK_DOOR);
     private final Map<String,ConstructionTemplate> templates;
+    private final com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding;
     public PaperConstructionLibrary(Map<String,ConstructionTemplate> templates) {
+        this(templates,com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy.prototype());
+    }
+    private PaperConstructionLibrary(Map<String,ConstructionTemplate> templates,com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding) {
         this.templates=Collections.unmodifiableMap(new TreeMap<>(templates));
+        this.funding=Objects.requireNonNull(funding);
     }
     public static PaperConstructionLibrary load(JavaPlugin plugin)throws IOException,org.bukkit.configuration.InvalidConfigurationException {
         requireMainThread();var result=new TreeMap<String,ConstructionTemplate>();
+        Path settings=plugin.getDataFolder().toPath().resolve("construction.yml");
+        if(!Files.exists(settings))plugin.saveResource("construction.yml",false);
+        if(Files.isSymbolicLink(settings)||!Files.isRegularFile(settings)||Files.size(settings)>65_536)throw new IOException("Invalid construction.yml");
+        var yaml=new org.bukkit.configuration.file.YamlConfiguration();yaml.load(settings.toFile());
+        var funding=ConstructionBudgetConfiguration.read(yaml);
         for(String file:List.of("starter_path.yml","starter_storehouse.yml")) {
             String resource="construction/"+file;Path path=plugin.getDataFolder().toPath().resolve(resource);
             if(!Files.exists(path))plugin.saveResource(resource,false);
@@ -32,9 +42,10 @@ public final class PaperConstructionLibrary {
             // All eight orientations must validate before a template is offered to an administrator.
             for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true))prepare(template,new Transform(rotation,mirror));
         }
-        return new PaperConstructionLibrary(result);
+        return new PaperConstructionLibrary(result,funding);
     }
     public Map<String,ConstructionTemplate> templates(){return templates;}
+    public com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding(){return funding;}
     /** Resolve native block states on the server thread. Returned records contain no mutable Paper state. */
     public static ConstructionTemplate prepare(ConstructionTemplate template,Transform transform) {
         requireMainThread();var states=new HashMap<String,String>();var stages=new ArrayList<Stage>();

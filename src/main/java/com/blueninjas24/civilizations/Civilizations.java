@@ -163,7 +163,7 @@ public final class Civilizations extends JavaPlugin {
             pens.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(pens,this);
             try {
                 construction=new com.blueninjas24.civilizations.paper.PaperConstructionPreview(
-                        com.blueninjas24.civilizations.paper.PaperConstructionLibrary.load(this));
+                        com.blueninjas24.civilizations.paper.PaperConstructionLibrary.load(this),population::constructionProtections);
                 construction.runTaskTimer(this,1,1);
             }catch(IOException|InvalidConfigurationException|IllegalArgumentException invalid) {
                 getLogger().log(Level.WARNING,"Construction previews disabled; fix construction/*.yml and restart. Population and economy remain active.",invalid);

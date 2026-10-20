@@ -1,5 +1,37 @@
 # Civilizations Development Log
 
+## 2026-10-19 — P4 ordered writes, native recovery and editable budget foundation
+
+Added bounded deterministic infill search beside observed roads, saved before/after
+block intents and a development-only native step writer. Schema101 appends journal
+storage; schema100 drafts remain unchanged. Exact retries preserve identity, prior
+blocks must be acknowledged, stale/changed geometry/materials fail closed, conflicts
+stay recorded and future work waits on unavailable world/chunk/authority/entity
+safety. The normal plugin has no placement command or automatic writer activation.
+
+Actual marked Paper fixture placed five blocks, retried exactly, reopened SQL after
+write/before ack, retained a changed block as a conflict, and left a remote target
+unloaded. Originals restored, test-only already-loaded chunk tickets released,
+helper archived/server stopped. Both private DBs healthy/FK-clean at schema101.
+An earlier fixture unloaded before writing; its cleanup failed and only that
+verified disposable process was terminated. Corrected helper preserves its target
+chunks without changing the production no-force-load rule. No human server touched.
+
+User approved protected configurable funding, automatic nearby land growth and
+bounded recognition of unmarked clear land. Added commented construction.yml and
+strict spending-quote policy: food PLUS upkeep/commitments protected, real purchases
+only, owned materials not charged twice, no new wages or wallets. Saved confirmed
+fenced plots now feed read-only previews through the SQL owner queue, including
+empty plots and released-claim history. These are not general claim-plugin hooks
+or a completed automatic land recognizer. Updated additive historical test fixtures.
+
+Focused Wrapper clean verify58 unit +3 packaged integrations passed37.359s,
+zero failures/errors/skips. Native placement evidence predates only the additive
+budget/protection-preview follow-up; those follow-ups have focused unit/build checks.
+P4 remains4/16 (25%); demand/funding/work/site/activation/physical lifecycle gates
+are still open. Main remains unchanged. Feature backup/hosted results follow.
+
+
 ## 2026-10-19 — Phase 4 authored-plan foundation
 
 Started `codex/phase4-construction-foundation` from P3 085b351 after verifying

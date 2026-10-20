@@ -1,5 +1,26 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October 19 — P4 funding and automatic land recognition approved
+
+User explicitly selected:
+- Existing businesses fund their own buildings/upgrades from real cash/materials;
+  villages fund basic homes/local roads after protecting food and essential upkeep.
+  Keep terms editable. Owned materials are not charged again; a spending quote
+  grants no funds, materials or site rights. No new personal-wallet/wage rule.
+- Villages should grow automatically onto suitable nearby land, rather than needing
+  admin-approved building areas for ordinary gameplay. The disposable-test-only
+  physical boundary remains in force until production protection is implemented.
+- Bounded recognition may treat unmarked clear land as available after checks for
+  buildings, farms, fences and saved protection. Minecraft cannot identify who
+  cleared an old empty field. Reserved empty plots can use the existing confirmed
+  fenced-area protection; uncertainty pauses rather than approving missing evidence.
+
+Saved protected plot columns are conservatively excluded vertically for construction,
+including empty plots; this changes no existing livestock ownership or release rules.
+Released claims retain history. No new general land-claim command, political ownership
+system, block demolition permission or third-party claim-plugin integration is implied.
+
+
 ## October 19 — Phase 4 foundation approved; physical authority remains bounded
 
 User authorized proceeding to P4 while human P3 playtesting is deferred, configurable
