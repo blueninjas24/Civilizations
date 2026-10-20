@@ -61,6 +61,25 @@ class PopulationSessionTest {
             var saved=await(session.confirmBuildingConsent(player,world,preview.token(),true,true,true,false));
             assertFalse(saved.administrator());
             assertEquals(saved,await(session.confirmBuildingConsent(player,world,preview.token(),true,true,true,false)));
+            assertEquals(layout,await(session.buildingInspectionLayout(layout.id(),player,false,world)).layout());
+            assertThrows(ExecutionException.class,()->await(session.buildingInspectionLayout(layout.id(),new UUID(0,99),false,world)));
+            assertEquals(layout,await(session.buildingInspectionLayout(layout.id(),new UUID(0,99),true,world)).layout());
+            assertThrows(ExecutionException.class,()->await(session.buildingInspectionLayout(layout.id(),player,false,new UUID(0,99))));
+            assertThrows(ExecutionException.class,()->await(session.buildingInspectionLayout(new UUID(0,99),player,false,world)));
+            var cells=new java.util.HashMap<com.blueninjas24.civilizations.construction.ConstructionTemplate.Position,
+                    com.blueninjas24.civilizations.construction.DwellingInspection.Cell>();
+            for(var position:com.blueninjas24.civilizations.construction.DwellingInspection.requiredCells(layout))cells.put(position,
+                    com.blueninjas24.civilizations.construction.DwellingInspection.Cell.of(position.y()==64?
+                            com.blueninjas24.civilizations.construction.DwellingInspection.Type.SUPPORT:
+                            com.blueninjas24.civilizations.construction.DwellingInspection.Type.PASSABLE));
+            for(var bed:unit.beds()) {
+                cells.put(bed.foot(),com.blueninjas24.civilizations.construction.DwellingInspection.Cell.bed(false,"minecraft:white_bed",bed.facing()));
+                cells.put(bed.head(),com.blueninjas24.civilizations.construction.DwellingInspection.Cell.bed(true,"minecraft:white_bed",bed.facing()));
+            }
+            var observation=new com.blueninjas24.civilizations.construction.DwellingInspection.Observation(world,layout.fingerprint(),1000,true,cells);
+            assertEquals(1,await(session.inspectBuildingBeds(layout,observation,1000)).accessibleBeds());
+            assertEquals(saved,await(session.buildingInspectionLayout(layout.id(),player,false,world)).latest());
+            assertNull(session.status().failure());
             var reclaim=await(session.previewBuildingReclamation(player,world,layout.id(),true,false));
             assertEquals(com.blueninjas24.civilizations.database.BuildingRegistry.Action.RECLAIM,
                     await(session.confirmBuildingConsent(player,world,reclaim.token(),false,true,true,false)).action());

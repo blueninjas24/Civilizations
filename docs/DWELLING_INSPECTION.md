@@ -3,7 +3,8 @@
 Implemented components: HomeBuildingLayout, DwellingInspection and the incremental
 PaperDwellingSurvey adapter. These assess declared layouts; they do not discover
 apartments, grant consent, register occupancy or add settlement housing capacity.
-No command or normal simulation task currently schedules these surveys.
+/civ building inspect <building UUID> now schedules read-only diagnostics for
+already registered housing. No automatic simulation task activates housing.
 
 ## Authored home declarations
 
@@ -84,3 +85,29 @@ remote chunks remained unloaded; absent worlds stayed incomplete. Restored144
 original cells, stopped the private server and archived its helper. Read-only
 post-stop audit found schema108 integrity/FKs healthy and empty building tables.
 No donation, occupancy, population capacity or earned construction was activated.
+
+## Read-only inspection command - October20
+
+PaperDwellingReview queues at most4 requests, one per actor. All requests share
+one256-cell advance per tick, never a per-player multiplier. A request expires
+at30 seconds; disconnect, world changes and permission loss discard pending output.
+Only the saved donor or a current building administrator may inspect. Registry
+lookup and bounded pure path review run on PopulationSession's owner worker;
+Paper reads and current player facts stay on the server thread. No chunk is loaded.
+
+The report gives aggregate accessible beds and up to8 individual-unit results,
+with readable bed/support/headroom/entrance/path reasons. Missing world/chunk/cell
+evidence is unverified; no result mutates consent, occupancy or village capacity.
+The existing building protection permission grants access only subject to saved
+ownership, not permission to inspect another player's home. Read-only review is
+also allowed after reclamation; this does not reinstate donation rights.
+
+This is for saved layouts, not arbitrary beds or a new donation workflow. Existing
+servers without registered layouts receive an explicit unknown-building response.
+Roof/enclosure choice, edit-aware revalidation and live assignments remain ahead.
+Focused Wrapper clean verify passed47 unit +3 packaged checks in30.231s, zero
+failures/errors/skips. Four new adapter checks cover queue/global budget, current
+authority/world/disconnect/expiry/close, partial evidence, failures and diagnostic
+results. Expanded temporary-SQLite owner checks verify saved donor/admin lookup,
+wrong world/unknown identity refusal and read-only assessment preserving consent.
+No new native Paper run was performed for this orchestration batch.

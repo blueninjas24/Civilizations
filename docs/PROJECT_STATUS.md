@@ -1,13 +1,13 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 live off-limits plot controls; housing qualification decision pending
+## Current — Phase4 live plot controls and saved-housing diagnostics; housing qualification pending
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is the24-page edition0.3, with
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is the24-page edition0.4, with
 22 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
@@ -16,6 +16,17 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- /civ building inspect <building UUID> now orchestrates read-only saved-housing
+  diagnosis for the recorded donor/current administrator in the building's world.
+  All players share256 cell reads/tick and at most4 requests; expiry, disconnect,
+  world/permission changes and missing chunks cannot become occupancy/capacity loss.
+  Main-thread block evidence is reviewed on the SQL-owner worker, with per-unit
+  reasons and capped chat output. No fresh donation/assignment is enabled; servers
+  without registered layouts receive an explicit unknown-building response.
+  Focused clean verify passed47 unit +3 packaged checks in30.231s, no failures,
+  errors or skips. Four new adapter checks and expanded temporary-SQLite owner
+  coverage passed. No new native Paper run or full-suite claim for this batch.
+  Schema108 unchanged; no user-server deployment or real-world/save changes.
 - Players now have explicit off-limits plot controls: /civ building corner1/corner2,
   outlined protect/preview, clickable ownership confirmation, here, release with
   separate confirmation, and cancel. [Civ Building] + protect sign requests the
@@ -33,8 +44,7 @@ Implemented and verified:
   Focused clean verify passed56 unit +3 packaged checks in33.211s, zero failures,
   errors or skips. Native Paper proof passed before the final tested overlap/retry
   guards; an extra native rerun was blocked by account approval-review usage limits.
-  Latest batch remains local/uncommitted until Git write/push approval review is
-  available; last recorded feature-branch backup is6d1499e.
+  Plot controls are committed/pushed at ec4d74e. GitHub main remains unchanged.
   See BUILDING_PROTECTION.md. Covered sleeping-area eligibility is awaiting the
   user's choice before live housing assignment; bed/access proof alone grants no capacity.
 - The approved player-declaration policy now has an SQL-owner confirmation workflow:

@@ -1,5 +1,28 @@
 # Civilizations Development Log
 
+## 2026-10-20 — bounded live saved-housing inspection reports
+
+Completed the previously local plot-controls commit ec4d74e and pushed it to the
+existing feature branch; main unchanged. Added PaperDwellingReview and routed
+/civ building inspect <building UUID> through the live building controller.
+Saved donor/current admin only, saved world only. Four total requests, one per
+actor and one shared256-cell/tick advance keep Paper work bounded. SQL layout
+lookup and pure path review stay on PopulationSession's worker. Results explain
+per-unit bed/access issues, cap chat output and explicitly distinguish accessible
+beds from roof qualification, consent, occupancy and usable housing capacity.
+Missing chunks and other incomplete evidence never erase housing state. No new
+donation/assignment, normal construction, database migration or server deployment.
+
+Four new adapter tests and expanded temporary-SQLite owner checks cover global
+budget/queue limits, authority/world/disconnect/expiry, close, partial evidence,
+failures and retained consent. `.\mvnw.cmd -Dtest=PaperDwellingReviewTest,PaperBuildingProtectionTest,DwellingInspectionTest,HomeBuildingLayoutTest,PopulationSessionTest clean verify`
+passed47 unit +3 packaged integration checks in30.231s, zero failures/errors/skips.
+No full-suite or new native Paper check claimed. Schema108 remains unchanged.
+Updated inspection/status/progress/checklist notes and living guide0.4 alongside
+the new command. Rendered/reviewed all24 pages, checked22 linked chapter bookmarks
+and consistent0.4 footers; no overflow remains. Roof eligibility remains a blocking choice before live assignment;
+free third-party templates are optional and do not block the original plans.
+
 ## 2026-10-20 — live explicit off-limits building plots
 
 Added PaperBuildingProtection and BuildingProtectionSettings, routed through

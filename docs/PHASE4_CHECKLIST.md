@@ -46,6 +46,13 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Saved housing now has a read-only /civ building inspect report for the recorded
+owner/admin in the saved world. One global256-cell/tick budget, four requests and
+expiry/current-authority checks bound live work. Separate per-unit bed/access
+results never activate housing, register a donation or erase prior capacity on
+incomplete evidence. Full qualification/assignment still awaits the roof decision.
+No additional whole milestone is complete.
+
 Normal-server off-limits plot controls now select bounded corners, display a
 68-particle outline and require exact clickable ownership/release confirmation.
 Native Paper verified actual sign interaction, no claim on preview, saved full-height

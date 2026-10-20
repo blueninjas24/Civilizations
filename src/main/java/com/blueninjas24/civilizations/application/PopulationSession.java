@@ -1361,6 +1361,29 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Void> cancelBuildingConsent(UUID player) {
         return submit(()->{buildingConsents().cancel(player);return null;});
     }
+    /** Read-only saved-layout lookup. Recorded donor/admin only; no inference of consent or occupancy. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.BuildingRegistry.Entry> buildingInspectionLayout(
+            UUID building,UUID actor,boolean administrator,UUID currentWorld) {
+        return submit(()->{
+            requireReady();
+            var entry=new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).find(building)
+                    .orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown saved building; donation controls are still under development"));
+            requireBuildingWorld(entry.layout().world(),currentWorld);
+            if(!administrator&&!entry.donor().equals(actor))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Only its recorded donor or an administrator can inspect this layout");
+            if(entry.layout().kind()!=com.blueninjas24.civilizations.construction.BuildingLayout.Kind.HOUSING)
+                throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("This saved building is not declared housing");
+            return entry;
+        });
+    }
+    /** Pure bounded path review on the owner worker, never the server thread. No database mutation. */
+    public CompletableFuture<com.blueninjas24.civilizations.construction.DwellingInspection.Assessment> inspectBuildingBeds(
+            com.blueninjas24.civilizations.construction.BuildingLayout layout,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Observation observation,long now) {
+        return submit(()->{
+            requireBuildingWorld(layout.world(),observation.world());
+            return com.blueninjas24.civilizations.construction.DwellingInspection.inspect(layout,observation,now,30_000);
+        });
+    }
     private void requireBuildingWorld(UUID expected,UUID current)throws SQLException {
         requireReady();
         if(!expected.equals(current)||loadedWorlds==null||!loadedWorlds.contains(expected))

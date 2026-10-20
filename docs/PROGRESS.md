@@ -16,10 +16,14 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
-A23-page living player/server handbook now documents current features and planned
-P4 controls separately, with21 chapters, linked contents and command references.
+A24-page living player/server handbook now documents current features and planned
+P4 controls separately, with22 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
+
+A read-only saved-housing inspection command now explains bed/access failures per
+unit, with shared scan limits. It cannot create a donation, assign households or
+activate capacity; most servers have no registered housing layouts yet.
 
 Players can now outline and explicitly protect a selected plot using commands
 or a building-protection sign. Sign removal leaves saved protection intact; owners

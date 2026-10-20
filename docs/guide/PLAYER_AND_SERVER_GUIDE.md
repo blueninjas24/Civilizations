@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.3 | 20 October 2026 | Player and server owner edition
+Living draft 0.4 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline 6d1499e plus verified off-limits building controls; housing adoption remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline ec4d74e plus verified read-only housing inspection; housing adoption remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -131,6 +131,12 @@ The initial direction is village ownership without rent or landlords. A househol
 Authored plans would declare units, beds and entrances. Donated buildings would be inspected, with proposed units previewed for confirmation. Editable three-dimensional boundaries are proposed so upstairs and downstairs apartments can share the same ground footprint.
 
 A unit needs suitable usable capacity, a reachable entrance and non-overlapping private space. Shared access should not require crossing another household's apartment. Exact validation controls remain to be built.
+
+### Inspect saved housing
+
+/civ building inspect <building UUID> reviews an already registered housing layout in your current world. Only its recorded donor or an administrator may inspect it. It reports accessible declared beds and reasons such as broken bed pairs, blocked headroom or unreachable units. Missing chunks produce an unverified report, not lost housing.
+
+This command cannot register a new house. Donation controls remain unfinished, so most existing servers have no eligible saved layouts yet. Inspection grants no occupancy or usable capacity; roof rules and safe assignment are separate work.
 
 ### What empty means
 
@@ -550,7 +556,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.3 documents confirmed off-limits building plots, their signs, settings and commands. Housing donation/assignment remains unfinished, with covered sleeping-area eligibility still awaiting a decision. Village-owned apartments defer rent and landlords.
+Edition 0.4 adds read-only saved-housing bed/access reports alongside confirmed off-limits plots. Housing donation/assignment remains unfinished, with covered sleeping-area eligibility still awaiting a decision. Village-owned apartments defer rent and landlords.
 
 
 ## 22 Protect a building plot
@@ -576,17 +582,16 @@ Optional sign: put [Civ Building] on line one and protect on line two. Right-cli
 | /civ building protect | Outline and preview; save nothing yet |
 | /civ building preview | Same as protect |
 | /civ building here | Show active exclusion IDs here |
+| /civ building inspect <ID> | Saved housing bed/access report; donor/admin only |
 | /civ building release <ID> | Preview release of your exclusion |
 | /civ building cancel | Discard an unsubmitted selection/preview |
 | /civ building confirm <ID> owned | Manual ownership confirmation |
 | /civ building confirmrelease <token> | Manual release confirmation |
 
-Editing corners invalidates old confirmation buttons. To resize, protect a replacement first, then separately confirm release of the old exclusion. Other buildings, pens and exclusions retain their protection. Submitted saves can finish after disconnect; use here to check.
+Editing corners invalidates old buttons. Resize by protecting a replacement before confirming release of the old exclusion. Other protections remain. Submitted saves can finish after disconnect; use here to check.
 
 ### Settings and authority
 
-config.yml building-protection defaults: 4,096 columns, edge 128, 16 concurrent players, 60-second confirmations, 300-second idle selections. Old files use defaults; invalid settings disable these controls only. Restart after editing.
+config.yml building-protection defaults: 4,096 columns, edge 128, 16 players, 60-second confirmations and 300-second selections. Invalid settings disable only these controls. Restart after editing.
 
-civilizations.building.protect defaults true; civilizations.building.admin defaults op and permits confirmed release of another player's exclusion. This is not general anti-grief protection or proof of historical authorship.
-
-Related: donation and server settings. Source: BUILDING_PROTECTION.md.
+civilizations.building.protect defaults true; civilizations.building.admin defaults op and permits confirmed release of another player's exclusion. This is not general anti-grief protection or proof of authorship. See BUILDING_PROTECTION.md.

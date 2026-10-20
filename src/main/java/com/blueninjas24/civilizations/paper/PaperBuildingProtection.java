@@ -42,6 +42,8 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     private final Map<UUID,Selection> selections=new HashMap<>();private final Map<UUID,Proposal> proposals=new HashMap<>();
     private final Map<UUID,Release> releases=new HashMap<>();private final Map<UUID,Pending> pending=new HashMap<>();
     private boolean closed;
+    private CommandExecutor inspection;
+    public void configureInspection(CommandExecutor inspection){this.inspection=Objects.requireNonNull(inspection);}
     public PaperBuildingProtection(PopulationSession session,BuildingProtectionSettings settings,Logger logger) {
         this(new Owner(){public boolean ready(){return session.status().ready();}
             public CompletableFuture<Exclusion> protect(Exclusion request,String name){return session.protectBuilding(request,name,true);}
@@ -110,6 +112,10 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!(sender instanceof Player player)){sender.sendMessage("Use building protection in game.");return true;}
         if(!available(player))return true;var id=player.getUniqueId();String action=args.length>1?args[1].toLowerCase(Locale.ROOT):"";
+        if(action.equals("inspect")) {
+            if(inspection!=null)return inspection.onCommand(sender,command,label,args);
+            player.sendMessage("Building inspection is unavailable.");return true;
+        }
         prune();
         if(action.equals("cancel")&&args.length==2) {
             if(pending.containsKey(id)){player.sendMessage("A submitted save is already finishing; wait for its result.");return true;}
@@ -152,7 +158,7 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
                 submit(id,owner.release(release.operation,release.exclusion,id,player.getWorld().getUID(),release.submittedAdmin,release.submitted),value->{releases.remove(id);say(id,"Building exclusion released. Other saved protection and registered building footprints remain.");});return true;
             }
         }catch(IllegalArgumentException|ArithmeticException invalid){player.sendMessage("Building protection: "+invalid.getMessage());return true;}
-        player.sendMessage("/civ building corner1 | corner2 | protect | here | release <ID> | cancel. Previews have clickable confirmation.");return true;
+        player.sendMessage("/civ building corner1 | corner2 | protect | here | release <ID> | inspect <building ID> | cancel. Previews have clickable confirmation.");return true;
     }
     @EventHandler(priority=EventPriority.HIGH,ignoreCancelled=true)
     public void interact(PlayerInteractEvent event) {
@@ -187,7 +193,7 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
         if(!sender.hasPermission(MANAGE)&&!sender.hasPermission(ADMIN))return List.of();
-        return args.length==2?List.of("corner1","corner2","preview","protect","here","release","cancel").stream().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList():List.of();
+        return args.length==2?List.of("corner1","corner2","preview","protect","here","release","inspect","cancel").stream().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList():List.of();
     }
     @Override public void close(){closed=true;selections.clear();proposals.clear();releases.clear();pending.clear();}
 }

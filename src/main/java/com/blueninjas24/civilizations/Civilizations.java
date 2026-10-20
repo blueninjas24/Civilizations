@@ -55,6 +55,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperPenControls pens;
     private com.blueninjas24.civilizations.paper.PaperConstructionPreview construction;
     private com.blueninjas24.civilizations.paper.PaperBuildingProtection buildings;
+    private com.blueninjas24.civilizations.paper.PaperDwellingReview dwellingReview;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
     private com.blueninjas24.civilizations.paper.PaperFisheryStartup fisheryStartup;
@@ -165,6 +166,8 @@ public final class Civilizations extends JavaPlugin {
             try {
                 var buildingSettings=com.blueninjas24.civilizations.paper.BuildingProtectionSettings.read(getConfig());
                 buildings=new com.blueninjas24.civilizations.paper.PaperBuildingProtection(population,buildingSettings,getLogger());
+                dwellingReview=new com.blueninjas24.civilizations.paper.PaperDwellingReview(population,getLogger());
+                buildings.configureInspection(dwellingReview);dwellingReview.runTaskTimer(this,1,1);
                 buildings.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(buildings,this);
             }catch(IllegalArgumentException invalid){getLogger().log(Level.WARNING,"Building protection disabled; fix building-protection settings and restart.",invalid);}
             try {
@@ -284,6 +287,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(dwellingReview!=null){dwellingReview.cancel();dwellingReview.close();}
         if(buildings!=null){buildings.cancel();buildings.close();}
         if(construction!=null)construction.cancel();
         if(pens!=null){pens.cancel();pens.close();}
