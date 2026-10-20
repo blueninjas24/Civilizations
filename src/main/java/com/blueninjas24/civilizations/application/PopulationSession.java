@@ -1336,6 +1336,31 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Boolean> recordPhysicalDeath(UUID world, UUID entity, long observedMillis, String reason) {
         return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
     }
+    private BuildingConsentRequests buildingConsentRequests;
+    private BuildingConsentRequests buildingConsents()throws SQLException {
+        requireReady();
+        if(buildingConsentRequests==null)buildingConsentRequests=new BuildingConsentRequests(
+                new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()),BuildingConsentRequests.Policy.prototype());
+        return buildingConsentRequests;
+    }
+    private BuildingConsentRequests.Context buildingContext(UUID player,UUID world,boolean donate,boolean reclaim,boolean administrator) {
+        return new BuildingConsentRequests.Context(player,world,donate,reclaim,administrator,loadedWorlds);
+    }
+    /** Authenticated Paper caller supplies player/world/permission facts; layout confirmation stays on SQL owner. */
+    public CompletableFuture<BuildingConsentRequests.Preview> previewBuildingDonation(UUID player,UUID world,
+            com.blueninjas24.civilizations.construction.BuildingLayout layout,boolean permitted) {
+        return submit(()->buildingConsents().donation(buildingContext(player,world,permitted,false,false),layout,now.getAsLong()));
+    }
+    public CompletableFuture<BuildingConsentRequests.Preview> previewBuildingReclamation(UUID player,UUID world,UUID building,boolean permitted,boolean administrator) {
+        return submit(()->buildingConsents().reclamation(buildingContext(player,world,false,permitted,administrator),building,now.getAsLong()));
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.BuildingRegistry.Consent> confirmBuildingConsent(
+            UUID player,UUID world,UUID token,boolean declaresOwnership,boolean mayDonate,boolean mayReclaim,boolean administrator) {
+        return submit(()->buildingConsents().confirm(buildingContext(player,world,mayDonate,mayReclaim,administrator),token,declaresOwnership,now.getAsLong()));
+    }
+    public CompletableFuture<Void> cancelBuildingConsent(UUID player) {
+        return submit(()->{buildingConsents().cancel(player);return null;});
+    }
     /** Trusted adapter supplies fresh enclosure/animal/authority evidence; no Bukkit objects cross threads. */
     public CompletableFuture<com.blueninjas24.civilizations.industry.PenProtection> protectPen(
             com.blueninjas24.civilizations.industry.PenProtection pen,boolean authorized) {
@@ -1551,7 +1576,8 @@ public final class PopulationSession implements AutoCloseable {
                 } catch (Exception failure) {
                     if (failure instanceof SQLException && !(failure instanceof EconomyRuntimeRepository.PurchaseDeclined)
                             && !(failure instanceof com.blueninjas24.civilizations.database.BusinessSales.Declined)
-                            && !(failure instanceof com.blueninjas24.civilizations.database.PenProtectionLifecycle.Declined)) reportFailure(failure);
+                            && !(failure instanceof com.blueninjas24.civilizations.database.PenProtectionLifecycle.Declined)
+                            && !(failure instanceof com.blueninjas24.civilizations.database.BuildingRegistry.Declined)) reportFailure(failure);
                     result.completeExceptionally(failure);
                 }
                 finally { queued.decrementAndGet(); }

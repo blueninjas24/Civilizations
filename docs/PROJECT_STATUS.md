@@ -7,7 +7,7 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is the23-page edition0.1, with
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is the23-page edition0.2, with
 21 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
@@ -16,14 +16,24 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- The approved player-declaration policy now has an SQL-owner confirmation workflow:
+  one exact player/layout/token, bounded expiring previews, separate explicit
+  ownership affirmation, present-world/current-permission checks and saved-donor
+  reclamation. Replaced previews, intervening consent changes and new protection
+  cannot be bypassed. Failed saves retry one frozen operation; exact old success
+  replay never restores later-revoked rights. Expected refusals do not mark the
+  population simulation failed. No first-donation administrator requirement.
+  Focused Wrapper clean verify39 unit +3 packaged checks passed32.970s, no failures,
+  errors or skips; includes six new request tests and an owner-queue integration
+  check. No schema change (108), native Paper change, live sign or housing activation.
 - Schema108 adds frozen building/unit registrations, append-only donation/reclaim
   history, explicit old-building exclusions and authorized release receipts.
   Stale/changed/unauthorized confirmations fail; exact retries cannot restore a
   later-reclaimed donation or released exclusion. Construction protection includes
   saved building plots even after reclamation. No household capacity or title is
   changed. This is a trusted-owner backend, not working donation signs/commands;
-  authority for the first donation of unknown-owner old buildings is awaiting the
-  user's choice. See BUILDING_REGISTRY.md and DECISIONS_AND_OPEN_QUESTIONS.md.
+  players explicitly declaring ownership for first donation is approved; no mandatory
+  first-donation administrator approval. See BUILDING_REGISTRY.md and DECISIONS_AND_OPEN_QUESTIONS.md.
 - Bed/access inspection now checks complete fresh world/layout evidence, actual
   paired beds/support/headroom, per-unit access through shared space and supported
   steps without crossing another household's rooms. The existing four-bed home

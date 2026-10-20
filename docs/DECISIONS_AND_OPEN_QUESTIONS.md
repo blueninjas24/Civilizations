@@ -1,15 +1,21 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October20 — open: authority for first donation of old buildings
+## October20 — players may declare ownership for first building donation
 
-Before enabling building-donation signs, decide who may confirm ownership when
-Minecraft has no reliable building-author record. Recommendation: require an
-administrator's review for the first donation of an unrecorded structure, then
-retain the confirmed donor for later reclamation. Alternative: accept a player's
-explicit declaration after protection checks, accepting the risk that unmarked
-old buildings belong to someone else. Asked the user; answer pending. No live
-sign/claim adapter is enabled while this is unresolved. Backend authorization
-assertions are trusted adapter inputs, never proof supplied directly by a client.
+User selected players, rather than mandatory administrator approval, for the first
+explicit donation of an old/unrecorded building. An authenticated player must
+explicitly declare that the building belongs to them and confirm the reviewed
+scope. Minecraft does not prove historical authorship; this is the approved trust
+policy. A sign alone still grants nothing. Retain overlap/protection checks, exact
+preview/layout identity, recorded donor and reclamation history. Self-declaration
+cannot override another saved donor, active protected pen, registered building,
+reserved construction or explicit exclusion. Administrators may resolve disputes;
+this is not a general anti-grief system or third-party claim-plugin integration.
+
+Implemented backend: player-bound expiring donation/reclamation previews, a separate
+explicit ownership declaration, current world/permissions and protection checks,
+expected prior-consent matching and bounded exact retries on the SQL owner. Live
+building signs/boundary controls and housing assignment are not yet enabled.
 
 ## October20 — village owned apartments without rent and a living user handbook
 

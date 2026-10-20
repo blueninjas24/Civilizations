@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.1 | 20 October 2026 | Player and server owner edition
+Living draft 0.2 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 107. Application baseline c888e9d; documentation reviewed through ff042b6. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline ae1971f plus verified player-declaration workflow; live building controls remain unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -145,7 +145,7 @@ Status: Approved P4 direction. General building donation, exclusion, plot editin
 
 Player-built homes, workplaces and decorative buildings are off limits without a clear confirmed donation. Beds, workstations and location inside a village are not consent. Old uncertain structures must not be guessed into permission.
 
-The proposed flow is to mark a donation, declare its intended use, inspect the footprint and confirm its scope. Final sign names and commands are not defined. Examples discussed during design are not working instructions.
+Players will explicitly declare that an unrecorded building belongs to them; first donation will not require admin approval. This trust policy cannot override another recorded donor or saved protection. A sign alone grants nothing. The proposed flow is to mark the donation, declare its use, inspect the footprint and confirm its scope. Final sign names and commands remain unfinished.
 
 ### Boundaries and extra protection
 
@@ -357,7 +357,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 107 includes construction history. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 108 includes construction and building-consent history. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -549,4 +549,4 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.1 introduces this handbook and command reference. It records village-owned apartments without rent/landlords as design direction; apartment controls are not implemented. Producing the guide changes no gameplay, world or database.
+Edition 0.2 records player-declared first-donation ownership, current schema 108 and the verified consent workflow. Live donation/plot controls and housing assignment remain unfinished. Village-owned apartments still defer rent and landlords.

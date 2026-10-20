@@ -1,5 +1,31 @@
 # Civilizations Development Log
 
+## 2026-10-20 — player-declared ownership and bounded consent confirmation
+
+Recorded the user's players choice: authenticated players explicitly declare that
+an old/unrecorded building belongs to them; first donation does not require admin
+approval. No inferred authorship or bypass of saved donor/protection/overlap rules.
+Added BuildingConsentRequests with player-bound immutable-layout previews, bounded
+expiry/replacement/cancellation, explicit declaration at confirmation, present-world
+and current-permission gates, exact previous-consent checks and frozen retry identity.
+Registry provides read-only preflight and distinguishes expected Declined conflicts
+from actual database/corruption failures. PopulationSession exposes queued data-only
+preview/confirm/cancel APIs and does not report expected refusals as simulation failure.
+No live sign/selection UI, occupancy/capacity, block, inventory or money changes.
+
+Six new temporary-database request tests and one owner-queue integration check cover
+non-admin declarations, wrong actors/tokens/worlds, lost permissions/expiry/cancel,
+late protection, SQL rollback and later retry, stale reclamation/redonation and
+bounded requests. `.\mvnw.cmd -Dtest=BuildingConsentRequestsTest,BuildingRegistryTest,PopulationSessionTest clean verify`
+passed39 unit +3 packaged checks in32.970s, no failures/errors/skips. Schema108
+unchanged; preceding full schema/native checkpoint retained, no redundant rerun.
+Updated canonical decision/status/progress/checklist and registry notes. Updated
+the living handbook to0.2 with the player declaration policy and current schema,
+keeping sign/plot/assignment controls explicitly unfinished. Rendered and visually reviewed all23 final PDF pages; checked21 linked chapter
+bookmarks and matching0.2 footers on every page. Fixed the builder to derive edition/
+date from the source rather than a stale hardcoded footer. No user-server/save/main changes. Next: live boundary
+preview and confirmed building controls, then transactional housing assignment.
+
 ## 2026-10-20 — saved building consent and real dwelling bed/access inspection
 
 Added schema108 BuildingRegistry: immutable hashed building/layout/unit identity,

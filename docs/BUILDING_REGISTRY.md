@@ -2,9 +2,11 @@
 
 BuildingRegistry is a SQL-owner backend, not a player command or sign handler.
 It records an explicitly reviewed donation without pretending to authenticate
-the caller or inspect Minecraft blocks. Its Authorization input must come from
-a trusted adapter after identity, ownership rights and confirmation are checked.
-A sign by itself is not proof that its placer owns an old building.
+the caller or inspect Minecraft blocks. User approved players explicitly declaring
+ownership for the first donation of an unrecorded building; administrator approval
+is not mandatory. A trusted adapter must verify the authenticated actor, permissions,
+reviewed scope and separate ownership declaration. This is the approved trust policy,
+not proof of old Minecraft authorship. A sign alone grants no consent.
 
 ## Retained identity and consent
 
@@ -71,3 +73,34 @@ late-transaction rollback, corrupted snapshots/indexes and107-to108 migration
 failure/retry. Schema checkpoint clean verify2096 unit +3 packaged checks passed;
 final combined inspection/registry clean verify49 +3 passed26.678s, no failures,
 errors or skips. No actual server database was modified.
+
+## Player confirmation workflow
+
+BuildingConsentRequests runs on the SQL owner. Defaults cap64 pending actors with
+one60-second preview each; these technical limits are injectable policy, not a new
+live configuration section. A preview freezes the authenticated player, permanent
+world/building identity, exact immutable layout, recorded donor and previous consent.
+A new preview replaces that actor's old token. Previewing writes no registration.
+
+Confirmation requires the matching actor/token, the building's present world,
+current permission and an explicit ownership declaration for donation. Reclamation
+uses the saved donor or current administrator authority. A non-admin player can
+donate without admin review; a declaration cannot replace an already recorded donor.
+Registry protection and expected consent are checked again in the save transaction.
+Expected conflicts use Declined, distinct from database/corruption failures; they
+do not mark population simulation health failed. An actual database failure retains
+one frozen operation/time/authority for safe retry, while a definitive declined
+transaction can be freshly confirmed within the remaining preview lifetime.
+
+PopulationSession exposes only queued immutable-data preview/confirm/cancel APIs;
+no Bukkit object crosses the owner boundary. Preview state is temporary, bounded
+and lost safely on restart; saved consent stays durable. Old completed confirmation
+replay returns its original receipt without restoring later-reclaimed permission.
+The control adapter must present receipts as historical outcomes, not proof of
+current permission or occupancy. No inventory, cash, block or housing capacity moves.
+
+Six request tests and a session-owner integration check verify the player policy,
+separate declaration, expiry/replacement/cancel, identity/world/permission refusal,
+late protection and SQL rollback/retry, donor/admin reclamation and stale redonation.
+Focused Wrapper clean verify39 unit +3 packaged checks passed32.970s, no failures,
+errors or skips. No migration or native API change required another full/native run.

@@ -9,12 +9,30 @@ import java.util.*;
 /** SQL-owner consent history. Call only after authenticated ownership/confirmation review.
  * This backend neither authenticates players nor grants block changes or usable housing capacity. */
 public final class BuildingRegistry {
+    /** Expected user/protection conflict, not a broken database or simulation failure. */
+    public static final class Declined extends SQLException { public Declined(String message){super(message);} }
     private final Connection connection;
     public BuildingRegistry(Connection connection) { this.connection = Objects.requireNonNull(connection); }
     public enum Action { DONATE, RECLAIM }
-    /** Trusted adapter assertion, never a client-supplied ownership claim. */
+    /** Trusted adapter confirms authenticated player declaration/review, never inferred from a sign alone. */
     public record Authorization(UUID actor, boolean administrator, boolean ownershipConfirmed, boolean confirmed) {
         public Authorization { Objects.requireNonNull(actor); }
+        /** User-approved policy: explicit self-declaration, not proof of an old Minecraft build's author. */
+        public static Authorization playerDeclaration(UUID actor,boolean confirmed) {
+            return new Authorization(actor,false,true,confirmed);
+        }
+    }
+
+    /** Read-only preflight. Confirmation must repeat every check in donate()'s owner transaction. */
+    public Optional<Entry> reviewDonation(BuildingLayout layout,UUID donor)throws SQLException {
+        Objects.requireNonNull(layout);Objects.requireNonNull(donor);
+        var old=find(layout.id());
+        if(old.isPresent()) {
+            if(!old.get().layout().equals(layout) || !old.get().donor().equals(donor))
+                throw new Declined("Building identity/layout/donor differs from saved registration");
+            if(old.get().latest()!=null && old.get().latest().action()==Action.DONATE)throw new Declined("Building is already donated");
+        }
+        requireClear(layout);return old;
     }
     public record Consent(UUID operation, UUID building, UUID actor, Action action, UUID previous,
                           boolean administrator, long atMillis) {}
@@ -94,12 +112,12 @@ public final class BuildingRegistry {
         return transaction(() -> {
             var prior = find(layout.id()); var replay = event(operation);
             if (prior.isPresent() && (!prior.get().layout().equals(layout) || !prior.get().donor().equals(donor)))
-                throw new SQLException("Building identity/layout/donor differs from saved registration");
+                throw new Declined("Building identity/layout/donor differs from saved registration");
             var requested = new Consent(operation,layout.id(),authority.actor(),Action.DONATE,expectedPrevious,authority.administrator(),now);
             if (replay.isPresent()) { exact(replay.get(),requested); return replay.get(); }
             Consent latest = prior.map(Entry::latest).orElse(null);
             requirePrevious(latest,expectedPrevious,now);
-            if (latest != null && latest.action() == Action.DONATE) throw new SQLException("Building is already donated");
+            if (latest != null && latest.action() == Action.DONATE) throw new Declined("Building is already donated");
             requireClear(layout);
             if (prior.isEmpty()) insert(layout,donor,now);
             append(requested); return requested;
@@ -110,12 +128,12 @@ public final class BuildingRegistry {
     public Consent reclaim(UUID operation, UUID building, Authorization authority, UUID expectedPrevious, long now) throws SQLException {
         Objects.requireNonNull(operation); Objects.requireNonNull(building); time(now);
         return transaction(() -> {
-            var saved = find(building).orElseThrow(() -> new SQLException("Unknown building"));
+            var saved = find(building).orElseThrow(() -> new Declined("Unknown building"));
             requireAuthority(authority,saved.donor(),false);
             var requested = new Consent(operation,building,authority.actor(),Action.RECLAIM,expectedPrevious,authority.administrator(),now);
             var replay = event(operation); if (replay.isPresent()) { exact(replay.get(),requested); return replay.get(); }
             requirePrevious(saved.latest(),expectedPrevious,now);
-            if (saved.latest() == null || saved.latest().action() != Action.DONATE) throw new SQLException("Building has no active donation to reclaim");
+            if (saved.latest() == null || saved.latest().action() != Action.DONATE) throw new Declined("Building has no active donation to reclaim");
             append(requested); return requested;
         });
     }
@@ -164,7 +182,7 @@ public final class BuildingRegistry {
         requireAuthority(authority,exclusion.actor(),true);
         return transaction(() -> {
             var old = exclusion(exclusion.id());
-            if (old.isPresent()) { if(!old.get().equals(exclusion)) throw new SQLException("Exclusion identity changed"); return old.get(); }
+            if (old.isPresent()) { if(!old.get().equals(exclusion)) throw new Declined("Exclusion identity changed"); return old.get(); }
             try (var s = connection.prepareStatement("INSERT INTO building_exclusions VALUES(?,?,?,?,?,?,?,?,?,?)")) {
                 s.setString(1,exclusion.id().toString());s.setString(2,exclusion.world().toString());s.setString(3,exclusion.actor().toString());
                 bindBounds(s,4,exclusion.bounds());s.setLong(10,exclusion.createdMillis());s.executeUpdate();
@@ -176,15 +194,15 @@ public final class BuildingRegistry {
     public void releaseExclusion(UUID operation, UUID exclusion, Authorization authority, long now) throws SQLException {
         Objects.requireNonNull(operation); time(now);
         transaction(() -> {
-            var saved = exclusion(exclusion).orElseThrow(() -> new SQLException("Unknown exclusion"));
+            var saved = exclusion(exclusion).orElseThrow(() -> new Declined("Unknown exclusion"));
             requireAuthority(authority,saved.actor(),false);
-            if(now < saved.createdMillis()) throw new SQLException("Exclusion release precedes protection");
+            if(now < saved.createdMillis()) throw new Declined("Exclusion release precedes protection");
             try (var s = connection.prepareStatement("SELECT * FROM building_exclusion_releases WHERE operation_id=? OR exclusion_id=?")) {
                 s.setString(1,operation.toString());s.setString(2,exclusion.toString());try(var r=s.executeQuery()) {
                     if(r.next()) {
                         if(!operation.toString().equals(r.getString("operation_id")) || !exclusion.toString().equals(r.getString("exclusion_id"))
                                 || !authority.actor().toString().equals(r.getString("actor_id")) || authority.administrator()!=r.getBoolean("administrator")
-                                || now!=r.getLong("released_ms")) throw new SQLException("Exclusion already released or release terms changed");
+                                || now!=r.getLong("released_ms")) throw new Declined("Exclusion already released or release terms changed");
                         return null;
                     }
                 }
@@ -208,18 +226,18 @@ public final class BuildingRegistry {
 
     private void requireClear(BuildingLayout layout) throws SQLException {
         UUID world=layout.world();Bounds b=layout.plot();
-        if(excluded(world,b)) throw new SQLException("Building plot is explicitly excluded");
+        if(excluded(world,b)) throw new Declined("Building plot is explicitly excluded");
         for(String sql:List.of(
                 "SELECT 1 FROM protected_pen_columns p JOIN active_pen_claims a ON a.pen_id=p.pen_id WHERE world_id=? AND x<=? AND x>=? AND z<=? AND z>=? LIMIT 1",
                 "SELECT 1 FROM construction_site_reservations WHERE world_id=? AND max_x>=? AND min_x<=? AND max_z>=? AND min_z<=? AND released_ms IS NULL LIMIT 1")) {
             try(var s=connection.prepareStatement(sql)) {
                 if(sql.contains("construction_site")) { s.setString(1,world.toString());s.setInt(2,b.min().x());s.setInt(3,b.max().x());s.setInt(4,b.min().z());s.setInt(5,b.max().z()); }
                 else area(s,world,b);
-                try(var r=s.executeQuery()){if(r.next()) throw new SQLException("Building plot overlaps saved protection or construction");}
+                try(var r=s.executeQuery()){if(r.next()) throw new Declined("Building plot overlaps saved protection or construction");}
             }
         }
         try(var s=connection.prepareStatement("SELECT id FROM building_records WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=? AND id<>? LIMIT 1")) {
-            area(s,world,b);s.setString(6,layout.id().toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Building plots overlap");}
+            area(s,world,b);s.setString(6,layout.id().toString());try(var r=s.executeQuery()){if(r.next())throw new Declined("Building plots overlap");}
         }
     }
     private void insert(BuildingLayout layout, UUID donor, long now) throws SQLException {
@@ -252,15 +270,15 @@ public final class BuildingRegistry {
         return new Consent(UUID.fromString(r.getString("operation_id")),UUID.fromString(r.getString("building_id")),UUID.fromString(r.getString("actor_id")),
                 Action.valueOf(r.getString("action")),previous==null?null:UUID.fromString(previous),r.getBoolean("administrator"),r.getLong("at_ms"));
     }
-    private static void exact(Consent old, Consent requested) throws SQLException { if(!old.equals(requested)) throw new SQLException("Consent operation reused with changed terms"); }
+    private static void exact(Consent old, Consent requested) throws SQLException { if(!old.equals(requested)) throw new Declined("Consent operation reused with changed terms"); }
     private static void requirePrevious(Consent latest, UUID expected, long now) throws SQLException {
-        if(!Objects.equals(latest==null?null:latest.operation(),expected)) throw new SQLException("Building consent changed; review again");
-        if(latest!=null && now<latest.atMillis()) throw new SQLException("Consent event precedes saved history");
+        if(!Objects.equals(latest==null?null:latest.operation(),expected)) throw new Declined("Building consent changed; review again");
+        if(latest!=null && now<latest.atMillis()) throw new Declined("Consent event precedes saved history");
     }
     private static void requireAuthority(Authorization authority, UUID owner, boolean requireOwnership) throws SQLException {
         Objects.requireNonNull(authority);
         if(!authority.confirmed() || (!authority.administrator() && !authority.actor().equals(owner))
-                || (requireOwnership && !authority.ownershipConfirmed())) throw new SQLException("Confirmed authenticated building authority is required");
+                || (requireOwnership && !authority.ownershipConfirmed())) throw new Declined("Confirmed authenticated building authority is required");
     }
     private static void time(long now) { if(now<0) throw new IllegalArgumentException("Negative building record time"); }
     private static void area(PreparedStatement s,UUID world,Bounds b) throws SQLException {

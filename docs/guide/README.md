@@ -3,7 +3,7 @@
 The living handbook is [PLAYER_AND_SERVER_GUIDE.md](PLAYER_AND_SERVER_GUIDE.md).
 The readable PDF is [Civilizations Player and Server Guide](../../output/pdf/Civilizations_Player_and_Server_Guide.pdf).
 
-Edition 0.1 contains a quick overview, TL DR, chapter list, 21 feature/reference
+Edition 0.2 contains a quick overview, TL DR, chapter list, 21 feature/reference
 chapters, player/admin commands, permissions, troubleshooting, server procedures,
 terms and a connected village example. Each feature identifies implemented,
 development-only or planned behavior. Donation/reclamation signs, editable building

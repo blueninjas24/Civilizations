@@ -43,6 +43,10 @@ def build(source=SOURCE, output=OUTPUT):
     text = source.read_text(encoding='utf-8')
     if any(c in text for c in '\u2010\u2011\u2012\u2013\u2014'):
         raise ValueError('Use ASCII hyphens in the handbook source')
+    edition = re.search(r'^Living draft ([0-9]+\.[0-9]+) \| ([^|\n]+) \|', text, re.MULTILINE)
+    if edition is None:
+        raise ValueError('Handbook needs an edition and date in its Living draft line')
+    footer_label = f'Civilizations | Living guide {edition.group(1)} | {edition.group(2).strip()}'
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle('GuideTitle', fontName='Helvetica-Bold', fontSize=27,
                               leading=31, textColor=colors.black, spaceAfter=15))
@@ -70,7 +74,7 @@ def build(source=SOURCE, output=OUTPUT):
         canvas.saveState()
         canvas.setFont('Helvetica', 8)
         canvas.setFillColor(colors.HexColor('#555555'))
-        canvas.drawString(47, 24, 'Civilizations | Living guide 0.1 | 20 October 2026')
+        canvas.drawString(47, 24, footer_label)
         canvas.drawRightString(letter[0] - 47, 24, str(doc.page))
         if doc.page > 1:
             canvas.setFillColor(colors.black)

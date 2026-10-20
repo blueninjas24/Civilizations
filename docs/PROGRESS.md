@@ -27,8 +27,8 @@ checks distinguish shared areas and individual homes, including supported upstai
 access. An actual disposable Minecraft check passed for the four-bed home, a broken
 bed and absent/unloaded worlds. Full schema checkpoint:2096 unit +3 packaged checks;
 final focused build:49 +3, all passed. Donation signs, live assignments and normal
-construction remain unfinished. One old-building ownership-authorization choice is
-pending. These partial gates do not change the25% milestone total.
+construction remain unfinished. Players may explicitly declare ownership for the first donation; the expiring
+preview/confirmation backend is tested. These partial gates do not change the25% milestone total.
 
 Building/unit geometry now distinguishes shared space, separate apartments and
 multi-room family homes, with overlap/bed checks and frozen layout snapshots.

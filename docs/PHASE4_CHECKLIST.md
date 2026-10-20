@@ -51,8 +51,8 @@ and explicit building exclusions/releases. Existing construction protection chec
 now include those saved plots even after reclamation. Bed/access inspection has a
 bounded loaded-only Paper adapter and passed a real disposable four-bed-home check.
 Neither component is a live donation interface, household assignment or full
-habitability/permission/write-authority gate. First-donation authority for old
-unknown-owner structures awaits the user's choice. No additional item is complete.
+habitability/permission/write-authority gate. Players may explicitly declare ownership for first donation of old
+unrecorded structures; the bounded confirmation workflow is verified. No additional item is complete.
 
 Explicit plot/building/unit geometry and bounded canonical snapshots now support
 stacked apartments, shared circulation and multi-room single-family declarations.

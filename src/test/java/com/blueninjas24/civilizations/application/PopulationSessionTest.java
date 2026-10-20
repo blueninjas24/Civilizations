@@ -15,6 +15,36 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PopulationSessionTest {
+    @Test void playerBuildingDeclarationUsesOwnerQueueAndExpectedRefusalsDoNotMarkSimulationFailed()throws Exception {
+        var world=observed().worldId();var player=new UUID(0,91);
+        try(var session=session(settings(2,12))) {
+            await(session.start(false,java.util.Set.of(world)));await(session.observe(observed()));
+            var town=session.settlementNames().keySet().iterator().next();
+            var bounds=new com.blueninjas24.civilizations.construction.BuildingLayout.Bounds(
+                    new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(100,64,0),
+                    new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(104,67,4));
+            var entrance=new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(100,65,0);
+            var unit=new com.blueninjas24.civilizations.construction.BuildingLayout.Unit(new UUID(0,92),entrance,List.of(bounds),
+                    List.of(new com.blueninjas24.civilizations.construction.BuildingLayout.Bed(
+                            new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(101,65,2),
+                            com.blueninjas24.civilizations.construction.ConstructionTemplate.Direction.EAST)));
+            var layout=new com.blueninjas24.civilizations.construction.BuildingLayout(new UUID(0,93),town,world,
+                    com.blueninjas24.civilizations.construction.BuildingLayout.Kind.HOUSING,bounds,bounds,entrance,List.of(),List.of(unit));
+            var preview=await(session.previewBuildingDonation(player,world,layout,true));
+            var refused=assertThrows(ExecutionException.class,()->await(session.confirmBuildingConsent(player,world,preview.token(),false,true,true,false)));
+            assertInstanceOf(com.blueninjas24.civilizations.database.BuildingRegistry.Declined.class,refused.getCause());assertNull(session.status().failure());
+            await(session.updateLoadedWorlds(java.util.Set.of()));
+            assertThrows(ExecutionException.class,()->await(session.confirmBuildingConsent(player,world,preview.token(),true,true,true,false)));
+            assertNull(session.status().failure());await(session.updateLoadedWorlds(java.util.Set.of(world)));
+            var saved=await(session.confirmBuildingConsent(player,world,preview.token(),true,true,true,false));
+            assertFalse(saved.administrator());
+            assertEquals(saved,await(session.confirmBuildingConsent(player,world,preview.token(),true,true,true,false)));
+            var reclaim=await(session.previewBuildingReclamation(player,world,layout.id(),true,false));
+            assertEquals(com.blueninjas24.civilizations.database.BuildingRegistry.Action.RECLAIM,
+                    await(session.confirmBuildingConsent(player,world,reclaim.token(),false,true,true,false)).action());
+            assertNull(session.status().failure());
+        }
+    }
     @Test void penProtectionAndReleaseUseOwnerQueueWithoutReportingExpectedRefusalsAsFailures()throws Exception {
         var world=observed().worldId();var player=new UUID(0,77);var penId=new UUID(0,78);
         var scan=new com.blueninjas24.civilizations.industry.PenScan(p->Math.abs(p.x())==2||Math.abs(p.z())==2
