@@ -6,6 +6,15 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
+Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is the23-page edition0.1, with
+21 feature/reference chapters, linked contents, command glossary and implemented/
+planned labels. Update it alongside user-facing feature batches using the workflow
+in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
+owned units follow the same occupancy direction as homes. No live unit control is
+claimed by documenting it.
+
+
 Implemented and verified:
 - Public construction work now runs inside actual earned food periods. Only
   eligible unemployed non-owner adults with unspent time can work; farm employees

@@ -1,5 +1,23 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October20 — village owned apartments without rent and a living user handbook
+
+User explicitly deferred rent and landlords. Initial apartments are village-owned
+housing using the same household occupancy/assignment direction as homes. The word
+acquire is interpreted as obtaining occupancy here; no private sale price, landlord
+account or property-title transfer is introduced. A later private purchase system
+would require its own economic decision. Unit recognition and live assignments
+remain unimplemented.
+
+User requested a comprehensive living how-to guide alongside development, in DOCX
+or PDF, with overview, chapters by feature, TL DR, command glossary, feature purpose,
+usage/impacts and relationships. Maintain docs/guide/PLAYER_AND_SERVER_GUIDE.md and
+regenerate output/pdf/Civilizations_Player_and_Server_Guide.pdf alongside meaningful
+user-facing changes. Include clear implementation status, troubleshooting, admin
+permissions/tuning, safe update/backup procedures and worked examples. Do not
+publish proposed signs or commands as available features. Edition0.1 is a23-page
+PDF with21 chapters, reviewed command routes and linked contents/bookmarks.
+
 ## October20 — broader P4 structure catalogue requested; apartments under discussion
 
 User explicitly agreed to include the previously proposed P4 civic/infrastructure

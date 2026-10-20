@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## 2026-10-20 — first living player and server handbook
+
+Created a23-page PDF with overview/TL DR, linked chapter list,21 feature/reference
+chapters, player/admin/protection/recovery command glossaries, terms, a connected
+village example, permissions, tuning, troubleshooting and safe update/backup
+procedures. Kept editable Markdown and a lightweight ReportLab builder in Git so
+future feature batches can update the guide rather than rewrite it. Current,
+development-only and planned behavior are explicitly separated; proposed donation,
+reclamation/plot and apartment controls are not working instructions. Recorded the
+user's no-rent/no-landlord village-owned apartment direction without adding private
+purchase accounting or changing gameplay.
+
+Used bundled Python/ReportLab/Poppler, rendered and visually inspected all23 pages,
+then re-rendered the completed recovery-command section; pixel comparison found
+only page21 changed and it was inspected at full render size. PDF checks confirmed
+23 pages,21 correctly targeted chapter bookmarks and command references. Source
+syntax/permissions were reviewed against handlers, plugin.yml and current status.
+No Maven build was needed for this documentation-only batch. No schema, world,
+server, database or gameplay code changes. P4 remains25%,4/16 checklist items.
+
 ## 2026-10-20 — record civic catalogue scope and apartment design discussion
 
 Recorded explicit user agreement to P4 civic/infrastructure extras alongside the

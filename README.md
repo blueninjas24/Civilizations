@@ -12,6 +12,14 @@ previews. Normal gameplay still cannot place blocks; guarded disposable checks c
 and the [P4 checklist](docs/PHASE4_CHECKLIST.md). P3's human survival playtest remains
 pending while protected construction foundations proceed separately.
 
+## Player and server guide
+
+Read the [living PDF handbook](output/pdf/Civilizations_Player_and_Server_Guide.pdf)
+for a TL DR, first-session walkthrough, feature chapters, command glossary and
+administration/troubleshooting. Planned housing, donation and repossession controls
+are labelled separately from working features. Its [editable source and update
+workflow](docs/guide/README.md) are maintained alongside development.
+
 ## What works now
 
 - Villages are recognized automatically from beds and villagers, including suitable

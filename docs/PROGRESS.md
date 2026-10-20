@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+A23-page living player/server handbook now documents current features and planned
+P4 controls separately, with21 chapters, linked contents and command references.
+Documentation progress does not complete a gameplay milestone.
+
+
 Design agreed: player buildings need explicit donation; donors will be able to
 reclaim donated housing, and explicit building exclusions provide extra protection.
 Those controls are planned, not implemented; no milestone percentage changes.
