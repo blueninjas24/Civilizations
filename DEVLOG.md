@@ -1,5 +1,51 @@
 # Civilizations Development Log
 
+## 2026-10-20 — saved building consent and real dwelling bed/access inspection
+
+Added schema108 BuildingRegistry: immutable hashed building/layout/unit identity,
+append-only donation/reclamation receipts with exact expected prior consent,
+trusted authenticated-confirmation assertions, explicit old-building exclusions and
+authorized once-only releases. Exact old retries cannot resurrect later-withdrawn
+rights. Registration refuses saved pens, reserved projects, exclusions and other
+building plots. Layout/unit-index corruption fails closed. Construction protection
+includes registered plots after reclaim and clips queries to the existing bounded
+footprint. Existing population, beds, funds, ownership and history are preserved;
+late failure rolls layout/unit/consent inserts back together. Updated legacy schema
+fixtures/snapshots for the additive five empty tables. Unknown old-building initial
+donation authority was asked and recorded pending; no live sign adapter is enabled.
+
+Added DwellingInspection with complete fresh world/layout evidence, distinct
+paired-bed material/facing/support/headroom checks, explicit per-unit/shared access,
+blocked private-room shortcuts and supported cardinal steps. HomeBuildingLayout
+binds all8 orientations of the four-bed authored home to one stable unit. Added
+PaperDwellingSurvey: main-thread, bounded incremental reads, cursor-based capture,
+loaded/height/border/expiry checks and no block writes or chunk loading. Accessible
+bed review is not full enclosure/habitability, consent or active village capacity;
+native partial collision shapes and edit-aware live activation remain ahead.
+
+Verification: initial affected schema/registry build59 unit +3 packaged checks
+passed46.473s. Schema checkpoint `.\mvnw.cmd clean verify` passed2096 unit +3
+packaged checks in16:19, no failures/errors/skips. After the final authority guards
+and inspection additions, the focused command
+`.\mvnw.cmd -Dtest=BuildingRegistryTest,BuildingLayoutTest,DwellingInspectionTest,HomeBuildingLayoutTest,HousingProjectPlannerTest,ConstructionLandRepositoryTest,ConstructionSiteReservationsTest,SchemaMigratorTest clean verify`
+passed49 unit +3 packaged checks in26.678s. Eight registry tests and ten new
+inspection/home-layout tests are included; the full checkpoint preceded those last
+inspection additions and was not redundantly repeated.
+
+Real isolated Paper26.2 build129 DwellingInspectionProbe passed: four real paired
+beds/closed wooden-door access, broken bed-half detection, incomplete absent worlds
+and unloaded targets with no force-load. Restored144 original cells, stopped the
+private server and archived its helper. Read-only fixture DB audit:108, integrity
+ok, FK-clean, building tables empty. Baseline host/perflib/flat-generator messages
+remained; explicit native PASS and orderly shutdown confirmed the result.
+
+Updated BUILDING_LAYOUTS, BUILDING_REGISTRY, DWELLING_INSPECTION, current status,
+progress/checklist and the open ownership question. The living handbook's planned
+controls remain accurate; no new player command or sign is documented as live.
+No user-server/world/save/main changes. P4 remains25%,4/16 complete items.
+Next: resolve first-donation authority, then editable confirmation/consent controls
+and transactional household assignments before enabling normal construction.
+
 ## 2026-10-20 — explicit building and dwelling-unit geometry
 
 Added immutable plain-Java BuildingLayout and bounded versioned snapshots with

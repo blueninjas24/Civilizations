@@ -46,10 +46,18 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Schema108 saves frozen building/unit records, reviewed consent/reclamation history
+and explicit building exclusions/releases. Existing construction protection checks
+now include those saved plots even after reclamation. Bed/access inspection has a
+bounded loaded-only Paper adapter and passed a real disposable four-bed-home check.
+Neither component is a live donation interface, household assignment or full
+habitability/permission/write-authority gate. First-donation authority for old
+unknown-owner structures awaits the user's choice. No additional item is complete.
+
 Explicit plot/building/unit geometry and bounded canonical snapshots now support
 stacked apartments, shared circulation and multi-room single-family declarations.
-Overlaps and duplicate/out-of-unit beds are rejected. This is not current-world
-habitability, a consent registry or occupancy/capacity activation. See
+Overlaps and duplicate/out-of-unit beds are rejected. Geometry alone is not current-world
+habitability, consent or occupancy/capacity activation. See
 BUILDING_LAYOUTS.md; no additional checklist item is complete.
 
 Road-adjacent candidate search is deterministic, bounded by64 road seeds,256

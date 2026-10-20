@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 construction foundation; paid supplies and earned public work
+## Current — Phase4 saved building consent and bed/access inspection
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
@@ -16,12 +16,36 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- Schema108 adds frozen building/unit registrations, append-only donation/reclaim
+  history, explicit old-building exclusions and authorized release receipts.
+  Stale/changed/unauthorized confirmations fail; exact retries cannot restore a
+  later-reclaimed donation or released exclusion. Construction protection includes
+  saved building plots even after reclamation. No household capacity or title is
+  changed. This is a trusted-owner backend, not working donation signs/commands;
+  authority for the first donation of unknown-owner old buildings is awaiting the
+  user's choice. See BUILDING_REGISTRY.md and DECISIONS_AND_OPEN_QUESTIONS.md.
+- Bed/access inspection now checks complete fresh world/layout evidence, actual
+  paired beds/support/headroom, per-unit access through shared space and supported
+  steps without crossing another household's rooms. The existing four-bed home
+  becomes one stable unit in all8 orientations. A bounded main-thread native
+  survey never loads chunks or writes blocks. These checks do not establish full
+  enclosure/habitability, permission, occupancy or usable village capacity. Native
+  stairs/slabs, edit-aware revalidation and live orchestration remain ahead. See
+  DWELLING_INSPECTION.md. The handbook's planned-control labels remain accurate.
+- Validation for this batch: schema108 checkpoint Wrapper clean verify2096 unit
+  +3 packaged checks passed in16:19; final focused clean verify49 unit +3 packaged
+  checks passed26.678s, zero failures/errors/skips. Eight registry checks and ten
+  new inspection/home-layout checks are included in the final set. Real isolated
+  Paper verified four actual bed pairs/closed wooden-door access, rejected a broken
+  bed half, retained incomplete absent/unloaded evidence and restored144 original
+  cells. Server stopped/helper archived; fixture schema108 healthy/FK-clean, all
+  new registry tables still empty. No user-server/world/save or main changes.
 - BuildingLayout now separates plot/structure, shared areas and explicit dwelling
   units with stable world/village/building/unit identities. Stacked apartments and
   multi-room family homes retain distinct meanings; overlapping private/shared
   areas and duplicate/out-of-unit bed pairs are rejected. Canonical bounded
-  snapshots freeze geometry only. No registry, consent, live inspection, occupancy
-  or usable capacity is enabled; schema remains107. See BUILDING_LAYOUTS.md.
+  snapshots freeze geometry only; saved consent and bed/access review are described
+  above. Live occupancy and usable capacity are not enabled. See BUILDING_LAYOUTS.md.
   Focused Wrapper clean verify18 unit +3 packaged checks passed21.721s, no failures,
   errors or skips. Nine new checks; no Minecraft/server changes. The handbook's
   planned-controls labels remain accurate; there is no new player-facing control.
@@ -75,7 +99,7 @@ Implemented and verified:
   Old cow/chicken receipt defaults and data are preserved; milk/egg retail excludes
   sheep. Wool is colour-neutral; old files missing only sheep use editable defaults.
 
-Validation: latest migrant-work guard Wrapper clean verify27 unit +3 packaged
+Earlier validation: migrant-work guard Wrapper clean verify27 unit +3 packaged
 checks passed39.336s, zero failures/errors/skips; same-world migration preserves
 source work and does not block destination food. Earlier86+3
 checks passed59.632s, zero failures/errors/skips; preceding public-work migration/

@@ -42,6 +42,28 @@ public final class ConstructionLandRepository {
                 for(long x=x0;x<=x1;x++)for(long z=z0;z<=z1;z++)result.add(new Column((int)x,(int)z));
             }}
         }
+        // A registered player building remains private land after reclamation. Donation is use consent,
+        // never permission to build over it; explicit old-building exclusions need no dwelling layout.
+        try(var s=connection.prepareStatement("""
+            SELECT min_x,max_x,min_z,max_z FROM building_records
+              WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=?
+            UNION ALL
+            SELECT e.min_x,e.max_x,e.min_z,e.max_z FROM building_exclusions e
+              WHERE e.world_id=? AND e.min_x<=? AND e.max_x>=? AND e.min_z<=? AND e.max_z>=?
+              AND NOT EXISTS(SELECT 1 FROM building_exclusion_releases r WHERE r.exclusion_id=e.id)
+            LIMIT 257
+            """)) {
+            for(int offset:List.of(0,5)) {
+                s.setString(offset+1,world.toString());s.setInt(offset+2,bounds.maximum().x());s.setInt(offset+3,bounds.minimum().x());
+                s.setInt(offset+4,bounds.maximum().z());s.setInt(offset+5,bounds.minimum().z());
+            }
+            int reviewed=0;try(var r=s.executeQuery()){while(r.next()) {
+                if(++reviewed>256)throw new SQLException("Building protection coverage exceeds local review budget");
+                int x0=Math.max(bounds.minimum().x(),r.getInt(1)),x1=Math.min(bounds.maximum().x(),r.getInt(2));
+                int z0=Math.max(bounds.minimum().z(),r.getInt(3)),z1=Math.min(bounds.maximum().z(),r.getInt(4));
+                for(long x=x0;x<=x1;x++)for(long z=z0;z<=z1;z++)result.add(new Column((int)x,(int)z));
+            }}
+        }
         return Set.copyOf(result);
     }
 }

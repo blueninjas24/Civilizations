@@ -21,10 +21,19 @@ P4 controls separately, with21 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
 
+Saved building consent/protection history now survives retries and reclamation;
+reclaimed player buildings remain protected from new construction. Bed/access
+checks distinguish shared areas and individual homes, including supported upstairs
+access. An actual disposable Minecraft check passed for the four-bed home, a broken
+bed and absent/unloaded worlds. Full schema checkpoint:2096 unit +3 packaged checks;
+final focused build:49 +3, all passed. Donation signs, live assignments and normal
+construction remain unfinished. One old-building ownership-authorization choice is
+pending. These partial gates do not change the25% milestone total.
+
 Building/unit geometry now distinguishes shared space, separate apartments and
 multi-room family homes, with overlap/bed checks and frozen layout snapshots.
-It does not yet grant consent or usable housing; live inspection, registration
-and household assignment remain ahead. Focused build:18 unit +3 packaged checks
+Geometry alone grants no consent or usable housing; current bed/access review and
+backend registration are described above, while live household assignment remains ahead. Focused build:18 unit +3 packaged checks
 passed. This partial foundation does not complete another checklist milestone.
 
 Design agreed: player buildings need explicit donation; donors will be able to

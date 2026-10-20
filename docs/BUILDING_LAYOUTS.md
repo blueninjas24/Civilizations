@@ -35,14 +35,15 @@ retaining unit identities. World changes, unit changes or boundary edits change
 the fingerprint. Decoding rejects unsupported versions, excessive counts/bytes,
 invalid geometry, truncation, trailing data and non-canonical order.
 
-There is no database table or migration for layouts yet; schema remains 107.
-The snapshot format is ready for a later transactional registry. It is not a
-substitute for saving consent, ownership, occupancy and their histories.
+The snapshot format is now stored by the transactional schema108 BuildingRegistry;
+see BUILDING_REGISTRY.md for saved consent and protection history. A layout snapshot
+alone is not a substitute for permission, ownership or occupancy records.
 
 ## Remaining before usable housing
 
-- Current loaded-world inspection: actual intact beds, safe reachable entrances,
-  headroom/support and access without crossing another household's private unit.
+- Complete habitability and edit-aware activation checks. DWELLING_INSPECTION.md
+  now describes verified loaded-world bed/support/headroom/access review; it does
+  not establish full enclosure or activate housing.
 - Explicit authorized donation/confirmed purpose for player structures; known
   completed Civ construction identity for Civ buildings. Geometry grants neither.
 - Saved protections, donor/admin reclamation and editable boundary previews.

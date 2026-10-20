@@ -132,6 +132,7 @@ class ForestryFounderStudyTest {
         assertEquals(0, scalar("SELECT COUNT(*) FROM construction_site_reservations"));
         assertEquals(0, scalar("SELECT COUNT(*) FROM construction_material_returns"));
         assertEquals(0, scalar("SELECT COUNT(*) FROM construction_supply_orders"));
+        for(var table:java.util.List.of("building_records","building_units","building_consent_events","building_exclusions","building_exclusion_releases")) assertEquals(0,scalar("SELECT COUNT(*) FROM "+table));
         assertEquals(0, scalar("SELECT COUNT(*) FROM construction_stage_work"));assertEquals(0, scalar("SELECT COUNT(*) FROM construction_public_work"));
         assertEquals(1, scalar("SELECT COUNT(*) FROM forestry_tracking"));
         assertEquals(2, scalar("SELECT COUNT(*) FROM forestry_exclusions"));
@@ -213,7 +214,7 @@ class ForestryFounderStudyTest {
         var names = new ArrayList<String>();
         try (var s = fixture.db.getConnection().createStatement(); var r = s.executeQuery(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' " +
-                        "AND name NOT IN ('forestry_founder_courses','forestry_founder_reviews','resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state','resource_investment_reviews','resource_investment_state','generated_resource_chunks','construction_drafts','construction_block_journal','construction_material_reservations','construction_material_items','construction_site_reservations','construction_material_returns','construction_supply_orders','construction_stage_work','construction_public_work') ORDER BY name")) {
+                        "AND name NOT IN ('forestry_founder_courses','forestry_founder_reviews','resource_recovery_epochs','mineral_recoveries','forest_recoveries','business_allocation_reviews','business_allocation_state','resource_investment_reviews','resource_investment_state','generated_resource_chunks','construction_drafts','construction_block_journal','construction_material_reservations','construction_material_items','construction_site_reservations','construction_material_returns','construction_supply_orders','construction_stage_work','construction_public_work','building_records','building_units','building_consent_events','building_exclusions','building_exclusion_releases') ORDER BY name")) {
             while (r.next()) names.add(r.getString(1));
         }
         for (var name : names) {

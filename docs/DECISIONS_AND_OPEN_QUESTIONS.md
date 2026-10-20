@@ -1,5 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October20 — open: authority for first donation of old buildings
+
+Before enabling building-donation signs, decide who may confirm ownership when
+Minecraft has no reliable building-author record. Recommendation: require an
+administrator's review for the first donation of an unrecorded structure, then
+retain the confirmed donor for later reclamation. Alternative: accept a player's
+explicit declaration after protection checks, accepting the risk that unmarked
+old buildings belong to someone else. Asked the user; answer pending. No live
+sign/claim adapter is enabled while this is unresolved. Backend authorization
+assertions are trusted adapter inputs, never proof supplied directly by a client.
+
 ## October20 — village owned apartments without rent and a living user handbook
 
 User explicitly deferred rent and landlords. Initial apartments are village-owned
