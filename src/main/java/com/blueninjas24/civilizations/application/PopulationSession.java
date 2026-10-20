@@ -111,6 +111,14 @@ public final class PopulationSession implements AutoCloseable {
     private EconomyRuntimeRepository economy;
     private final AtomicReference<java.util.Map<UUID, EconomyRuntimeRepository.View>> economyView = new AtomicReference<>(java.util.Map.of());
     private volatile String economyFailure;
+    private volatile String constructionDeliveryFailure;
+    private volatile String constructionDeliveryStatus="Construction: waiting for simulation. Automatic building is not enabled.";
+    public String constructionDiagnostic() {
+        return constructionDeliveryFailure==null
+                ?constructionDeliveryStatus
+                :"Construction deliveries paused: "+constructionDeliveryFailure+". Paid cargo remains saved.";
+    }
+
     private java.util.Set<UUID> loadedWorlds; // Owner-thread snapshot; null only for legacy headless harnesses.
     private volatile boolean onlineOnly;
     private com.blueninjas24.civilizations.industry.FarmBusinessPolicy farmBusinessPolicy=com.blueninjas24.civilizations.industry.FarmBusinessPolicy.disabled();
@@ -1468,6 +1476,18 @@ public final class PopulationSession implements AutoCloseable {
                 economyFailure = failure.getMessage();
             }
         }
+        if(loadedWorlds!=null&&!industrySuspended&&industryFailure==null&&economyFailure==null&&status.get().remainingMonths()==0) {
+            try {
+                int arrivals=com.blueninjas24.civilizations.database.ConstructionSupplyOrders
+                        .deliveryOnly(database.getConnection()).deliverReady(loadedWorlds,16);
+                constructionDeliveryFailure=null;
+                constructionDeliveryStatus="Construction: saved cargo deliveries active; last review "+arrivals+" arrivals. Automatic building is not enabled.";
+            }catch(SQLException|RuntimeException failure) {
+                if(!java.util.Objects.equals(constructionDeliveryFailure,failure.getMessage()))
+                    logger.log(Level.SEVERE,"Construction delivery deferred; prepaid cargo remains saved",failure);
+                constructionDeliveryFailure=failure.getMessage();
+            }
+        }else constructionDeliveryStatus="Construction: deliveries wait for available worlds and current simulation. Automatic building is not enabled.";
         if(allocationPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null){
             try{resourceInvestmentDiagnostic=resourceInvestment.pulse(status.get().completedMonths(),now.getAsLong(),loadedWorlds);}
             catch(SQLException|RuntimeException failure){

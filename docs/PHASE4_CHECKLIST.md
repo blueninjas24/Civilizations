@@ -124,3 +124,10 @@ preservation checks passed in a focused Wrapper clean verify82 unit +3 packaged
 integrations (64s, no failures/errors/skips). Paid cargo stays saved; no cancellation
 shortcut or automatic project/order coordinator yet. No additional whole gate is
 complete;4/16 remains25%. Prior checkpoint b204a22 passed both hosted OS builds.
+
+October20 follow-up: bounded automatic settlement of saved prepaid cargo now runs
+on the normal SQL owner loop using existing earned clocks and explicit world
+availability. Restart/downtime/absence and full arrival-batch rollback passed;
+new purchases remain disabled in this adapter. Read-only admin diagnostic and
+installed config/native catalogue passed actual disposable Paper. Focused46+3
+Wrapper verification passed36.068s. No new full checklist item is claimed.

@@ -16,6 +16,10 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Paid construction deliveries now progress automatically through the normal simulation
+loop after earned time, with restart/absent-world protection. This does not yet
+start new projects or place buildings.
+
 Editable starter plans, read-only admin previews and saved frozen proposals
 are ready, including a four-bed home. Buffered land checks, labor proposals,
 owned-material reservations, protected budget quotes and a journal have progressed;

@@ -34,6 +34,17 @@ class PopulationDebugCommandTest {
             assertTrue(command.onTabComplete(sender(false), null, "civ", new String[]{"debug", ""}).isEmpty());
         }
     }
+    @Test void constructionDiagnosticNeverCreatesDatabaseAndRespectsPermissions() {
+        try(var session=session()) {
+            var command=new PopulationDebugCommand(session);
+            command.onCommand(sender(false),null,"civ",new String[]{"debug","construction"});
+            assertEquals(List.of("You do not have permission to inspect Civilizations."),messages);messages.clear();
+            command.onCommand(sender(true),null,"civ",new String[]{"debug","construction"});
+            assertEquals(List.of("Construction: waiting for simulation. Automatic building is not enabled."),messages);
+            assertEquals(List.of("construction"),command.onTabComplete(sender(true),null,"civ",new String[]{"debug","con"}));
+            assertFalse(directory.resolve("civilizations.db").toFile().exists());
+        }
+    }
     @Test void startupStatusAndSettlementRequestsNeverWaitOrOpenDatabase() {
         try (var session = session()) {
             var command = new PopulationDebugCommand(session);
@@ -50,7 +61,7 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "settlement", "bad-id"});
             assertEquals(List.of("Settlement ID must be a UUID."), messages); messages.clear();
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "simulate", "1000"});
-            assertEquals(List.of("Usage: /civ debug status | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest"), messages);
+            assertEquals(List.of("Usage: /civ debug status | construction | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest"), messages);
             assertEquals(0, session.status().targetMonths());
             assertEquals(List.of("status", "settlement"),
                     command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "s"}));

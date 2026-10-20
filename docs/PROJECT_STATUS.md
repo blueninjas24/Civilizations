@@ -7,6 +7,10 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Implemented and verified:
+- Normal simulation pulses now settle up to16 ready prepaid cargo receipts using
+  existing earned clocks. Unknown/absent worlds and paused simulation cannot
+  deliver; new spending stays disabled in the delivery-only adapter. A late batch
+  failure rolls back every arrival. /civ debug construction is read-only.
 - Construction supplier purchases atomically debit real private/village money and
   supplier stock, preserving protected operating/food reserves and current fed
   population checks. Prepaid cargo uses existing owner clocks and shared local
@@ -41,7 +45,10 @@ Implemented and verified:
   Old cow/chicken receipt defaults and data are preserved; milk/egg retail excludes
   sheep. Wool is colour-neutral; old files missing only sheep use editable defaults.
 
-Validation: latest focused Windows Wrapper clean verify82 unit +3 packaged
+Validation: latest owner-loop Windows Wrapper clean verify46 unit +3 packaged
+checks passed36.068s, zero failures/errors/skips. Actual disposable Paper also
+passed installed supply settings, catalogue/native states and diagnostic routing;
+zero construction writes, stopped fixture, schema106 integrity/FKs clean. Earlier82+3
 integration checks passed64s, zero failures/errors/skips. Includes supplier payment,
 actual earned owner-clock delivery, shared transport, protected budgets, restart
 and version105 upgrade rollback/retry. Hosted b204a22 and288801d both passed full

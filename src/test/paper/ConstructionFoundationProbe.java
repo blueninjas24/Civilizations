@@ -30,7 +30,8 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
         var plugin=(JavaPlugin)getServer().getPluginManager().getPlugin("Civilizations");require(plugin!=null&&plugin.isEnabled(),"Production plugin active");
         var library=PaperConstructionLibrary.load(plugin);require(library.templates().size()==3,"Three installed original templates");
         require(library.funding().equals(com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy.prototype())&&library.land().buildingBuffer()==4
-                &&library.labor().equals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype())&&library.housing().maximumNewProposals()==1,"Installed construction policy defaults");
+                &&library.labor().equals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype())&&library.housing().maximumNewProposals()==1
+                &&library.supplies().equals(com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy.prototype()),"Installed construction policy defaults");
         var source=library.templates().get("starter_storehouse");var sourceHash=source.fingerprint();
         for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true)) {
             var transform=new Transform(rotation,mirror);var plan=PaperConstructionLibrary.prepare(source,transform);
@@ -63,6 +64,9 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
         var messages=new ArrayList<String>();var sender=sender(messages,true);var command=plugin.getCommand("civ");
         require(command.execute(sender,"civ",new String[]{"build","templates"}),"Root router accepts catalogue");
         require(messages.stream().anyMatch(s->s.contains("starter_storehouse")),"Catalogue reaches command sender");
+        messages.clear();command.execute(sender,"civ",new String[]{"debug","construction"});
+        require(messages.size()==1&&messages.getFirst().contains("Automatic building is not enabled"),"Saved delivery diagnostic routed without world writes");
+        require(command.tabComplete(sender,"civ",new String[]{"debug","con"}).contains("construction"),"Construction diagnostic completion");
         messages.clear();command.execute(sender(messages,false),"civ",new String[]{"build","templates"});
         require(messages.size()==1&&messages.getFirst().contains("permission"),"Unprivileged sender cannot inspect construction");
         messages.clear();command.execute(sender,"civ",new String[]{"build","preview","starter_storehouse"});

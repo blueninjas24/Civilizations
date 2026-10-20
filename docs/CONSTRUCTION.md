@@ -209,3 +209,15 @@ This remains a backend API: no automatic project orders or native building write
 are enabled. Paid cargo has no cancellation/refund shortcut yet; its saved assets
 and site remain retained. Stage consumption, real booked work and the live project
 coordinator must be connected before ordinary construction is enabled.
+
+The normal PopulationSession owner pulse now settles up to16 ready prepaid orders
+in one transaction after existing simulation clocks advance. Ready orders are
+selected across explicitly present worlds; absent or early cargo cannot block
+other ready orders. A late failure rolls back the entire arrival batch. This
+delivery-only adapter cannot purchase goods. Disabling new purchasing preserves
+already-paid cargo. Headless sessions without a world availability snapshot do
+not infer loaded worlds. /civ debug construction reports the last review without
+JDBC access on the main thread or authorizing a building.
+
+Verified46 unit +3 packaged checks, plus actual disposable Paper supply defaults,
+admin diagnostic permissions/routing and native templates; zero construction writes.

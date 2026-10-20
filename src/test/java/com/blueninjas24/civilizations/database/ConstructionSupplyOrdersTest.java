@@ -107,4 +107,49 @@ class ConstructionSupplyOrdersTest {
         try(var st=c().createStatement();var r=st.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
 
+    @Test void boundedSettlementSkipsEarlyCargoAndWholeBatchRollsBackOnLateFailure()throws Exception {
+        var early=request(Source.BUSINESS,1);var ready=request(Source.VILLAGE,1);
+        orders().purchase(early,proof(privateDraft),3001,Set.of(f.world));
+        orders().purchase(ready,proof(publicDraft),3001,Set.of(f.world));
+        f.economy.pulse(4000,false);
+        var delivery=ConstructionSupplyOrders.deliveryOnly(c());
+        assertThrows(SQLException.class,()->delivery.purchase(request(Source.BUSINESS,1),proof(privateDraft),3001,Set.of(f.world)));
+        assertEquals(0,delivery.deliverReady(Set.of(),1));
+        assertEquals(1,delivery.deliverReady(Set.of(f.world),1));
+        assertNull(orders().find(early.operation()).orElseThrow().deliveredPeriod());
+        assertEquals(Map.of(Commodity.STONE,1L),orders().stock(publicDraft.id()));
+        assertEquals(0,delivery.deliverReady(Set.of(f.world),1));
+        // Two newly ready receipts in one transaction: failure on the second undoes the first.
+        var other=request(Source.BUSINESS,1);orders().purchase(other,proof(privateDraft),3001,Set.of(f.world));
+        f.sql("UPDATE industry_runtime SET completed=3,target=3 WHERE business_id='"+buyer+"'");
+        var last=List.of(early.operation().toString(),other.operation().toString()).stream().sorted().toList().getLast();
+        f.sql("CREATE TRIGGER reject_arrival AFTER UPDATE OF delivered_period ON construction_supply_orders WHEN NEW.operation_id='"+last+"' BEGIN SELECT RAISE(ABORT,'fixture arrival failure'); END");
+        assertThrows(SQLException.class,()->delivery.deliverReady(Set.of(f.world),2));
+        assertNull(orders().find(early.operation()).orElseThrow().deliveredPeriod());
+        assertNull(orders().find(other.operation()).orElseThrow().deliveredPeriod());assertTrue(orders().stock(privateDraft.id()).isEmpty());
+        f.sql("DROP TRIGGER reject_arrival");assertEquals(2,delivery.deliverReady(Set.of(f.world),2));
+        assertEquals(Map.of(Commodity.STONE,2L),orders().stock(privateDraft.id()));assertEquals(0,delivery.deliverReady(Set.of(f.world),2));
+    }
+    @Test void restartedOwnerLoopSettlesSavedCargoOnlyAfterPresentWorldEarnsTheRemainingPeriod()throws Exception {
+        var q=request(Source.VILLAGE,1);orders().purchase(q,proof(publicDraft),3001,Set.of(f.world));f.db.close();
+        var time=new java.util.concurrent.atomic.AtomicLong(100000);
+        var p=com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype();
+        var settings=new com.blueninjas24.civilizations.application.PopulationSession.Settings(0,p.millisPerMonth(),p.maximumOfflineMonths(),p.monthsPerBatch(),p.population(),p.migration(),p.recognition(),p.enrollment());
+        try(var session=new com.blueninjas24.civilizations.application.PopulationSession(directory.toFile(),java.util.logging.Logger.getLogger("ConstructionCargoTest"),
+                settings,time::get,f.settings,
+                com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype())) {
+            session.start(false,Set.of()).get(10,java.util.concurrent.TimeUnit.SECONDS);
+            session.pulse().get(10,java.util.concurrent.TimeUnit.SECONDS);
+            time.set(200000);session.updateLoadedWorlds(Set.of(f.world)).get(10,java.util.concurrent.TimeUnit.SECONDS);
+            session.pulse().get(10,java.util.concurrent.TimeUnit.SECONDS);
+            try(var read=DriverManager.getConnection("jdbc:sqlite:"+directory.resolve("civilizations.db"));var st=read.createStatement();var r=st.executeQuery("SELECT delivered_period FROM construction_supply_orders")) {
+                assertTrue(r.next());r.getLong(1);assertTrue(r.wasNull(),"No delivery from server downtime or absent-world time");
+            }
+            time.set(201000);session.pulse().get(10,java.util.concurrent.TimeUnit.SECONDS);
+            assertNull(session.status().failure());assertTrue(session.constructionDiagnostic().contains("1 arrivals"),session.constructionDiagnostic()+"; economy="+session.economyFailure()+"; status="+session.status());
+        }
+        f.open();assertEquals(3L,orders().find(q.operation()).orElseThrow().deliveredPeriod());
+        assertEquals(Map.of(Commodity.STONE,1L),orders().stock(publicDraft.id()));
+    }
+
 }

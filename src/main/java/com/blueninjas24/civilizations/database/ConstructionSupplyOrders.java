@@ -23,6 +23,12 @@ public final class ConstructionSupplyOrders {
     public ConstructionSupplyOrders(Connection c,ConstructionBudgetPolicy budget,ConstructionSupplyPolicy supply,IndustryRuntimePolicy industry,BusinessOperationPolicy operations) {
         this.c=Objects.requireNonNull(c);this.budget=Objects.requireNonNull(budget);this.supply=Objects.requireNonNull(supply);this.industry=Objects.requireNonNull(industry);this.operations=Objects.requireNonNull(operations);
     }
+    /** Settles prepaid saved cargo only; this instance cannot place new purchases. */
+    public static ConstructionSupplyOrders deliveryOnly(Connection c) {
+        return new ConstructionSupplyOrders(c,ConstructionBudgetPolicy.prototype(),
+                new ConstructionSupplyPolicy(false,ConstructionSupplyPolicy.prototype().prices()),
+                IndustryRuntimePolicy.disabled(),BusinessOperationPolicy.disabled());
+    }
     static void createSchema(Connection c)throws SQLException {
         try(var s=c.createStatement()){s.execute("""
             CREATE TABLE construction_supply_orders (
@@ -104,12 +110,39 @@ public final class ConstructionSupplyOrders {
     }
     /** Existing earned owner periods supply time; absent worlds cannot deliver or create elapsed time. */
     public Receipt deliver(UUID operation,Set<UUID> worlds)throws SQLException {
+        var present=Set.copyOf(worlds);
+        return transaction(()->deliverRows(operation,present));
+    }
+    private Receipt deliverRows(UUID operation,Set<UUID> worlds)throws SQLException {
+        var receipt=find(operation).orElseThrow(()->new SQLException("Unknown construction cargo"));if(receipt.deliveredPeriod()!=null)return receipt;
+        var d=draft(receipt.request().draft());if(!worlds.contains(d.world()))return receipt;
+        long period=completed(receipt.request(),d,false,0);if(period<receipt.duePeriod())return receipt;
+        try(var s=c.prepareStatement("UPDATE construction_supply_orders SET delivered_period=? WHERE operation_id=? AND delivered_period IS NULL")){s.setLong(1,period);s.setString(2,operation.toString());if(s.executeUpdate()!=1)throw new SQLException("Construction cargo changed");}
+        return find(operation).orElseThrow();
+    }
+    /** One bounded owner transaction; absent/early cargo cannot block ready cargo in another world. */
+    public int deliverReady(Set<UUID> worlds,int limit)throws SQLException {
+        var present=Set.copyOf(worlds);
+        if(limit<1||limit>64||present.size()>256)throw new IllegalArgumentException("Construction delivery review exceeds its bounds");
+        if(present.isEmpty())return 0;
         return transaction(()->{
-            var receipt=find(operation).orElseThrow(()->new SQLException("Unknown construction cargo"));if(receipt.deliveredPeriod()!=null)return receipt;
-            var d=draft(receipt.request().draft());if(!worlds.contains(d.world()))return receipt;
-            long period=completed(receipt.request(),d,false,0);if(period<receipt.duePeriod())return receipt;
-            try(var s=c.prepareStatement("UPDATE construction_supply_orders SET delivered_period=? WHERE operation_id=? AND delivered_period IS NULL")){s.setLong(1,period);s.setString(2,operation.toString());if(s.executeUpdate()!=1)throw new SQLException("Construction cargo changed");}
-            return find(operation).orElseThrow();
+            var ids=new ArrayList<UUID>();
+            String places=String.join(",",Collections.nCopies(present.size(),"?"));
+            try(var s=c.prepareStatement("""
+                SELECT o.operation_id FROM construction_supply_orders o
+                JOIN construction_drafts d ON d.id=o.draft_id
+                LEFT JOIN industry_runtime i ON i.business_id=o.business_id
+                LEFT JOIN economy_accounts a ON a.settlement_id=d.settlement_id
+                WHERE o.delivered_period IS NULL AND
+                ((o.source='BUSINESS' AND i.completed>=o.due_period) OR
+                 (o.source='VILLAGE' AND a.completed_periods>=o.due_period))
+                AND d.world_id IN (
+                """+places+") ORDER BY o.due_period,o.operation_id LIMIT ?")) {
+                int n=1;for(var world:new TreeSet<>(present))s.setString(n++,world.toString());s.setInt(n,limit);
+                try(var r=s.executeQuery()){while(r.next())ids.add(UUID.fromString(r.getString(1)));}
+            }
+            for(var id:ids)deliverRows(id,present);
+            return ids.size();
         });
     }
     public Map<Commodity,Long> stock(UUID draft)throws SQLException {

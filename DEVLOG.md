@@ -1,5 +1,19 @@
 # Civilizations Development Log
 
+## 2026-10-20 — settle construction cargo through the existing owner loop
+
+PopulationSession settles up to16 ready prepaid construction orders atomically
+after existing simulation clocks advance. No inferred worlds, extra project clock,
+new spending or ordinary block writer. Early/absent cargo cannot head-block ready
+orders; a late receipt update rolls back the entire batch. Added permission-checked
+/civ debug construction without main-thread JDBC. Focused Wrapper clean verify46
+unit +3 packaged checks passed36.068s, zero failures/errors/skips. Initial owner
+fixture used a different priority seed; corrected it to the saved seed rather than
+weakening the application's explicit-transition guard. Actual disposable Paper
+passed installed supply defaults, diagnostic routing/permissions and native
+template validation, zero construction writes; schema106 integrity/FKs healthy,
+server stopped/helper archived. No migration change or human server/main changes.
+
 ## 2026-10-20 — real construction supplier purchases and earned delivery
 
 Added schema106 supplier receipts, protected actual private/public payment and
