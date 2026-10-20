@@ -221,3 +221,45 @@ JDBC access on the main thread or authorizing a building.
 
 Verified46 unit +3 packaged checks, plus actual disposable Paper supply defaults,
 admin diagnostic permissions/routing and native templates; zero construction writes.
+
+
+## Earned public labor and stage escrow (schema107)
+
+The normal food-period owner transaction can now book public construction effort
+for funded paid-supply projects. It uses the editable labor terms loaded at startup,
+not another clock. It reviews at most16 local active projects and1024 eligible
+residents. Only current fully fed periods qualify; no retrospective catch-up job
+assignments. Dedicated farm jobs must be enabled: legacy all-adult field output
+already uses unemployed adults' time. Current employees, operating business owners,
+active students and people who actually studied in this period are excluded.
+Age/local identity/work eligibility still apply; jobs are never transferred.
+
+Complete stage materials must have arrived in an earlier earned period. The first
+positive work escrows that stage's entire frozen cost; stock() now reports only
+unallocated delivered materials. Supplier payment and arrival remain immutable
+history. Work receipts preserve each actual resident/period/effort; one person
+cannot be counted twice in a period. Existing worker limits apply across projects.
+Unused fractions at the end of a stage are not banked as free later work. Prior
+stages must have all physical intents acknowledged before later effort is earned.
+Saved protection, insufficient supplies, absent worlds and food shortage pause
+work. Food checkpoint, stage stock and labor receipts commit or roll back together.
+
+ConstructionBlockJournal.preparePublic validates full stage effort against its
+resident receipts and backed material escrow, fresh exact-draft/site evidence,
+current saved protection and ordered prior acknowledgements. It confers no native
+writer/ownership permission or completed capacity. The generic journal entry point
+remains for explicitly bounded development probes; normal gameplay still has no
+physical writer. Private employee diversion, automatic demand/site/order scheduling
+and completed home activation are subsequent work. No family gets a home merely
+because abstract work is saved.
+
+Focused verification86 unit +3 packaged passed59.632s; earlier affected migration/
+forest/study verification78+3 passed51.257s. Actual disposable Paper paid for two
+stone units from four explicitly seeded fixture units, earned delivery and five
+construction work units over three actual food periods, and then placed five
+native path blocks through the public economic gate plus development-only writer.
+Payment replay, restart-window retry, changed block conflict and unloaded-target
+waiting preserved assets/world state; original cells restored. Both DBs at107
+passed integrity/FK checks, server stopped and helper archived. This test does not
+claim automatic discovery, free seed supplies in gameplay, private labor or home
+capacity activation.

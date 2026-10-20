@@ -19,6 +19,10 @@
 Paid construction deliveries now progress automatically through the normal simulation
 loop after earned time, with restart/absent-world protection. This does not yet
 start new projects or place buildings.
+Public projects can now earn real unemployed villagers' building time and set aside
+materials once per stage. A paid five-block path passed a disposable Minecraft
+check from supplier payment through saved work to physical placement. Normal-server
+automatic building and private staff work are still ahead.
 
 Editable starter plans, read-only admin previews and saved frozen proposals
 are ready, including a four-bed home. Buffered land checks, labor proposals,

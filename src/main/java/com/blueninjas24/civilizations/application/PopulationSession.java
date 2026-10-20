@@ -111,6 +111,13 @@ public final class PopulationSession implements AutoCloseable {
     private EconomyRuntimeRepository economy;
     private final AtomicReference<java.util.Map<UUID, EconomyRuntimeRepository.View>> economyView = new AtomicReference<>(java.util.Map.of());
     private volatile String economyFailure;
+    private com.blueninjas24.civilizations.construction.ConstructionLaborPolicy constructionLabor;
+    public void configureConstruction(com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding,
+                                      com.blueninjas24.civilizations.construction.ConstructionLaborPolicy labor) {
+        if(started.get())throw new IllegalStateException("Configure construction before session starts");
+        java.util.Objects.requireNonNull(funding);java.util.Objects.requireNonNull(labor);
+        if(funding.village().enabled())constructionLabor=labor;
+    }
     private volatile String constructionDeliveryFailure;
     private volatile String constructionDeliveryStatus="Construction: waiting for simulation. Automatic building is not enabled.";
     public String constructionDiagnostic() {
@@ -689,6 +696,7 @@ public final class PopulationSession implements AutoCloseable {
                 if (economySettings != null) {
                     economy = new EconomyRuntimeRepository(database.getConnection(), economySettings, farmPolicy, settings.population().adulthoodSteps(),priorityPolicy,settings.seed(),openingFunds,wellbeing,responses);
                     economy.configureFarmBusinesses(farmBusinessPolicy,operationPolicy);
+                    if(constructionLabor!=null)economy.configureConstruction(constructionLabor);
                     economy.configureGrainHarvest(grainHarvestPolicy);
                     economy.configureFarmMarket(farmMarketPolicy);
                     economy.configureFarmTools(farmToolsPolicy,farmToolsBudget,industryPolicy.mining());

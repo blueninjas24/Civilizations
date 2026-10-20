@@ -6,15 +6,16 @@ import java.sql.SQLException;
 /** Reconstruct prior schema shapes only inside test-owned temporary databases. */
 final class SchemaFixtures {
     private SchemaFixtures() {}
-    /** Additive schemas95-106 must create only empty tables in earlier migration fixtures. */
+    /** Additive schemas95-107 must create only empty tables in earlier migration fixtures. */
     static void removeEmptyRecoveryAndAllocationAdditions(java.util.Map<String,? extends java.util.List<?>> snapshot) {
         for(var table:java.util.List.of("mineral_recoveries","resource_recovery_epochs","forest_recoveries",
                 "business_allocation_state","business_allocation_reviews","resource_investment_state","resource_investment_reviews","generated_resource_chunks",
-                "construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders"))
+                "construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders","construction_stage_work","construction_public_work"))
             org.junit.jupiter.api.Assertions.assertEquals(java.util.List.of(),snapshot.remove(table),table+" must exist and start empty");
     }
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<107){statement.execute("DROP TABLE IF EXISTS construction_public_work");statement.execute("DROP TABLE IF EXISTS construction_stage_work");}
             if(version<106)statement.execute("DROP TABLE IF EXISTS construction_supply_orders");
             if(version<105)statement.execute("DROP TABLE IF EXISTS construction_material_returns");
             if(version<104)statement.execute("DROP TABLE IF EXISTS construction_site_reservations");

@@ -150,7 +150,7 @@ public final class ConstructionSupplyOrders {
         try(var s=c.prepareStatement("SELECT commodity,units FROM construction_supply_orders WHERE draft_id=? AND delivered_period IS NOT NULL LIMIT 129")) {
             s.setString(1,draft.toString());try(var r=s.executeQuery()){while(r.next()){if(++count>128)throw new SQLException("Construction cargo history budget exceeded");result.merge(new Commodity(r.getString(1)),r.getLong(2),Math::addExact);}}
         }
-        for(var e:result.entrySet())if(e.getValue()>plan.template().materials().getOrDefault(e.getKey(),0L))throw new SQLException("Delivered construction stock exceeds frozen need");return Collections.unmodifiableMap(result);
+        for(var e:result.entrySet())if(e.getValue()>plan.template().materials().getOrDefault(e.getKey(),0L))throw new SQLException("Delivered construction stock exceeds frozen need");return ConstructionPublicWork.unallocated(c,plan,result);
     }
     public Optional<Receipt> find(UUID operation)throws SQLException {
         try(var s=c.prepareStatement("SELECT * FROM construction_supply_orders WHERE operation_id=?")) {

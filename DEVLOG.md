@@ -1,5 +1,32 @@
 # Civilizations Development Log
 
+## 2026-10-20 — earned public building labor, stage escrow and paid native acceptance
+
+Schema107 adds public resident/period work receipts and frozen stage material
+escrow. Actual earned current food periods book only eligible unemployed non-owner
+adults; farm employees, active/just-completed students and legacy all-adult farm
+labor cannot double as builders. Fed population, earlier delivered full material
+cost, available world and current saved protection gate work. One resident/period
+cannot be spent twice, worker caps apply across local projects, and later stages
+wait for prior physical acknowledgements. Food/work/escrow roll back together.
+
+Public economic journal preparation now requires full receipted effort and backed
+escrow plus fresh exact-project/site proof. It grants no ordinary writer or home
+capacity. Private staff diversion and automatic project/order coordination remain
+future work. Existing construction settings are loaded at startup without changes
+to canonical rules. Historical migration fixtures exclude/verify the additive empty
+tables; version106 failure/retry preserves paid cargo and balances.
+
+Focused clean verify86 unit +3 packaged passed59.632s; affected migration/forest/
+study batch78+3 passed51.257s, all zero failures/errors/skips. Actual disposable
+Paper paid a supplier for two stone units out of four explicitly seeded test units,
+earned delivery and five work units over three real food periods, then wrote five
+native blocks. Exact replay, DB-reopen crash window, changed-block preservation and
+unloaded-target no-force-load passed. Original five cells restored; both schema107
+DBs integrity/FK-clean, server stopped/helper archived. No real server/database/main
+changes; P4 remains25%,4/16 items. Hosted85419c6 passed both OS jobs; later candidate
+results must be checked separately.
+
 ## 2026-10-20 — settle construction cargo through the existing owner loop
 
 PopulationSession settles up to16 ready prepaid construction orders atomically

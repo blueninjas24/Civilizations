@@ -131,3 +131,20 @@ availability. Restart/downtime/absence and full arrival-batch rollback passed;
 new purchases remain disabled in this adapter. Read-only admin diagnostic and
 installed config/native catalogue passed actual disposable Paper. Focused46+3
 Wrapper verification passed36.068s. No new full checklist item is claimed.
+
+## October20 partial — earned public work and a paid native path
+
+Schema107 records actual public resident/period effort and stage escrow within the
+food transaction, avoiding farm/study double labor. Full supplies from an earlier
+earned period, fed current population and active unprotected saved sites gate work.
+Public journal preparation now verifies fully earned stage effort and real backed
+escrow before ordered intents. Later stages wait for physical acknowledgement.
+
+Focused86+3 checks passed59.632s, earlier migration/forest/study78+3 passed51.257s.
+Actual disposable Paper paid a real supplier, earned cargo delivery and five work
+units over three food periods, then placed/restored five native blocks. Exact
+replay, DB-reopen window, conflict preservation and unloaded-target waiting passed;
+both schema107 DBs healthy/FK-clean, helper archived/server stopped. Private labor,
+need/site/order coordination, production write authority and actual building/home
+activation remain ahead. These partial results do not complete a whole item;
+4/16 remains25%.

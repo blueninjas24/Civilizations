@@ -106,6 +106,11 @@ public final class EconomyRuntimeRepository {
         villageSupplies=Objects.requireNonNull(policy);
     }
     private VillageSupplyPurchases villagePurchases(){return new VillageSupplyPurchases(connection,villageSupplies,studyPolicy,farmOperations);}
+    private com.blueninjas24.civilizations.construction.ConstructionLaborPolicy constructionLabor;
+    public void configureConstruction(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy labor) {
+        if(inUse)throw new IllegalStateException("Configure construction before economy starts");
+        constructionLabor=Objects.requireNonNull(labor);
+    }
     private int cursor;
     private Set<UUID> loadedWorlds;
     public EconomyRuntimeRepository(Connection connection, EconomySettings settings, FarmObservation.Policy farms, long adulthood) {
@@ -689,6 +694,8 @@ public final class EconomyRuntimeRepository {
         var needs = new HouseholdNeedsRepository(connection);
         var assessment = HouseholdNeeds.assess(town, needs.population(town), period, adulthood, settings, needs.load(town, nextPeriod - 1).orElse(null));
         needs.save(assessment);
+        if(constructionLabor!=null&&loadedWorlds!=null&&active(town))
+            new ConstructionPublicWork(connection).advanceRows(town,nextPeriod,constructionLabor,adulthood,seed,farmBusinesses.enabled());
         new HouseholdWellbeingRepository(connection).assess(assessment,wellbeing,settings.shortages().severeAfterPeriods());
         var decisions=new VillagePriorityRepository(connection);decisions.consider(assessment,seed,priorities);
         var appeals=new FoodAppealRepository(connection);

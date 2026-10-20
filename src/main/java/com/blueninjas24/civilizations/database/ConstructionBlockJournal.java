@@ -30,31 +30,46 @@ public final class ConstructionBlockJournal {
     /** Must be committed BEFORE a future physical writer acts. Earlier intents must be acknowledged. */
     public Intent prepare(UUID operation,UUID draftId,int ordinal,String nativeAfter)throws SQLException {
         Objects.requireNonNull(operation);Objects.requireNonNull(draftId);Objects.requireNonNull(nativeAfter);
+        return transaction(()->prepareRows(operation,draftId,ordinal,nativeAfter));
+    }
+    /** Economic preparation for a future public writer, not world-write permission or building activation. */
+    public Intent preparePublic(UUID operation,UUID draftId,int ordinal,String nativeAfter,
+                                ConstructionMaterials.Authority authority,long now,Set<UUID> worlds)throws SQLException {
+        Objects.requireNonNull(operation);Objects.requireNonNull(authority);var present=Set.copyOf(worlds);
         return transaction(()->{
-            var draft=new ConstructionDraftRepository(connection).find(draftId).orElseThrow(()->new SQLException("Unknown construction draft"));
-            var placements=new ArrayList<Map.Entry<Position,String>>();draft.template().stages().forEach(stage->placements.addAll(stage.blocks().entrySet()));
-            if(ordinal<0||ordinal>=placements.size())throw new IllegalArgumentException("Construction ordinal outside frozen plan");
-            var placement=placements.get(ordinal);var at=draft.origin().plus(draft.transform().apply(placement.getKey(),draft.template().size()));
-            // Block-state orientation is validated by the Paper adapter. The SQL owner forbids material substitution.
-            String material=placement.getValue().split("\\[",2)[0];
-            if(!nativeAfter.matches("minecraft:[a-z0-9_]+(?:\\[[a-z0-9_=,]+\\])?")||nativeAfter.length()>256||!material.equals(nativeAfter.split("\\[",2)[0]))
-                throw new IllegalArgumentException("Native state changes the frozen plan material");
-            var old=find(operation);
-            if(old.isPresent()) {
-                var value=old.orElseThrow();if(!value.draft().equals(draftId)||value.ordinal()!=ordinal||!value.at().equals(at)||!value.after().equals(nativeAfter))
-                    throw new SQLException("Construction operation identity reused with changed terms");
-                excludeAuthoredTrees(draft,at,material);
-                return value;
-            }
-            try(var s=connection.prepareStatement("SELECT count(*) FROM construction_block_journal WHERE draft_id=? AND ordinal<? AND state='APPLIED'")){
-                s.setString(1,draftId.toString());s.setInt(2,ordinal);try(var r=s.executeQuery()){if(!r.next()||r.getInt(1)!=ordinal)throw new SQLException("Earlier construction intent is incomplete or conflicted");}
-            }
-            excludeAuthoredTrees(draft,at,material);
-            try(var s=connection.prepareStatement("INSERT INTO construction_block_journal VALUES(?,?,?,?,?,?,'minecraft:air',?,'PREPARED')")) {
-                s.setString(1,operation.toString());s.setString(2,draftId.toString());s.setInt(3,ordinal);s.setInt(4,at.x());s.setInt(5,at.y());s.setInt(6,at.z());s.setString(7,nativeAfter);s.executeUpdate();
-            }
-            return new Intent(operation,draftId,ordinal,at,"minecraft:air",nativeAfter,State.PREPARED);
+            var draft=new ConstructionDraftRepository(connection).find(draftId).orElseThrow(()->new SQLException("Unknown public project"));
+            if(!present.contains(draft.world())||!authority.draft().equals(draftId)||!authority.world().equals(draft.world())
+                    ||!authority.worldLoaded()||!authority.siteCleared()||now<authority.checkedMillis()||now-authority.checkedMillis()>5000)
+                throw new SQLException("Public construction requires fresh exact-project site evidence and a present world");
+            new ConstructionSiteReservations(connection).requireActiveRows(draft);
+            new ConstructionPublicWork(connection).requireReadyRows(draft,ordinal);
+            return prepareRows(operation,draftId,ordinal,nativeAfter);
         });
+    }
+    private Intent prepareRows(UUID operation,UUID draftId,int ordinal,String nativeAfter)throws SQLException {
+        var draft=new ConstructionDraftRepository(connection).find(draftId).orElseThrow(()->new SQLException("Unknown construction draft"));
+        var placements=new ArrayList<Map.Entry<Position,String>>();draft.template().stages().forEach(stage->placements.addAll(stage.blocks().entrySet()));
+        if(ordinal<0||ordinal>=placements.size())throw new IllegalArgumentException("Construction ordinal outside frozen plan");
+        var placement=placements.get(ordinal);var at=draft.origin().plus(draft.transform().apply(placement.getKey(),draft.template().size()));
+        // Block-state orientation is validated by the Paper adapter. The SQL owner forbids material substitution.
+        String material=placement.getValue().split("\\[",2)[0];
+        if(!nativeAfter.matches("minecraft:[a-z0-9_]+(?:\\[[a-z0-9_=,]+\\])?")||nativeAfter.length()>256||!material.equals(nativeAfter.split("\\[",2)[0]))
+            throw new IllegalArgumentException("Native state changes the frozen plan material");
+        var old=find(operation);
+        if(old.isPresent()) {
+            var value=old.orElseThrow();if(!value.draft().equals(draftId)||value.ordinal()!=ordinal||!value.at().equals(at)||!value.after().equals(nativeAfter))
+                throw new SQLException("Construction operation identity reused with changed terms");
+            excludeAuthoredTrees(draft,at,material);
+            return value;
+        }
+        try(var s=connection.prepareStatement("SELECT count(*) FROM construction_block_journal WHERE draft_id=? AND ordinal<? AND state='APPLIED'")){
+            s.setString(1,draftId.toString());s.setInt(2,ordinal);try(var r=s.executeQuery()){if(!r.next()||r.getInt(1)!=ordinal)throw new SQLException("Earlier construction intent is incomplete or conflicted");}
+        }
+        excludeAuthoredTrees(draft,at,material);
+        try(var s=connection.prepareStatement("INSERT INTO construction_block_journal VALUES(?,?,?,?,?,?,'minecraft:air',?,'PREPARED')")) {
+            s.setString(1,operation.toString());s.setString(2,draftId.toString());s.setInt(3,ordinal);s.setInt(4,at.x());s.setInt(5,at.y());s.setInt(6,at.z());s.setString(7,nativeAfter);s.executeUpdate();
+        }
+        return new Intent(operation,draftId,ordinal,at,"minecraft:air",nativeAfter,State.PREPARED);
     }
     /** Native plugin writes do not emit player placement events: authored logs must never become natural timber sources. */
     private void excludeAuthoredTrees(ConstructionDraft draft,Position at,String material)throws SQLException {

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 106;
+    static final int CURRENT_VERSION = 107;
 
     @FunctionalInterface
     interface Migration {
@@ -955,7 +955,8 @@ final class SchemaMigrator {
                 SheepMigration::apply,
                 ConstructionSiteReservations::createSchema,
                 ConstructionMaterialReturns::createSchema,
-                ConstructionSupplyOrders::createSchema
+                ConstructionSupplyOrders::createSchema,
+                ConstructionPublicWork::createSchema
 
 
         ));
@@ -1157,6 +1158,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"resource_investment_reviews",Set.of("business_id","settlement_id","sequence","proposal","industry","observed_step","observed_ms","demand_value","policy","explanation"));
             }
             if(migrations.size()>=102){requireColumns(connection,"construction_material_reservations",Set.of("operation_id","draft_id","business_id","reserved_ms"));requireColumns(connection,"construction_material_items",Set.of("operation_id","commodity","units","before_units","after_units"));}
+            if(migrations.size()>=107){requireColumns(connection,"construction_stage_work",Set.of("draft_id","stage","work","first_period","last_period"));requireColumns(connection,"construction_public_work",Set.of("draft_id","stage","resident_id","period","effort"));}
             if(migrations.size()>=106)requireColumns(connection,"construction_supply_orders",Set.of("operation_id","draft_id","seller_id","source","business_id","commodity","units","price","due_period","delivered_period","haul_window","cadence"));
             if(migrations.size()>=105)requireColumns(connection,"construction_material_returns",Set.of("return_operation","reservation_operation","commodity","units","before_units","after_units","returned_ms"));
             if(migrations.size()>=104)requireColumns(connection,"construction_site_reservations",Set.of("draft_id","world_id","min_x","max_x","reserved_ms","released_ms"));

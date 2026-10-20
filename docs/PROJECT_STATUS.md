@@ -1,12 +1,23 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 construction foundation; real supplier purchases and delivery
+## Current — Phase4 construction foundation; paid supplies and earned public work
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Implemented and verified:
+- Public construction work now runs inside actual earned food periods. Only
+  eligible unemployed non-owner adults with unspent time can work; farm employees
+  and students are excluded. Legacy all-adult farm output cannot double as builders.
+  Food shortage, absent worlds, incomplete supplies and saved protection pause
+  work. First earned stage effort escrows its frozen material cost once; later
+  stages wait for prior physical acknowledgements. Work, food checkpoint and
+  material escrow roll back together. This currently covers public paid-supply
+  projects only; private staff diversion is still ahead.
+- A public economic journal gate now requires full earned stage work and backed
+  escrow, fresh exact-project evidence and earlier acknowledgements. This grants
+  neither world-write authority nor completed building/housing capacity.
 - Normal simulation pulses now settle up to16 ready prepaid cargo receipts using
   existing earned clocks. Unknown/absent worlds and paused simulation cannot
   deliver; new spending stays disabled in the delivery-only adapter. A late batch
@@ -18,7 +29,7 @@ Implemented and verified:
   replay/restart and late SQL failures do not duplicate money or goods. Editable
   supplies prices use defaults for old files. This is a backend API, not automatic
   project founding, orders or block placement. Paid cargo is retained; cancellation
-  and stage consumption are still ahead.
+  and automatic order selection are still ahead; stage escrow now exists for public work.
 - Three original editable plans: path, storehouse and four-bed home; strict native
   palettes and all eight rotations/mirrors, read-only bounded admin previews.
 - Frozen world/village-linked drafts, deterministic road-adjacent site search,
@@ -26,7 +37,8 @@ Implemented and verified:
 - Durable ordered block intents, authored-log forestry exclusions and a writer
   obtainable only inside marked, explicitly bounded disposable test servers.
 - Editable protected village/private spending eligibility and temporary labor
-  proposals. Quotes do not spend; labor proposals do not earn work yet.
+  proposals. Quotes do not spend; private labor remains proposed, while public
+  work is now booked in the real owner transaction described above.
 - Exact-draft site reservations refuse overlap. Protected empty player plots and
   later protections block material debits; unused releases retain site history.
 - Whole-household housing proposals reuse confirmed village-owned vacancies first,
@@ -45,41 +57,29 @@ Implemented and verified:
   Old cow/chicken receipt defaults and data are preserved; milk/egg retail excludes
   sheep. Wool is colour-neutral; old files missing only sheep use editable defaults.
 
-Validation: latest owner-loop Windows Wrapper clean verify46 unit +3 packaged
-checks passed36.068s, zero failures/errors/skips. Actual disposable Paper also
-passed installed supply settings, catalogue/native states and diagnostic routing;
-zero construction writes, stopped fixture, schema106 integrity/FKs clean. Earlier82+3
-integration checks passed64s, zero failures/errors/skips. Includes supplier payment,
-actual earned owner-clock delivery, shared transport, protected budgets, restart
-and version105 upgrade rollback/retry. Hosted b204a22 and288801d both passed full
-Windows/Linux verification; this newer batch needs its own hosted result. Earlier55+3
-integration checks passed32.984s; previous material/migration batch passed80+3
-in44.340s. All zero failures/errors/skips. Earlier affected
-livestock351/353 passed; the two integration issues were corrected and affected
-checks passed73+3. Sites/protection/migration follow-ups passed77+3 and51+3.
-Actual disposable Paper verified sheep paid-feed/wool/births, money/goods
-conservation, owner restart and pause guards, plus native shear events. Another
-fixture completed120 native home blocks/four bed pairs over two JVM starts,
-recovering a60-write/59-ack boundary and restoring all121 original cells.
-Home-restart fixture DBs healthy/FK-clean at104. Latest native all-orientation
-home-capacity/catalogue/settings/router validation also passed, with a healthy
-schema105 DB. Servers stopped and helpers archived. The
-first home-restart attempt refused unloaded chunks; corrected test-only staging
-reopens at most four generated saved-footprint chunks. Simulation/writer do not
-load chunks. Schema106 adds supplier order receipts; latest change is SQL/config only.
+Validation: latest focused Windows Wrapper clean verify86 unit +3 packaged
+checks passed59.632s, zero failures/errors/skips; preceding public-work migration/
+forest/study batch passed78+3 in51.257s. Actual disposable Paper completed a paid
+public path: real protected supplier payment, earned delivery, five saved work
+units over three food periods, once-only stage escrow, five native blocks, exact
+retries/DB-reopen recovery, changed-block preservation and no unloaded-target
+force-load. All original cells restored; stopped fixture DBs at107 healthy/FK-clean.
+Earlier real Paper verified sheep, native templates and a120-block home over two
+JVM runs. Ordinary construction remains disabled; those were explicitly bounded
+private tests. Hosted85419c6 passed full Windows/Linux; later commits need their
+own hosted result.
 See DEVLOG.md and CONSTRUCTION.md for detailed evidence and earlier checkpoints.
 
 Schema100 drafts,101 journal,102 held stock,103 preserved species-constraint
-upgrade,104 site reservations,105 material returns,106 supplier orders. No automatic DB resets.
+upgrade,104 site reservations,105 material returns,106 supplier orders,107 public work/stage escrow. No automatic DB resets.
 Migration rollback and preservation tests use temporary databases. Back up before
 upgrading; older plugin versions refuse newer schemas.
 
 Remaining: live housing demand/vacancy/occupancy adapters, automatic procurement
-selection/scheduling, actual labor booking/subtraction from normal production, stage work/
-material consumption, current-write production protections/editor compatibility,
+selection/scheduling, private employee labor diversion, later-stage/native reconciliation, current-write production protections/editor compatibility,
 completed building/housing activation, vacancy reuse, upgrades/maintenance and
-full autonomous growth acceptance. The physical native test did not claim funded
-work or home occupancy. Normal gameplay still cannot place construction blocks.
+full autonomous growth acceptance. The paid path test verified funded public work,
+not home occupancy or ordinary autonomous construction. Normal gameplay still cannot place construction blocks.
 No design question currently blocks the next scoped work. Feature pushes are
 permitted; never merge/push main. Hosted current candidate status must be checked
 by commit; local passing tests are not a claim of hosted Windows/Linux green.
