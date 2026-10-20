@@ -87,6 +87,9 @@ sign is not permission. User also approved repossession with real capacity loss
 and explicit building exclusions. These are recorded design decisions, not built
 controls. Live donation/plot/reclamation and vacancy adapters remain ahead; proposed
 editable boundaries and typed use must not claim later-phase civic mechanics.
+P4 catalogue intent now includes the approved civic/infrastructure extras listed
+in PHASE4_CHECKLIST.md. Apartment recognition is under discussion; no unit scanner,
+multi-household assignment or new rental economy is implemented.
 Feature pushes are
 permitted; never merge/push main. Hosted current candidate status must be checked
 by commit; local passing tests are not a claim of hosted Windows/Linux green.

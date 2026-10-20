@@ -148,3 +148,14 @@ both schema107 DBs healthy/FK-clean, helper archived/server stopped. Private lab
 need/site/order coordination, production write authority and actual building/home
 activation remain ahead. These partial results do not complete a whole item;
 4/16 remains25%.
+
+## October20 catalogue scope clarification
+
+User agreed that the civic/infrastructure extras belong in the P4 content target:
+squares, parks/gardens, wells/fountains, market shelters/stalls, meeting/town halls,
+churches/chapels, town entrances/gates and modest walls, alongside the existing
+housing/industry/local-path/dock catalogue. These are content/physical-use targets,
+not implemented structures or later-phase religion/government/military mechanics.
+Apartment/multi-household recognition was raised for design discussion; separate
+dwelling units and shared circulation are proposed, not built or approved rental
+rules. No completed gate or percentage changes on the strength of this discussion.

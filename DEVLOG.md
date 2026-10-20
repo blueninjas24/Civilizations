@@ -1,5 +1,14 @@
 # Civilizations Development Log
 
+## 2026-10-20 — record civic catalogue scope and apartment design discussion
+
+Recorded explicit user agreement to P4 civic/infrastructure extras alongside the
+core housing/industry catalogue. Recorded the apartment question and proposed
+building/unit/shared-space distinction without claiming implementation or silently
+adding rent, landlords, religion, government or military mechanics. Updated current
+status/progress/checklist intent; no completed gate or percentage change. Docs-only
+review via git diff --check; no code, schema, world or database changes or build.
+
 ## 2026-10-20 — record donation-only building use and reclamation direction
 
 Recorded the user's player-building opt-in rule, withdrawal of donated housing

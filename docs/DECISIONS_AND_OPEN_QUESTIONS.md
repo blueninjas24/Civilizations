@@ -1,5 +1,27 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October20 — broader P4 structure catalogue requested; apartments under discussion
+
+User explicitly agreed to include the previously proposed P4 civic/infrastructure
+extras, emphasizing that physical growth is a consequential phase. Content targets
+include housing and reuse; farm/livestock/fishery/logging/mine/quarry/sand-pit sites;
+blacksmith, bakery, general craftsman and warehouse premises; local streets/feeder
+paths, docks, small crossings/steps/retaining structures, town entrances/gates and
+modest walls; squares, parks/gardens, wells/fountains, market shelters/stalls,
+meeting/town halls and churches/chapels. This updates catalogue intent, not current
+implementation or permission to add later-phase religion/government/war mechanics.
+No promised blueprint count, completion date or percentage increase follows.
+
+User asked how multi-family/apartment housing, including player donations, would
+be recognized. Proposed model: plot -> building -> separately identified dwelling
+units -> household assignments, with shared circulation separate from private unit
+space. Authored templates can declare units; donated layouts would require bounded
+inspection and confirmed editable unit boundaries. Beds/doors alone do not prove
+separate apartments. This is a design proposal, not implemented detection, rental
+accounting or an approved new landlord/rent economy. Preserve whole-household fit,
+explicit donation consent and reclamation/protection history. Exact unit-validation
+and ownership/economy terms remain subsequent scoped design work.
+
 ## October20 — player buildings require donation; reclamation and explicit exclusions approved
 
 User selected player-built structures being off limits without a clear donation
