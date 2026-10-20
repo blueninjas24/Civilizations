@@ -46,6 +46,15 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Normal-server off-limits plot controls now select bounded corners, display a
+68-particle outline and require exact clickable ownership/release confirmation.
+Native Paper verified actual sign interaction, no claim on preview, saved full-height
+columns surviving sign removal and confirmed owner release retaining history.
+Foreign recorded owner/site conflicts are refused; own overlapping replacement
+plots allow continuous protection while resizing. This does not complete the full
+permission/write-boundary or occupancy milestone. Housing qualification is awaiting
+a covered-sleeping-area decision before live assignments.
+
 Schema108 saves frozen building/unit records, reviewed consent/reclamation history
 and explicit building exclusions/releases. Existing construction protection checks
 now include those saved plots even after reclamation. Bed/access inspection has a

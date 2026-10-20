@@ -54,6 +54,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.LivestockMarketMenu livestockMarket;
     private com.blueninjas24.civilizations.paper.PaperPenControls pens;
     private com.blueninjas24.civilizations.paper.PaperConstructionPreview construction;
+    private com.blueninjas24.civilizations.paper.PaperBuildingProtection buildings;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
     private com.blueninjas24.civilizations.paper.PaperFisheryStartup fisheryStartup;
@@ -162,6 +163,11 @@ public final class Civilizations extends JavaPlugin {
             pens=new com.blueninjas24.civilizations.paper.PaperPenControls(population,penSettings,getLogger());
             pens.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(pens,this);
             try {
+                var buildingSettings=com.blueninjas24.civilizations.paper.BuildingProtectionSettings.read(getConfig());
+                buildings=new com.blueninjas24.civilizations.paper.PaperBuildingProtection(population,buildingSettings,getLogger());
+                buildings.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(buildings,this);
+            }catch(IllegalArgumentException invalid){getLogger().log(Level.WARNING,"Building protection disabled; fix building-protection settings and restart.",invalid);}
+            try {
                 var constructionLibrary=com.blueninjas24.civilizations.paper.PaperConstructionLibrary.load(this);
                 population.configureConstruction(constructionLibrary.funding(),constructionLibrary.labor());
                 construction=new com.blueninjas24.civilizations.paper.PaperConstructionPreview(constructionLibrary,population::constructionProtections);
@@ -170,7 +176,7 @@ public final class Civilizations extends JavaPlugin {
                 getLogger().log(Level.WARNING,"Construction previews disabled; fix construction/*.yml and restart. Population and economy remain active.",invalid);
             }
             var router=new com.blueninjas24.civilizations.paper.CivilizationsCommand(debug,
-                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining,barterCommand,livestockMarket,pens,construction);
+                    new com.blueninjas24.civilizations.paper.FoodAidPreviewCommand(population,previewPolicy),bargaining,barterCommand,livestockMarket,pens,construction,buildings);
             command.setExecutor(router);command.setTabCompleter(router);bargaining.runTaskTimer(this,1,1);
             // Poll completed transfer stages promptly; each adapter still caps work at four players.
             // Five-second polling multiplied the wait across save/ledger stages during playtesting.
@@ -278,6 +284,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(buildings!=null){buildings.cancel();buildings.close();}
         if(construction!=null)construction.cancel();
         if(pens!=null){pens.cancel();pens.close();}
         if(livestockMarket!=null)livestockMarket.close();

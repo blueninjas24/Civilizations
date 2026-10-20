@@ -53,3 +53,14 @@ pen-protection:
   maximum-animals: 128
   maximum-requests: 8
   preview-seconds: 60
+
+# Additional explicit building/empty-plot exclusion. Does not donate or adopt anything.
+# Players declare ownership; this governs Civilizations, not other players/plugins.
+# Selected X/Z columns are protected at every height, even after the sign is removed.
+building-protection:
+  enabled: true
+  maximum-edge: 128
+  maximum-area: 4096
+  maximum-requests: 16
+  preview-seconds: 60
+  selection-seconds: 300

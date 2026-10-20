@@ -1,5 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October20 — open: covered sleeping areas for usable donated housing
+
+Before live household assignments, decide whether donated housing needs a roof
+above its sleeping area or outdoor beds may qualify. Recommendation: covered beds,
+with editable rules, alongside existing real-bed/support/headroom/access checks.
+Asked the user; answer pending. Do not turn the bed/access assessment into usable
+housing capacity or silently choose enclosure/weather rules while this is open.
+Explicit off-limits protection and saved consent are independent of habitability.
+
 ## October20 — players may declare ownership for first building donation
 
 User selected players, rather than mandatory administrator approval, for the first
@@ -14,8 +23,8 @@ this is not a general anti-grief system or third-party claim-plugin integration.
 
 Implemented backend: player-bound expiring donation/reclamation previews, a separate
 explicit ownership declaration, current world/permissions and protection checks,
-expected prior-consent matching and bounded exact retries on the SQL owner. Live
-building signs/boundary controls and housing assignment are not yet enabled.
+expected prior-consent matching and bounded exact retries on the SQL owner. Explicit off-limits building sign/selection controls are now verified; live
+building donation, unit boundaries and housing assignment remain unfinished.
 
 ## October20 — village owned apartments without rent and a living user handbook
 

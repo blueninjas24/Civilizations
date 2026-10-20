@@ -55,15 +55,16 @@ is clipped to the bounded local construction footprint; no world chunks are load
 
 ## Not yet available
 
-There is no live donation/reclamation/exclusion sign, plot tool or general building
-command. No player can obtain rights through this backend directly. A separate current-world
+Live off-limits exclusion sign/plot selection and confirmed release now use this
+backend; see BUILDING_PROTECTION.md. There is still no live building donation,
+reclamation or apartment-assignment interface. No client writes registry rows directly. A separate current-world
 bed/access inspector now exists (DWELLING_INSPECTION.md), without full habitability
 or activation authority. Occupancy assignment, changed-layout revisions and a safe
 authenticated confirmation interface are subsequent work. Donation permission is
 not current habitability, availability, private property title or block-write consent.
 
-The existing handbook's planned-control labels remain correct; this batch adds no
-new player-facing instructions. No production server or save was opened.
+The handbook now documents the live off-limits controls separately from planned
+building donation/reclamation. No production server or save was opened.
 
 ## Verification
 

@@ -10,6 +10,12 @@ commands:
     description: Civilizations construction previews, pen protection, village food aid, bargaining, livestock market and administrative diagnostics.
     usage: /civ market or /civ aid [settlement UUID] or /civ bargain <emeralds|accept> [settlement UUID] or /civ barter <timber|stone|accept> [settlement UUID] or /civ debug status | construction | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest
 permissions:
+  civilizations.building.protect:
+    description: Preview and explicitly confirm your own off-limits building plot; never grants donation, animal adoption or block changes.
+    default: true
+  civilizations.building.admin:
+    description: Review and release another player's saved building exclusion after confirmation.
+    default: op
   civilizations.construction.preview:
     description: Inspect authored construction templates and read-only site previews; grants no block-changing permission.
     default: op

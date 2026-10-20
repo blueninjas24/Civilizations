@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.2 | 20 October 2026 | Player and server owner edition
+Living draft 0.3 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline ae1971f plus verified player-declaration workflow; live building controls remain unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 108. Baseline 6d1499e plus verified off-limits building controls; housing adoption remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -46,6 +46,7 @@ Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. 
 - 19 Protection preview and recovery commands
 - 20 Terms and a connected village example
 - 21 Roadmap and maintaining this guide
+- 22 Protect a building plot
 
 ## 1 Your first village session
 
@@ -139,7 +140,7 @@ Related chapters: donation and construction. Sources: DECISIONS_AND_OPEN_QUESTIO
 
 ## 5 Donate protect and reclaim buildings
 
-Status: Approved P4 direction. General building donation, exclusion, plot editing and reclamation are not available yet.
+Status: Explicit off-limits plot protection is available. Building donation, apartment selection and housing reclamation remain planned.
 
 ### Explicit consent
 
@@ -149,9 +150,9 @@ Players will explicitly declare that an unrecorded building belongs to them; fir
 
 ### Boundaries and extra protection
 
-Editable plots would distinguish a building from surrounding yards, gardens or shared land. Visible outlines, overlap checks and configurable limits should accommodate both compact suburbs and large estates. More land does not automatically provide more beds or production.
+For an off-limits plot, select opposite corners and preview its visible outline before confirming ownership. Chapter 22 gives the commands and optional protection sign. Selected X/Z columns are excluded at every height. Boundaries for donated buildings and separate apartments remain planned; more land does not create beds or production.
 
-An explicit off-limits designation is planned as an additional safeguard. Private buildings still need donation even without that extra marker. These controls govern Civilizations actions; they are not a general anti-grief system for other players.
+Saved protection survives sign removal. Private buildings still need explicit donation even without this extra marker. Protection governs Civilizations construction; it does not prevent other players editing or vanilla villagers walking through. Releasing an exclusion changes construction permission; housing reclamation remains planned.
 
 ### Repossession changes village capacity
 
@@ -296,7 +297,7 @@ Related chapters: pen controls and trading. Sources: LIVESTOCK_ADOPTION.md, LIVE
 
 ## 12 Protect an existing livestock pen
 
-Status: Available pen controls. General building controls remain planned.
+Status: Available pen controls. Separate building-plot protection is covered in Chapter 22; housing adoption remains planned.
 
 ### Inspect before confirmation
 
@@ -434,7 +435,7 @@ Sneak-right-click a managed villager with supported plain food for donation/sale
 
 civilizations.aid.preview permits previews; civilizations.aid.donate permits donations; civilizations.trade permits trading and stocked livestock purchases. They default to ordinary players, but server owners can change permissions/settings.
 
-There are no working general building-donate, apartment, repossess, rent or plot-edit commands yet. Their entries will be added after implementation and verification.
+Off-limits building plot selection/protection/release commands are available in Chapter 22. Building-donate, apartment, repossess and rent controls remain unfinished.
 
 Sources: plugin.yml, FoodAidPreviewCommand, FoodBargainingCommand, FoodBarterCommand and LivestockMarketMenu.
 
@@ -549,4 +550,43 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.2 records player-declared first-donation ownership, current schema 108 and the verified consent workflow. Live donation/plot controls and housing assignment remain unfinished. Village-owned apartments still defer rent and landlords.
+Edition 0.3 documents confirmed off-limits building plots, their signs, settings and commands. Housing donation/assignment remains unfinished, with covered sleeping-area eligibility still awaiting a decision. Village-owned apartments defer rent and landlords.
+
+
+## 22 Protect a building plot
+
+Status: Available. Saves a construction exclusion; does not donate buildings, adopt animals or activate housing.
+
+### Select and confirm
+
+1. Stand at opposite plot corners and run /civ building corner1, then corner2.
+2. Run /civ building protect. Review the X/Z bounds and green outline.
+3. Click Confirm: I own this plot. Wait for the final protected message.
+
+Nothing is saved on preview. Protection covers those columns at every height. Your ownership declaration cannot override another recorded donor, protected owner or reserved construction.
+
+Optional sign: put [Civ Building] on line one and protect on line two. Right-click it inside your selected plot to preview. Removing the sign does not remove saved protection.
+
+### Command glossary
+
+| Command | Meaning |
+|---|---|
+| /civ building corner1 | Set first corner at your feet |
+| /civ building corner2 | Set opposite corner |
+| /civ building protect | Outline and preview; save nothing yet |
+| /civ building preview | Same as protect |
+| /civ building here | Show active exclusion IDs here |
+| /civ building release <ID> | Preview release of your exclusion |
+| /civ building cancel | Discard an unsubmitted selection/preview |
+| /civ building confirm <ID> owned | Manual ownership confirmation |
+| /civ building confirmrelease <token> | Manual release confirmation |
+
+Editing corners invalidates old confirmation buttons. To resize, protect a replacement first, then separately confirm release of the old exclusion. Other buildings, pens and exclusions retain their protection. Submitted saves can finish after disconnect; use here to check.
+
+### Settings and authority
+
+config.yml building-protection defaults: 4,096 columns, edge 128, 16 concurrent players, 60-second confirmations, 300-second idle selections. Old files use defaults; invalid settings disable these controls only. Restart after editing.
+
+civilizations.building.protect defaults true; civilizations.building.admin defaults op and permits confirmed release of another player's exclusion. This is not general anti-grief protection or proof of historical authorship.
+
+Related: donation and server settings. Source: BUILDING_PROTECTION.md.

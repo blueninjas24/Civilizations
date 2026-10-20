@@ -183,6 +183,7 @@ public final class BuildingRegistry {
         return transaction(() -> {
             var old = exclusion(exclusion.id());
             if (old.isPresent()) { if(!old.get().equals(exclusion)) throw new Declined("Exclusion identity changed"); return old.get(); }
+            requireExclusionRights(exclusion,authority);
             try (var s = connection.prepareStatement("INSERT INTO building_exclusions VALUES(?,?,?,?,?,?,?,?,?,?)")) {
                 s.setString(1,exclusion.id().toString());s.setString(2,exclusion.world().toString());s.setString(3,exclusion.actor().toString());
                 bindBounds(s,4,exclusion.bounds());s.setLong(10,exclusion.createdMillis());s.executeUpdate();
@@ -221,6 +222,35 @@ public final class BuildingRegistry {
               AND NOT EXISTS(SELECT 1 FROM building_exclusion_releases r WHERE r.exclusion_id=e.id) LIMIT 1
             """)) {
             area(s,world,bounds);try(var r=s.executeQuery()){return r.next();}
+        }
+    }
+    public Optional<Exclusion> findExclusion(UUID id)throws SQLException{return exclusion(id);}
+    /** Bounded active IDs only; no snapshot/world scan and no inference of building ownership. */
+    public List<UUID> exclusionsAt(UUID world,int x,int z)throws SQLException {
+        var result=new ArrayList<UUID>();
+        try(var s=connection.prepareStatement("""
+            SELECT e.id FROM building_exclusions e WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=?
+              AND NOT EXISTS(SELECT 1 FROM building_exclusion_releases r WHERE r.exclusion_id=e.id) ORDER BY e.id LIMIT 33
+            """)) {
+            s.setString(1,world.toString());s.setInt(2,x);s.setInt(3,x);s.setInt(4,z);s.setInt(5,z);
+            try(var r=s.executeQuery()){while(r.next()){
+                if(result.size()==32)throw new Declined("Too many overlapping building exclusions; ask an administrator to review");
+                result.add(UUID.fromString(r.getString(1)));
+            }}
+        }
+        return List.copyOf(result);
+    }
+    private void requireExclusionRights(Exclusion e,Authorization authority)throws SQLException {
+        if(authority.administrator())return;
+        for(String sql:List.of(
+                "SELECT 1 FROM building_records WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=? AND donor_id<>? LIMIT 1",
+                "SELECT 1 FROM building_exclusions e WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=? AND actor_id<>? AND NOT EXISTS(SELECT 1 FROM building_exclusion_releases r WHERE r.exclusion_id=e.id) LIMIT 1",
+                "SELECT 1 FROM protected_pen_columns c JOIN active_pen_claims a ON a.pen_id=c.pen_id JOIN protected_pens p ON p.id=c.pen_id WHERE c.world_id=? AND c.x<=? AND c.x>=? AND c.z<=? AND c.z>=? AND p.owner_id<>? LIMIT 1",
+                "SELECT 1 FROM construction_site_reservations WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=? AND released_ms IS NULL LIMIT 1")) {
+            try(var s=connection.prepareStatement(sql)) {
+                area(s,e.world(),e.bounds());if(!sql.contains("construction_site_reservations"))s.setString(6,e.actor().toString());
+                try(var r=s.executeQuery()){if(r.next())throw new Declined("Plot overlaps another recorded owner or reserved construction; ask an administrator to review");}
+            }
         }
     }
 

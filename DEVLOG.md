@@ -1,5 +1,43 @@
 # Civilizations Development Log
 
+## 2026-10-20 — live explicit off-limits building plots
+
+Added PaperBuildingProtection and BuildingProtectionSettings, routed through
+/civ building. Players select opposite corners, review bounded green particles
+and explicitly confirm ownership before an exclusion is saved. Optional
+[Civ Building]/protect signs request the selected preview only. Saved all-height
+X/Z exclusions survive sign removal. Here reports active IDs; recorded owners or
+admins separately confirm release, retaining history and other protections.
+New exclusions cannot overlay another recorded donor, active foreign exclusion,
+protected pen or reserved construction. Own replacement-before-release permits
+safe resizing. Explicit bounds/expiry/request settings and permission defaults
+are in config.yml/plugin.yml. Invalid settings disable only these controls.
+All JDBC remains on PopulationSession's owner queue; no chunks are force-loaded.
+No donation, household capacity, housing reclamation, money/items or normal
+construction is activated. Schema remains108; real server/world saves untouched.
+
+Final command: `.\mvnw.cmd -Dtest=PaperBuildingProtectionTest,PaperPenControlsTest,BuildingRegistryTest,BuildingConsentRequestsTest,PopulationSessionTest clean verify`.
+Passed56 unit +3 packaged integration checks in33.211s, zero failures/errors/skips.
+Seven new UI/settings checks, owner-queue integration and registry additions cover
+explicit matching tokens, current authority/world, edited/expired selections,
+retry identity, queued saves, overlap rights and safe release. Native Paper26.2
+build129 probe passed installed settings/permissions/routing, real sign interaction,
+non-admin confirmation,25 protected columns surviving sign removal, authority
+refusal and confirmed release/history. Original sign cell restored; fixture stopped,
+helper archived; databases108/integrity-ok/FK-clean. Initial delayed fixture staging
+found an unloaded spawn chunk and stopped safely; first-tick staging corrected
+that without force-loading. Final SQL overlap and retry-authorization guards were
+added after native proof and verified by the final focused run. A further native
+rerun was not executed: automatic approval review failed at account usage limit.
+
+Updated status/progress/checklist/registry notes and BUILDING_PROTECTION.md.
+Handbook0.3 adds live plot controls and command/settings glossary; rendered and
+reviewed24 PDF pages with22 linked chapter bookmarks and consistent edition footers.
+P4 stays4/16 milestones (25%); automatic construction remains disabled. Covered
+sleeping-area eligibility was asked before assigning households; answer pending.
+Latest work is local/uncommitted; last recorded pushed feature head6d1499e.
+Git commit/push remains pending approval-review availability. Main is unchanged.
+
 ## 2026-10-20 — player-declared ownership and bounded consent confirmation
 
 Recorded the user's players choice: authenticated players explicitly declare that

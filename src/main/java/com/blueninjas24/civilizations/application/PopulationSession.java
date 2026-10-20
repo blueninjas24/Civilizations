@@ -1361,6 +1361,37 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<Void> cancelBuildingConsent(UUID player) {
         return submit(()->{buildingConsents().cancel(player);return null;});
     }
+    private void requireBuildingWorld(UUID expected,UUID current)throws SQLException {
+        requireReady();
+        if(!expected.equals(current)||loadedWorlds==null||!loadedWorlds.contains(expected))
+            throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Building world is absent or changed");
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.BuildingRegistry.Exclusion> protectBuilding(
+            com.blueninjas24.civilizations.database.BuildingRegistry.Exclusion request,String worldName,boolean confirmed) {
+        return submit(()->{
+            requireBuildingWorld(request.world(),request.world());
+            if(!confirmed)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Explicit plot ownership confirmation required");
+            database.getVillageIdentityRepository().observeWorld(request.world(),worldName);
+            return new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).exclude(request,
+                    com.blueninjas24.civilizations.database.BuildingRegistry.Authorization.playerDeclaration(request.actor(),true));
+        });
+    }
+    public CompletableFuture<Optional<com.blueninjas24.civilizations.database.BuildingRegistry.Exclusion>> buildingExclusion(UUID id) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).findExclusion(id);});
+    }
+    public CompletableFuture<java.util.List<UUID>> buildingExclusionsAt(UUID world,int x,int z) {
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).exclusionsAt(world,x,z);});
+    }
+    public CompletableFuture<Void> releaseBuildingExclusion(UUID operation,UUID id,UUID actor,UUID currentWorld,boolean administrator,long requestedMillis) {
+        return submit(()->{
+            requireReady();
+            var registry=new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection());
+            var saved=registry.findExclusion(id).orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown building exclusion"));
+            requireBuildingWorld(saved.world(),currentWorld);
+            registry.releaseExclusion(operation,id,new com.blueninjas24.civilizations.database.BuildingRegistry.Authorization(actor,administrator,false,true),requestedMillis);
+            return null;
+        });
+    }
     /** Trusted adapter supplies fresh enclosure/animal/authority evidence; no Bukkit objects cross threads. */
     public CompletableFuture<com.blueninjas24.civilizations.industry.PenProtection> protectPen(
             com.blueninjas24.civilizations.industry.PenProtection pen,boolean authorized) {

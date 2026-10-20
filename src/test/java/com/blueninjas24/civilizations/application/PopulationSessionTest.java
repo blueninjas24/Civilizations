@@ -15,6 +15,28 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PopulationSessionTest {
+    @Test void explicitBuildingExclusionRequiresConfirmationAndRetainsHistoryAfterOwnerRelease()throws Exception {
+        var world=observed().worldId();var player=new UUID(0,81);
+        var bounds=new com.blueninjas24.civilizations.construction.BuildingLayout.Bounds(
+                new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(100,64,0),
+                new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(104,68,4));
+        var request=new com.blueninjas24.civilizations.database.BuildingRegistry.Exclusion(new UUID(0,82),world,player,bounds,1000);
+        try(var session=session(settings(2,12))) {
+            await(session.start(false,java.util.Set.of(world)));
+            var refused=assertThrows(ExecutionException.class,()->await(session.protectBuilding(request,"Fixture",false)));
+            assertInstanceOf(com.blueninjas24.civilizations.database.BuildingRegistry.Declined.class,refused.getCause());assertNull(session.status().failure());
+            assertEquals(request,await(session.protectBuilding(request,"Fixture",true)));
+            assertEquals(List.of(request.id()),await(session.buildingExclusionsAt(world,102,2)));
+            assertEquals(request,await(session.buildingExclusion(request.id())).orElseThrow());
+            assertThrows(ExecutionException.class,()->await(session.releaseBuildingExclusion(new UUID(0,83),request.id(),new UUID(0,99),world,false,1000)));
+            assertThrows(ExecutionException.class,()->await(session.releaseBuildingExclusion(new UUID(0,83),request.id(),player,new UUID(0,99),false,1000)));
+            assertNull(session.status().failure());
+            assertNull(await(session.releaseBuildingExclusion(new UUID(0,83),request.id(),player,world,false,1000)));
+            assertNull(await(session.releaseBuildingExclusion(new UUID(0,83),request.id(),player,world,false,1000)));
+            assertTrue(await(session.buildingExclusionsAt(world,102,2)).isEmpty());
+            assertEquals(request,await(session.buildingExclusion(request.id())).orElseThrow());
+        }
+    }
     @Test void playerBuildingDeclarationUsesOwnerQueueAndExpectedRefusalsDoNotMarkSimulationFailed()throws Exception {
         var world=observed().worldId();var player=new UUID(0,91);
         try(var session=session(settings(2,12))) {

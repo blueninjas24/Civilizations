@@ -1,14 +1,14 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 saved building consent and bed/access inspection
+## Current — Phase4 live off-limits plot controls; housing qualification decision pending
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is the23-page edition0.2, with
-21 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is the24-page edition0.3, with
+22 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
 owned units follow the same occupancy direction as homes. No live unit control is
@@ -16,6 +16,27 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- Players now have explicit off-limits plot controls: /civ building corner1/corner2,
+  outlined protect/preview, clickable ownership confirmation, here, release with
+  separate confirmation, and cancel. [Civ Building] + protect sign requests the
+  selected preview only. Saved exclusion survives sign removal and covers selected
+  X/Z columns at all heights. Own resize can protect a replacement before releasing
+  the old one. Foreign saved donors/exclusions/pens and reserved construction cannot
+  be overridden by ordinary player declarations. Registered buildings/other protections
+  survive exclusion release. No housing/animal adoption, player-edit prevention,
+  eviction, inventory transfer or normal block placement is enabled.
+- config.yml building-protection settings and default-true owner/default-op admin
+  permissions are installed. Old files use defaults; invalid settings disable only
+  building controls. Paper work is bounded selection/particle/permission work; all
+  JDBC stays on the SQL owner. Actor, world, expiry, edited selection, request limits
+  and current release authority are checked; accepted saves drain across shutdown.
+  Focused clean verify passed56 unit +3 packaged checks in33.211s, zero failures,
+  errors or skips. Native Paper proof passed before the final tested overlap/retry
+  guards; an extra native rerun was blocked by account approval-review usage limits.
+  Latest batch remains local/uncommitted until Git write/push approval review is
+  available; last recorded feature-branch backup is6d1499e.
+  See BUILDING_PROTECTION.md. Covered sleeping-area eligibility is awaiting the
+  user's choice before live housing assignment; bed/access proof alone grants no capacity.
 - The approved player-declaration policy now has an SQL-owner confirmation workflow:
   one exact player/layout/token, bounded expiring previews, separate explicit
   ownership affirmation, present-world/current-permission checks and saved-donor

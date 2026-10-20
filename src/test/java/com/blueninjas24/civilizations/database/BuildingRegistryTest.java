@@ -127,14 +127,32 @@ class BuildingRegistryTest {
             }
             try(var s=c.prepareStatement("INSERT INTO active_pen_claims VALUES(?)")){s.setString(1,pen.toString());s.executeUpdate();}
             assertThrows(SQLException.class,()->registry.donate(UUID.randomUUID(),home(10),donor,owner,null,1000));
+            var stranger=UUID.randomUUID();
+            assertThrows(Declined.class,()->registry.exclude(new Exclusion(UUID.randomUUID(),world,stranger,home(10).plot(),1000),Authorization.playerDeclaration(stranger,true)));
             var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_path.yml"));
             var draft=new ConstructionDraft(UUID.randomUUID(),town,world,p(100,64,0),Transform.identity(),template,1000);
             new ConstructionDraftRepository(c).save(draft);
             new ConstructionSiteReservations(c).reserve(draft.id(),new ConstructionMaterials.Authority(draft.id(),world,1000,true,true),1000);
             assertThrows(SQLException.class,()->registry.donate(UUID.randomUUID(),home(100),donor,owner,null,1000));
+            assertThrows(Declined.class,()->registry.exclude(new Exclusion(UUID.randomUUID(),world,donor,home(100).plot(),1000),owner));
             assertEquals(0,count(c,"SELECT count(*) FROM building_records"));
             assertEquals(1,count(c,"SELECT count(*) FROM active_pen_claims"));
             assertEquals(1,count(c,"SELECT count(*) FROM construction_site_reservations"));healthy(c);
+        }
+    }
+
+    @Test void playerDeclaredExclusionCannotOverrideAnotherSavedBuildingOrExclusionButOwnResizeIsAllowed()throws Exception {
+        try(var c=open()) {
+            village(c);var registry=new BuildingRegistry(c);var layout=home(10);
+            registry.donate(UUID.randomUUID(),layout,donor,owner,null,1000);
+            var stranger=UUID.randomUUID();var claim=new Exclusion(UUID.randomUUID(),world,stranger,layout.plot(),2000);
+            assertThrows(Declined.class,()->registry.exclude(claim,Authorization.playerDeclaration(stranger,true)));
+            var first=new Exclusion(UUID.randomUUID(),world,donor,home(100).plot(),2000);registry.exclude(first,owner);
+            assertThrows(Declined.class,()->registry.exclude(new Exclusion(UUID.randomUUID(),world,stranger,first.bounds(),2000),Authorization.playerDeclaration(stranger,true)));
+            var replacement=new Exclusion(UUID.randomUUID(),world,donor,first.bounds(),2100);registry.exclude(replacement,owner);
+            registry.releaseExclusion(UUID.randomUUID(),first.id(),owner,2200);
+            assertEquals(List.of(replacement.id()),registry.exclusionsAt(world,102,2));
+            assertTrue(registry.hasDonationPermission(layout.id()));healthy(c);
         }
     }
 

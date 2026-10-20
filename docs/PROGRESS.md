@@ -21,12 +21,19 @@ P4 controls separately, with21 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
 
+Players can now outline and explicitly protect a selected plot using commands
+or a building-protection sign. Sign removal leaves saved protection intact; owners
+can confirm releases or resize by protecting a replacement first. Other recorded
+owners remain protected. This adds a usable protection tool, while donation/unit
+selection, housing assignment and normal construction remain ahead. A covered-bed
+qualification choice is pending. These partial gates keep the total at25%.
+
 Saved building consent/protection history now survives retries and reclamation;
 reclaimed player buildings remain protected from new construction. Bed/access
 checks distinguish shared areas and individual homes, including supported upstairs
 access. An actual disposable Minecraft check passed for the four-bed home, a broken
 bed and absent/unloaded worlds. Full schema checkpoint:2096 unit +3 packaged checks;
-final focused build:49 +3, all passed. Donation signs, live assignments and normal
+final focused build:49 +3, all passed. Housing donation signs, live assignments and normal
 construction remain unfinished. Players may explicitly declare ownership for the first donation; the expiring
 preview/confirmation backend is tested. These partial gates do not change the25% milestone total.
 
