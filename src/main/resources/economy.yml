@@ -943,7 +943,7 @@ warehouse-founding:
   worker-commerce-experience: 1
   worker-capacity: 2
 
-# Village-owned cows/chickens only. Old files missing this section stay disabled.
+# Village-owned cows/chickens/sheep only. Old files missing this section stay disabled.
 # The positive saved-ownership guard blocks outside breeding-food interactions
 # and vanilla births; player animals and bucket/name-tag/leash interactions stay normal.
 # Suitable natural animals can start funded herds under livestock-adoption below.
@@ -967,6 +967,16 @@ livestock:
     feed-per-adult: 1
     renewable-units-per-adult: 1 # egg units
     meat-units-per-animal: 2
+    maximum-slaughter-per-period: 1
+
+  # Feed-backed abstract wool, regardless of coat colour. Vanilla shearing is blocked
+  # only for positively saved village sheep, avoiding duplicate stock/drops.
+  # Existing files without sheep use these defaults without being rewritten.
+  sheep:
+    breeding-reserve: 2
+    feed-per-adult: 1
+    renewable-units-per-adult: 1
+    meat-units-per-animal: 3
     maximum-slaughter-per-period: 1
 
 # Existing qualified, saved herds use the shared industry clock and paid deliveries.

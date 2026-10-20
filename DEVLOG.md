@@ -1,5 +1,32 @@
 # Civilizations Development Log
 
+## 2026-10-19 — approved sheep/wool supplier extension
+
+Approved sheep support now shares existing natural-animal recognition, saved
+ownership/protected pens, real startup funding, paid feed/work/storage, breeding
+reserves, saved age/birth/presence and deliberate-death accounting. Wool is an
+abstract colour-neutral commodity. Saved village sheep cannot duplicate it through
+player or dispenser shearing; unclaimed/player sheep remain vanilla. The milk/egg
+retail menu excludes sheep rather than treating them as chickens. Actual construction
+procurement/demand and home activation are still unfinished; no automatic houses yet.
+
+Migration103 transactionally expands four species CHECK constraints, preserving
+rows, keys, indexes, triggers and historical default receipt fingerprints. Actual
+version102 populated cow history survives the upgrade and an injected late failure
+rolls back safely with foreign-key enforcement restored. No existing herd reset.
+Old economy.yml files lacking sheep use validated defaults without being rewritten;
+existing missing whole livestock/runtime/adoption sections retain their opt-outs.
+
+Focused Windows Wrapper clean verify passed73 unit +3 packaged integration checks,
+zero failures/errors/skips,42.991s. Earlier broader livestock run passed351/353;
+two integration issues were fixed and affected checks rerun. The corrected sandbox
+run passed unit tests but hit a backup-file move restriction; normal-environment
+verification above passed. Actual isolated Paper SHEEP runtime passed paid feed,
+wool/births, saved cash/goods conservation, owner restart, absence/downtime and
+capture-fence pauses, plus native player/dispenser shear guards. Fixture stopped;
+both private DBs passed integrity/FKs at103. This is not human playtesting or native
+sheep newborn/slaughter acceptance. P4 remains25%,4/16 full checklist items.
+
 ## 2026-10-19 — P4 home, land screen, labor proposals and material reservations
 
 Added an original four-bed home and native bed palette; actual disposable Paper

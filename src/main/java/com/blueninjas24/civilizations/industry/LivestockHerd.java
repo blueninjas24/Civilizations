@@ -6,7 +6,13 @@ import java.util.*;
  * No Paper mutations, stock transfer or wall-clock accrual. Caller must supply real available budgets. */
 public final class LivestockHerd {
     private LivestockHerd() {}
-    public enum Species { COW, CHICKEN }
+    public enum Species {
+        COW("milk", "Dairy farm"), CHICKEN("eggs", "Chicken farm"), SHEEP("wool", "Sheep farm");
+        private final String product, businessName;
+        Species(String product,String businessName){this.product=product;this.businessName=businessName;}
+        public com.blueninjas24.civilizations.economy.Commodity product(){return new com.blueninjas24.civilizations.economy.Commodity(product);}
+        public String businessName(){return businessName;}
+    }
     public record Young(long maturePeriod,long heads) {
         public Young {if(maturePeriod<1||heads<1||heads>1_000_000)throw new IllegalArgumentException("Invalid young cohort");}
     }
@@ -40,7 +46,7 @@ public final class LivestockHerd {
         long totalAdults=Math.addExact(before.adults(),matured);
         if(unavailableAdults>totalAdults)throw new IllegalArgumentException("Unavailable adults exceed herd");
         var production=LivestockWork.plan(totalAdults-unavailableAdults,feed,work,storage,slaughterRequest,
-                species==Species.COW?policy.cow():policy.chicken());
+                policy.terms(species));
         long retainedAdults=totalAdults-production.slaughtered();
         long heads=retainedAdults+young.stream().mapToLong(Young::heads).sum();
         long fedSurvivors=Math.min(production.fedAdults(),production.retainedAdults());

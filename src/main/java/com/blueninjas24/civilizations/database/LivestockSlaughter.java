@@ -53,7 +53,7 @@ public final class LivestockSlaughter {
             try(var s=c.prepareStatement("SELECT p.available_work,p.work_used FROM livestock_periods p JOIN industry_runtime r ON r.business_id=p.business_id AND r.completed=p.period AND r.target=r.completed JOIN industry_runtime_history h ON h.business_id=p.business_id AND h.period=p.period WHERE p.business_id=? AND p.period=?")) {
                 s.setString(1,m.business().toString());s.setLong(2,m.herdPeriod());try(var r=s.executeQuery()){if(!r.next())return Optional.empty();limit=r.getLong(1);used=r.getLong(2);}
             }
-            var terms=m.species()==LivestockHerd.Species.COW?policy.cow():policy.chicken();
+            var terms=policy.terms(m.species());
             var herd=new LivestockRepository(c).load(m.business()).orElseThrow();
             long away=new LivestockPresence(c).unavailableAdultsRows(m.business(),m.herdPeriod(),area);
             if(herd.state().adults()-away<=terms.breedingReserve()||terms.maximumSlaughterPerPeriod()==0)return Optional.empty();

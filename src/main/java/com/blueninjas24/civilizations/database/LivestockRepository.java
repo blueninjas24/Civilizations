@@ -190,7 +190,7 @@ public final class LivestockRepository {
         }
         return count;
     }
-    private static Commodity product(LivestockHerd.Species species){return new Commodity(species==LivestockHerd.Species.COW?"milk":"eggs");}
+    private static Commodity product(LivestockHerd.Species species){return species.product();}
     private static void requireCatalogue(IndustryRepository.Store store,Commodity feed,LivestockHerd.Species species)throws SQLException {
         for(var commodity:List.of(feed,product(species)))if(!Long.valueOf(1).equals(store.spacePerUnit().get(commodity)))
             throw new SQLException("Herd store must support unit-sized feed and species product");

@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 102;
+    static final int CURRENT_VERSION = 103;
 
     @FunctionalInterface
     interface Migration {
@@ -951,7 +951,8 @@ final class SchemaMigrator {
                 GeneratedTerrainRepository::createSchema,
                 ConstructionDraftRepository::createSchema,
                 ConstructionBlockJournal::createSchema,
-                ConstructionMaterials::createSchema
+                ConstructionMaterials::createSchema,
+                SheepMigration::apply
 
 
         ));
@@ -1099,7 +1100,7 @@ final class SchemaMigrator {
         // SQLite's documented parent-table rebuild requires FK enforcement off BEFORE
         // the transaction. Validate all foreign keys before commit and restore enforcement.
         boolean restoreForeignKeys=false;
-        if(version>=32 && version<64 && migrations.size()>=64) {
+        if((version>=32 && version<64 && migrations.size()>=64)||(version<103 && migrations.size()>=103)) {
             try(var s=connection.createStatement();var r=s.executeQuery("PRAGMA foreign_keys")){restoreForeignKeys=r.next()&&r.getInt(1)==1;}
             if(restoreForeignKeys)execute(connection,"PRAGMA foreign_keys=OFF");
         }

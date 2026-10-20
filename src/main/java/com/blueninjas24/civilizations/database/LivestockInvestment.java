@@ -101,9 +101,9 @@ public final class LivestockInvestment {
         if(new BusinessRepository(connection).findBusiness(business).isPresent())return none("This initial animal group already has business history");
         String reason="Repeated loaded natural free-range proof; local clearance radius="+policy.clearRadius()+"; "+policy;
         var p=o.site();var location=new BusinessSite(site,o.settlement(),o.world(),p.x(),p.y(),p.z(),o.capturedMillis(),reason);
-        var firm=new Business(business,o.settlement(),o.species()==LivestockHerd.Species.COW?"Dairy farm":"Chicken farm",founder,founder,"livestock",site,2,step);
+        var firm=new Business(business,o.settlement(),o.species().businessName(),founder,founder,"livestock",site,2,step);
         var founding=new BusinessFounding(firm,location,requirements(policy.founderFarming()),requirements(policy.workerFarming()),policy.startupHundredths(),reason);
-        var product=o.species()==LivestockHerd.Species.COW?new Commodity("milk"):new Commodity("eggs");
+        var product=o.species().product();
         var request=new BusinessStartupGrants.WorkshopRequest(founding,256,Map.of(new Commodity("grain"),1L,product,1L),policy.capitalHundredths(),worker);
         var budget=new BusinessStartupGrants(connection).previewRows(o.settlement(),"livestock",policy.startupHundredths(),policy.capitalHundredths(),grants);
         if(!budget.eligible())return none(budget.reason());

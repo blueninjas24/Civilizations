@@ -66,7 +66,7 @@ final class BakeryRecipeChoice {
             else if (kind.equals("livestock")) {
                 var herd = new LivestockRepository(c).load(id);
                 if (herd.isEmpty()) continue;
-                allowed = Set.of(new Commodity(herd.orElseThrow().species() == LivestockHerd.Species.COW ? "milk" : "eggs"));
+                allowed = Set.of(herd.orElseThrow().species().product());
             } else continue;
             for (var good : allowed) result.merge(good,store.units().getOrDefault(good,0L),Math::addExact);
         }

@@ -1,7 +1,7 @@
 # Automatic free-range livestock founding
 
-The approved bounded recognition rule connects loaded natural cows/chickens to
-paid dairy/chicken businesses. This is Phase 3 operation of existing animals;
+The approved bounded recognition rule connects loaded natural cows/chickens/sheep to
+paid dairy/chicken/sheep businesses. This is Phase 3 operation of existing animals;
 it does not build pens, move animals or grant rights over player buildings.
 
 ## Recognition and protection

@@ -69,7 +69,7 @@ final class WarehouseSupplies {
                 allowed.add(Commodity.FOOD);allowed.add(FarmMarketStore.GRAIN);
             }else if(b.industry().equals("livestock")&&new LivestockRepository(connection).load(id).isPresent()) {
                 var herd=new LivestockRepository(connection).load(id).orElseThrow();
-                allowed.add(new Commodity(herd.species()==LivestockHerd.Species.COW?"milk":"eggs"));
+                allowed.add(herd.species().product());
                 allowed.add(Commodity.FOOD); // Confirmed deliberate slaughter; feed remains unavailable for resale.
             }else if(b.industry().equals("fishing")&&registeredFishery(b.siteId())) {
                 allowed.add(Commodity.FOOD);

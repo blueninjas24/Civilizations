@@ -21,7 +21,7 @@ public final class ManagedLivestockBreedingGuard implements Listener {
     ManagedLivestockBreedingGuard(Supplier<Set<UUID>> animals,BooleanSupplier enabled,Predicate<Material> cowFood,Predicate<Material> chickenFood){
         villageAnimals=Objects.requireNonNull(animals);this.enabled=Objects.requireNonNull(enabled);this.cowFood=Objects.requireNonNull(cowFood);this.chickenFood=Objects.requireNonNull(chickenFood);
     }
-    private boolean managed(Entity animal){return (animal.getType()==EntityType.COW||animal.getType()==EntityType.CHICKEN)&&villageAnimals.get().contains(animal.getUniqueId());}
+    private boolean managed(Entity animal){return PaperLivestockSpecies.from(animal.getType()).isPresent()&&villageAnimals.get().contains(animal.getUniqueId());}
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
     public void breed(EntityBreedEvent event){
         if(enabled.getAsBoolean()&&(managed(event.getMother())||managed(event.getFather())))event.setCancelled(true);
@@ -31,7 +31,7 @@ public final class ManagedLivestockBreedingGuard implements Listener {
     public void interact(PlayerInteractEntityEvent event){
         if(!enabled.getAsBoolean()||!managed(event.getRightClicked()))return;
         var item=event.getPlayer().getInventory().getItem(event.getHand());if(item==null)return;
-        boolean breedingFood=event.getRightClicked().getType()==EntityType.COW?cowFood.test(item.getType()):chickenFood.test(item.getType());
+        boolean breedingFood=event.getRightClicked().getType()==EntityType.CHICKEN?chickenFood.test(item.getType()):cowFood.test(item.getType());
         if(breedingFood){event.setCancelled(true);event.getPlayer().sendMessage("Village livestock breeding is managed by Civilizations.");}
     }
 }

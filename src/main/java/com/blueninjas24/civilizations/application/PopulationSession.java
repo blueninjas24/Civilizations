@@ -175,7 +175,7 @@ public final class PopulationSession implements AutoCloseable {
                 var prepared=investment.prepare(evidence,status.get().completedMonths(),now.getAsLong(),loadedWorlds,()->valid.getAsBoolean()&&livestockCaptureReady());
                 if(prepared.request().isEmpty())return new com.blueninjas24.civilizations.database.LivestockInvestment.Result(false,null,prepared.explanation());
                 var request=prepared.request().orElseThrow();
-                var product=new com.blueninjas24.civilizations.economy.Commodity(evidence.species()==com.blueninjas24.civilizations.industry.LivestockHerd.Species.COW?"milk":"eggs");
+                var product=evidence.species().product();
                 var proposal=new com.blueninjas24.civilizations.database.ResourceInvestment.Proposal(request.founding().business().id(),"livestock",Set.of(product),
                         Math.addExact(request.founding().startupHundredths(),request.capital()),prepared.explanation());
                 try {audit=resourceInvestment.livestockApproval(evidence.settlement(),proposal,status.get().completedMonths(),now.getAsLong(),loadedWorlds);}

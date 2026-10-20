@@ -6,10 +6,12 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerShearEntityEvent;
+import org.bukkit.event.block.BlockShearEntityEvent;
 import java.util.*;
 import java.util.function.*;
 
-/** Village milk/eggs belong to saved business stock. No inventory, SQL or world scanning per event. */
+/** Village renewable products belong to saved business stock. No inventory, SQL or scans per event. */
 public final class ManagedLivestockProducts implements Listener {
     private final Supplier<Set<UUID>> villageAnimals;
     private final BooleanSupplier enabled;
@@ -33,5 +35,15 @@ public final class ManagedLivestockProducts implements Listener {
         if(!managed(event.getEntity(),EntityType.CHICKEN))return;
         var item=event.getItemDrop().getItemStack().getType();
         if(item==Material.EGG||item==Material.BROWN_EGG||item==Material.BLUE_EGG)event.setCancelled(true);
+    }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
+    public void shear(PlayerShearEntityEvent event) {
+        if(!managed(event.getEntity(),EntityType.SHEEP))return;
+        event.setCancelled(true);
+        event.getPlayer().sendMessage("Village wool belongs to its sheep farm's saved stock.");
+    }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
+    public void dispenserShear(BlockShearEntityEvent event) {
+        if(managed(event.getEntity(),EntityType.SHEEP))event.setCancelled(true);
     }
 }

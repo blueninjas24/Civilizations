@@ -113,7 +113,7 @@ public final class BusinessCompetition {
             if(new FisheryRepository(c).find(site).filter(f->f.stock().capacity()>0).isPresent()&&!FisheryWorkplaces.paused(c,site))result.add(Commodity.FOOD);
         }else if(kind.equals("warehouse"))result.addAll(industry.mining().storageSpacePerUnit().keySet());
         else if(kind.equals("livestock")) {
-            var herd=new LivestockRepository(c).load(business);if(herd.isPresent())result.add(new Commodity(herd.orElseThrow().species()==LivestockHerd.Species.COW?"milk":"eggs"));
+            var herd=new LivestockRepository(c).load(business);if(herd.isPresent())result.add(herd.orElseThrow().species().product());
         }else industry.recipes().values().stream().filter(r->r.industry().equals(kind)).forEach(r->result.addAll(r.outputs().keySet()));
         return Set.copyOf(result);
     }

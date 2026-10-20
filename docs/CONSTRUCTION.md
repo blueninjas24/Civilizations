@@ -125,3 +125,7 @@ no cash is charged for goods already owned. Exact retry returns the same receipt
 Public procurement, stage consumption and safe cancellation/return capacity are
 not implemented. Prepared authored logs receive sticky forestry exclusions in the
 same transaction as their write intent, before native placement.
+
+Basic sheep/wool support is now implemented as the approved supplier extension.
+Wool requires actual herd feed/labor/storage; beds are never seeded for free.
+Construction purchases and home occupancy activation remain subsequent work.

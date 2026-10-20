@@ -72,4 +72,16 @@ class ManagedLivestockProductsTest {
         ids.set(Set.of(village));var after=drop(village,EntityType.CHICKEN,Material.EGG);g.egg(after);assertTrue(after.isCancelled());
         ids.set(Set.of());var released=drop(village,EntityType.CHICKEN,Material.EGG);g.egg(released);assertFalse(released.isCancelled());
     }
+    @Test void onlySavedVillageSheepBlockPlayerAndDispenserShearing() {
+        for(boolean enabled:List.of(false,true))for(UUID id:List.of(village,other)) {
+            var body=entity(id,EntityType.SHEEP);
+            var player=proxy(Player.class,(m,a)->{assertEquals("sendMessage",m);return null;});
+            var shear=new org.bukkit.event.player.PlayerShearEntityEvent(player,body,stack(Material.SHEARS),EquipmentSlot.HAND,List.of());
+            guard(enabled).shear(shear);assertEquals(enabled&&id.equals(village),shear.isCancelled());
+            var block=proxy(org.bukkit.block.Block.class,(m,a)->{throw new AssertionError("No world access: "+m);});
+            var dispenser=new org.bukkit.event.block.BlockShearEntityEvent(block,body,stack(Material.SHEARS),List.of());
+            guard(enabled).dispenserShear(dispenser);assertEquals(enabled&&id.equals(village),dispenser.isCancelled());
+        }
+    }
+
 }

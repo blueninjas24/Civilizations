@@ -21,7 +21,7 @@ class LivestockStartupGrantsTest {
         var site=new BusinessSite(UUID.randomUUID(),f.f.town,f.f.world,1,64,1,1000,"Trusted existing herd site fixture");
         var firm=new Business(UUID.randomUUID(),f.f.town,"Explicit herd fixture",f.candidate,f.candidate,"livestock",site.id(),2,0);
         var founding=new BusinessFounding(firm,site,new JobRequirements(216,Map.of("farming",10L)),new JobRequirements(216,Map.of("farming",1L)),500,"Trusted herd opportunity");
-        request=new BusinessStartupGrants.WorkshopRequest(founding,128,Map.of(grain,1L,milk,1L,eggs,1L),4000,f.candidate);
+        request=new BusinessStartupGrants.WorkshopRequest(founding,128,Map.of(grain,1L,milk,1L,eggs,1L,new Commodity("wool"),1L),4000,f.candidate);
         animals=Map.of(UUID.randomUUID(),0,UUID.randomUUID(),0,UUID.randomUUID(),2);
         for(var id:animals.keySet())new AnimalOwnershipRepository(f.f.database.getConnection()).record(new AnimalOwnershipRepository.Claim(id,f.f.world,LivestockAdoption.Ownership.VILLAGE,null,f.f.town,1000,"Explicit confirmed fixture animal"));
         source=f.f.business("warehouse",40).id();f.f.industry.openStore(source,100,Map.of(grain,1L),0);
@@ -43,7 +43,7 @@ class LivestockStartupGrantsTest {
         var shipment=UUID.randomUUID();f.f.industry.purchase(shipment,source,request.founding().business().id(),grain,10,1000,0,1,128);assertEquals(0,store().units().get(grain));assertEquals(10,store().reservedIncomingSpace());
         assertThrows(SQLException.class,()->f.f.industry.deliver(shipment,0));f.f.industry.deliver(shipment,1);
         var used=new LivestockRepository(f.f.database.getConnection()).advance(UUID.randomUUID(),request.founding().business().id(),1,10,10,LivestockPolicy.prototype(),BusinessOperationPolicy.prototype(),true);
-        assertEquals(6,used.feedUsed());assertEquals(2,store().units().get(species==LivestockHerd.Species.COW?milk:eggs));assertEquals(4,store().units().get(grain));
+        assertEquals(6,used.feedUsed());assertEquals(2,store().units().get(species.product()));assertEquals(4,store().units().get(grain));
         long total=new TreasuryRepository(f.f.database.getConnection()).load(f.f.town).orElseThrow().hundredths()+store().hundredths()+f.f.stock(f.f.warehouse).hundredths()+f.f.stock(f.f.shop).hundredths()+f.f.industry.store(source).orElseThrow().hundredths();assertEquals(29500,total,"Only recorded500 startup expense leaves cash circulation");
         assertFalse(engine().preview(f.f.town,"craftsman",500,4000,StartupGrantPolicy.prototype()).eligible(),"Livestock uses the same shared period budget");
     }

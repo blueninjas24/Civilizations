@@ -47,7 +47,7 @@ public final class PaperLivestockNewborns extends BukkitRunnable implements Auto
             public Optional<Claim> prepare(Job job) {
                 if(!enabled.getAsBoolean()||!session.livestockCaptureReady())return Optional.empty();var world=Bukkit.getWorld(job.world());if(world==null)return Optional.empty();
                 var location=safeLocation(world,job.home());if(location==null||!nearby.test(location))return Optional.empty();
-                prepared=job.species()==LivestockHerd.Species.COW?world.createEntity(location,Cow.class):world.createEntity(location,Chicken.class);
+                prepared=switch(job.species()){case COW->world.createEntity(location,Cow.class);case CHICKEN->world.createEntity(location,Chicken.class);case SHEEP->world.createEntity(location,Sheep.class);};
                 applyAge(prepared,job);prepared.setPersistent(true);prepared.setAI(false);prepared.setGravity(false);
                 prepared.getPersistentDataContainer().set(PENDING,PersistentDataType.STRING,job.birth().id().toString());
                 if(prepared.isValid())throw new IllegalStateException("Prepared livestock already entered world before claim");
@@ -67,7 +67,7 @@ public final class PaperLivestockNewborns extends BukkitRunnable implements Auto
     }
     private static Optional<Animals> body(Job job,UUID id) {
         var entity=Bukkit.getEntity(id);if(entity==null||!entity.isValid()||entity.isDead())return Optional.empty();
-        if(!(entity instanceof Animals animal)||(job.species()==LivestockHerd.Species.COW?entity.getType()!=EntityType.COW:entity.getType()!=EntityType.CHICKEN))
+        if(!(entity instanceof Animals animal)||entity.getType()!=PaperLivestockSpecies.type(job.species()))
             throw new IllegalStateException("Saved livestock body has another species");
         var tag=animal.getPersistentDataContainer().get(BIRTH,PersistentDataType.STRING);
         if(tag!=null&&!tag.equals(job.birth().id().toString()))throw new IllegalStateException("Livestock body tag conflicts with saved birth");

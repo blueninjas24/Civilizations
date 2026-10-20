@@ -466,10 +466,12 @@ public final class EconomyConfiguration {
     }
     public static com.blueninjas24.civilizations.industry.LivestockPolicy readLivestock(ConfigurationSection config) {
         if(!config.contains("livestock"))return com.blueninjas24.civilizations.industry.LivestockPolicy.disabled();
-        var s=section(config,"livestock");exactKeys(s,Set.of("enabled","maturity-periods","breeding-delay-periods","feed-per-birth","work-per-birth","maximum-births-per-period","cow","chicken"));
+        var s=section(config,"livestock");var keys=new HashSet<>(Set.of("enabled","maturity-periods","breeding-delay-periods","feed-per-birth","work-per-birth","maximum-births-per-period","cow","chicken"));
+        if(s.contains("sheep"))keys.add("sheep");exactKeys(s,keys);
         if(!(s.get("enabled") instanceof Boolean enabled))throw new IllegalArgumentException("livestock.enabled must be true or false");
         return new com.blueninjas24.civilizations.industry.LivestockPolicy(enabled,smallInteger(s,"maturity-periods"),smallInteger(s,"breeding-delay-periods"),
-                integer(s,"feed-per-birth"),integer(s,"work-per-birth"),integer(s,"maximum-births-per-period"),livestockTerms(section(s,"cow")),livestockTerms(section(s,"chicken")));
+                integer(s,"feed-per-birth"),integer(s,"work-per-birth"),integer(s,"maximum-births-per-period"),livestockTerms(section(s,"cow")),livestockTerms(section(s,"chicken")),
+                s.contains("sheep")?livestockTerms(section(s,"sheep")):com.blueninjas24.civilizations.industry.LivestockPolicy.sheepDefaults());
     }
     private static com.blueninjas24.civilizations.industry.LivestockWork.Terms livestockTerms(ConfigurationSection s) {
         exactKeys(s,Set.of("breeding-reserve","feed-per-adult","renewable-units-per-adult","meat-units-per-animal","maximum-slaughter-per-period"));

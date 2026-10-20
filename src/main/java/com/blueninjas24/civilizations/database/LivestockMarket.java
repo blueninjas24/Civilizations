@@ -31,7 +31,7 @@ public final class LivestockMarket {
         try (var s = c.prepareStatement("""
                 SELECT b.id,b.settlement_id,b.name,h.species,p.x,p.y,p.z FROM livestock_herds h
                 JOIN businesses b ON b.id=h.business_id JOIN business_sites p ON p.id=b.site_id
-                WHERE p.world_id=? AND abs(p.y-?)<=? AND abs(p.x-?)<=? AND abs(p.z-?)<=?
+                WHERE h.species IN('COW','CHICKEN') AND p.world_id=? AND abs(p.y-?)<=? AND abs(p.x-?)<=? AND abs(p.z-?)<=?
                 ORDER BY ((p.x-?)*(p.x-?)+(p.z-?)*(p.z-?)),b.id LIMIT ?
                 """)) {
             s.setString(1, position.world().toString()); s.setDouble(2, position.y()); s.setInt(3, policy.verticalRadius());

@@ -38,7 +38,7 @@ public final class ManagedLivestockDeaths extends BukkitRunnable implements List
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
     public void died(EntityDeathEvent event) {
         if(event.isCancelled()||controlled.test(event))return;var entity=event.getEntity();var type=entity.getType();
-        if(type!=EntityType.COW&&type!=EntityType.CHICKEN)return;
+        if(PaperLivestockSpecies.from(type).isEmpty())return;
         var animal=entity.getUniqueId();var id=UUID.nameUUIDFromBytes(("civilizations:physical-livestock-loss-v1:"+animal).getBytes(StandardCharsets.UTF_8));
         String reason=event.getDamageSource().getDamageType().getKey().toString();
         var observed=new LivestockLosses.Observation(id,animal,entity.getWorld().getUID(),clock.getAsLong(),reason.length()>256?reason.substring(0,256):reason);

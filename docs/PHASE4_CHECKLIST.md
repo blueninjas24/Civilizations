@@ -8,8 +8,8 @@ but does not count as a completed item. This measures scope, not elapsed time.
 ## 1. Authored plans and frozen proposals — 4/4
 
 - [x] Bounded, versioned, editable template format with staged costs/work and functional anchors.
-- [x] Original small path/storehouse starter plans, attribution and strict validation.
-- [x] All eight geometry/block-state orientations, tested against native Paper doors and pillar axes.
+- [x] Original small path/storehouse/four-bed-home starter plans, attribution and strict validation.
+- [x] All eight geometry/block-state orientations, tested against native Paper doors, beds and pillar axes.
 - [x] Read-only admin catalogue/site command plus immutable, hashed SQLite draft snapshots tied to permanent world/village IDs.
 
 The site command is operational but cannot authorize or start construction. Draft
@@ -55,7 +55,8 @@ Ordered SQLite block intents and a development-only native writer now demonstrat
 physical placement, exact retry, interrupted acknowledgement and changed-block
 conflict handling. The sole writer factory requires the marked localhost disposable
 server and explicit test bounds. No normal server writer, demolition, repair approval
-workflow, financial/material reservation or building activation is enabled.
+workflow or building activation is enabled. Private owned-material reservation
+is a tested SQL API, not live project funding.
 
 construction.yml contains approved editable funding eligibility for private business
 projects and village homes/roads, with food plus essential upkeep/committed funds
@@ -63,7 +64,7 @@ protected. Quotes do not spend. Read-only preview checks now include saved confi
 fenced plots via the SQL owner, including empty plots and release history. Broader
 land recognition and current-write protection verification remain incomplete.
 
-Latest focused build:58 unit +3 packaged integrations, zero failures/errors/skips,
+Earlier focused construction build:58 unit +3 packaged integrations, zero failures/errors/skips,
 37.359s. Actual private Paper: five blocks placed, exact retries, DB reopen after
 write/before ack, conflicting block retained, remote chunk stayed unloaded. Original
 cells restored, test tickets released, helper archived/server stopped, schema101
@@ -87,3 +88,8 @@ routing/completion/permissions, invalid native materials and restored edited
 fixture files. No block reads/writes or entity changes by the probe. Server stopped.
 This is not a live-player scan test or construction acceptance. Schema 100 adds
 only immutable draft storage; existing rows are preserved. No human server touched.
+
+October19 supplier follow-up: sheep/wool shares existing livestock accounting,
+protection and saved identity. Focused73 unit +3 packaged checks and actual Paper
+SHEEP paid-feed/clock/conservation/pause/shear-guard checks pass. No house demand,
+public procurement, booked construction labor or automatic building activation yet.

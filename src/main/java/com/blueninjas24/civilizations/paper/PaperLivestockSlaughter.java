@@ -41,8 +41,7 @@ public final class PaperLivestockSlaughter extends BukkitRunnable implements Aut
     private Optional<LivestockPresence.Sight> sight(LivestockPresence.Member member) {
         var entity=Bukkit.getEntity(member.animal());
         if(!(entity instanceof Animals body)||!body.isValid()||body.isDead()||!body.isAdult()||body.isLeashed()||body.customName()!=null)return Optional.empty();
-        if((member.species()==LivestockHerd.Species.COW&&body.getType()!=EntityType.COW)
-                ||(member.species()==LivestockHerd.Species.CHICKEN&&body.getType()!=EntityType.CHICKEN))return Optional.empty();
+        if(body.getType()!=PaperLivestockSpecies.type(member.species()))return Optional.empty();
         var loc=body.getLocation();var world=body.getWorld();var p=new Position(loc.getBlockX(),loc.getBlockY(),loc.getBlockZ());
         if(!world.isChunkLoaded(Math.floorDiv(p.x(),16),Math.floorDiv(p.z(),16))||!area.contains(member.world(),member.home(),world.getUID(),p))return Optional.empty();
         return Optional.of(new LivestockPresence.Sight(member.animal(),member.species(),world.getUID(),p,clock.getAsLong()));

@@ -44,4 +44,13 @@ class LivestockConfigurationTest {
         config.set("livestock.cow.feed-per-adult",1);config.set("livestock.maximum-births-per-period",0);assertEquals(0,EconomyConfiguration.readLivestock(config).maximumBirthsPerPeriod());
         config.set("livestock",null);assertFalse(EconomyConfiguration.readLivestock(config).enabled());EconomyConfiguration.read(config);
     }
+    @Test void sheepTermsAreEditableAndMissingOlderSectionKeepsLegacyFingerprint()throws Exception {
+        var c=new YamlConfiguration();try(var r=new java.io.InputStreamReader(getClass().getResourceAsStream("/economy.yml"),java.nio.charset.StandardCharsets.UTF_8)){c.load(r);}
+        var defaults=EconomyConfiguration.readLivestock(c);assertEquals(1,defaults.sheep().renewableUnitsPerAdult());
+        c.set("livestock.sheep.renewable-units-per-adult",3);assertEquals(3,EconomyConfiguration.readLivestock(c).sheep().renewableUnitsPerAdult());
+        c.set("livestock.sheep.feed-per-adult",0);assertThrows(IllegalArgumentException.class,()->EconomyConfiguration.readLivestock(c));
+        c.set("livestock.sheep",null);assertEquals(defaults,EconomyConfiguration.readLivestock(c));assertFalse(c.contains("livestock.sheep"));
+        assertFalse(defaults.toString().contains("sheep"),"Default terms preserve existing operation receipt fingerprints");
+    }
+
 }

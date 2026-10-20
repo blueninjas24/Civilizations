@@ -1,7 +1,7 @@
 # Timed herd work and paid feed
 
 Existing saved, qualified livestock businesses now run on the shared bounded
-industry clock. This connects their real feed, milk/eggs, logical births, saved
+industry clock. This connects their real feed, milk/eggs/wool, logical births, saved
 maturity and physical newborn reconciliation. The separate approved adoption/
 funding adapter now supplies eligible new businesses (LIVESTOCK_ADOPTION.md).
 Intentional slaughter remains unfinished.
@@ -24,7 +24,7 @@ review and128 pending shipments; the per-period feed forecast is bounded to one
 million units. Grain remains an actual separately harvested commodity.
 
 Actual production uses only delivered feed, qualified labor and current unreserved
-storage. Its existing calculator controls milk/eggs and breeding. Saved birth IDs
+storage. Its existing calculator controls milk/eggs/wool and breeding. Saved birth IDs
 and the existing nearby newborn adapter handle visible bodies independently;
 missing bodies are not replaced. Deliberate slaughter is still disabled pending
 physical retirement with the approved no-duplicate-drops accounting.
@@ -86,3 +86,22 @@ animals were changed. All149 main test-save tables retained/145 exact; only norm
 clock/runtime/capture/ore metadata changed, no aging. Integrity/FKs clean; server
 stopped, original settings restored, helper archived and backups retained. The
 human Minecraft server was untouched.
+
+## P4 sheep extension
+
+Sheep use the same real feed, labor, finite storage, breeding reserve and positive
+away-sighting rules. Each fed adult defaults to one abstract wool unit per active
+period; costs/output/reserve/slaughter limits are editable in livestock.sheep. Wool
+is colour-neutral and feed-backed; no vanilla grass-regrowth event is required.
+No physical shearing occurs for production, and positive saved village ownership
+blocks direct player/dispenser shearing to avoid duplicate products. Player-owned
+and unclaimed sheep keep vanilla behavior. A village sheep's deliberate business
+death follows the existing exact-body/no-duplicate-drop path; ordinary losses do
+not create business goods.
+
+Schema103 expands herd, birth-entity, presence and slaughter species constraints
+transactionally. Existing data and default cow/chicken operation terms survive.
+Existing files missing only livestock.sheep use documented defaults; missing whole
+sections remain opted out. The milk/egg retail menu deliberately does not offer
+wool yet. Construction demand/procurement is not live, so supplier support alone
+does not guarantee every village immediately starts a sheep business.

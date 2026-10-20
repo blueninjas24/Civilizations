@@ -29,7 +29,7 @@ public final class PaperLivestockPresence extends BukkitRunnable {
         reconcile=(member,sight)-> {
             var entity=Bukkit.getEntity(member.animal());
             if(entity instanceof Animals animal&&animal.isValid()&&!animal.isDead()) {
-                var expected=member.species()==LivestockHerd.Species.COW?EntityType.COW:EntityType.CHICKEN;
+                var expected=PaperLivestockSpecies.type(member.species());
                 if(animal.getType()!=expected)throw new IllegalStateException("Saved livestock age species differs from body");
                 LivestockAgeReconciler.apply(animal,member.business(),member.herdPeriod(),member.maturePeriod());
             }
@@ -43,13 +43,13 @@ public final class PaperLivestockPresence extends BukkitRunnable {
     }
     private static Optional<Sight> capture(Member member) {
         var entity=Bukkit.getEntity(member.animal());if(entity==null||!entity.isValid()||entity.isDead())return Optional.empty();
-        var type=entity.getType();if(type!=EntityType.COW&&type!=EntityType.CHICKEN)return Optional.empty();
+        var type=entity.getType();if(PaperLivestockSpecies.from(type).isEmpty())return Optional.empty();
         var location=entity.getLocation();var world=location.getWorld();
         if(world==null||!world.getUID().equals(entity.getWorld().getUID())||!Double.isFinite(location.getX())||!Double.isFinite(location.getY())||!Double.isFinite(location.getZ())
                 ||location.getX()<Integer.MIN_VALUE||location.getX()>=Integer.MAX_VALUE||location.getZ()<Integer.MIN_VALUE||location.getZ()>=Integer.MAX_VALUE
                 ||location.getY()<world.getMinHeight()||location.getY()>=world.getMaxHeight()
                 ||!world.isChunkLoaded(Math.floorDiv(location.getBlockX(),16),Math.floorDiv(location.getBlockZ(),16)))return Optional.empty();
-        return Optional.of(new Sight(member.animal(),type==EntityType.COW?LivestockHerd.Species.COW:LivestockHerd.Species.CHICKEN,world.getUID(),new Position(location.getBlockX(),location.getBlockY(),location.getBlockZ()),System.currentTimeMillis()));
+        return Optional.of(new Sight(member.animal(),PaperLivestockSpecies.from(type).orElseThrow(),world.getUID(),new Position(location.getBlockX(),location.getBlockY(),location.getBlockZ()),System.currentTimeMillis()));
     }
     @Override public void run() {
         if(!mainThread.getAsBoolean())throw new IllegalStateException("Livestock sightings require Paper main thread");
