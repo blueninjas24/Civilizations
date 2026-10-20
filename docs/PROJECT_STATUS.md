@@ -82,10 +82,12 @@ selection/scheduling, private employee labor diversion, later-stage/native recon
 completed building/housing activation, vacancy reuse, upgrades/maintenance and
 full autonomous growth acceptance. The paid path test verified funded public work,
 not home occupancy or ordinary autonomous construction. Normal gameplay still cannot place construction blocks.
-Next live housing/vacancy work needs the existing-home reuse choice recorded in
-DECISIONS_AND_OPEN_QUESTIONS.md: guarded occupancy of unprotected suitable existing
-homes, or only known Civilizations-built homes. No existing house is claimed or
-assigned while this is pending. Feature pushes are
+Player-built buildings now require explicit donation consent; lack of a protection
+sign is not permission. User also approved repossession with real capacity loss
+and explicit building exclusions. These are recorded design decisions, not built
+controls. Live donation/plot/reclamation and vacancy adapters remain ahead; proposed
+editable boundaries and typed use must not claim later-phase civic mechanics.
+Feature pushes are
 permitted; never merge/push main. Hosted current candidate status must be checked
 by commit; local passing tests are not a claim of hosted Windows/Linux green.
 Workflow concurrency now lets an existing run finish across new backup pushes,

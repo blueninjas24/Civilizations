@@ -1,18 +1,35 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October20 — existing-home reuse needs a decision
+## October20 — player buildings require donation; reclamation and explicit exclusions approved
 
-Before connecting the live vacancy/housing planner, asked whether suitable empty
-existing houses near a village may be used automatically when complete beds and
-saved-protection checks pass. Minecraft cannot reliably establish whether an old
-home was generated or player-built. Proposed configurable guarded occupancy that
-leaves blocks/chest contents alone and grants no right to sell or rebuild it.
-Alternative: only reuse positively known Civilizations-built homes.
+User selected player-built structures being off limits without a clear donation
+sign, following inspection. Decoration alone, beds, empty rooms or placement inside
+a village do not grant permission. General building provenance/donation is not yet
+implemented. Known Civilizations-built structures have saved project/journal
+identity; old unknown provenance cannot reliably establish player ownership or
+natural origin and must not be guessed into donation permission. Preserve the
+separate approved automatic settlement recognition rule; this new decision concerns
+P4 building-use/modification authority, not deleting existing settlements/residents.
 
-Pending human answer. Existing pure vacancy proposals still require confirmed
-village-owned permitted homes; no old house is adopted or assigned by this proposal.
-The approved ownership of newly village-funded homes remains unchanged. Other
-completed construction foundation work is independent of this question.
+User approved a way to repossess donated homes. Repossession withdraws their village
+housing/structure capacity and creates the corresponding displacement/shortage;
+it does not authorize destroying the physical building, deleting residents or
+transferring unrelated business money/goods. Preserve ownership and event history.
+User also approved an explicit building exclusion safeguard for old structures;
+this is additional protection, not a requirement to sign every private building.
+
+Interface proposals, not yet implemented/locked: editable previewed plot boundaries;
+separate building footprint and surrounding land; explicit donation purpose such
+as housing, workplace or shared civic space; confirmed original-donor/admin
+reclamation; saved permission surviving accidental sign removal. Exact sign syntax,
+boundary tool/limits, permissions, reclamation timing and civic function validation
+still need scoped implementation/design. Do not silently infer ownership from
+workstations or grant new business capital, skills or later-phase civic mechanics.
+
+This resolves the earlier proposal to reuse unprotected empty houses automatically:
+absence of a protection sign is not donation consent for player-built buildings.
+New village-funded housing remains village-owned as already approved. Live vacancy
+recognition/assignment and donation/exclusion/reclamation adapters remain future work.
 
 ## October 19 — temporary building labor, public homes and sheep approved
 

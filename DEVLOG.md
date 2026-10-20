@@ -1,5 +1,15 @@
 # Civilizations Development Log
 
+## 2026-10-20 — record donation-only building use and reclamation direction
+
+Recorded the user's player-building opt-in rule, withdrawal of donated housing
+with corresponding village capacity loss, and an additional explicit exclusion
+safeguard. Replaced the pending automatic-empty-home reuse proposal; no protection
+sign is not consent. Editable plot selection, typed donation use and donor/admin
+reclamation are interface proposals, not implemented functionality or locked new
+civic mechanics. No code, migration, world or database changes; documentation-only
+review with git diff --check, no redundant build. P4 remains25%,4/16 checklist items.
+
 ## 2026-10-20 — migrant labor receipts cannot block food accounting
 
 Final review found a resident moving between villages could be selected for a

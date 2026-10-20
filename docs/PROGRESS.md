@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Design agreed: player buildings need explicit donation; donors will be able to
+reclaim donated housing, and explicit building exclusions provide extra protection.
+Those controls are planned, not implemented; no milestone percentage changes.
+
+
 Paid construction deliveries now progress automatically through the normal simulation
 loop after earned time, with restart/absent-world protection. This does not yet
 start new projects or place buildings.
