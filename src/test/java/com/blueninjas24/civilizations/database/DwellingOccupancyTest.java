@@ -43,6 +43,95 @@ class DwellingOccupancyTest {
     private static void healthy(Connection c)throws SQLException {assertEquals(0,number(c,"SELECT count(*) FROM pragma_foreign_key_check"));try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){assertEquals("ok",r.getString(1));}}
     private Assignment assign(UUID op,UUID household,UUID unit,UUID review,UUID previous,long now){return new Assignment(op,household,unit,review,previous,now);}
 
+    private ConstructionDraft homeDraft(Connection c,long identity)throws Exception {
+        var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+        var draft=new ConstructionDraft(id(identity),town,world,p(100+(int)identity,64,100),Transform.identity(),template,1100);
+        return new ConstructionDraftRepository(c).save(draft);
+    }
+    private void verifiedShortage(Connection c)throws Exception {
+        if(number(c,"SELECT count(*) FROM demographic_clock")==0)new DemographicRepository(c).initializeClock(42,PopulationPolicy.prototype());
+        sql(c,"UPDATE household_capacity SET capacity=0");
+        var damaged=cells();damaged.put(p(1,3,3),Cell.of(Type.PASSABLE));damaged.put(p(6,3,3),Cell.of(Type.PASSABLE));
+        new DwellingOccupancy(c).review(id(20),building,assessment(1100,damaged,true,Policy.prototype()),context(1100));
+    }
+    @Test void homeProjectsReserveOnlyTheirFamilyAndKeepReceiptsAcrossRestart()throws Exception {
+        HousingProjects.Binding saved;
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var draft=homeDraft(c,70);var projects=new HousingProjects(c);
+            var proposal=new HousingProjects.Proposal(draft.id(),family,1200);
+            saved=projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0);
+            assertEquals(saved,projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0));
+            assertEquals(2,saved.residents());assertEquals(0,saved.previousCapacity());
+            sql(c,"INSERT INTO household_capacity VALUES('"+other+"',0)");
+            var decisions=new HousingPlanning(c).review(town,context(1200),List.of(draft.template()),HousingProjectPlanner.prototype(),42,0).plan().recommendations();
+            assertEquals(HousingProjectPlanner.Action.WAIT_PROJECT,decisions.stream().filter(r->r.household().equals(family)).findFirst().orElseThrow().action());
+            assertEquals(HousingProjectPlanner.Action.PROPOSE,decisions.stream().filter(r->r.household().equals(other)).findFirst().orElseThrow().action());
+            var duplicate=homeDraft(c,71);
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(new HousingProjects.Proposal(duplicate.id(),family,1200),context(1200),HousingProjectPlanner.prototype(),42,0));
+            projects.bind(new HousingProjects.Proposal(duplicate.id(),other,1200),context(1200),HousingProjectPlanner.prototype(),42,0);
+            assertEquals(2,number(c,"SELECT count(*) FROM housing_project_bindings"));
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_site_reservations"));
+            assertEquals(3,number(c,"SELECT count(*) FROM residents"));assertEquals(0,HousingCapacity.read(c,town).get(family));healthy(c);
+        }
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){assertEquals(saved,new HousingProjects(c).find(id(70)).orElseThrow());healthy(c);}
+    }
+    @Test void homeBindingRequiresCurrentNeedVacancyEvidenceCalendarWorldAndDryDraft()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);var draft=homeDraft(c,70);var proposal=new HousingProjects.Proposal(draft.id(),family,1200);var projects=new HousingProjects(c);
+            new DemographicRepository(c).initializeClock(42,PopulationPolicy.prototype());
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0)); // already housed
+            sql(c,"UPDATE household_capacity SET capacity=0");
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0)); // no survey
+            var occupancy=new DwellingOccupancy(c);occupancy.review(id(19),building,assessment(1100),context(1100));
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0)); // reuse first
+            verifiedShortage(c);
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(proposal,context(40_000),HousingProjectPlanner.prototype(),42,0));
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(proposal,new Context(world,false,Policy.prototype(),1200),HousingProjectPlanner.prototype(),42,0));
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(proposal,new Context(id(99),true,Policy.prototype(),1200),HousingProjectPlanner.prototype(),42,0));
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,1));
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(new HousingProjects.Proposal(draft.id(),other,1200),context(1200),HousingProjectPlanner.prototype(),42,0));
+            new ConstructionSiteReservations(c).reserve(draft.id(),new ConstructionMaterials.Authority(draft.id(),world,1200,true,true),1200);
+            assertThrows(BuildingRegistry.Declined.class,()->projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0));
+            assertEquals(0,number(c,"SELECT count(*) FROM housing_project_bindings"));healthy(c);
+        }
+    }
+    @Test void cancelledUnusedHomesRetainHistoryAndCannotResumeLandOrHoldAnotherFamily()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var draft=homeDraft(c,70);var projects=new HousingProjects(c);
+            var proposal=new HousingProjects.Proposal(draft.id(),family,1200);
+            var saved=projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0);
+            var sites=new ConstructionSiteReservations(c);
+            sites.reserve(draft.id(),new ConstructionMaterials.Authority(draft.id(),world,1250,true,true),1250);
+            assertThrows(BuildingRegistry.Declined.class,()->projects.cancel(id(80),draft.id(),1300,context(1300)));
+            sites.releaseUnused(draft.id(),1300);
+            var cancelled=projects.cancel(id(80),draft.id(),1400,context(1400));assertFalse(cancelled.active());
+            assertEquals(cancelled,projects.cancel(id(80),draft.id(),1400,context(1500)));
+            assertEquals(cancelled,projects.bind(proposal,context(1500),HousingProjectPlanner.prototype(),42,0));
+            assertThrows(BuildingRegistry.Declined.class,()->projects.cancel(id(81),draft.id(),1400,context(1500)));
+            assertThrows(SQLException.class,()->sites.reserve(draft.id(),new ConstructionMaterials.Authority(draft.id(),world,1500,true,true),1500));
+            var next=homeDraft(c,71);projects.bind(new HousingProjects.Proposal(next.id(),family,1500),context(1500),HousingProjectPlanner.prototype(),42,0);
+            projects.cancel(id(82),next.id(),1600,context(1600));
+            assertThrows(SQLException.class,()->sites.reserve(next.id(),new ConstructionMaterials.Authority(next.id(),world,1600,true,true),1600)); // cancelled before ever reserving
+            assertEquals(saved.planHash(),cancelled.planHash());assertEquals(2,number(c,"SELECT count(*) FROM housing_project_bindings"));healthy(c);
+        }
+    }
+    @Test void schema113Preserves112HistoryAndHousingProjectFailuresRollBack()throws Exception {
+        try(var c=open(112)){
+            seed(c);sql(c,"CREATE TABLE housing_project_bindings(injected INTEGER)");
+            assertThrows(SQLException.class,()->new SchemaMigrator().migrate(c));assertEquals(112,number(c,"PRAGMA user_version"));
+            assertEquals(3,number(c,"SELECT count(*) FROM residents"));sql(c,"DROP TABLE housing_project_bindings");new SchemaMigrator().migrate(c);
+            verifiedShortage(c);var draft=homeDraft(c,70);var projects=new HousingProjects(c);var proposal=new HousingProjects.Proposal(draft.id(),family,1200);
+            sql(c,"CREATE TRIGGER fail_binding BEFORE INSERT ON housing_project_bindings BEGIN SELECT RAISE(ABORT,'injected'); END");
+            assertThrows(SQLException.class,()->projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0));
+            assertTrue(projects.find(draft.id()).isEmpty());assertTrue(c.getAutoCommit());sql(c,"DROP TRIGGER fail_binding");
+            projects.bind(proposal,context(1200),HousingProjectPlanner.prototype(),42,0);
+            sql(c,"CREATE TRIGGER fail_cancel BEFORE UPDATE ON housing_project_bindings BEGIN SELECT RAISE(ABORT,'injected'); END");
+            assertThrows(SQLException.class,()->projects.cancel(id(80),draft.id(),1300,context(1300)));assertTrue(projects.find(draft.id()).orElseThrow().active());
+            sql(c,"DROP TRIGGER fail_cancel");assertFalse(projects.cancel(id(80),draft.id(),1300,context(1300)).active());
+            assertEquals(113,number(c,"PRAGMA user_version"));assertEquals(1,number(c,"SELECT count(*) FROM building_records"));healthy(c);
+        }
+    }
+
     @Test void approvedNewAdultHouseholdCanTakeInspectedVacancyWithoutChangingExistingFamilies()throws Exception{
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){
             seed(c);new DemographicRepository(c).initializeClock(42,PopulationPolicy.prototype());

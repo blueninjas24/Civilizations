@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Housing project preparation now remembers which family each proposed home serves.
+One pending home no longer blocks all other families; unused cancellations retain
+history and cannot restart. Schema113; Wrapper55 +3 checks passed. This remains
+a preparation API, with no automatic block placement or new whole checklist gate.
+
 New usable protection: donating a building permits use only. Separate confirmed
 renovation grants can be allowed/withdrawn, with saved inspection status. Old grants
 cannot return after repossession/re-donation; normal housing stays intact when only

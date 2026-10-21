@@ -47,7 +47,7 @@ public final class ConstructionSiteReservations {
                 if(!old.orElseThrow().active())throw new SQLException("Released construction draft cannot reserve land again; submit a new proposal");
                 return old.orElseThrow(); // Saved receipt only: no new native action or refreshed authority.
             }
-            var draft=draft(draftId);var bounds=ConstructionPreview.footprint(draft.template(),draft.transform(),draft.origin());
+            var draft=draft(draftId);requireHouseholdProject(draftId);var bounds=ConstructionPreview.footprint(draft.template(),draft.transform(),draft.origin());
             if(!authority.draft().equals(draft.id())||!authority.world().equals(draft.world())||!authority.worldLoaded()||!authority.siteCleared()
                     ||authority.checkedMillis()>now||now-authority.checkedMillis()>5000)
                 throw new SQLException("Fresh complete world/site/protection evidence required before reserving land");
@@ -87,9 +87,14 @@ public final class ConstructionSiteReservations {
     /** Rechecked in the same owner transaction as a new material debit. A new player protection pauses the project. */
     void requireActiveRows(ConstructionDraft draft)throws SQLException {
         if(c.getAutoCommit())throw new SQLException("Construction authority review requires the material owner transaction");
+        requireHouseholdProject(draft.id());
         var saved=find(draft.id()).orElseThrow(()->new SQLException("Materials require an active saved site reservation"));
         if(!saved.active()||!new ConstructionLandRepository(c).protectedColumns(draft.world(),saved.footprint(),draft.id()).isEmpty())
             throw new SQLException("Construction site released or newly protected; material reservation paused");
+    }
+    private void requireHouseholdProject(UUID draft)throws SQLException {
+        var binding=new HousingProjects(c).find(draft);
+        if(binding.isPresent()&&!binding.orElseThrow().active())throw new SQLException("Cancelled household proposal cannot reserve land or receive materials; submit a new proposal");
     }
     public Optional<Reservation> find(UUID draftId)throws SQLException {
         Objects.requireNonNull(draftId);

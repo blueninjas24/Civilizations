@@ -46,6 +46,12 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Schema113 identifies each new home proposal's beneficiary without spending or
+reserving land. Only that family waits behind it; unknown evidence and older
+unbound projects still hold safely. Unused cancellation retains history and
+blocks later reservation/material funding. Wrapper55 +3 passed; this is part
+of need-driven preparation, not completion of paid construction or occupancy.
+
 Separate renovation-consent controls now preserve donation-as-use-only. Schema112
 owner grant/donor-or-admin withdrawal, expiring confirmation, current saved status
 and stale/reclaimed protection passed focused checks and actual disposable Paper.

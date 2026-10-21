@@ -15,7 +15,7 @@ public final class HousingPlanning {
             lines.add("Unknown family capacity: "+unknownHouseholds+"; residents without a saved household: "+unassignedResidents
                     +". These are held for review, never treated as zero housing.");
             lines.add("Permitted vacancy evidence "+(vacanciesVerified?"current":"incomplete or stale")
-                    +"; active home project "+(pendingHome?"present (beneficiary mapping still pending)":"absent")+".");
+                    +"; active home project "+(pendingHome?"present (retained household reservations checked)":"absent")+".");
             for(var r:plan.recommendations().stream().limit(16).toList())lines.add("Family "+r.household()+": "+r.action()
                     +(r.vacantHome()==null?"":" unit "+r.vacantHome())+(r.templateId()==null?"":" plan "+r.templateId())+". "+r.explanation());
             if(plan.recommendations().size()>16)lines.add("Showing16 of "+plan.recommendations().size()+" family recommendations.");
@@ -65,19 +65,21 @@ public final class HousingPlanning {
                 }
             }
         }
-        // Existing draft schema has no household-beneficiary binding. Never claim that a second home is needed
-        // while any retained active home project might already serve that family. Reuse/starting stay separate.
+        // New proposals identify their beneficiary; older unbound home projects still conservatively hold
+        // additional proposals instead of guessing which family their funds and materials might serve.
         boolean pending=false;var drafts=new ArrayList<UUID>();
         try(var s=c.prepareStatement("""
                 SELECT d.id FROM construction_drafts d JOIN construction_site_reservations r ON r.draft_id=d.id
-                WHERE d.settlement_id=? AND d.world_id=? AND r.released_ms IS NULL ORDER BY d.id LIMIT 65
+                WHERE d.settlement_id=? AND d.world_id=? AND r.released_ms IS NULL
+                AND NOT EXISTS(SELECT 1 FROM housing_project_bindings b WHERE b.draft_id=d.id) ORDER BY d.id LIMIT 65
                 """)){
             s.setString(1,village.toString());s.setString(2,context.world().toString());try(var r=s.executeQuery()){while(r.next())drafts.add(UUID.fromString(r.getString(1)));}
         }
         if(drafts.size()>64)throw new BuildingRegistry.Declined("Housing planning project budget exceeded");
         var repository=new ConstructionDraftRepository(c);
         for(var id:drafts)if(repository.find(id).orElseThrow().template().purpose()==ConstructionTemplate.Purpose.HOME)pending=true;
-        Set<UUID> waiting=pending?needs.stream().map(n->n.household().id()).collect(java.util.stream.Collectors.toSet()):Set.of();
-        return new Report(planner.review(village,context.world(),needs,vacancies,templates,waiting,complete,context.present(),seed,period),unknown,unassigned,complete,pending);
+        Set<UUID> waiting=pending?needs.stream().map(n->n.household().id()).collect(java.util.stream.Collectors.toSet())
+                :new HousingProjects(c).activeHouseholds(village,context.world());
+        return new Report(planner.review(village,context.world(),needs,vacancies,templates,waiting,complete,context.present(),seed,period),unknown,unassigned,complete,pending||!waiting.isEmpty());
     }
 }

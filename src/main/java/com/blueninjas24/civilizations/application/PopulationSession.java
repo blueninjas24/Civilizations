@@ -1457,6 +1457,24 @@ public final class PopulationSession implements AutoCloseable {
                     frozen,planner,settings.seed(),status.get().completedMonths());
         });
     }
+    /** Reserve only the proposal's beneficiary; land, real funding, labor and native construction remain separate. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.HousingProjects.Binding> bindHousingProject(
+            com.blueninjas24.civilizations.database.HousingProjects.Proposal proposal,UUID world,
+            com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy){
+        return submit(()->{requireBuildingWorld(world,world);long time=now.getAsLong();
+            return new com.blueninjas24.civilizations.database.HousingProjects(database.getConnection()).bind(proposal,
+                    new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,true,policy,time),planner,settings.seed(),status.get().completedMonths());
+        });
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.HousingProjects.Binding> cancelHousingProject(
+            UUID operation,UUID draft,UUID world,long submittedMillis){
+        return submit(()->{requireBuildingWorld(world,world);
+            return new com.blueninjas24.civilizations.database.HousingProjects(database.getConnection()).cancel(operation,draft,submittedMillis,
+                    new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,true,
+                            com.blueninjas24.civilizations.construction.DwellingInspection.Policy.prototype(),now.getAsLong()));
+        });
+    }
     /** Pure bounded path review on the owner worker, never the server thread. No database mutation. */
     public CompletableFuture<com.blueninjas24.civilizations.construction.DwellingInspection.Assessment> inspectBuildingBeds(
             com.blueninjas24.civilizations.construction.BuildingLayout layout,

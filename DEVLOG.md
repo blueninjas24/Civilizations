@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## 2026-10-21 — household-bound home proposals
+
+Schema113 adds durable whole-household/plan/village/world proposal identity,
+serialized PopulationSession operations, exact historical retries and explicit
+unused cancellation. HousingPlanning now holds only mapped families; conservative
+whole-village holds remain for historical active projects with unknown beneficiaries.
+New proposals require current known need, verified vacancy-first planning, actual
+saved calendar, a fitting frozen plan and no prior funding/site/work. Cancellation
+requires released/unused sites and fully returned owned materials; paid supply or
+prepared blocks require reviewed recovery. Cancelled drafts cannot reacquire land
+or material authority. No world edits, money, residents or assignments are created.
+
+Focused `.\mvnw.cmd -Dtest=DwellingOccupancyTest,HousingProjectPlannerTest,ConstructionSiteReservationsTest,SchemaMigratorTest,ForestryFounderStudyTest,ForestryPersistenceTest,ForestryProvenanceTest,GeneratedTerrainMigrationTest clean verify`
+passed55 unit +3 packaged checks in48.957s. Four new real temporary-SQLite tests
+cover restart, family isolation, safe holds, cancellation, SQL rollback and
+preserving upgrade112->113. An initial test initialized its own calendar twice;
+fixture corrected before the passing build. Historical additive-migration fixtures
+include the new empty table. No Paper adapter or actual server changed in this batch.
+P4 remains25%/4 of16 checked items.
+
 ## 2026-10-21 — separate owner renovation consent
 
 Implemented the user's separate-consent decision in BuildingRenovations schema112,

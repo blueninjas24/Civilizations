@@ -15,6 +15,14 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Schema113 links a frozen home proposal to its actual whole household, village,
+  permanent world and reviewed plan. Only that family waits behind its project;
+  unrelated families can proceed. Unknown capacity, stale vacancies, suitable
+  empty homes and older unbound active projects still hold new construction.
+  Unused cancellation keeps history and cannot reactivate land/material rights.
+  No automatic builder, funds, assignments or new capacity are introduced.
+  Focused Wrapper clean verify55 unit +3 packaged checks passed48.957s.
+  See HOUSING_PROJECTS.md; the actual server/database was untouched.
 - Separate renovation consent is live: allowrenovation/denyrenovation, expiring
   confirmrenovation/cancelrenovation and saved inspection status. Donating grants
   use only. Recorded donors may grant; donors/admins may revoke. Schema112 binds
@@ -39,8 +47,9 @@ Implemented and verified:
 - Saved housing candidate bridge reads effective household capacity, current
   permitted unit vacancies and retained home projects on the SQL owner, then uses
   the existing deterministic planner. Unknown household capacity is held separately;
-  stale/unreviewed buildings cannot justify new construction. Existing active home
-  projects conservatively hold new proposals until beneficiary mapping exists.
+  stale/unreviewed buildings cannot justify new construction. Older unbound active home
+  projects conservatively hold new proposals; schema113 now identifies beneficiaries
+  for new projects as described above.
   Read-only API only: no new command, spending, assignment, scheduling or migration.
   Focused clean verify25 unit +3 packaged checks passed38.110s. A new temporary-SQLite
   check proves no writes, safe vacancy reuse, unknown/stale/absent-world holds and

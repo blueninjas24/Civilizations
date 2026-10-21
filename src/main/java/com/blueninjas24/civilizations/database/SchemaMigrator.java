@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 112;
+    static final int CURRENT_VERSION = 113;
 
     @FunctionalInterface
     interface Migration {
@@ -961,7 +961,8 @@ final class SchemaMigrator {
                 DwellingOccupancy::createSchema,
                 HousingCapacity::createSchema,
                 HouseholdFormation::createSchema,
-                BuildingRenovations::createSchema
+                BuildingRenovations::createSchema,
+                HousingProjects::createSchema
 
 
         ));
@@ -1177,6 +1178,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"household_formation_members",Set.of("resident_id","household_id"));
             }
             if(migrations.size()>=112)requireColumns(connection,"building_renovation_events",Set.of("sequence","operation_id","building_id","use_consent_id","previous_event","layout_hash","action","actor_id","administrator","at_ms"));
+            if(migrations.size()>=113)requireColumns(connection,"housing_project_bindings",Set.of("draft_id","household_id","settlement_id","world_id","plan_hash","residents","previous_capacity","created_ms","cancel_operation","cancelled_ms"));
             if(migrations.size()>=109){
                 requireColumns(connection,"dwelling_reviews",Set.of("operation_id","building_id","consent_id","fingerprint","observed_ms","recorded_ms","require_cover"));
                 requireColumns(connection,"dwelling_review_units",Set.of("review_id","unit_id","beds","issues"));
