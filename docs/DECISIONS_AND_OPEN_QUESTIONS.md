@@ -1,5 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — complete-input procurement recommendation
+
+Under delegated P4 recommendations, require all remaining frozen public-project
+inputs to be available and affordable now before buying. Qualified real local
+stock, stable commodity/supplier ordering and split supply apply; any late refusal
+rolls back the whole batch. This may wait instead of speculative partial buying.
+Existing prices, protected budgets, hauling and arrival delay remain unchanged.
+Automatic spending stays unwired until recovery/native work is ready.
+
 ## October21 — recommended bounded dry automatic home planning
 
 Under delegated P4 recommendations, connect guarded automatic clear-land growth

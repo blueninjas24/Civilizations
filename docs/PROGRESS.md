@@ -49,6 +49,13 @@ then the normal-server native writer and completed housing. Preserve player buil
 real goods/cash, family identity and world pause. P3 human survival testing remains
 deferred. Main, actual Minecraft server/worlds and server database stay untouched.
 
+Latest backend: complete remaining materials can be bought atomically from real
+qualified suppliers under current protected budgets and shared haul. Missing
+inputs/late failure spend nothing.29 unit +3 packaged checks passed45.849s.
+The serialized API is ready; automatic spending stays off pending paid-asset
+recovery/native work. Schema113 and P4 completed gates25% remain unchanged.
+Hosted Windows/Linux both passed checkpoint582069f.
+
 ## Earlier Phase 4 checkpoints — historical
 
 These retain the development trail. The current overview above supersedes old

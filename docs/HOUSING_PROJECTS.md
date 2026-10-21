@@ -1,5 +1,19 @@
 # Household-bound housing proposals
 
+## Atomic public material procurement backend
+
+ConstructionVillageProcurement.purchaseRemaining runs current funding, bounded
+qualified local supplier selection and existing purchases in one owner transaction.
+At most128 stocked local suppliers, stable commodity/UUID order, actual stock,
+current world/need/site authority, food/upkeep reserves, spending and shared haul
+apply. Complete remaining inputs must fit now; missing goods or a late refusal
+roll back the whole batch. Earlier paid/incoming cargo reduces demand.
+Deterministic receipt IDs use frozen draft/commodity/supplier/prior ordered units.
+A completed retry finds no missing inputs. Arrival still needs earned owner time.
+PopulationSession exposes the trusted internal boundary; no command or automatic
+planner calls it pending paid-asset recovery/native work. No schema114 or money,
+materials, title, inventory access or physical permission is invented.
+
 Schema113 adds a preparation API, not an automatic builder or a new player command.
 Each frozen HOME draft may identify one whole household, its permanent village/world,
 plan fingerprint, living residents, previous known capacity and creation time.

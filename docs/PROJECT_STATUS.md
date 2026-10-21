@@ -36,6 +36,13 @@ work to the normal native writer and useful completed homes. Keep the existing
 feature branch; never merge/push main without approval. No design question blocks
 this work under the user's delegated prototype recommendations.
 
+Latest backend: complete remaining materials can be bought atomically from real
+qualified suppliers under current protected budgets and shared haul. Missing
+inputs/late failure spend nothing.29 unit +3 packaged checks passed45.849s.
+The serialized API is ready; automatic spending stays off pending paid-asset
+recovery/native work. Schema113 and P4 completed gates25% remain unchanged.
+Hosted Windows/Linux both passed checkpoint582069f.
+
 ### Earlier P4 checkpoints — historical implementation evidence
 
 The detailed checkpoints below preserve the trail. Current code and the overview

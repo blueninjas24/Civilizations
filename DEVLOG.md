@@ -1,5 +1,22 @@
 # Civilizations Development Log
 
+## 2026-10-21 — atomic remaining home-material procurement
+
+Added ConstructionVillageProcurement and a serialized internal PopulationSession
+purchase boundary. At most128 real local stocked suppliers, qualified staff,
+stable ordering, split supply and actual stock support complete remaining frozen
+inputs. Existing paid cargo reduces demand. Current protected cash/period budgets
+and shared haul apply. Missing input or late failure rolls back every payment and
+stock debit; retry/restart never buys already committed inputs twice.
+
+No live automatic spending, schema change or actual-server mutation. Wrapper
+clean verify passed29 unit +3 packaged checks in45.849s. Six focused temporary
+SQLite cases cover purchases/restart, split/missing supply, late rollback, earlier
+cargo, current authority/staff/food/world holds and protected budget/haul. Initial
+fixture failures needed explicit sufficient test capital and a valid departure
+reason; application rules remained intact. Hosted Windows/Linux both passed
+previous checkpoint582069f. Next: paid-asset recovery and native builder.
+
 ## 2026-10-21 — keep other villages moving after a refused site
 
 Review found that the automatic planner cleared its entire pending page when one

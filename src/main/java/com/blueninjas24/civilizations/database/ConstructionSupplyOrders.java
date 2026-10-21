@@ -62,7 +62,7 @@ public final class ConstructionSupplyOrders {
     public Receipt purchase(Request request,ConstructionMaterials.Authority authority,long now,Set<UUID> worlds)throws SQLException {
         return transaction(()->purchaseRows(request,authority,now,Set.copyOf(worlds)));
     }
-    private Receipt purchaseRows(Request q,ConstructionMaterials.Authority authority,long now,Set<UUID> worlds)throws SQLException {
+    Receipt purchaseRows(Request q,ConstructionMaterials.Authority authority,long now,Set<UUID> worlds)throws SQLException {
         var old=find(q.operation());if(old.isPresent()){if(!old.orElseThrow().request().equals(q))throw new SQLException("Construction order identity changed");return old.orElseThrow();}
         if(!supply.enabled()||!industry.enabled())throw new Declined("Construction purchasing or industry disabled");
         var draft=draft(q.draft());
@@ -156,7 +156,10 @@ public final class ConstructionSupplyOrders {
     /** One read-only snapshot of actual orders, escrow, current fed population, reserves and shared haul. */
     public VillageFunding quoteVillageMaterials(UUID draftId,long now,Set<UUID> worlds)throws SQLException{
         var present=Set.copyOf(worlds);if(now<0)throw new IllegalArgumentException("Negative funding observation time");
-        return transaction(()->{
+        return transaction(()->quoteVillageMaterialsRows(draftId,now,present));
+    }
+    VillageFunding quoteVillageMaterialsRows(UUID draftId,long now,Set<UUID> present)throws SQLException{
+        if(c.getAutoCommit())throw new SQLException("Funding snapshot requires the SQL owner transaction");
             var plan=draft(draftId);if(!present.contains(plan.world()))throw new Declined("Absent world cannot authorize a current funding quote");
             new ConstructionSiteReservations(c).requireActiveRows(plan);
             try(var s=c.prepareStatement("SELECT 1 FROM construction_material_reservations WHERE draft_id=?")){
@@ -193,7 +196,6 @@ public final class ConstructionSupplyOrders {
                     :!affordable?"Remaining inputs require smaller orders, later spending windows or more unprotected cash":missingUnits>haul?"Remaining inputs exceed this shared hauling window"
                     :"Current funds and haul can cover reference-priced inputs; real suppliers, fresh site evidence and live payment checks still required";
             return new VillageFunding(draftId,period,needs,reference,cash,quote.protectedCash(),quote.availableCash(),spent,haul,canOrder,reason);
-        });
     }
     public Optional<Receipt> find(UUID operation)throws SQLException {
         try(var s=c.prepareStatement("SELECT * FROM construction_supply_orders WHERE operation_id=?")) {
@@ -234,7 +236,7 @@ public final class ConstructionSupplyOrders {
             s.setString(1,town.toString());s.setLong(2,period);try(var r=s.executeQuery()){if(!r.next()||r.getLong(2)<r.getLong(1)||r.getLong(3)!=r.getLong(4))throw new Declined("Public construction waits for a current complete fed population assessment");return r.getLong(1);}
         }
     }
-    private boolean staffed(UUID id)throws SQLException {
+    boolean staffed(UUID id)throws SQLException {
         if(!new BusinessOperations(c,operations).evaluate(id).permitted())return false;WorkplaceOperations.requirePermitted(c,id);
         var firms=new BusinessRepository(c);var f=firms.findFounding(id).orElseThrow();var people=new PopulationRepository(c);
         for(var job:firms.currentWorkers(id)){var p=people.findResident(job.residentId()).orElseThrow();if(p.settlementId().equals(f.business().settlementId())&&WorkEligibility.evaluate(p,people.findWorkProfile(p.id()).orElseThrow(),f.workerRequirements()).eligible())return true;}return false;

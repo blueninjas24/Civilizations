@@ -1513,6 +1513,16 @@ public final class PopulationSession implements AutoCloseable {
                     .quoteVillageMaterials(draft,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
         });
     }
+    /** Internal purchase boundary: requires trusted fresh native authority, never a player preview alone. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionVillageProcurement.Result> procureVillageConstructionInputs(
+            UUID draft,com.blueninjas24.civilizations.database.ConstructionMaterials.Authority authority,
+            com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy budget,
+            com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy supply){
+        return submit(()->{requireBuildingWorld(authority.world(),authority.world());
+            return new com.blueninjas24.civilizations.database.ConstructionVillageProcurement(database.getConnection(),budget,supply,industryPolicy,operationPolicy)
+                    .purchaseRemaining(draft,authority,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
+        });
+    }
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanningJobs.Page> housingPlanningJobs(
             UUID after,int limit,List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
             com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,
