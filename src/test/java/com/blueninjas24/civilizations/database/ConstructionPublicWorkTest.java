@@ -32,6 +32,22 @@ class ConstructionPublicWorkTest {
     }
     long count(String table)throws Exception {try(var s=f.c().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){return r.getLong(1);}}
     long work()throws Exception{return new ConstructionPublicWork(f.c()).work(f.publicDraft.id(),0);}
+    @Test void rehousedBeneficiaryPausesUnstartedPaidHomeWithoutLosingCargoAndCanResumeIfNeeded()throws Exception {
+        materials(12);UUID household=UUID.randomUUID();
+        f.f.db.getPopulationRepository().insertHousehold(new Household(household,f.f.town,"Prepared home family"));
+        f.f.sql("UPDATE residents SET household_id='"+household+"' WHERE id='"+worker+"'");
+        f.f.sql("INSERT INTO household_capacity VALUES('"+household+"',1)");
+        // Model a previously valid, paid proposal whose family has since gained housing.
+        try(var s=f.c().prepareStatement("INSERT INTO housing_project_bindings VALUES(?,?,?,?,?,1,0,1200,NULL,NULL)")){
+            s.setString(1,f.publicDraft.id().toString());s.setString(2,household.toString());s.setString(3,f.f.town.toString());s.setString(4,f.f.world.toString());s.setString(5,f.publicDraft.template().fingerprint());s.executeUpdate();
+        }
+        var runtime=runtime(true);runtime.pulse(6000,false);
+        assertEquals(0,work());assertEquals(Map.of(Commodity.STONE,12L),f.orders().stock(f.publicDraft.id()));
+        assertEquals(0,count("construction_public_work"));assertTrue(new ConstructionSiteReservations(f.c()).find(f.publicDraft.id()).orElseThrow().active());
+        f.f.sql("UPDATE household_capacity SET capacity=0 WHERE household_id='"+household+"'");
+        runtime.pulse(7000,false);assertEquals(10,work());assertTrue(f.orders().stock(f.publicDraft.id()).isEmpty());
+        assertEquals(1,count("construction_supply_orders"));assertEquals(0,count("construction_block_journal"));
+    }
     @Test void realFoodPeriodsEarnBoundedUnemployedWorkAndEscrowMaterialsOnceThenWaitForPhysicalStage()throws Exception {
         materials(12);var runtime=runtime(true);runtime.pulse(6000,false);
         assertEquals(10,work());assertTrue(f.orders().stock(f.publicDraft.id()).isEmpty(),"All stage stone is escrowed once, never spendable twice");

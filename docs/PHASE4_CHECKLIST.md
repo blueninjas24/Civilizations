@@ -46,6 +46,11 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Unstarted beneficiary-bound homes now recheck current need before committing
+new site/material authority, public effort or first economic block intent.
+Changed/unknown need pauses new work without deleting paid assets/history.
+Durable native intents preserve existing recovery/completion. Wrapper56 +3 passed.
+
 The operator `/civ build housing <village UUID>` command now reads actual saved
 family decisions in the current world. Bounded queued reports, no terrain reads
 or project writes. Wrapper27 +3 and actual disposable Paper passed; handbook0.13

@@ -15,6 +15,11 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Unstarted household-bound homes now recheck actual family need before new site/
+  material authority, public effort or first economic block intent. Rehousing,
+  unknown capacity, departed/empty families and plans that no longer fit pause
+  new commitments; stock/site/history remain. Durable physical intents retain
+  existing recovery/completion checks. Wrapper56 +3 passed55.343s.
 - Read-only `/civ build housing <village UUID>` now explains saved family housing
   decisions/reuse/proposal/holds in the player's current world. Existing operator
   preview permission, four queued reports,30-second expiry and authority/world/

@@ -63,6 +63,7 @@ public final class ConstructionPublicWork {
         for(var id:candidates) {
             if(used.size()>=policy.villageWorkers())break;
             var draft=new ConstructionDraftRepository(c).find(id).orElseThrow();
+            if(new HousingProjects(c).pauseReasonRows(draft).isPresent())continue;
             var site=new ConstructionSiteReservations(c).find(id).orElseThrow();
             if(!new ConstructionLandRepository(c).protectedColumns(draft.world(),site.footprint(),id).isEmpty())continue;
             int stage=nextStage(draft);if(stage<0)continue;

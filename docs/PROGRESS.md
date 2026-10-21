@@ -16,6 +16,10 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Unstarted home projects now pause new spending/work if their family becomes
+suitably housed, moves away, disappears or no longer fits the plan. Paid supplies
+and history remain saved; started-work recovery is preserved. Wrapper56 +3 passed.
+
 Operators can now read `/civ build housing <village UUID>` to see why families
 reuse homes, need new ones or wait. This starts no construction. Wrapper27 +3
 and actual disposable Paper passed; handbook0.13 remains29 pages/27 chapters.

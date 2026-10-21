@@ -1,5 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — recommended unstarted home revalidation
+
+Under the user's delegated P4 prototype recommendations, recheck current family
+need before further commitments to an unstarted home. Suitable rehousing, unknown
+capacity, relocation, empty families or a plan that no longer fits pause new
+funding/public work/first economic native intent. Retain paid supplies, site and
+history for reviewed reuse/cancellation. If a durable native intent already exists,
+keep its existing recovery/completion path: a lost acknowledgement may mean blocks
+are already present, and buildings should not be stranded or erased. No new
+beneficiary, refund, demolition, forced move or extra housing capacity is inferred.
+
 ## October21 — separate renovation consent and delegated prototype recommendations
 
 User explicitly selected separate renovation consent: donating a building grants

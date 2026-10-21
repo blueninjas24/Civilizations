@@ -107,6 +107,36 @@ class DwellingOccupancyTest {
             assertEquals(0,number(c,"SELECT count(*) FROM construction_drafts"));assertEquals(0,number(c,"SELECT count(*) FROM housing_project_bindings"));healthy(c);
         }
     }
+    private void requireProjectAuthority(Connection c,UUID draft)throws Exception{
+        c.setAutoCommit(false);try{new ConstructionSiteReservations(c).requireActiveRows(new ConstructionDraftRepository(c).find(draft).orElseThrow());}
+        finally{c.rollback();c.setAutoCommit(true);}
+    }
+    @Test void unstartedPreparedHomesPauseForRehousingUnknownCapacityFamilyGrowthOrSavedDeath()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var receipt=prepare(c,preparation(70),1200);var draft=receipt.draft();requireProjectAuthority(c,draft.id());
+            sql(c,"UPDATE household_capacity SET capacity=7");
+            assertThrows(SQLException.class,()->requireProjectAuthority(c,draft.id()));
+            sql(c,"DELETE FROM household_capacity");assertThrows(SQLException.class,()->requireProjectAuthority(c,draft.id()));
+            sql(c,"INSERT INTO household_capacity VALUES('"+family+"',0)");
+            var people=new PopulationRepository(c);for(int i=30;i<33;i++)people.insertResident(new Resident(id(i),"New fixture member",town,family,240,Resident.Status.ALIVE));
+            assertThrows(SQLException.class,()->requireProjectAuthority(c,draft.id()));
+            sql(c,"UPDATE residents SET status='DECEASED' WHERE id IN ('"+id(30)+"','"+id(31)+"','"+id(32)+"')");requireProjectAuthority(c,draft.id());
+            sql(c,"UPDATE residents SET status='DECEASED' WHERE household_id='"+family+"'");assertThrows(SQLException.class,()->requireProjectAuthority(c,draft.id()));
+            assertTrue(new HousingProjects(c).find(draft.id()).orElseThrow().active());assertTrue(new ConstructionSiteReservations(c).find(draft.id()).orElseThrow().active());
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_supply_orders"));assertEquals(0,number(c,"SELECT count(*) FROM construction_block_journal"));healthy(c);
+        }
+    }
+    @Test void changedHousingNeedDoesNotStrandADurableIntentThatMayAlreadyExistInTheWorld()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var draft=prepare(c,preparation(70),1200).draft();
+            // Development journal intent only; no native placement or economic authority is manufactured.
+            var intent=new ConstructionBlockJournal(c).prepare(id(90),draft.id(),0,"minecraft:cobblestone");
+            sql(c,"UPDATE household_capacity SET capacity=7");requireProjectAuthority(c,draft.id());
+            assertEquals(intent,new ConstructionBlockJournal(c).find(id(90)).orElseThrow());
+            assertThrows(BuildingRegistry.Declined.class,()->new HousingProjects(c).cancel(id(91),draft.id(),1300,context(1300)));
+            assertTrue(new ConstructionSiteReservations(c).find(draft.id()).orElseThrow().active());healthy(c);
+        }
+    }
     @Test void homeProjectsReserveOnlyTheirFamilyAndKeepReceiptsAcrossRestart()throws Exception {
         HousingProjects.Binding saved;
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){

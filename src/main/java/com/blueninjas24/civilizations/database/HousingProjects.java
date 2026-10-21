@@ -51,6 +51,31 @@ public final class HousingProjects {
         }
         if(ids.size()>1024)throw new BuildingRegistry.Declined("Housing project budget exceeded");return Set.copyOf(ids);
     }
+    /** Recheck unstarted beneficiary need in the same transaction as new funding, effort or first intent. */
+    Optional<String> pauseReasonRows(ConstructionDraft draft)throws SQLException{
+        if(c.getAutoCommit())throw new SQLException("Housing need review requires the SQL owner's transaction");
+        var saved=find(draft.id());if(saved.isEmpty())return Optional.empty(); // Historical unbound projects retain existing checks.
+        var binding=saved.orElseThrow();
+        if(!binding.active())return Optional.of("Household proposal was cancelled");
+        // A durable native intent may already have changed the world after a lost acknowledgement.
+        // Preserve its existing recovery/completion path rather than strand a partial structure.
+        if(hasRows("construction_block_journal",draft.id()))return Optional.empty();
+        try(var s=c.prepareStatement("SELECT settlement_id FROM households WHERE id=?")){
+            s.setString(1,binding.proposal().household().toString());try(var r=s.executeQuery()){
+                if(!r.next()||!draft.settlement().toString().equals(r.getString(1)))return Optional.of("Beneficiary household moved; review the unused home proposal");
+            }
+        }
+        int living;
+        try(var s=c.prepareStatement("SELECT count(*) FROM residents WHERE household_id=? AND settlement_id=? AND status='ALIVE'")){
+            s.setString(1,binding.proposal().household().toString());s.setString(2,draft.settlement().toString());try(var r=s.executeQuery()){living=r.getInt(1);}
+        }
+        Integer capacity=HousingCapacity.read(c,draft.settlement()).get(binding.proposal().household());
+        if(living==0)return Optional.of("Beneficiary household has no living members; unused home retained for review");
+        if(capacity==null)return Optional.of("Beneficiary housing capacity is unknown; unstarted home paused");
+        if(capacity>=living)return Optional.of("Beneficiary now has sufficient housing; unstarted home paused");
+        if(living>HomePlanCapacity.beds(draft.template()))return Optional.of("Frozen plan no longer fits the whole household; unstarted home paused");
+        return Optional.empty();
+    }
     public Binding bind(Proposal proposal,DwellingOccupancy.Context context,HousingProjectPlanner planner,long seed,long period)throws SQLException{
         return transaction(()->bindRows(proposal,context,planner,seed,period));
     }

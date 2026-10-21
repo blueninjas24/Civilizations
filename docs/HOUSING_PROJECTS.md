@@ -34,6 +34,14 @@ the SQL-reviewed envelope is ignored. Historical preparation receipts never
 refresh site evidence. Templates, need, funds and native safety must still be
 reviewed before any subsequent work. Focused pipeline checks67 +3 passed56.954s.
 
+Before new commitments, an unstarted proposal rechecks the family's current
+village, living members, known housing and whole-family plan fit. Rehousing or
+unknown/changed need pauses new site/material authority, public effort and the
+first economic block intent. Already paid stock and history remain; normal checks
+can resume when need returns. Durable native intents retain existing recovery/
+completion because a lost acknowledgement could mean world blocks exist already.
+No reassignment, deletion or free refund is performed. Wrapper56 +3 passed55.343s.
+
 Current limitations: no automatic proposal timer, physical production writer,
 completed-home activation, started-project cancellation or migration of historical
 unbound projects. Completed-home lifecycle remains part of the construction gate.

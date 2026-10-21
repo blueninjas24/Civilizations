@@ -1,5 +1,22 @@
 # Civilizations Development Log
 
+## 2026-10-21 — recheck need before committing unstarted homes
+
+HousingProjects now revalidates household location, living membership, effective
+known capacity and whole-family plan fit before unstarted site/material authority,
+public labor or first economic block intent. Existing site/cargo/material/history
+remain when need changes. Restored need can resume after normal authority checks.
+Any durable physical intent keeps the existing recovery/completion path because
+a lost acknowledgement could mean blocks already exist. Cancelled projects still
+never reactivate. No automatic reassignment, refunds or demolition introduced.
+Recommendation recorded under the user's delegated P4 prototype authority.
+
+Focused `.\mvnw.cmd -Dtest=DwellingOccupancyTest,ConstructionPublicWorkTest,ConstructionSupplyOrdersTest,ConstructionMaterialsTest,ConstructionSiteReservationsTest clean verify` passed56 unit +3 packaged checks55.343s. Two temporary SQLite
+cases cover rehousing/unknown capacity/family growth/saved death and retained
+physical intent; one actual food-period integration case proves paid stock pauses
+unspent and work resumes only when the housing need returns. No world/server
+changes or migration; schema113 and P4 at25% remain.
+
 ## 2026-10-21 — in-game housing decision report and handbook0.13
 
 Added PaperHousingCandidates and `/civ build housing <village UUID>` routing with
