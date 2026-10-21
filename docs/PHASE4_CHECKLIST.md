@@ -8,14 +8,17 @@ but does not count as a completed item. This measures scope, not elapsed time.
 ## 1. Authored plans and frozen proposals — 4/4
 
 - [x] Bounded, versioned, editable template format with staged costs/work and functional anchors.
-- [x] Original small path/storehouse/four-bed-home starter plans, attribution and strict validation.
-- [x] All eight geometry/block-state orientations, tested against native Paper doors, beds and pillar axes.
+- [x] Original path/storehouse/four/six/eight-bed home plans, attribution and strict validation.
+- [x] All eight geometry/block-state orientations, tested against native Paper doors, beds, pillar axes and supported wall torches.
 - [x] Read-only admin catalogue/site command plus immutable, hashed SQLite draft snapshots tied to permanent world/village IDs.
 
-The site command is operational but cannot authorize or start construction. Draft
-storage is a tested SQL-owner API; the command does not yet save drafts. Saved
-proposals preserve reviewed inputs through file edits and restarts. They reserve
-no land, goods, cash, workers or capacity. No existing business is activated by one.
+Read-only catalogue/template/access previews grant no work permission. The separate
+automatic family-home pipeline now freezes actual plans, reserves its beneficiary
+and suitable site, buys real supplies, waits for cargo/earned labor, builds under
+the guarded writer and registers village-owned completion. Only independent native
+housing inspection qualifies beds/assigns families. Modern assignments now guide
+distinct actual resident home memories. Existing user files and original people
+remain. Supplied fitting plans preserve whole families; no forced splitting.
 
 ## 2. Sites, roads and permission — 0/4
 
@@ -24,11 +27,19 @@ no land, goods, cash, workers or capacity. No existing business is activated by 
 - [ ] Terrain-aware permitted site adaptation and loaded-chunk revalidation, including entities and neighboring edits.
 - [ ] Suitable vacant-premises reuse before new construction, with occupancy/permission records and collision prevention.
 
-Partial: a conservative pure site review and bounded main-thread read-only scan
-check air/interior space, ground support, entities and a dirt-path entrance.
-Unloaded chunks are incomplete evidence. No land approval is inferred. Saved confirmed fenced-area
-protections are now evaluated through the SQL owner queue. Automatic land screening
-and current-write authority are unfinished, so a preview still cannot authorize work.
+Partial: automatic home infill beside existing paths is operational, with bounded
+two-pass native evidence, buffers, saved player/pen/building protections and
+current SQL-owner generation at each write. Its permission does not authorize
+another use, grading or ground replacement. Vacant donated housing comes first;
+private business premises and broader land/corridor reuse are not complete.
+
+The new pure flat access planner and /civ build access preview find short safe
+routes to existing path under strict observation/search budgets. Neither starts
+paving. Physical road design, real corridor reservation/funding/labor, exact
+natural-ground replacement authority and completed-road provenance remain before
+the complete local-path selection/authority gate can be checked. Current native
+journal CHECK requires minecraft:air before-state; do not silently relax it for
+roads. A versioned tested migration and exact typed authority are necessary.
 
 ## 3. Paid staged work and useful buildings — 1/4
 
@@ -43,6 +54,39 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 - [ ] Protected player land, changed blocks/entities, unavailable worlds/chunks and editor compatibility acceptance.
 - [ ] Existing P1–P3 economy/population regression plus hosted Windows/Linux green for the completed phase candidate.
 - [ ] Administrator settings/playtest guide and accurate progress/status/release candidate, with remaining survival tuning stated.
+
+## Current verification and next delivery
+
+Current schema116. Family homes use real finite supplier stock, original money,
+earned cargo/work, paced per-block journaling, exact native scene checks and
+completion registration. Four/six/eight-bed catalogue geometry and actual rotated/
+mirrored eight-bed construction passed disposable Paper; eight actual residents
+received distinct bed memories, with active-body refresh and restart conservation.
+Confirmed unused recall/returns and retained intent inspection are available;
+started ambiguous work still requires manual review, with no force-resume.
+
+Most recent focused clean Wrapper checks: housing/resident53 unit+3 packaged;
+route/preview10+3. Actual road command checked real SQL protections, found8 surface
+cells and made0 projects/orders. Newest head still needs hosted CI completion;
+earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.21 is
+35 pages/32 chapters, rendered and visually reviewed. Live player survival tests
+remain deferred. See PROJECT_STATUS.md and DEVLOG.md for precise evidence.
+
+Next cohesive local-road delivery:
+1. Freeze an authored physical design and its exact footprint/cost/work, rather
+   than using geometric cell counts as commodity units or granting free work.
+2. Reserve/revalidate the actual corridor with current protection and entities.
+3. Version/test native ground replacement and restart handling; preserve player
+   paving/builds and harvested-output ambiguity. Register actual Civ road identity
+   so homes can recognize it without adopting arbitrary player cobblestone.
+4. Connect protected village funds, finite suppliers, shared hauling, earned labor
+   and paced writer; then prove interruption/protection/restart on disposable Paper.
+
+This is local village access in P4. Regional trade/routes remain P5. Business/civic/
+dock construction, wider terrain work, repair/upgrade/decay and acceptance remain.
+
+<details>
+<summary>Historical partial checkpoints (superseded by the current overview)</summary>
 
 ## Partial work after the first gate
 
@@ -297,3 +341,5 @@ money, finite stock and housing conserved;116 DBs healthy, fixture restored/stop
 This checks the paid-project milestone using the first public housing delivery.
 Private/civic/industrial activation, terrain/roads, explicit started-work repair,
 upgrades and broad acceptance remain unchecked.5/16 is31%;1/4 whole groups complete.
+
+</details>

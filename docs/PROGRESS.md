@@ -56,7 +56,8 @@ The handbook is now0.21,35 pages/32 chapters, with automatic homes in Chapter31
 and saved inspection/confirmed supplier recovery in Chapter32. Latest recovery
 Wrapper35+3 and15+3 passed; actual Paper permission/confirmation/refund/disconnect/
 restart accepted. Both116 DBs healthy, server stopped; no world/inventory edits.
-Schema116/home checkpoints0a0a2da and5c7bd73 now both hosted green; fa5176c running.
+Schema116/home checkpoints0a0a2da,5c7bd73,fa5176c and recovery412c704 hosted green.
+Later heads remain queued/running; do not infer latest-head green.
 
 Next: broader sites/roads and
 business/infrastructure construction. Actual server/worlds/database and main

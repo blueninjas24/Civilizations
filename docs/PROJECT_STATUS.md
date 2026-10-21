@@ -115,7 +115,7 @@ spending; injecting the same clock fixed the fixture, no guard weakened.
 Prior hosted Windows/Linux both passedb91265c; current candidate awaits CI.
 No latest-head full-suite claim.
 
-Handbook0.20 is35 pages/32 chapters, rendered and visually reviewed. Chapters31/32
+Handbook0.21 is35 pages/32 chapters, rendered and visually reviewed. Chapters31/32
 cover automatic homes, opt-in/pacing, saved inspection and confirmed supply recovery. Sources/configuration
 and docs/PROGRESS.md agree. No schema change beyond116 in this batch.
 

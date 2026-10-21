@@ -1,5 +1,18 @@
 # Civilizations Development Log
 
+## 2026-10-21 — reconcile current P4 gates and concrete road handoff
+
+Updated PHASE4_CHECKLIST current scope to reflect enabled paid homes, larger
+plans, actual resident home-memory integration and road-access preview. Explicitly
+labelled old backend-only/4-of16 statements as historical, avoiding contradictory
+current progress.5/16=31% remains; the whole road/terrain/useful-building gates
+are incomplete. Recorded the concrete next implementation dependency: journal's
+minecraft:air CHECK means natural-ground road replacement requires a versioned,
+exact-state migration/authority boundary, not a silent whitelist change. Real
+corridor reservation, frozen design/cost/work, paid supply/hauling/labor and Civ-road
+provenance still need connection. Regional routes stay P5. No canonical roadmap,
+code, save schema or server data changed. Prior verified code/test evidence stands.
+
 ## 2026-10-21 — read-only local access command
 
 Added /civ build access to existing construction previews/tab completion. It
