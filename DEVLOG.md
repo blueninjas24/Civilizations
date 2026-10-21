@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## 2026-10-21 — atomic nonblocking native/SQL authority gate
+
+NativeConstructionGate now excludes SQL-owner changes during one bounded native
+callback. Every owner task conservatively advances its generation. Prepared paid
+intent receives that same owner stamp and original native-evidence time; stale,
+foreign, expired, busy or stopped permits invoke no callback. The server thread
+uses tryLock only, never waits for SQL. Owner work may wait for the brief native
+step; callbacks cannot submit/wait for owner work. No Paper API runs on SQL thread.
+Accepted owner tasks still drain during shutdown; new native work stops immediately.
+
+Added explicit prepared-step/try-native session APIs; compatibility intent view
+remains. Expected ConstructionSupplyOrders.Declined is now a normal operational
+hold, not a population failure/SEVERE status. Focused40 unit +3 packaged checks
+passed46.167s, including concurrency exclusion, nonblocking refusal, generation,
+expiry/foreign/stop/callback-failure, lifecycle and funding-status regression.
+
+Actual disposable paid-path acceptance proved an invalidated permit wrote nothing,
+fresh guarded placement/retry, real session restart before acknowledgement, conflict
+preservation and no remote chunk load. Five originals restored, DBs115/ok/FKs0,
+server/helper stopped. Separate actual planning acceptance proved ordinary funding
+hold leaves population status healthy, current native work survey, confirmed unused
+cancellation/restart and changed/absent holds. Its three cells restored; both DBs
+healthy, helper stopped. Normal writer/automatic construction remains unfinished.
+
 ## 2026-10-21 — real SQL-owner intent/ack handoff and paid native path
 
 PopulationSession now prepares exact public economic intents and acknowledges

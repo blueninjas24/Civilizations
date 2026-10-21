@@ -42,4 +42,21 @@ class ConstructionSessionHandoffTest {
         assertEquals(intent,session.constructionWorkPage(null,8).get(10,TimeUnit.SECONDS).projects().getFirst().pending().orElseThrow());
         assertEquals(ConstructionBlockJournal.State.APPLIED,session.acknowledgePublicConstructionStep(operation,draft.id(),draft.world(),intent.after(),9000).get(10,TimeUnit.SECONDS).state());
     }
+    @Test void nativePermitIsNonblockingAndInvalidatedByInterveningOwnerWork()throws Exception{
+        start(true);UUID operation=UUID.randomUUID();var authority=new ConstructionMaterials.Authority(draft.id(),draft.world(),9000,true,true);
+        var prepared=session.prepareAuthorizedPublicConstructionStep(operation,draft.id(),0,"minecraft:cobblestone",authority).get(10,TimeUnit.SECONDS);
+        var callbacks=new java.util.concurrent.atomic.AtomicInteger();
+        assertEquals(1,session.tryNativeConstructionStep(prepared,()->{
+            assertTrue(session.constructionWorkPage(null,8).isCompletedExceptionally(),"Native callback cannot queue/wait for SQL and deadlock the owner");return callbacks.incrementAndGet();
+        }).orElseThrow());
+        session.constructionWorkPage(null,8).get(10,TimeUnit.SECONDS);
+        assertTrue(session.tryNativeConstructionStep(prepared,callbacks::incrementAndGet).isEmpty());assertEquals(1,callbacks.get());
+        var refreshed=session.prepareAuthorizedPublicConstructionStep(operation,draft.id(),0,"minecraft:cobblestone",authority).get(10,TimeUnit.SECONDS);
+        assertEquals(prepared.intent(),refreshed.intent());assertEquals(2,session.tryNativeConstructionStep(refreshed,callbacks::incrementAndGet).orElseThrow());
+    }
+    @Test void ordinaryFundingHoldDoesNotPoisonPopulationFailureStatus()throws Exception{
+        f.f.f.open();f.f.f.db.getPopulationRepository().insertResident(new com.blueninjas24.civilizations.population.Resident(UUID.randomUUID(),"Unassessed new fixture resident",draft.settlement(),null,240,com.blueninjas24.civilizations.population.Resident.Status.ALIVE));f.f.f.db.close();
+        start(true);var failure=assertThrows(ExecutionException.class,()->session.constructionVillageFunding(draft.id(),draft.world(),ConstructionBudgetPolicy.prototype(),ConstructionSupplyPolicy.prototype()).get(10,TimeUnit.SECONDS));
+        assertInstanceOf(ConstructionSupplyOrders.Declined.class,failure.getCause());assertNull(session.status().failure(),"Expected construction funding holds are not population/database failures");
+    }
 }

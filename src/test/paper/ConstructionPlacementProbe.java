@@ -19,6 +19,8 @@ public final class ConstructionPlacementProbe extends JavaPlugin {
     private com.blueninjas24.civilizations.application.PopulationSession session;
     private com.blueninjas24.civilizations.economy.EconomySettings economySettings;
     private PaperConstructionWorkSurvey survey;
+    private com.blueninjas24.civilizations.application.PopulationSession.PreparedConstructionStep prepared;
+    private ConstructionMaterials.Authority authority;private boolean recovering,oldPermitChecked;
     private PaperConstructionStep writer;private CompletableFuture<?> pending;private int phase,index,ticks;
     private ConstructionBlockJournal.Intent last;private boolean authorized,restored;
     private record Far(ConstructionDraft draft,ConstructionBlockJournal.Intent intent){}
@@ -73,19 +75,20 @@ public final class ConstructionPlacementProbe extends JavaPlugin {
             case 10->{var page=(ConstructionWorkQueue.Page)completed;require(page.projects().size()==1,"Actual saved-work page contains paid path");var work=page.projects().getFirst();
                 require(work.state()==ConstructionWorkQueue.State.READY&&work.nextOrdinal()==index,"Only next fully paid stage step ready");survey=new PaperConstructionWorkSurvey(work,System.currentTimeMillis());phase=11;pending=CompletableFuture.completedFuture(null);}
             case 11->{var frame=survey.advance(128,System.currentTimeMillis());if(frame.isEmpty())return;require(frame.get().authority().siteCleared(),"Current loaded native work frame verified: "+frame.get().explanation());
-                phase=1;pending=session.preparePublicConstructionStep(UUID.randomUUID(),draft.id(),index,"minecraft:cobblestone",frame.get().authority());}
+                authority=frame.get().authority();phase=1;pending=session.prepareAuthorizedPublicConstructionStep(recovering?last.operation():UUID.randomUUID(),draft.id(),index,"minecraft:cobblestone",authority);}
             case 1->{
-                last=(ConstructionBlockJournal.Intent)completed;
-                var outcome=writer.attempt(last);require(outcome.state()==PaperConstructionStep.State.APPLIED,"Prepared block must be placed exactly once: "+outcome);
-                require(writer.attempt(last).state()==PaperConstructionStep.State.ALREADY_PRESENT,"Immediate retry must not write twice");
-                // Deliberately restart the real SQL owner after world write, before durable acknowledgement.
-                if(index==0){session.close();newSession();pending=session.start(false,Set.of(draft.world())).thenCompose(ignored->session.constructionWorkPage(null,8));}
-                else pending=session.constructionWorkPage(null,8);phase=2;
+                prepared=(com.blueninjas24.civilizations.application.PopulationSession.PreparedConstructionStep)completed;last=prepared.intent();
+                if(index==0&&!recovering&&!oldPermitChecked){oldPermitChecked=true;phase=13;pending=session.constructionWorkPage(null,8);return;}
+                placePrepared();
+            }
+            case 13->{
+                require(session.tryNativeConstructionStep(prepared,()->writer.attempt(last)).isEmpty(),"Intervening SQL owner work invalidates old native permit");
+                require(world.getBlockAt(last.at().x(),last.at().y(),last.at().z()).getType()==Material.AIR,"Invalidated permit wrote nothing");
+                phase=1;pending=session.prepareAuthorizedPublicConstructionStep(last.operation(),draft.id(),index,"minecraft:cobblestone",authority);
             }
             case 2->{
-                var page=(ConstructionWorkQueue.Page)completed;last=page.projects().getFirst().pending().orElseThrow();require(last.state()==ConstructionBlockJournal.State.PREPARED,"Unacknowledged intent survives actual session restart");
-                require(writer.attempt(last).state()==PaperConstructionStep.State.ALREADY_PRESENT,"Recovered writer only acknowledges exact existing output");
-                phase=3;pending=session.acknowledgePublicConstructionStep(last.operation(),draft.id(),draft.world(),last.after(),System.currentTimeMillis());
+                var page=(ConstructionWorkQueue.Page)completed;var work=page.projects().getFirst();last=work.pending().orElseThrow();require(last.state()==ConstructionBlockJournal.State.PREPARED,"Unacknowledged intent survives actual session restart");
+                recovering=true;survey=new PaperConstructionWorkSurvey(work,System.currentTimeMillis());phase=11;pending=CompletableFuture.completedFuture(null);
             }
             case 3->{
                 last=(ConstructionBlockJournal.Intent)completed;require(last.state()==ConstructionBlockJournal.State.APPLIED,"Native output acknowledged");
@@ -109,11 +112,19 @@ public final class ConstructionPlacementProbe extends JavaPlugin {
                 require(!world.isChunkLoaded(125000,125000),"Writer must not load remote target");
                 phase=5;pending=CompletableFuture.runAsync(()->{database.close();database=null;},owner);
             }
-            case 5->{restore();require(restored,"All five test cells restored");phase=6;getLogger().info("P4_PLACEMENT_PASS: atomic actual supplier procurement, protected payment, delayed cargo, earned unemployed labor and stage escrow; saved work queue, two-pass native review, real serialized intent/ack APIs; five native blocks, exact retries, actual session-restart crash window, changed-block conflict and unloaded target without force-load; originals restored; no ordinary writer or capacity activation");getServer().shutdown();}
+            case 5->{restore();require(restored,"All five test cells restored");phase=6;getLogger().info("P4_PLACEMENT_PASS: atomic actual supplier procurement, protected payment, delayed cargo, earned unemployed labor and stage escrow; saved work queue, two-pass native review, real serialized intent/ack APIs; invalidated owner permit wrote nothing; nonblocking current permit excludes SQL changes; five native blocks, exact retries, actual session-restart crash window, changed-block conflict and unloaded target without force-load; originals restored; no ordinary writer or capacity activation");getServer().shutdown();}
             default->{}
         }
     }
-    private void prepare(){phase=10;pending=session.constructionWorkPage(null,8);}
+    private void placePrepared()throws Exception{
+        var outcome=session.tryNativeConstructionStep(prepared,()->writer.attempt(last)).orElseThrow(()->new IllegalStateException("Fresh native permit unexpectedly invalidated"));
+        require(outcome.state()==(recovering?PaperConstructionStep.State.ALREADY_PRESENT:PaperConstructionStep.State.APPLIED),"Prepared native result: "+outcome);
+        require(session.tryNativeConstructionStep(prepared,()->writer.attempt(last)).orElseThrow().state()==PaperConstructionStep.State.ALREADY_PRESENT,"Immediate guarded retry writes nothing");
+        if(recovering){phase=3;pending=session.acknowledgePublicConstructionStep(last.operation(),draft.id(),draft.world(),last.after(),System.currentTimeMillis());return;}
+        if(index==0){session.close();newSession();pending=session.start(false,Set.of(draft.world())).thenCompose(ignored->session.constructionWorkPage(null,8));}
+        else pending=session.constructionWorkPage(null,8);phase=2;
+    }
+    private void prepare(){recovering=false;phase=10;pending=session.constructionWorkPage(null,8);}
     private void newSession(){
         var p=com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype();
         var settings=new com.blueninjas24.civilizations.application.PopulationSession.Settings(0,p.millisPerMonth(),p.maximumOfflineMonths(),p.monthsPerBatch(),p.population(),p.migration(),p.recognition(),p.enrollment());

@@ -9,8 +9,12 @@ available after disabling new work. No normal writer is enabled. Actual isolated
 paid-path acceptance now exercises atomic procurement, loaded review, session
 prepare/write/restart-before-ack/ack, exact retries and conflict preservation.
 PATH review allows safe new path endpoints without an existing path; buildings
-retain their entrance-path requirement. Current authority changes still need an
-atomic native gate before production execution is permitted.
+retain their entrance-path requirement. NativeConstructionGate now protects prepared owner generations against concurrent
+SQL changes during a bounded nonblocking native callback. Each new owner task
+invalidates old stamps; busy/expired/foreign/stopped permits do nothing. Callback
+SQL submission is refused. The ordinary writer still needs connection and final
+current-world checks. Normal funding holds no longer poison population failure
+status; they remain visible to the requesting operator.
 
 ## Current loaded-world work review
 

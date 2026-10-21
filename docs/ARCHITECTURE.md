@@ -45,3 +45,16 @@ Illustrative dependency direction: `Paper listener -> application service -> dom
 
 ## Code evolution
 - Repository began as a six-class prototype (see PROJECT_STATUS for verified additions); add cohesive services only as needs emerge. Preserve behavior with tests during refactors. Keep future Paper upgrades isolated near adapters.
+
+## Construction SQL/native exclusion
+
+PopulationSession serializes all owner tasks through NativeConstructionGate.
+Each task invalidates earlier generations; paid intent captures its exact owner
+stamp and original native observation time. A future bounded main-thread native
+step tries the read side without waiting. Stale/busy/expired/stopped authority
+refuses; a successful step excludes SQL mutations until it returns. No SQL or
+future waits are permitted inside that callback. The owner thread may wait for
+that brief callback, never the reverse. Native Paper boundaries must still check
+main thread, current chunks/entities/blocks and exact frozen intent. This gate
+alone grants no land, free effort or production writer. Existing direct marked
+fixture writer remains test-only; ordinary automatic execution is unfinished.

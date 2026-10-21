@@ -56,6 +56,13 @@ Five blocks survived an actual session restart before acknowledgement, conflict
 was preserved, remote chunks stayed unloaded and originals were restored. Both
 DBs115/ok/FKs0. Wrapper12+3 passed34.312s. No ordinary writer/bed activation yet.
 
+A nonblocking native/SQL gate now prevents authority changes during a bounded
+native callback. Owner generations invalidate stale permits; busy/expired/stopped
+permits do nothing.40 unit +3 packaged checks passed46.167s. Actual paid-path
+and planning fixtures passed: stale permit wrote nothing, current steps/restart/
+conflict safe, and normal funding holds leave population status healthy. Both
+fixtures restored/stopped with115/ok/FKs0. No ordinary automatic writer yet.
+
 Next: paid-work/native handoff and completed-home
 activation. Local roads, terrain adaptation, business-premises reuse, upgrades and
 civic growth remain unfinished. No design question currently blocks under delegated

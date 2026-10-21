@@ -109,6 +109,7 @@ public final class PopulationSession implements AutoCloseable {
     private final HouseholdWellbeing.Policy wellbeing;
     private final FoodResponses.Settings responses;
     private EconomyRuntimeRepository economy;
+    private final NativeConstructionGate nativeConstructionGate=new NativeConstructionGate();
     private final AtomicReference<java.util.Map<UUID, EconomyRuntimeRepository.View>> economyView = new AtomicReference<>(java.util.Map.of());
     private volatile String economyFailure;
     private com.blueninjas24.civilizations.construction.ConstructionLaborPolicy constructionLabor;
@@ -1548,14 +1549,28 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionWorkQueue(database.getConnection())
                 .page(after,limit,loadedWorlds==null?Set.of():loadedWorlds);});
     }
-    /** Commit exact economic intent before a future native writer acts; this is not world-write permission. */
+    public record PreparedConstructionStep(com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent intent,NativeConstructionGate.Permit permit){}
+    /** Compatibility intent view; actual native execution requires the separately returned owner permit. */
     public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent> preparePublicConstructionStep(
+            UUID operation,UUID draft,int ordinal,String nativeAfter,com.blueninjas24.civilizations.database.ConstructionMaterials.Authority authority){
+        return prepareAuthorizedPublicConstructionStep(operation,draft,ordinal,nativeAfter,authority).thenApply(PreparedConstructionStep::intent);
+    }
+    /** Commit paid intent and capture the same owner generation before any future native writer acts. */
+    public CompletableFuture<PreparedConstructionStep> prepareAuthorizedPublicConstructionStep(
             UUID operation,UUID draft,int ordinal,String nativeAfter,com.blueninjas24.civilizations.database.ConstructionMaterials.Authority authority){
         return submit(()->{requireBuildingWorld(authority.world(),authority.world());
             if(constructionLabor==null||!constructionLabor.enabled())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Public construction is disabled; saved intent/assets retained");
-            return new com.blueninjas24.civilizations.database.ConstructionBlockJournal(database.getConnection())
+            var intent=new com.blueninjas24.civilizations.database.ConstructionBlockJournal(database.getConnection())
                     .preparePublic(operation,draft,ordinal,nativeAfter,authority,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
+            if(intent.state()==com.blueninjas24.civilizations.database.ConstructionBlockJournal.State.CONFLICT)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Conflicted construction intent needs explicit review");
+            return new PreparedConstructionStep(intent,nativeConstructionGate.capture(operation,draft,authority.world(),authority.checkedMillis()));
         });
+    }
+    /** Adapter supplies one bounded main-thread CAS only. Empty means retry review; never waits for SQL. */
+    public <T>Optional<T> tryNativeConstructionStep(PreparedConstructionStep prepared,java.util.function.Supplier<T> action){
+        java.util.Objects.requireNonNull(prepared);java.util.Objects.requireNonNull(action);
+        if(closing.get()||!prepared.intent().operation().equals(prepared.permit().operation())||!prepared.intent().draft().equals(prepared.permit().draft()))return Optional.empty();
+        return nativeConstructionGate.tryNative(prepared.permit(),now.getAsLong(),action);
     }
     /** Fresh exact-project native observation only. History may be reconciled even after new work is disabled. */
     public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent> acknowledgePublicConstructionStep(
@@ -1882,6 +1897,7 @@ public final class PopulationSession implements AutoCloseable {
     }
     @FunctionalInterface private interface Operation<T> { T run() throws Exception; }
     private <T> CompletableFuture<T> submit(Operation<T> operation) {
+        if(nativeConstructionGate.nativeStepHeldByCurrentThread())return CompletableFuture.failedFuture(new IllegalStateException("Native callback cannot submit or wait for SQL owner work"));
         if (closing.get()) return CompletableFuture.failedFuture(new RejectedExecutionException("Population session is closing"));
         if (queued.incrementAndGet() > 64) {
             queued.decrementAndGet(); return CompletableFuture.failedFuture(new RejectedExecutionException("Population queue full; retry later"));
@@ -1891,11 +1907,12 @@ public final class PopulationSession implements AutoCloseable {
             owner.execute(() -> {
                 try {
                     // Accepted work drains before the queued close; new submissions are rejected above.
-                    result.complete(operation.run());
+                    result.complete(nativeConstructionGate.ownerTask(operation::run));
                 } catch (Exception failure) {
                     if (failure instanceof SQLException && !(failure instanceof EconomyRuntimeRepository.PurchaseDeclined)
                             && !(failure instanceof com.blueninjas24.civilizations.database.BusinessSales.Declined)
                             && !(failure instanceof com.blueninjas24.civilizations.database.PenProtectionLifecycle.Declined)
+                            && !(failure instanceof com.blueninjas24.civilizations.database.ConstructionSupplyOrders.Declined)
                             && !(failure instanceof com.blueninjas24.civilizations.database.BuildingRegistry.Declined)) reportFailure(failure);
                     result.completeExceptionally(failure);
                 }
@@ -1915,6 +1932,7 @@ public final class PopulationSession implements AutoCloseable {
         boolean beginClose;
         synchronized(externalCaptureLock){beginClose=closing.compareAndSet(false,true);}
         if (beginClose) {
+            nativeConstructionGate.stop();
             var previous = status.get();
             status.set(new Status(false, previous.completedMonths(), previous.targetMonths(), previous.livingPeople(), previous.lastBatchNanos(), previous.failure()));
             var scheduled = timer; if (scheduled != null) scheduled.cancel(false);

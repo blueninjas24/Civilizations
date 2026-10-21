@@ -80,6 +80,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
                 command("funding",project.toString());work=null;phase=9;}
             case 9->{if(messages.stream().noneMatch(s->s.startsWith("Project request could not finish;")))return;
                 check(messages.stream().anyMatch(s->s.contains("Current saved owner clock required")||s.contains("current complete fed population assessment")||s.contains("Real village treasury required")),"No current food/treasury context becomes invented funding");
+                check(session.status().failure()==null,"Expected funding hold never poisons population failure status");
                 command("cancelproject",project.toString());check(messages.getLast().contains("do not have permission"),"Read permission cannot cancel");
                 manage=true;command("cancelproject",project.toString());work=null;phase=4;}
             case 4->{if(messages.stream().noneMatch(s->s.startsWith("Unused cancellation preview:")))return;

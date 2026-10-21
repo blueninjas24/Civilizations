@@ -66,6 +66,13 @@ Five blocks survived an actual session restart before acknowledgement, conflict
 was preserved, remote chunks stayed unloaded and originals were restored. Both
 DBs115/ok/FKs0. Wrapper12+3 passed34.312s. No ordinary writer/bed activation yet.
 
+A nonblocking native/SQL gate now prevents authority changes during a bounded
+native callback. Owner generations invalidate stale permits; busy/expired/stopped
+permits do nothing.40 unit +3 packaged checks passed46.167s. Actual paid-path
+and planning fixtures passed: stale permit wrote nothing, current steps/restart/
+conflict safe, and normal funding holds leave population status healthy. Both
+fixtures restored/stopped with115/ok/FKs0. No ordinary automatic writer yet.
+
 Next: paid-work/native handoff, then useful completed
 homes. Wider physical growth remains. P3 human survival testing is deferred; main,
 actual Minecraft server/worlds and database stay untouched.
