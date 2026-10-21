@@ -115,7 +115,7 @@ public final class ConstructionSupplyOrders {
         return transaction(()->deliverRows(operation,present));
     }
     private Receipt deliverRows(UUID operation,Set<UUID> worlds)throws SQLException {
-        var receipt=find(operation).orElseThrow(()->new SQLException("Unknown construction cargo"));if(receipt.deliveredPeriod()!=null)return receipt;
+        var receipt=find(operation).orElseThrow(()->new SQLException("Unknown construction cargo"));if(receipt.deliveredPeriod()!=null||new ConstructionSupplyRecalls(c).recalled(receipt.request().draft()))return receipt;
         var d=draft(receipt.request().draft());if(!worlds.contains(d.world()))return receipt;
         long period=completed(receipt.request(),d,false,0);if(period<receipt.duePeriod())return receipt;
         try(var s=c.prepareStatement("UPDATE construction_supply_orders SET delivered_period=? WHERE operation_id=? AND delivered_period IS NULL")){s.setLong(1,period);s.setString(2,operation.toString());if(s.executeUpdate()!=1)throw new SQLException("Construction cargo changed");}
@@ -134,7 +134,7 @@ public final class ConstructionSupplyOrders {
                 JOIN construction_drafts d ON d.id=o.draft_id
                 LEFT JOIN industry_runtime i ON i.business_id=o.business_id
                 LEFT JOIN economy_accounts a ON a.settlement_id=d.settlement_id
-                WHERE o.delivered_period IS NULL AND
+                WHERE o.delivered_period IS NULL AND NOT EXISTS(SELECT 1 FROM construction_supply_recalls x WHERE x.order_id=o.operation_id) AND
                 ((o.source='BUSINESS' AND i.completed>=o.due_period) OR
                  (o.source='VILLAGE' AND a.completed_periods>=o.due_period))
                 AND d.world_id IN (

@@ -1,5 +1,20 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — delegated pending-delivery recall recommendation
+
+An explicitly confirmed internal recovery may withdraw a whole public project's
+still-pending purchases before its earned owner period advances. All orders must
+remain undelivered, with no stage work/native intent/owned-stock mixing. Exact
+original goods and payment return together only if suppliers have real refund
+cash and storage. Retain original spending/haul as used; recall does not reset
+allowances or add transport work. This is a withdrawal of pending commitments,
+not instant reverse delivery of already arrived goods. Recall permanently stops
+new procurement/work on that draft; separate unused cancellation may release its
+family/site. Current absent worlds hold. Delivered materials/started buildings
+need separate recovery; no demolition, forced seller debt or automatic refund.
+This recommendation uses the user's delegated prototype authority and preserves
+real funds/goods/history. No player command or automatic spending is enabled.
+
 ## October21 — complete-input procurement recommendation
 
 Under delegated P4 recommendations, require all remaining frozen public-project

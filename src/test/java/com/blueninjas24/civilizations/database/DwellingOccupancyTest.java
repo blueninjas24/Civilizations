@@ -279,7 +279,7 @@ class DwellingOccupancyTest {
             sql(c,"CREATE TRIGGER fail_cancel BEFORE UPDATE ON housing_project_bindings BEGIN SELECT RAISE(ABORT,'injected'); END");
             assertThrows(SQLException.class,()->projects.cancel(id(80),draft.id(),1300,context(1300)));assertTrue(projects.find(draft.id()).orElseThrow().active());
             sql(c,"DROP TRIGGER fail_cancel");assertFalse(projects.cancel(id(80),draft.id(),1300,context(1300)).active());
-            assertEquals(113,number(c,"PRAGMA user_version"));assertEquals(1,number(c,"SELECT count(*) FROM building_records"));healthy(c);
+            assertEquals(SchemaMigrator.CURRENT_VERSION,number(c,"PRAGMA user_version"));assertEquals(1,number(c,"SELECT count(*) FROM building_records"));healthy(c);
         }
     }
 

@@ -1,5 +1,12 @@
 # Household-bound housing proposals
 
+## Pending paid-supply recovery
+
+Schema114 adds exact pending-order recall; see CONSTRUCTION_RECOVERY.md. A
+fully recalled home cannot purchase or start work again. Its saved paid orders
+remain visible, but current project inspection permits unused cancellation to
+release the family/site. Delivered goods or started structures remain held.
+
 ## Atomic public material procurement backend
 
 ConstructionVillageProcurement.purchaseRemaining runs current funding, bounded
@@ -11,7 +18,7 @@ roll back the whole batch. Earlier paid/incoming cargo reduces demand.
 Deterministic receipt IDs use frozen draft/commodity/supplier/prior ordered units.
 A completed retry finds no missing inputs. Arrival still needs earned owner time.
 PopulationSession exposes the trusted internal boundary; no command or automatic
-planner calls it pending paid-asset recovery/native work. No schema114 or money,
+planner calls it pending paid-asset recovery/native work. No money,
 materials, title, inventory access or physical permission is invented.
 
 Schema113 adds a preparation API, not an automatic builder or a new player command.

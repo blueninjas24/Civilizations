@@ -62,6 +62,7 @@ public final class HousingProjects {
         var saved=find(draft.id());if(saved.isEmpty())return Optional.empty(); // Historical unbound projects retain existing checks.
         var binding=saved.orElseThrow();
         if(!binding.active())return Optional.of("Household proposal was cancelled");
+        if(new ConstructionSupplyRecalls(c).recalled(draft.id()))return Optional.of("Pending supplies recalled; unused proposal may be cancelled, never restarted");
         // A durable native intent may already have changed the world after a lost acknowledgement.
         // Preserve its existing recovery/completion path rather than strand a partial structure.
         if(hasRows("construction_block_journal",draft.id()))return Optional.empty();
@@ -132,7 +133,8 @@ public final class HousingProjects {
         }
         var site=new ConstructionSiteReservations(c).find(draft);
         if(site.isPresent()&&site.get().active())throw new BuildingRegistry.Declined("Release the unused site before cancelling its household proposal");
-        for(var table:List.of("construction_block_journal","construction_supply_orders"))if(hasRows(table,draft))
+        for(var table:List.of("construction_block_journal","construction_supply_orders"))if(hasRows(table,draft)
+                &&(!table.equals("construction_supply_orders")||!new ConstructionSupplyRecalls(c).recalled(draft)))
             throw new BuildingRegistry.Declined("Started or paid-supply home needs reviewed recovery; household reservation retained");
         try(var s=c.prepareStatement("SELECT operation_id FROM construction_material_reservations WHERE draft_id=?")){
             s.setString(1,draft.toString());try(var r=s.executeQuery()){while(r.next())if(!new ConstructionMaterialReturns(c).returned(UUID.fromString(r.getString(1))))

@@ -75,7 +75,7 @@ public final class ConstructionSiteReservations {
         if(!saved.active())return saved;
         if(now<saved.reservedMillis())throw new SQLException("Construction release precedes reservation");
         try(var s=c.prepareStatement("SELECT 1 FROM construction_supply_orders WHERE draft_id=? LIMIT 1")) {
-            s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Paid supplier cargo/stock retains its project site until reviewed return handling");}
+            s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next()&&!new ConstructionSupplyRecalls(c).recalled(draftId))throw new SQLException("Paid supplier cargo/stock retains its project site until reviewed return handling");}
         }
         try(var s=c.prepareStatement("SELECT 1 FROM construction_block_journal WHERE draft_id=? LIMIT 1")) {
             s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Started construction requires reviewed physical recovery and site history");}
@@ -92,6 +92,7 @@ public final class ConstructionSiteReservations {
     void requireActiveRows(ConstructionDraft draft)throws SQLException {
         if(c.getAutoCommit())throw new SQLException("Construction authority review requires the material owner transaction");
         requireHouseholdProject(draft);
+        if(new ConstructionSupplyRecalls(c).recalled(draft.id()))throw new SQLException("Project supplies recalled; new purchasing/work prohibited");
         var saved=find(draft.id()).orElseThrow(()->new SQLException("Materials require an active saved site reservation"));
         if(!saved.active()||!new ConstructionLandRepository(c).protectedColumns(draft.world(),saved.footprint(),draft.id()).isEmpty())
             throw new SQLException("Construction site released or newly protected; material reservation paused");

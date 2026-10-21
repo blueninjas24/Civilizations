@@ -1,5 +1,30 @@
 # Civilizations Development Log
 
+## 2026-10-21 — pending purchase recall and schema114
+
+Added transactional whole-project recall for public orders still undelivered in
+their original earned owner period. Every original supplier must have enough
+actual refund cash and storage; any late refusal rolls back all goods/refunds.
+Original sales, period spending and haul remain historical/used. Saved exact
+recall time/identity replays once after restart. No debt, free goods or refund
+from village money. Advanced/delivered, mixed-source and started projects hold.
+
+Schema114 adds construction_supply_recalls and actual treasury credit references,
+with money/stock before-after records; transactional113 upgrade failure/retry
+preserves existing orders and funds. Delivery excludes recalled cargo. New
+purchases/native intents are refused; operator unused retirement may then release
+the family/site while retaining sale/refund/cancellation history. Serialized
+internal API only; no new player command or automatic spending. Delivered-stock
+returns and started-world recovery remain unfinished. No server/world touched.
+
+Focused Wrapper clean verify passed92 unit +3 packaged checks in1m14s. Seven
+new temporary-SQLite cases prove conservation/restart, whole-batch rollback,
+absent/advanced/delivered holds, refund/storage refusal, public-only scope,
+unchanged spending/haul, migration rollback and paid-home retirement. Existing
+schema113 upgrade assertion was updated to CURRENT_VERSION; its historical112
+rollback expectation remains intact. Affected legacy snapshot fixtures exclude
+only the new empty additive table. Full latest-head hosted CI remains pending.
+
 ## 2026-10-21 — atomic remaining home-material procurement
 
 Added ConstructionVillageProcurement and a serialized internal PopulationSession

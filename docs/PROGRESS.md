@@ -33,28 +33,20 @@ Automatic planning uses editable limits. Existing construction.yml files must
 explicitly opt in; they are never silently replaced. A failed site in one village
 now leaves other villages' queued work intact. No chunks are loaded for simulation.
 
-The latest focused Wrapper clean verify passed9 unit and3 packaged checks. The
-full disposable Paper flow passed automatic site planning, actual confirmed unused
-cancellation/restart, missing-finance refusal and changed/absent evidence holds.
-Both test databases remained healthy; test blocks were restored and helpers stopped.
-Hosted Windows/Linux both passed checkpoint acd8014; latest feature commits are
-still awaiting their complete hosted run. No latest-head full CI green is claimed.
+Latest focused Wrapper clean verify passed92 unit and3 packaged checks. Atomic
+complete-input purchasing and exact pending-order recall now work in temporary
+SQLite tests. Recall conserves goods/cash and retains sales/spending/haul history;
+current-period/delivery/storage/refund limits protect it. Schema114 preserves old
+saves. These are internal APIs; automatic spending and physical building stay off.
 
-The living handbook is edition0.16:32 pages,30 chapters, linked contents and command
-references, fully rendered/reviewed. Source: docs/guide/PLAYER_AND_SERVER_GUIDE.md;
-PDF: output/pdf/Civilizations_Player_and_Server_Guide.pdf.
+Hosted Windows/Linux both passed582069f; latest feature commits await complete
+hosted runs. Earlier disposable Paper planning/cancellation evidence remains valid
+for unchanged adapters. Handbook0.16 remains32 pages/30 chapters. No new player
+command or ordinary native writer is claimed by this backend batch.
 
-Next: connect protected real material procurement/recovery to paid staged work,
-then the normal-server native writer and completed housing. Preserve player builds,
-real goods/cash, family identity and world pause. P3 human survival testing remains
-deferred. Main, actual Minecraft server/worlds and server database stay untouched.
-
-Latest backend: complete remaining materials can be bought atomically from real
-qualified suppliers under current protected budgets and shared haul. Missing
-inputs/late failure spend nothing.29 unit +3 packaged checks passed45.849s.
-The serialized API is ready; automatic spending stays off pending paid-asset
-recovery/native work. Schema113 and P4 completed gates25% remain unchanged.
-Hosted Windows/Linux both passed checkpoint582069f.
+Next: delivered-stock recovery and paid-work/native handoff, then useful completed
+homes. Wider physical growth remains. P3 human survival testing is deferred; main,
+actual Minecraft server/worlds and database stay untouched.
 
 ## Earlier Phase 4 checkpoints — historical
 

@@ -1,47 +1,41 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 family housing and automatic site planning
+## Current — Phase4 housing, guarded planning and paid-material backend
 
-Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
-4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
-human survival testing remains deferred. No deployment to the user's server.
+Branch: codex/phase4-construction-foundation; main untouched. Phase4 remains25%,
+4/16 complete checklist items and1/4 complete groups. Phase3 prototype is complete;
+human survival testing remains deferred. No actual server deployment/world change.
 
-Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is32-page edition0.16, with
-30 feature/reference chapters, linked contents, command glossary and implemented/
-planned labels. Update it alongside user-facing feature batches using the workflow
-in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
-owned units follow the same occupancy direction as homes. New apartment declarations now have explicit controls; editing registered units remains unfinished.
+- Live whole-family housing, adult household formation, explicit home/apartment
+  donation, donor reclamation and separate renovation consent remain available.
+- Automatic loaded-only two-pass home-site planning saves guarded unused family/
+  plan/site proposals beside existing paths. Editable limits and current SQL
+  protection/need apply. It neither buys goods nor places blocks.
+- Operators inspect housing/projects/protected cash/material readiness and may
+  separately confirm unused-project cancellation. Handbook0.16 remains32 pages,
+ 30 chapters; no new user-facing command was added by the current backend batch.
+- New atomic procurement selects actual qualified local stocked suppliers and
+  purchases complete remaining frozen inputs under existing cash/food/upkeep,
+  period and shared-haul limits. Missing supply/late refusal rolls everything back.
+- Schema114 adds whole pending public-purchase recall with real seller refunds/
+  storage and durable before-after/treasury history. Only undelivered orders in
+  their original earned period qualify. Recall prevents delivery/repurchase/work;
+  existing unused retirement can then release the family/site. Original sales,
+  spending/haul and all residents remain. Delivered or started projects still hold.
+- New procurement/recall APIs are serialized internal boundaries; automatic live
+  spending remains off. No ordinary native writer/completed-home activation yet.
 
+Validation: focused Wrapper clean verify92 unit +3 packaged checks passed1m14s,
+including new conservation/restart/rollback/retirement and113->114 preservation
+cases plus affected historical fixtures. Earlier procurement batch29+3 passed.
+Hosted Windows/Linux both passed582069f; newer commits await hosted validation.
+Existing native planning/cancellation evidence remains applicable to unchanged
+Paper adapters; no new native construction proof is claimed by this SQL batch.
 
-Current P4 overview:
-- Whole-family housing, new adult households, explicit single-home/apartment donation,
-  donor inspection/reclamation and separate confirmed renovation consent are live.
-- Guarded automatic home-site planning now prepares real saved family/plan/site
-  proposals beside existing paths. Loaded-only two-pass checks, current saved
-  protection, vacancy-first need and editable active-project limits apply.
-- Operators can inspect housing decisions, retained projects and actual material/
-  protected-money readiness, and separately confirm unused cancellation.
-- Paid supply/delivery/stage-work backends are tested. Normal automatic purchasing,
-  safe physical writes, completed-home activation, new local roads, business-premises
-  reuse and broader physical growth remain unfinished. A proposal grants no beds.
-- A local site refusal no longer discards other villages' queued work. Final focused
-  Wrapper9 unit +3 packaged checks passed27.749s; latest native full planning,
-  funding hold, confirmed cancellation/restart and unknown-evidence proof passed.
-- Hosted Windows/Linux both passed acd8014. Latest feature commits still await their
-  complete hosted run. Current schema113; no production database/world changed.
-
-Next: real protected procurement and paid-asset recovery, then connect paid stage
-work to the normal native writer and useful completed homes. Keep the existing
-feature branch; never merge/push main without approval. No design question blocks
-this work under the user's delegated prototype recommendations.
-
-Latest backend: complete remaining materials can be bought atomically from real
-qualified suppliers under current protected budgets and shared haul. Missing
-inputs/late failure spend nothing.29 unit +3 packaged checks passed45.849s.
-The serialized API is ready; automatic spending stays off pending paid-asset
-recovery/native work. Schema113 and P4 completed gates25% remain unchanged.
-Hosted Windows/Linux both passed checkpoint582069f.
+Next: delivered-stock recovery and paid-work/native handoff, then completed-home
+activation. Local roads, terrain adaptation, business-premises reuse, upgrades and
+civic growth remain unfinished. No design question currently blocks under delegated
+prototype recommendations. Never merge/push main without explicit approval.
 
 ### Earlier P4 checkpoints — historical implementation evidence
 

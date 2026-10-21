@@ -1523,6 +1523,16 @@ public final class PopulationSession implements AutoCloseable {
                     .purchaseRemaining(draft,authority,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
         });
     }
+    /** Confirmed internal recovery only; accepted retries retain the original submission time. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionSupplyRecalls.Receipt> recallPendingConstructionInputs(
+            UUID operation,UUID draft,UUID world,long submitted){
+        return submit(()->{requireBuildingWorld(world,world);
+            var plan=new com.blueninjas24.civilizations.database.ConstructionDraftRepository(database.getConnection()).find(draft).orElseThrow();
+            if(!plan.world().equals(world)||submitted>now.getAsLong())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Recall world/time differs");
+            return new com.blueninjas24.civilizations.database.ConstructionSupplyRecalls(database.getConnection())
+                    .recallPending(operation,draft,submitted,loadedWorlds==null?Set.of():loadedWorlds);
+        });
+    }
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanningJobs.Page> housingPlanningJobs(
             UUID after,int limit,List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
             com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,

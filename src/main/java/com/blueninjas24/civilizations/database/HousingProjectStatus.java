@@ -49,7 +49,7 @@ public final class HousingProjectStatus {
         if(!family.world().equals(context.world()))throw new BuildingRegistry.Declined("Project belongs to a different world");
         var draft=new ConstructionDraftRepository(c).find(id).orElseThrow();var site=new ConstructionSiteReservations(c).find(id);
         long orders=count("construction_supply_orders",id),intents=count("construction_block_journal",id);
-        boolean unused=family.active()&&orders==0&&intents==0&&context.present()&&returned(id);
+        boolean unused=family.active()&&(orders==0||new ConstructionSupplyRecalls(c).recalled(id))&&intents==0&&context.present()&&returned(id);
         var pause=family.active()?(context.present()?projects.pauseReasonRows(draft):Optional.of("World absent; no new work authorized")):Optional.of("Saved cancellation retained; cannot reactivate");
         return new Item(family,draft.template().id(),site.isPresent()&&site.orElseThrow().active(),orders,intents,unused,pause);
     }
