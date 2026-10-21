@@ -1,5 +1,27 @@
 # Civilizations Development Log
 
+## 2026-10-21 — saved paid-work queue and exact native-intent handoff
+
+ConstructionWorkQueue and a serialized session page now distinguish missing
+arrived materials, waiting labor, ready paid stage work, exact prepared-intent
+resume, sticky conflict, changed need/protection and fully acknowledged plans.
+Bounded8-project pages use present permanent worlds, active sites and stable
+cursors; reclaimed cargo never re-enters. Journal gaps and work beyond unresolved
+intents fail closed. READY still requires fresh native review; COMPLETE still
+requires final inspection/activation and grants no beds. No writer/caller enabled.
+
+Four focused temporary-SQLite cases prove delivery/labor progression without
+writes, actual economic intent restart/conflict, one-ordinal acknowledgement and
+paged two-project/world scope. Wrapper clean verify21 unit +3 packaged checks
+passed40.923s. No schema change from115.
+
+Packaged schema115 additionally passed the actual isolated automatic-home native
+acceptance: two-pass planning, real SQL family/plan/site, funding-context hold,
+confirmed operator unused retirement/restart and absent/changed evidence. Both
+test DBs115/ok/FKs0;1 retained draft/binding,0 paid orders/native intents. Two
+fixture cells restored, server stopped and helper archived in its checked Temp
+root. This is not a positive procurement/physical-building playtest.
+
 ## 2026-10-21 — real return shipments for unused arrived building materials
 
 Schema115 adds construction_supply_returns: original-supplier exact-price buyback

@@ -48,6 +48,12 @@ hosted runs. Earlier disposable Paper planning/cancellation evidence remains val
 for unchanged adapters. Handbook0.16 remains32 pages/30 chapters. No new player
 command or ordinary native writer is claimed by this backend batch.
 
+Saved paid-work handoff now pages8 projects with material/labor waiting, paid
+readiness, exact intent recovery and conflict states.21 unit +3 packaged checks
+passed40.923s. Actual packaged schema115 planning/cancellation native acceptance
+also passed; both isolated DBs healthy, test cells restored, server/helper stopped.
+This adds no ordinary native writes or completed-home capacity; P4 gates stay25%.
+
 Next: paid-work/native handoff, then useful completed
 homes. Wider physical growth remains. P3 human survival testing is deferred; main,
 actual Minecraft server/worlds and database stay untouched.

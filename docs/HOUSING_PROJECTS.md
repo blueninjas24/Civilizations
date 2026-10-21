@@ -1,5 +1,16 @@
 # Household-bound housing proposals
 
+## Saved paid-work handoff
+
+ConstructionWorkQueue pages at most8 active public/home projects in present
+worlds. It distinguishes WAIT_MATERIALS, WAIT_LABOR, READY, exact PREPARED intent
+RESUME, sticky CONFLICT, changed need/protection PAUSED and full-journal COMPLETE.
+Current stage labor receipts and material escrow back readiness. Stable cursor
+pages retain later projects. Unresolved/gapped journals refuse new work. No write,
+free effort, arrival or bed is created. READY requires fresh native authority;
+COMPLETE requires current final inspection/activation. Session API only; no normal
+writer or automatic purchasing caller is connected by this handoff.
+
 ## Pending paid-supply recovery
 
 Schema114 adds exact pending-order recall; schema115 adds real paid return cargo

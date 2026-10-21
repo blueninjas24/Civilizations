@@ -1543,6 +1543,11 @@ public final class PopulationSession implements AutoCloseable {
                     .returnUnused(operation,draft,submitted,loadedWorlds==null?Set.of():loadedWorlds,industryPolicy);
         });
     }
+    /** Saved paid-work handoff only; every actual native step still needs fresh main-thread authority. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionWorkQueue.Page> constructionWorkPage(UUID after,int limit){
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionWorkQueue(database.getConnection())
+                .page(after,limit,loadedWorlds==null?Set.of():loadedWorlds);});
+    }
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanningJobs.Page> housingPlanningJobs(
             UUID after,int limit,List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
             com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,

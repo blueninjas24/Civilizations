@@ -38,6 +38,12 @@ Hosted Windows/Linux both passed582069f; newer commits await hosted validation.
 Existing native planning/cancellation evidence remains applicable to unchanged
 Paper adapters; no new native construction proof is claimed by this SQL batch.
 
+Saved paid-work handoff now pages8 projects with material/labor waiting, paid
+readiness, exact intent recovery and conflict states.21 unit +3 packaged checks
+passed40.923s. Actual packaged schema115 planning/cancellation native acceptance
+also passed; both isolated DBs healthy, test cells restored, server/helper stopped.
+This adds no ordinary native writes or completed-home capacity; P4 gates stay25%.
+
 Next: paid-work/native handoff and completed-home
 activation. Local roads, terrain adaptation, business-premises reuse, upgrades and
 civic growth remain unfinished. No design question currently blocks under delegated
