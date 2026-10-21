@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Home preparation now joins family need, a safe road-connected site and the saved
+project in one transaction. Failed saves leave no half-created project; protected
+land is checked again against current records. Wrapper67 +3 checks passed. No
+automatic timer or physical writer is enabled; P4 remains25% until complete gates.
+
 Buffered road-first site selection now checks the space around every rotated
 plan before choosing it. Crowded/protected/uncertain spots are rejected with
 reasons under the same shared review budget. Wrapper14 +3 checks passed.

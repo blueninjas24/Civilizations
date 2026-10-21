@@ -54,6 +54,59 @@ class DwellingOccupancyTest {
         var damaged=cells();damaged.put(p(1,3,3),Cell.of(Type.PASSABLE));damaged.put(p(6,3,3),Cell.of(Type.PASSABLE));
         new DwellingOccupancy(c).review(id(20),building,assessment(1100,damaged,true,Policy.prototype()),context(1100));
     }
+    private HousingProjectPreparation.Request preparation(long identity){
+        var cells=new HashMap<Position,ConstructionPreview.Cell>();var terrain=new HashMap<Position,ConstructionLandPolicy.Kind>();
+        for(int x=180;x<=220;x++)for(int z=180;z<=220;z++)for(int y=63;y<=68;y++){
+            var at=p(x,y,z);boolean road=x==200&&y==63&&z==200;
+            cells.put(at,new ConstructionPreview.Cell(y>63,y==63,road,false));
+            terrain.put(at,road?ConstructionLandPolicy.Kind.ROAD:y==63?ConstructionLandPolicy.Kind.NATURAL_LOOKING_GROUND:ConstructionLandPolicy.Kind.AIR);
+        }
+        return new HousingProjectPreparation.Request(new HousingProjects.Proposal(id(identity),family,1200),town,world,p(208,64,200),
+                new ConstructionPreview.Bounds(p(180,63,180),p(220,70,220)),new ConstructionSitePlanner.Survey(world,1100,true,true,cells,List.of(),List.of()),terrain);
+    }
+    private HousingProjectPreparation.Receipt prepare(Connection c,HousingProjectPreparation.Request request,long time)throws Exception {
+        var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+        return new HousingProjectPreparation(c).prepare(request,context(time),List.of(template),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(4),42,0);
+    }
+    @Test void automaticDryPreparationCommitsFamilyPlanAndSiteTogetherAndOnlyReplaysHistory()throws Exception {
+        var request=preparation(70);HousingProjectPreparation.Receipt saved;
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);saved=prepare(c,request,1200);assertTrue(saved.family().active());assertTrue(saved.site().active());
+            assertEquals(ConstructionSitePlanner.Status.READY,saved.review().orElseThrow().status());
+            assertEquals(saved.draft().origin(),saved.review().orElseThrow().selected().orElseThrow().origin());
+            var replay=prepare(c,request,8000);assertTrue(replay.review().isEmpty());assertEquals(saved.draft(),replay.draft());assertEquals(saved.site(),replay.site());
+            new ConstructionSiteReservations(c).releaseUnused(saved.draft().id(),8000);
+            new HousingProjects(c).cancel(id(80),saved.draft().id(),8100,context(8100));
+            var cancelled=prepare(c,request,8200);assertFalse(cancelled.family().active());assertFalse(cancelled.site().active());assertTrue(cancelled.review().isEmpty());
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_supply_orders"));assertEquals(0,number(c,"SELECT count(*) FROM construction_block_journal"));
+            assertEquals(3,number(c,"SELECT count(*) FROM residents"));assertEquals(0,HousingCapacity.read(c,town).get(family));healthy(c);
+        }
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){var replay=prepare(c,request,9000);assertEquals(saved.draft(),replay.draft());assertFalse(replay.family().active());healthy(c);}
+    }
+    @Test void atomicHomePreparationRollsBackBothEarlierWritesIfSiteReservationFails()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var request=preparation(70);
+            sql(c,"CREATE TRIGGER fail_preparation BEFORE INSERT ON construction_site_reservations BEGIN SELECT RAISE(ABORT,'injected'); END");
+            assertThrows(SQLException.class,()->prepare(c,request,1200));assertTrue(c.getAutoCommit());
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_drafts"));assertEquals(0,number(c,"SELECT count(*) FROM housing_project_bindings"));
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_site_reservations"));
+            sql(c,"DROP TRIGGER fail_preparation");assertTrue(prepare(c,request,1200).site().active());healthy(c);
+        }
+    }
+    @Test void automaticHomePreparationRechecksSavedProtectionAndCannotUseUnsurveyedMargins()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var request=preparation(70);
+            var incomplete=new HousingProjectPreparation.Request(request.proposal(),town,world,request.need(),request.search(),request.survey(),Map.of());
+            assertThrows(BuildingRegistry.Declined.class,()->prepare(c,incomplete,1200));
+            var outside=new HousingProjectPreparation.Request(request.proposal(),town,world,request.need(),new ConstructionPreview.Bounds(p(200,63,200),p(209,70,209)),request.survey(),request.terrain());
+            assertThrows(BuildingRegistry.Declined.class,()->prepare(c,outside,1200));
+            assertThrows(BuildingRegistry.Declined.class,()->prepare(c,request,8000));
+            // A saved exclusion can arrive after native evidence was captured; the SQL owner must still see it.
+            new BuildingRegistry(c).exclude(new BuildingRegistry.Exclusion(id(81),world,donor,box(180,0,180,220,100,220),1150),BuildingRegistry.Authorization.playerDeclaration(donor,true));
+            assertThrows(BuildingRegistry.Declined.class,()->prepare(c,request,1200));
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_drafts"));assertEquals(0,number(c,"SELECT count(*) FROM housing_project_bindings"));healthy(c);
+        }
+    }
     @Test void homeProjectsReserveOnlyTheirFamilyAndKeepReceiptsAcrossRestart()throws Exception {
         HousingProjects.Binding saved;
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){

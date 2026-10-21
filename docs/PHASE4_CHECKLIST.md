@@ -46,6 +46,12 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Atomic SQL-owner home preparation now joins actual family need, verified vacancies,
+buffered site alternatives, current saved protection, frozen draft, beneficiary
+and unused site reservation. All commit or roll back together; replay is history,
+never renewed authority. Wrapper67 +3 passed56.954s. No automatic production timer,
+funding, labor or native building is enabled by this preparation API.
+
 Buffered road-first planning now combines transformed footprint/road review with
 configured clear-land margins for every candidate before ranking alternatives.
 Missing, contradictory or protected margin evidence blocks that site; all reviewed

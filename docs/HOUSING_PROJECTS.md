@@ -26,7 +26,15 @@ deleted or refunded. Exact cancellation retries return the saved receipt; an old
 binding retry never reactivates it. Cancelled drafts cannot reserve another site
 or receive new material authority. A new proposal needs a new identity and review.
 
-Current limitations: no automatic proposal scheduling, physical production writer,
+Atomic preparation now combines actual saved need and vacancy-first planning with
+buffered road-first alternatives, current saved exclusions, a frozen draft and
+its family/site reservations. All three records commit or roll back together.
+The bounded search envelope conveys no native write permission; evidence outside
+the SQL-reviewed envelope is ignored. Historical preparation receipts never
+refresh site evidence. Templates, need, funds and native safety must still be
+reviewed before any subsequent work. Focused pipeline checks67 +3 passed56.954s.
+
+Current limitations: no automatic proposal timer, physical production writer,
 completed-home activation, started-project cancellation or migration of historical
 unbound projects. Completed-home lifecycle remains part of the construction gate.
 The village retains ownership of future publicly funded homes under the approved

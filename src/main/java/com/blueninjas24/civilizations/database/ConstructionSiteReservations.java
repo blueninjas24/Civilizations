@@ -42,25 +42,27 @@ public final class ConstructionSiteReservations {
     }
     public Reservation reserve(UUID draftId,ConstructionMaterials.Authority authority,long now)throws SQLException {
         Objects.requireNonNull(authority);if(now<0)throw new IllegalArgumentException("Negative reservation time");
-        return transaction(()->{
-            var old=find(draftId);if(old.isPresent()) {
-                if(!old.orElseThrow().active())throw new SQLException("Released construction draft cannot reserve land again; submit a new proposal");
-                return old.orElseThrow(); // Saved receipt only: no new native action or refreshed authority.
-            }
-            var draft=draft(draftId);requireHouseholdProject(draftId);var bounds=ConstructionPreview.footprint(draft.template(),draft.transform(),draft.origin());
-            if(!authority.draft().equals(draft.id())||!authority.world().equals(draft.world())||!authority.worldLoaded()||!authority.siteCleared()
-                    ||authority.checkedMillis()>now||now-authority.checkedMillis()>5000)
-                throw new SQLException("Fresh complete world/site/protection evidence required before reserving land");
-            if(!new ConstructionLandRepository(c).protectedColumns(draft.world(),bounds).isEmpty())
-                throw new SQLException("Saved protected plot or active construction occupies this site");
-            try(var s=c.prepareStatement("INSERT INTO construction_site_reservations VALUES(?,?,?,?,?,?,?,?,?,?,NULL)")) {
-                s.setString(1,draftId.toString());s.setString(2,draft.world().toString());
-                s.setInt(3,bounds.minimum().x());s.setInt(4,bounds.minimum().y());s.setInt(5,bounds.minimum().z());
-                s.setInt(6,bounds.maximum().x());s.setInt(7,bounds.maximum().y());s.setInt(8,bounds.maximum().z());
-                s.setLong(9,authority.checkedMillis());s.setLong(10,now);s.executeUpdate();
-            }
-            return find(draftId).orElseThrow();
-        });
+        return transaction(()->reserveRows(draftId,authority,now));
+    }
+    Reservation reserveRows(UUID draftId,ConstructionMaterials.Authority authority,long now)throws SQLException {
+        if(c.getAutoCommit())throw new SQLException("Site reservation requires the SQL owner's transaction");
+        var old=find(draftId);if(old.isPresent()) {
+            if(!old.orElseThrow().active())throw new SQLException("Released construction draft cannot reserve land again; submit a new proposal");
+            return old.orElseThrow(); // Saved receipt only: no new native action or refreshed authority.
+        }
+        var draft=draft(draftId);requireHouseholdProject(draftId);var bounds=ConstructionPreview.footprint(draft.template(),draft.transform(),draft.origin());
+        if(!authority.draft().equals(draft.id())||!authority.world().equals(draft.world())||!authority.worldLoaded()||!authority.siteCleared()
+                ||authority.checkedMillis()>now||now-authority.checkedMillis()>5000)
+            throw new SQLException("Fresh complete world/site/protection evidence required before reserving land");
+        if(!new ConstructionLandRepository(c).protectedColumns(draft.world(),bounds).isEmpty())
+            throw new SQLException("Saved protected plot or active construction occupies this site");
+        try(var s=c.prepareStatement("INSERT INTO construction_site_reservations VALUES(?,?,?,?,?,?,?,?,?,?,NULL)")) {
+            s.setString(1,draftId.toString());s.setString(2,draft.world().toString());
+            s.setInt(3,bounds.minimum().x());s.setInt(4,bounds.minimum().y());s.setInt(5,bounds.minimum().z());
+            s.setInt(6,bounds.maximum().x());s.setInt(7,bounds.maximum().y());s.setInt(8,bounds.maximum().z());
+            s.setLong(9,authority.checkedMillis());s.setLong(10,now);s.executeUpdate();
+        }
+        return find(draftId).orElseThrow();
     }
     /** Release is limited to unused proposals or completely returned stockpiles; any prepared native work blocks it. */
     public Reservation releaseUnused(UUID draftId,long now)throws SQLException {

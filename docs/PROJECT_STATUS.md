@@ -15,6 +15,12 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Atomic home preparation now connects known family need, vacancy-first planning,
+  buffered road-first site selection, current saved protection, frozen template,
+  beneficiary binding and unused site reservation in one SQL transaction. A failed
+  final site insert leaves no orphan proposal/binding. Historical replay never
+  refreshes authority or revives cancellation. Wrapper67 +3 passed56.954s.
+  No purchases, labor, population capacity, world writes or automatic timer yet.
 - Road-first candidate selection now applies the configured surrounding-land
   buffer to all rotations/mirrors before ranking. Missing/contradictory terrain,
   protected margins and neighboring obstacles reject candidates with reasons;

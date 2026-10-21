@@ -1,5 +1,26 @@
 # Civilizations Development Log
 
+## 2026-10-21 — atomic need-driven home preparation
+
+HousingProjectPreparation connects the real saved-family planner to buffered
+road-first selection and one atomic frozen-draft/beneficiary/site reservation.
+Saved protections are queried again on the SQL owner, and native cells outside
+that reviewed envelope cannot supply unchecked margins. Exact replay returns
+retained history only, including released/cancelled proposals. Existing draft,
+binding and site repositories expose package-private transaction row operations;
+their public standalone transactions remain unchanged. PopulationSession provides
+a serialized immutable-input preparation API. No funds, workers, beds or blocks
+are created. The search envelope implements approved guarded automatic growth
+for dry scheduling only; it is not native write permission. No new schema beyond113.
+
+Focused `.\mvnw.cmd -Dtest=DwellingOccupancyTest,ConstructionDraftRepositoryTest,ConstructionSiteReservationsTest,ConstructionSitePlannerTest,ConstructionMaterialsTest,ConstructionSupplyOrdersTest,ConstructionBlockJournalTest,ConstructionPublicWorkTest clean verify` passed67 unit +3 packaged checks56.954s.
+Three temporary-SQLite cases cover whole pipeline/restart/cancellation, rollback
+of earlier writes when the final site save fails, current exclusions, stale
+frames and unchecked/missing margin refusal. Existing material/supply/labor/journal
+checks pass after transaction composition. No Paper adapter or actual server
+changed; production timer/native writer/completed capacity remain unfinished.
+P4 stays25%/4 of16.
+
 ## 2026-10-21 — buffered road-first site alternatives
 
 Connected transformed ConstructionLandPolicy requirements to the deterministic

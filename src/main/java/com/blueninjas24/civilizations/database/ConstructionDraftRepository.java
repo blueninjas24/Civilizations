@@ -33,16 +33,21 @@ public final class ConstructionDraftRepository {
         if(!connection.getAutoCommit())throw new SQLException("Construction draft save requires no active owner transaction");
         connection.setAutoCommit(false);
         try {
-            var old=find(draft.id());
-            if(old.isPresent()) {
-                if(!old.orElseThrow().equals(draft))throw new SQLException("Construction draft identity reused with changed terms");
-            }else try(var s=connection.prepareStatement("INSERT INTO construction_drafts VALUES(?,?,?,?,?,?,?,?,?,?,?)")) {
-                s.setString(1,draft.id().toString());s.setString(2,draft.settlement().toString());s.setString(3,draft.world().toString());
-                s.setInt(4,draft.origin().x());s.setInt(5,draft.origin().y());s.setInt(6,draft.origin().z());s.setString(7,draft.transform().rotation().name());s.setInt(8,draft.transform().mirror()?1:0);
-                s.setString(9,draft.template().fingerprint());s.setBytes(10,ConstructionTemplateSnapshot.encode(draft.template()));s.setLong(11,draft.createdMillis());s.executeUpdate();
-            }
+            saveRows(draft);
             connection.commit();connection.setAutoCommit(true);return draft;
         }catch(SQLException|RuntimeException failure){try{connection.rollback();connection.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
+    }
+    ConstructionDraft saveRows(ConstructionDraft draft)throws SQLException {
+        if(connection.getAutoCommit())throw new SQLException("Draft preparation requires the SQL owner's transaction");
+        var old=find(draft.id());
+        if(old.isPresent()) {
+            if(!old.orElseThrow().equals(draft))throw new SQLException("Construction draft identity reused with changed terms");
+        }else try(var s=connection.prepareStatement("INSERT INTO construction_drafts VALUES(?,?,?,?,?,?,?,?,?,?,?)")) {
+            s.setString(1,draft.id().toString());s.setString(2,draft.settlement().toString());s.setString(3,draft.world().toString());
+            s.setInt(4,draft.origin().x());s.setInt(5,draft.origin().y());s.setInt(6,draft.origin().z());s.setString(7,draft.transform().rotation().name());s.setInt(8,draft.transform().mirror()?1:0);
+            s.setString(9,draft.template().fingerprint());s.setBytes(10,ConstructionTemplateSnapshot.encode(draft.template()));s.setLong(11,draft.createdMillis());s.executeUpdate();
+        }
+        return draft;
     }
     public Optional<ConstructionDraft> find(UUID id)throws SQLException {
         try(var s=connection.prepareStatement("SELECT * FROM construction_drafts WHERE id=?")) {

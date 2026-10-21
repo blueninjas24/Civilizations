@@ -52,37 +52,39 @@ public final class HousingProjects {
         if(ids.size()>1024)throw new BuildingRegistry.Declined("Housing project budget exceeded");return Set.copyOf(ids);
     }
     public Binding bind(Proposal proposal,DwellingOccupancy.Context context,HousingProjectPlanner planner,long seed,long period)throws SQLException{
-        return transaction(()->{
-            if(!context.present()||context.now()<proposal.createdMillis())throw new BuildingRegistry.Declined("Present world and current proposal time required");
-            var old=find(proposal.draft());
-            if(old.isPresent()){
-                if(!old.get().proposal().equals(proposal)||!old.get().world().equals(context.world()))throw new BuildingRegistry.Declined("Home project identity or household changed");
-                return old.get(); // Historical binding only: cancelled projects never reactivate.
-            }
-            var draft=new ConstructionDraftRepository(c).find(proposal.draft()).orElseThrow(()->new BuildingRegistry.Declined("Unknown frozen home proposal"));
-            if(!draft.world().equals(context.world())||draft.template().purpose()!=ConstructionTemplate.Purpose.HOME||proposal.createdMillis()<draft.createdMillis())
-                throw new BuildingRegistry.Declined("Home proposal world, purpose or time differs");
-            requireDry(draft.id());
-            try(var s=c.createStatement();var r=s.executeQuery("SELECT completed_steps FROM demographic_clock WHERE id=1")){
-                if(!r.next()||r.getLong(1)!=period)throw new BuildingRegistry.Declined("Home proposal requires current saved calendar month");
-            }
-            var candidates=new HousingPlanning(c).review(draft.settlement(),context,List.of(draft.template()),planner,seed,period);
-            var recommendation=candidates.plan().recommendations().stream().filter(r->r.household().equals(proposal.household())).findFirst()
-                    .orElseThrow(()->new BuildingRegistry.Declined("Household housing need is unknown or belongs elsewhere"));
-            if(recommendation.action()!=HousingProjectPlanner.Action.PROPOSE||!draft.template().fingerprint().equals(recommendation.fingerprint()))
-                throw new BuildingRegistry.Declined("Home proposal waits: "+recommendation.explanation());
-            int residents;
-            try(var s=c.prepareStatement("SELECT count(*) FROM residents WHERE household_id=? AND settlement_id=? AND status='ALIVE'")){
-                s.setString(1,proposal.household().toString());s.setString(2,draft.settlement().toString());try(var r=s.executeQuery()){residents=r.getInt(1);}
-            }
-            Integer capacity=HousingCapacity.read(c,draft.settlement()).get(proposal.household());
-            if(capacity==null||capacity>=residents||residents>HomePlanCapacity.beds(draft.template()))throw new BuildingRegistry.Declined("Whole household no longer fits or needs this home");
-            try(var s=c.prepareStatement("INSERT INTO housing_project_bindings VALUES(?,?,?,?,?,?,?,?,NULL,NULL)")){
-                s.setString(1,proposal.draft().toString());s.setString(2,proposal.household().toString());s.setString(3,draft.settlement().toString());s.setString(4,draft.world().toString());
-                s.setString(5,draft.template().fingerprint());s.setInt(6,residents);s.setInt(7,capacity);s.setLong(8,proposal.createdMillis());s.executeUpdate();
-            }
-            return find(proposal.draft()).orElseThrow();
-        });
+        return transaction(()->bindRows(proposal,context,planner,seed,period));
+    }
+    Binding bindRows(Proposal proposal,DwellingOccupancy.Context context,HousingProjectPlanner planner,long seed,long period)throws SQLException{
+        if(c.getAutoCommit())throw new SQLException("Home binding requires the SQL owner's transaction");
+        if(!context.present()||context.now()<proposal.createdMillis())throw new BuildingRegistry.Declined("Present world and current proposal time required");
+        var old=find(proposal.draft());
+        if(old.isPresent()){
+            if(!old.get().proposal().equals(proposal)||!old.get().world().equals(context.world()))throw new BuildingRegistry.Declined("Home project identity or household changed");
+            return old.get(); // Historical binding only: cancelled projects never reactivate.
+        }
+        var draft=new ConstructionDraftRepository(c).find(proposal.draft()).orElseThrow(()->new BuildingRegistry.Declined("Unknown frozen home proposal"));
+        if(!draft.world().equals(context.world())||draft.template().purpose()!=ConstructionTemplate.Purpose.HOME||proposal.createdMillis()<draft.createdMillis())
+            throw new BuildingRegistry.Declined("Home proposal world, purpose or time differs");
+        requireDry(draft.id());
+        try(var s=c.createStatement();var r=s.executeQuery("SELECT completed_steps FROM demographic_clock WHERE id=1")){
+            if(!r.next()||r.getLong(1)!=period)throw new BuildingRegistry.Declined("Home proposal requires current saved calendar month");
+        }
+        var candidates=new HousingPlanning(c).review(draft.settlement(),context,List.of(draft.template()),planner,seed,period);
+        var recommendation=candidates.plan().recommendations().stream().filter(r->r.household().equals(proposal.household())).findFirst()
+                .orElseThrow(()->new BuildingRegistry.Declined("Household housing need is unknown or belongs elsewhere"));
+        if(recommendation.action()!=HousingProjectPlanner.Action.PROPOSE||!draft.template().fingerprint().equals(recommendation.fingerprint()))
+            throw new BuildingRegistry.Declined("Home proposal waits: "+recommendation.explanation());
+        int residents;
+        try(var s=c.prepareStatement("SELECT count(*) FROM residents WHERE household_id=? AND settlement_id=? AND status='ALIVE'")){
+            s.setString(1,proposal.household().toString());s.setString(2,draft.settlement().toString());try(var r=s.executeQuery()){residents=r.getInt(1);}
+        }
+        Integer capacity=HousingCapacity.read(c,draft.settlement()).get(proposal.household());
+        if(capacity==null||capacity>=residents||residents>HomePlanCapacity.beds(draft.template()))throw new BuildingRegistry.Declined("Whole household no longer fits or needs this home");
+        try(var s=c.prepareStatement("INSERT INTO housing_project_bindings VALUES(?,?,?,?,?,?,?,?,NULL,NULL)")){
+            s.setString(1,proposal.draft().toString());s.setString(2,proposal.household().toString());s.setString(3,draft.settlement().toString());s.setString(4,draft.world().toString());
+            s.setString(5,draft.template().fingerprint());s.setInt(6,residents);s.setInt(7,capacity);s.setLong(8,proposal.createdMillis());s.executeUpdate();
+        }
+        return find(proposal.draft()).orElseThrow();
     }
     /** Only unused, released projects may lose their household reservation; assets/history are retained. */
     public Binding cancel(UUID operation,UUID draft,long atMillis,DwellingOccupancy.Context context)throws SQLException{
