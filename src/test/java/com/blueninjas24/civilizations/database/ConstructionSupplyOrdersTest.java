@@ -68,6 +68,30 @@ class ConstructionSupplyOrdersTest {
         assertThrows(SQLException.class,()->orders().purchase(q,proof(publicDraft),3001,Set.of(f.world)));
         assertTrue(orders().find(q.operation()).isEmpty());assertEquals(before,money());
     }
+    @Test void publicFundingReadinessIsReadOnlyAndSubtractsAlreadyPaidIncomingMaterials()throws Exception {
+        long cash=money(),writes;try(var s=c().createStatement();var r=s.executeQuery("SELECT total_changes()")){writes=r.getLong(1);}
+        var quote=orders().quoteVillageMaterials(publicDraft.id(),3001,Set.of(f.world));
+        assertEquals(2940L,quote.remainingReferenceValue());assertEquals(2,quote.period());assertTrue(quote.protectedCash()>=3500);assertEquals(0,quote.periodSpent());
+        var stone=quote.materials().stream().filter(m->m.commodity().equals(Commodity.STONE)).findFirst().orElseThrow();assertEquals(12,stone.required());assertEquals(12,stone.missing());assertEquals(0,stone.ordered());
+        try(var s=c().createStatement();var r=s.executeQuery("SELECT total_changes()")){assertEquals(writes,r.getLong(1));}assertEquals(cash,money());
+        orders().purchase(request(Source.VILLAGE,2),proof(publicDraft),3001,Set.of(f.world));
+        var after=orders().quoteVillageMaterials(publicDraft.id(),3001,Set.of(f.world));assertEquals(2890L,after.remainingReferenceValue());assertEquals(50,after.periodSpent());
+        stone=after.materials().stream().filter(m->m.commodity().equals(Commodity.STONE)).findFirst().orElseThrow();assertEquals(10,stone.missing());assertEquals(2,stone.inTransit());assertEquals(0,stone.ready());assertEquals(cash,money());
+    }
+    @Test void publicFundingReadinessCannotTreatAbsentUnfedOrProtectedMoneyAsAvailable()throws Exception {
+        assertThrows(SQLException.class,()->orders().quoteVillageMaterials(publicDraft.id(),3001,Set.of()));
+        f.sql("UPDATE needs_periods SET fulfilled=0 WHERE period=2");assertThrows(SQLException.class,()->orders().quoteVillageMaterials(publicDraft.id(),3001,Set.of(f.world)));
+        f.sql("UPDATE needs_periods SET fulfilled=demand WHERE period=2");f.sql("UPDATE treasuries SET hundredths=3500 WHERE settlement_id='"+f.town+"'");long money=money();
+        var quote=orders().quoteVillageMaterials(publicDraft.id(),3001,Set.of(f.world));assertFalse(quote.canOrderAllNow());assertEquals(0,quote.availableCash());assertEquals(money,money());
+        assertTrue(quote.explanation().contains("unprotected cash"));
+    }
+    @Test void sharedHaulAndUnpricedMaterialsHoldReadinessWithoutSpendingOrInventingZeroPrices()throws Exception {
+        runtime=policy(4);var quote=orders().quoteVillageMaterials(publicDraft.id(),3001,Set.of(f.world));assertEquals(4,quote.haulRemaining());assertFalse(quote.canOrderAllNow());
+        orders().purchase(request(Source.VILLAGE,2),proof(publicDraft),3001,Set.of(f.world));
+        assertEquals(2,orders().quoteVillageMaterials(publicDraft.id(),3001,Set.of(f.world)).haulRemaining());
+        var unpriced=new ConstructionSupplyOrders(c(),ConstructionBudgetPolicy.prototype(),new ConstructionSupplyPolicy(true,Map.of(Commodity.STONE,25L,Commodity.TIMBER,40L)),runtime,BusinessOperationPolicy.prototype());
+        long cash=money();var unknown=unpriced.quoteVillageMaterials(publicDraft.id(),3001,Set.of(f.world));assertNull(unknown.remainingReferenceValue());assertFalse(unknown.canOrderAllNow());assertTrue(unknown.explanation().contains("Unpriced"));assertEquals(cash,money());
+    }
     @Test void protectedPublicReserveAndWrongSiteCannotBecomeARealPurchase()throws Exception {
         var q=request(Source.VILLAGE,1);f.sql("UPDATE treasuries SET hundredths=3500 WHERE settlement_id='"+f.town+"'");long before=money();
         assertThrows(SQLException.class,()->orders().purchase(q,proof(publicDraft),3001,Set.of(f.world)));assertEquals(before,money());

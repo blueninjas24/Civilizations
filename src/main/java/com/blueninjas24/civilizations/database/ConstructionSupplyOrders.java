@@ -17,6 +17,13 @@ public final class ConstructionSupplyOrders {
         }
     }
     public record Receipt(Request request,long price,long duePeriod,Long deliveredPeriod,long window,long cadence){}
+    public record MaterialNeed(Commodity commodity,long required,long ordered,long inTransit,long delivered,long ready,long escrowed){
+        public long missing(){return required-ordered;}
+    }
+    /** Readiness only: reference prices are not a supplier offer or payment/native authority. */
+    public record VillageFunding(UUID draft,long period,List<MaterialNeed> materials,Long remainingReferenceValue,
+                                 long cash,long protectedCash,long availableCash,long periodSpent,long haulRemaining,
+                                 boolean canOrderAllNow,String explanation){public VillageFunding{materials=List.copyOf(materials);}}
     public static final class Declined extends SQLException {Declined(String reason){super(reason);}}
     private final Connection c;private final ConstructionBudgetPolicy budget;private final ConstructionSupplyPolicy supply;
     private final IndustryRuntimePolicy industry;private final BusinessOperationPolicy operations;
@@ -84,16 +91,10 @@ public final class ConstructionSupplyOrders {
             var store=stores.store(q.business()).orElseThrow();cash=store.hundredths();
             if(new BusinessTools(c,industry).replacementDue(q.business(),buyer.business().industry(),store)&&store.units().getOrDefault(ToolUpkeepPolicy.TOOLS,0L)==0)essential=industry.tools().toolValueHundredths();
         }else {cash=new TreasuryRepository(c).load(draft.settlement()).orElseThrow(()->new Declined("Real village treasury required")).hundredths();food=foodDemand(draft.settlement(),period);}
-        long spent=0;String spending=q.source()==Source.VILLAGE?"d.settlement_id=? AND o.source='VILLAGE'":"o.business_id=? AND o.source='BUSINESS'";
-        try(var s=c.prepareStatement("SELECT o.price FROM construction_supply_orders o JOIN construction_drafts d ON d.id=o.draft_id WHERE "+spending+" AND o.period=?")) {
-            s.setString(1,(q.source()==Source.VILLAGE?draft.settlement():q.business()).toString());s.setLong(2,period);try(var r=s.executeQuery()){while(r.next())spent=Math.addExact(spent,r.getLong(1));}
-        }
+        long spent=spent(q.source(),q.source()==Source.VILLAGE?draft.settlement():q.business(),period);
         long price=Math.multiplyExact(unitPrice,q.units());var quote=budget.review(q.source(),draft.template().purpose(),price,new Evidence(cash,food,essential,0,spent));
         if(!quote.allowed())throw new Declined(quote.reason());
-        long cadence=industry.millisPerPeriod(),window=now/cadence,hailed=StorageUpgrades.haulUsed(c,draft.settlement(),window,cadence);
-        try(var s=c.prepareStatement("SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=? AND a.haul_cadence=?")) {
-            s.setString(1,draft.settlement().toString());s.setLong(2,window);s.setLong(3,cadence);try(var r=s.executeQuery()){while(r.next())hailed=Math.addExact(hailed,r.getLong(1));}
-        }
+        long cadence=industry.millisPerPeriod(),window=now/cadence,hailed=allHaulUsed(draft.settlement(),window,cadence);
         if(hailed>industry.mining().localHaulUnitsPerPeriod()||q.units()>industry.mining().localHaulUnitsPerPeriod()-hailed)throw new Declined("Shared local haul capacity exhausted");
         if(q.source()==Source.VILLAGE) {
             if(new TreasuryRepository(c).entry(q.operation()).isPresent())throw new SQLException("Order identity already used by treasury history");
@@ -152,6 +153,48 @@ public final class ConstructionSupplyOrders {
         }
         for(var e:result.entrySet())if(e.getValue()>plan.template().materials().getOrDefault(e.getKey(),0L))throw new SQLException("Delivered construction stock exceeds frozen need");return ConstructionPublicWork.unallocated(c,plan,result);
     }
+    /** One read-only snapshot of actual orders, escrow, current fed population, reserves and shared haul. */
+    public VillageFunding quoteVillageMaterials(UUID draftId,long now,Set<UUID> worlds)throws SQLException{
+        var present=Set.copyOf(worlds);if(now<0)throw new IllegalArgumentException("Negative funding observation time");
+        return transaction(()->{
+            var plan=draft(draftId);if(!present.contains(plan.world()))throw new Declined("Absent world cannot authorize a current funding quote");
+            new ConstructionSiteReservations(c).requireActiveRows(plan);
+            try(var s=c.prepareStatement("SELECT 1 FROM construction_material_reservations WHERE draft_id=?")){
+                s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new Declined("Owned-stock projects retain their separate funding route");}
+            }
+            var ordered=new TreeMap<Commodity,Long>();var delivered=new TreeMap<Commodity,Long>();int count=0;
+            try(var s=c.prepareStatement("SELECT source,business_id,commodity,units,delivered_period FROM construction_supply_orders WHERE draft_id=? LIMIT 129")){
+                s.setString(1,draftId.toString());try(var r=s.executeQuery()){while(r.next()){
+                    if(++count>128)throw new Declined("Project receipt review budget exceeded; goods retained");
+                    if(!r.getString(1).equals("VILLAGE")||r.getString(2)!=null)throw new Declined("Project already uses a different funding source");
+                    var commodity=new Commodity(r.getString(3));long units=r.getLong(4);ordered.merge(commodity,units,Math::addExact);
+                    if(r.getObject(5)!=null)delivered.merge(commodity,units,Math::addExact);
+                }}
+            }
+            for(var e:ordered.entrySet())if(e.getValue()>plan.template().materials().getOrDefault(e.getKey(),0L))throw new SQLException("Construction commitments exceed frozen material need");
+            var ready=stock(draftId);var needs=new ArrayList<MaterialNeed>();Long reference=0L;long missingUnits=0,largestLine=0;
+            for(var e:plan.template().materials().entrySet()){
+                long total=ordered.getOrDefault(e.getKey(),0L),arrived=delivered.getOrDefault(e.getKey(),0L),free=ready.getOrDefault(e.getKey(),0L),missing=e.getValue()-total;
+                needs.add(new MaterialNeed(e.getKey(),e.getValue(),total,total-arrived,arrived,free,arrived-free));missingUnits=Math.addExact(missingUnits,missing);
+                if(missing>0){Long price=supply.prices().get(e.getKey());if(price==null)reference=null;
+                    else try{long line=Math.multiplyExact(price,missing);largestLine=Math.max(largestLine,line);if(reference!=null)reference=Math.addExact(reference,line);}
+                    catch(ArithmeticException unsupported){reference=null;}
+                }
+            }
+            long period=completed(Source.VILLAGE,null,plan,true,now),food=foodDemand(plan.settlement(),period);
+            long cash=new TreasuryRepository(c).load(plan.settlement()).orElseThrow(()->new Declined("Real village treasury required")).hundredths();
+            long spent=spent(Source.VILLAGE,plan.settlement(),period);var terms=budget.village();
+            var quote=budget.review(Source.VILLAGE,plan.template().purpose(),0,new Evidence(cash,food,0,0,spent));
+            long haul=Math.max(0,industry.mining().localHaulUnitsPerPeriod()-allHaulUsed(plan.settlement(),now/industry.millisPerPeriod(),industry.millisPerPeriod()));
+            boolean permitted=supply.enabled()&&industry.enabled()&&quote.allowed();
+            boolean affordable=reference!=null&&reference<=quote.availableCash()&&spent<=terms.perPeriodLimit()&&reference<=terms.perPeriodLimit()-spent&&largestLine<=terms.maximumPurchase();
+            boolean canOrder=missingUnits>0&&permitted&&affordable&&missingUnits<=haul;
+            String reason=missingUnits==0?"All frozen inputs already ordered; no further purchase requested":!permitted?"Construction purchasing disabled or current funding policy holds":reference==null?"Unpriced or unsupported remaining material value; never treated as free"
+                    :!affordable?"Remaining inputs require smaller orders, later spending windows or more unprotected cash":missingUnits>haul?"Remaining inputs exceed this shared hauling window"
+                    :"Current funds and haul can cover reference-priced inputs; real suppliers, fresh site evidence and live payment checks still required";
+            return new VillageFunding(draftId,period,needs,reference,cash,quote.protectedCash(),quote.availableCash(),spent,haul,canOrder,reason);
+        });
+    }
     public Optional<Receipt> find(UUID operation)throws SQLException {
         try(var s=c.prepareStatement("SELECT * FROM construction_supply_orders WHERE operation_id=?")) {
             s.setString(1,operation.toString());try(var r=s.executeQuery()){if(!r.next())return Optional.empty();
@@ -165,8 +208,23 @@ public final class ConstructionSupplyOrders {
         }
     }
     private long completed(Request q,ConstructionDraft d,boolean requireCurrent,long now)throws SQLException {
-        String sql=q.source()==Source.BUSINESS?"SELECT completed,target,cadence,last_ms FROM industry_runtime WHERE business_id=?":"SELECT a.completed_periods,r.target_periods,r.millis_per_period,r.last_observed_millis FROM economy_accounts a JOIN economy_runtime r USING(settlement_id) WHERE a.settlement_id=?";
-        try(var s=c.prepareStatement(sql)){s.setString(1,(q.source()==Source.BUSINESS?q.business():d.settlement()).toString());try(var r=s.executeQuery()){if(!r.next()||(requireCurrent&&(r.getLong(1)!=r.getLong(2)||now<r.getLong(4)||(q.source()==Source.BUSINESS&&r.getLong(3)!=industry.millisPerPeriod()))))throw new Declined("Current saved owner clock required; no invented project time");return r.getLong(1);}}
+        return completed(q.source(),q.business(),d,requireCurrent,now);
+    }
+    private long completed(Source source,UUID business,ConstructionDraft d,boolean requireCurrent,long now)throws SQLException{
+        String sql=source==Source.BUSINESS?"SELECT completed,target,cadence,last_ms FROM industry_runtime WHERE business_id=?":"SELECT a.completed_periods,r.target_periods,r.millis_per_period,r.last_observed_millis FROM economy_accounts a JOIN economy_runtime r USING(settlement_id) WHERE a.settlement_id=?";
+        try(var s=c.prepareStatement(sql)){s.setString(1,(source==Source.BUSINESS?business:d.settlement()).toString());try(var r=s.executeQuery()){if(!r.next()||(requireCurrent&&(r.getLong(1)!=r.getLong(2)||now<r.getLong(4)||(source==Source.BUSINESS&&r.getLong(3)!=industry.millisPerPeriod()))))throw new Declined("Current saved owner clock required; no invented project time");return r.getLong(1);}}
+    }
+    private long spent(Source source,UUID owner,long period)throws SQLException{
+        long total=0;String spending=source==Source.VILLAGE?"d.settlement_id=? AND o.source='VILLAGE'":"o.business_id=? AND o.source='BUSINESS'";
+        try(var s=c.prepareStatement("SELECT o.price FROM construction_supply_orders o JOIN construction_drafts d ON d.id=o.draft_id WHERE "+spending+" AND o.period=?")){
+            s.setString(1,owner.toString());s.setLong(2,period);try(var r=s.executeQuery()){while(r.next())total=Math.addExact(total,r.getLong(1));}
+        }return total;
+    }
+    private long allHaulUsed(UUID town,long window,long cadence)throws SQLException{
+        long total=StorageUpgrades.haulUsed(c,town,window,cadence);
+        try(var s=c.prepareStatement("SELECT t.units FROM local_shipments t JOIN industry_auto_shipments a ON a.shipment_id=t.id JOIN businesses b ON b.id=t.seller_id WHERE b.settlement_id=? AND a.haul_window=? AND a.haul_cadence=?")){
+            s.setString(1,town.toString());s.setLong(2,window);s.setLong(3,cadence);try(var r=s.executeQuery()){while(r.next())total=Math.addExact(total,r.getLong(1));}
+        }return total;
     }
     private long foodDemand(UUID town,long period)throws SQLException {
         try(var s=c.prepareStatement("""

@@ -1502,6 +1502,17 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.HousingProjectStatus(database.getConnection()).find(draft,
                 new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,loadedWorlds!=null&&loadedWorlds.contains(world),policy,now.getAsLong()));});
     }
+    /** Current financial readiness only; never reserves supplies, chooses a seller or makes a payment. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionSupplyOrders.VillageFunding> constructionVillageFunding(
+            UUID draft,UUID world,com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy budget,
+            com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy supply){
+        return submit(()->{requireBuildingWorld(world,world);var plan=new com.blueninjas24.civilizations.database.ConstructionDraftRepository(database.getConnection()).find(draft)
+                    .orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown construction project"));
+            if(!plan.world().equals(world))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Construction project belongs to another world");
+            return new com.blueninjas24.civilizations.database.ConstructionSupplyOrders(database.getConnection(),budget,supply,industryPolicy,operationPolicy)
+                    .quoteVillageMaterials(draft,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
+        });
+    }
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanningJobs.Page> housingPlanningJobs(
             UUID after,int limit,List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
             com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,

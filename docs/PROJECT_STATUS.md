@@ -1,6 +1,6 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 explicit apartment declarations and live family housing
+## Current — Phase4 family housing and automatic site planning
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
@@ -15,6 +15,12 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Read-only village material/funding readiness now separates required, paid,
+  incoming, delivered, free and stage-escrowed goods. Already bought/escrowed
+  inputs never become a new purchase need. Uses actual current fed population,
+  treasury, food/upkeep reserves, period spending and shared hauling; unknown
+  prices stay unknown. Serialized API only; no automatic payments/seller choice.
+  Wrapper30 +3 passed46.404s, including existing real payment/delivery/work cases.
 - Guarded automatic home-site planning is now connected: verified need -> one
   globally budgeted two-pass loaded-only survey -> fresh saved protection/need
   review -> atomic frozen plan/family/site reservation. Default new installs:

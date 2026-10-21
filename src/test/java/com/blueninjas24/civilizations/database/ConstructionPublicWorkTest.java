@@ -48,6 +48,13 @@ class ConstructionPublicWorkTest {
         runtime.pulse(7000,false);assertEquals(10,work());assertTrue(f.orders().stock(f.publicDraft.id()).isEmpty());
         assertEquals(1,count("construction_supply_orders"));assertEquals(0,count("construction_block_journal"));
     }
+    @Test void fundingReadinessCountsEscrowedStageMaterialsAsAlreadyPurchased()throws Exception {
+        materials(12);var runtime=runtime(true);runtime.pulse(6000,false);assertEquals(10,work());
+        var quote=f.orders().quoteVillageMaterials(f.publicDraft.id(),6001,Set.of(f.f.world));
+        var stone=quote.materials().stream().filter(m->m.commodity().equals(Commodity.STONE)).findFirst().orElseThrow();
+        assertEquals(12,stone.ordered());assertEquals(12,stone.delivered());assertEquals(12,stone.escrowed());assertEquals(0,stone.ready());assertEquals(0,stone.missing());
+        assertEquals(2640L,quote.remainingReferenceValue());assertEquals(1,count("construction_supply_orders"));assertEquals(0,count("construction_block_journal"));
+    }
     @Test void realFoodPeriodsEarnBoundedUnemployedWorkAndEscrowMaterialsOnceThenWaitForPhysicalStage()throws Exception {
         materials(12);var runtime=runtime(true);runtime.pulse(6000,false);
         assertEquals(10,work());assertTrue(f.orders().stock(f.publicDraft.id()).isEmpty(),"All stage stone is escrowed once, never spendable twice");

@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## 2026-10-21 — actual material and protected-funding readiness
+
+ConstructionSupplyOrders.quoteVillageMaterials reads actual frozen requirements,
+paid commitments, incoming/delivered stock and stage escrow in one transaction
+without mutations. Uses current saved owner clock, complete fed population, real
+treasury, food/upkeep protection, existing period spend and the same shared haul
+calculation as actual purchases. Unknown/overflowing prices are unknown, never
+free. Fully ordered inputs request no further purchase. Whole-batch readiness
+is only reference-price feasibility; it selects no supplier, pays nothing and
+grants no native/site authority. Existing purchase clock/spend/haul calculations
+were factored into shared private helpers without changing their rules.
+PopulationSession exposes a serialized present-world API.
+
+Focused Wrapper clean verify30 unit +3 packaged checks passed46.404s. Three
+temporary-SQLite readiness cases cover no-write reads, paid incoming subtraction,
+current food/world/reserve holds, shared haul and unpriced goods. A real earned
+food-work case proves stage-escrowed stone remains already purchased rather than
+being ordered twice. Existing real payment/delivery/rollback checks still pass.
+No migration, production payment, command or world change in this backend batch.
+
+Hosted checkpoint acd8014 passed both Windows and Linux; newer0833ef9 had Linux
+green/Windows running and f13260d queued when checked. This is not a latest-head
+full-CI claim. Main/real server untouched; schema113/P4 at25% remain.
+
 ## 2026-10-21 — live guarded automatic home-site preparation
 
 Connected AutomaticHomePlanningSettings, PaperHomeSiteSurvey and

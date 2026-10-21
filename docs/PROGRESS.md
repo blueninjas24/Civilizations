@@ -16,6 +16,10 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+The material-payment handoff now has a read-only readiness check: it distinguishes
+what is still needed from paid cargo and stage reserves, protects food money and
+checks hauling limits. Wrapper30 +3 passed. Automatic purchases are still pending.
+
 Villages can now automatically choose a clear spot beside an existing path and
 save a family home proposal. The spot is checked twice, protected land is excluded,
 and admins can inspect/cancel unused work. This does not build the home yet.

@@ -122,3 +122,16 @@ passed; missing-world/changed-pass evidence held. One path marker and one test
 air cell restored; both databases113/ok/FKs0. Only test-fixture setup explicitly
 prepared4 chunks in its new guarded host-temporary world; production simulation
 never loads chunks. Native physical building/material purchases remain unfinished.
+
+
+## Material and financial readiness
+
+The read-only quoteVillageMaterials API separates frozen need, paid commitments,
+incoming cargo, delivered goods, free stock and earned-stage escrow. It uses the
+actual current owner period and fed-population assessment, treasury, protected
+food/upkeep cash, existing period spend and shared hauling. Already paid or
+escrowed goods are never purchased again. Missing/unsupported prices remain
+unknown, not zero. Fully ordered inputs request no further purchase. Whole-batch
+reference feasibility is not proof of real supplier stock or fresh native safety,
+and selects no seller or transfers money. Automatic purchasing remains ahead.
+Wrapper30 +3 passed46.404s, including real payments, delivery and stage-work cases.
