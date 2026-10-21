@@ -1,5 +1,10 @@
 # Live housing transition and repossession
 
+October20 subsequent addition: approved new adult households now form under
+configurable village/month limits during complete permitted housing reviews.
+Schema111 preserves formation/member history and known zero housing through scans.
+Existing families and children are protected. See HOUSEHOLD_FORMATION.md.
+
 October20 current addition: explicit NEW apartment declarations now feed bounded
 inspection, confirmed donation and the normal whole-family runtime. Private units,
 multi-room spaces, shared corridors and separate plots are editable before review.

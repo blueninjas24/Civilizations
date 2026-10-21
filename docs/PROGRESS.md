@@ -16,10 +16,17 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+New usable step: unassigned adults can form their own household, or stay with an
+already recorded eligible partner, then use suitable inspected vacancies. Existing
+families are preserved; no free beds or new people. Admin text settings limit the
+rate across the whole village. Schema111, final60 +3 checks and an actual disposable
+Paper family/new-adult/restart/reclamation proof passed. Handbook0.11:28 pages and
+26 chapters. Physical building and business-premises reuse remain unfinished.
+
 The saved-data housing planner now distinguishes known shortages from unknown
 housing, prefers current permitted vacancies, and holds duplicate proposals behind
 existing home projects. Read-only API only; no automatic builder enabled. Wrapper
-25 +3 checks passed. New adult-household formation was approved and remains next.
+25 +3 checks passed. New adult-household formation is implemented in the current addition above.
 
 New usable step: players can explicitly divide a new donated building into family
 apartments, shared halls and a separate yard, then confirm reviewed ownership.
@@ -42,8 +49,8 @@ damage/repair/restart/reclamation passed. Normal physical construction, saved ap
 and business-premises reuse remain. Older notes below describe earlier checkpoints;
 no additional whole checklist item is counted complete.
 
-A27-page living player/server handbook now documents current features and planned
-P4 controls separately, with25 chapters, linked contents and command references.
+A28-page living player/server handbook now documents current features and planned
+P4 controls separately, with26 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
 Saved housing assignments now preserve which whole family occupies each unit,

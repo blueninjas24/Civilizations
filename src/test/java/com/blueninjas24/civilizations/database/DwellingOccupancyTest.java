@@ -43,6 +43,21 @@ class DwellingOccupancyTest {
     private static void healthy(Connection c)throws SQLException {assertEquals(0,number(c,"SELECT count(*) FROM pragma_foreign_key_check"));try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){assertEquals("ok",r.getString(1));}}
     private Assignment assign(UUID op,UUID household,UUID unit,UUID review,UUID previous,long now){return new Assignment(op,household,unit,review,previous,now);}
 
+    @Test void approvedNewAdultHouseholdCanTakeInspectedVacancyWithoutChangingExistingFamilies()throws Exception{
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);new DemographicRepository(c).initializeClock(42,PopulationPolicy.prototype());
+            new PopulationRepository(c).insertResident(new Resident(id(15),"Unassigned adult",town,null,240,Resident.Status.ALIVE));
+            var housing=new DwellingHousing(c);var policy=HouseholdFormationPolicy.prototype();
+            var result=housing.reconcile(layout(),assessment(1100),context(1100),policy,216,0);
+            assertEquals(1,result.assigned());var formed=new PopulationRepository(c).findResident(id(15)).orElseThrow().householdId();
+            assertNotNull(formed);assertEquals(2,HousingCapacity.read(c,town).get(formed));
+            assertEquals(family,new PopulationRepository(c).findResident(id(10)).orElseThrow().householdId());
+            assertEquals(1,number(c,"SELECT count(*) FROM household_formations"));
+            housing.reconcile(layout(),assessment(1200),context(1200),policy,216,0);
+            assertEquals(1,number(c,"SELECT count(*) FROM household_formations"));healthy(c);
+        }
+    }
+
     @Test void savedHousingPlanningUsesRealVacanciesAndHoldsUnknownOrStaleEvidenceWithoutWrites()throws Exception {
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){
             seed(c);sql(c,"UPDATE household_capacity SET capacity=0 WHERE household_id='"+family+"'");

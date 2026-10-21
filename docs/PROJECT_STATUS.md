@@ -7,14 +7,25 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is27-page edition0.10, with
-25 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is28-page edition0.11, with
+26 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
 owned units follow the same occupancy direction as homes. New apartment declarations now have explicit controls; editing registered units remains unfinished.
 
 
 Implemented and verified:
+- Approved new adult households are live during complete permitted housing reviews.
+  Eligible unassigned adults form singles or keep already recorded eligible partners
+  together; existing families/children are preserved. Configurable village-wide
+  monthly cap and candidate limit; no money, people or beds created. Schema111 saves
+  formation/member history atomically with membership and known zero housing.
+  Raw village scans cannot erase that known need. Ambiguous partners/unassigned
+  dependent children hold for later review. See HOUSEHOLD_FORMATION.md.
+  Migration/population checks74 +3 passed1:06; final capacity checks60 +3 passed54.475s.
+  Actual disposable Paper new-adult/old-family/damage/restart/reclamation proof
+  passed; restored144 cells, stopped fixture, schema111 integrity/FKs clean.
+  No actual server changes. Handbook0.11:28 pages/26 chapters, rendered/reviewed.
 - Saved housing candidate bridge reads effective household capacity, current
   permitted unit vacancies and retained home projects on the SQL owner, then uses
   the existing deterministic planner. Unknown household capacity is held separately;
@@ -23,8 +34,7 @@ Implemented and verified:
   Read-only API only: no new command, spending, assignment, scheduling or migration.
   Focused clean verify25 unit +3 packaged checks passed38.110s. A new temporary-SQLite
   check proves no writes, safe vacancy reuse, unknown/stale/absent-world holds and
-  retained-project duplication prevention. User just approved configurable new
-  household formation for unassigned adults/recorded partners; not yet implemented.
+  retained-project duplication prevention. Approved new household formation is now implemented in the current addition above.
 - Explicit new apartment editor: private units, extra rooms, shared corridors and
   a separate surrounding plot feed the same bounded donation scan and ownership
   confirmation. Real beds/access/cover must qualify every unit; no inferred units,

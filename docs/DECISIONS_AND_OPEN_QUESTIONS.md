@@ -4,9 +4,10 @@
 
 User approved configurable formation of one-person households for adults without
 saved households, or a shared household with an already recorded partner. Preserve
-existing families and never invent parentage for children. This is approval, not
-implementation: eligibility, deterministic limits, transactional identity and
-population/economy integration still require code and verification.
+existing families and never invent parentage for children. Implemented under HOUSEHOLD_FORMATION.md: deterministic bounded singles/recorded
+partners, transactional schema111 history and actual inspected-vacancy integration.
+Ambiguous partners and known unassigned dependent children hold rather than split
+or invent families. No rent, new people or free housing is introduced.
 
 ## October20 — approved: gradual transition from legacy housing
 

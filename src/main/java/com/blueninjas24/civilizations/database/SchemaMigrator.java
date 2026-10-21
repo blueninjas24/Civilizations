@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 110;
+    static final int CURRENT_VERSION = 111;
 
     @FunctionalInterface
     interface Migration {
@@ -959,7 +959,8 @@ final class SchemaMigrator {
                 ConstructionPublicWork::createSchema,
                 BuildingRegistry::createSchema,
                 DwellingOccupancy::createSchema,
-                HousingCapacity::createSchema
+                HousingCapacity::createSchema,
+                HouseholdFormation::createSchema
 
 
         ));
@@ -1169,6 +1170,10 @@ final class SchemaMigrator {
             if(migrations.size()>=110){
                 requireColumns(connection,"household_capacity_sources",Set.of("world_id","x","y","z","household_id","capacity"));
                 requireColumns(connection,"dwelling_bed_claims",Set.of("world_id","x","y","z","unit_id"));
+            }
+            if(migrations.size()>=111){
+                requireColumns(connection,"household_formations",Set.of("household_id","settlement_id","world_id","founder_id","partner_id","step","policy","created_ms"));
+                requireColumns(connection,"household_formation_members",Set.of("resident_id","household_id"));
             }
             if(migrations.size()>=109){
                 requireColumns(connection,"dwelling_reviews",Set.of("operation_id","building_id","consent_id","fingerprint","observed_ms","recorded_ms","require_cover"));

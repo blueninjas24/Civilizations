@@ -75,3 +75,10 @@ housing-runtime:
   # One shared loaded-only survey, read twice to reject edits during capture.
   cells-per-tick: 128
   review-seconds: 15
+
+# Approved new homes for already unassigned adults; never split saved families or invent relatives.
+# Runs during complete permitted housing reviews; shared village limits use civilization months.
+household-formation:
+  enabled: true
+  maximum-per-month: 2
+  maximum-candidates: 128

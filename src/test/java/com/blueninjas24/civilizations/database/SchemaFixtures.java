@@ -6,16 +6,17 @@ import java.sql.SQLException;
 /** Reconstruct prior schema shapes only inside test-owned temporary databases. */
 final class SchemaFixtures {
     private SchemaFixtures() {}
-    /** Additive schemas95-110 must create only empty tables in earlier migration fixtures. */
+    /** Additive schemas95-111 must create only empty tables in earlier migration fixtures. */
     static void removeEmptyRecoveryAndAllocationAdditions(java.util.Map<String,? extends java.util.List<?>> snapshot) {
         for(var table:java.util.List.of("mineral_recoveries","resource_recovery_epochs","forest_recoveries",
                 "business_allocation_state","business_allocation_reviews","resource_investment_state","resource_investment_reviews","generated_resource_chunks",
                 "construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders","construction_stage_work","construction_public_work","building_records","building_units","building_consent_events","building_exclusions","building_exclusion_releases",
-                "dwelling_reviews","dwelling_review_units","dwelling_current_reviews","dwelling_assignments","dwelling_active_occupancy","dwelling_departures","household_capacity_sources","dwelling_bed_claims"))
+                "dwelling_reviews","dwelling_review_units","dwelling_current_reviews","dwelling_assignments","dwelling_active_occupancy","dwelling_departures","household_capacity_sources","dwelling_bed_claims","household_formations","household_formation_members"))
             org.junit.jupiter.api.Assertions.assertEquals(java.util.List.of(),snapshot.remove(table),table+" must exist and start empty");
     }
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<111){statement.execute("DROP TABLE IF EXISTS household_formation_members");statement.execute("DROP TABLE IF EXISTS household_formations");}
             if(version<110){statement.execute("DROP TABLE IF EXISTS dwelling_bed_claims");statement.execute("DROP TABLE IF EXISTS household_capacity_sources");}
             if(version<109)for(var table:java.util.List.of("dwelling_departures","dwelling_active_occupancy","dwelling_assignments","dwelling_current_reviews","dwelling_review_units","dwelling_reviews"))statement.execute("DROP TABLE IF EXISTS "+table);
             if(version<108){statement.execute("DROP TABLE IF EXISTS building_exclusion_releases");statement.execute("DROP TABLE IF EXISTS building_exclusions");statement.execute("DROP TABLE IF EXISTS building_consent_events");statement.execute("DROP TABLE IF EXISTS building_units");statement.execute("DROP TABLE IF EXISTS building_records");}

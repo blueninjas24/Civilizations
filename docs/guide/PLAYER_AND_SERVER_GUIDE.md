@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.10 | 20 October 2026 | Player and server owner edition
+Living draft 0.11 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 110 connects family housing and safe bed accounting. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 111 retains family housing and safe bed accounting, and records new adult households. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -367,7 +367,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 110 includes construction, consent, occupancy and exact legacy bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 111 includes construction, consent, occupancy and exact legacy bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -560,7 +560,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.10 adds explicit new apartment declarations, private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
+Edition 0.11 adds configurable new households for unassigned adults and recorded partners, while preserving existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
 
 
 ## 22 Protect a building plot
@@ -642,7 +642,7 @@ Status: Available for saved families and explicitly donated homes. No physical c
 
 Enabled reviews inspect permitted housing in loaded areas. A suitable existing family can keep its home under the new records. Otherwise a known overcrowded or unhoused family may take a suitable vacancy. Whole families must fit; they are never split to fill beds. Existing village housing remains while families transition gradually. A house can remain vacant when nobody suitable needs it.
 
-Saved residents and families remain the same people. New unrelated villagers are not inserted into a managed family simply because they stand nearby. Forming homes for people who have no saved household remains unfinished.
+Saved residents and families remain the same people. New unrelated villagers are not inserted into a managed family simply because they stand nearby. Eligible unassigned adults can now form a one-person household, or share one with an already recorded eligible partner. That creates a housing need, not free beds or an instant building. Existing families are preserved; see Chapter 26.
 
 ### Damage and repairs
 
@@ -691,3 +691,26 @@ Names use 1 to 24 lowercase letters, digits, underscores or hyphens. Four editor
 ### What happens next
 
 Whole saved families can take suitable vacancies through the normal housing runtime. No suitable family can mean an empty unit. Whole-building reclamation uses Chapter 24. Per-unit reclamation, registered-boundary revisions and physical apartment construction remain unfinished.
+
+
+## 26 New adult households
+
+Status: Available during complete permitted housing reviews. This groups existing saved people; it does not spawn new residents.
+
+### Why it matters
+
+An adult who arrives near an already assigned home cannot simply be inserted into the incumbent family. The plugin can now form a new one-person household for that adult, or keep two already recorded eligible partners together. The new household can take a suitable inspected vacancy or remain a known housing need. There are no free beds, building, cash or extra food supplies.
+
+### Who qualifies
+
+Adults must be alive, in the same saved village and without a household. Existing household members stay where they are. Only already recorded partners can form a pair; this feature does not create romance. Children do not form adult households and gain no invented parents.
+
+Ambiguous partnerships, a partner already housed elsewhere, or known unassigned children needing care hold the case for later review. The prototype does not split or merge existing families to resolve those cases. No new housing is promised merely because a household is formed.
+
+### Editable limits
+
+config.yml household-formation defaults to enabled true, maximum-per-month 2 and maximum-candidates 128. The monthly limit is shared across the village's reviews and uses civilization months. Repeated scans do not bypass it. Restart after editing. Disabling formation keeps existing families and homes intact; invalid formation settings disable this feature while saved housing continues.
+
+It runs only during complete permitted housing reviews in a present world. Missing chunks, absent worlds and unreviewed homes do not create households. Villages with no permitted housing review still wait. Saved household/member history prevents duplicate formation after retries or restart. Formed households enter the same needs, food and housing accounting as existing households.
+
+Related chapters: families, housing, apartment declarations and server tuning. Whole families still need a suitable permitted vacancy before gaining housing capacity.

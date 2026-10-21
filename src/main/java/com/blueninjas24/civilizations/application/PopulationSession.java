@@ -121,6 +121,11 @@ public final class PopulationSession implements AutoCloseable {
     private volatile String constructionDeliveryFailure;
     private volatile String constructionDeliveryStatus="Construction: waiting for simulation. Automatic building is not enabled.";
     private volatile String housingStatus="Housing: waiting for permitted home review";
+    private com.blueninjas24.civilizations.population.HouseholdFormationPolicy householdFormation=com.blueninjas24.civilizations.population.HouseholdFormationPolicy.disabled();
+    public void configureHouseholdFormation(com.blueninjas24.civilizations.population.HouseholdFormationPolicy policy){
+        if(started.get())throw new IllegalStateException("Configure household formation before session starts");
+        householdFormation=java.util.Objects.requireNonNull(policy);
+    }
     public String housingDiagnostic(){return housingStatus;}
     public String constructionDiagnostic() {
         return constructionDeliveryFailure==null
@@ -1490,7 +1495,8 @@ public final class PopulationSession implements AutoCloseable {
             requireBuildingWorld(layout.world(),observation.world());long time=now.getAsLong();
             var assessment=com.blueninjas24.civilizations.construction.DwellingInspection.inspect(layout,observation,time,30_000,policy);
             var report=new com.blueninjas24.civilizations.database.DwellingHousing(database.getConnection()).reconcile(layout,assessment,
-                    new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(layout.world(),true,policy,time));
+                    new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(layout.world(),true,policy,time),
+                    householdFormation,settings.population().adulthoodSteps(),status.get().completedMonths());
             housingStatus="Housing: "+report.explanation()+"; assigned "+report.assigned()+", empty homes released "+report.released()+". Automatic construction remains off.";
             return report;
         });

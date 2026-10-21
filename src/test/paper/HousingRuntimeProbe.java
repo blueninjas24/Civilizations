@@ -20,7 +20,8 @@ public final class HousingRuntimeProbe extends JavaPlugin {
     private final UUID actor=UUID.randomUUID();private final AtomicInteger reviews=new AtomicInteger();
     private World world;private BuildingLayout layout;private PopulationSession session;private PaperHousingRuntime runtime;
     private Path data;private CompletableFuture<?> work;private int phase,ticks;private boolean authorized;
-    private UUID family;private Set<UUID> residents;private Position roof;
+    private UUID family,newAdult;private Set<UUID> residents;private Position roof;
+    private final List<UUID> entityIds=List.of(UUID.randomUUID(),UUID.randomUUID());
     private PaperDwellingReview donorReview;private final List<String> donorMessages=new ArrayList<>();
     @Override public void onEnable(){try {
         var root=getServer().getWorldContainer().toPath().toRealPath();
@@ -39,7 +40,7 @@ public final class HousingRuntimeProbe extends JavaPlugin {
             case 0->{prepare();session=newSession();work=session.start(false,Set.of(world.getUID()));phase=1;}
             case 1->{
                 var beds=layout.units().getFirst().beds().stream().map(b->new VillageObservation.Position(b.head().x(),b.head().y(),b.head().z())).toList();
-                var people=List.of(new VillageObservation.Person(UUID.randomUUID(),beds.getFirst(),true,"Fixture first"),new VillageObservation.Person(UUID.randomUUID(),beds.get(1),true,"Fixture second"));
+                var people=List.of(new VillageObservation.Person(entityIds.getFirst(),beds.getFirst(),true,"Fixture first"),new VillageObservation.Person(entityIds.get(1),beds.get(1),true,"Fixture second"));
                 work=session.observe(new VillageObservation(world.getUID(),"fixture",System.currentTimeMillis(),true,beds,people));phase=2;
             }
             case 2->{UUID town=session.settlementNames().keySet().iterator().next();layout=new BuildingLayout(layout.id(),town,world.getUID(),layout.kind(),layout.plot(),layout.structure(),layout.entrance(),layout.shared(),layout.units());
@@ -51,7 +52,17 @@ public final class HousingRuntimeProbe extends JavaPlugin {
             case 6->{var state=session.snapshot().orElseThrow();check(state.residents().size()==2,"No population created");family=state.residents().getFirst().householdId();
                 residents=new HashSet<>();for(var person:state.residents())residents.add(person.id());
                 check(state.householdCapacity().get(family)==4,"Actual four-bed home replaces old eight-person bed-group capacity");
-                work=session.housingSummary(layout.id(),actor,false,world.getUID());phase=18;}
+                UUID newEntity=UUID.randomUUID();newAdult=UUID.nameUUIDFromBytes(("Civilizations:resident:"+world.getUID()+":"+newEntity).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                var beds=layout.units().getFirst().beds().stream().map(b->new VillageObservation.Position(b.head().x(),b.head().y(),b.head().z())).toList();
+                var observed=new ArrayList<VillageObservation.Person>();for(var id:entityIds)observed.add(new VillageObservation.Person(id,beds.getFirst(),true,"Retained fixture adult"));
+                observed.add(new VillageObservation.Person(newEntity,beds.getFirst(),true,"Unassigned new fixture adult"));
+                work=session.observe(new VillageObservation(world.getUID(),"fixture",System.currentTimeMillis(),true,beds,observed));phase=20;}
+            case 20->{startRuntime();work=null;phase=21;}
+            case 21->{if(reviews.get()<1)return;stopRuntime();work=session.pulse();phase=22;}
+            case 22->{var state=session.snapshot().orElseThrow();var person=state.residents().stream().filter(p->p.id().equals(newAdult)).findFirst().orElseThrow();
+                check(person.householdId()!=null&&!person.householdId().equals(family),"Unassigned adult forms own household, never inserted into incumbent family");
+                check(state.householdCapacity().get(person.householdId())==0,"No invented bed capacity when existing home is occupied");
+                residents.add(newAdult);work=session.housingSummary(layout.id(),actor,false,world.getUID());phase=18;}
             case 18->{check(((List<?>)work.join()).stream().anyMatch(s->s.toString().contains("2 living residents; saved effective capacity 4")),"Donor sees real saved family occupancy");
                 var player=(org.bukkit.entity.Player)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{org.bukkit.entity.Player.class},(p,m,a)->switch(m.getName()) {
                     case "getUniqueId"->actor;case "getWorld"->world;case "hasPermission"->a[0].equals(PaperHomeDonation.PERMISSION);
@@ -86,20 +97,22 @@ public final class HousingRuntimeProbe extends JavaPlugin {
                 check(preview.housingAssignments().size()==1&&preview.legacyHousingFamilies().isEmpty(),"Reclamation impact names exactly the current assignment");
                 work=session.confirmBuildingConsent(actor,world.getUID(),preview.token(),false,false,true,false);phase=16;}
             case 16->{work=session.pulse();phase=17;}
-            case 17->{var state=session.snapshot().orElseThrow();check(state.householdCapacity().get(family)==0&&state.residents().size()==2,"Reclamation removes capacity without removing residents or reviving legacy beds");
+            case 17->{var state=session.snapshot().orElseThrow();check(state.householdCapacity().get(family)==0&&state.residents().size()==3,"Reclamation removes capacity without removing residents or reviving legacy beds");
                 session.close();session=null;
                 try(var c=DriverManager.getConnection("jdbc:sqlite:"+data.resolve("civilizations.db"));var s=c.createStatement()) {
                     try(var r=s.executeQuery("SELECT count(*) FROM dwelling_active_occupancy")){check(r.getInt(1)==0,"Reclaimed unit is vacant");}
                     try(var r=s.executeQuery("SELECT count(*) FROM dwelling_assignments")){check(r.getInt(1)==1,"Repeated reviews never duplicate assignments");}
                     try(var r=s.executeQuery("SELECT count(*) FROM dwelling_bed_claims")){check(r.getInt(1)==4,"Four permanent bed exclusions from legacy accounting");}
+                    try(var r=s.executeQuery("SELECT count(*) FROM household_formations")){check(r.getInt(1)==1,"New adult household formation retained exactly once across restart");}
                     try(var r=s.executeQuery("PRAGMA integrity_check")){check(r.getString(1).equals("ok"),"SQLite integrity");}
                     try(var r=s.executeQuery("PRAGMA foreign_key_check")){check(!r.next(),"SQLite foreign keys");}
                 }
-                cleanup();getLogger().info("P4_HOUSING_RUNTIME_PASS: real four-bed home; explicit donation; existing family adopted whole; old eight-capacity becomes four; donation-only donor receives real saved-family status and native inspection; roof loss zero and repair four; changed two-pass survey unknown; absent-world pause; restart keeps residents/assignment; confirmed donor reclamation removes capacity without legacy fallback or resident loss; no duplicate homes;144 cells restored");phase=99;}
+                cleanup();getLogger().info("P4_HOUSING_RUNTIME_PASS: real four-bed home; explicit donation; existing family adopted whole; old eight-capacity becomes four; approved new adult household with zero invented beds; donation-only donor receives real saved-family status and native inspection; roof loss zero and repair four; changed two-pass survey unknown; absent-world pause; restart keeps residents/assignment and one formation; confirmed donor reclamation removes capacity without legacy fallback or resident loss; no duplicate homes;144 cells restored");phase=99;}
             default->throw new IllegalStateException("Unexpected phase");
         }
     }
-    private PopulationSession newSession(){return new PopulationSession(data.toFile(),getLogger(),PopulationSession.Settings.prototype(),System::currentTimeMillis);}
+    private PopulationSession newSession(){var s=new PopulationSession(data.toFile(),getLogger(),PopulationSession.Settings.prototype(),System::currentTimeMillis);
+        s.configureHouseholdFormation(com.blueninjas24.civilizations.population.HouseholdFormationPolicy.prototype());return s;}
     private void startRuntime(){reviews.set(0);runtime=new PaperHousingRuntime(new PaperHousingRuntime.Owner(){
         public CompletableFuture<PopulationSession.HousingPage> page(UUID after){return session.housingPage(after,8);}
         public CompletableFuture<DwellingHousing.Report> review(BuildingLayout l,DwellingInspection.Observation o){return session.reconcileHousing(l,o,DwellingInspection.Policy.prototype()).thenApply(report->{reviews.incrementAndGet();return report;});}

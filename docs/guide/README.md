@@ -3,10 +3,10 @@
 The living handbook is [PLAYER_AND_SERVER_GUIDE.md](PLAYER_AND_SERVER_GUIDE.md).
 The readable PDF is [Civilizations Player and Server Guide](../../output/pdf/Civilizations_Player_and_Server_Guide.pdf).
 
-Edition 0.10 contains a quick overview, TL DR, chapter list, 25 feature/reference
+Edition 0.11 contains a quick overview, TL DR, chapter list, 26 feature/reference
 chapters, player/admin commands, permissions, troubleshooting, server procedures,
 terms and a connected village example. Each feature identifies implemented,
-development-only or planned behavior. Off-limits plot selection/protection and confirmed release and read-only saved-housing inspection with configurable covered beds now work. Single-home donation, live whole-family housing and confirmed donor repossession are available. Explicit new apartment declarations are available. Registered-layout revisions remain unfinished.
+development-only or planned behavior. Off-limits plot selection/protection and confirmed release and read-only saved-housing inspection with configurable covered beds now work. Single-home donation, live whole-family housing and confirmed donor repossession are available. Explicit new apartment declarations are available. Registered-layout revisions remain unfinished. Configurable formation for unassigned adults/recorded partners is now available.
 
 ## Update workflow
 

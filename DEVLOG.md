@@ -1,5 +1,40 @@
 # Civilizations Development Log
 
+## 2026-10-20 — approved new adult households and scan-safe housing need
+
+Implemented the user's approved single-adult/already-recorded-partner household
+formation. Complete permitted live housing reviews call the serialized transaction,
+using existing adulthood age and configurable enabled/month/candidate limits.
+Defaults:2 households per village civilization month,128 founder candidates/pass;
+repeated scans share the saved cap. Stable derived identity and schema111 formation/
+member receipts preserve history and prevent duplicates. Existing families, children,
+people, money and housing rights are untouched. Ambiguous/housed partners and known
+unassigned dependent children hold for later review rather than forcing family moves.
+
+Formation, membership, known zero capacity and history commit together. Fixed an
+integration risk found during review: later enrollment refreshes raw bed-group
+capacity, so explicitly formed households now retain known zero through that refresh.
+Active inspected assignments still supply actual capacity. Atomic failure/retry,
+month cap, partner/family/child holds, additive110 upgrade and real vacancy assignment
+are covered by focused temporary-SQLite tests. No production DB reset or server copy.
+
+First focused run exposed three old migration snapshot SQL exclusion lists that
+needed the two new empty tables; updated fixture lists/rewind order without changing
+application behavior. Final migration/population clean verify74 unit +3 packaged
+checks passed1:06. After the capacity safeguard, `.\mvnw.cmd -Dtest=HouseholdFormationTest,HouseholdFormationConfigurationTest,DwellingOccupancyTest,HomeDonationPreviewTest,SchemaMigratorTest,DemographicRepositoryTest,VillageEnrollmentRepositoryTest clean verify`
+passed60 unit +3 packaged checks54.475s, zero failures/errors/skips. No new broad-suite
+run is claimed. Updated native helper initially mixed resident/entity UUIDs; fixed
+only the helper, preserving real enrollment identity rules, and repeated successfully.
+
+Actual private Paper26.2 build129: existing family kept intact; a separately imported
+adult formed one zero-capacity household; native beds/roof/access, damage/repair,
+absent world, SQL-session restart and donor reclamation retained three people and
+one formation history. Restored144 cells; fixture stopped/helper archived; both DBs
+schema111/integrity ok/FKs0. Actual user's server untouched. Updated current status,
+progress, checklist, formation documentation and handbook0.11 (28 pages/26 chapters),
+with all pages rendered/reviewed. P4 remains25% until complete gates pass. Automatic
+construction, saved-boundary revisions and business-premises reuse remain ahead.
+
 ## 2026-10-20 — saved housing candidates before construction
 
 Connected current effective capacity, living saved households and permitted fresh

@@ -46,6 +46,12 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Approved new adult households now form with recorded partners only and configurable
+shared village/month limits. Existing families/children remain intact. Schema111
+and real inspected-vacancy integration passed focused population/migration checks
+and a disposable Paper family/new-adult/restart/reclamation proof. This supports
+actual housing needs; no automatic building or new whole gate is claimed.
+
 Explicit new apartment declarations now mark private rooms, shared circulation
 and separate plots before bounded current-world review and confirmed donation.
 Registered layouts are never overwritten. The usual whole-family runtime can use

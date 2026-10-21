@@ -168,6 +168,8 @@ public final class Civilizations extends JavaPlugin {
             pens.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(pens,this);
             try {
                 var buildingSettings=com.blueninjas24.civilizations.paper.BuildingProtectionSettings.read(getConfig());
+                try{population.configureHouseholdFormation(com.blueninjas24.civilizations.paper.HouseholdFormationConfiguration.read(getConfig()));}
+                catch(IllegalArgumentException invalid){getLogger().log(Level.WARNING,"New household formation disabled; fix household-formation settings and restart. Saved housing remains active.",invalid);}
                 buildings=new com.blueninjas24.civilizations.paper.PaperBuildingProtection(population,buildingSettings,getLogger());
                 dwellingReview=new com.blueninjas24.civilizations.paper.PaperDwellingReview(population,
                         new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(buildingSettings.requireCoveredBeds()),getLogger());

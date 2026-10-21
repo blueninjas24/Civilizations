@@ -29,9 +29,15 @@ public final class DwellingHousing {
         return List.copyOf(result);
     }
     public Report reconcile(BuildingLayout layout,DwellingInspection.Assessment assessment,DwellingOccupancy.Context context)throws SQLException {
+        return reconcile(layout,assessment,context,com.blueninjas24.civilizations.population.HouseholdFormationPolicy.disabled(),1,0);
+    }
+    public Report reconcile(BuildingLayout layout,DwellingInspection.Assessment assessment,DwellingOccupancy.Context context,
+            com.blueninjas24.civilizations.population.HouseholdFormationPolicy formation,long adulthood,long step)throws SQLException {
         var repository=new DwellingOccupancy(connection);
         var outcome=repository.review(UUID.randomUUID(),layout.id(),assessment,context);
         if(outcome==DwellingOccupancy.Outcome.UNVERIFIED)return new Report(outcome,0,0,"Incomplete housing evidence; previous state retained");
+        if(repository.vacancies(layout.id(),context).verified())
+            new HouseholdFormation(connection).form(layout.settlement(),layout.world(),adulthood,step,context.now(),formation);
         int released=0,assigned=0;
         var living=new TreeMap<UUID,Integer>();
         try(var s=connection.prepareStatement("SELECT household_id,count(*) FROM residents WHERE settlement_id=? AND status='ALIVE' AND household_id IS NOT NULL GROUP BY household_id ORDER BY household_id")) {

@@ -110,6 +110,11 @@ final class HousingCapacity {
                 }
             }
         }
+        // An explicitly formed household has a known housing need even after enrollment refreshes raw
+        // bed-group capacity. Only these recorded formations get zero; arbitrary old unknown homes do not.
+        try(var s=c.prepareStatement("SELECT h.id FROM households h JOIN household_formations f ON f.household_id=h.id"+filter)) {
+            if(town!=null)s.setString(1,town.toString());try(var r=s.executeQuery()){while(r.next())result.putIfAbsent(UUID.fromString(r.getString(1)),0);}
+        }
         try(var s=c.prepareStatement("SELECT DISTINCT h.id FROM households h JOIN dwelling_assignments a ON a.household_id=h.id"+filter)) {
             if(town!=null)s.setString(1,town.toString());try(var r=s.executeQuery()){while(r.next())result.put(UUID.fromString(r.getString(1)),0);}
         }
