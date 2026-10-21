@@ -15,6 +15,12 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Saved home-project status now reads active/cancelled family plans, site holds,
+  paid orders, durable intents, current need pauses and unused-cancellation
+  eligibility without writes. Active projects come first; bounded to8 plus a
+  retained-history notice. Atomic unused retirement releases site/family together
+  or rolls both back; paid/started work is refused. Wrapper50 +3 passed51.789s.
+  Serialized preparation/status/retirement APIs exist; admin controls next.
 - Hosted Linux at checkpoint e036932 exposed one historical rollback-fixture
   error among2181 unit cases: a deliberately schema12 DB was read through the
   current managed-housing API. The fixture now verifies legacy people/families/

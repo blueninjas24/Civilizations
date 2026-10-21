@@ -67,24 +67,26 @@ public final class ConstructionSiteReservations {
     /** Release is limited to unused proposals or completely returned stockpiles; any prepared native work blocks it. */
     public Reservation releaseUnused(UUID draftId,long now)throws SQLException {
         if(now<0)throw new IllegalArgumentException("Negative release time");
-        return transaction(()->{
-            var saved=find(draftId).orElseThrow(()->new SQLException("Construction site not reserved"));
-            if(!saved.active())return saved;
-            if(now<saved.reservedMillis())throw new SQLException("Construction release precedes reservation");
-            try(var s=c.prepareStatement("SELECT 1 FROM construction_supply_orders WHERE draft_id=? LIMIT 1")) {
-                s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Paid supplier cargo/stock retains its project site until reviewed return handling");}
-            }
-            try(var s=c.prepareStatement("SELECT 1 FROM construction_block_journal WHERE draft_id=? LIMIT 1")) {
-                s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Started construction requires reviewed physical recovery and site history");}
-            }
-            try(var s=c.prepareStatement("SELECT operation_id FROM construction_material_reservations WHERE draft_id=?")) {
-                s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next()&&!new ConstructionMaterialReturns(c).returned(UUID.fromString(r.getString(1))))throw new SQLException("Funded construction retains its site until all unused materials return");}
-            }
-            try(var s=c.prepareStatement("UPDATE construction_site_reservations SET released_ms=? WHERE draft_id=? AND released_ms IS NULL")) {
-                s.setLong(1,now);s.setString(2,draftId.toString());if(s.executeUpdate()!=1)throw new SQLException("Construction reservation changed");
-            }
-            return find(draftId).orElseThrow();
-        });
+        return transaction(()->releaseUnusedRows(draftId,now));
+    }
+    Reservation releaseUnusedRows(UUID draftId,long now)throws SQLException {
+        if(c.getAutoCommit())throw new SQLException("Unused site release requires the SQL owner's transaction");
+        var saved=find(draftId).orElseThrow(()->new SQLException("Construction site not reserved"));
+        if(!saved.active())return saved;
+        if(now<saved.reservedMillis())throw new SQLException("Construction release precedes reservation");
+        try(var s=c.prepareStatement("SELECT 1 FROM construction_supply_orders WHERE draft_id=? LIMIT 1")) {
+            s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Paid supplier cargo/stock retains its project site until reviewed return handling");}
+        }
+        try(var s=c.prepareStatement("SELECT 1 FROM construction_block_journal WHERE draft_id=? LIMIT 1")) {
+            s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next())throw new SQLException("Started construction requires reviewed physical recovery and site history");}
+        }
+        try(var s=c.prepareStatement("SELECT operation_id FROM construction_material_reservations WHERE draft_id=?")) {
+            s.setString(1,draftId.toString());try(var r=s.executeQuery()){if(r.next()&&!new ConstructionMaterialReturns(c).returned(UUID.fromString(r.getString(1))))throw new SQLException("Funded construction retains its site until all unused materials return");}
+        }
+        try(var s=c.prepareStatement("UPDATE construction_site_reservations SET released_ms=? WHERE draft_id=? AND released_ms IS NULL")) {
+            s.setLong(1,now);s.setString(2,draftId.toString());if(s.executeUpdate()!=1)throw new SQLException("Construction reservation changed");
+        }
+        return find(draftId).orElseThrow();
     }
     /** Rechecked in the same owner transaction as a new material debit. A new player protection pauses the project. */
     void requireActiveRows(ConstructionDraft draft)throws SQLException {

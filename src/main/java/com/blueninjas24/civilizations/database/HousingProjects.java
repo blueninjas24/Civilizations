@@ -114,26 +114,42 @@ public final class HousingProjects {
     /** Only unused, released projects may lose their household reservation; assets/history are retained. */
     public Binding cancel(UUID operation,UUID draft,long atMillis,DwellingOccupancy.Context context)throws SQLException{
         Objects.requireNonNull(operation);
+        return transaction(()->cancelRows(operation,draft,atMillis,context));
+    }
+    Binding cancelRows(UUID operation,UUID draft,long atMillis,DwellingOccupancy.Context context)throws SQLException{
+        if(c.getAutoCommit())throw new SQLException("Home cancellation requires the SQL owner's transaction");
+        var binding=find(draft).orElseThrow(()->new BuildingRegistry.Declined("Unknown household project"));
+        if(!context.present()||!binding.world().equals(context.world())||atMillis<binding.proposal().createdMillis()||atMillis>context.now())
+            throw new BuildingRegistry.Declined("Home cancellation world/time changed");
+        if(!binding.active()){
+            if(!operation.equals(binding.cancellation())||!Objects.equals(atMillis,binding.cancelledMillis()))throw new BuildingRegistry.Declined("Home project already cancelled under different terms");
+            return binding;
+        }
+        var site=new ConstructionSiteReservations(c).find(draft);
+        if(site.isPresent()&&site.get().active())throw new BuildingRegistry.Declined("Release the unused site before cancelling its household proposal");
+        for(var table:List.of("construction_block_journal","construction_supply_orders"))if(hasRows(table,draft))
+            throw new BuildingRegistry.Declined("Started or paid-supply home needs reviewed recovery; household reservation retained");
+        try(var s=c.prepareStatement("SELECT operation_id FROM construction_material_reservations WHERE draft_id=?")){
+            s.setString(1,draft.toString());try(var r=s.executeQuery()){while(r.next())if(!new ConstructionMaterialReturns(c).returned(UUID.fromString(r.getString(1))))
+                throw new BuildingRegistry.Declined("Return all unused materials before cancelling the home proposal");}
+        }
+        try(var s=c.prepareStatement("UPDATE housing_project_bindings SET cancel_operation=?,cancelled_ms=? WHERE draft_id=? AND cancelled_ms IS NULL")){
+            s.setString(1,operation.toString());s.setLong(2,atMillis);s.setString(3,draft.toString());if(s.executeUpdate()!=1)throw new SQLException("Housing project changed");
+        }
+        return find(draft).orElseThrow();
+    }
+    /** Release only the unused site and cancel its family reservation together; never refunds or removes blocks. */
+    public Binding retireUnused(UUID operation,UUID draft,long atMillis,DwellingOccupancy.Context context)throws SQLException{
+        Objects.requireNonNull(operation);
         return transaction(()->{
             var binding=find(draft).orElseThrow(()->new BuildingRegistry.Declined("Unknown household project"));
             if(!context.present()||!binding.world().equals(context.world())||atMillis<binding.proposal().createdMillis()||atMillis>context.now())
-                throw new BuildingRegistry.Declined("Home cancellation world/time changed");
-            if(!binding.active()){
-                if(!operation.equals(binding.cancellation())||!Objects.equals(atMillis,binding.cancelledMillis()))throw new BuildingRegistry.Declined("Home project already cancelled under different terms");
-                return binding;
+                throw new BuildingRegistry.Declined("Unused home retirement world/time changed");
+            if(binding.active()){
+                var sites=new ConstructionSiteReservations(c);var site=sites.find(draft);
+                if(site.isPresent()&&site.orElseThrow().active())sites.releaseUnusedRows(draft,atMillis);
             }
-            var site=new ConstructionSiteReservations(c).find(draft);
-            if(site.isPresent()&&site.get().active())throw new BuildingRegistry.Declined("Release the unused site before cancelling its household proposal");
-            for(var table:List.of("construction_block_journal","construction_supply_orders"))if(hasRows(table,draft))
-                throw new BuildingRegistry.Declined("Started or paid-supply home needs reviewed recovery; household reservation retained");
-            try(var s=c.prepareStatement("SELECT operation_id FROM construction_material_reservations WHERE draft_id=?")){
-                s.setString(1,draft.toString());try(var r=s.executeQuery()){while(r.next())if(!new ConstructionMaterialReturns(c).returned(UUID.fromString(r.getString(1))))
-                    throw new BuildingRegistry.Declined("Return all unused materials before cancelling the home proposal");}
-            }
-            try(var s=c.prepareStatement("UPDATE housing_project_bindings SET cancel_operation=?,cancelled_ms=? WHERE draft_id=? AND cancelled_ms IS NULL")){
-                s.setString(1,operation.toString());s.setLong(2,atMillis);s.setString(3,draft.toString());if(s.executeUpdate()!=1)throw new SQLException("Housing project changed");
-            }
-            return find(draft).orElseThrow();
+            return cancelRows(operation,draft,atMillis,context);
         });
     }
     private void requireDry(UUID draft)throws SQLException{

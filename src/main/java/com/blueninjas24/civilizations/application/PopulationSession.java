@@ -1489,6 +1489,18 @@ public final class PopulationSession implements AutoCloseable {
                     frozen,planner,land,settings.seed(),status.get().completedMonths());
         });
     }
+    public CompletableFuture<com.blueninjas24.civilizations.database.HousingProjectStatus.Report> housingProjectStatus(
+            UUID village,UUID world,com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy){
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.HousingProjectStatus(database.getConnection()).read(village,
+                new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,loadedWorlds!=null&&loadedWorlds.contains(world),policy,now.getAsLong()));});
+    }
+    /** Trusted confirmed adapter only. Atomic unused release; paid/started work remains held for reviewed recovery. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.HousingProjects.Binding> retireUnusedHousingProject(
+            UUID operation,UUID draft,UUID world,long submittedMillis){
+        return submit(()->{requireBuildingWorld(world,world);return new com.blueninjas24.civilizations.database.HousingProjects(database.getConnection()).retireUnused(operation,draft,submittedMillis,
+                new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,true,
+                        com.blueninjas24.civilizations.construction.DwellingInspection.Policy.prototype(),now.getAsLong()));});
+    }
     /** Pure bounded path review on the owner worker, never the server thread. No database mutation. */
     public CompletableFuture<com.blueninjas24.civilizations.construction.DwellingInspection.Assessment> inspectBuildingBeds(
             com.blueninjas24.civilizations.construction.BuildingLayout layout,

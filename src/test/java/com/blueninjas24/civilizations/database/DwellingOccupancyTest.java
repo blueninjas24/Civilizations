@@ -137,6 +137,39 @@ class DwellingOccupancyTest {
             assertTrue(new ConstructionSiteReservations(c).find(draft.id()).orElseThrow().active());healthy(c);
         }
     }
+    @Test void projectStatusIsReadOnlyAndShowsCurrentNeedHistoryAndAbsentWorldHolds()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var receipt=prepare(c,preparation(70),1200);long writes=number(c,"SELECT total_changes()");
+            var status=new HousingProjectStatus(c);var report=status.read(town,context(1200));
+            assertEquals(1,report.items().size());assertTrue(report.items().getFirst().unused());assertTrue(report.items().getFirst().siteHeld());
+            assertTrue(report.items().getFirst().pause().isEmpty());assertEquals("starter_home",report.items().getFirst().plan());
+            assertEquals(writes,number(c,"SELECT total_changes()"));assertFalse(report.more());assertTrue(report.describe().getFirst().contains("Inspection only"));
+            var absent=status.read(town,new Context(world,false,Policy.prototype(),1200));
+            assertFalse(absent.items().getFirst().unused());assertTrue(absent.items().getFirst().pause().orElseThrow().contains("World absent"));
+            assertThrows(BuildingRegistry.Declined.class,()->status.read(town,new Context(id(99),true,Policy.prototype(),1200)));
+            sql(c,"UPDATE household_capacity SET capacity=7");assertTrue(status.read(town,context(1200)).items().getFirst().pause().orElseThrow().contains("sufficient housing"));
+            assertEquals(receipt.family(),new HousingProjects(c).find(id(70)).orElseThrow());healthy(c);
+        }
+    }
+    @Test void unusedRetirementReleasesSiteAndFamilyTogetherAndRollsBothBackOnFailure()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);prepare(c,preparation(70),1200);var projects=new HousingProjects(c);var sites=new ConstructionSiteReservations(c);
+            assertThrows(BuildingRegistry.Declined.class,()->projects.retireUnused(id(80),id(70),1300,new Context(id(99),true,Policy.prototype(),1300)));
+            sql(c,"CREATE TRIGGER fail_retirement BEFORE UPDATE ON housing_project_bindings BEGIN SELECT RAISE(ABORT,'injected'); END");
+            assertThrows(SQLException.class,()->projects.retireUnused(id(80),id(70),1300,context(1300)));
+            assertTrue(projects.find(id(70)).orElseThrow().active());assertTrue(sites.find(id(70)).orElseThrow().active());assertTrue(c.getAutoCommit());
+            sql(c,"DROP TRIGGER fail_retirement");var retired=projects.retireUnused(id(80),id(70),1300,context(1300));
+            assertFalse(retired.active());assertFalse(sites.find(id(70)).orElseThrow().active());
+            assertEquals(retired,projects.retireUnused(id(80),id(70),1300,context(1400)));
+            assertThrows(BuildingRegistry.Declined.class,()->projects.retireUnused(id(81),id(70),1400,context(1400)));
+            prepare(c,preparation(71),1400);new ConstructionBlockJournal(c).prepare(id(90),id(71),0,"minecraft:cobblestone");
+            assertThrows(SQLException.class,()->projects.retireUnused(id(82),id(71),1500,context(1500)));
+            assertTrue(projects.find(id(71)).orElseThrow().active());assertTrue(sites.find(id(71)).orElseThrow().active());
+            var report=new HousingProjectStatus(c).read(town,context(1500));assertEquals(id(71),report.items().getFirst().family().proposal().draft());
+            assertFalse(report.items().getFirst().unused());assertEquals(1,report.items().getFirst().intents());
+            assertFalse(report.items().getLast().family().active());assertEquals(3,number(c,"SELECT count(*) FROM residents"));healthy(c);
+        }
+    }
     @Test void homeProjectsReserveOnlyTheirFamilyAndKeepReceiptsAcrossRestart()throws Exception {
         HousingProjects.Binding saved;
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){

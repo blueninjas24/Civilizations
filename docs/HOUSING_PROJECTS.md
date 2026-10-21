@@ -42,6 +42,15 @@ can resume when need returns. Durable native intents retain existing recovery/
 completion because a lost acknowledgement could mean world blocks exist already.
 No reassignment, deletion or free refund is performed. Wrapper56 +3 passed55.343s.
 
+Read-only project status now reports up to8 retained projects, active first,
+with plan/family/site identity, paid orders, durable physical intents, current
+need pauses and unused-cancellation eligibility. More history is retained, not
+discarded. Atomic unused retirement releases site and household reservation
+together; failure rolls both back. Paid supplies, native intents and unreturned
+owned materials hold for reviewed recovery. Exact cancellation receipts never
+reactivate work. Wrapper50 +3 passed51.789s. These are SQL-owner APIs; live admin
+controls are the next connection.
+
 Current limitations: no automatic proposal timer, physical production writer,
 completed-home activation, started-project cancellation or migration of historical
 unbound projects. Completed-home lifecycle remains part of the construction gate.

@@ -1,5 +1,23 @@
 # Civilizations Development Log
 
+## 2026-10-21 — retained project status and atomic unused retirement
+
+HousingProjectStatus reads up to8 active-first saved family projects, frozen plan,
+site hold, paid orders, durable intents, current need pause and unused-cancellation
+eligibility. Additional history is explicitly retained; absent worlds cannot
+claim current cancellation eligibility. No writes occur during inspection.
+HousingProjects.retireUnused composes site release and family cancellation in
+one owner transaction. Paid supply, prepared work or unreturned owned stock hold
+for reviewed recovery. Exact receipt retries never revive a cancelled project.
+PopulationSession exposes serialized reads and trusted-adapter retirement.
+
+Focused `.\mvnw.cmd -Dtest=DwellingOccupancyTest,ConstructionSiteReservationsTest,ConstructionSupplyOrdersTest,ConstructionMaterialsTest clean verify` passed50 unit
++3 packaged checks51.789s. Two temporary-SQLite cases prove read-only status,
+current-need/absent-world reporting, cancelled history, final-update rollback,
+exact retry, active-first order and refusal to discard prepared work. No migration
+or server change. No player command in this backend batch; admin controls next.
+P4 remains25%/4 of16; schema113 preserved.
+
 ## 2026-10-21 — historical rollback assertion after hosted regression
 
 Read the hosted Linux failure for e036932:2181 unit cases, zero assertion

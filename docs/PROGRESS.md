@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Saved housing projects now have read-only status and safe unused-cancellation
+backend support. Site and family reservations release together; a failed save
+changes neither. Paid/started work remains protected. Wrapper50 +3 passed; admin
+controls are next, with no new whole Phase4 gate claimed.
+
 Hosted regression follow-up: corrected an old rollback test that called the new
 housing reader on a deliberately old database. Local9 +3 checks pass; hosted
 Windows/Linux verification of the latest candidate is still pending.
