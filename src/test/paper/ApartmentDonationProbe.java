@@ -21,6 +21,7 @@ public final class ApartmentDonationProbe extends JavaPlugin {
     private World world;private PopulationSession session;private PaperHomeDonation controls;private Player player;
     private PaperRenovationConsent renovations;private final List<net.kyori.adventure.text.Component> buttons=new ArrayList<>();
     private PaperHousingCandidates housingReports;private boolean reportPermission;
+    private PaperHousingProjectControls projectControls;
     private Bounds selected,structure;private Position origin,here;private Path data;
     private CompletableFuture<?> work;private CompletableFuture<PopulationSession.HomeDonationPreview> preview;
     private BuildingLayout saved;private int phase,ticks;private boolean authorized;
@@ -31,7 +32,7 @@ public final class ApartmentDonationProbe extends JavaPlugin {
         authorized=true;data=root.resolve("apartment-donation-probe");
         new BukkitRunnable(){public void run(){try{
             check(++ticks<1200&&getServer().getOnlinePlayers().isEmpty(),"Bounded empty fixture");
-            if(controls!=null)controls.run();if(renovations!=null)renovations.run();if(housingReports!=null)housingReports.run();if(work==null||work.isDone())step();
+            if(controls!=null)controls.run();if(renovations!=null)renovations.run();if(housingReports!=null)housingReports.run();if(projectControls!=null)projectControls.run();if(work==null||work.isDone())step();
         }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"P4_APARTMENT_FAIL phase="+phase,failure);cleanup();cancel();getServer().shutdown();}
         if(phase==99){cancel();getServer().shutdown();}}}.runTaskTimer(this,1,1);
     }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"Apartment fixture guard failed",failure);if(authorized)getServer().shutdown();}}
@@ -94,7 +95,19 @@ public final class ApartmentDonationProbe extends JavaPlugin {
                 reportPermission=true;route.onCommand(player,null,"civ",new String[]{"build","housing",saved.settlement().toString()});work=null;phase=14;}
             case 14->{if(messages.stream().noneMatch(s->s.startsWith("Housing candidates only:")))return;
                 check(messages.stream().anyMatch(s->s.contains("no projects, assignments, spending")),"Actual SQL housing report states read-only scope");
-                housingReports.close();housingReports=null;session.close();session=null;
+                housingReports.close();housingReports=null;
+                projectControls=new PaperHousingProjectControls(new PaperHousingProjectControls.Owner(){
+                    public CompletableFuture<HousingProjectStatus.Report> status(UUID v,UUID w){return session.housingProjectStatus(v,w,DwellingInspection.Policy.prototype());}
+                    public CompletableFuture<HousingProjectStatus.Item> inspect(UUID d,UUID w){return session.housingProjectInspection(d,w,DwellingInspection.Policy.prototype());}
+                    public CompletableFuture<HousingProjects.Binding> retire(UUID o,UUID d,UUID w,long at){return session.retireUnusedHousingProject(o,d,w,at);}
+                },id->player,System::currentTimeMillis,getLogger());
+                var library=PaperConstructionLibrary.load((JavaPlugin)getServer().getPluginManager().getPlugin("Civilizations"));
+                var route=new PaperConstructionPreview(library);route.configureProjects(projectControls);
+                route.onCommand(player,null,"civ",new String[]{"build","cancelproject",saved.id().toString()});
+                check(messages.getLast().contains("do not have permission"),"Read-only preview permission cannot cancel projects");
+                route.onCommand(player,null,"civ",new String[]{"build","projects",saved.settlement().toString()});phase=15;}
+            case 15->{if(messages.stream().noneMatch(s->s.startsWith("Saved home projects: 0")))return;
+                projectControls.close();projectControls=null;session.close();session=null;
                 try(var c=DriverManager.getConnection("jdbc:sqlite:"+data.resolve("civilizations.db"));var s=c.createStatement()){
                     try(var r=s.executeQuery("SELECT count(*) FROM building_units")){check(r.getInt(1)==2,"Exactly two saved units");}
                     try(var r=s.executeQuery("SELECT count(*) FROM building_renovation_events")){check(r.getInt(1)==2,"Separate grant and revocation history retained");}
@@ -103,7 +116,7 @@ public final class ApartmentDonationProbe extends JavaPlugin {
                     try(var r=s.executeQuery("PRAGMA integrity_check")){check(r.getString(1).equals("ok"),"SQLite integrity");}
                     try(var r=s.executeQuery("PRAGMA foreign_key_check")){check(!r.next(),"Foreign keys");}
                 }
-                cleanup();getLogger().info("P4_APARTMENT_PASS: donor injected actor without admin/protection; explicit private units/shared corridor; real beds/access/roof; preview grants nothing; explicit frozen confirmation; separate renovation grant/revoke confirmations and saved status; two stable saved units and two consent receipts survive SQL-session restart; permission-protected routed housing report reads real SQL and starts no project;144 cells restored");phase=99;}
+                cleanup();getLogger().info("P4_APARTMENT_PASS: donor injected actor without admin/protection; explicit private units/shared corridor; real beds/access/roof; preview grants nothing; explicit frozen confirmation; separate renovation grant/revoke confirmations and saved status; two stable saved units and two consent receipts survive SQL-session restart; routed housing/project reports read real SQL and start no project; read permission cannot cancel;144 cells restored");phase=99;}
             default->throw new IllegalStateException("Unknown phase");
         }
     }
@@ -116,6 +129,7 @@ public final class ApartmentDonationProbe extends JavaPlugin {
     private void prepare()throws Exception{
         var plugin=(JavaPlugin)getServer().getPluginManager().getPlugin("Civilizations");check(plugin!=null&&plugin.isEnabled(),"Production plugin enabled");
         check(getServer().getPluginManager().getPermission(PaperRenovationConsent.PERMISSION).getDefault()==org.bukkit.permissions.PermissionDefault.TRUE,"Installed renovation permission default");
+        check(getServer().getPluginManager().getPermission(PaperHousingProjectControls.MANAGE).getDefault()==org.bukkit.permissions.PermissionDefault.OP,"Project cancellation permission defaults to operators");
         world=getServer().getWorlds().getFirst();var spawn=world.getSpawnLocation();int x=spawn.getBlockX()+4,z=spawn.getBlockZ()+4;
         for(int cx=x>>4;cx<=(x+5)>>4;cx++)for(int cz=z>>4;cz<=(z+5)>>4;cz++){check(world.isChunkLoaded(cx,cz),"Loaded fixture only");world.addPluginChunkTicket(cx,cz,this);}
         origin=new Position(x,world.getHighestBlockYAt(x,z)+1,z);structure=box(0,0,5,5);
@@ -125,7 +139,7 @@ public final class ApartmentDonationProbe extends JavaPlugin {
         for(var stage:plan.stages())for(var cell:stage.blocks().entrySet()){var p=origin.plus(cell.getKey());world.getBlockAt(p.x(),p.y(),p.z()).setBlockData(getServer().createBlockData(cell.getValue()),false);}
         for(int dx:List.of(2,3))for(int dz:List.of(2,3)){var p=origin.plus(new Position(dx,1,dz));world.getBlockAt(p.x(),p.y(),p.z()).setType(Material.AIR,false);}
     }
-    private void cleanup(){if(controls!=null){controls.close();controls=null;}if(renovations!=null){renovations.close();renovations=null;}if(housingReports!=null){housingReports.close();housingReports=null;}if(session!=null){session.close();session=null;}
+    private void cleanup(){if(controls!=null){controls.close();controls=null;}if(renovations!=null){renovations.close();renovations=null;}if(housingReports!=null){housingReports.close();housingReports=null;}if(projectControls!=null){projectControls.close();projectControls=null;}if(session!=null){session.close();session=null;}
         if(!authorized||world==null)return;for(var e:originals.entrySet()){var p=e.getKey();check(world.isChunkLoaded(p.x()>>4,p.z()>>4),"Restore loaded-only");world.getBlockAt(p.x(),p.y(),p.z()).setBlockData(getServer().createBlockData(e.getValue()),false);}
         originals.clear();world.removePluginChunkTickets(this);}
     @Override public void onDisable(){cleanup();}

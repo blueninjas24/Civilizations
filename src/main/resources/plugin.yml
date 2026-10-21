@@ -28,6 +28,9 @@ permissions:
   civilizations.construction.preview:
     description: Inspect authored construction templates and read-only site previews; grants no block-changing permission.
     default: op
+  civilizations.construction.manage:
+    description: Preview and explicitly confirm cancellation of unused home projects only; cannot discard paid goods, started buildings or history.
+    default: op
   civilizations.pen.admin:
     description: Explicitly resolve uncertain livestock pen ownership with preview and confirmation.
     default: op

@@ -48,8 +48,7 @@ need pauses and unused-cancellation eligibility. More history is retained, not
 discarded. Atomic unused retirement releases site and household reservation
 together; failure rolls both back. Paid supplies, native intents and unreturned
 owned materials hold for reviewed recovery. Exact cancellation receipts never
-reactivate work. Wrapper50 +3 passed51.789s. These are SQL-owner APIs; live admin
-controls are the next connection.
+reactivate work. Wrapper50 +3 passed51.789s. Live operator controls now connect these SQL-owner APIs, as described below.
 
 Current limitations: no automatic proposal timer, physical production writer,
 completed-home activation, started-project cancellation or migration of historical
@@ -63,3 +62,26 @@ land refusal, injected SQL failure and preserving112->113 migration. Focused Wra
 clean verify passed55 unit and3 packaged checks in48.957s. No actual server database
 or Minecraft world is used by these tests. Older plugin versions reject schema113;
 back up before upgrading and do not downgrade a live save in place.
+
+
+## Operator controls
+
+Use `/civ build projects <village UUID>` in the saved world for current retained
+project status. `civilizations.construction.preview` defaults to operators and
+permits this read only. Use the full saved ID from `/civ debug villages`.
+
+`/civ build cancelproject <project UUID>` inspects only; if the project qualifies,
+read its frozen family/project and click the separate confirmation within60 seconds.
+`/civ build confirmcancel <token>` submits the atomic unused cancellation.
+`/civ build cancelrequest` discards an unsubmitted request. Accepted owner saves
+finish even after disconnect/shutdown; an exact live token retry retains identity
+and submitted time after an unexpected acknowledgement failure.
+
+Cancellation requires `civilizations.construction.manage` (operator default), not
+merely read permission. Confirmations are actor/world-bound and checked again.
+Four actors may hold requests/previews; read checks expire after30 seconds.
+Unknown/changed terms, paid supply, unreturned owned materials or prepared physical
+work never become an implicit refund or deletion. No command creates a building
+project or enables the production block writer. Detailed user instructions are in
+handbook0.14 Chapter28. Focused35 +3/final5 +3 passed; actual disposable Paper
+validated routed reports and management permission, not a full live cancellation.

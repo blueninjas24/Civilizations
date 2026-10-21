@@ -31,16 +31,27 @@ public final class HousingProjectStatus {
             try(var s=c.prepareStatement("SELECT draft_id FROM housing_project_bindings WHERE settlement_id=? AND world_id=? ORDER BY cancelled_ms IS NOT NULL,created_ms DESC,draft_id LIMIT 9")){
                 s.setString(1,village.toString());s.setString(2,context.world().toString());try(var r=s.executeQuery()){while(r.next())ids.add(UUID.fromString(r.getString(1)));}
             }
-            var items=new ArrayList<Item>();var projects=new HousingProjects(c);
+            var items=new ArrayList<Item>();
             for(var id:ids.stream().limit(8).toList()){
-                var family=projects.find(id).orElseThrow();var draft=new ConstructionDraftRepository(c).find(id).orElseThrow();
-                var site=new ConstructionSiteReservations(c).find(id);long orders=count("construction_supply_orders",id),intents=count("construction_block_journal",id);
-                boolean unused=family.active()&&orders==0&&intents==0&&context.present()&&returned(id);
-                var pause=family.active()?(context.present()?projects.pauseReasonRows(draft):Optional.of("World absent; no new work authorized")):Optional.of("Saved cancellation retained; cannot reactivate");
-                items.add(new Item(family,draft.template().id(),site.isPresent()&&site.orElseThrow().active(),orders,intents,unused,pause));
+                items.add(itemRows(id,context));
             }
             c.commit();c.setAutoCommit(true);return new Report(items,ids.size()>8);
         }catch(SQLException|RuntimeException failure){try{c.rollback();c.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
+    }
+    public Item find(UUID draft,DwellingOccupancy.Context context)throws SQLException{
+        Objects.requireNonNull(draft);Objects.requireNonNull(context);
+        if(!c.getAutoCommit())throw new SQLException("Project inspection requires an idle SQL owner");c.setAutoCommit(false);
+        try{var item=itemRows(draft,context);c.commit();c.setAutoCommit(true);return item;}
+        catch(SQLException|RuntimeException failure){try{c.rollback();c.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
+    }
+    private Item itemRows(UUID id,DwellingOccupancy.Context context)throws SQLException{
+        var projects=new HousingProjects(c);var family=projects.find(id).orElseThrow(()->new BuildingRegistry.Declined("Unknown household project"));
+        if(!family.world().equals(context.world()))throw new BuildingRegistry.Declined("Project belongs to a different world");
+        var draft=new ConstructionDraftRepository(c).find(id).orElseThrow();var site=new ConstructionSiteReservations(c).find(id);
+        long orders=count("construction_supply_orders",id),intents=count("construction_block_journal",id);
+        boolean unused=family.active()&&orders==0&&intents==0&&context.present()&&returned(id);
+        var pause=family.active()?(context.present()?projects.pauseReasonRows(draft):Optional.of("World absent; no new work authorized")):Optional.of("Saved cancellation retained; cannot reactivate");
+        return new Item(family,draft.template().id(),site.isPresent()&&site.orElseThrow().active(),orders,intents,unused,pause);
     }
     private long count(String table,UUID draft)throws SQLException{
         try(var s=c.prepareStatement("SELECT count(*) FROM "+table+" WHERE draft_id=?")){s.setString(1,draft.toString());try(var r=s.executeQuery()){return r.getLong(1);}}

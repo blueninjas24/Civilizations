@@ -1,5 +1,28 @@
 # Civilizations Development Log
 
+## 2026-10-21 — live retained-project inspection and unused cancellation
+
+Added PaperHousingProjectControls, production lifecycle/routing/tab completion,
+operator-default civilizations.construction.manage permission, owner-queued
+individual project inspection and actual read-only status. `/civ build projects`
+uses existing preview permission. Separate cancelproject/confirmcancel/cancelrequest
+controls preserve frozen player/world identity,60-second confirmation, current
+authority and bounded four-actor queues. Exact accepted-save retries retain token
+and submitted time; disconnect/shutdown never cancels an already accepted SQL save.
+Unsubmitted requests/previews are discarded on authority/world loss. Paid/started
+work and unreturned materials are rechecked by the atomic backend; no refund,
+demolition, money/goods/people deletion or automatic building introduced.
+
+Focused Wrapper35 unit +3 packaged checks passed37.673s. Final controller plus
+individual SQL status/foreign-world check5 +3 passed28.131s. Actual approved
+disposable Paper routed project reporting, default operator management permission
+and refusal of cancellation with read-only permission passed alongside apartment,
+renovation, housing report and SQL-session restart proof. Actual cancellation was
+verified by controller and real temporary-SQLite tests, not claimed as a native
+client playtest. Restored144 cells; stopped/archived helper; both DBs113/ok/FKs0.
+Handbook0.14:30 pages/28 chapters, all rendered/visually reviewed, new page30 full
+size; contents/footers checked. Schema113/P4 at25% remain; real server untouched.
+
 ## 2026-10-21 — retained project status and atomic unused retirement
 
 HousingProjectStatus reads up to8 active-first saved family projects, frozen plan,

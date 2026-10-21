@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Operators can now inspect retained home projects and explicitly confirm unused
+cancellation. Paid goods/started buildings stay protected. Wrapper35 +3 and final
+5 +3 passed; disposable Paper reports/permissions passed. Handbook0.14 now has
+30 pages/28 chapters. Automatic building remains unfinished; no new whole gate.
+
 Saved housing projects now have read-only status and safe unused-cancellation
 backend support. Site and family reservations release together; a failed save
 changes neither. Paid/started work remains protected. Wrapper50 +3 passed; admin

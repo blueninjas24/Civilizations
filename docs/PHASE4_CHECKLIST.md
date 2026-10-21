@@ -46,6 +46,12 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Project reporting and confirmed unused cancellation now have bounded operator
+controls. Saved assets/history and paid/started work remain protected; no writer
+enabled. Wrapper35 +3, final5 +3 and native routed report/permission check passed.
+Handbook0.14:30 pages/28 chapters, fully reviewed. This is recovery preparation,
+not completion of started-building recovery or automatic physical work.
+
 Unstarted beneficiary-bound homes now recheck current need before committing
 new site/material authority, public effort or first economic block intent.
 Changed/unknown need pauses new work without deleting paid assets/history.

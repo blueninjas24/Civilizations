@@ -1494,6 +1494,11 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.HousingProjectStatus(database.getConnection()).read(village,
                 new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,loadedWorlds!=null&&loadedWorlds.contains(world),policy,now.getAsLong()));});
     }
+    public CompletableFuture<com.blueninjas24.civilizations.database.HousingProjectStatus.Item> housingProjectInspection(
+            UUID draft,UUID world,com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy){
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.HousingProjectStatus(database.getConnection()).find(draft,
+                new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,loadedWorlds!=null&&loadedWorlds.contains(world),policy,now.getAsLong()));});
+    }
     /** Trusted confirmed adapter only. Atomic unused release; paid/started work remains held for reviewed recovery. */
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingProjects.Binding> retireUnusedHousingProject(
             UUID operation,UUID draft,UUID world,long submittedMillis){

@@ -60,6 +60,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperHomeDonation homeDonations;
     private com.blueninjas24.civilizations.paper.PaperHousingRuntime housingRuntime;
     private com.blueninjas24.civilizations.paper.PaperHousingCandidates housingCandidates;
+    private com.blueninjas24.civilizations.paper.PaperHousingProjectControls housingProjects;
     private com.blueninjas24.civilizations.paper.PaperHomeReclamation homeReclamation;
     private com.blueninjas24.civilizations.paper.PaperRenovationConsent renovationConsent;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
@@ -204,6 +205,9 @@ public final class Civilizations extends JavaPlugin {
                 housingCandidates=new com.blueninjas24.civilizations.paper.PaperHousingCandidates(population,List.copyOf(constructionLibrary.templates().values()),constructionLibrary.housing(),
                         new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(getConfig().getBoolean("building-protection.require-covered-beds",true)),getLogger());
                 construction.configureHousing(housingCandidates);housingCandidates.runTaskTimer(this,1,1);
+                housingProjects=new com.blueninjas24.civilizations.paper.PaperHousingProjectControls(population,
+                        new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(getConfig().getBoolean("building-protection.require-covered-beds",true)),getLogger());
+                construction.configureProjects(housingProjects);housingProjects.runTaskTimer(this,1,1);
                 construction.runTaskTimer(this,1,1);
             }catch(IOException|InvalidConfigurationException|IllegalArgumentException invalid) {
                 getLogger().log(Level.WARNING,"Construction previews disabled; fix construction/*.yml and restart. Population and economy remain active.",invalid);
@@ -320,6 +324,7 @@ public final class Civilizations extends JavaPlugin {
         if(homeReclamation!=null){homeReclamation.cancel();homeReclamation.close();}
         if(housingRuntime!=null){housingRuntime.cancel();housingRuntime.close();}
         if(housingCandidates!=null){housingCandidates.cancel();housingCandidates.close();}
+        if(housingProjects!=null){housingProjects.cancel();housingProjects.close();}
         if(homeDonations!=null){homeDonations.cancel();homeDonations.close();}
         if(renovationConsent!=null){renovationConsent.cancel();renovationConsent.close();}
         if(dwellingReview!=null){dwellingReview.cancel();dwellingReview.close();}

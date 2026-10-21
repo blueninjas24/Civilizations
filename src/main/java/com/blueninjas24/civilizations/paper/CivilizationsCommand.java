@@ -42,7 +42,7 @@ public final class CivilizationsCommand implements CommandExecutor, TabCompleter
         if (args.length == 1) {
             var options = new java.util.ArrayList<>(debug.onTabComplete(sender, command, alias, args));
             if(buildings!=null&&(sender.hasPermission(PaperBuildingProtection.MANAGE)||sender.hasPermission(PaperBuildingProtection.ADMIN)||sender.hasPermission(PaperHomeDonation.PERMISSION))&&"building".startsWith(args[0].toLowerCase(java.util.Locale.ROOT)))options.add("building");
-            if(construction!=null&&sender.hasPermission(PaperConstructionPreview.PERMISSION)&&"build".startsWith(args[0].toLowerCase(java.util.Locale.ROOT)))options.add("build");
+            if(construction!=null&&(sender.hasPermission(PaperConstructionPreview.PERMISSION)||sender.hasPermission(PaperHousingProjectControls.MANAGE))&&"build".startsWith(args[0].toLowerCase(java.util.Locale.ROOT)))options.add("build");
             if(pens!=null&&(sender.hasPermission(PaperPenControls.ADMIN)||sender.hasPermission(PaperPenControls.RELEASE))&&"pen".startsWith(args[0].toLowerCase(java.util.Locale.ROOT)))options.add("pen");
             if (sender.hasPermission("civilizations.aid.preview") && "aid".startsWith(args[0].toLowerCase(java.util.Locale.ROOT))) options.add("aid");
             if(bargaining!=null&&sender.hasPermission("civilizations.trade")&&"bargain".startsWith(args[0].toLowerCase(java.util.Locale.ROOT)))options.add("bargain");

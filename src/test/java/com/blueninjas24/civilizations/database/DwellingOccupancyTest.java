@@ -141,6 +141,8 @@ class DwellingOccupancyTest {
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){
             seed(c);verifiedShortage(c);var receipt=prepare(c,preparation(70),1200);long writes=number(c,"SELECT total_changes()");
             var status=new HousingProjectStatus(c);var report=status.read(town,context(1200));
+            assertEquals(report.items().getFirst(),status.find(id(70),context(1200)));
+            assertThrows(BuildingRegistry.Declined.class,()->status.find(id(70),new Context(id(99),true,Policy.prototype(),1200)));
             assertEquals(1,report.items().size());assertTrue(report.items().getFirst().unused());assertTrue(report.items().getFirst().siteHeld());
             assertTrue(report.items().getFirst().pause().isEmpty());assertEquals("starter_home",report.items().getFirst().plan());
             assertEquals(writes,number(c,"SELECT total_changes()"));assertFalse(report.more());assertTrue(report.describe().getFirst().contains("Inspection only"));

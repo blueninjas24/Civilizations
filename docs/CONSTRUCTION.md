@@ -43,6 +43,16 @@ is a series of observations, not an atomic promise that blocks will remain safe.
 Future construction must recheck current world, protections, entities and exact
 before-states at the actual write boundary.
 
+## Retained home projects
+
+`/civ build projects <village UUID>` reads saved project/family/site and asset
+status in the current world. `/civ build cancelproject <project UUID>` previews
+unused cancellation, with separate `/civ build confirmcancel <token>` and
+`/civ build cancelrequest` controls. Management defaults to operators and is
+separate from read-only preview permission. Paid supplies, unreturned stock and
+prepared physical work hold for reviewed recovery; history always remains.
+See HOUSING_PROJECTS.md and handbook Chapter28. No automatic builder is enabled.
+
 ## Editable starter files
 
 On first startup, the plugin copies three original files to

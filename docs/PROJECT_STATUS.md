@@ -7,14 +7,23 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is29-page edition0.13, with
-27 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is30-page edition0.14, with
+28 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
 owned units follow the same occupancy direction as homes. New apartment declarations now have explicit controls; editing registered units remains unfinished.
 
 
 Implemented and verified:
+- Operator controls now expose `/civ build projects <village UUID>`,
+  `cancelproject <project UUID>`, `confirmcancel <token>` and `cancelrequest`.
+  Read-only preview permission cannot cancel; manage defaults to operators.
+  Four actors, bounded reads,60-second player/world-bound confirmation, exact
+  retry and accepted-save draining. Paid/started work is rechecked and retained.
+  Wrapper35 +3 passed37.673s; final5 +3 passed28.131s. Native routed project list/
+  permission check passed alongside housing/apartment/renovation/restart proof;
+  no native cancellation claim. Both fixture DBs113/ok/FKs0,144 cells restored.
+  Handbook0.14:30 pages/28 chapters, all rendered/reviewed.
 - Saved home-project status now reads active/cancelled family plans, site holds,
   paid orders, durable intents, current need pauses and unused-cancellation
   eligibility without writes. Active projects come first; bounded to8 plus a

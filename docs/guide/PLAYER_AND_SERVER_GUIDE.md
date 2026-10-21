@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.13 | 21 October 2026 | Player and server owner edition
+Living draft 0.14 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -336,7 +336,7 @@ This is development evidence, not a player build command. A preview spends no mo
 
 ### Read why a family needs housing
 
-Operators can use /civ build housing <village UUID> while in that village's world. Find the saved ID with /civ debug villages. The report explains suitable existing housing, vacant-home reuse, new-home proposals and why a family must wait. Unknown capacity and stale inspections never count as homelessness. A pending home holds its own family; older unmapped projects remain conservative holds. This reads saved evidence; it does not scan buildings, reserve a plot, spend money or start construction. Reports expire after 30 seconds, with four simultaneous requests.
+Operators can use /civ build housing <village UUID> while in that village's world. Find the saved ID with /civ debug villages. The report explains suitable existing housing, vacant-home reuse, new-home proposals and why a family must wait. Unknown capacity and stale inspections never count as homelessness. A pending home holds its own family; older unmapped projects remain conservative holds. This reads saved evidence; it does not scan buildings, reserve a plot, spend money or start construction. Reports expire after 30 seconds, with four simultaneous requests. Chapter 28 covers saved project status and safe unused cancellation.
 
 ### The intended chain
 
@@ -565,7 +565,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.13 adds a read-only whole-family housing-planning report. Separate renovation-consent controls and saved inspection status remain available. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
+Edition 0.14 adds retained home-project reports and confirmed unused-project cancellation. The read-only whole-family housing-planning report remains available. Separate renovation-consent controls and saved inspection status remain available. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
 
 
 ## 22 Protect a building plot
@@ -745,3 +745,33 @@ A grant is bound to the exact saved layout and current donation. Reclamation or 
 It grants no access to chest contents, extra land, free materials, labor or money. A future renovation still needs a safe funded project, current protected-land checks and current-world block revalidation. Existing off-limits protections remain effective. No construction happens merely because the status says allowed.
 
 Related chapters: donation, protection, housing, construction and server backups. Schema112 preserves separate consent history; old donations receive no automatic renovation permission.
+
+
+## 28 Inspect and cancel unused home projects
+
+Status: Available operator controls. Automatic normal-server construction remains unfinished, so a new server may have no saved home projects yet. These controls do not start construction.
+
+### Read the saved work
+
+Run /civ build projects <village UUID> in the village's world. Find the full village ID with /civ debug villages. The report shows up to eight retained projects, active first: the family, frozen plan, site reservation, paid supply orders, durable block intents and any current housing-need pause. Additional history stays saved.
+
+Read-only reporting uses civilizations.construction.preview, which defaults to operators. It spends nothing, reads no terrain and loads no chunks. A project can be waiting because its family already has a suitable home, its housing evidence is unknown, or the family no longer fits the plan.
+
+### Cancel only unused work
+
+- Run /civ build cancelproject <project UUID> to request a review. Nothing is cancelled on preview.
+- If the project qualifies as unused, read the family and project IDs. Confirm with the clickable button within 60 seconds, or type /civ build confirmcancel <token>.
+- The save releases the unused site and family reservation together. If either part cannot save, both remain unchanged.
+- /civ build cancelrequest discards your unsubmitted request. An already submitted save finishes independently, including after disconnect.
+
+Cancellation requires civilizations.construction.manage, which defaults to operators. Read-only permission alone cannot cancel. The confirmation belongs to the requesting player and world; changing permissions, leaving the world or expiry invalidates an unsubmitted request.
+
+### What stays protected
+
+Paid supplies, unreturned owned materials and any prepared physical work block this unused-cancellation path. They require a reviewed recovery process; the command cannot delete goods, refund money, remove buildings or erase history. Payment or work that arrives after preview is checked again at confirmation.
+
+A saved cancellation cannot reactivate its old proposal. A new home needs a fresh identity and review. Repossessing an existing donated home uses Chapter 24; the families and building remain recorded. An unstarted home pauses further commitments if its family gains suitable housing; already paid supplies remain saved. Durable physical work keeps its recovery/completion path so partial buildings are not stranded merely because housing needs change.
+
+Four players can hold project requests/previews at once. Read checks expire after 30 seconds. A failed accepted save can retry the same live confirmation token; inspect project status if the result is uncertain. No command here enables the normal-server block writer.
+
+Related chapters: housing, construction, donation, backups and the command glossary. Sources: HOUSING_PROJECTS.md, CONSTRUCTION.md and PaperHousingProjectControls.
