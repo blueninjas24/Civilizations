@@ -1,5 +1,9 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified — exact road ground evidence
+
+Exact road-ground evidence review now preserves each proposed cell's actual natural before-state and requires clear headroom and the retained dirt-path connection. Changed/player-like blocks, protection, missing cells and stale/wrong-world evidence refuse the whole before-state map. This is read-only domain preparation, not land provenance, entity clearance or replacement authority. Existing AIR-only journal/writer and schema116 remain unchanged. Focused clean Wrapper verify5 unit+3 packaged passed26.981s. No native test needed: no Paper calls, database or world mutations. P4 remains5/16=31%; next is transactional versioned ground-state journaling and paid corridor integration. No decisions required.
+
 ## Latest verified — frozen local road designs and real recipe costs
 
 LocalRoadDesign now freezes a complete safe flat route into the existing template
