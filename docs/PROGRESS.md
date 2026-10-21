@@ -16,6 +16,10 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Hosted regression follow-up: corrected an old rollback test that called the new
+housing reader on a deliberately old database. Local9 +3 checks pass; hosted
+Windows/Linux verification of the latest candidate is still pending.
+
 Unstarted home projects now pause new spending/work if their family becomes
 suitably housed, moves away, disappears or no longer fits the plan. Paid supplies
 and history remain saved; started-work recovery is preserved. Wrapper56 +3 passed.

@@ -15,6 +15,12 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Hosted Linux at checkpoint e036932 exposed one historical rollback-fixture
+  error among2181 unit cases: a deliberately schema12 DB was read through the
+  current managed-housing API. The fixture now verifies legacy people/families/
+  ties/capacities directly; production migration behavior unchanged. Focused
+  resident-projection clean verify9 +3 passed35.089s. Current hosted results are
+  still pending; no full Windows/Linux green is claimed for this candidate.
 - Unstarted household-bound homes now recheck actual family need before new site/
   material authority, public effort or first economic block intent. Rehousing,
   unknown capacity, departed/empty families and plans that no longer fit pause

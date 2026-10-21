@@ -40,6 +40,16 @@ class ResidentProjectionRepositoryTest {
         database.getDemographicRepository().advance(1, 1, policy);
         return database.getPopulationRepository().findResidents(settlement).stream().filter(p -> p.ageSteps() == 0).findFirst().orElseThrow().id();
     }
+    /** A deliberately rolled-back schema12 fixture cannot invoke today's managed-housing reader. */
+    private PopulationState legacyPopulation() throws SQLException {
+        var people=database.getPopulationRepository();var residents=people.findResidents(settlement);
+        var ties=new HashSet<FamilyTie>();for(var resident:residents)ties.addAll(people.findFamilyTies(resident.id()));
+        var capacity=new HashMap<UUID,Integer>();
+        try(var s=database.getConnection().createStatement();var r=s.executeQuery("SELECT household_id,capacity FROM household_capacity")){
+            while(r.next())capacity.put(UUID.fromString(r.getString(1)),r.getInt(2));
+        }
+        return new PopulationState(residents,people.findHouseholds(settlement),List.copyOf(ties),capacity);
+    }
 
     @Test void importsHaveOneActiveIncarnationAndImmutableHomeAndAliasSnapshots() throws SQLException {
         var saved = projections.snapshot();
@@ -142,7 +152,7 @@ class ResidentProjectionRepositoryTest {
             try (var result = statement.executeQuery("SELECT COUNT(*) FROM sqlite_master WHERE name = 'resident_projection'")) { assertEquals(0, result.getInt(1)); }
             statement.execute("DROP TABLE resident_lifecycle_events");
         }
-        assertEquals(before, database.getDemographicRepository().readPopulationState());
+        assertEquals(before, legacyPopulation());
         new SchemaMigrator().migrate(database.getConnection());
         assertEquals(2, projections.snapshot().projections().size());
     }

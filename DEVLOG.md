@@ -1,5 +1,22 @@
 # Civilizations Development Log
 
+## 2026-10-21 — historical rollback assertion after hosted regression
+
+Read the hosted Linux failure for e036932:2181 unit cases, zero assertion
+failures, one error in ResidentProjectionRepositoryTest.failedMigrationRollsBack...
+Its injected migration correctly rolls all the way back to schema12, then its
+assertion called today's DemographicRepository reader, which correctly expects
+new managed-housing tables. Replaced only that historical assertion with a full
+legacy PopulationState assembled from schema12 people, households, relationships
+and raw capacity. The version/table-rollback/recovery assertions remain; no
+production migration, exception handling or historical save behavior changed.
+
+Focused `.\mvnw.cmd -Dtest=ResidentProjectionRepositoryTest clean verify` passed
+9 unit +3 packaged checks35.089s. Hosted Windows for e036932 remained running
+and newer branch candidates queued; no latest full CI green claimed. GitHub CLI
+is unavailable, so read-only Actions API/logs were used; credentials stayed in
+memory and were never printed or stored. Main and real server remain untouched.
+
 ## 2026-10-21 — recheck need before committing unstarted homes
 
 HousingProjects now revalidates household location, living membership, effective
