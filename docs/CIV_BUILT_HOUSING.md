@@ -1,7 +1,7 @@
 # Completed village-owned homes
 
 Current internal backend: `CivBuildingCompletion`, schema116. Ordinary automatic
-construction is still off; full completed-house native acceptance remains pending.
+construction is still off; full completed-house native acceptance has passed.
 
 The frozen home plan produces stable building/unit UUIDs and one explicit private
 unit with the original transformed bed pairs. No inferred apartments, rent, private
@@ -44,4 +44,13 @@ Tests use only temporary SQLite databases: actual supplier payments/delivery and
 earned four-stage work, complete native-journal evidence, no early capacity,
 functional domain inspection/assignment, restart, late rollback, typed owner
 authority,115 upgrade failure/retry, and later damage/replacement/replay. This is
-not yet a claim of an ordinary autonomous builder or native finished-home proof.
+not a claim of an ordinary autonomous builder.
+
+Native acceptance: CivHomeCompletionProbe built all120 real blocks of the rotated
+and mirrored starter home using actual supplier payments, delayed cargo and
+earned unemployed labor. The actual session restarted before its first native
+acknowledgement and after completion. Real two-pass PaperDwellingSurvey and normal
+reconciliation assigned the saved family to four qualified beds; retries preserved
+identity, money, finite goods and people. All captured cells were restored; both
+fixture DBs116/ok/FKs0; server stopped and helper archived. Only an empty, explicitly
+marked Host Temp loopback fixture can run this helper. Human server untouched.

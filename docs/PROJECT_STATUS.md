@@ -29,18 +29,21 @@ alone grants no capacity. Player donors remain unchanged; Civ has no player dono
 Confirmed damage can request another project without losing completed history.
 
 Not enabled: ordinary automatic purchasing/building. Full completed-home native
-acceptance and the bounded gameplay scheduler remain next. Large templates beyond the writer's current bound, private-premises growth,
+acceptance passed; the bounded gameplay scheduler remains next. Large templates beyond the writer's current bound, private-premises growth,
 roads/adaptation, upgrades/repair/decay and civic growth remain unfinished.
 
 Validation: latest Wrapper64 unit +3 packaged checks passed1m24s, including116
 upgrade/rollback, housing/damage/replacement and historical fixtures. Earlier80+3
-passed1m16s. Actual full-home native proof remains pending. Prior19+3 passed35.164s; preceding
+passed1m16s. Actual full-home native proof passed:120 rotated/mirrored blocks, actual paid
+materials/earned labor, restart before first acknowledgement, completion, real
+dwelling inspection/family assignment and restart replay. All captured cells
+restored; both fixture DBs116/ok/FKs0, server stopped/helper archived. Prior19+3 passed35.164s; preceding
 owner/lifecycle40+3 passed46.167s. Actual paid-path Paper accepted current writer,
 stale permit/neighbor change holds, no regenerated removed output, real session
 restart before ack, exact retries and conflict safety. All five original cells
 restored; both115 DBs healthy, server/helper stopped. Actual planning/funding-hold/
 cancellation/restart proof also passed. Hosted full Windows/Linux both passed
-77b56e8 (schema115); newer commits await CI. No latest-head full-suite claim.
+b91265c (guarded writer); schema116 commit5c7bd73 is running in CI. No latest-head full-suite claim.
 
 Handbook0.16 remains32 pages/30 chapters; no new user-facing command was added by
 these internal batches. Update it when gameplay/commands become available.

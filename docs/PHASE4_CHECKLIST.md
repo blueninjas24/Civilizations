@@ -50,8 +50,7 @@ Current backend adds atomic real supplier procurement, exact pending recall and
 real arrived-material return cargo (schemas114/115), actual reserved storage/
 shared hauling and earned owner-loop delivery. A paged saved-work handoff carries
 paid readiness/exact intents; loaded-only two-pass partial-work review refuses
-unjournaled blocks. Focused Wrapper and actual disposable Paper passed. Normal
-native execution, useful completion and wider growth remain;4/16 stays unchanged.
+unjournaled blocks. Focused Wrapper and actual disposable Paper passed. Ordinary automatic scheduling, wider useful-building activation and growth remain;4/16 stays unchanged.
 
 
 Automatic dry home preparation now connects verified family need, existing dirt
@@ -274,3 +273,15 @@ not implemented structures or later-phase religion/government/military mechanics
 Apartment/multi-household recognition was raised for design discussion; separate
 dwelling units and shared circulation are proposed, not built or approved rental
 rules. No completed gate or percentage changes on the strength of this discussion.
+
+## October21 partial — a completed native home becomes real housing
+
+Schema116 now preserves explicit village-owned building identity, finishes the
+family project/releases its temporary lease and prevents authored beds being
+counted as early legacy capacity. Focused Wrapper64+3 passed. Actual disposable
+Paper built all120 rotated/mirrored home blocks using paid supplies/earned work,
+restarted before acknowledgement, completed the building, inspected actual beds
+and assigned its saved family; completion replay survived another restart. Native
+cells restored, both116 DBs healthy/FK-clean, helper archived/server stopped.
+Ordinary automatic scheduling remains off. Civic/industrial activation, wider
+land/road/reuse/adaptation and started-work repair remain, so4/16 stays25%.

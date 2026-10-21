@@ -1,5 +1,40 @@
 # Civilizations Development Log
 
+## 2026-10-21 — full paid native home, completion and housing acceptance
+
+CivHomeCompletionProbe passed on pinned Paper26.2build129 in a new explicitly
+marked Host Temp root,127.0.0.1:25578, empty of players. Private temporary save;
+all120 original home blocks rotated90deg and mirrored, written via the internal
+guarded writer after actual supplier purchases, cargo arrival and earned public
+labor. Exact native retries wrote nothing; actual PopulationSession restart before
+first acknowledgement resumed the exact output. Complete native evidence saved
+Civ-owned building/use, completed the family binding and released the temporary
+site. Actual two-pass PaperDwellingSurvey plus ordinary reconciliation assigned
+one whole saved household and four real beds. A second actual session restart and
+completion replay preserved identity, inspected capacity, people, cash and goods.
+
+Private fixture final treasury96560:100000 explicit fixture money,500 real
+warehouse founding expense and2940 material purchases. Supplier received2940;
+finite50-each stone/timber/wool became38/14/38. No new residents. Exactly120
+journal entries,1 Civ building,1 assignment and4 bed claims. All captured native
+cells restored; both databases116/integrity ok/FK errors0. Server stopped; helper
+archived outside plugins. Actual server/world/database untouched.
+
+Fixture development first hit a setup-only configure-after-start error, then
+correctly paused for grass becoming dirt below new floors. The final fixture uses
+captured/restored stone substrate; production guards remain strict. Final SQL
+assertions were corrected to read inspected unit occupancy rather than the legacy
+bed-group table, and include the existing real warehouse founding expense. No
+application rule was weakened to obtain a pass. Java helper compiled against the
+already verified final schema116 artifact; no new application code since the
+64 unit+3 packaged Wrapper pass. Full hosted Windows/Linux both passedb91265c;
+5c7bd73 is running. No current-head whole-suite claim.
+
+P4 remains25%,4/16,1/4 groups. This completes a meaningful residential internal
+handoff, not the broader civic/industrial activation gate. Next: ordinary bounded
+automatic scheduling/procurement/native work with fair retries and diagnostics.
+No new gameplay command, handbook edition or roadmap change.
+
 ## 2026-10-21 — schema116 Civ-owned completed homes and housing handoff
 
 CivHomeLayout derives a stable single-household declaration from frozen home

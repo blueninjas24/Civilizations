@@ -26,7 +26,7 @@ saved plan is not a finished building.
 | Automatic home-site planning | Available preparation | Villages can save a family home plan beside an existing path after guarded loaded-only checks |
 | Project inspection and unused cancellation | Available | Operators can inspect and safely release unused proposals while keeping history |
 | Material and funding report | Available, read-only | Shows missing goods, paid cargo, stage reserves, protected money and haul capacity |
-| Automatic paid physical construction | Unfinished | Paid inputs/labor and guarded internal writes work; ordinary scheduling and completed-home activation remain |
+| Automatic paid physical construction | Unfinished | Paid inputs/labor and guarded internal writes work; ordinary automatic scheduling remains |
 | Wider physical growth | Unfinished | Road expansion, terrain adaptation, business-premises reuse, upgrades and civic builds remain |
 
 Automatic planning uses editable limits. Existing construction.yml files must
@@ -38,20 +38,20 @@ real funds, earned labor, saved intents, two matching world scans and a final
 atomic scene check. Current permissions and a one-time write claim prevent stale
 or duplicate placement. It passed an actual five-block disposable-world test,
 including restart and changed/removed-output holds. Ordinary gameplay construction
-is still off until finished Civ homes can register and activate safely.
+is still off pending the bounded gameplay scheduler.
 
 Schema116 now records completed village-owned homes, frees finished project slots
 and keeps authored beds out of early legacy capacity. Actual inspected assignment
 and confirmed damage/replacement passed temporary-database checks; completion
-alone gives no beds. Full completed-house native acceptance remains pending.
+alone gives no beds. The complete paid120-block rotated/mirrored home now also
+passed real native construction, inspection, family assignment and restart.
 
 Latest Wrapper64 unit +3 packaged checks passed; earlier80+3 and owner/lifecycle40+3
-passed. Test worlds were restored/stopped and databases stayed healthy at115.
-Hosted Windows/Linux both passed77b56e8; newer commits await full hosted builds.
+passed. Test worlds were restored/stopped and both latest fixture DBs are116/ok/FKs0.
+Hosted Windows/Linux both passedb91265c; schema116 is running in hosted CI.
 The living handbook remains edition0.16,32 pages/30 chapters.
 
-Next: full completed-home native acceptance, then the ordinary
-bounded builder. Wider growth remains. Actual server/worlds/database and main
+Next: the ordinary bounded automatic builder. Wider growth remains. Actual server/worlds/database and main
 stay untouched. P3 human survival testing remains deferred.
 
 ## Earlier Phase 4 checkpoints — historical
