@@ -1,6 +1,6 @@
 # Civilizations progress tracker
 
-## Current — Phase 4 started; Phase 3 prototype complete
+## Current — Phase 4 physical growth
 
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
@@ -13,6 +13,46 @@
 | 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
 | 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
 | 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
+
+**Phase 4: 25% — 4/16 checklist items, 1/4 whole groups complete.**
+The bar counts complete gates. Several parts of the next gates now work, but a
+saved plan is not a finished building.
+
+| P4 part | Current state | Plain-English effect |
+|---|---|---|
+| Starter building plans | Available | Original editable path, storehouse and four-bed home plans |
+| Families and donated housing | Available | Whole families use suitable inspected homes/apartments; donors can repossess |
+| Protection and renovation consent | Available | Player builds stay private; donating use does not allow automatic alteration |
+| Automatic home-site planning | Available preparation | Villages can save a family home plan beside an existing path after guarded loaded-only checks |
+| Project inspection and unused cancellation | Available | Operators can inspect and safely release unused proposals while keeping history |
+| Material and funding report | Available, read-only | Shows missing goods, paid cargo, stage reserves, protected money and haul capacity |
+| Automatic paid physical construction | Unfinished | Real purchasing, labor, safe normal-server block work and completed-home activation still need connection |
+| Wider physical growth | Unfinished | Road expansion, terrain adaptation, business-premises reuse, upgrades and civic builds remain |
+
+Automatic planning uses editable limits. Existing construction.yml files must
+explicitly opt in; they are never silently replaced. A failed site in one village
+now leaves other villages' queued work intact. No chunks are loaded for simulation.
+
+The latest focused Wrapper clean verify passed9 unit and3 packaged checks. The
+full disposable Paper flow passed automatic site planning, actual confirmed unused
+cancellation/restart, missing-finance refusal and changed/absent evidence holds.
+Both test databases remained healthy; test blocks were restored and helpers stopped.
+Hosted Windows/Linux both passed checkpoint acd8014; latest feature commits are
+still awaiting their complete hosted run. No latest-head full CI green is claimed.
+
+The living handbook is edition0.16:32 pages,30 chapters, linked contents and command
+references, fully rendered/reviewed. Source: docs/guide/PLAYER_AND_SERVER_GUIDE.md;
+PDF: output/pdf/Civilizations_Player_and_Server_Guide.pdf.
+
+Next: connect protected real material procurement/recovery to paid staged work,
+then the normal-server native writer and completed housing. Preserve player builds,
+real goods/cash, family identity and world pause. P3 human survival testing remains
+deferred. Main, actual Minecraft server/worlds and server database stay untouched.
+
+## Earlier Phase 4 checkpoints — historical
+
+These retain the development trail. The current overview above supersedes old
+statements that a now-connected feature was still pending.
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
@@ -195,6 +235,8 @@ and felling are still ahead. A human survival playtest and tuning remain useful;
 this is the initial prototype milestone, not a finished public survival release.
 See PHASE3_ACCEPTANCE.md for evidence and PHASE3_PLAYTEST.md for things to try.
 
+
+## Earlier P3 checkpoints — historical
 
 ## Latest - final P3 candidate is through native acceptance
 

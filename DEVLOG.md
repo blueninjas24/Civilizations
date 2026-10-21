@@ -1,5 +1,18 @@
 # Civilizations Development Log
 
+## 2026-10-21 — keep other villages moving after a refused site
+
+Review found that the automatic planner cleared its entire pending page when one
+village had no safe site or its saved need changed. That could repeatedly return
+to the same blocked village and starve those behind it. Local failures now retain
+queued villages and pagination; page-level failures keep the existing backoff.
+Coordinate arithmetic failures also pause/report safely without world writes.
+Added one focused two-village queue case; existing budget/permission/retry cases
+remain. Wrapper clean verify9 unit +3 packaged checks passed27.749s. No new world
+behavior, migration or payments. Current progress/status summaries consolidated
+above explicitly historical checkpoints so old pending notes cannot be mistaken
+for current behavior. Schema113, handbook0.16, P4 at25%, main/real server unchanged.
+
 ## 2026-10-21 — live read-only construction funding report
 
 Added funding mode/routing/completion to the existing bounded operator project

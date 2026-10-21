@@ -63,11 +63,14 @@ public final class PaperAutomaticHomePlanning extends BukkitRunnable implements 
                 diagnostic.accept("Home planning: incomplete or changed loaded-area evidence; no project created.");current=null;survey=null;return;
             }
             saving=owner.prepare(current,frame.orElseThrow(),now);
-        }catch(CompletionException|CancellationException|IllegalArgumentException failure){
+        }catch(CompletionException|CancellationException|IllegalArgumentException|ArithmeticException failure){
             Throwable cause=failure instanceof CompletionException&&failure.getCause()!=null?failure.getCause():failure;
             diagnostic.accept("Home planning paused: "+(cause instanceof BuildingRegistry.Declined?cause.getMessage():"review unavailable; saved projects retained")+".");
             if(!(cause instanceof BuildingRegistry.Declined||cause instanceof CancellationException))logger.log(Level.WARNING,"Automatic home preparation paused; retained history unchanged",cause);
-            saving=null;page=null;current=null;survey=null;waiting.clear();cursor=null;nextPage=now+settings.reviewSeconds()*1000L;
+            boolean villageFailure=current!=null;
+            saving=null;current=null;survey=null;
+            // A legitimate local refusal (no road/site, changed need/world) must not starve later villages.
+            if(!villageFailure){page=null;waiting.clear();cursor=null;nextPage=now+settings.reviewSeconds()*1000L;}
         }
     }
     @Override public void close(){closed=true;waiting.clear();page=null;current=null;survey=null;saving=null;} // Accepted SQL saves drain independently.

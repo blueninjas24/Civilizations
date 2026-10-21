@@ -52,4 +52,19 @@ class PaperAutomaticHomePlanningTest {
         now+=30_001;page=new CompletableFuture<>();saving=new CompletableFuture<>();r.run();page.complete(new HousingPlanningJobs.Page(List.of(job),null,1,0,0));r.run();
         r.close();assertFalse(saving.isCancelled());assertEquals(2,preparations);
     }
+    @Test void oneVillageWithoutASafeSiteDoesNotDiscardOrStarveTheNextVillage(){
+        var second=new HousingPlanningJobs.Job(new UUID(0,44),family,new UUID(0,45),world,new Position(30,64,30));
+        var seen=new ArrayList<UUID>();var laterSave=new CompletableFuture<HousingProjectPreparation.Receipt>();
+        var r=new PaperAutomaticHomePlanning(new PaperAutomaticHomePlanning.Owner(){
+            public CompletableFuture<HousingPlanningJobs.Page> page(UUID after){pages++;return CompletableFuture.completedFuture(new HousingPlanningJobs.Page(List.of(job,second),null,2,0,0));}
+            public CompletableFuture<HousingProjectPreparation.Receipt> prepare(HousingPlanningJobs.Job j,PaperHomeSiteSurvey.Frame frame,long time){
+                seen.add(j.proposal());return j.equals(job)?CompletableFuture.failedFuture(new BuildingRegistry.Declined("Home site waits: NO_SAFE_SITE")):laterSave;
+            }
+        },new AutomaticHomePlanningSettings(true,128,30,1,12),(j,start)->(budget,time)->{
+            assertEquals(128,budget);return Optional.of(new PaperHomeSiteSurvey.Frame(new Bounds(new Position(-12,61,-12),new Position(42,66,42)),
+                    new ConstructionSitePlanner.Survey(world,start,true,true,Map.of(),List.of(),List.of()),Map.of()));
+        },()->now,diagnostics::add,Logger.getLogger("HomeQueueIsolationTest"));
+        r.run();r.run();r.run();r.run();
+        assertEquals(List.of(job.proposal(),second.proposal()),seen);assertEquals(1,pages);assertFalse(laterSave.isCancelled());r.close();
+    }
 }

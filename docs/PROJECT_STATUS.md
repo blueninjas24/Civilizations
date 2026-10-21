@@ -14,6 +14,33 @@ in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; vill
 owned units follow the same occupancy direction as homes. New apartment declarations now have explicit controls; editing registered units remains unfinished.
 
 
+Current P4 overview:
+- Whole-family housing, new adult households, explicit single-home/apartment donation,
+  donor inspection/reclamation and separate confirmed renovation consent are live.
+- Guarded automatic home-site planning now prepares real saved family/plan/site
+  proposals beside existing paths. Loaded-only two-pass checks, current saved
+  protection, vacancy-first need and editable active-project limits apply.
+- Operators can inspect housing decisions, retained projects and actual material/
+  protected-money readiness, and separately confirm unused cancellation.
+- Paid supply/delivery/stage-work backends are tested. Normal automatic purchasing,
+  safe physical writes, completed-home activation, new local roads, business-premises
+  reuse and broader physical growth remain unfinished. A proposal grants no beds.
+- A local site refusal no longer discards other villages' queued work. Final focused
+  Wrapper9 unit +3 packaged checks passed27.749s; latest native full planning,
+  funding hold, confirmed cancellation/restart and unknown-evidence proof passed.
+- Hosted Windows/Linux both passed acd8014. Latest feature commits still await their
+  complete hosted run. Current schema113; no production database/world changed.
+
+Next: real protected procurement and paid-asset recovery, then connect paid stage
+work to the normal native writer and useful completed homes. Keep the existing
+feature branch; never merge/push main without approval. No design question blocks
+this work under the user's delegated prototype recommendations.
+
+### Earlier P4 checkpoints — historical implementation evidence
+
+The detailed checkpoints below preserve the trail. Current code and the overview
+above supersede old statements that a now-connected feature was still pending.
+
 Implemented and verified:
 - `/civ build funding <project UUID>` now exposes real material/escrow and
   protected-cash/haul readiness with emerald-value formatting, bounded to8
