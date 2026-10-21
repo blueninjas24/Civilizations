@@ -26,6 +26,7 @@ milestone now includes ordinary automatic family-home construction.
 | Home-site planning | Available | Actual family need and safe loaded land beside an existing path can create a proposal |
 | Paid automatic family homes | Available prototype | Real suppliers get paid; cargo and labor take time; house blocks appear in stages |
 | Completed homes | Available | Inspection qualifies actual beds and houses a whole saved family; no free residents |
+| Project inspection and unused supply recovery | Available | Operators inspect stalled work and confirm real supplier refunds/returns; history stays |
 | Wider physical growth | Unfinished | New roads, terrain work, business premises, docks, upgrades and civic builds remain |
 
 Existing construction.yml files must explicitly add automatic-construction;
@@ -40,9 +41,13 @@ mirrored home blocks on a disposable Paper server, then native inspection assign
 one saved family to4 beds. Completion replay survived session restart. All captured
 cells restored, server stopped/helper archived; both116 DBs healthy/FK-clean.
 Prior Windows/Linux both passedb91265c; current candidate awaits hosted CI.
-The handbook is now0.17,34 pages/31 chapters, with automatic homes in Chapter31.
+The handbook is now0.18,35 pages/32 chapters, with automatic homes in Chapter31
+and saved inspection/confirmed supplier recovery in Chapter32. Latest recovery
+Wrapper35+3 and15+3 passed; actual Paper permission/confirmation/refund/disconnect/
+restart accepted. Both116 DBs healthy, server stopped; no world/inventory edits.
+Schema116/home checkpoints0a0a2da and5c7bd73 now both hosted green; fa5176c running.
 
-Next: useful stalled-work inspection/recovery, then broader sites/roads and
+Next: broader sites/roads and
 business/infrastructure construction. Actual server/worlds/database and main
 stay untouched. P3 human survival testing remains deferred.
 

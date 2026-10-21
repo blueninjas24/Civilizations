@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — delegated confirmed unused-supply operator recovery
+
+Expose the already approved pending recall/arrived buyback through explicit
+operator previews and separate confirmation. Keep real original supplier funds,
+goods/storage, earned time/hauling, current exact order terms and whole-batch
+atomicity. Refund to the original village, never the operator; retain site/family
+until separate unused cancellation. No automatic refund, demolition, stage/native
+work reversal, private/mixed-source recovery or replacement goods. Read-only saved
+inspection explains coordinates/states without force-loading or granting repair.
+Submitted requests are authorized at the UI boundary; new execution uses current
+owner time, while exact accepted-operation replay retains its original receipt.
+This is conservative delegated prototype operation, no new economy or land rule.
+
 ## October21 — delegated first automatic paid home rollout
 
 Use the approved automatic-growth/funding/labor direction for formal family-home

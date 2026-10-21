@@ -2,7 +2,8 @@
 
 Current backends: `ConstructionSupplyRecalls.recallPending` and
 `ConstructionSupplyReturns.returnUnused`, serialized through PopulationSession.
-No player command or automatic recovery caller yet.
+Operator preview/confirmation commands are now connected; no automatic recovery
+caller. Started work still requires manual review.
 
 A public project may withdraw its entire pending local purchase only while every
 order is undelivered and its actual economy owner remains in the purchase period,
@@ -53,8 +54,8 @@ moved into saved return cargo; original sale, refund, shipment and cancellation
 history remain. Never delete the original paid order.
 
 Private-business purchases and physically started/stage-work projects remain
-held for future reviewed recovery. No automatic spending or new player command
-is enabled by these internal APIs.
+held for future reviewed recovery. Operator controls use the wrapper below;
+there is no automatic recovery or demolition.
 
 Validation: ConstructionSupplyRecallsTest uses only temporary SQLite databases for
 conservation, exact restart retry, late rollback, unavailable world/time/delivery,
@@ -65,3 +66,52 @@ ConstructionSupplyReturnsTest additionally covers exact money/goods conservation
 pending destination capacity, earned delayed arrival, shared haul, late dispatch/
 arrival rollback, site retirement/restart, actual session downtime/world pause,
 unsupported started goods and114->115 migration rollback/retry.
+
+## Confirmed operator controls
+
+Current commands, as a player in the original world:
+
+- `/civ build inspectproject <project UUID>`: read-only saved work, origin, stage
+  and exact unresolved native intent/coordinates/before/after; no native reads.
+- `/civ build recoverproject <project UUID>`: read-only exact supplier-recovery
+  preview. Shows recall or arrived buyback, order count, abstract units and actual
+  original refund total/village. No payment on preview.
+- `/civ build confirmrecovery <token>`: confirm that exact preview within60s.
+- `/civ build cancelrequest`: discard an unsubmitted review, never accepted saves.
+- After recovery, existing `cancelproject`/`confirmcancel` may separately release
+  an eligible unused family/site reservation. Recovery alone never cancels these.
+
+Inspection uses civilizations.construction.preview. Recovery preview/confirmation
+uses civilizations.construction.manage (operators by default). Tokens bind player,
+world, action and SHA256 of the original paid order terms. Another action/token,
+actor/world/permission change, expiry, altered orders or new work cannot redirect
+or force a refund. Maximum4 pending users; read requests30s; previews60s. An
+accepted save drains across disconnect/close. Repeated confirmation cannot enqueue
+another concurrent save. Exact operation/terms replay returns its original refund.
+
+ConstructionRecoveryReview performs a read-only current snapshot: formal family
+binding, no native/stage/owned-source work, original order modes/period, real
+aggregate supplier cash/space and actual shared return hauling. Confirmation
+repeats exact terms and live readiness inside the serialized owner, then calls
+the existing atomic recall/return ledger. Queue submission time is authorization
+metadata, never an economic clock: a new acceptance uses current owner execution
+time. Exact receipt replay retains its original event and never repays, even if
+time or hauling settings later change. No schema change beyond116.
+
+Stop/edit/restart if you need to pause activity for recovery: automatic-construction
+controls new purchases/native steps; labor.enabled separately controls future
+public effort. Accepted cargo can still arrive. A pending recall has a narrow
+original-period window; if it expires, let all goods arrive and review again for
+buyback. Never delete rows or force a mixed/started project into the unused route.
+Normal construction may legitimately advance between review and confirmation;
+that final refusal preserves all paid work and requests another review.
+
+Current validation: Wrapper35 unit+3 packaged passed41.178s for backend/adapter/
+recall/return/native-survey checks; final queued-time/confirmation15+3 passed32.163s.
+Actual Paper fixture routed saved inspection and explicit recovery using a
+synthetic Player adapter/private paid save; read-only permission could not recover,
+wrong-action token could not cancel, duplicate click/disconnect accepted one
+refund, and a real session restart replay preserved cash/stock/site/family.
+Three real original supplier refunds totaled2940; no world-block or inventory
+operations. Both116 DBs healthy/FK-clean, server stopped/helper archived. Human
+client input/compatibility still needs playtesting. Living handbook Chapter32.

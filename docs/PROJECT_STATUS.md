@@ -20,8 +20,11 @@ Implemented:
   new files enable the prototype. No config replacement or instant build command.
 - Operator housing/project/funding reports, confirmed unused cancellation, and
   /civ debug construction now reports deliveries, planning and automatic work.
-- Pending recall/arrived unused real-material returns remain internal reviewed
-  recovery; no free refunds, automatic demolition or force-resume command.
+- Operator inspectproject reports saved work and exact unresolved block states.
+  recoverproject/confirmrecovery previews and explicitly confirms original-supplier
+  pending recall or arrived-unused buyback, with real money, space and hauling.
+  Action/player/world/permission/term binding and final current checks apply.
+  Family/site cancellation stays separate; no free refund/demolition/force-resume.
 - Schema116 village-owned home identity/use and atomic proposal/site completion.
   Actual dwelling inspection/assignment controls capacity; authored beds cannot
   count early through legacy discovery. Player donation controls reject Civ homes.
@@ -43,12 +46,19 @@ spending; injecting the same clock fixed the fixture, no guard weakened.
 Prior hosted Windows/Linux both passedb91265c; current candidate awaits CI.
 No latest-head full-suite claim.
 
-Handbook0.17 is34 pages/31 chapters, rendered and visually reviewed; Chapter31
-covers opt-in, pacing, holds and the actual housing handoff. Sources/configuration
+Handbook0.18 is35 pages/32 chapters, rendered and visually reviewed. Chapters31/32
+cover automatic homes, opt-in/pacing, saved inspection and confirmed supply recovery. Sources/configuration
 and docs/PROGRESS.md agree. No schema change beyond116 in this batch.
 
-Next: explicit stalled-work inspection/recovery, broader useful-building activation
-and road/site/terrain growth. Private premises, docks, civic catalogue, upgrades,
+Latest recovery checks:35 unit+3 packaged passed41.178s; final queued-owner-time
+15+3 passed32.163s, followed by successful packaging of permission metadata. Final
+actual Paper controls verified read-only inspection, exact concrete preview,
+action/permission binding, duplicate click/disconnect,3 real refunds totaling2940
+hundredths and actual session-restart replay. No world-block/inventory operations;
+both116 DBs healthy/FK-clean, server stopped/helper archived. Prior schema116/home
+checkpoints0a0a2da and5c7bd73 both hosted green; fa5176c is running in CI.
+
+Next: broader useful-building activation and road/site/terrain growth. Private premises, docks, civic catalogue, upgrades,
 repair/decay and whole-phase acceptance remain. No design question currently blocks
 delegated prototype work. Never merge/push main without approval.
 

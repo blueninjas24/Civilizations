@@ -64,7 +64,7 @@ public final class PaperConstructionWorkSurvey {
             if(roads.contains(at)&&block.getType()!=Material.DIRT_PATH)fail("Saved entrance road changed");
             if(footprint.contains(at)){
                 String expected=prefix.get(at);
-                if(expected!=null){if(!state.equals(expected))fail("Acknowledged construction block changed; no replacement authority");}
+                if(expected!=null){if(!state.equals(expected))fail("Acknowledged construction block changed at "+at.x()+" "+at.y()+" "+at.z()+"; expected "+expected+", observed "+state+"; no replacement authority");}
                 else if(at.equals(next)&&work.pending().isPresent()){
                     if(!state.equals("minecraft:air")&&!state.equals(nextAfter))fail("Prepared intent meets a different native block");
                 }else if(authored.contains(at)?!state.equals("minecraft:air"):!block.getType().isAir())fail("Unbuilt structure space is occupied; no overwrite authority");

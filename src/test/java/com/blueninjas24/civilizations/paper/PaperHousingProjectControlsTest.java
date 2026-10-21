@@ -17,6 +17,7 @@ class PaperHousingProjectControlsTest {
     private final UUID actor=new UUID(0,1),worldId=new UUID(0,2),town=new UUID(0,3),draft=new UUID(0,4),family=new UUID(0,5);
     private UUID currentWorld=worldId;private boolean manage=true,preview=false,online=true,unused=true;private long now=1000;private int lookups,saves;private long submitted;
     private CompletableFuture<HousingProjects.Binding> saving;private final List<UUID> operations=new ArrayList<>();
+    private CompletableFuture<ConstructionRecoveryReview.Result> recoverySaving;private int recoveries;private ConstructionRecoveryReview.Action recoveryAction=ConstructionRecoveryReview.Action.RETURN_ARRIVED;
     private final List<String> messages=new ArrayList<>();private final List<Component> buttons=new ArrayList<>();
     private final HousingProjects.Binding binding=new HousingProjects.Binding(new HousingProjects.Proposal(draft,family,500),town,worldId,"0".repeat(64),2,0,null,null);
     private final World world=(World)Proxy.newProxyInstance(World.class.getClassLoader(),new Class<?>[]{World.class},(p,m,a)->{
@@ -32,6 +33,9 @@ class PaperHousingProjectControlsTest {
         public CompletableFuture<HousingProjects.Binding> retire(UUID operation,UUID d,UUID w,long at){saves++;operations.add(operation);assertEquals(draft,d);assertEquals(worldId,w);if(submitted==0)submitted=at;else assertEquals(submitted,at);return saving;}
         public CompletableFuture<ConstructionSupplyOrders.VillageFunding> funding(UUID d,UUID w){lookups++;assertEquals(draft,d);assertEquals(worldId,w);return CompletableFuture.completedFuture(
                 new ConstructionSupplyOrders.VillageFunding(draft,2,List.of(new ConstructionSupplyOrders.MaterialNeed(new com.blueninjas24.civilizations.economy.Commodity("stone"),12,2,1,1,0,1)),2940L,5000,3500,1500,50,128,false,"Reference readiness only"));}
+        public CompletableFuture<List<String>> details(UUID d,UUID w){lookups++;return CompletableFuture.completedFuture(List.of("Saved before: minecraft:air","Saved after: minecraft:cobblestone"));}
+        public CompletableFuture<ConstructionRecoveryReview.Quote> recovery(UUID d,UUID w){lookups++;return CompletableFuture.completedFuture(new ConstructionRecoveryReview.Quote(draft,town,worldId,recoveryAction,3,60,2940,"a".repeat(64),"Real supplier buyback"));}
+        public CompletableFuture<ConstructionRecoveryReview.Result> recover(UUID operation,ConstructionRecoveryReview.Quote q,long time){recoveries++;operations.add(operation);assertEquals(2940,q.refund());if(submitted==0)submitted=time;else assertEquals(submitted,time);return recoverySaving;}
     },id->online?player(id):null,()->now,Logger.getLogger("ProjectControlsTest"));}
     private void command(PaperHousingProjectControls c,UUID player,String...parts){var args=new ArrayList<>(List.of("build"));args.addAll(List.of(parts));c.onCommand(player(player),null,"civ",args.toArray(String[]::new));}
     private String token(){return ((ClickEvent.Payload.Text)buttons.getLast().clickEvent().payload()).value().split(" ")[3];}
@@ -73,5 +77,27 @@ class PaperHousingProjectControlsTest {
         assertTrue(messages.stream().anyMatch(s->s.contains("still needed 10")&&s.contains("held for stages 1")));
         assertTrue(messages.getLast().contains("no supplier selected"));assertEquals(0,saves);assertTrue(buttons.isEmpty());
         command(c,actor,"funding",draft.toString());preview=false;int count=messages.size();c.run();assertEquals(count,messages.size());assertEquals(0,saves);
+    }
+    @Test void inspectionNeedsOnlyReadPermissionAndCannotGrantMonetaryRecovery(){
+        manage=false;preview=true;var c=controls();var route=new PaperConstructionPreview(new PaperConstructionLibrary(Map.of()));route.configureProjects(c);
+        assertEquals(List.of("inspectproject"),route.onTabComplete(player(actor),null,"civ",new String[]{"build","inspect"}));
+        route.onCommand(player(actor),null,"civ",new String[]{"build","inspectproject",draft.toString()});c.run();assertTrue(messages.contains("Saved after: minecraft:cobblestone"));assertTrue(buttons.isEmpty());
+        command(c,actor,"recoverproject",draft.toString());assertEquals(1,lookups);assertEquals(0,recoveries);
+    }
+    @Test void supplierRecoveryHasConcreteTermsAndRequiresItsOwnPlayerBoundConfirmation(){
+        var c=controls();command(c,actor,"recoverproject",draft.toString());c.run();assertEquals(0,recoveries);assertTrue(messages.stream().anyMatch(s->s.contains("29.4 emerald value")));
+        String token=token();command(c,actor,"confirmcancel",token);command(c,new UUID(0,99),"confirmrecovery",token);assertEquals(0,recoveries);assertEquals(0,saves);
+        recoverySaving=new CompletableFuture<>();command(c,actor,"confirmrecovery",token);command(c,actor,"confirmrecovery",token);assertEquals(1,recoveries);assertFalse(recoverySaving.isCancelled());
+        command(c,actor,"cancelrequest");assertTrue(messages.getLast().contains("already submitted"));online=false;c.run();
+        recoverySaving.complete(new ConstructionRecoveryReview.Result(recoveryAction,draft,3,2940,5L));c.run();online=true;command(c,actor,"confirmrecovery",token);assertEquals(1,recoveries);
+    }
+    @Test void recoveryRefusalHasNoButtonAndChangedAuthorityOrWorldStopsUnsubmittedSave(){
+        var c=controls();recoveryAction=ConstructionRecoveryReview.Action.NONE;command(c,actor,"recoverproject",draft.toString());c.run();assertTrue(buttons.isEmpty());
+        recoveryAction=ConstructionRecoveryReview.Action.RECALL_PENDING;command(c,actor,"recoverproject",draft.toString());c.run();String token=token();currentWorld=new UUID(0,77);command(c,actor,"confirmrecovery",token);assertEquals(0,recoveries);c.run();currentWorld=worldId;
+        command(c,actor,"recoverproject",draft.toString());c.run();token=token();manage=false;command(c,actor,"confirmrecovery",token);assertEquals(0,recoveries);manage=true;now+=60_001;command(c,actor,"confirmrecovery",token);assertEquals(0,recoveries);
+    }
+    @Test void failedRecoveryRetriesExactOperationTimeAndClosingRetainsAcceptedFuture(){
+        var c=controls();command(c,actor,"recoverproject",draft.toString());c.run();String token=token();recoverySaving=CompletableFuture.failedFuture(new BuildingRegistry.Declined("Haul changed"));command(c,actor,"confirmrecovery",token);c.run();
+        now+=100;recoverySaving=new CompletableFuture<>();command(c,actor,"confirmrecovery",token);assertEquals(2,recoveries);assertEquals(operations.getFirst(),operations.getLast());c.close();assertFalse(recoverySaving.isCancelled());
     }
 }

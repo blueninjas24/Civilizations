@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 import java.util.function.*;
 import java.util.logging.*;
 
-/** Explicit operator recovery for unused home proposals only. No paid-asset refund, demolition or native scan. */
+/** Bounded operator project inspection and confirmed unused cancellation/supplier recovery. No native writes. */
 public final class PaperHousingProjectControls extends BukkitRunnable implements CommandExecutor,AutoCloseable {
     public static final String MANAGE="civilizations.construction.manage";
     public interface Owner {
@@ -24,12 +24,16 @@ public final class PaperHousingProjectControls extends BukkitRunnable implements
         CompletableFuture<HousingProjectStatus.Item> inspect(UUID draft,UUID world);
         CompletableFuture<HousingProjects.Binding> retire(UUID operation,UUID draft,UUID world,long submitted);
         default CompletableFuture<ConstructionSupplyOrders.VillageFunding> funding(UUID draft,UUID world){return CompletableFuture.failedFuture(new BuildingRegistry.Declined("Construction funding report unavailable"));}
+        default CompletableFuture<List<String>> details(UUID draft,UUID world){return CompletableFuture.failedFuture(new BuildingRegistry.Declined("Project details unavailable"));}
+        default CompletableFuture<ConstructionRecoveryReview.Quote> recovery(UUID draft,UUID world){return CompletableFuture.failedFuture(new BuildingRegistry.Declined("Recovery preview unavailable"));}
+        default CompletableFuture<ConstructionRecoveryReview.Result> recover(UUID operation,ConstructionRecoveryReview.Quote quote,long submitted){return CompletableFuture.failedFuture(new BuildingRegistry.Declined("Confirmed supply recovery unavailable"));}
     }
-    private enum Mode { STATUS,FUNDING,PREVIEW,SAVING }
+    private enum Mode { STATUS,FUNDING,DETAILS,PREVIEW,RECOVERY_PREVIEW,SAVING,RECOVERING }
     private record Pending(UUID player,UUID world,long started,Mode mode,CompletableFuture<?> work){}
     private static final class Preview {
-        final UUID token=UUID.randomUUID(),world,draft;final long expires;Long submitted;
-        Preview(UUID world,UUID draft,long expires){this.world=world;this.draft=draft;this.expires=expires;}
+        final UUID token=UUID.randomUUID(),world,draft;final long expires;final ConstructionRecoveryReview.Quote recovery;Long submitted;
+        Preview(UUID world,UUID draft,long expires){this(world,draft,expires,null);}
+        Preview(UUID world,UUID draft,long expires,ConstructionRecoveryReview.Quote recovery){this.world=world;this.draft=draft;this.expires=expires;this.recovery=recovery;}
     }
     private final Owner owner;private final Function<UUID,Player> players;private final LongSupplier clock;private final Logger logger;
     private final Map<UUID,Pending> waiting=new LinkedHashMap<>();private final Map<UUID,Preview> previews=new HashMap<>();private boolean closed;
@@ -42,6 +46,9 @@ public final class PaperHousingProjectControls extends BukkitRunnable implements
             public CompletableFuture<HousingProjectStatus.Item> inspect(UUID d,UUID w){return session.housingProjectInspection(d,w,policy);}
             public CompletableFuture<HousingProjects.Binding> retire(UUID o,UUID d,UUID w,long at){return session.retireUnusedHousingProject(o,d,w,at);}
             public CompletableFuture<ConstructionSupplyOrders.VillageFunding> funding(UUID d,UUID w){return session.constructionVillageFunding(d,w,budget,supply);}
+            public CompletableFuture<List<String>> details(UUID d,UUID w){return session.constructionProjectInspection(d,w);}
+            public CompletableFuture<ConstructionRecoveryReview.Quote> recovery(UUID d,UUID w){return session.constructionRecoveryReview(d,w);}
+            public CompletableFuture<ConstructionRecoveryReview.Result> recover(UUID o,ConstructionRecoveryReview.Quote q,long at){return session.recoverConstructionSupplies(o,q.draft(),q.world(),q.action(),q.terms(),at);}
         },Bukkit::getPlayer,System::currentTimeMillis,logger);
     }
     public PaperHousingProjectControls(Owner owner,Function<UUID,Player> players,LongSupplier clock,Logger logger){
@@ -50,47 +57,61 @@ public final class PaperHousingProjectControls extends BukkitRunnable implements
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){
         if(!(sender instanceof Player player)){sender.sendMessage("Use project controls as a player in the project's world.");return true;}
         String action=args.length>=2?args[1].toLowerCase(Locale.ROOT):"";
-        boolean status=action.equals("projects")||action.equals("funding");String permission=status?PaperConstructionPreview.PERMISSION:MANAGE;
-        if(!(action.equals("cancelrequest")?(player.hasPermission(MANAGE)||player.hasPermission(PaperConstructionPreview.PERMISSION)):player.hasPermission(permission))){sender.sendMessage("You do not have permission to "+(status?"inspect":"cancel")+" home projects.");return true;}
+        boolean status=action.equals("projects")||action.equals("funding")||action.equals("inspectproject");String permission=status?PaperConstructionPreview.PERMISSION:MANAGE;
+        if(!(action.equals("cancelrequest")?(player.hasPermission(MANAGE)||player.hasPermission(PaperConstructionPreview.PERMISSION)):player.hasPermission(permission))){sender.sendMessage("You do not have permission to "+(status?"inspect":"manage")+" home projects.");return true;}
         if(closed){sender.sendMessage("Project controls are stopping.");return true;}
         UUID actor=player.getUniqueId();long now=clock.getAsLong();var active=waiting.get(actor);
         if(action.equals("cancelrequest")&&args.length==2){
-            if(active!=null&&active.mode()==Mode.SAVING){sender.sendMessage("Cancellation was already submitted; its saved result will follow.");return true;}
+            if(active!=null&&(active.mode()==Mode.SAVING||active.mode()==Mode.RECOVERING)){sender.sendMessage("Project change was already submitted; its saved result will follow.");return true;}
             waiting.remove(actor);previews.remove(actor);sender.sendMessage("Unsubmitted project request discarded.");return true;
         }
         if(active!=null){sender.sendMessage("Your project request is still being checked or saved.");return true;}
-        if(args.length!=3||!Set.of("projects","funding","cancelproject","confirmcancel").contains(action)){usage(sender);return true;}
+        if(args.length!=3||!Set.of("projects","funding","inspectproject","recoverproject","confirmrecovery","cancelproject","confirmcancel").contains(action)){usage(sender);return true;}
         UUID id;try{id=UUID.fromString(args[2]);}catch(IllegalArgumentException invalid){sender.sendMessage("Project, village or confirmation ID must be a UUID.");return true;}
         previews.entrySet().removeIf(e->now>e.getValue().expires&&!waiting.containsKey(e.getKey()));
         UUID world=player.getWorld().getUID();
-        if(action.equals("confirmcancel")){
+        if(action.equals("confirmcancel")||action.equals("confirmrecovery")){
             var preview=previews.get(actor);
-            if(preview==null||!preview.token.equals(id)||!preview.world.equals(world)||now>preview.expires){sender.sendMessage("Cancellation preview expired or changed; review the project again.");return true;}
+            boolean recovery=action.equals("confirmrecovery");
+            if(preview==null||!preview.token.equals(id)||!preview.world.equals(world)||now>preview.expires||recovery!=(preview.recovery!=null)){sender.sendMessage("Project confirmation expired, changed or has another action; review again.");return true;}
             if(waiting.size()>=4){sender.sendMessage("Project controls are busy; retry shortly.");return true;}
             if(preview.submitted==null)preview.submitted=now;
-            waiting.put(actor,new Pending(actor,world,now,Mode.SAVING,owner.retire(preview.token,preview.draft,world,preview.submitted)));
-            sender.sendMessage("Saving unused-project cancellation; funds, goods, people and blocks will not be deleted.");return true;
+            waiting.put(actor,new Pending(actor,world,now,recovery?Mode.RECOVERING:Mode.SAVING,recovery?owner.recover(preview.token,preview.recovery,preview.submitted):owner.retire(preview.token,preview.draft,world,preview.submitted)));
+            sender.sendMessage(recovery?"Saving reviewed supplier recovery; final cash, goods, work and delivery checks still apply.":"Saving unused-project cancellation; funds, goods, people and blocks will not be deleted.");return true;
         }
         var users=new HashSet<>(waiting.keySet());users.addAll(previews.keySet());
         if(users.size()-(users.contains(actor)?1:0)>=4){sender.sendMessage("Project controls are busy; retry shortly.");return true;}
         previews.remove(actor);
-        var future=action.equals("funding")?owner.funding(id,world):status?owner.status(id,world):owner.inspect(id,world);
-        waiting.put(actor,new Pending(actor,world,now,action.equals("funding")?Mode.FUNDING:status?Mode.STATUS:Mode.PREVIEW,future));
-        sender.sendMessage(action.equals("funding")?"Reading current project materials and protected funds; nothing will be purchased.":status?"Reading retained home projects; no changes will be made.":"Checking whether this home project is unused; nothing cancelled yet.");return true;
+        Mode mode=action.equals("funding")?Mode.FUNDING:action.equals("inspectproject")?Mode.DETAILS:action.equals("recoverproject")?Mode.RECOVERY_PREVIEW:status?Mode.STATUS:Mode.PREVIEW;
+        var future=switch(mode){case FUNDING->owner.funding(id,world);case DETAILS->owner.details(id,world);case RECOVERY_PREVIEW->owner.recovery(id,world);case STATUS->owner.status(id,world);default->owner.inspect(id,world);};
+        waiting.put(actor,new Pending(actor,world,now,mode,future));
+        sender.sendMessage(mode==Mode.RECOVERY_PREVIEW?"Reviewing unused paid supplies; no refund or return submitted yet.":mode==Mode.DETAILS?"Reading saved work and exact unresolved block states; no world changes.":action.equals("funding")?"Reading current project materials and protected funds; nothing will be purchased.":status?"Reading retained home projects; no changes will be made.":"Checking whether this home project is unused; nothing cancelled yet.");return true;
     }
     @Override public void run(){
         if(closed)return;long now=clock.getAsLong();
         for(var iterator=waiting.values().iterator();iterator.hasNext();){
-            var pending=iterator.next();var player=players.apply(pending.player());boolean saving=pending.mode()==Mode.SAVING;
-            if(!saving&&(player==null||!player.getWorld().getUID().equals(pending.world())||!player.hasPermission(pending.mode()==Mode.STATUS||pending.mode()==Mode.FUNDING?PaperConstructionPreview.PERMISSION:MANAGE))){iterator.remove();continue;}
+            var pending=iterator.next();var player=players.apply(pending.player());boolean saving=pending.mode()==Mode.SAVING||pending.mode()==Mode.RECOVERING;
+            if(!saving&&(player==null||!player.getWorld().getUID().equals(pending.world())||!player.hasPermission(pending.mode()==Mode.STATUS||pending.mode()==Mode.FUNDING||pending.mode()==Mode.DETAILS?PaperConstructionPreview.PERMISSION:MANAGE))){iterator.remove();continue;}
             if(!saving&&now-pending.started()>30_000){player.sendMessage("Project review expired; try again.");iterator.remove();continue;}
             if(!pending.work().isDone())continue;
             try{
                 var result=pending.work().join();
                 if(saving){
-                    previews.remove(pending.player());if(player!=null)player.sendMessage("Unused home project cancelled: "+((HousingProjects.Binding)result).proposal().draft()+". Site/family reservations released; history retained.");
+                    previews.remove(pending.player());if(player!=null){
+                        if(pending.mode()==Mode.RECOVERING){var recovered=(ConstructionRecoveryReview.Result)result;player.sendMessage("Supplier recovery saved: "+recovered.draft()+"; "+recovered.orders()+" orders; village refund "+value(recovered.refunded())+" emerald value. "+(recovered.duePeriod()==null?"Pending goods withdrawn.":"Return cargo due in earned food period "+recovered.duePeriod()+"."));player.sendMessage("Site/family reservation and all history remain. Use confirmed unused cancellation separately if appropriate.");}
+                        else player.sendMessage("Unused home project cancelled: "+((HousingProjects.Binding)result).proposal().draft()+". Site/family reservations released; history retained.");
+                    }
                 }else if(pending.mode()==Mode.STATUS){((HousingProjectStatus.Report)result).describe().forEach(player::sendMessage);}
                 else if(pending.mode()==Mode.FUNDING){funding(player,(ConstructionSupplyOrders.VillageFunding)result);}
+                else if(pending.mode()==Mode.DETAILS){@SuppressWarnings("unchecked") var lines=(List<String>)result;lines.forEach(player::sendMessage);}
+                else if(pending.mode()==Mode.RECOVERY_PREVIEW){
+                    var quote=(ConstructionRecoveryReview.Quote)result;player.sendMessage(quote.explanation());
+                    if(quote.action()!=ConstructionRecoveryReview.Action.NONE){var preview=new Preview(pending.world(),quote.draft(),now+60_000,quote);previews.put(pending.player(),preview);
+                        player.sendMessage("Recovery preview: "+quote.draft()+"; "+quote.action()+"; "+quote.orders()+" orders / "+quote.units()+" units; original supplier refund "+value(quote.refund())+" emerald value to village "+quote.village()+".");
+                        player.sendMessage("Final readiness is rechecked. Paid/started work cannot be erased. Site/family reservations stay; confirm within60 seconds.");
+                        player.sendMessage(Component.text("Click to confirm this supplier recovery").clickEvent(ClickEvent.runCommand("/civ build confirmrecovery "+preview.token)));
+                    }
+                }
                 else{
                     var item=(HousingProjectStatus.Item)result;
                     if(!item.unused()){player.sendMessage("Project cannot use unused cancellation: cancelled, unavailable world, paid supplies, held materials or physical work require review. Nothing changed.");}
@@ -120,6 +141,6 @@ public final class PaperHousingProjectControls extends BukkitRunnable implements
         player.sendMessage(q.explanation());player.sendMessage("Read-only reference report: no supplier selected, no goods reserved and no payment or block authority.");
     }
     private static String value(long hundredths){return java.math.BigDecimal.valueOf(hundredths,2).stripTrailingZeros().toPlainString();}
-    private static void usage(CommandSender sender){sender.sendMessage("/civ build projects <village UUID> | funding <project UUID> | cancelproject <project UUID> | confirmcancel <token> | cancelrequest");}
+    private static void usage(CommandSender sender){sender.sendMessage("/civ build projects <village UUID> | funding/inspectproject/recoverproject <project UUID> | cancelproject <project UUID> | confirmcancel/confirmrecovery <token> | cancelrequest");}
     @Override public void close(){closed=true;waiting.clear();previews.clear();} // Accepted owner saves drain independently.
 }

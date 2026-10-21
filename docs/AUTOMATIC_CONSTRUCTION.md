@@ -75,9 +75,10 @@ of real labor wait with diagnostics. No chunks are loaded for work. Read:
 
 Existing recovery preserves exact output after restart. PREPARED plus air after
 restart remains ambiguous and cannot authorize a free replacement; changed native
-work is not overwritten. Started-work repair/force-resume is not exposed. Keep
-the save and project ID for manual review. Unused cancellation remains explicitly
-confirmed and refuses paid/started work. No automatic recall/refund/demolition.
+work is not overwritten. Started-work repair/force-resume is not exposed. Use inspectproject for exact saved
+unresolved states and retain the project ID for manual review. Unused cancellation remains explicitly
+confirmed and refuses paid/started work. Confirmed unused supplier recovery is available through recoverproject and
+confirmrecovery; cancellation remains separate. No automatic recall/refund/demolition.
 
 The ordinary runtime uses wall time shared with PopulationSession. Accelerated
 fixtures must inject the same clock into both; a future/stale timestamp cannot

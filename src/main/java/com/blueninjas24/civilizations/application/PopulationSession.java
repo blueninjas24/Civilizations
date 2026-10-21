@@ -1506,6 +1506,20 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.HousingProjectStatus(database.getConnection()).find(draft,
                 new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,loadedWorlds!=null&&loadedWorlds.contains(world),policy,now.getAsLong()));});
     }
+    public CompletableFuture<java.util.List<String>> constructionProjectInspection(UUID draft,UUID world){
+        return submit(()->{requireBuildingWorld(world,world);return new com.blueninjas24.civilizations.database.ConstructionProjectInspection(database.getConnection())
+                .inspect(draft,world,true);});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionRecoveryReview.Quote> constructionRecoveryReview(UUID draft,UUID world){
+        return submit(()->{requireBuildingWorld(world,world);return new com.blueninjas24.civilizations.database.ConstructionRecoveryReview(database.getConnection())
+                .review(draft,world,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds,industryPolicy);});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionRecoveryReview.Result> recoverConstructionSupplies(
+            UUID operation,UUID draft,UUID world,com.blueninjas24.civilizations.database.ConstructionRecoveryReview.Action action,String terms,long submitted){
+        return submit(()->{requireBuildingWorld(world,world);if(submitted>now.getAsLong())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Recovery submission belongs to the future");
+            return new com.blueninjas24.civilizations.database.ConstructionRecoveryReview(database.getConnection())
+                    .execute(operation,draft,world,action,terms,submitted,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds,industryPolicy);});
+    }
     /** Current financial readiness only; never reserves supplies, chooses a seller or makes a payment. */
     public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionSupplyOrders.VillageFunding> constructionVillageFunding(
             UUID draft,UUID world,com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy budget,

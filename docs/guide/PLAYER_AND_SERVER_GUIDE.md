@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.17 | 21 October 2026 | Player and server owner edition
+Living draft 0.18 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -56,6 +56,7 @@ Snapshot: P3 prototype gate complete; P4 has 5 of 16 checklist items complete. S
 - 29 Automatic home-site planning
 - 30 Read construction materials and protected funds
 - 31 Automatic family-home construction
+- 32 Inspect stalled work and recover unused supplies
 
 ## 1 Your first village session
 
@@ -516,7 +517,7 @@ Recovery does not refill extracted reserves, erase protected sources or authoriz
 
 ### Permissions
 
-civilizations.pen.admin permits pen confirmation. civilizations.pen.release still checks owner/admin authority for release. civilizations.construction.preview defaults to operators and permits inspection only. Breaking a sign does not release saved protection.
+civilizations.pen.admin permits pen confirmation; pen.release still checks owner/admin. Construction preview allows inspection; construction.manage allows confirmed unused-supply recovery. Chapter 32 covers /civ build inspectproject, recoverproject and confirmrecovery. Breaking a sign does not release saved protection.
 
 Sources: PaperPenControls, PaperConstructionPreview, PaperMineralRecovery and PaperForestRecovery.
 
@@ -776,7 +777,7 @@ Cancellation requires civilizations.construction.manage, which defaults to opera
 
 ### What stays protected
 
-Paid supplies, unreturned owned materials and any prepared physical work block this unused-cancellation path. They require a reviewed recovery process; the command cannot delete goods, refund money, remove buildings or erase history. Payment or work that arrives after preview is checked again at confirmation.
+Paid supplies, unreturned owned materials and any prepared physical work block this unused-cancellation path. Unused public supplier goods now have the separately confirmed recovery controls in Chapter 32; started or mixed-source work remains held for manual review. Cancellation itself cannot delete goods, refund money, remove buildings or erase history. Payment or work that arrives after preview is checked again at confirmation.
 
 A saved cancellation cannot reactivate its old proposal. A new home needs a fresh identity and review. Repossessing an existing donated home uses Chapter 24; the families and building remain recorded. An unstarted home pauses further commitments if its family gains suitable housing; already paid supplies remain saved. Durable physical work keeps its recovery/completion path so partial buildings are not stranded merely because housing needs change.
 
@@ -891,3 +892,37 @@ A missing world or unloaded chunk waits. An entity, changed protection, missing 
 A flat clear site and real supplies remain necessary. The current starter home has four beds and cannot fit every family. Existing adequate housing is preserved; villages do not replace working homes just to demonstrate construction. Confirmed damage or repossession can create need, but do not damage your world merely to force a test.
 
 Related chapters: housing, protection, automatic planning, funding, recovery, server backups and tuning. Source: AUTOMATIC_CONSTRUCTION.md. Wider P4 growth remains in progress.
+
+
+## 32 Inspect stalled work and recover unused supplies
+
+Status: Available operator controls. Started construction cannot be refunded or demolished through them. Money returns to the village, never the operator's inventory.
+
+### Inspect before acting
+
+Use /civ build inspectproject <project UUID> in the project's world. It reads saved plan/origin/rotation, acknowledged blocks and any unresolved block's exact coordinates and before/after states. It does not read or load chunks, compare live blocks or grant repair permission.
+
+Match the project ID in /civ debug construction for its latest native hold. Changed acknowledged blocks now identify coordinates there. Preserve the save if history is ambiguous. There is no force-resume or free replacement command; deleting rows is not a repair.
+
+### Review actual supplier recovery
+
+Run /civ build recoverproject <project UUID>. A read-only preview shows the mode, original order count, abstract units, refund in emerald value and receiving village. Original suppliers need enough real cash and space for the whole batch.
+
+| Recovery mode | What confirmation does |
+|---|---|
+| RECALL_PENDING | Withdraws pending orders in their original earned period; suppliers regain goods and refund the village |
+| RETURN_ARRIVED | Suppliers repurchase all arrived unused goods at the exact original price; real refund now, reserved return cargo arrives later |
+
+Confirm with the button within 60 seconds, or /civ build confirmrecovery <token>. Your world, permissions, action and exact paid terms must match. Cash, storage, transport and work are checked again. Work that advances after preview can cause a safe refusal. No partial batch, debt, new money, extra hauling allowance or instant reverse delivery is invented.
+
+### Keep control without deleting history
+
+/civ build cancelrequest discards an unsubmitted review. Accepted saves finish across disconnect; repeated clicks or retries cannot duplicate a refund.
+
+Recovery retains the family/site reservation and all order, sale and refund history. Use separately confirmed cancellation from Chapter 28 if the unused proposal should also retire. Original spending/hauling stays used. Returned goods are unavailable until their saved arrival.
+
+To pause for review, stop/edit/restart: automatic-construction.enabled controls new purchases/native steps; labor.enabled separately controls future public effort. Accepted deliveries continue. If pending recall expires, let goods arrive and review buyback. Started, private and mixed-source work stays outside these controls.
+
+Inspection uses civilizations.construction.preview; recovery uses civilizations.construction.manage, both operators by default. Four players can hold requests. Reads expire after 30 seconds; previews after 60. Permissions grant no arbitrary refunds or player-property changes.
+
+Related chapters: construction, project status, funding, backups and settings. Source: CONSTRUCTION_RECOVERY.md. Human survival and compatibility still need playtesting.

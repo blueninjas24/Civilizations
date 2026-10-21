@@ -1,5 +1,45 @@
 # Civilizations Development Log
 
+## 2026-10-21 — operator saved-work inspection and exact unused-supply recovery
+
+Added inspectproject for saved origin/rotation/work and unresolved intent position/
+before/after, with no native/chunk operations. Changed acknowledged native holds
+now include coordinates/expected/observed state. ConstructionRecoveryReview provides
+read-only formal-home previews: exact original order terms, active unused state,
+mode/earned period, real aggregate supplier refund cash/storage and shared return
+haul. recoverproject and separate confirmrecovery bind operator/player/world/action/
+terms/expiry; existing manage permission defaults to ops. Final owner checks call
+existing atomic recall/return ledgers; never create new refund money, remove native
+work, reset spending/haul, cancel a family/site or erase history.
+
+Fixed the queued confirmation time edge: submission authorizes a request but is
+not the economic execution clock. New recovery uses current serialized owner time;
+exact operation/paid-terms replay returns the original saved refund even after a
+later owner pulse. Readiness changes, new orders/delivery/work and incompatible
+permissions/worlds refuse instead of redirecting the operation. Reads30s, previews
+60s,4-user cap; accepted futures drain through duplicate click/disconnect/close.
+No schema changes beyond116; existing history preserved.
+
+Wrapper35 unit+3 packaged passed41.178s; final queued-time/confirmation15+3 clean
+verify passed32.163s. Metadata-only permission description packaged with tests
+explicitly skipped afterward (prior actual tests retained above). Temporary SQLite
+only; read-only total_changes assertions, exact refund/cargo/restart, changed terms,
+advanced pending time, current queued execution, actual supplier cash and intent
+holds, operator authority/confirmation/lifecycle. Actual ConstructionRecoveryControlProbe
+passed pinned disposable Paper twice, including the final owner-time artifact:
+read-only routed inspection, read permission unable to recover, concrete2940-unit
+refund preview, wrong-action token unable to cancel, one save despite duplicate
+click/disconnect,3 real original supplier refunds and exact actual-session restart
+replay. Original stock/cash/site/family/history preserved; no world/inventory
+operations. Both116 DBs integrity ok/FKs0; servers stopped/helpers archived.
+
+Handbook0.18 is35 pages/32 chapters; all rendered and visually reviewed, new
+Chapter32 stays on one readable page and permissions have no orphan page. Progress
+remains5/16=31%,1/4 groups: unused recovery does not complete physical started-work
+repair. Native human-client/compatibility playtesting remains. Actual server,
+worlds/database and main untouched. Next broader P4 sites/roads/useful buildings.
+Hosted0a0a2da and5c7bd73 both green; automatic-home fa5176c still running at check.
+
 ## 2026-10-21 — ordinary automatic paid family-home construction
 
 PaperAutomaticConstruction now wires formal household-bound home proposals to
