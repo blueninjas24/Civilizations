@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## 2026-10-21 — real SQL-owner intent/ack handoff and paid native path
+
+PopulationSession now prepares exact public economic intents and acknowledges
+fresh exact-project/world observations through its serialized owner. New intents
+require enabled construction, actual earned work/materials and fresh authority;
+old history may reconcile after new work is disabled. Wrong project/world, stale
+or future observations refuse without changing saved intent. Two focused session
+cases cover exact replay, disabled restart and acknowledgement scope.
+
+Strengthened actual paid-path Paper acceptance uses atomic local procurement,
+real payment/delayed arrival/unemployed effort, saved work pages, two-pass native
+review and these actual session APIs. Five marked temporary blocks placed once;
+actual session restart BEFORE acknowledgement resumes PREPARED -> existing state
+-> APPLIED. Changed acknowledged block persists as conflict; far unloaded target
+stays unloaded; all five originals restored. Both DBs115/ok/FKs0; fixture stopped
+and helper archived. No normal writer or housing activation is enabled.
+
+The first native run exposed that the new review required an existing path even
+for a path project. Fixed only PATH to match existing preview/development-writer
+rules; buildings still require actual entrance paths. Added regression. That
+failed fixture also restored/stopped with healthy DBs. Wrapper final12 unit +3
+packaged checks passed34.312s; earlier session/labor15+3 passed37.147s. No real
+server touched. Next: protect native steps against concurrent SQL authority changes.
+
 ## 2026-10-21 — bounded live review of journal-backed partial construction
 
 PaperConstructionWorkSurvey now reads only loaded main-thread cells, under a

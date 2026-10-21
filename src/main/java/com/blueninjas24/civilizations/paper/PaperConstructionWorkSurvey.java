@@ -41,7 +41,7 @@ public final class PaperConstructionWorkSurvey {
             if(ordinal==work.nextOrdinal()){atNext=at;afterNext=after;}ordinal++;
         }
         next=atNext;nextAfter=afterNext;
-        for(var anchor:nativePlan.anchors())if(anchor.role()==Role.ROAD)roads.add(draft.origin().plus(anchor.at()));
+        if(nativePlan.purpose()!=Purpose.PATH)for(var anchor:nativePlan.anchors())if(anchor.role()==Role.ROAD)roads.add(draft.origin().plus(anchor.at()));
         if(work.pending().isPresent()){
             var intent=work.pending().get();if(!intent.draft().equals(draft.id())||intent.ordinal()!=work.nextOrdinal()||!intent.at().equals(next)||!intent.after().equals(nextAfter))throw new IllegalArgumentException("Pending intent differs from frozen native plan");
         }

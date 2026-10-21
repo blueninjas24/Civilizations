@@ -50,6 +50,12 @@ Unjournaled matching blocks are refused. Authored ordinals survive mirroring.
 Wrapper9+3 and actual final disposable Paper passed; both DBs115/ok/FKs0, three
 test cells restored, server/helper stopped. This still grants no write permission.
 
+The actual disposable paid-path chain now uses atomic procurement, real delayed
+cargo/labor, saved-work queue, loaded review and serialized session prepare/ack.
+Five blocks survived an actual session restart before acknowledgement, conflict
+was preserved, remote chunks stayed unloaded and originals were restored. Both
+DBs115/ok/FKs0. Wrapper12+3 passed34.312s. No ordinary writer/bed activation yet.
+
 Next: paid-work/native handoff and completed-home
 activation. Local roads, terrain adaptation, business-premises reuse, upgrades and
 civic growth remain unfinished. No design question currently blocks under delegated

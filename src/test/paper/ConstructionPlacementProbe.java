@@ -16,12 +16,16 @@ public final class ConstructionPlacementProbe extends JavaPlugin {
     private final Map<Position,String> before=new LinkedHashMap<>();
     private final Set<Long> tickets=new HashSet<>();
     private DatabaseManager database;private Path folder;private World world;private ConstructionDraft draft;
+    private com.blueninjas24.civilizations.application.PopulationSession session;
+    private com.blueninjas24.civilizations.economy.EconomySettings economySettings;
+    private PaperConstructionWorkSurvey survey;
     private PaperConstructionStep writer;private CompletableFuture<?> pending;private int phase,index,ticks;
     private ConstructionBlockJournal.Intent last;private boolean authorized,restored;
     private record Far(ConstructionDraft draft,ConstructionBlockJournal.Intent intent){}
     @Override public void onEnable() {
         try {
             var root=getServer().getWorldContainer().toPath().toRealPath();
+            require(root.getParent().equals(Path.of(System.getProperty("java.io.tmpdir")).toRealPath())&&root.getFileName().toString().startsWith("civilizations-p4-preview-"),"Verified host temporary fixture root required");
             require(Files.readString(root.resolve("civilizations-dev-marker.txt")).trim().equals("Disposable Civilizations Phase 1 test environment")
                     &&getServer().getIp().equals("127.0.0.1")&&getServer().getPort()==25578&&getServer().getOnlinePlayers().isEmpty(),"Private disposable fixture required");
             authorized=true;world=getServer().getWorlds().getFirst();var spawn=world.getSpawnLocation();
@@ -64,29 +68,35 @@ public final class ConstructionPlacementProbe extends JavaPlugin {
     private void advance()throws Exception {
         var completed=pending.join();
         switch(phase) {
-            case 0->{phase=1;prepare();}
+            case 0->{newSession();phase=6;pending=CompletableFuture.runAsync(()->{database.close();database=null;},owner).thenCompose(ignored->session.start(false,Set.of(draft.world())));}
+            case 6->{prepare();}
+            case 10->{var page=(ConstructionWorkQueue.Page)completed;require(page.projects().size()==1,"Actual saved-work page contains paid path");var work=page.projects().getFirst();
+                require(work.state()==ConstructionWorkQueue.State.READY&&work.nextOrdinal()==index,"Only next fully paid stage step ready");survey=new PaperConstructionWorkSurvey(work,System.currentTimeMillis());phase=11;pending=CompletableFuture.completedFuture(null);}
+            case 11->{var frame=survey.advance(128,System.currentTimeMillis());if(frame.isEmpty())return;require(frame.get().authority().siteCleared(),"Current loaded native work frame verified: "+frame.get().explanation());
+                phase=1;pending=session.preparePublicConstructionStep(UUID.randomUUID(),draft.id(),index,"minecraft:cobblestone",frame.get().authority());}
             case 1->{
                 last=(ConstructionBlockJournal.Intent)completed;
                 var outcome=writer.attempt(last);require(outcome.state()==PaperConstructionStep.State.APPLIED,"Prepared block must be placed exactly once: "+outcome);
                 require(writer.attempt(last).state()==PaperConstructionStep.State.ALREADY_PRESENT,"Immediate retry must not write twice");
-                phase=2;pending=CompletableFuture.supplyAsync(()->{try{
-                    // Close/reopen after physical write, deliberately before SQL acknowledgement.
-                    if(index==0)reopen();return new ConstructionBlockJournal(database.getConnection()).find(last.operation()).orElseThrow();
-                }catch(Exception failed){throw new CompletionException(failed);}},owner);
+                // Deliberately restart the real SQL owner after world write, before durable acknowledgement.
+                if(index==0){session.close();newSession();pending=session.start(false,Set.of(draft.world())).thenCompose(ignored->session.constructionWorkPage(null,8));}
+                else pending=session.constructionWorkPage(null,8);phase=2;
             }
             case 2->{
-                last=(ConstructionBlockJournal.Intent)completed;require(last.state()==ConstructionBlockJournal.State.PREPARED,"Unacknowledged intent must survive reopen");
-                require(writer.attempt(last).state()==PaperConstructionStep.State.ALREADY_PRESENT,"Recovered writer must only acknowledge exact existing output");
-                phase=3;pending=CompletableFuture.supplyAsync(()->{try{return new ConstructionBlockJournal(database.getConnection()).acknowledge(last.operation(),last.after());}catch(Exception failed){throw new CompletionException(failed);}},owner);
+                var page=(ConstructionWorkQueue.Page)completed;last=page.projects().getFirst().pending().orElseThrow();require(last.state()==ConstructionBlockJournal.State.PREPARED,"Unacknowledged intent survives actual session restart");
+                require(writer.attempt(last).state()==PaperConstructionStep.State.ALREADY_PRESENT,"Recovered writer only acknowledges exact existing output");
+                phase=3;pending=session.acknowledgePublicConstructionStep(last.operation(),draft.id(),draft.world(),last.after(),System.currentTimeMillis());
             }
             case 3->{
                 last=(ConstructionBlockJournal.Intent)completed;require(last.state()==ConstructionBlockJournal.State.APPLIED,"Native output acknowledged");
-                if(++index<5){phase=1;prepare();return;}
+                if(++index<5){prepare();return;}
                 var p=last.at();world.getBlockAt(p.x(),p.y(),p.z()).setType(Material.DIAMOND_BLOCK,false);
                 require(writer.attempt(last).state()==PaperConstructionStep.State.CONFLICT,"Changed acknowledged block must never be replaced");
                 require(world.getBlockAt(p.x(),p.y(),p.z()).getType()==Material.DIAMOND_BLOCK,"Conflicting block preserved");
-                phase=4;pending=CompletableFuture.supplyAsync(()->{try{
-                    require(new ConstructionBlockJournal(database.getConnection()).acknowledge(last.operation(),"minecraft:diamond_block").state()==ConstructionBlockJournal.State.CONFLICT,"Conflict retained in SQL");
+                phase=12;pending=session.acknowledgePublicConstructionStep(last.operation(),draft.id(),draft.world(),"minecraft:diamond_block",System.currentTimeMillis());
+            }
+            case 12->{require(((ConstructionBlockJournal.Intent)completed).state()==ConstructionBlockJournal.State.CONFLICT,"Conflict retained through real owner acknowledgement");
+                session.close();session=null;phase=4;pending=CompletableFuture.supplyAsync(()->{try{reopen();
                     var far=new ConstructionDraft(UUID.randomUUID(),draft.settlement(),draft.world(),new Position(2_000_000,draft.origin().y(),2_000_000),Transform.identity(),draft.template(),1000);
                     new ConstructionDraftRepository(database.getConnection()).save(far);
                     return new Far(far,new ConstructionBlockJournal(database.getConnection()).prepare(UUID.randomUUID(),far.id(),0,"minecraft:cobblestone"));
@@ -99,13 +109,16 @@ public final class ConstructionPlacementProbe extends JavaPlugin {
                 require(!world.isChunkLoaded(125000,125000),"Writer must not load remote target");
                 phase=5;pending=CompletableFuture.runAsync(()->{database.close();database=null;},owner);
             }
-            case 5->{restore();require(restored,"All five test cells restored");phase=6;getLogger().info("P4_PLACEMENT_PASS: real protected public payment, delayed cargo, earned unemployed labor and stage escrow; five native blocks, exact retries, database-reopen crash window, changed-block conflict and unloaded target without force-load; originals restored; no ordinary writer or capacity activation");getServer().shutdown();}
+            case 5->{restore();require(restored,"All five test cells restored");phase=6;getLogger().info("P4_PLACEMENT_PASS: atomic actual supplier procurement, protected payment, delayed cargo, earned unemployed labor and stage escrow; saved work queue, two-pass native review, real serialized intent/ack APIs; five native blocks, exact retries, actual session-restart crash window, changed-block conflict and unloaded target without force-load; originals restored; no ordinary writer or capacity activation");getServer().shutdown();}
             default->{}
         }
     }
-    private void prepare(){
-        var authority=new ConstructionMaterials.Authority(draft.id(),draft.world(),System.currentTimeMillis(),true,true);
-        pending=CompletableFuture.supplyAsync(()->{try{return new ConstructionBlockJournal(database.getConnection()).preparePublic(UUID.randomUUID(),draft.id(),index,"minecraft:cobblestone",authority,System.currentTimeMillis(),Set.of(draft.world()));}catch(Exception failed){throw new CompletionException(failed);}},owner);
+    private void prepare(){phase=10;pending=session.constructionWorkPage(null,8);}
+    private void newSession(){
+        var p=com.blueninjas24.civilizations.application.PopulationSession.Settings.prototype();
+        var settings=new com.blueninjas24.civilizations.application.PopulationSession.Settings(0,p.millisPerMonth(),p.maximumOfflineMonths(),p.monthsPerBatch(),p.population(),p.migration(),p.recognition(),p.enrollment());
+        session=new com.blueninjas24.civilizations.application.PopulationSession(folder.toFile(),getLogger(),settings,System::currentTimeMillis,economySettings,com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype());
+        session.configureConstruction(ConstructionBudgetPolicy.prototype(),new ConstructionLaborPolicy(true,1,1,2,25));
     }
     private void fundAndEarnPath()throws Exception {
         var c=database.getConnection();var town=draft.settlement();var supplier=UUID.randomUUID();var ownerId=UUID.randomUUID();var builder=UUID.randomUUID();
@@ -124,13 +137,14 @@ public final class ConstructionPlacementProbe extends JavaPlugin {
         var bands=new EnumMap<com.blueninjas24.civilizations.economy.CommodityAccounting.Condition,Integer>(com.blueninjas24.civilizations.economy.CommodityAccounting.Condition.class);
         for(var band:com.blueninjas24.civilizations.economy.CommodityAccounting.Condition.values())bands.put(band,100);
         var settings=new com.blueninjas24.civilizations.economy.EconomySettings(1,3,2,2,1,4,100,new com.blueninjas24.civilizations.economy.CommodityAccounting.Policy(5000,12500,20000,3),Map.of(food,100L),Map.of(food,java.math.BigDecimal.ONE),bands);
-        var economy=new EconomyRuntimeRepository(c,settings,com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype(),216);
+        economySettings=settings;var economy=new EconomyRuntimeRepository(c,settings,com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype(),216);
         economy.observe(new com.blueninjas24.civilizations.economy.FarmObservation(town,draft.world(),1000,true,0),1000);economy.startOnline(1000,Set.of(draft.world()));economy.pulse(2000,false);
         var runtime=new com.blueninjas24.civilizations.industry.IndustryRuntimePolicy(true,1000,8,com.blueninjas24.civilizations.industry.IndustryPolicy.prototype(),Map.of(),com.blueninjas24.civilizations.industry.WorkshopSupplyPolicy.disabled(),new com.blueninjas24.civilizations.industry.WarehouseSupplyPolicy(true,16,16),com.blueninjas24.civilizations.industry.ToolUpkeepPolicy.disabled());
         var purchases=new ConstructionSupplyOrders(c,ConstructionBudgetPolicy.prototype(),ConstructionSupplyPolicy.prototype(),runtime,com.blueninjas24.civilizations.industry.BusinessOperationPolicy.prototype());
-        var request=new ConstructionSupplyOrders.Request(UUID.randomUUID(),draft.id(),supplier,ConstructionBudgetPolicy.Source.VILLAGE,null,stone,2,1);
         long before=treasury.load(town).orElseThrow().hundredths();
-        var receipt=purchases.purchase(request,new ConstructionMaterials.Authority(draft.id(),draft.world(),System.currentTimeMillis(),true,true),System.currentTimeMillis(),Set.of(draft.world()));
+        var batch=new ConstructionVillageProcurement(c,ConstructionBudgetPolicy.prototype(),ConstructionSupplyPolicy.prototype(),runtime,com.blueninjas24.civilizations.industry.BusinessOperationPolicy.prototype())
+                .purchaseRemaining(draft.id(),new ConstructionMaterials.Authority(draft.id(),draft.world(),System.currentTimeMillis(),true,true),System.currentTimeMillis(),Set.of(draft.world()));
+        require(batch.purchases().size()==1,"Atomic actual supplier procurement");var receipt=batch.purchases().getFirst();var request=receipt.request();
         require(receipt.price()==50&&treasury.load(town).orElseThrow().hundredths()==before-50&&database.getIndustryRepository().store(supplier).orElseThrow().hundredths()==50,"Real supplier payment conserved");
         require(purchases.stock(draft.id()).isEmpty(),"Pending cargo cannot build");
         economy.pulse(3000,false);require(ConstructionSupplyOrders.deliveryOnly(c).deliverReady(Set.of(draft.world()),16)==1,"Earned-period delivery");
@@ -146,6 +160,6 @@ public final class ConstructionPlacementProbe extends JavaPlugin {
         var p=entry.getKey();if(!world.isChunkLoaded(p.x()>>4,p.z()>>4))throw new IllegalStateException("Fixture cleanup must not load a chunk");
         world.getBlockAt(p.x(),p.y(),p.z()).setBlockData(getServer().createBlockData(entry.getValue()),false);
     }restored=true;world.removePluginChunkTickets(this);tickets.clear();}
-    @Override public void onDisable(){restore();owner.execute(()->{if(database!=null){database.close();database=null;}});owner.shutdown();}
+    @Override public void onDisable(){restore();if(session!=null){session.close();session=null;}owner.execute(()->{if(database!=null){database.close();database=null;}});owner.shutdown();}
     private static void require(boolean condition,String message){if(!condition)throw new IllegalStateException(message);}
 }

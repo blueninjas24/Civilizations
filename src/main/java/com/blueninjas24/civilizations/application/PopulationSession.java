@@ -1548,6 +1548,27 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionWorkQueue(database.getConnection())
                 .page(after,limit,loadedWorlds==null?Set.of():loadedWorlds);});
     }
+    /** Commit exact economic intent before a future native writer acts; this is not world-write permission. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent> preparePublicConstructionStep(
+            UUID operation,UUID draft,int ordinal,String nativeAfter,com.blueninjas24.civilizations.database.ConstructionMaterials.Authority authority){
+        return submit(()->{requireBuildingWorld(authority.world(),authority.world());
+            if(constructionLabor==null||!constructionLabor.enabled())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Public construction is disabled; saved intent/assets retained");
+            return new com.blueninjas24.civilizations.database.ConstructionBlockJournal(database.getConnection())
+                    .preparePublic(operation,draft,ordinal,nativeAfter,authority,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
+        });
+    }
+    /** Fresh exact-project native observation only. History may be reconciled even after new work is disabled. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent> acknowledgePublicConstructionStep(
+            UUID operation,UUID draft,UUID world,String observed,long capturedMillis){
+        return submit(()->{requireBuildingWorld(world,world);long current=now.getAsLong();
+            if(capturedMillis<0||capturedMillis>current||current-capturedMillis>5000)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Construction observation expired or belongs to the future");
+            var journal=new com.blueninjas24.civilizations.database.ConstructionBlockJournal(database.getConnection());
+            var intent=journal.find(operation).orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown saved construction intent"));
+            var plan=new com.blueninjas24.civilizations.database.ConstructionDraftRepository(database.getConnection()).find(intent.draft()).orElseThrow();
+            if(!intent.draft().equals(draft)||!plan.world().equals(world))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Construction observation does not match its saved project/world");
+            return journal.acknowledge(operation,observed);
+        });
+    }
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanningJobs.Page> housingPlanningJobs(
             UUID after,int limit,List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
             com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,

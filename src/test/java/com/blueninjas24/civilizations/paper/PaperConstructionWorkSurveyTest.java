@@ -70,4 +70,12 @@ class PaperConstructionWorkSurveyTest {
         var acknowledged=new ConstructionWorkQueue.Work(d,ConstructionWorkQueue.State.READY,1,Optional.empty(),"Mirrored first block acknowledged");
         assertTrue(finish(new PaperConstructionWorkSurvey(acknowledged,nativePlan,1000,id->world,()->primary)).authority().siteCleared());
     }
+    @Test void newPathCanStartOnSafeGroundWithoutPretendingItsEndpointsAreExistingRoads(){
+        var path=new ConstructionTemplate(plan.id(),plan.revision(),plan.name(),plan.attribution(),Purpose.PATH,plan.size(),plan.stages(),plan.anchors());
+        var d=new ConstructionDraft(UUID.randomUUID(),draft.settlement(),draft.world(),origin,Transform.identity(),path,1000);
+        changed.put(new Position(0,63,-1),Material.STONE);
+        var ready=new ConstructionWorkQueue.Work(d,ConstructionWorkQueue.State.READY,0,Optional.empty(),"Paid new path");
+        assertTrue(finish(new PaperConstructionWorkSurvey(ready,path,1000,id->world,()->primary)).authority().siteCleared());
+        assertFalse(finish(survey(0,Optional.empty())).authority().siteCleared(),"Buildings still require an actual entrance path");
+    }
 }

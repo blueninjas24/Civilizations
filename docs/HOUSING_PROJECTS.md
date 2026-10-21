@@ -1,5 +1,17 @@
 # Household-bound housing proposals
 
+## Serialized native intent and acknowledgement
+
+Session preparePublicConstructionStep requires enabled public work and commits
+the actual paid/labor-backed intent before any future writer acts. Acknowledgement
+requires a fresh exact-project/world native observation; reconciliation remains
+available after disabling new work. No normal writer is enabled. Actual isolated
+paid-path acceptance now exercises atomic procurement, loaded review, session
+prepare/write/restart-before-ack/ack, exact retries and conflict preservation.
+PATH review allows safe new path endpoints without an existing path; buildings
+retain their entrance-path requirement. Current authority changes still need an
+atomic native gate before production execution is permitted.
+
 ## Current loaded-world work review
 
 PaperConstructionWorkSurvey accepts saved paid-work snapshots and checks the
