@@ -1,72 +1,44 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 housing, guarded planning and paid-material backend
+## Current — Phase4 guarded paid construction foundation
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 remains25%,
-4/16 complete checklist items and1/4 complete groups. Phase3 prototype is complete;
-human survival testing remains deferred. No actual server deployment/world change.
+4/16 complete checklist items and1/4 complete groups. P3 prototype complete;
+human survival testing deferred. Actual Minecraft server/world/database untouched.
 
-- Live whole-family housing, adult household formation, explicit home/apartment
-  donation, donor reclamation and separate renovation consent remain available.
-- Automatic loaded-only two-pass home-site planning saves guarded unused family/
-  plan/site proposals beside existing paths. Editable limits and current SQL
-  protection/need apply. It neither buys goods nor places blocks.
-- Operators inspect housing/projects/protected cash/material readiness and may
-  separately confirm unused-project cancellation. Handbook0.16 remains32 pages,
- 30 chapters; no new user-facing command was added by the current backend batch.
-- New atomic procurement selects actual qualified local stocked suppliers and
-  purchases complete remaining frozen inputs under existing cash/food/upkeep,
-  period and shared-haul limits. Missing supply/late refusal rolls everything back.
-- Schema114 adds whole pending public-purchase recall with real seller refunds/
-  storage and durable before-after/treasury history. Only undelivered orders in
-  their original earned period qualify. Recall prevents delivery/repurchase/work;
-  existing unused retirement can then release the family/site. Original sales,
-  spending/haul and all residents remain. Delivered or started projects still hold.
-- Schema115 adds exact-price original-supplier buyback of wholly arrived, unused
-  public materials, with real cash, reserved return cargo/storage and shared haul.
-  Suppliers receive stock only after earned arrival. The bounded owner loop
-  resumes paid returns after restart/world absence and site retirement. Started
-  stage-work/native projects still require reviewed recovery.
-- New procurement/recall/return APIs are serialized internal boundaries; automatic live
-  spending remains off. No ordinary native writer/completed-home activation yet.
+Implemented:
+- Whole-family housing, adult households, explicit home/apartment donation,
+  donor reclamation and separate renovation consent.
+- Automatic loaded-only dry home planning with guarded existing-path selection,
+  current protected land/need and editable limits. It still buys/builds nothing.
+- Operator housing/project/funding reports and confirmed unused cancellation.
+- Atomic real supplier procurement, protected food/upkeep cash, actual paid cargo,
+  earned public labor/material escrow and exact saved-work/intent recovery.
+- Pending recall (schema114) and arrived unused public-material return shipments
+  (schema115), with real refunds, reserved storage/shared haul and earned arrival.
+- Two-pass native work survey and nonblocking SQL-owner generation gate.
+- Internal normal-server writer now verifies exact paid intent/full final scene,
+  entities and loaded cells, then one AIR->exact-state CAS.256 cell reads/tick.
+  Session-local first-write proof cannot be replenished by retry/restart; ambiguous
+  old before-state holds for review, exact after-state acknowledges without writing.
 
-Validation: latest focused Wrapper clean verify75 unit +3 packaged checks passed
-55.630s; construction/storage/industry67+3 passed1m21s. Earlier92+3 passed1m14s,
-including new conservation/restart/rollback/retirement and113->114 preservation
-cases plus affected historical fixtures. Earlier procurement batch29+3 passed.
-Hosted Windows/Linux both passed582069f; newer commits await hosted validation.
-Existing native planning/cancellation evidence remains applicable to unchanged
-Paper adapters; no new native construction proof is claimed by this SQL batch.
+Not enabled: ordinary automatic purchasing/building. Completed Civ-building
+identity, safe finished-home activation and the bounded gameplay scheduler remain
+next. Large templates beyond the writer's current bound, private-premises growth,
+roads/adaptation, upgrades/repair/decay and civic growth remain unfinished.
 
-Saved paid-work handoff now pages8 projects with material/labor waiting, paid
-readiness, exact intent recovery and conflict states.21 unit +3 packaged checks
-passed40.923s. Actual packaged schema115 planning/cancellation native acceptance
-also passed; both isolated DBs healthy, test cells restored, server/helper stopped.
-This adds no ordinary native writes or completed-home capacity; P4 gates stay25%.
+Validation: latest Wrapper19 unit +3 packaged checks passed35.164s; preceding
+owner/lifecycle40+3 passed46.167s. Actual paid-path Paper accepted current writer,
+stale permit/neighbor change holds, no regenerated removed output, real session
+restart before ack, exact retries and conflict safety. All five original cells
+restored; both115 DBs healthy, server/helper stopped. Actual planning/funding-hold/
+cancellation/restart proof also passed. Hosted full Windows/Linux both passed
+77b56e8 (schema115); newer commits await CI. No latest-head full-suite claim.
 
-Current partial-work world review now requires two exact loaded-only passes,
-journal-backed prefix/pending states and current support/road/entity evidence.
-Unjournaled matching blocks are refused. Authored ordinals survive mirroring.
-Wrapper9+3 and actual final disposable Paper passed; both DBs115/ok/FKs0, three
-test cells restored, server/helper stopped. This still grants no write permission.
-
-The actual disposable paid-path chain now uses atomic procurement, real delayed
-cargo/labor, saved-work queue, loaded review and serialized session prepare/ack.
-Five blocks survived an actual session restart before acknowledgement, conflict
-was preserved, remote chunks stayed unloaded and originals were restored. Both
-DBs115/ok/FKs0. Wrapper12+3 passed34.312s. No ordinary writer/bed activation yet.
-
-A nonblocking native/SQL gate now prevents authority changes during a bounded
-native callback. Owner generations invalidate stale permits; busy/expired/stopped
-permits do nothing.40 unit +3 packaged checks passed46.167s. Actual paid-path
-and planning fixtures passed: stale permit wrote nothing, current steps/restart/
-conflict safe, and normal funding holds leave population status healthy. Both
-fixtures restored/stopped with115/ok/FKs0. No ordinary automatic writer yet.
-
-Next: paid-work/native handoff and completed-home
-activation. Local roads, terrain adaptation, business-premises reuse, upgrades and
-civic growth remain unfinished. No design question currently blocks under delegated
-prototype recommendations. Never merge/push main without explicit approval.
+Handbook0.16 remains32 pages/30 chapters; no new user-facing command was added by
+these internal batches. Update it when gameplay/commands become available.
+No design question currently blocks delegated prototype work. Never merge/push
+main without approval.
 
 ### Earlier P4 checkpoints — historical implementation evidence
 

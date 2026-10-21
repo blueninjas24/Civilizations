@@ -1560,9 +1560,12 @@ public final class PopulationSession implements AutoCloseable {
             UUID operation,UUID draft,int ordinal,String nativeAfter,com.blueninjas24.civilizations.database.ConstructionMaterials.Authority authority){
         return submit(()->{requireBuildingWorld(authority.world(),authority.world());
             if(constructionLabor==null||!constructionLabor.enabled())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Public construction is disabled; saved intent/assets retained");
-            var intent=new com.blueninjas24.civilizations.database.ConstructionBlockJournal(database.getConnection())
-                    .preparePublic(operation,draft,ordinal,nativeAfter,authority,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
+            var journal=new com.blueninjas24.civilizations.database.ConstructionBlockJournal(database.getConnection());
+            boolean newlySaved=journal.find(operation).isEmpty();
+            if(newlySaved&&!nativeConstructionGate.canRememberFresh(operation))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Pending native-intent memory budget exhausted; no new intent saved");
+            var intent=journal.preparePublic(operation,draft,ordinal,nativeAfter,authority,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
             if(intent.state()==com.blueninjas24.civilizations.database.ConstructionBlockJournal.State.CONFLICT)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Conflicted construction intent needs explicit review");
+            if(newlySaved)nativeConstructionGate.rememberFresh(operation);
             return new PreparedConstructionStep(intent,nativeConstructionGate.capture(operation,draft,authority.world(),authority.checkedMillis()));
         });
     }
@@ -1571,6 +1574,11 @@ public final class PopulationSession implements AutoCloseable {
         java.util.Objects.requireNonNull(prepared);java.util.Objects.requireNonNull(action);
         if(closing.get()||!prepared.intent().operation().equals(prepared.permit().operation())||!prepared.intent().draft().equals(prepared.permit().draft()))return Optional.empty();
         return nativeConstructionGate.tryNative(prepared.permit(),now.getAsLong(),action);
+    }
+    /** Call inside the gated native callback immediately before a real write; false requires review, never replacement. */
+    public boolean claimNativeConstructionWrite(PreparedConstructionStep prepared){
+        return !closing.get()&&prepared.intent().operation().equals(prepared.permit().operation())&&prepared.intent().draft().equals(prepared.permit().draft())
+                &&nativeConstructionGate.claimFirstWrite(prepared.permit());
     }
     /** Fresh exact-project native observation only. History may be reconciled even after new work is disabled. */
     public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent> acknowledgePublicConstructionStep(
@@ -1581,7 +1589,7 @@ public final class PopulationSession implements AutoCloseable {
             var intent=journal.find(operation).orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown saved construction intent"));
             var plan=new com.blueninjas24.civilizations.database.ConstructionDraftRepository(database.getConnection()).find(intent.draft()).orElseThrow();
             if(!intent.draft().equals(draft)||!plan.world().equals(world))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Construction observation does not match its saved project/world");
-            return journal.acknowledge(operation,observed);
+            var saved=journal.acknowledge(operation,observed);nativeConstructionGate.forget(operation);return saved;
         });
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanningJobs.Page> housingPlanningJobs(

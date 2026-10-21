@@ -1,5 +1,21 @@
 # Household-bound housing proposals
 
+## Guarded internal native writer
+
+PaperConstructionWriter is now an internal normal-server boundary, tested only in
+marked temporary worlds. It is not called by ordinary gameplay yet. Saved paid
+work, exact authored transformed ordinal/state, complete immutable native frame
+and current owner permit are mandatory. Its final scene/entity check and one CAS
+run under the nonblocking owner gate;256 cell reads/tick per shared writer limit
+the prototype to255 required cells. No chunk loading, clearing or renovation.
+
+First-write claims only belong to intents newly created in this session and are
+consumed before native mutation. Exact existing after-state needs no claim and
+may acknowledge; resumed/consumed before-state cannot spawn a replacement. That
+ambiguous crash window needs explicit review/manual repair. Paid materials and
+history stay held. This internal writer does not activate beds, grant donation
+rights, register Civ-owned buildings or enable an automatic scheduler.
+
 ## Serialized native intent and acknowledgement
 
 Session preparePublicConstructionStep requires enabled public work and commits

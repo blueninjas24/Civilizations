@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — delegated conservative ambiguous-native recovery
+
+A current session may authorize one first write for an intent it newly saved.
+Consume that proof immediately before the native call; renewing an owner lease
+never grants replacement materials. After restart, PREPARED plus air cannot prove
+whether the block was never placed or was placed/harvested before acknowledgement.
+Hold that ambiguous before-state for explicit review. Exact planned after-state
+may acknowledge without writing. A native failure after claim also cannot silently
+replenish it. This follows no-duplicate-resource/player-edit safety under delegated
+recommendations, not a new source of money or labor. A rare stop-before-first-write
+can therefore need manual repair/review; ordinary scheduling remains off while
+completion/recovery tooling is built. No automatic demolition/replacement allowed.
+
 ## October21 — delegated unused arrived-material return recommendation
 
 For a wholly arrived public project with no earned stage effort/native intent,

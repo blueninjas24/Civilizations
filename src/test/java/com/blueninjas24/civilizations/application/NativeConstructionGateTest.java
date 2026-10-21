@@ -37,4 +37,13 @@ class NativeConstructionGateTest {
         assertThrows(IllegalStateException.class,()->gate.tryNative(permit,1001,()->{throw new IllegalStateException("fixture native failure");}));
         var next=capture(gate);gate.stop();assertTrue(gate.tryNative(next,1001,()->true).isEmpty());assertEquals(1,gate.ownerTask(()->1),"Accepted SQL work may drain after stop");
     }
+    @Test void firstWriteClaimIsOneTimeAndCannotBeRestoredByRefreshingOwnerAuthority()throws Exception{
+        var gate=new NativeConstructionGate();UUID operation=UUID.randomUUID(),draft=UUID.randomUUID(),world=UUID.randomUUID();
+        var permit=gate.ownerTask(()->{gate.rememberFresh(operation);return gate.capture(operation,draft,world,1000);});
+        assertFalse(gate.claimFirstWrite(permit),"Cannot claim outside the gated native callback");
+        assertTrue(gate.tryNative(permit,1001,()->gate.claimFirstWrite(permit)).orElseThrow());
+        assertFalse(gate.tryNative(permit,1001,()->gate.claimFirstWrite(permit)).orElseThrow());
+        var refreshed=gate.ownerTask(()->gate.capture(operation,draft,world,1000));
+        assertFalse(gate.tryNative(refreshed,1001,()->gate.claimFirstWrite(refreshed)).orElseThrow(),"Renewing a lease cannot create replacement materials");
+    }
 }

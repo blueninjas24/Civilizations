@@ -26,56 +26,28 @@ saved plan is not a finished building.
 | Automatic home-site planning | Available preparation | Villages can save a family home plan beside an existing path after guarded loaded-only checks |
 | Project inspection and unused cancellation | Available | Operators can inspect and safely release unused proposals while keeping history |
 | Material and funding report | Available, read-only | Shows missing goods, paid cargo, stage reserves, protected money and haul capacity |
-| Automatic paid physical construction | Unfinished | Real purchasing, labor, safe normal-server block work and completed-home activation still need connection |
+| Automatic paid physical construction | Unfinished | Paid inputs/labor and guarded internal writes work; ordinary scheduling and completed-home activation remain |
 | Wider physical growth | Unfinished | Road expansion, terrain adaptation, business-premises reuse, upgrades and civic builds remain |
 
 Automatic planning uses editable limits. Existing construction.yml files must
 explicitly opt in; they are never silently replaced. A failed site in one village
 now leaves other villages' queued work intact. No chunks are loaded for simulation.
 
-Latest focused Wrapper clean verify passed75 unit and3 packaged checks, with an
-earlier67+3 construction/storage/industry batch. Atomic
-complete-input purchasing and exact pending-order recall now work in temporary
-SQLite tests. Recall conserves goods/cash and retains sales/spending/haul history;
-current-period/delivery/storage/refund limits protect it. Schema114 preserves old
-saves. Schema115 now adds real delayed return shipments for wholly arrived unused
-goods: refund cash/storage/haul are real, supplier stock waits for earned arrival.
-Accepted cargo survives retirement/restart/world absence; started work stays held.
-These are internal APIs; automatic spending and physical building stay off.
+The paid construction chain now reaches a guarded internal writer: real supplies,
+real funds, earned labor, saved intents, two matching world scans and a final
+atomic scene check. Current permissions and a one-time write claim prevent stale
+or duplicate placement. It passed an actual five-block disposable-world test,
+including restart and changed/removed-output holds. Ordinary gameplay construction
+is still off until finished Civ homes can register and activate safely.
 
-Hosted Windows/Linux both passed582069f; latest feature commits await complete
-hosted runs. Earlier disposable Paper planning/cancellation evidence remains valid
-for unchanged adapters. Handbook0.16 remains32 pages/30 chapters. No new player
-command or ordinary native writer is claimed by this backend batch.
+Latest Wrapper19 unit +3 packaged checks passed; preceding owner/lifecycle40+3
+passed. Test worlds were restored/stopped and databases stayed healthy at115.
+Hosted Windows/Linux both passed77b56e8; newer commits await full hosted builds.
+The living handbook remains edition0.16,32 pages/30 chapters.
 
-Saved paid-work handoff now pages8 projects with material/labor waiting, paid
-readiness, exact intent recovery and conflict states.21 unit +3 packaged checks
-passed40.923s. Actual packaged schema115 planning/cancellation native acceptance
-also passed; both isolated DBs healthy, test cells restored, server/helper stopped.
-This adds no ordinary native writes or completed-home capacity; P4 gates stay25%.
-
-Current partial-work world review now requires two exact loaded-only passes,
-journal-backed prefix/pending states and current support/road/entity evidence.
-Unjournaled matching blocks are refused. Authored ordinals survive mirroring.
-Wrapper9+3 and actual final disposable Paper passed; both DBs115/ok/FKs0, three
-test cells restored, server/helper stopped. This still grants no write permission.
-
-The actual disposable paid-path chain now uses atomic procurement, real delayed
-cargo/labor, saved-work queue, loaded review and serialized session prepare/ack.
-Five blocks survived an actual session restart before acknowledgement, conflict
-was preserved, remote chunks stayed unloaded and originals were restored. Both
-DBs115/ok/FKs0. Wrapper12+3 passed34.312s. No ordinary writer/bed activation yet.
-
-A nonblocking native/SQL gate now prevents authority changes during a bounded
-native callback. Owner generations invalidate stale permits; busy/expired/stopped
-permits do nothing.40 unit +3 packaged checks passed46.167s. Actual paid-path
-and planning fixtures passed: stale permit wrote nothing, current steps/restart/
-conflict safe, and normal funding holds leave population status healthy. Both
-fixtures restored/stopped with115/ok/FKs0. No ordinary automatic writer yet.
-
-Next: paid-work/native handoff, then useful completed
-homes. Wider physical growth remains. P3 human survival testing is deferred; main,
-actual Minecraft server/worlds and database stay untouched.
+Next: Civ-built identity, verified completed-home activation, then the ordinary
+bounded builder. Wider growth remains. Actual server/worlds/database and main
+stay untouched. P3 human survival testing remains deferred.
 
 ## Earlier Phase 4 checkpoints — historical
 

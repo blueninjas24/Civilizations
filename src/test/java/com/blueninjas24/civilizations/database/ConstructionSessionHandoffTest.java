@@ -59,4 +59,13 @@ class ConstructionSessionHandoffTest {
         start(true);var failure=assertThrows(ExecutionException.class,()->session.constructionVillageFunding(draft.id(),draft.world(),ConstructionBudgetPolicy.prototype(),ConstructionSupplyPolicy.prototype()).get(10,TimeUnit.SECONDS));
         assertInstanceOf(ConstructionSupplyOrders.Declined.class,failure.getCause());assertNull(session.status().failure(),"Expected construction funding holds are not population/database failures");
     }
+    @Test void resumedBeforeStateDoesNotInventFirstWritePermissionAfterRestart()throws Exception{
+        start(true);UUID operation=UUID.randomUUID();var authority=new ConstructionMaterials.Authority(draft.id(),draft.world(),9000,true,true);
+        var fresh=session.prepareAuthorizedPublicConstructionStep(operation,draft.id(),0,"minecraft:cobblestone",authority).get(10,TimeUnit.SECONDS);
+        assertTrue(session.tryNativeConstructionStep(fresh,()->session.claimNativeConstructionWrite(fresh)).orElseThrow());
+        session.close();session=null;start(true);
+        var resumed=session.prepareAuthorizedPublicConstructionStep(operation,draft.id(),0,"minecraft:cobblestone",authority).get(10,TimeUnit.SECONDS);
+        assertFalse(session.tryNativeConstructionStep(resumed,()->session.claimNativeConstructionWrite(resumed)).orElseThrow(),"Prepared plus air after restart is ambiguous, never a free replacement");
+        assertEquals(fresh.intent(),resumed.intent());
+    }
 }

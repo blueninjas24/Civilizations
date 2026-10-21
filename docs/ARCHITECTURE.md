@@ -56,5 +56,9 @@ refuses; a successful step excludes SQL mutations until it returns. No SQL or
 future waits are permitted inside that callback. The owner thread may wait for
 that brief callback, never the reverse. Native Paper boundaries must still check
 main thread, current chunks/entities/blocks and exact frozen intent. This gate
-alone grants no land, free effort or production writer. Existing direct marked
-fixture writer remains test-only; ordinary automatic execution is unfinished.
+alone grants no land or free effort. PaperConstructionWriter now supplies the
+internal guarded native boundary: exact intent, full final scene and entity
+recheck,256 cell reads/tick, one-time session-local first-write claim. A resumed
+before-state stays ambiguous; existing after-state may acknowledge. The older
+direct marked fixture writer remains test-only. Ordinary automatic scheduling
+and completed-home activation are unfinished.

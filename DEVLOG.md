@@ -1,5 +1,35 @@
 # Civilizations Development Log
 
+## 2026-10-21 — guarded internal normal-server writer and one-time first writes
+
+PaperConstructionWriter now requires actual paid ready work, exact transformed
+intent, a complete two-pass native frame and current session owner permit. Before
+new placement it atomically rechecks the entire bounded scene and entities while
+excluding SQL changes, then performs one AIR->exact-state CAS without physics.
+Existing exact output is acknowledgement-only. Chunk/height/border, plugin stop,
+scene changes and stale permissions hold. One writer instance caps256 native cell
+reads/tick; oversized plans wait rather than causing an unbounded final scan.
+No ordinary scheduler invokes this internal boundary yet.
+
+Fresh first-write permission exists only for newly saved intents in the current
+session, is consumed immediately before native write and is removed after ack.
+Renewing authority cannot replenish it. An old PREPARED+AIR state after restart
+is ambiguous and requires review, never a free replacement. Exact after-state can
+still acknowledge safely. Pending intent memory is capped4096; no schema change.
+
+Wrapper19 unit +3 packaged checks passed35.164s, including one-time/refreshed claim
+and resumed-before-state regressions. Actual disposable Paper used this internal
+normal-server writer for five paid native placements through the real owner.
+Stale permit wrote nothing; a neighbouring edit held before placement; simulated
+removal of unacknowledged output was not regenerated; exact retries/restart
+recovered without duplicate placement. The helper explicitly restored that test
+output to continue, then restored all five original world cells. Both DBs115/ok/
+FKs0, server/helper stopped. No actual server changed. Hosted full Windows/Linux
+both passed77b56e8 (schema115); newer native integration commits await CI.
+
+Next: persistent Civ-built identity, verified completed-home use/capacity and
+ordinary bounded scheduling. Player renovation/decay/large-template work remains.
+
 ## 2026-10-21 — atomic nonblocking native/SQL authority gate
 
 NativeConstructionGate now excludes SQL-owner changes during one bounded native

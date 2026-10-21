@@ -10,7 +10,9 @@ import java.util.function.*;
 
 /** Read-only two-pass review of empty or journal-backed partial work. Never loads chunks or writes blocks. */
 public final class PaperConstructionWorkSurvey {
-    public record Frame(ConstructionMaterials.Authority authority,String nextObserved,String explanation){}
+    public record Frame(ConstructionMaterials.Authority authority,String nextObserved,String explanation,Map<Position,String> cells){
+        public Frame{cells=Map.copyOf(cells);}
+    }
     private final ConstructionWorkQueue.Work work;private final Function<UUID,World> worlds;private final BooleanSupplier primary;
     private final List<Position> positions;private final Map<Position,String> prefix=new HashMap<>(),first=new HashMap<>();
     private final Set<Position> roads=new HashSet<>(),authored=new HashSet<>();private final ConstructionPreview.Bounds footprint;
@@ -81,7 +83,7 @@ public final class PaperConstructionWorkSurvey {
             &&world.isChunkLoaded(at.x()>>4,at.z()>>4)&&world.getWorldBorder().isInside(new Location(world,at.x(),at.y(),at.z()));}
     private void fail(String message){unsafe=true;if(reason==null)reason=message;}
     private Frame finish(boolean safe,String explanation){
-        finished=new Frame(new ConstructionMaterials.Authority(work.draft().id(),work.draft().world(),captured,safe,safe),next==null?null:first.get(next),explanation);return finished;
+        finished=new Frame(new ConstructionMaterials.Authority(work.draft().id(),work.draft().world(),captured,safe,safe),next==null?null:first.get(next),explanation,first);return finished;
     }
     private void main(){if(!primary.getAsBoolean())throw new IllegalStateException("Construction work survey requires server thread");}
 }

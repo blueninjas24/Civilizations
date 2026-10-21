@@ -11,6 +11,7 @@ public final class NativeConstructionGate {
     public record Permit(UUID owner,long generation,UUID operation,UUID draft,UUID world,long checkedMillis){}
     private final UUID identity=UUID.randomUUID();private final ReentrantReadWriteLock lock=new ReentrantReadWriteLock();
     private final AtomicBoolean stopped=new AtomicBoolean();private long generation;
+    private final Set<UUID> freshWrites=java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     /** All accepted owner tasks, including reads/failed tasks, conservatively invalidate earlier authority. */
     public <T>T ownerTask(Callable<T> action)throws Exception{
@@ -35,6 +36,18 @@ public final class NativeConstructionGate {
         }finally{lock.readLock().unlock();}
     }
     boolean nativeStepHeldByCurrentThread(){return lock.getReadHoldCount()>0;}
+    boolean canRememberFresh(UUID operation){
+        if(!lock.isWriteLockedByCurrentThread())throw new IllegalStateException("Fresh intent budget requires SQL owner");
+        return freshWrites.contains(operation)||freshWrites.size()<4096;
+    }
+    void rememberFresh(UUID operation){
+        if(!canRememberFresh(operation))throw new IllegalStateException("Native intent memory budget exceeded");freshWrites.add(operation);
+    }
+    void forget(UUID operation){freshWrites.remove(operation);}
+    /** Only newly saved intents in THIS session may perform one before->after write. Existing after-state needs no claim. */
+    boolean claimFirstWrite(Permit permit){
+        return nativeStepHeldByCurrentThread()&&!stopped.get()&&identity.equals(permit.owner())&&generation==permit.generation()&&freshWrites.remove(permit.operation());
+    }
     /** Immediate shutdown refusal; previously accepted SQL tasks may still drain normally. */
     public void stop(){stopped.set(true);}
 }
