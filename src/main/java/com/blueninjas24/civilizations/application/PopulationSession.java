@@ -1426,6 +1426,18 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->new com.blueninjas24.civilizations.database.DwellingHousing(database.getConnection())
                 .summary(authorizedHome(building,actor,administrator,currentWorld).layout()));
     }
+    /** Read-only candidates from current saved authority. Calling this does not schedule or fund construction. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanning.Report> housingCandidates(
+            UUID village,UUID world,java.util.List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
+            com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy) {
+        var frozen=java.util.List.copyOf(templates);
+        return submit(()->{requireReady();
+            return new com.blueninjas24.civilizations.database.HousingPlanning(database.getConnection()).review(village,
+                    new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,loadedWorlds!=null&&loadedWorlds.contains(world),policy,now.getAsLong()),
+                    frozen,planner,settings.seed(),status.get().completedMonths());
+        });
+    }
     /** Pure bounded path review on the owner worker, never the server thread. No database mutation. */
     public CompletableFuture<com.blueninjas24.civilizations.construction.DwellingInspection.Assessment> inspectBuildingBeds(
             com.blueninjas24.civilizations.construction.BuildingLayout layout,

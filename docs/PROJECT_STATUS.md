@@ -15,6 +15,16 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Saved housing candidate bridge reads effective household capacity, current
+  permitted unit vacancies and retained home projects on the SQL owner, then uses
+  the existing deterministic planner. Unknown household capacity is held separately;
+  stale/unreviewed buildings cannot justify new construction. Existing active home
+  projects conservatively hold new proposals until beneficiary mapping exists.
+  Read-only API only: no new command, spending, assignment, scheduling or migration.
+  Focused clean verify25 unit +3 packaged checks passed38.110s. A new temporary-SQLite
+  check proves no writes, safe vacancy reuse, unknown/stale/absent-world holds and
+  retained-project duplication prevention. User just approved configurable new
+  household formation for unassigned adults/recorded partners; not yet implemented.
 - Explicit new apartment editor: private units, extra rooms, shared corridors and
   a separate surrounding plot feed the same bounded donation scan and ownership
   confirmation. Real beds/access/cover must qualify every unit; no inferred units,

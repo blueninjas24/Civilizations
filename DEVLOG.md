@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## 2026-10-20 — saved housing candidates before construction
+
+Connected current effective capacity, living saved households and permitted fresh
+unit vacancies to HousingProjectPlanner through HousingPlanning and the serialized
+PopulationSession owner API. Unknown household capacity is held separately rather
+than converted to zero; unassigned people are counted but no family is invented.
+Incomplete/stale vacancy reviews cannot bypass reuse by proposing a new building.
+A retained active home project conservatively holds proposals because the current
+draft schema has no household-beneficiary link. This limitation is explicit.
+
+Read-only, bounded result/input budgets and diagnostics; no new command, automatic
+scheduling, occupancy, spending, world operation or migration. Existing planner
+proposal limits, seed and period remain authoritative. No title transfer is inferred
+from permission to use a donated vacancy.
+
+`.\mvnw.cmd -Dtest=DwellingOccupancyTest,HomeDonationPreviewTest,HousingProjectPlannerTest,ConstructionSiteReservationsTest clean verify`
+passed25 unit +3 packaged checks38.110s, zero failures/errors/skips. New real temp
+SQLite coverage proves no writes, safe vacancy reuse, unknown/stale/absent-world
+holds and retained-project deduplication. SQL-owner application integration passes.
+No extra native rerun needed for this Paper-independent read-only connection; no
+new broad-suite run. P4 remains25%; no additional whole checklist item complete.
+
+User approved configurable new adult households/recorded-partner grouping after
+this exposed unassigned adults waiting for housing. That next feature is approved,
+not yet implemented by the candidate report. Existing families stay intact and
+children gain no invented parentage. Living handbook already accurately describes
+this unfinished boundary; no new user command or PDF revision in this batch.
+
 ## 2026-10-20 — explicit apartment declarations and confirmed donation
 
 Added ApartmentDeclaration immutable drafts/review and a bounded Paper apartment

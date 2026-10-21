@@ -269,3 +269,17 @@ villages. Such a receipt excludes them from that period's new builder pool rathe
 than causing a late uniqueness failure that rolls back food. Two-village migration
 coverage passed in the focused27+3 clean verify39.336s. Current prototype clock
 identity remains conservative; no extra effort is awarded by relocating a worker.
+
+
+## Saved housing candidate connection (read-only API)
+
+HousingPlanning now reads effective saved family capacity and current explicitly
+permitted vacancies before using HousingProjectPlanner. Unknown capacity is held
+separately; stale/unreviewed housing cannot justify bypassing reuse. Active saved
+home projects hold further proposals conservatively until household-beneficiary
+mapping exists. No new command or scheduling, spending, assignment, land or block
+permission. Inputs/results are bounded; actual SQL-owner calls require saved world/
+village identity. Deterministic candidates still need actual funded safe sites.
+Focused clean verify25 unit +3 packaged checks passed38.110s, including zero-write
+and real temporary-SQLite unknown/stale/world/project guards. No migration or
+Paper operation; no additional native proof was needed for this data-only batch.

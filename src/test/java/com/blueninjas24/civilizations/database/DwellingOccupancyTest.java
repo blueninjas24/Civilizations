@@ -43,6 +43,36 @@ class DwellingOccupancyTest {
     private static void healthy(Connection c)throws SQLException {assertEquals(0,number(c,"SELECT count(*) FROM pragma_foreign_key_check"));try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){assertEquals("ok",r.getString(1));}}
     private Assignment assign(UUID op,UUID household,UUID unit,UUID review,UUID previous,long now){return new Assignment(op,household,unit,review,previous,now);}
 
+    @Test void savedHousingPlanningUsesRealVacanciesAndHoldsUnknownOrStaleEvidenceWithoutWrites()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);sql(c,"UPDATE household_capacity SET capacity=0 WHERE household_id='"+family+"'");
+            var planning=new HousingPlanning(c);var planner=HousingProjectPlanner.prototype();
+            var before=planning.review(town,context(1100),List.of(),planner,42,1);
+            assertEquals(1,before.unknownHouseholds());assertFalse(before.vacanciesVerified());
+            assertEquals(HousingProjectPlanner.Action.WAIT_SURVEY,before.plan().recommendations().getFirst().action());
+            var occupancy=new DwellingOccupancy(c);occupancy.review(id(20),building,assessment(1100),context(1100));
+            long writes=number(c,"SELECT total_changes()");
+            var report=planning.review(town,context(1100),List.of(),planner,42,1);
+            assertTrue(report.vacanciesVerified());assertEquals(1,report.unknownHouseholds());
+            assertEquals(HousingProjectPlanner.Action.REUSE,report.plan().recommendations().getFirst().action());
+            assertEquals(a,report.plan().recommendations().getFirst().vacantHome());
+            assertEquals(report,planning.review(town,context(1100),List.of(),planner,42,1));
+            assertEquals(writes,number(c,"SELECT total_changes()"));assertEquals(0,number(c,"SELECT count(*) FROM dwelling_active_occupancy"));
+            var stale=planning.review(town,context(40_000),List.of(),planner,42,1);
+            assertEquals(HousingProjectPlanner.Action.WAIT_SURVEY,stale.plan().recommendations().getFirst().action());
+            var absent=planning.review(town,new Context(world,false,Policy.prototype(),1100),List.of(),planner,42,1);
+            assertEquals(HousingProjectPlanner.Action.WAIT_WORLD,absent.plan().recommendations().getFirst().action());
+            assertThrows(BuildingRegistry.Declined.class,()->planning.review(town,new Context(id(99),true,Policy.prototype(),1100),List.of(),planner,42,1));
+            var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+            var draft=new ConstructionDraft(id(70),town,world,p(100,64,100),Transform.identity(),template,1100);
+            new ConstructionDraftRepository(c).save(draft);
+            new ConstructionSiteReservations(c).reserve(draft.id(),new ConstructionMaterials.Authority(draft.id(),world,1100,true,true),1100);
+            var pending=planning.review(town,context(1100),List.of(template),planner,42,1);
+            assertTrue(pending.pendingHome());assertEquals(HousingProjectPlanner.Action.WAIT_PROJECT,pending.plan().recommendations().getFirst().action());
+            healthy(c);
+        }
+    }
+
     @Test void wholeHouseholdAndExclusiveUnitSurviveReopenWithoutTouchingLegacyCapacity()throws Exception {
         var request=assign(id(21),family,a,id(20),null,1100);
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);assertEquals(Outcome.RECORDED,r.review(id(20),building,assessment(1100),context(1100)));

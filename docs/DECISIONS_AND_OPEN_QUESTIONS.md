@@ -1,5 +1,13 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October20 — approved: new households for unassigned adults
+
+User approved configurable formation of one-person households for adults without
+saved households, or a shared household with an already recorded partner. Preserve
+existing families and never invent parentage for children. This is approval, not
+implementation: eligibility, deterministic limits, transactional identity and
+population/economy integration still require code and verification.
+
 ## October20 — approved: gradual transition from legacy housing
 
 Existing enrollment assigns bed groups to families and rewrites their capacity on

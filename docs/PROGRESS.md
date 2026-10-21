@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+The saved-data housing planner now distinguishes known shortages from unknown
+housing, prefers current permitted vacancies, and holds duplicate proposals behind
+existing home projects. Read-only API only; no automatic builder enabled. Wrapper
+25 +3 checks passed. New adult-household formation was approved and remains next.
+
 New usable step: players can explicitly divide a new donated building into family
 apartments, shared halls and a separate yard, then confirm reviewed ownership.
 Real beds and access qualify each unit; existing saved homes are not overwritten.
