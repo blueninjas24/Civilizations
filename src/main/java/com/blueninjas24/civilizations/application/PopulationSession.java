@@ -1533,6 +1533,16 @@ public final class PopulationSession implements AutoCloseable {
                     .recallPending(operation,draft,submitted,loadedWorlds==null?Set.of():loadedWorlds);
         });
     }
+    /** Confirmed real supplier buyback; cargo keeps its own saved arrival terms after acceptance. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionSupplyReturns.Receipt> returnUnusedConstructionInputs(
+            UUID operation,UUID draft,UUID world,long submitted){
+        return submit(()->{requireBuildingWorld(world,world);
+            var plan=new com.blueninjas24.civilizations.database.ConstructionDraftRepository(database.getConnection()).find(draft).orElseThrow();
+            if(!plan.world().equals(world)||submitted>now.getAsLong())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Return world/time differs");
+            return new com.blueninjas24.civilizations.database.ConstructionSupplyReturns(database.getConnection())
+                    .returnUnused(operation,draft,submitted,loadedWorlds==null?Set.of():loadedWorlds,industryPolicy);
+        });
+    }
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanningJobs.Page> housingPlanningJobs(
             UUID after,int limit,List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
             com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,
@@ -1795,8 +1805,9 @@ public final class PopulationSession implements AutoCloseable {
             try {
                 int arrivals=com.blueninjas24.civilizations.database.ConstructionSupplyOrders
                         .deliveryOnly(database.getConnection()).deliverReady(loadedWorlds,16);
+                int returned=new com.blueninjas24.civilizations.database.ConstructionSupplyReturns(database.getConnection()).deliverReady(loadedWorlds,16);
                 constructionDeliveryFailure=null;
-                constructionDeliveryStatus="Construction: saved cargo deliveries active; last review "+arrivals+" arrivals. Automatic building is not enabled.";
+                constructionDeliveryStatus="Construction: saved cargo deliveries active; last review "+arrivals+" arrivals, "+returned+" return arrivals. Automatic building is not enabled.";
             }catch(SQLException|RuntimeException failure) {
                 if(!java.util.Objects.equals(constructionDeliveryFailure,failure.getMessage()))
                     logger.log(Level.SEVERE,"Construction delivery deferred; prepaid cargo remains saved",failure);

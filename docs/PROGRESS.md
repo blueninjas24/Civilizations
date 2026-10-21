@@ -33,18 +33,22 @@ Automatic planning uses editable limits. Existing construction.yml files must
 explicitly opt in; they are never silently replaced. A failed site in one village
 now leaves other villages' queued work intact. No chunks are loaded for simulation.
 
-Latest focused Wrapper clean verify passed92 unit and3 packaged checks. Atomic
+Latest focused Wrapper clean verify passed75 unit and3 packaged checks, with an
+earlier67+3 construction/storage/industry batch. Atomic
 complete-input purchasing and exact pending-order recall now work in temporary
 SQLite tests. Recall conserves goods/cash and retains sales/spending/haul history;
 current-period/delivery/storage/refund limits protect it. Schema114 preserves old
-saves. These are internal APIs; automatic spending and physical building stay off.
+saves. Schema115 now adds real delayed return shipments for wholly arrived unused
+goods: refund cash/storage/haul are real, supplier stock waits for earned arrival.
+Accepted cargo survives retirement/restart/world absence; started work stays held.
+These are internal APIs; automatic spending and physical building stay off.
 
 Hosted Windows/Linux both passed582069f; latest feature commits await complete
 hosted runs. Earlier disposable Paper planning/cancellation evidence remains valid
 for unchanged adapters. Handbook0.16 remains32 pages/30 chapters. No new player
 command or ordinary native writer is claimed by this backend batch.
 
-Next: delivered-stock recovery and paid-work/native handoff, then useful completed
+Next: paid-work/native handoff, then useful completed
 homes. Wider physical growth remains. P3 human survival testing is deferred; main,
 actual Minecraft server/worlds and database stay untouched.
 

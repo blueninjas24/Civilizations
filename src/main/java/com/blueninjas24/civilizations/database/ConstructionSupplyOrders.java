@@ -147,7 +147,8 @@ public final class ConstructionSupplyOrders {
         });
     }
     public Map<Commodity,Long> stock(UUID draft)throws SQLException {
-        var plan=draft(draft);var result=new TreeMap<Commodity,Long>();int count=0;
+        var plan=draft(draft);if(new ConstructionSupplyReturns(c).dispatched(draft))return Map.of();
+        var result=new TreeMap<Commodity,Long>();int count=0;
         try(var s=c.prepareStatement("SELECT commodity,units FROM construction_supply_orders WHERE draft_id=? AND delivered_period IS NOT NULL LIMIT 129")) {
             s.setString(1,draft.toString());try(var r=s.executeQuery()){while(r.next()){if(++count>128)throw new SQLException("Construction cargo history budget exceeded");result.merge(new Commodity(r.getString(1)),r.getLong(2),Math::addExact);}}
         }

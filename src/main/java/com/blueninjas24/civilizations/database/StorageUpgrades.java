@@ -123,7 +123,9 @@ public final class StorageUpgrades {
     static long haulUsed(Connection c,UUID town,long window,long cadence)throws SQLException {
         int version;try(var v=c.createStatement();var r=v.executeQuery("PRAGMA user_version")){if(!r.next()||(version=r.getInt(1))<80)return 0;}
         // This existing shared nonstandard-cargo counter also covers project-owned construction shipments.
-        long total=version>=106?ConstructionSupplyOrders.haulUsed(c,town,window,cadence):0;try(var s=c.prepareStatement("SELECT u.units FROM business_storage_upgrades u JOIN businesses b ON b.id=u.seller_id WHERE b.settlement_id=? AND u.haul_window=? AND u.cadence=?")) {
+        long total=version>=106?ConstructionSupplyOrders.haulUsed(c,town,window,cadence):0;
+        if(version>=115)total=Math.addExact(total,ConstructionSupplyReturns.haulUsed(c,town,window,cadence));
+        try(var s=c.prepareStatement("SELECT u.units FROM business_storage_upgrades u JOIN businesses b ON b.id=u.seller_id WHERE b.settlement_id=? AND u.haul_window=? AND u.cadence=?")) {
             s.setString(1,town.toString());s.setLong(2,window);s.setLong(3,cadence);try(var r=s.executeQuery()){while(r.next())total=Math.addExact(total,r.getLong(1));}
         }return total;
     }

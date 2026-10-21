@@ -2,10 +2,11 @@
 
 ## Pending paid-supply recovery
 
-Schema114 adds exact pending-order recall; see CONSTRUCTION_RECOVERY.md. A
-fully recalled home cannot purchase or start work again. Its saved paid orders
+Schema114 adds exact pending-order recall; schema115 adds real paid return cargo
+for wholly arrived, unstarted public goods. See CONSTRUCTION_RECOVERY.md. A
+fully recalled or return-dispatched home cannot purchase or start work again. Its saved paid orders
 remain visible, but current project inspection permits unused cancellation to
-release the family/site. Delivered goods or started structures remain held.
+release the family/site. Return cargo survives site retirement; started/stage-work structures remain held.
 
 ## Atomic public material procurement backend
 

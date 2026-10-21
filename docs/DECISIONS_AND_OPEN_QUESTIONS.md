@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — delegated unused arrived-material return recommendation
+
+For a wholly arrived public project with no earned stage effort/native intent,
+allow original suppliers to buy back the exact unused goods at their exact paid
+price. Require real refund cash, storage and shared local hauling. Ownership and
+payment transfer together; goods remain return cargo until later earned arrival,
+with supplier space reserved. Whole-project acceptance is atomic. Preserve old
+spending/sales and new return-haul history; no absence time, free refund or stock.
+Current industry transport settings provide editable capacity/delay. Accepted
+cargo keeps its saved terms after retuning/disable and site/family retirement.
+This uses delegated P4 recommendations. Private purchases and started construction
+still need separate reviewed recovery; no automatic caller/player command yet.
+
 ## October21 — delegated pending-delivery recall recommendation
 
 An explicitly confirmed internal recovery may withdraw a whole public project's

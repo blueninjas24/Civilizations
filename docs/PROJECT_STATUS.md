@@ -22,17 +22,23 @@ human survival testing remains deferred. No actual server deployment/world chang
   their original earned period qualify. Recall prevents delivery/repurchase/work;
   existing unused retirement can then release the family/site. Original sales,
   spending/haul and all residents remain. Delivered or started projects still hold.
-- New procurement/recall APIs are serialized internal boundaries; automatic live
+- Schema115 adds exact-price original-supplier buyback of wholly arrived, unused
+  public materials, with real cash, reserved return cargo/storage and shared haul.
+  Suppliers receive stock only after earned arrival. The bounded owner loop
+  resumes paid returns after restart/world absence and site retirement. Started
+  stage-work/native projects still require reviewed recovery.
+- New procurement/recall/return APIs are serialized internal boundaries; automatic live
   spending remains off. No ordinary native writer/completed-home activation yet.
 
-Validation: focused Wrapper clean verify92 unit +3 packaged checks passed1m14s,
+Validation: latest focused Wrapper clean verify75 unit +3 packaged checks passed
+55.630s; construction/storage/industry67+3 passed1m21s. Earlier92+3 passed1m14s,
 including new conservation/restart/rollback/retirement and113->114 preservation
 cases plus affected historical fixtures. Earlier procurement batch29+3 passed.
 Hosted Windows/Linux both passed582069f; newer commits await hosted validation.
 Existing native planning/cancellation evidence remains applicable to unchanged
 Paper adapters; no new native construction proof is claimed by this SQL batch.
 
-Next: delivered-stock recovery and paid-work/native handoff, then completed-home
+Next: paid-work/native handoff and completed-home
 activation. Local roads, terrain adaptation, business-premises reuse, upgrades and
 civic growth remain unfinished. No design question currently blocks under delegated
 prototype recommendations. Never merge/push main without explicit approval.

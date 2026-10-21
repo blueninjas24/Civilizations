@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 114;
+    static final int CURRENT_VERSION = 115;
 
     @FunctionalInterface
     interface Migration {
@@ -963,7 +963,8 @@ final class SchemaMigrator {
                 HouseholdFormation::createSchema,
                 BuildingRenovations::createSchema,
                 HousingProjects::createSchema,
-                ConstructionSupplyRecalls::createSchema
+                ConstructionSupplyRecalls::createSchema,
+                ConstructionSupplyReturns::createSchema
 
 
         ));
@@ -1179,6 +1180,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"household_formation_members",Set.of("resident_id","household_id"));
             }
             if(migrations.size()>=112)requireColumns(connection,"building_renovation_events",Set.of("sequence","operation_id","building_id","use_consent_id","previous_event","layout_hash","action","actor_id","administrator","at_ms"));
+            if(migrations.size()>=115)requireColumns(connection,"construction_supply_returns",Set.of("order_id","return_operation","refund_operation","dispatched_ms","period","due_period","delivered_period","space_per_unit","haul_window","cadence","seller_before","seller_after","buyer_before","buyer_after"));
             if(migrations.size()>=114)requireColumns(connection,"construction_supply_recalls",Set.of("order_id","recall_operation","refund_operation","recalled_ms","period","seller_before","seller_after","stock_before","stock_after","buyer_before","buyer_after"));
             if(migrations.size()>=113)requireColumns(connection,"housing_project_bindings",Set.of("draft_id","household_id","settlement_id","world_id","plan_hash","residents","previous_capacity","created_ms","cancel_operation","cancelled_ms"));
             if(migrations.size()>=109){

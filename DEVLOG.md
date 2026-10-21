@@ -1,5 +1,30 @@
 # Civilizations Development Log
 
+## 2026-10-21 — real return shipments for unused arrived building materials
+
+Schema115 adds construction_supply_returns: original-supplier exact-price buyback
+with actual seller cash, public treasury credit and owned cargo. Whole-project
+return requires every public input arrived, no stage effort/native intent/mixed
+source, present world, current owner clock, actual refund cash, destination space
+and shared local haul. Any late failure rolls back all refunds/reservations.
+Goods leave project availability immediately; supplier stock stays unavailable
+until recorded return arrival. Store capacity reserves include return cargo.
+Original sale/spending and new return-haul history remain. A recalled/returned
+draft cannot procure or earn work again; separate unused retirement can release
+its site/family. Already accepted return deliveries survive site retirement,
+restart, disable/retuning and absent-world pause under saved arrival terms.
+
+PopulationSession exposes a serialized internal return API and its existing bounded
+cargo loop settles accepted returns,16 per pulse. No auto-spending/recovery caller,
+new player command, native builder or real-server deployment is added. Started
+stage-work/native construction remains held for reviewed recovery.
+
+Wrapper clean verify:67 unit +3 packaged checks passed1m21s for construction,
+shared-haul/storage and industry regressions. Final75 unit +3 packaged checks
+passed55.630s, including eight focused return cases, actual restarted-session
+absence/time settlement,114 migration failure/retry, historical snapshots, family
+housing and debug routing. No full current-head local suite claimed.
+
 ## 2026-10-21 — pending purchase recall and schema114
 
 Added transactional whole-project recall for public orders still undelivered in
