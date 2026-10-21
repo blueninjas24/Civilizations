@@ -51,6 +51,11 @@ public final class HousingProjects {
         }
         if(ids.size()>1024)throw new BuildingRegistry.Declined("Housing project budget exceeded");return Set.copyOf(ids);
     }
+    long activeCount(UUID village,UUID world)throws SQLException{
+        try(var s=c.prepareStatement("SELECT count(*) FROM housing_project_bindings WHERE settlement_id=? AND world_id=? AND cancelled_ms IS NULL")){
+            s.setString(1,village.toString());s.setString(2,world.toString());try(var r=s.executeQuery()){return r.getLong(1);}
+        }
+    }
     /** Recheck unstarted beneficiary need in the same transaction as new funding, effort or first intent. */
     Optional<String> pauseReasonRows(ConstructionDraft draft)throws SQLException{
         if(c.getAutoCommit())throw new SQLException("Housing need review requires the SQL owner's transaction");

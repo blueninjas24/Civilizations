@@ -172,6 +172,39 @@ class DwellingOccupancyTest {
             assertFalse(report.items().getLast().family().active());assertEquals(3,number(c,"SELECT count(*) FROM residents"));healthy(c);
         }
     }
+    @Test void homePlanningFeedIsDeterministicReadOnlyPagedAndPausesAbsentOrUncertainVillages()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+            var feed=new HousingPlanningJobs(c);long writes=number(c,"SELECT total_changes()");
+            var page=feed.page(null,1,Set.of(world),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),1200,42,0,1);
+            assertEquals(1,page.jobs().size());assertEquals(family,page.jobs().getFirst().household());assertEquals(p(0,64,0),page.jobs().getFirst().need());assertNull(page.next());
+            assertEquals(page,feed.page(null,1,Set.of(world),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),1200,42,0,1));
+            assertEquals(writes,number(c,"SELECT total_changes()"));
+            assertEquals(1,feed.page(null,1,Set.of(),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),1200,42,0,1).absent());
+            assertTrue(feed.page(null,1,Set.of(world),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),40_000,42,0,1).jobs().isEmpty());
+            sql(c,"INSERT INTO settlements VALUES('"+id(91)+"','Second fixture','fixture',100,64,100,1,0,0)");
+            sql(c,"INSERT INTO settlement_worlds VALUES('"+id(91)+"','"+world+"')");
+            var first=feed.page(null,1,Set.of(world),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),1200,42,0,1);assertEquals(town,first.next());
+            var second=feed.page(first.next(),1,Set.of(world),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),1200,42,0,1);
+            assertEquals(1,second.reviewed());assertTrue(second.jobs().isEmpty());assertNull(second.next());healthy(c);
+        }
+    }
+    @Test void automaticActiveHomeLimitIsRecheckedAtCommitAndCancellationCreatesANewProposalIdentity()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+            var feed=new HousingPlanningJobs(c);var first=feed.page(null,8,Set.of(world),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),1200,42,0,1).jobs().getFirst();
+            var raw=preparation(70);var request=new HousingProjectPreparation.Request(new HousingProjects.Proposal(first.proposal(),family,1200),town,world,raw.need(),raw.search(),raw.survey(),raw.terrain());
+            new HousingProjectPreparation(c).prepare(request,context(1200),List.of(template),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(4),42,0,1);
+            var held=feed.page(null,8,Set.of(world),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),1200,42,0,1);assertEquals(1,held.projectHolds());assertTrue(held.jobs().isEmpty());
+            sql(c,"INSERT INTO household_capacity VALUES('"+other+"',0)");
+            var another=new HousingProjectPreparation.Request(new HousingProjects.Proposal(id(71),other,1200),town,world,raw.need(),raw.search(),raw.survey(),raw.terrain());
+            assertThrows(BuildingRegistry.Declined.class,()->new HousingProjectPreparation(c).prepare(another,context(1200),List.of(template),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(4),42,0,1));
+            assertEquals(1,number(c,"SELECT count(*) FROM construction_drafts"));
+            new HousingProjects(c).retireUnused(id(80),first.proposal(),1300,context(1300));
+            var next=feed.page(null,8,Set.of(world),List.of(template),HousingProjectPlanner.prototype(),Policy.prototype(),1400,42,0,1).jobs().getFirst();
+            assertEquals(family,next.household());assertNotEquals(first.proposal(),next.proposal());healthy(c);
+        }
+    }
     @Test void homeProjectsReserveOnlyTheirFamilyAndKeepReceiptsAcrossRestart()throws Exception {
         HousingProjects.Binding saved;
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){

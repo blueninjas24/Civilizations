@@ -15,6 +15,11 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Automatic-planning work feed now pages at most8 saved villages, selects one
+  verified housing need per present world/village and respects an active-project
+  cap. IDs are deterministic from household/world/month/retained proposal count;
+  cancelled history yields a fresh ID. Final preparation rechecks the cap inside
+  its transaction. Read-only feed; no native scheduler yet. Wrapper40 +3 passed39.566s.
 - Operator controls now expose `/civ build projects <village UUID>`,
   `cancelproject <project UUID>`, `confirmcancel <token>` and `cancelrequest`.
   Read-only preview permission cannot cancel; manage defaults to operators.

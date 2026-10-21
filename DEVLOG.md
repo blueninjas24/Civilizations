@@ -1,5 +1,22 @@
 # Civilizations Development Log
 
+## 2026-10-21 — bounded automatic home-planning feed
+
+HousingPlanningJobs pages at most8 permanent saved villages, skips absent worlds
+and villages at their configured active-home cap, then emits one deterministic
+verified whole-family PROPOSE job. Unknown/stale housing and suitable vacancies
+never become construction demand. Identity derives from household/world/month
+and retained proposal count; repeat reads are identical and cancellation cannot
+reactivate an old identity. Limited preparation rechecks active count inside its
+existing transaction; the generic preparation API retains a bounded64 default.
+Serialized PopulationSession feed/limited-preparation calls freeze template input.
+
+Focused Wrapper clean verify40 unit +3 packaged checks passed39.566s. Two real
+temporary-SQLite cases cover no-write deterministic feed, absent/stale holds,
+pagination, cap rejection without orphan records and fresh post-cancellation
+identity. Native survey scheduling is next; no production timer or world changes
+in this batch. Schema113 and P4 at25% remain.
+
 ## 2026-10-21 — live retained-project inspection and unused cancellation
 
 Added PaperHousingProjectControls, production lifecycle/routing/tab completion,

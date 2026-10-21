@@ -16,6 +16,10 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+The automatic-planning work feed now selects verified needs in present worlds,
+with a village project cap and repeatable proposal IDs. It is read-only; final
+preparation checks the cap again. Wrapper40 +3 passed; native scheduling next.
+
 Operators can now inspect retained home projects and explicitly confirm unused
 cancellation. Paid goods/started buildings stay protected. Wrapper35 +3 and final
 5 +3 passed; disposable Paper reports/permissions passed. Handbook0.14 now has

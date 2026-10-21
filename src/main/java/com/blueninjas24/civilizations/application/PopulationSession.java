@@ -1499,6 +1499,25 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.HousingProjectStatus(database.getConnection()).find(draft,
                 new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(world,loadedWorlds!=null&&loadedWorlds.contains(world),policy,now.getAsLong()));});
     }
+    public CompletableFuture<com.blueninjas24.civilizations.database.HousingPlanningJobs.Page> housingPlanningJobs(
+            UUID after,int limit,List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
+            com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy,int maximumActive){
+        var frozen=List.copyOf(templates);
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.HousingPlanningJobs(database.getConnection()).page(after,limit,
+                loadedWorlds==null?Set.of():loadedWorlds,frozen,planner,policy,now.getAsLong(),settings.seed(),status.get().completedMonths(),maximumActive);});
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.HousingProjectPreparation.Receipt> prepareLimitedHousingProject(
+            com.blueninjas24.civilizations.database.HousingProjectPreparation.Request request,
+            List<com.blueninjas24.civilizations.construction.ConstructionTemplate> templates,
+            com.blueninjas24.civilizations.construction.HousingProjectPlanner planner,
+            com.blueninjas24.civilizations.construction.ConstructionLandPolicy land,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy,int maximumActive){
+        var frozen=List.copyOf(templates);
+        return submit(()->{requireBuildingWorld(request.world(),request.world());return new com.blueninjas24.civilizations.database.HousingProjectPreparation(database.getConnection()).prepare(request,
+                new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(request.world(),true,policy,now.getAsLong()),
+                frozen,planner,land,settings.seed(),status.get().completedMonths(),maximumActive);});
+    }
     /** Trusted confirmed adapter only. Atomic unused release; paid/started work remains held for reviewed recovery. */
     public CompletableFuture<com.blueninjas24.civilizations.database.HousingProjects.Binding> retireUnusedHousingProject(
             UUID operation,UUID draft,UUID world,long submittedMillis){

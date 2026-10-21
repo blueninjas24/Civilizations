@@ -85,3 +85,15 @@ work never become an implicit refund or deletion. No command creates a building
 project or enables the production block writer. Detailed user instructions are in
 handbook0.14 Chapter28. Focused35 +3/final5 +3 passed; actual disposable Paper
 validated routed reports and management permission, not a full live cancellation.
+
+
+## Automatic planning work feed
+
+The SQL-owner feed is read-only, pages at most8 saved villages, skips absent
+worlds and villages at the active-home proposal cap, and selects one verified
+whole-family need per village. Unknown/stale capacity or permitted vacancy reuse
+holds new-home work. Deterministic proposal identity includes permanent world,
+household, calendar month and retained proposal count. Final limited preparation
+checks the active-home cap again inside its transaction, preserving exact replay.
+The native survey scheduler is not connected by this backend alone. Wrapper40
+unit +3 packaged checks passed39.566s; schema113 is unchanged.

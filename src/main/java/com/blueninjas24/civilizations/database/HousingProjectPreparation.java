@@ -25,7 +25,12 @@ public final class HousingProjectPreparation {
     public HousingProjectPreparation(Connection c){this.c=Objects.requireNonNull(c);}
     public Receipt prepare(Request request,DwellingOccupancy.Context context,List<ConstructionTemplate> templates,
                            HousingProjectPlanner planner,ConstructionLandPolicy land,long seed,long period)throws SQLException {
+        return prepare(request,context,templates,planner,land,seed,period,64);
+    }
+    public Receipt prepare(Request request,DwellingOccupancy.Context context,List<ConstructionTemplate> templates,
+                           HousingProjectPlanner planner,ConstructionLandPolicy land,long seed,long period,int maximumActive)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(context);templates=List.copyOf(templates);Objects.requireNonNull(planner);Objects.requireNonNull(land);
+        if(maximumActive<1||maximumActive>64)throw new IllegalArgumentException("Active home proposal limit must be 1..64");
         if(!c.getAutoCommit())throw new SQLException("Home preparation requires an idle SQL owner");c.setAutoCommit(false);
         try{
             if(!context.present()||!context.world().equals(request.world())||request.proposal().createdMillis()>context.now())
@@ -40,6 +45,7 @@ public final class HousingProjectPreparation {
                 receipt=new Receipt(drafts.find(request.proposal().draft()).orElseThrow(),binding,
                         sites.find(request.proposal().draft()).orElseThrow(()->new SQLException("Prepared home has no retained site receipt")),Optional.empty());
             }else{
+                if(projects.activeCount(request.village(),request.world())>=maximumActive)throw new BuildingRegistry.Declined("Village active-home proposal limit reached");
                 if(drafts.find(request.proposal().draft()).isPresent())throw new BuildingRegistry.Declined("Automatic preparation requires a new draft identity");
                 var report=new HousingPlanning(c).review(request.village(),context,templates,planner,seed,period);
                 var recommendation=report.plan().recommendations().stream().filter(r->r.household().equals(request.proposal().household())).findFirst()
