@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.8 | 20 October 2026 | Player and server owner edition
+Living draft 0.9 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -135,7 +135,9 @@ A unit needs usable capacity, a reachable entrance and non-overlapping private s
 
 ### Inspect saved housing
 
-/civ building inspect <building UUID> reviews an already registered housing layout in your current world. Only its recorded donor or an administrator may inspect it. It reports accessible declared beds and reasons such as broken pairs, missing cover or unreachable units. Missing chunks produce an unverified report, not lost housing.
+/civ building inspect <building UUID> reviews registered housing in your current world. Only its recorded donor or an administrator may inspect it. It shows the saved family size and effective capacity, or that no household is assigned, followed by current bed/access/cover findings. Saved last-reviewed state and current block evidence are labelled separately. Missing chunks mean unverified evidence, not lost housing.
+
+Donors may inspect their own home with donation or reclamation permission even when plot-protection permission is disabled. This grants no land protection, access to another donor's home, or housing changes. The inspection command remains read-only.
 
 This inspection command cannot register a house. Chapter 23 explains the separate single-home donation controls. Covered beds are required by default; both halves need overhead cover inside the declared building. Admins can change require-covered-beds under building-protection in config.yml. Inspection still grants no occupancy or usable capacity.
 
@@ -558,7 +560,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.8 adds live whole-family housing, safe legacy bed accounting, housing diagnostics and confirmed donor repossession. Apartment editing and normal automatic construction remain unfinished. Village-owned apartments defer rent and landlords.
+Edition 0.9 adds donor-visible family size/capacity to saved-home inspection and separates inspection from plot-protection permission. Live whole-family housing and confirmed donor repossession are available. Apartments and normal construction remain unfinished; rent and landlords stay deferred.
 
 
 ## 22 Protect a building plot

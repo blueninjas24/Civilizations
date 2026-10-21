@@ -1389,16 +1389,21 @@ public final class PopulationSession implements AutoCloseable {
     /** Read-only saved-layout lookup. Recorded donor/admin only; no inference of consent or occupancy. */
     public CompletableFuture<com.blueninjas24.civilizations.database.BuildingRegistry.Entry> buildingInspectionLayout(
             UUID building,UUID actor,boolean administrator,UUID currentWorld) {
-        return submit(()->{
-            requireReady();
-            var entry=new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).find(building)
-                    .orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown saved building; donation controls are still under development"));
-            requireBuildingWorld(entry.layout().world(),currentWorld);
-            if(!administrator&&!entry.donor().equals(actor))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Only its recorded donor or an administrator can inspect this layout");
-            if(entry.layout().kind()!=com.blueninjas24.civilizations.construction.BuildingLayout.Kind.HOUSING)
-                throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("This saved building is not declared housing");
-            return entry;
-        });
+        return submit(()->authorizedHome(building,actor,administrator,currentWorld));
+    }
+    private com.blueninjas24.civilizations.database.BuildingRegistry.Entry authorizedHome(UUID building,UUID actor,boolean administrator,UUID currentWorld)throws SQLException {
+        requireReady();
+        var entry=new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).find(building)
+                .orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown saved building; donate and confirm a home first"));
+        requireBuildingWorld(entry.layout().world(),currentWorld);
+        if(!administrator&&!entry.donor().equals(actor))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Only its recorded donor or an administrator can inspect this layout");
+        if(entry.layout().kind()!=com.blueninjas24.civilizations.construction.BuildingLayout.Kind.HOUSING)
+            throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("This saved building is not declared housing");
+        return entry;
+    }
+    public CompletableFuture<List<String>> housingSummary(UUID building,UUID actor,boolean administrator,UUID currentWorld) {
+        return submit(()->new com.blueninjas24.civilizations.database.DwellingHousing(database.getConnection())
+                .summary(authorizedHome(building,actor,administrator,currentWorld).layout()));
     }
     /** Pure bounded path review on the owner worker, never the server thread. No database mutation. */
     public CompletableFuture<com.blueninjas24.civilizations.construction.DwellingInspection.Assessment> inspectBuildingBeds(

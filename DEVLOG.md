@@ -1,5 +1,34 @@
 # Civilizations Development Log
 
+## 2026-10-20 — donor-visible family housing status
+
+Continued after pushed housing/reclamation milestone0d31fa7. Saved-home inspection
+now reports assigned living-family size/effective capacity or no assigned household,
+separately labelled last-reviewed data beside the current native bed/access/cover
+report. Eight units maximum; the existing128 inspection-cell budget is unchanged.
+Read-only SQL stays on the owner; no migration or housing mutation.
+
+Fixed a permission mismatch: donors allowed to donate/reclaim could be blocked from
+inspection when plot-protection permission was disabled. Routing/completion and the
+inspection controller now accept those permissions while preserving donor/admin
+identity, current world/authority, enabled/readiness and all bounds. No land rights
+or another donor's records are granted. Shared owner authorization covers both
+layout lookup and saved summary. Added controller/router boundary checks and actual
+temporary-SQLite owner identity/world refusal and assigned-family reporting.
+
+`.\mvnw.cmd -Dtest=DwellingOccupancyTest,HomeDonationPreviewTest,PaperDwellingReviewTest,PaperBuildingProtectionTest,PaperHomeDonationTest,PaperHomeReclamationTest,PaperHousingRuntimeTest clean verify`
+passed40 unit +3 packaged integration checks35.414s, zero failures/errors/skips.
+Expanded actual disposable Paper proof passed donation-only injected-player native
+inspection plus the real two-resident/four-capacity saved report, then the existing
+adoption/damage/repair/absent-world/session-restart/reclamation flow. Restored144
+cells; fixture stopped/helper archived; schema110 integrity/FK checks clean.
+This remains fixture actor evidence, not human-client compatibility certification.
+No new broad full-suite run or actual user-server/world/database change.
+
+Updated HOUSING_RUNTIME, status/progress and handbook0.9 (26 pages/24 chapters),
+rendered/reviewed with linked contents and0.9 footers. P4 remains4/16 (25%); this
+improves usability without inventing another completed construction milestone.
+
 ## 2026-10-20 — live family housing, safe legacy transition and donor repossession
 
 User approved gradual transition: preserve existing village families/housing and

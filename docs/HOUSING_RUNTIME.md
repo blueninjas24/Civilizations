@@ -93,6 +93,14 @@ SQL-owner building-consent preview; starting another replaces the old preview.
 /civ debug housing is an operator diagnostic describing the last global review,
 assignments and empty-household releases. It is not a per-family address book.
 
+Donors can use /civ building inspect <building UUID> for their own saved home's
+family size/effective capacity alongside current bed/access/cover evidence. The
+saved status is explicitly last-reviewed data, not a visible-entity count or an
+atomic guarantee against later changes. Only the donor/current administrator can
+read it in the saved present world. Donation or reclamation permission is enough;
+plot-protection permission is not required or granted. Output is capped at8 units
+and the existing global128 inspection cells/tick. Inspection changes no records.
+
 ## Verification and remaining scope
 
 See DEVLOG.md for final commands/results. Temporary SQLite checks cover shared

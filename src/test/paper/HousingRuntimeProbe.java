@@ -21,6 +21,7 @@ public final class HousingRuntimeProbe extends JavaPlugin {
     private World world;private BuildingLayout layout;private PopulationSession session;private PaperHousingRuntime runtime;
     private Path data;private CompletableFuture<?> work;private int phase,ticks;private boolean authorized;
     private UUID family;private Set<UUID> residents;private Position roof;
+    private PaperDwellingReview donorReview;private final List<String> donorMessages=new ArrayList<>();
     @Override public void onEnable(){try {
         var root=getServer().getWorldContainer().toPath().toRealPath();
         check(Files.readString(root.resolve("civilizations-dev-marker.txt")).trim().equals("Disposable Civilizations Phase 1 test environment")
@@ -28,7 +29,7 @@ public final class HousingRuntimeProbe extends JavaPlugin {
         data=root.resolve("housing-runtime-probe");
         new BukkitRunnable(){public void run(){try {
             check(++ticks<1200&&getServer().getOnlinePlayers().isEmpty(),"Bounded empty fixture phase="+phase);
-            if(runtime!=null)runtime.run();if(work!=null&&!work.isDone())return;step();
+            if(runtime!=null)runtime.run();if(donorReview!=null)donorReview.run();if(work!=null&&!work.isDone())return;step();
         }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"P4_HOUSING_RUNTIME_FAIL phase="+phase,failure);cleanup();cancel();getServer().shutdown();}
         if(phase==99){cancel();getServer().shutdown();}}}.runTaskTimer(this,1,1);
     }catch(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"Housing fixture guard failed",failure);if(authorized)getServer().shutdown();}}
@@ -50,7 +51,21 @@ public final class HousingRuntimeProbe extends JavaPlugin {
             case 6->{var state=session.snapshot().orElseThrow();check(state.residents().size()==2,"No population created");family=state.residents().getFirst().householdId();
                 residents=new HashSet<>();for(var person:state.residents())residents.add(person.id());
                 check(state.householdCapacity().get(family)==4,"Actual four-bed home replaces old eight-person bed-group capacity");
-                world.getBlockAt(roof.x(),roof.y(),roof.z()).setType(Material.AIR,false);startRuntime();work=null;phase=7;}
+                work=session.housingSummary(layout.id(),actor,false,world.getUID());phase=18;}
+            case 18->{check(((List<?>)work.join()).stream().anyMatch(s->s.toString().contains("2 living residents; saved effective capacity 4")),"Donor sees real saved family occupancy");
+                var player=(org.bukkit.entity.Player)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{org.bukkit.entity.Player.class},(p,m,a)->switch(m.getName()) {
+                    case "getUniqueId"->actor;case "getWorld"->world;case "hasPermission"->a[0].equals(PaperHomeDonation.PERMISSION);
+                    case "sendMessage"->{if(a[0] instanceof String s)donorMessages.add(s);yield null;}default->throw new UnsupportedOperationException(m.getName());
+                });
+                donorReview=new PaperDwellingReview(new PaperDwellingReview.Owner(){
+                    public CompletableFuture<BuildingRegistry.Entry> find(UUID id,UUID who,boolean admin,UUID w){return session.buildingInspectionLayout(id,who,admin,w);}
+                    public CompletableFuture<DwellingInspection.Assessment> inspect(BuildingLayout l,DwellingInspection.Observation o,long now){return session.inspectBuildingBeds(l,o,now);}
+                    public CompletableFuture<List<String>> saved(UUID id,UUID who,boolean admin,UUID w){return session.housingSummary(id,who,admin,w);}
+                },id->player,(l,t)->new PaperDwellingSurvey(l,t)::advance,System::currentTimeMillis,getLogger());
+                donorReview.onCommand(player,null,"civ",new String[]{"building","inspect",layout.id().toString()});work=null;phase=19;}
+            case 19->{if(donorMessages.stream().noneMatch(s->s.contains("Accessible declared beds: 4")))return;
+                check(donorMessages.stream().anyMatch(s->s.contains("2 living residents; saved effective capacity 4")),"Donation-only actor receives native bed report plus saved family status");
+                donorReview.close();donorReview=null;world.getBlockAt(roof.x(),roof.y(),roof.z()).setType(Material.AIR,false);startRuntime();phase=7;}
             case 7->{if(reviews.get()<1)return;stopRuntime();work=session.pulse();phase=8;}
             case 8->{check(session.snapshot().orElseThrow().householdCapacity().get(family)==0,"Confirmed roof loss removes capacity, preserves household");
                 world.getBlockAt(roof.x(),roof.y(),roof.z()).setType(Material.OAK_PLANKS,false);
@@ -80,7 +95,7 @@ public final class HousingRuntimeProbe extends JavaPlugin {
                     try(var r=s.executeQuery("PRAGMA integrity_check")){check(r.getString(1).equals("ok"),"SQLite integrity");}
                     try(var r=s.executeQuery("PRAGMA foreign_key_check")){check(!r.next(),"SQLite foreign keys");}
                 }
-                cleanup();getLogger().info("P4_HOUSING_RUNTIME_PASS: real four-bed home; explicit donation; existing family adopted whole; old eight-capacity becomes four; roof loss zero and repair four; changed two-pass survey unknown; absent-world pause; restart keeps residents/assignment; confirmed donor reclamation removes capacity without legacy fallback or resident loss; no duplicate homes;144 cells restored");phase=99;}
+                cleanup();getLogger().info("P4_HOUSING_RUNTIME_PASS: real four-bed home; explicit donation; existing family adopted whole; old eight-capacity becomes four; donation-only donor receives real saved-family status and native inspection; roof loss zero and repair four; changed two-pass survey unknown; absent-world pause; restart keeps residents/assignment; confirmed donor reclamation removes capacity without legacy fallback or resident loss; no duplicate homes;144 cells restored");phase=99;}
             default->throw new IllegalStateException("Unexpected phase");
         }
     }
@@ -102,7 +117,7 @@ public final class HousingRuntimeProbe extends JavaPlugin {
         for(var stage:plan.stages())for(var cell:stage.blocks().entrySet()){var p=origin.plus(cell.getKey());world.getBlockAt(p.x(),p.y(),p.z()).setBlockData(getServer().createBlockData(cell.getValue()),false);}
         roof=layout.units().getFirst().beds().getFirst().foot().plus(new Position(0,2,0));
     }
-    private void cleanup(){stopRuntime();if(session!=null){session.close();session=null;}if(!authorized||world==null)return;
+    private void cleanup(){stopRuntime();if(donorReview!=null){donorReview.close();donorReview=null;}if(session!=null){session.close();session=null;}if(!authorized||world==null)return;
         for(var entry:originals.entrySet()){var p=entry.getKey();check(world.isChunkLoaded(p.x()>>4,p.z()>>4),"Restore loaded-only");world.getBlockAt(p.x(),p.y(),p.z()).setBlockData(getServer().createBlockData(entry.getValue()),false);}
         originals.clear();world.removePluginChunkTickets(this);}
     @Override public void onDisable(){cleanup();}

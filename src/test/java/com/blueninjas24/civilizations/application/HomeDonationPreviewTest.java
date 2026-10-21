@@ -41,6 +41,9 @@ class HomeDonationPreviewTest {
             var receipt=session.confirmBuildingConsent(player,world,preview.consent().token(),true,true,true,false).get(5,TimeUnit.SECONDS);
             assertEquals(BuildingRegistry.Action.DONATE,receipt.action());
             assertEquals(preview.review().layout(),session.buildingInspectionLayout(building,player,false,world).get(5,TimeUnit.SECONDS).layout());
+            assertTrue(session.housingSummary(building,player,false,world).get(5,TimeUnit.SECONDS).stream().anyMatch(s->s.contains("no saved household assigned")));
+            assertThrows(ExecutionException.class,()->session.housingSummary(building,UUID.randomUUID(),false,world).get(5,TimeUnit.SECONDS));
+            assertThrows(ExecutionException.class,()->session.housingSummary(building,player,false,UUID.randomUUID()).get(5,TimeUnit.SECONDS));
             assertNull(session.status().failure());
         }
     }

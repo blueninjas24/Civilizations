@@ -7,7 +7,7 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is26-page edition0.8, with
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is26-page edition0.9, with
 24 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
@@ -16,6 +16,16 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- Donors can inspect saved family size/effective capacity for their own home beside
+  the current read-only block report, capped at8 units. Saved status is labelled
+  last-reviewed rather than a visible-entity count. Donation/reclamation permission
+  permits this inspection without granting plot protection or another donor's data.
+  Owner identity, present world and current authority are rechecked on the SQL owner
+  and controller. No migration, housing write or extra native scan budget.
+  Focused clean verify40 unit +3 packaged checks passed35.414s. Actual disposable
+  Paper passed donation-only injected-player real bed inspection and saved-family
+  report, followed by the existing housing/reclamation lifecycle. No broad rerun
+  or user-server change. Handbook0.9 documents the control.
 - Approved gradual transition is live: preserve existing families/housing while
   loaded-only reviews adopt a suitable incumbent family or house a known crowded/
   unhoused whole household in an inspected donated vacancy. Population and food

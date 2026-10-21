@@ -134,11 +134,13 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
             try{corner(player,args[1].equalsIgnoreCase("corner1"),coordinates(args));}catch(IllegalArgumentException invalid){player.sendMessage("Building selection: "+invalid.getMessage());}
             return true;
         }
-        if(!available(player))return true;var id=player.getUniqueId();String action=args.length>1?args[1].toLowerCase(Locale.ROOT):"";
+        String action=args.length>1?args[1].toLowerCase(Locale.ROOT):"";
         if(action.equals("inspect")) {
+            if(closed||!settings.enabled()||!owner.ready()){player.sendMessage("Building inspection is unavailable or still starting.");return true;}
             if(inspection!=null)return inspection.onCommand(sender,command,label,args);
             player.sendMessage("Building inspection is unavailable.");return true;
         }
+        if(!available(player))return true;var id=player.getUniqueId();
         prune();
         if(action.equals("cancel")&&args.length==2) {
             if(pending.containsKey(id)){player.sendMessage("A submitted save is already finishing; wait for its result.");return true;}
@@ -220,6 +222,7 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
         if(args.length!=2)return List.of();var options=new ArrayList<String>();
         if(sender.hasPermission(MANAGE)||sender.hasPermission(ADMIN))options.addAll(List.of("corner1","corner2","preview","protect","here","release","inspect","cancel"));
         if(homes!=null&&sender.hasPermission(PaperHomeDonation.PERMISSION))options.addAll(List.of("corner1","corner2","home","cancelhome"));
+        if(inspection!=null&&(sender.hasPermission(PaperHomeDonation.PERMISSION)||sender.hasPermission(PaperHomeReclamation.PERMISSION)))options.add("inspect");
         if(reclamation!=null&&(sender.hasPermission(PaperHomeReclamation.PERMISSION)||sender.hasPermission(ADMIN)))options.addAll(List.of("reclaim","cancelreclaim"));
         return options.stream().distinct().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();
     }

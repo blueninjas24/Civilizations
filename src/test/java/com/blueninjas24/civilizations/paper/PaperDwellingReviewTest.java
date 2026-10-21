@@ -16,13 +16,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PaperDwellingReviewTest {
     private final UUID worldId=new UUID(0,1),donor=new UUID(0,2),building=new UUID(0,3),unit=new UUID(0,4);
-    private UUID currentWorld=worldId;private boolean permission=true,admin=false,online=true;private long time=1000;
+    private UUID currentWorld=worldId;private boolean permission=true,admin=false,online=true,donorOnly=false;private long time=1000;
+    private List<String> saved=List.of();
     private final List<String> messages=new ArrayList<>();private int reads,inspections,lookups;private boolean complete=true,broken=false;
     private final World world=(World)Proxy.newProxyInstance(World.class.getClassLoader(),new Class<?>[]{World.class},(p,m,a)->{
         if(m.getName().equals("getUID"))return currentWorld;throw new AssertionError(m.getName());});
     private Player player(UUID actor){return (Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class<?>[]{Player.class},(p,m,a)->switch(m.getName()){
         case "getUniqueId"->actor;case "getWorld"->world;
-        case "hasPermission"->a[0].equals(PaperBuildingProtection.ADMIN)?admin:permission;
+        case "hasPermission"->a[0].equals(PaperBuildingProtection.ADMIN)?admin:donorOnly?a[0].equals(PaperHomeDonation.PERMISSION):permission;
         case "sendMessage"->{messages.add((String)a[0]);yield null;}default->throw new AssertionError(m.getName());});}
     private final Bounds bounds=new Bounds(new Position(0,0,0),new Position(4,3,4));
     private final BuildingLayout layout=new BuildingLayout(building,new UUID(0,5),worldId,Kind.HOUSING,bounds,bounds,
@@ -40,6 +41,7 @@ class PaperDwellingReviewTest {
         var owner=new PaperDwellingReview.Owner(){
             public CompletableFuture<BuildingRegistry.Entry> find(UUID id,UUID actor,boolean administrator,UUID world){lookups++;return lookup!=null?lookup:CompletableFuture.completedFuture(new BuildingRegistry.Entry(layout,donorOwns?donor:new UUID(0,99),0,null));}
             public CompletableFuture<Assessment> inspect(BuildingLayout l,Observation o,long now){inspections++;return CompletableFuture.completedFuture(DwellingInspection.inspect(l,o,now,30_000));}
+            public CompletableFuture<List<String>> saved(UUID id,UUID actor,boolean administrator,UUID world){return CompletableFuture.completedFuture(saved);}
         };
         return new PaperDwellingReview(owner,id->online?player(id):null,(l,now)->(budget,t)->{reads+=budget;return Optional.of(observation());},()->time,Logger.getLogger("DwellingReviewTest"));
     }
@@ -71,5 +73,11 @@ class PaperDwellingReviewTest {
         lookup.completeExceptionally(new BuildingRegistry.Declined("Unknown saved building"));r.run();assertTrue(messages.getLast().contains("Unknown saved building"));assertEquals(0,reads);
         lookup=CompletableFuture.failedFuture(new CancellationException());start(r,donor);r.run();assertEquals(0,reads);
         r.onCommand(player(donor),null,"civ",new String[]{"building","inspect","bad"});assertTrue(messages.getLast().contains("must be a UUID"));
+    }
+    @Test void donorWithoutPlotProtectionPermissionCanSeeSavedFamilyStatusWhileInspectionStaysReadOnly() {
+        permission=false;donorOnly=true;saved=List.of("Saved unit: assigned family, 2 living residents; saved effective capacity 4.");
+        var r=review(true);start(r,donor);r.run();
+        assertEquals(128,reads);assertTrue(messages.contains(saved.getFirst()));assertEquals(1,inspections);
+        donorOnly=false;start(r,donor);assertEquals(1,lookups);
     }
 }

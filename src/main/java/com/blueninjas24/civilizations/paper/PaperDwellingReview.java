@@ -15,16 +15,17 @@ import java.util.logging.*;
 
 /** Bounded, read-only diagnostics for saved housing; never consent or usable capacity. */
 public final class PaperDwellingReview extends BukkitRunnable implements CommandExecutor,AutoCloseable {
-    // The other128 cells belong to PaperHomeDonation: total live housing reads <=256/tick.
+    // Donation adds128 and runtime adds its configured budget (default128): default total <=384/tick.
     public static final int MAX_REQUESTS=4,CELLS_PER_TICK=128;
     public interface Owner {
         CompletableFuture<BuildingRegistry.Entry> find(UUID building,UUID player,boolean administrator,UUID world);
         CompletableFuture<DwellingInspection.Assessment> inspect(BuildingLayout layout,DwellingInspection.Observation observation,long now);
+        default CompletableFuture<List<String>> saved(UUID building,UUID player,boolean admin,UUID world){return CompletableFuture.completedFuture(List.of());}
     }
     public interface Survey { Optional<DwellingInspection.Observation> advance(int budget,long now); }
     private static final class Request {
         final UUID actor,world;final long started;final CompletableFuture<BuildingRegistry.Entry> lookup;
-        BuildingRegistry.Entry entry;Survey survey;CompletableFuture<DwellingInspection.Assessment> result;
+        BuildingRegistry.Entry entry;Survey survey;CompletableFuture<DwellingInspection.Assessment> result;CompletableFuture<List<String>> saved;
         Request(UUID actor,UUID world,long started,CompletableFuture<BuildingRegistry.Entry> lookup){this.actor=actor;this.world=world;this.started=started;this.lookup=lookup;}
     }
     private final Owner owner;private final Function<UUID,Player> players;
@@ -37,13 +38,15 @@ public final class PaperDwellingReview extends BukkitRunnable implements Command
         this(new Owner(){
             public CompletableFuture<BuildingRegistry.Entry> find(UUID id,UUID actor,boolean admin,UUID world){return session.buildingInspectionLayout(id,actor,admin,world);}
             public CompletableFuture<DwellingInspection.Assessment> inspect(BuildingLayout layout,DwellingInspection.Observation observation,long now){return session.inspectBuildingBeds(layout,observation,now,policy);}
+            public CompletableFuture<List<String>> saved(UUID building,UUID actor,boolean admin,UUID world){return session.housingSummary(building,actor,admin,world);}
         },Bukkit::getPlayer,(layout,now)->new PaperDwellingSurvey(layout,now)::advance,System::currentTimeMillis,logger);
     }
     public PaperDwellingReview(Owner owner,Function<UUID,Player> players,BiFunction<BuildingLayout,Long,Survey> surveys,LongSupplier clock,Logger logger) {
         this.owner=Objects.requireNonNull(owner);this.players=Objects.requireNonNull(players);this.surveys=Objects.requireNonNull(surveys);
         this.clock=Objects.requireNonNull(clock);this.logger=Objects.requireNonNull(logger);
     }
-    private boolean allowed(Player p){return p.hasPermission(PaperBuildingProtection.MANAGE)||p.hasPermission(PaperBuildingProtection.ADMIN);}
+    private boolean allowed(Player p){return p.hasPermission(PaperBuildingProtection.MANAGE)||p.hasPermission(PaperBuildingProtection.ADMIN)
+            ||p.hasPermission(PaperHomeDonation.PERMISSION)||p.hasPermission(PaperHomeReclamation.PERMISSION);}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!(sender instanceof Player player)){sender.sendMessage("Inspect housing in game, in its saved world.");return true;}
         if(closed||!allowed(player)){player.sendMessage("Building inspection is unavailable or not permitted.");return true;}
@@ -77,13 +80,15 @@ public final class PaperDwellingReview extends BukkitRunnable implements Command
                     var observation=r.survey.advance(CELLS_PER_TICK,now);
                     if(observation.isEmpty())continue;
                     r.result=owner.inspect(r.entry.layout(),observation.orElseThrow(),now);
+                    r.saved=owner.saved(r.entry.layout().id(),r.actor,player.hasPermission(PaperBuildingProtection.ADMIN),r.world);
                 }
-                if(!r.result.isDone())continue;
+                if(!r.result.isDone()||!r.saved.isDone())continue;
                 var assessment=r.result.join();
                 if(now<assessment.capturedMillis()||now-assessment.capturedMillis()>30_000) {
                     player.sendMessage("Building inspection evidence expired; inspect again.");requests.remove(r.actor);continue;
                 }
                 player.sendMessage("Housing bed/access/cover inspection: "+r.entry.layout().id()+". Covered beds required: "+assessment.policy().requireCoveredBeds()+". Read-only; consent, occupancy and usable capacity are separate checks.");
+                r.saved.join().stream().limit(10).forEach(player::sendMessage);
                 if(!assessment.issues().isEmpty())player.sendMessage("Unverified building evidence: "+issues(assessment.issues())+". Previous housing state is unchanged.");
                 else {
                     player.sendMessage("Accessible declared beds: "+assessment.accessibleBeds()+" across "+assessment.units().size()+" declared units.");

@@ -113,4 +113,15 @@ class PaperBuildingProtectionTest {
         assertEquals(2,owner.releases);assertEquals(original,owner.lastReleaseMillis);assertEquals(releaseToken,owner.lastRelease);
         assertEquals(List.of(false,false),owner.releaseAdminFlags);assertTrue(messages.getLast().startsWith("Building exclusion released."));
     }
+    @Test void donatedHomeInspectionDoesNotRequirePlotProtectionPermissionOrGrantIt()throws Exception {
+        var c=controls();var calls=new java.util.concurrent.atomic.AtomicInteger();
+        c.configureInspection((sender,command,label,args)->{calls.incrementAndGet();return true;});
+        var donorOnly=(Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class<?>[]{Player.class},(p,m,a)->{
+            if(m.getName().equals("hasPermission"))return a[0].equals(PaperHomeDonation.PERMISSION);
+            try{return m.invoke(player,a);}catch(java.lang.reflect.InvocationTargetException failure){throw failure.getCause();}
+        });
+        c.onCommand(donorOnly,null,"civ",new String[]{"building","inspect",UUID.randomUUID().toString()});assertEquals(1,calls.get());
+        assertTrue(c.onTabComplete(donorOnly,null,"civ",new String[]{"building","i"}).contains("inspect"));
+        c.onCommand(donorOnly,null,"civ",new String[]{"building","protect"});assertEquals(0,owner.protects);
+    }
 }

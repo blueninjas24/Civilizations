@@ -160,6 +160,7 @@ class DwellingOccupancyTest {
             var housing=new DwellingHousing(c);var first=housing.reconcile(layout(),assessment(1100),context(1100));
             assertEquals(1,first.assigned());var occupancy=new DwellingOccupancy(c);
             assertEquals(a,occupancy.forHousehold(family).orElseThrow().unit());assertEquals(2,HousingCapacity.read(c).get(family));
+            assertTrue(housing.summary(layout()).stream().anyMatch(s->s.contains("2 living residents; saved effective capacity 2")));
             assertEquals(0,housing.reconcile(layout(),assessment(1200),context(1200)).assigned());
             var changed=cells();changed.put(p(1,3,3),Cell.of(Type.PASSABLE));
             assertEquals(1,housing.reconcile(layout(),assessment(1300,changed,true,Policy.prototype()),context(1300)).assigned());

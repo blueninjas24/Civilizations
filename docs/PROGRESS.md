@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Donors can now inspect their home's saved family size and usable capacity, next to
+the bed/access report, without needing admin debug or plot-protection permission.
+This grants no land rights or access to another donor's home. Focused40 +3 checks
+and actual disposable Paper passed. Handbook0.9 explains the live housing controls.
+
 New usable housing progress: permitted donated homes can house whole saved families
 after bounded inspection. Existing families/housing are preserved; rescans cannot
 double-count beds or replace assigned capacity. Confirmed damage can lead to a

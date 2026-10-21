@@ -9,6 +9,25 @@ public final class DwellingHousing {
     public record Report(DwellingOccupancy.Outcome review,int assigned,int released,String explanation) {}
     private final Connection connection;
     public DwellingHousing(Connection connection){this.connection=Objects.requireNonNull(connection);}
+    public List<String> summary(BuildingLayout layout)throws SQLException {
+        var result=new ArrayList<String>();var occupancy=new DwellingOccupancy(connection);
+        boolean permitted=new BuildingRegistry(connection).hasDonationPermission(layout.id());
+        var capacities=HousingCapacity.read(connection,layout.settlement());
+        result.add("Saved housing records (last reviewed state; not a count of visible villagers):");
+        for(var unit:layout.units().stream().limit(8).toList()) {
+            var assignment=occupancy.forUnit(unit.id());
+            if(assignment.isEmpty())result.add("Unit "+unit.id()+": no saved household assigned; usable beds still require inspection. Village use "+(permitted?"permitted":"withdrawn or excluded")+".");
+            else {
+                var household=assignment.get().household();int living;
+                try(var s=connection.prepareStatement("SELECT count(*) FROM residents WHERE household_id=? AND status='ALIVE'")) {
+                    s.setString(1,household.toString());try(var r=s.executeQuery()){living=r.getInt(1);}
+                }
+                result.add("Unit "+unit.id()+": assigned family, "+living+" living residents; saved effective capacity "+capacities.get(household)+". Village use "+(permitted?"permitted":"withdrawn or excluded")+".");
+            }
+        }
+        if(layout.units().size()>8)result.add("Showing8 of "+layout.units().size()+" saved units.");
+        return List.copyOf(result);
+    }
     public Report reconcile(BuildingLayout layout,DwellingInspection.Assessment assessment,DwellingOccupancy.Context context)throws SQLException {
         var repository=new DwellingOccupancy(connection);
         var outcome=repository.review(UUID.randomUUID(),layout.id(),assessment,context);
