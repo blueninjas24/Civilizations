@@ -7,14 +7,24 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is28-page edition0.11, with
-26 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is29-page edition0.12, with
+27 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
 owned units follow the same occupancy direction as homes. New apartment declarations now have explicit controls; editing registered units remains unfinished.
 
 
 Implemented and verified:
+- Separate renovation consent is live: allowrenovation/denyrenovation, expiring
+  confirmrenovation/cancelrenovation and saved inspection status. Donating grants
+  use only. Recorded donors may grant; donors/admins may revoke. Schema112 binds
+  decisions to exact layout/current donation, preserving separate history; old
+  grants cannot revive after revoke/reclaim/re-donation. Owners can withdraw while
+  plot protection blocks use. No work, title, inventory or land is granted.
+  Focused migration/controller checks78 +3 passed57.313s; final33 +3 passed31.345s.
+  Actual disposable Paper donor controls/grant/revoke/status/session restart passed,
+  restoring144 cells, with schema112/integrity/FKs clean. Real server untouched.
+  Handbook0.12:29 pages/27 chapters, rendered/reviewed. See BUILDING_RENOVATIONS.md.
 - Approved new adult households are live during complete permitted housing reviews.
   Eligible unassigned adults form singles or keep already recorded eligible partners
   together; existing families/children are preserved. Configurable village-wide

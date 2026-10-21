@@ -16,6 +16,13 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+New usable protection: donating a building permits use only. Separate confirmed
+renovation grants can be allowed/withdrawn, with saved inspection status. Old grants
+cannot return after repossession/re-donation; normal housing stays intact when only
+renovations are denied. Final33 +3 checks and actual disposable Paper passed.
+Schema112; handbook0.12 has29 pages/27 chapters. Automatic construction remains
+unfinished; no new whole checklist gate is claimed.
+
 New usable step: unassigned adults can form their own household, or stay with an
 already recorded eligible partner, then use suitable inspected vacancies. Existing
 families are preserved; no free beds or new people. Admin text settings limit the
@@ -49,8 +56,8 @@ damage/repair/restart/reclamation passed. Normal physical construction, saved ap
 and business-premises reuse remain. Older notes below describe earlier checkpoints;
 no additional whole checklist item is counted complete.
 
-A28-page living player/server handbook now documents current features and planned
-P4 controls separately, with26 chapters, linked contents and command references.
+A29-page living player/server handbook now documents current features and planned
+P4 controls separately, with27 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
 Saved housing assignments now preserve which whole family occupies each unit,

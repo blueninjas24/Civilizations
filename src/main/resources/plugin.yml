@@ -16,6 +16,9 @@ permissions:
   civilizations.building.donate:
     description: Review a selected single-family home and explicitly declare ownership to grant village-use permission; no occupied capacity or title transfer.
     default: true
+  civilizations.building.renovate:
+    description: Separately review and confirm renovation consent for your recorded donated building; never starts work or grants access to contents.
+    default: true
   civilizations.building.protect:
     description: Preview and explicitly confirm your own off-limits building plot; never grants donation, animal adoption or block changes.
     default: true

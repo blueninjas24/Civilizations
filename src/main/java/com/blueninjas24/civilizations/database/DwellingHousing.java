@@ -14,6 +14,7 @@ public final class DwellingHousing {
         boolean permitted=new BuildingRegistry(connection).hasDonationPermission(layout.id());
         var capacities=HousingCapacity.read(connection,layout.settlement());
         result.add("Saved housing records (last reviewed state; not a count of visible villagers):");
+        result.add("Physical renovations separately "+(new BuildingRenovations(connection).hasPermission(layout.id(),layout.world())?"allowed":"denied")+"; this starts no project and grants no contents or new land.");
         for(var unit:layout.units().stream().limit(8).toList()) {
             var assignment=occupancy.forUnit(unit.id());
             if(assignment.isEmpty())result.add("Unit "+unit.id()+": no saved household assigned; usable beds still require inspection. Village use "+(permitted?"permitted":"withdrawn or excluded")+".");

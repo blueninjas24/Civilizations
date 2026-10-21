@@ -1,5 +1,20 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — separate renovation consent and delegated prototype recommendations
+
+User explicitly selected separate renovation consent: donating a building grants
+use only, not automatic physical alteration. Implemented controls and schema112
+history are documented in BUILDING_RENOVATIONS.md. Donors grant; donors/admins may
+revoke; admin authority alone cannot grant for another donor. Old grants are bound
+to the exact layout/use-consent epoch and cannot survive reclamation/re-donation.
+No inventory, title, extra land, free work or physical construction is authorized.
+
+User subsequently instructed autonomous P4 progress using recommended answers.
+Resolve remaining prototype choices conservatively and document them, while
+preserving locked design, existing explicit approvals, player sovereignty, real
+funds/materials/labor, present-world pause, and main/server/data guardrails. This
+is not authority to merge/push main, destroy worlds or revise canonical principles.
+
 ## October20 — approved: new households for unassigned adults
 
 User approved configurable formation of one-person households for adults without

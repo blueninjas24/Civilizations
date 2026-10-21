@@ -45,6 +45,8 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     private CommandExecutor inspection;
     private CommandExecutor homes;
     private CommandExecutor reclamation;
+    private CommandExecutor renovations;
+    public void configureRenovations(CommandExecutor renovations){this.renovations=Objects.requireNonNull(renovations);}
     public void configureInspection(CommandExecutor inspection){this.inspection=Objects.requireNonNull(inspection);}
     public void configureHomes(CommandExecutor homes){this.homes=Objects.requireNonNull(homes);}
     public void configureReclamation(CommandExecutor reclamation){this.reclamation=Objects.requireNonNull(reclamation);}
@@ -120,6 +122,11 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!(sender instanceof Player player)){sender.sendMessage("Use building protection in game.");return true;}
+        if(args.length>1&&Set.of("allowrenovation","denyrenovation","confirmrenovation","cancelrenovation").contains(args[1].toLowerCase(Locale.ROOT))){
+            if(closed||!settings.enabled()||!owner.ready()){player.sendMessage("Renovation consent is unavailable or still starting.");return true;}
+            if(renovations!=null)return renovations.onCommand(sender,command,label,args);
+            player.sendMessage("Renovation consent controls are unavailable.");return true;
+        }
         if(args.length>1&&Set.of("reclaim","confirmreclaim","cancelreclaim").contains(args[1].toLowerCase(Locale.ROOT))) {
             if(reclamation!=null)return reclamation.onCommand(sender,command,label,args);
             player.sendMessage("Housing reclamation controls are unavailable.");return true;
@@ -225,8 +232,9 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
         if(homes!=null&&sender.hasPermission(PaperHomeDonation.PERMISSION)){
             options.addAll(List.of("corner1","corner2","home","cancelhome"));options.addAll(PaperApartmentDrafts.ACTIONS);
         }
-        if(inspection!=null&&(sender.hasPermission(PaperHomeDonation.PERMISSION)||sender.hasPermission(PaperHomeReclamation.PERMISSION)))options.add("inspect");
+        if(inspection!=null&&(sender.hasPermission(PaperHomeDonation.PERMISSION)||sender.hasPermission(PaperHomeReclamation.PERMISSION)||sender.hasPermission(PaperRenovationConsent.PERMISSION)))options.add("inspect");
         if(reclamation!=null&&(sender.hasPermission(PaperHomeReclamation.PERMISSION)||sender.hasPermission(ADMIN)))options.addAll(List.of("reclaim","cancelreclaim"));
+        if(renovations!=null&&(sender.hasPermission(PaperRenovationConsent.PERMISSION)||sender.hasPermission(ADMIN)))options.addAll(List.of("allowrenovation","denyrenovation","cancelrenovation"));
         return options.stream().distinct().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();
     }
     @Override public void close(){closed=true;selections.clear();proposals.clear();releases.clear();pending.clear();}

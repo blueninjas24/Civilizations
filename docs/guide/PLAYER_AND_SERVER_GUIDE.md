@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.11 | 20 October 2026 | Player and server owner edition
+Living draft 0.12 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 111 retains family housing and safe bed accounting, and records new adult households. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 112 retains family housing and safe bed accounting, and records new adult households. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -155,7 +155,7 @@ Status: Off-limits protection, single-home donation, whole-family assignments an
 
 Player-built homes, workplaces and decorative buildings are off limits without a clear confirmed donation. Beds, workstations and location inside a village are not consent. Old uncertain structures must not be guessed into permission.
 
-Players explicitly declare that an unrecorded home belongs to them; first donation does not require admin approval. This trust policy cannot override another recorded donor or saved protection. A sign alone grants nothing. Chapter 23 gives working single-home commands. Apartment declaration commands are in Chapter 25. Business donation controls and donation signs remain unfinished.
+Players explicitly declare that an unrecorded home belongs to them; first donation does not require admin approval. This trust policy cannot override another recorded donor or saved protection. A sign alone grants nothing. Donation grants use only; physical renovations need separate confirmed consent through Chapter 27. Chapter 23 gives working single-home commands. Apartment declaration commands are in Chapter 25. Business donation controls and donation signs remain unfinished.
 
 ### Boundaries and extra protection
 
@@ -367,7 +367,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 111 includes construction, consent, occupancy and exact legacy bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 112 includes construction, consent, occupancy and exact legacy bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -444,7 +444,7 @@ Sneak-right-click a managed villager with supported plain food for donation/sale
 
 civilizations.aid.preview permits previews; civilizations.aid.donate permits donations; civilizations.trade permits trading and stocked livestock purchases. They default to ordinary players, but server owners can change permissions/settings.
 
-Off-limits plot commands are in Chapter 22, single-home donation in Chapter 23, and confirmed donor repossession in Chapter 24. New apartment editor commands are in Chapter 25. Saved-layout editing and rent controls remain unfinished.
+Off-limits plot commands are in Chapter 22, single-home donation in Chapter 23, and confirmed donor repossession in Chapter 24. New apartment editor commands are in Chapter 25; separate renovation consent is in Chapter 27. Saved-layout editing and rent controls remain unfinished.
 
 Sources: plugin.yml, FoodAidPreviewCommand, FoodBargainingCommand, FoodBarterCommand and LivestockMarketMenu.
 
@@ -560,7 +560,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.11 adds configurable new households for unassigned adults and recorded partners, while preserving existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
+Edition 0.12 adds separate renovation-consent controls and saved inspection status. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
 
 
 ## 22 Protect a building plot
@@ -714,3 +714,29 @@ config.yml household-formation defaults to enabled true, maximum-per-month 2 and
 It runs only during complete permitted housing reviews in a present world. Missing chunks, absent worlds and unreviewed homes do not create households. Villages with no permitted housing review still wait. Saved household/member history prevents duplicate formation after retries or restart. Formed households enter the same needs, food and housing accounting as existing households.
 
 Related chapters: families, housing, apartment declarations and server tuning. Whole families still need a suitable permitted vacancy before gaining housing capacity.
+
+
+## 27 Separate renovation consent
+
+Status: Available as explicit permission controls. Ordinary automatic construction and physical renovations remain unfinished. Granting consent starts no project.
+
+### TL DR
+
+Donating a building lets the village use it. It does not let villagers redesign it. If you want to allow future renovations, confirm that separately. Ownership, contents and normal housing remain separate.
+
+### Allow or deny
+
+- In the building's saved world, run /civ building allowrenovation <building UUID>. Use the ID from your donation receipt.
+- Review the frozen building and structure scope, then click Confirm separate renovation decision or run /civ building confirmrenovation <token>. Nothing is saved just by requesting a preview.
+- To withdraw this separate permission, run /civ building denyrenovation <building UUID> and confirm its new preview. This keeps the donation and housed families intact.
+- /civ building cancelrenovation discards an unsubmitted review. Accepted saves finish even after disconnect. /civ building inspect <building UUID> reports the saved renovation status beside housing records.
+
+Only the recorded donor can grant renovations. Administrators can withdraw consent for safety; being an operator does not let them grant consent for someone else's donation. civilizations.building.renovate defaults true, with the saved donor checked separately. Plot-protection permission is not required to inspect your own saved housing status.
+
+### What the permission means
+
+A grant is bound to the exact saved layout and current donation. Reclamation or re-donation invalidates an old grant. Replaying an old confirmation cannot restore a withdrawn grant. Changed donation/history requires a fresh review; previews last 60 seconds and four player reviews can be open at once.
+
+It grants no access to chest contents, extra land, free materials, labor or money. A future renovation still needs a safe funded project, current protected-land checks and current-world block revalidation. Existing off-limits protections remain effective. No construction happens merely because the status says allowed.
+
+Related chapters: donation, protection, housing, construction and server backups. Schema112 preserves separate consent history; old donations receive no automatic renovation permission.

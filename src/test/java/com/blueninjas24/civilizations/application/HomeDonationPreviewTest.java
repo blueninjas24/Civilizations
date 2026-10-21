@@ -67,6 +67,10 @@ class HomeDonationPreviewTest {
             var housingPlan=session.housingCandidates(village,world,List.of(),HousingProjectPlanner.prototype(),Policy.prototype()).get(5,TimeUnit.SECONDS);
             assertFalse(housingPlan.vacanciesVerified()); // Donation alone is not an inspected vacancy.
             assertTrue(housingPlan.describe().getFirst().contains("no projects"));
+            var renovate=session.previewRenovation(player,world,draft.building(),BuildingRenovations.Action.GRANT,true,false).get(5,TimeUnit.SECONDS);
+            assertThrows(ExecutionException.class,()->session.confirmRenovation(player,world,renovate.token(),false,false).get(5,TimeUnit.SECONDS));
+            assertEquals(BuildingRenovations.Action.GRANT,session.confirmRenovation(player,world,renovate.token(),true,false).get(5,TimeUnit.SECONDS).request().action());
+            assertTrue(session.housingSummary(draft.building(),player,false,world).get(5,TimeUnit.SECONDS).stream().anyMatch(s->s.contains("renovations separately allowed")));
             assertNull(session.status().failure());
         }
     }

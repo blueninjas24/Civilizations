@@ -46,7 +46,7 @@ public final class PaperDwellingReview extends BukkitRunnable implements Command
         this.clock=Objects.requireNonNull(clock);this.logger=Objects.requireNonNull(logger);
     }
     private boolean allowed(Player p){return p.hasPermission(PaperBuildingProtection.MANAGE)||p.hasPermission(PaperBuildingProtection.ADMIN)
-            ||p.hasPermission(PaperHomeDonation.PERMISSION)||p.hasPermission(PaperHomeReclamation.PERMISSION);}
+            ||p.hasPermission(PaperHomeDonation.PERMISSION)||p.hasPermission(PaperHomeReclamation.PERMISSION)||p.hasPermission(PaperRenovationConsent.PERMISSION);}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!(sender instanceof Player player)){sender.sendMessage("Inspect housing in game, in its saved world.");return true;}
         if(closed||!allowed(player)){player.sendMessage("Building inspection is unavailable or not permitted.");return true;}

@@ -1344,6 +1344,20 @@ public final class PopulationSession implements AutoCloseable {
         return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
     }
     private BuildingConsentRequests buildingConsentRequests;
+    private RenovationConsentRequests renovationConsentRequests;
+    private RenovationConsentRequests renovations(){requireReady();
+        if(renovationConsentRequests==null)renovationConsentRequests=new RenovationConsentRequests(database.getConnection());
+        return renovationConsentRequests;
+    }
+    public CompletableFuture<RenovationConsentRequests.Preview> previewRenovation(UUID actor,UUID world,UUID building,
+            com.blueninjas24.civilizations.database.BuildingRenovations.Action action,boolean permitted,boolean administrator){
+        return submit(()->renovations().preview(new RenovationConsentRequests.Context(actor,world,permitted,administrator,loadedWorlds),building,action,now.getAsLong()));
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.BuildingRenovations.Receipt> confirmRenovation(
+            UUID actor,UUID world,UUID token,boolean permitted,boolean administrator){
+        return submit(()->renovations().confirm(new RenovationConsentRequests.Context(actor,world,permitted,administrator,loadedWorlds),token,now.getAsLong()));
+    }
+    public CompletableFuture<Void> cancelRenovation(UUID actor){return submit(()->{renovations().cancel(actor);return null;});}
     private BuildingConsentRequests buildingConsents()throws SQLException {
         requireReady();
         if(buildingConsentRequests==null)buildingConsentRequests=new BuildingConsentRequests(

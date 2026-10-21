@@ -16,14 +16,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PaperDwellingReviewTest {
     private final UUID worldId=new UUID(0,1),donor=new UUID(0,2),building=new UUID(0,3),unit=new UUID(0,4);
-    private UUID currentWorld=worldId;private boolean permission=true,admin=false,online=true,donorOnly=false;private long time=1000;
+    private UUID currentWorld=worldId;private boolean permission=true,admin=false,online=true,donorOnly=false,renovationOnly=false;private long time=1000;
     private List<String> saved=List.of();
     private final List<String> messages=new ArrayList<>();private int reads,inspections,lookups;private boolean complete=true,broken=false;
     private final World world=(World)Proxy.newProxyInstance(World.class.getClassLoader(),new Class<?>[]{World.class},(p,m,a)->{
         if(m.getName().equals("getUID"))return currentWorld;throw new AssertionError(m.getName());});
     private Player player(UUID actor){return (Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class<?>[]{Player.class},(p,m,a)->switch(m.getName()){
         case "getUniqueId"->actor;case "getWorld"->world;
-        case "hasPermission"->a[0].equals(PaperBuildingProtection.ADMIN)?admin:donorOnly?a[0].equals(PaperHomeDonation.PERMISSION):permission;
+        case "hasPermission"->a[0].equals(PaperBuildingProtection.ADMIN)?admin:renovationOnly?a[0].equals(PaperRenovationConsent.PERMISSION):donorOnly?a[0].equals(PaperHomeDonation.PERMISSION):permission;
         case "sendMessage"->{messages.add((String)a[0]);yield null;}default->throw new AssertionError(m.getName());});}
     private final Bounds bounds=new Bounds(new Position(0,0,0),new Position(4,3,4));
     private final BuildingLayout layout=new BuildingLayout(building,new UUID(0,5),worldId,Kind.HOUSING,bounds,bounds,
@@ -79,5 +79,7 @@ class PaperDwellingReviewTest {
         var r=review(true);start(r,donor);r.run();
         assertEquals(128,reads);assertTrue(messages.contains(saved.getFirst()));assertEquals(1,inspections);
         donorOnly=false;start(r,donor);assertEquals(1,lookups);
+        renovationOnly=true;saved=List.of("Physical renovations separately allowed; no project started.");start(r,donor);r.run();
+        assertEquals(256,reads);assertTrue(messages.contains(saved.getFirst()));assertEquals(2,inspections);
     }
 }

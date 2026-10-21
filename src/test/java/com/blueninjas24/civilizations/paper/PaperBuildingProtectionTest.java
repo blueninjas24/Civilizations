@@ -44,6 +44,15 @@ class PaperBuildingProtectionTest {
     private UUID token(){return UUID.fromString(((net.kyori.adventure.text.event.ClickEvent.Payload.Text)buttons.getLast().clickEvent().payload()).value().split(" ")[3]);}
     private void confirm(PaperBuildingProtection c,UUID id){command(c,"building","confirm",id.toString(),"owned");c.run();}
 
+    @Test void renovationRoutingUsesItsOwnControllerAndRequiresReadyEnabledParent(){
+        var c=controls();var calls=new java.util.concurrent.atomic.AtomicInteger();
+        c.configureRenovations((sender,command,label,args)->{calls.incrementAndGet();return true;});
+        command(c,"building","allowrenovation",UUID.randomUUID().toString());assertEquals(1,calls.get());
+        assertTrue(c.onTabComplete(player,null,"civ",new String[]{"building","allow"}).contains("allowrenovation"));
+        owner.ready=false;command(c,"building","denyrenovation",UUID.randomUUID().toString());assertEquals(1,calls.get());
+        c.close();command(c,"building","denyrenovation",UUID.randomUUID().toString());assertEquals(1,calls.get());
+    }
+
     @Test void playerSelectionAndClickableOwnershipConfirmationSaveOnlyAfterExplicitMatchingToken() {
         var c=controls();preview(c);var id=token();assertEquals(0,owner.protects);assertTrue(particles>0&&particles<=68);
         assertTrue(messages.stream().anyMatch(s->s.contains("all heights")));

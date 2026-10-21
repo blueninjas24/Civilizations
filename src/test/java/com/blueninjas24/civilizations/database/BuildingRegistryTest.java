@@ -38,6 +38,89 @@ class BuildingRegistryTest {
         try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
 
+    @Test void renovationIsSeparateOwnerConsentBoundToCurrentDonationAndOldReceiptsNeverReviveIt()throws Exception{
+        try(var c=open()){
+            village(c);var layout=home(10);var registry=new BuildingRegistry(c);UUID donated=UUID.randomUUID();
+            registry.donate(donated,layout,donor,owner,null,1000);var renovations=new BuildingRenovations(c);
+            var authority=new BuildingRenovations.Authority(donor,world,true,true,false,true);
+            assertFalse(renovations.hasPermission(layout.id(),world));
+            var grant=new BuildingRenovations.Request(UUID.randomUUID(),layout.id(),donated,null,layout.fingerprint(),BuildingRenovations.Action.GRANT,1100);
+            var receipt=renovations.confirm(grant,authority);assertEquals(receipt,renovations.confirm(grant,authority));assertTrue(renovations.hasPermission(layout.id(),world));
+            var revoke=new BuildingRenovations.Request(UUID.randomUUID(),layout.id(),donated,grant.operation(),layout.fingerprint(),BuildingRenovations.Action.REVOKE,1200);
+            renovations.confirm(revoke,authority);assertFalse(renovations.hasPermission(layout.id(),world));
+            assertEquals(receipt,renovations.confirm(grant,authority));assertFalse(renovations.hasPermission(layout.id(),world));
+            UUID reclaimed=UUID.randomUUID();registry.reclaim(reclaimed,layout.id(),owner,donated,1300);
+            UUID again=UUID.randomUUID();registry.donate(again,layout,donor,owner,reclaimed,1400);
+            assertFalse(renovations.hasPermission(layout.id(),world));
+            var oldUse=new BuildingRenovations.Request(UUID.randomUUID(),layout.id(),donated,revoke.operation(),layout.fingerprint(),BuildingRenovations.Action.GRANT,1500);
+            assertThrows(Declined.class,()->renovations.confirm(oldUse,authority));
+            var fresh=new BuildingRenovations.Request(UUID.randomUUID(),layout.id(),again,revoke.operation(),layout.fingerprint(),BuildingRenovations.Action.GRANT,1500);
+            renovations.confirm(fresh,authority);assertTrue(renovations.hasPermission(layout.id(),world));assertFalse(renovations.hasPermission(layout.id(),UUID.randomUUID()));
+            healthy(c);
+        }
+    }
+    @Test void renovationAuthorityStaleTermsAndFailureCannotChangeUseOrExistingGrant()throws Exception{
+        try(var c=open()){
+            village(c);var layout=home(10);var registry=new BuildingRegistry(c);UUID donated=UUID.randomUUID();registry.donate(donated,layout,donor,owner,null,1000);
+            var renovations=new BuildingRenovations(c);var grant=new BuildingRenovations.Request(UUID.randomUUID(),layout.id(),donated,null,layout.fingerprint(),BuildingRenovations.Action.GRANT,1100);
+            for(var invalid:List.of(new BuildingRenovations.Authority(donor,world,true,true,false,false),
+                    new BuildingRenovations.Authority(UUID.randomUUID(),world,true,true,true,true),
+                    new BuildingRenovations.Authority(donor,UUID.randomUUID(),true,true,false,true),
+                    new BuildingRenovations.Authority(donor,world,false,true,false,true),new BuildingRenovations.Authority(donor,world,true,false,false,true)))
+                assertThrows(Declined.class,()->renovations.confirm(grant,invalid));
+            var authority=new BuildingRenovations.Authority(donor,world,true,true,false,true);renovations.confirm(grant,authority);
+            var revoke=new BuildingRenovations.Request(UUID.randomUUID(),layout.id(),donated,grant.operation(),layout.fingerprint(),BuildingRenovations.Action.REVOKE,1200);
+            try(var s=c.createStatement()){s.execute("CREATE TRIGGER fail_renovation BEFORE INSERT ON building_renovation_events BEGIN SELECT RAISE(ABORT,'injected'); END");}
+            assertThrows(SQLException.class,()->renovations.confirm(revoke,authority));assertTrue(renovations.hasPermission(layout.id(),world));assertTrue(c.getAutoCommit());
+            try(var s=c.createStatement()){s.execute("DROP TRIGGER fail_renovation");}
+            renovations.confirm(revoke,new BuildingRenovations.Authority(UUID.randomUUID(),world,true,true,true,true));
+            assertFalse(renovations.hasPermission(layout.id(),world));assertTrue(registry.hasDonationPermission(layout.id()));
+            assertEquals(0,count(c,"SELECT count(*) FROM dwelling_assignments"));healthy(c);
+        }
+    }
+    @Test void schema112AddsNoImplicitRenovationRightsToExistingDonations()throws Exception{
+        try(var c=open()){
+            village(c);var layout=home(10);new BuildingRegistry(c).donate(UUID.randomUUID(),layout,donor,owner,null,1000);
+            SchemaFixtures.rewind(c,111);new SchemaMigrator().migrate(c);
+            assertTrue(new BuildingRegistry(c).hasDonationPermission(layout.id()));assertFalse(new BuildingRenovations(c).hasPermission(layout.id(),world));
+            assertEquals(0,count(c,"SELECT count(*) FROM building_renovation_events"));healthy(c);
+        }
+    }
+
+    @Test void expiringRenovationPreviewsArePlayerBoundAndFailedSaveRetriesKeepOriginalTerms()throws Exception{
+        try(var c=open()){
+            village(c);var layout=home(10);var registry=new BuildingRegistry(c);registry.donate(UUID.randomUUID(),layout,donor,owner,null,1000);
+            var requests=new com.blueninjas24.civilizations.application.RenovationConsentRequests(c);
+            var context=new com.blueninjas24.civilizations.application.RenovationConsentRequests.Context(donor,world,true,false,Set.of(world));
+            var preview=requests.preview(context,layout.id(),BuildingRenovations.Action.GRANT,1100);
+            assertFalse(new BuildingRenovations(c).hasPermission(layout.id(),world));
+            var stranger=new com.blueninjas24.civilizations.application.RenovationConsentRequests.Context(UUID.randomUUID(),world,true,true,Set.of(world));
+            assertThrows(Declined.class,()->requests.confirm(stranger,preview.token(),1200));
+            assertThrows(Declined.class,()->requests.preview(stranger,layout.id(),BuildingRenovations.Action.GRANT,1200));
+            try(var s=c.createStatement()){s.execute("CREATE TRIGGER fail_preview_save BEFORE INSERT ON building_renovation_events BEGIN SELECT RAISE(ABORT,'injected'); END");}
+            assertThrows(SQLException.class,()->requests.confirm(context,preview.token(),1200));
+            try(var s=c.createStatement()){s.execute("DROP TRIGGER fail_preview_save");}
+            var receipt=requests.confirm(context,preview.token(),1300);assertEquals(1200,receipt.request().atMillis());
+            assertEquals(receipt,requests.confirm(context,preview.token(),1400));assertTrue(new BuildingRenovations(c).hasPermission(layout.id(),world));
+            var revoke=requests.preview(context,layout.id(),BuildingRenovations.Action.REVOKE,1500);
+            assertThrows(Declined.class,()->requests.confirm(context,revoke.token(),61_500));
+            assertTrue(new BuildingRenovations(c).hasPermission(layout.id(),world));healthy(c);
+        }
+    }
+    @Test void ownerCanPermanentlyWithdrawRenovationGrantWhilePlotProtectionAlreadyBlocksUse()throws Exception{
+        try(var c=open()){
+            village(c);var layout=home(10);var registry=new BuildingRegistry(c);registry.donate(UUID.randomUUID(),layout,donor,owner,null,1000);
+            var requests=new com.blueninjas24.civilizations.application.RenovationConsentRequests(c);
+            var context=new com.blueninjas24.civilizations.application.RenovationConsentRequests.Context(donor,world,true,false,Set.of(world));
+            var grant=requests.preview(context,layout.id(),BuildingRenovations.Action.GRANT,1100);requests.confirm(context,grant.token(),1200);
+            var exclusion=new Exclusion(UUID.randomUUID(),world,donor,layout.plot(),1300);registry.exclude(exclusion,owner);
+            assertFalse(new BuildingRenovations(c).hasPermission(layout.id(),world));
+            var revoke=requests.preview(context,layout.id(),BuildingRenovations.Action.REVOKE,1400);requests.confirm(context,revoke.token(),1500);
+            registry.releaseExclusion(UUID.randomUUID(),exclusion.id(),owner,1600);
+            assertTrue(registry.hasDonationPermission(layout.id()));assertFalse(new BuildingRenovations(c).hasPermission(layout.id(),world));healthy(c);
+        }
+    }
+
     @Test void donationReclaimAndRedonationSurviveReopenWithoutChangingExistingHousingOrEconomy() throws Exception {
         var layout=home(10);UUID give=UUID.randomUUID(),take=UUID.randomUUID(),again=UUID.randomUUID();
         try(var c=open()) {

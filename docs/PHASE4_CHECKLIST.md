@@ -46,6 +46,11 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Separate renovation-consent controls now preserve donation-as-use-only. Schema112
+owner grant/donor-or-admin withdrawal, expiring confirmation, current saved status
+and stale/reclaimed protection passed focused checks and actual disposable Paper.
+No physical renovation or new whole checklist gate is claimed. See BUILDING_RENOVATIONS.
+
 Approved new adult households now form with recorded partners only and configurable
 shared village/month limits. Existing families/children remain intact. Schema111
 and real inspected-vacancy integration passed focused population/migration checks

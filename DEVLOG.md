@@ -1,5 +1,41 @@
 # Civilizations Development Log
 
+## 2026-10-21 — separate owner renovation consent
+
+Implemented the user's separate-consent decision in BuildingRenovations schema112,
+RenovationConsentRequests, serialized PopulationSession APIs and live
+PaperRenovationConsent controls. Donation remains permission to use; owner-only
+renovation grant and donor/admin withdrawal require separate frozen previews and
+confirmation. Current donation/layout/history/world/authority are checked again.
+New default-true renovate permission cannot override saved donor identity. Inspection
+shows saved consent, including for renovation-only donors without plot protection.
+
+Permanent ordered grant/revoke receipts bind the exact use epoch/layout and previous
+renovation decision. SQL failure rolls back; exact retries freeze submitted time/
+authority. Old receipts never restore later-revoked grants. Reclaim/re-donation
+invalidates old grants. Found and fixed a withdrawal edge: temporary plot exclusion
+must not prevent permanent revocation, or lifting the exclusion could revive a grant.
+No physical building change, inventory, ownership, housing or extra land is granted.
+
+Focused Wrapper clean verify78 unit +3 packaged checks passed57.313s for full
+service/controller/migration coverage. Final `.\mvnw.cmd -Dtest=BuildingRegistryTest,HomeDonationPreviewTest,PaperRenovationConsentTest,PaperBuildingProtectionTest,PaperDwellingReviewTest clean verify`
+passed33 unit +3 packaged checks31.345s after protected-plot withdrawal and inspection
+permission checks. New unit/integration coverage uses only temporary DBs; historical
+migration fixtures recognize the new empty table. No broad-suite rerun claimed.
+
+Actual private Paper26.2 build129: default permission installed, two-unit donation,
+separate native controller grant/revoke confirmations and saved allowed/denied
+status for a donor lacking admin/protection. Two saved units and both consent
+receipts survived SQL-session restart. Restored144 cells; stopped fixture/helper
+archived; both DBs schema112/integrity ok/FKs0. Real user's server untouched.
+
+Updated status/progress/checklist/decisions and BUILDING_RENOVATIONS documentation.
+Handbook0.12 is29 pages/27 chapters with working command explanations, linked
+contents and separate-use/renovation limits. All pages rendered/reviewed. P4 remains
+25% by complete gates. Next: stable household/project binding before autonomous
+housing procurement/construction. User delegated remaining prototype recommendations;
+locked design, actual resources, player land and main/server safeguards remain.
+
 ## 2026-10-20 — approved new adult households and scan-safe housing need
 
 Implemented the user's approved single-adult/already-recorded-partner household

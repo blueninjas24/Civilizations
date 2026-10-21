@@ -59,6 +59,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperHomeDonation homeDonations;
     private com.blueninjas24.civilizations.paper.PaperHousingRuntime housingRuntime;
     private com.blueninjas24.civilizations.paper.PaperHomeReclamation homeReclamation;
+    private com.blueninjas24.civilizations.paper.PaperRenovationConsent renovationConsent;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
     private com.blueninjas24.civilizations.paper.PaperFisheryStartup fisheryStartup;
@@ -182,6 +183,9 @@ public final class Civilizations extends JavaPlugin {
                     homeReclamation=new com.blueninjas24.civilizations.paper.PaperHomeReclamation(population,getLogger());
                     buildings.configureReclamation(homeReclamation);homeReclamation.runTaskTimer(this,1,1);
                     getServer().getPluginManager().registerEvents(homeReclamation,this);
+                    renovationConsent=new com.blueninjas24.civilizations.paper.PaperRenovationConsent(population,getLogger());
+                    buildings.configureRenovations(renovationConsent);renovationConsent.runTaskTimer(this,1,1);
+                    getServer().getPluginManager().registerEvents(renovationConsent,this);
                     try {
                         housingRuntime=new com.blueninjas24.civilizations.paper.PaperHousingRuntime(population,
                                 com.blueninjas24.civilizations.paper.PaperHousingRuntime.Settings.read(getConfig()),
@@ -311,6 +315,7 @@ public final class Civilizations extends JavaPlugin {
         if(homeReclamation!=null){homeReclamation.cancel();homeReclamation.close();}
         if(housingRuntime!=null){housingRuntime.cancel();housingRuntime.close();}
         if(homeDonations!=null){homeDonations.cancel();homeDonations.close();}
+        if(renovationConsent!=null){renovationConsent.cancel();renovationConsent.close();}
         if(dwellingReview!=null){dwellingReview.cancel();dwellingReview.close();}
         if(buildings!=null){buildings.cancel();buildings.close();}
         if(construction!=null)construction.cancel();
