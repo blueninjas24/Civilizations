@@ -44,6 +44,26 @@ class HomeDonationPreviewTest {
             assertTrue(session.housingSummary(building,player,false,world).get(5,TimeUnit.SECONDS).stream().anyMatch(s->s.contains("no saved household assigned")));
             assertThrows(ExecutionException.class,()->session.housingSummary(building,UUID.randomUUID(),false,world).get(5,TimeUnit.SECONDS));
             assertThrows(ExecutionException.class,()->session.housingSummary(building,player,false,UUID.randomUUID()).get(5,TimeUnit.SECONDS));
+            var apartmentBounds=new Bounds(new Position(200,64,0),new Position(208,67,4));
+            var draft=new ApartmentDeclaration.Draft(UUID.randomUUID(),village,world,apartmentBounds,apartmentBounds,
+                    new Position(204,65,0),List.of(),List.of())
+                    .shared(new Bounds(new Position(200,64,0),new Position(208,67,0)))
+                    .unit("west",new Position(201,65,1),new Bounds(new Position(200,64,1),new Position(203,67,4)))
+                    .unit("east",new Position(206,65,1),new Bounds(new Position(205,64,1),new Position(208,67,4)));
+            var apartmentCells=new HashMap<Position,Cell>();
+            for(int x=200;x<=208;x++)for(int y=64;y<=67;y++)for(int z=0;z<=4;z++)
+                apartmentCells.put(new Position(x,y,z),Cell.of(y==64||y==67?Type.SUPPORT:Type.PASSABLE));
+            for(int x:List.of(201,206)){
+                apartmentCells.put(new Position(x,65,2),Cell.bed(false,"minecraft:white_bed",Direction.SOUTH));
+                apartmentCells.put(new Position(x,65,3),Cell.bed(true,"minecraft:white_bed",Direction.SOUTH));
+            }
+            var apartmentFrame=new Observation(world,HomeDeclaration.regionHash(world,apartmentBounds),1000,true,apartmentCells);
+            assertThrows(ExecutionException.class,()->session.previewApartmentDonation(player,world,draft,apartmentFrame,Policy.prototype(),false).get(5,TimeUnit.SECONDS));
+            var apartmentPreview=session.previewApartmentDonation(player,world,draft,apartmentFrame,Policy.prototype(),true).get(5,TimeUnit.SECONDS);
+            assertTrue(apartmentPreview.review().passes());assertEquals(2,apartmentPreview.review().layout().units().size());
+            assertThrows(ExecutionException.class,()->session.buildingInspectionLayout(draft.building(),player,false,world).get(5,TimeUnit.SECONDS));
+            session.confirmBuildingConsent(player,world,apartmentPreview.consent().token(),true,true,false,false).get(5,TimeUnit.SECONDS);
+            assertEquals(apartmentPreview.review().layout(),session.buildingInspectionLayout(draft.building(),player,false,world).get(5,TimeUnit.SECONDS).layout());
             assertNull(session.status().failure());
         }
     }

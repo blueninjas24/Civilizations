@@ -2,6 +2,7 @@ package com.blueninjas24.civilizations.paper;
 
 import com.blueninjas24.civilizations.application.PopulationSession;
 import com.blueninjas24.civilizations.construction.BuildingLayout;
+import com.blueninjas24.civilizations.construction.ApartmentDeclaration;
 import com.blueninjas24.civilizations.construction.ConstructionTemplate.Position;
 import com.blueninjas24.civilizations.construction.DwellingInspection;
 import com.blueninjas24.civilizations.database.BuildingRegistry;
@@ -26,6 +27,10 @@ public final class PaperHomeDonation extends BukkitRunnable implements CommandEx
         CompletableFuture<PopulationSession.HomeDonationPreview> preview(UUID actor,UUID world,UUID building,UUID village,
                 BuildingLayout.Bounds bounds,Position entrance,DwellingInspection.Observation observation);
         CompletableFuture<BuildingRegistry.Consent> confirm(UUID actor,UUID world,UUID token);
+        default CompletableFuture<PopulationSession.HomeDonationPreview> apartments(UUID actor,UUID world,
+                ApartmentDeclaration.Draft draft,DwellingInspection.Observation observation){
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Apartment review is unavailable"));
+        }
         void cancel(UUID actor);
         default List<String> villages(){return List.of();}
     }
@@ -35,28 +40,46 @@ public final class PaperHomeDonation extends BukkitRunnable implements CommandEx
         final PaperDwellingReview.Survey survey;
         CompletableFuture<PopulationSession.HomeDonationPreview> reviewing;PopulationSession.HomeDonationPreview preview;
         CompletableFuture<BuildingRegistry.Consent> saving;
+        ApartmentDeclaration.Draft apartments;
         Request(UUID actor,UUID world,UUID village,BuildingLayout.Bounds bounds,Position entrance,long started,PaperDwellingReview.Survey survey){
             this.actor=actor;this.world=world;this.village=village;this.bounds=bounds;this.entrance=entrance;this.started=started;this.survey=survey;}
     }
     private final Owner owner;private final Function<Player,BuildingLayout.Bounds> selections;private final Function<UUID,Player> players;
     private final Surveys surveys;private final LongSupplier clock;private final Logger logger;
     private final LinkedHashMap<UUID,Request> requests=new LinkedHashMap<>();private boolean closed;
+    private final PaperApartmentDrafts apartmentDrafts;
     public PaperHomeDonation(PopulationSession session,DwellingInspection.Policy policy,Function<Player,BuildingLayout.Bounds> selections,Logger logger) {
         this(new Owner(){
             public CompletableFuture<PopulationSession.HomeDonationPreview> preview(UUID actor,UUID world,UUID building,UUID village,BuildingLayout.Bounds bounds,Position entry,DwellingInspection.Observation observation){return session.previewSingleHomeDonation(actor,world,building,village,bounds,bounds,entry,observation,policy,true);}
             public CompletableFuture<BuildingRegistry.Consent> confirm(UUID actor,UUID world,UUID token){return session.confirmBuildingConsent(actor,world,token,true,true,false,false);}
+            public CompletableFuture<PopulationSession.HomeDonationPreview> apartments(UUID actor,UUID world,ApartmentDeclaration.Draft draft,DwellingInspection.Observation observation){return session.previewApartmentDonation(actor,world,draft,observation,policy,true);}
             public void cancel(UUID actor){session.cancelBuildingConsent(actor);}
             public List<String> villages(){return session.settlementNames().keySet().stream().map(UUID::toString).sorted().limit(32).toList();}
         },selections,Bukkit::getPlayer,(world,bounds,now)->PaperDwellingSurvey.forHomeDeclaration(world,bounds,now)::advance,System::currentTimeMillis,logger);
     }
     public PaperHomeDonation(Owner owner,Function<Player,BuildingLayout.Bounds> selections,Function<UUID,Player> players,Surveys surveys,LongSupplier clock,Logger logger){
         this.owner=Objects.requireNonNull(owner);this.selections=Objects.requireNonNull(selections);this.players=Objects.requireNonNull(players);
-        this.surveys=Objects.requireNonNull(surveys);this.clock=Objects.requireNonNull(clock);this.logger=Objects.requireNonNull(logger);}
+        this.surveys=Objects.requireNonNull(surveys);this.clock=Objects.requireNonNull(clock);this.logger=Objects.requireNonNull(logger);
+        this.apartmentDrafts=new PaperApartmentDrafts(selections,this::beginApartments,clock);}
+    private void beginApartments(Player player,ApartmentDeclaration.Draft draft) {
+        UUID actor=player.getUniqueId();
+        if(requests.containsKey(actor))throw new IllegalArgumentException("Finish your current home review or cancelhome first");
+        if(requests.size()>=MAX_REQUESTS)throw new IllegalArgumentException("Home reviews busy; retry shortly");
+        if(draft.units().isEmpty())throw new IllegalArgumentException("Declare private units before reviewing apartments");
+        long now=clock.getAsLong();
+        var request=new Request(actor,draft.world(),draft.village(),draft.structure(),draft.entrance(),now,
+                surveys.create(draft.world(),draft.structure(),now));request.apartments=draft;
+        requests.put(actor,request);
+        player.sendMessage("Reviewing frozen apartment boundaries, real beds and shared access. Corner changes now affect only future drafts. Nothing donated yet.");
+    }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!(sender instanceof Player player)){sender.sendMessage("Select and donate a home in game.");return true;}
         if(closed||!player.hasPermission(PERMISSION)){player.sendMessage("Home donation is unavailable or not permitted.");return true;}
         UUID actor=player.getUniqueId();var request=requests.get(actor);String action=args.length>1?args[1].toLowerCase(Locale.ROOT):"";
         try {
+            if(PaperApartmentDrafts.ACTIONS.contains(action)){
+                apartmentDrafts.prune(players);apartmentDrafts.command(player,args);return true;
+            }
             if(action.equals("cancelhome")&&args.length==2){
                 if(request!=null&&request.saving!=null){player.sendMessage("The submitted donation is already finishing; wait for its result.");return true;}
                 discard(actor);player.sendMessage("Unsubmitted home donation cancelled.");return true;
@@ -83,11 +106,12 @@ public final class PaperHomeDonation extends BukkitRunnable implements CommandEx
         player.sendMessage("/civ building home <village UUID> | cancelhome. Select floor-to-roof corners first; stand at the entrance. Apartments are not inferred.");return true;
     }
     private boolean current(Player player,Request r) {
-        return player.hasPermission(PERMISSION)&&player.getWorld().getUID().equals(r.world)&&r.bounds.equals(selections.apply(player));
+        return player.hasPermission(PERMISSION)&&player.getWorld().getUID().equals(r.world)
+                &&(r.apartments!=null||r.bounds.equals(selections.apply(player)));
     }
     private void discard(UUID actor){if(requests.remove(actor)!=null)owner.cancel(actor);}
     @Override public void run() {
-        if(closed)return;long now=clock.getAsLong();boolean advanced=false;
+        if(closed)return;apartmentDrafts.prune(players);long now=clock.getAsLong();boolean advanced=false;
         for(var r:List.copyOf(requests.values())) {
             var player=players.apply(r.actor);
             try {
@@ -105,11 +129,17 @@ public final class PaperHomeDonation extends BukkitRunnable implements CommandEx
                 if(r.reviewing==null) {
                     if(advanced)continue;advanced=true;
                     var frame=r.survey.advance(CELLS_PER_TICK,now);if(frame.isEmpty())continue;
-                    r.reviewing=owner.preview(r.actor,r.world,r.building,r.village,r.bounds,r.entrance,frame.orElseThrow());
+                    r.reviewing=r.apartments==null?owner.preview(r.actor,r.world,r.building,r.village,r.bounds,r.entrance,frame.orElseThrow())
+                            :owner.apartments(r.actor,r.world,r.apartments,frame.orElseThrow());
                 }
                 if(!r.reviewing.isDone())continue;
                 r.preview=r.reviewing.join();
-                player.sendMessage("Home donation preview: "+r.preview.review().assessment().accessibleBeds()+" reviewed beds in ONE family home, X "+r.bounds.min().x()+".."+r.bounds.max().x()+", Y "+r.bounds.min().y()+".."+r.bounds.max().y()+", Z "+r.bounds.min().z()+".."+r.bounds.max().z()+". Village: "+r.village);
+                String units=r.apartments==null?"ONE family home":r.preview.review().layout().units().size()+" explicitly separated family units";
+                player.sendMessage("Home donation preview: "+r.preview.review().assessment().accessibleBeds()+" reviewed beds in "+units+", X "+r.bounds.min().x()+".."+r.bounds.max().x()+", Y "+r.bounds.min().y()+".."+r.bounds.max().y()+", Z "+r.bounds.min().z()+".."+r.bounds.max().z()+". Village: "+r.village);
+                if(r.apartments!=null){
+                    player.sendMessage("Frozen plot: "+r.apartments.plot()+". Shared boxes: "+r.apartments.shared().size()+". One whole household per unit; no rent.");
+                    for(var u:r.apartments.units().stream().limit(8).toList())player.sendMessage("Declared unit "+u.name()+": "+u.spaces()+"; entrance "+u.entrance());
+                }
                 player.sendMessage("Confirm only if you own this building. This saves village-use permission, not title, inventory or occupied housing capacity.");
                 player.sendMessage(Component.text("[Confirm: I own and donate this home]").clickEvent(ClickEvent.runCommand("/civ building confirmhome "+r.preview.consent().token()+" owned")));
             }catch(CompletionException|CancellationException|IllegalArgumentException failure) {
@@ -122,10 +152,10 @@ public final class PaperHomeDonation extends BukkitRunnable implements CommandEx
             }
         }
     }
-    @EventHandler public void quit(PlayerQuitEvent event){var r=requests.get(event.getPlayer().getUniqueId());if(r!=null&&r.saving==null)discard(r.actor);}
+    @EventHandler public void quit(PlayerQuitEvent event){var actor=event.getPlayer().getUniqueId();apartmentDrafts.remove(actor);var r=requests.get(actor);if(r!=null&&r.saving==null)discard(r.actor);}
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String label,String[] args) {
-        return !closed&&sender.hasPermission(PERMISSION)&&args.length==3&&args[1].equalsIgnoreCase("home")?
+        return !closed&&sender.hasPermission(PERMISSION)&&args.length==3&&(args[1].equalsIgnoreCase("home")||args[1].equalsIgnoreCase("apartments"))?
                 owner.villages().stream().limit(32).filter(s->s.startsWith(args[2].toLowerCase(Locale.ROOT))).toList():List.of();
     }
-    @Override public void close(){closed=true;for(var r:List.copyOf(requests.values()))if(r.saving==null)owner.cancel(r.actor);requests.clear();}
+    @Override public void close(){closed=true;apartmentDrafts.clear();for(var r:List.copyOf(requests.values()))if(r.saving==null)owner.cancel(r.actor);requests.clear();}
 }

@@ -124,7 +124,8 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
             if(reclamation!=null)return reclamation.onCommand(sender,command,label,args);
             player.sendMessage("Housing reclamation controls are unavailable.");return true;
         }
-        if(args.length>1&&Set.of("home","confirmhome","cancelhome").contains(args[1].toLowerCase(Locale.ROOT))) {
+        if(args.length>1&&(Set.of("home","confirmhome","cancelhome").contains(args[1].toLowerCase(Locale.ROOT))
+                ||PaperApartmentDrafts.ACTIONS.contains(args[1].toLowerCase(Locale.ROOT)))) {
             if(homes!=null)return homes.onCommand(sender,command,label,args);
             player.sendMessage("Home donation controls are unavailable.");return true;
         }
@@ -218,10 +219,12 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
         }
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
-        if(args.length==3&&args[1].equalsIgnoreCase("home")&&homes instanceof TabCompleter completer)return completer.onTabComplete(sender,command,alias,args);
+        if(args.length==3&&(args[1].equalsIgnoreCase("home")||args[1].equalsIgnoreCase("apartments"))&&homes instanceof TabCompleter completer)return completer.onTabComplete(sender,command,alias,args);
         if(args.length!=2)return List.of();var options=new ArrayList<String>();
         if(sender.hasPermission(MANAGE)||sender.hasPermission(ADMIN))options.addAll(List.of("corner1","corner2","preview","protect","here","release","inspect","cancel"));
-        if(homes!=null&&sender.hasPermission(PaperHomeDonation.PERMISSION))options.addAll(List.of("corner1","corner2","home","cancelhome"));
+        if(homes!=null&&sender.hasPermission(PaperHomeDonation.PERMISSION)){
+            options.addAll(List.of("corner1","corner2","home","cancelhome"));options.addAll(PaperApartmentDrafts.ACTIONS);
+        }
         if(inspection!=null&&(sender.hasPermission(PaperHomeDonation.PERMISSION)||sender.hasPermission(PaperHomeReclamation.PERMISSION)))options.add("inspect");
         if(reclamation!=null&&(sender.hasPermission(PaperHomeReclamation.PERMISSION)||sender.hasPermission(ADMIN)))options.addAll(List.of("reclaim","cancelreclaim"));
         return options.stream().distinct().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();

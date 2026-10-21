@@ -1,5 +1,11 @@
 # P4 building and dwelling layout foundation
 
+October20 current addition: explicit NEW apartment declarations now feed bounded
+inspection, confirmed donation and the normal whole-family runtime. Private units,
+multi-room spaces, shared corridors and separate plots are editable before review.
+Registered layouts are not revised. See APARTMENT_DONATIONS.md; older checkpoint
+limits below describe their dated implementation stage.
+
 Implemented: immutable, plain-Java declarations of a plot, physical structure,
 shared spaces and individually identified dwelling units. This is geometry only;
 it does not discover, register, donate, occupy or modify a Minecraft building.

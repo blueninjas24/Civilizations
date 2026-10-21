@@ -1,21 +1,30 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 live family housing and confirmed donor repossession
+## Current — Phase4 explicit apartment declarations and live family housing
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is26-page edition0.9, with
-24 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is27-page edition0.10, with
+25 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
-owned units follow the same occupancy direction as homes. No live unit control is
-claimed by documenting it.
+owned units follow the same occupancy direction as homes. New apartment declarations now have explicit controls; editing registered units remains unfinished.
 
 
 Implemented and verified:
+- Explicit new apartment editor: private units, extra rooms, shared corridors and
+  a separate surrounding plot feed the same bounded donation scan and ownership
+  confirmation. Real beds/access/cover must qualify every unit; no inferred units,
+  rent, saved-layout overwrite or extra scan budget. Normal whole-family housing
+  can use the resulting vacancies. Four editors, ten-minute idle expiry; saved
+  building revisions/per-unit repossession remain unfinished. Schema110 unchanged.
+  Focused clean verify46 unit +3 packaged checks passed40.930s; actual disposable
+  Paper two-unit editor/confirmation/session-restart proof passed. Restored144
+  cells, fixture stopped and integrity/FK checks clean. Handbook0.10 has27 pages
+  and25 chapters. See APARTMENT_DONATIONS.md for commands and verification limits.
 - Donors can inspect saved family size/effective capacity for their own home beside
   the current read-only block report, capped at8 units. Saved status is labelled
   last-reviewed rather than a visible-entity count. Donation/reclamation permission

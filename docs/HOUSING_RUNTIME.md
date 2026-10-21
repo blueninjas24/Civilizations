@@ -1,5 +1,11 @@
 # Live housing transition and repossession
 
+October20 current addition: explicit NEW apartment declarations now feed bounded
+inspection, confirmed donation and the normal whole-family runtime. Private units,
+multi-room spaces, shared corridors and separate plots are editable before review.
+Registered layouts are not revised. See APARTMENT_DONATIONS.md; older checkpoint
+limits below describe their dated implementation stage.
+
 The user approved preserving existing families/housing while gradually assigning
 whole households to inspected donated or Civ-built homes. Normal construction is
 still off. The current runtime uses explicitly donated registered housing only;

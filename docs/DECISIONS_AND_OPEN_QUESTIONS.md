@@ -38,7 +38,7 @@ Implemented backend: player-bound expiring donation/reclamation previews, a sepa
 explicit ownership declaration, current world/permissions and protection checks,
 expected prior-consent matching and bounded exact retries on the SQL owner. Explicit off-limits building sign/selection controls are now verified; live
 single-home donation, whole-family assignment and confirmed donor reclamation now
-work; editable apartment-unit boundaries remain unfinished.
+work; explicit new apartment declarations now work under APARTMENT_DONATIONS.md. Registered-boundary revisions remain unfinished.
 
 ## October20 — village owned apartments without rent and a living user handbook
 
@@ -46,8 +46,9 @@ User explicitly deferred rent and landlords. Initial apartments are village-owne
 housing using the same household occupancy/assignment direction as homes. The word
 acquire is interpreted as obtaining occupancy here; no private sale price, landlord
 account or property-title transfer is introduced. A later private purchase system
-would require its own economic decision. Apartment-unit editing remains unfinished;
-single-home whole-family assignments are now live under HOUSING_RUNTIME.md.
+would require its own economic decision. New apartment declarations support explicit private/shared spaces before review;
+registered-unit revisions remain unfinished. Whole-family assignments are live
+under HOUSING_RUNTIME.md and APARTMENT_DONATIONS.md.
 
 User requested a comprehensive living how-to guide alongside development, in DOCX
 or PDF, with overview, chapters by feature, TL DR, command glossary, feature purpose,

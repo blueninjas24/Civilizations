@@ -1355,6 +1355,32 @@ public final class PopulationSession implements AutoCloseable {
     }
     public record HomeDonationPreview(com.blueninjas24.civilizations.construction.HomeDeclaration.Review review,
                                       BuildingConsentRequests.Preview consent) {}
+    /** Frozen explicit units use the same inspected, expiring ownership confirmation as a single home. */
+    public CompletableFuture<HomeDonationPreview> previewApartmentDonation(UUID player,UUID world,
+            com.blueninjas24.civilizations.construction.ApartmentDeclaration.Draft draft,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Observation observation,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy,boolean permitted) {
+        return submit(()->{
+            requireBuildingWorld(world,observation.world());requireBuildingWorld(world,draft.world());
+            requireHousingVillage(world,draft.village(),permitted);
+            com.blueninjas24.civilizations.construction.HomeDeclaration.Review review;
+            try{review=com.blueninjas24.civilizations.construction.ApartmentDeclaration.review(draft,observation,now.getAsLong(),policy);}
+            catch(IllegalArgumentException invalid){throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined(invalid.getMessage());}
+            return housingDonationPreview(player,world,review,permitted);
+        });
+    }
+    private void requireHousingVillage(UUID world,UUID village,boolean permitted)throws SQLException {
+        if(!permitted)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Home donation preview is not permitted");
+        try(var s=database.getConnection().prepareStatement("SELECT 1 FROM settlement_worlds WHERE settlement_id=? AND world_id=?")) {
+            s.setString(1,village.toString());s.setString(2,world.toString());
+            try(var r=s.executeQuery()){if(!r.next())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Village does not belong to this saved world");}
+        }
+    }
+    private HomeDonationPreview housingDonationPreview(UUID player,UUID world,
+            com.blueninjas24.civilizations.construction.HomeDeclaration.Review review,boolean permitted)throws SQLException {
+        if(!review.passes())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Declared housing fails bed/access/cover checks: "+review.assessment().issues()+"/"+review.assessment().units());
+        return new HomeDonationPreview(review,buildingConsents().donation(buildingContext(player,world,permitted,false,false),review.layout(),now.getAsLong()));
+    }
     /** Explicit one-home declaration: current region proof -> qualified layout -> bounded consent preview. No save or occupancy. */
     public CompletableFuture<HomeDonationPreview> previewSingleHomeDonation(UUID player,UUID world,UUID building,UUID village,
             com.blueninjas24.civilizations.construction.BuildingLayout.Bounds plot,
@@ -1364,16 +1390,11 @@ public final class PopulationSession implements AutoCloseable {
             com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy,boolean permitted) {
         return submit(()->{
             requireBuildingWorld(world,observation.world());
-            if(!permitted)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Home donation preview is not permitted");
-            try(var s=database.getConnection().prepareStatement("SELECT 1 FROM settlement_worlds WHERE settlement_id=? AND world_id=?")) {
-                s.setString(1,village.toString());s.setString(2,world.toString());
-                try(var r=s.executeQuery()){if(!r.next())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Village does not belong to this saved world");}
-            }
+            requireHousingVillage(world,village,permitted);
             com.blueninjas24.civilizations.construction.HomeDeclaration.Review review;
             try {review=com.blueninjas24.civilizations.construction.HomeDeclaration.singleHousehold(building,village,world,plot,structure,entrance,observation,now.getAsLong(),policy);}
             catch(IllegalArgumentException invalid){throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined(invalid.getMessage());}
-            if(!review.passes())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Declared home fails bed/access/cover checks: "+review.assessment().issues()+"/"+review.assessment().units());
-            return new HomeDonationPreview(review,buildingConsents().donation(buildingContext(player,world,permitted,false,false),review.layout(),now.getAsLong()));
+            return housingDonationPreview(player,world,review,permitted);
         });
     }
     public CompletableFuture<BuildingConsentRequests.Preview> previewBuildingReclamation(UUID player,UUID world,UUID building,boolean permitted,boolean administrator) {

@@ -17,8 +17,8 @@ public final class HomeDeclaration {
             if(!layout.world().equals(assessment.world())||!layout.fingerprint().equals(assessment.layoutHash()))
                 throw new IllegalArgumentException("Home review does not match declared layout");
         }
-        public boolean passes(){return assessment.issues().isEmpty()&&assessment.units().size()==1
-                &&assessment.units().values().iterator().next().issues().isEmpty();}
+        public boolean passes(){return assessment.issues().isEmpty()&&assessment.units().size()==layout.units().size()
+                &&assessment.units().values().stream().allMatch(unit->unit.issues().isEmpty());}
     }
     /** Identifies raw region evidence before a building/unit layout exists. Not permission or an inspection result. */
     public static String regionHash(UUID world,Bounds structure) {

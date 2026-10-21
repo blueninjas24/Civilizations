@@ -1,5 +1,36 @@
 # Civilizations Development Log
 
+## 2026-10-20 — explicit apartment declarations and confirmed donation
+
+Added ApartmentDeclaration immutable drafts/review and a bounded Paper apartment
+editor connected to the existing donation controller/SQL-owner consent workflow.
+Players mark new private units, additional rooms, shared circulation and separate
+plots. All real bed pairs/access/roof must qualify; no inferred units or rights.
+Unit identity is deterministic within a frozen building; existing layouts/history
+are never overwritten. No rent, title sale, family splitting or additional scan
+budget. Normal housing can use the saved vacancies. Schema110 unchanged.
+
+Four unsaved editors expire after ten idle minutes, world change, disconnect or
+permission loss. Failed edits preserve the previous immutable draft. Submitted
+reviews freeze their own geometry; accepted saves drain normally. Whole-building
+reclamation remains available; per-unit withdrawal/saved revisions remain future.
+
+`.\mvnw.cmd -Dtest=ApartmentDeclarationTest,PaperApartmentDraftsTest,HomeDeclarationTest,HomeDonationPreviewTest,PaperHomeDonationTest,PaperBuildingProtectionTest,DwellingOccupancyTest,PaperHousingRuntimeTest,BuildingConsentRequestsTest clean verify`
+passed46 unit +3 packaged checks40.930s, no failures/errors/skips. Six new focused
+checks plus expanded actual temporary-SQLite owner integration. No broad rerun.
+Actual disposable Paper26.2 build129 passed two-unit editor, real native review,
+explicit ownership confirmation, stable saved geometry and SQL-session restart;
+restored144 cells, stopped server/helper archived, schema/integrity/FKs healthy.
+First helper fixture lacked the existing two-bed recognition minimum; corrected
+only the fixture and repeated successfully. Actual user's server untouched.
+
+Updated status/progress/checklist and new APARTMENT_DONATIONS documentation.
+Corrected checklist land-authority wording to the already approved automatic-growth
+policy, without changing the roadmap or marking a new gate complete. P4 remains
+4/16 checklist items,1/4 groups25%. Regenerated handbook0.10,27 pages/25 chapters;
+all pages rendered/reviewed, bookmarks/footer and the worked apartment example
+verified. Saved-layout revisions, business reuse and physical construction remain.
+
 ## 2026-10-20 — donor-visible family housing status
 
 Continued after pushed housing/reclamation milestone0d31fa7. Saved-home inspection

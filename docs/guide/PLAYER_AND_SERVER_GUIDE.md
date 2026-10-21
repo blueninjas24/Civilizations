@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.9 | 20 October 2026 | Player and server owner edition
+Living draft 0.10 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -12,7 +12,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 - Villages containing villagers and beds are recognized automatically after complete loaded-area observation. There is no join command.
 - Hold supported plain food and sneak-right-click a managed villager to open village supplies. Wait for the final donation or trade confirmation.
 - Use /civ market near a qualifying livestock business to buy stocked milk or eggs. Bring your own empty bucket for milk.
-- Industry simulation, single-home donation, whole-family housing assignments and confirmed donor repossession work today. Automatic physical construction and apartment editing remain unfinished.
+- Industry simulation, single-home donation, whole-family housing assignments and confirmed donor repossession work today. Explicit apartment donation is available; automatic physical construction remains unfinished.
 - Server downtime and absent worlds pause new simulation time. An unloaded chunk does not prove death or destruction.
 
 ### Read the status first
@@ -119,7 +119,7 @@ Related chapters: housing, business ownership and industry. Sources: POPULATION_
 
 ## 4 Homes and apartments
 
-Status: Whole-family housing in inspected donated homes is live. Editable apartment recognition remains unfinished.
+Status: Whole-family housing and explicit new apartment declarations are live. Saved-building boundary revisions remain unfinished.
 
 ### Separate the land building and homes
 
@@ -129,9 +129,9 @@ The initial direction is village ownership without rent or landlords. A househol
 
 ### Recognizing a unit
 
-Authored plans would declare units, beds and entrances. Donated buildings would be inspected, with proposed units previewed for confirmation. Editable three-dimensional boundaries are proposed so upstairs and downstairs apartments can share the same ground footprint.
+Players can explicitly mark private units and shared corridors before a new apartment donation. Units can contain several non-overlapping rooms; upstairs and downstairs units may share X/Z coordinates at different heights. Beds do not automatically create apartments. Chapter 25 gives the working editor commands.
 
-A unit needs usable capacity, a reachable entrance and non-overlapping private space. Shared access must not cross another household's private unit. Bed/access/cover validation is implemented; an editable apartment-unit interface remains unfinished.
+A unit needs usable capacity, a reachable entrance and non-overlapping private space. Shared access must not cross another household's private unit. Bed/access/cover validation checks every declared unit. The new-building apartment editor is available; changing an already registered layout remains unfinished.
 
 ### Inspect saved housing
 
@@ -149,17 +149,17 @@ Related chapters: donation and construction. Sources: DECISIONS_AND_OPEN_QUESTIO
 
 ## 5 Donate protect and reclaim buildings
 
-Status: Off-limits protection, single-home donation, whole-family assignments and confirmed housing reclamation are available. Apartment editing remains unfinished.
+Status: Off-limits protection, single-home donation, whole-family assignments and confirmed housing reclamation are available. Explicit new apartment declarations use Chapter 25; saved-layout revisions remain unfinished.
 
 ### Explicit consent
 
 Player-built homes, workplaces and decorative buildings are off limits without a clear confirmed donation. Beds, workstations and location inside a village are not consent. Old uncertain structures must not be guessed into permission.
 
-Players explicitly declare that an unrecorded home belongs to them; first donation does not require admin approval. This trust policy cannot override another recorded donor or saved protection. A sign alone grants nothing. Chapter 23 gives working single-home commands. Business/apartment donation controls and donation signs remain unfinished.
+Players explicitly declare that an unrecorded home belongs to them; first donation does not require admin approval. This trust policy cannot override another recorded donor or saved protection. A sign alone grants nothing. Chapter 23 gives working single-home commands. Apartment declaration commands are in Chapter 25. Business donation controls and donation signs remain unfinished.
 
 ### Boundaries and extra protection
 
-For an off-limits plot, select opposite corners and preview its visible outline before confirming ownership. Chapter 22 gives the commands and optional protection sign. Selected X/Z columns are excluded at every height. Single homes use explicit floor-to-roof corners; separate apartment boundaries remain planned. More land does not create beds or production.
+For an off-limits plot, select opposite corners and preview its visible outline before confirming ownership. Chapter 22 gives the commands and optional protection sign. Selected X/Z columns are excluded at every height. Single homes and apartment units use explicit floor-to-roof corners. Apartment drafts can also mark a separate surrounding plot; see Chapter 25. More land does not create beds or production.
 
 Saved protection survives sign removal. Private buildings still need explicit donation even without this extra marker. Protection governs Civilizations construction; it does not prevent other players editing or vanilla villagers walking through. Releasing an exclusion changes construction permission. Housing reclamation is a separate confirmed action; see Chapter 24.
 
@@ -444,7 +444,7 @@ Sneak-right-click a managed villager with supported plain food for donation/sale
 
 civilizations.aid.preview permits previews; civilizations.aid.donate permits donations; civilizations.trade permits trading and stocked livestock purchases. They default to ordinary players, but server owners can change permissions/settings.
 
-Off-limits plot commands are in Chapter 22, single-home donation in Chapter 23, and confirmed donor repossession in Chapter 24. Apartment editing and rent controls remain unfinished.
+Off-limits plot commands are in Chapter 22, single-home donation in Chapter 23, and confirmed donor repossession in Chapter 24. New apartment editor commands are in Chapter 25. Saved-layout editing and rent controls remain unfinished.
 
 Sources: plugin.yml, FoodAidPreviewCommand, FoodBargainingCommand, FoodBarterCommand and LivestockMarketMenu.
 
@@ -560,7 +560,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.9 adds donor-visible family size/capacity to saved-home inspection and separates inspection from plot-protection permission. Live whole-family housing and confirmed donor repossession are available. Apartments and normal construction remain unfinished; rent and landlords stay deferred.
+Edition 0.10 adds explicit new apartment declarations, private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
 
 
 ## 22 Protect a building plot
@@ -631,12 +631,12 @@ Beds must be real, paired, supported, clear and reachable from the chosen entran
 
 civilizations.building.donate defaults true; no first-donation admin approval is required. building-protection.enabled controls availability; require-covered-beds controls overhead cover. Restart after editing config.yml. Inspection and donation use up to 256 cells per tick together. The new housing runtime adds one shared budget of 128 by default; see Chapter 24.
 
-Donation signs, apartment editing and normal automatic construction remain unfinished. Confirmed reclamation and whole-family housing now work; see Chapter 24. The saved footprint stays protected after reclamation. Related chapters: housing, protection and construction.
+Donation signs and normal automatic construction remain unfinished. Explicit new apartments use Chapter 25; revising a saved building remains unfinished. Confirmed reclamation and whole-family housing now work; see Chapter 24. The saved footprint stays protected after reclamation. Related chapters: housing, protection and construction.
 
 
 ## 24 Live family housing and repossession
 
-Status: Available for saved families and explicitly donated homes. No physical construction, apartment editor or automatic villager teleporting.
+Status: Available for saved families and explicitly donated homes. No physical construction or automatic villager teleporting. Explicit apartment declarations use Chapter 25.
 
 ### After donating a home
 
@@ -662,3 +662,32 @@ Only the recorded donor or an administrator can reclaim. civilizations.building.
 config.yml housing-runtime defaults to enabled, 128 cells-per-tick and review-seconds 15. Both survey passes share that budget. Budget range is 16 to 256; cadence is 5 to 600 seconds. Large structures can time out with a small budget and stay unverified. Default combined housing reads are at most 384 per tick. Restart after editing.
 
 /civ debug housing requires administrator debug permission and explains the last global review. It is not an address book or a promise that someone needs every donated home. Sources: HOUSING_RUNTIME.md and DWELLING_OCCUPANCY.md.
+
+
+## 25 Declare an apartment building
+
+Status: Available for NEW, explicitly player-owned building declarations. No rent, title sale, automatic apartment guessing or editing of a registered building.
+
+### TL DR
+
+Select the whole building first. Mark each family's private rooms and the shared halls separately. Review all units, then explicitly confirm ownership and donation. The normal housing runtime can assign suitable whole saved families afterward. Extra beds do not create extra families.
+
+### Worked example: two units and a hallway
+
+- Select the entire floor-to-roof structure with /civ building corner1 <x> <y> <z> and corner2 <x> <y> <z>. Stand at the building entrance, then run /civ building apartments <village UUID>. This freezes the structure, entrance and village for this draft.
+- Select the first unit's floor-to-roof corners. Stand at that unit's entrance inside its private space. Run /civ building unit west. Repeat with /civ building unit east for the second unit.
+- Select the hallway or stairs, then run /civ building shared. Private and shared boxes must not overlap. Coordinates include both boundary blocks: two adjacent boxes must end/start on different block coordinates.
+- For another room belonging to west, select its separate box and run /civ building room west. Several rooms still form one family home.
+- Optional: select a larger surrounding yard and run /civ building apartmentplot. It must contain the whole frozen structure. Land does not add housing capacity.
+- Run /civ building reviewapartments. A bounded loaded-only scan checks every unit's real bed pairs, support, headroom, roof and reachable access. A unit cannot depend on walking through another private home.
+- Review the unit count, beds, structure, plot and private boundaries. Click the ownership confirmation or run /civ building confirmhome <token> owned. Wait for the saved building ID. Inspection, normal housing and whole-building reclamation then use that ID.
+
+### Correct or cancel a draft
+
+Use apartmentstatus to view the draft, removeunit <name> to replace a unit, and clearshared to redraw shared boxes. Prefix each with /civ building. cancelapartments discards the editor; cancelhome cancels an unsubmitted review. Accepted saves finish.
+
+Names use 1 to 24 lowercase letters, digits, underscores or hyphens. Four editors maximum; drafts expire after ten idle minutes, disconnect, world change, permission loss or restart. Reviews share the existing 128-cell-per-tick donation budget, expire after 30 seconds, and allow 60 seconds for confirmation. Large scans can time out.
+
+### What happens next
+
+Whole saved families can take suitable vacancies through the normal housing runtime. No suitable family can mean an empty unit. Whole-building reclamation uses Chapter 24. Per-unit reclamation, registered-boundary revisions and physical apartment construction remain unfinished.

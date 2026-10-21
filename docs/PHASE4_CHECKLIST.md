@@ -19,7 +19,7 @@ no land, goods, cash, workers or capacity. No existing business is activated by 
 
 ## 2. Sites, roads and permission — 0/4
 
-- [ ] Persistent explicit development-area approval and player/pen/protected-land checks at every write boundary.
+- [ ] Persistent guarded land-use authority under approved automatic growth, with player/pen/protected-land checks at every write boundary.
 - [ ] Bounded deterministic road-first local site/path selection, with explainable rejected alternatives.
 - [ ] Terrain-aware permitted site adaptation and loaded-chunk revalidation, including entities and neighboring edits.
 - [ ] Suitable vacant-premises reuse before new construction, with occupancy/permission records and collision prevention.
@@ -46,13 +46,21 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Explicit new apartment declarations now mark private rooms, shared circulation
+and separate plots before bounded current-world review and confirmed donation.
+Registered layouts are never overwritten. The usual whole-family runtime can use
+qualified vacancies; rent and per-unit reclamation are absent. Wrapper46 +3 and
+actual disposable Paper two-unit consent/session-restart proof passed. This is a
+permission/reuse slice, not a complete site, business reuse or construction gate.
+Older notes below describe prior checkpoints; APARTMENT_DONATIONS is current.
+
 Schema109 adds separate whole-household occupancy/history and current inspected
 vacancy records. Exclusive assignments, moves, empty-household releases and
 reclamation share transactional history and safe exact retries. Existing capacity
 and families are preserved. Schema110 now connects live whole-family assignment,
 shared population/food capacity, scan-safe bed accounting and confirmed donor
 reclamation. The user approved gradual transition. Business-premises reuse,
-apartment editing and normal construction remain ahead; no additional whole
+registered apartment revisions and normal construction remain ahead; no additional whole
 milestone is complete. See HOUSING_RUNTIME.md and DWELLING_OCCUPANCY.md.
 
 Covered beds are now the configurable default. Complete region evidence can become

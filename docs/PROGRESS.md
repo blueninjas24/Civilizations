@@ -16,6 +16,12 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+New usable step: players can explicitly divide a new donated building into family
+apartments, shared halls and a separate yard, then confirm reviewed ownership.
+Real beds and access qualify each unit; existing saved homes are not overwritten.
+Wrapper46 +3 checks and an actual disposable Paper two-unit donation/restart proof
+passed. Handbook0.10:27 pages/25 chapters. No new whole checklist gate is complete.
+
 Donors can now inspect their home's saved family size and usable capacity, next to
 the bed/access report, without needing admin debug or plot-protection permission.
 This grants no land rights or access to another donor's home. Focused40 +3 checks
@@ -27,12 +33,12 @@ double-count beds or replace assigned capacity. Confirmed damage can lead to a
 suitable saved vacancy. Donors can preview and separately confirm repossession,
 with affected households shown and buildings/residents retained. /civ debug housing
 explains the last review. Wrapper116 +3 checks and actual disposable Paper adoption,
-damage/repair/restart/reclamation passed. Normal physical construction, apartments
+damage/repair/restart/reclamation passed. Normal physical construction, saved apartment revisions
 and business-premises reuse remain. Older notes below describe earlier checkpoints;
 no additional whole checklist item is counted complete.
 
-A26-page living player/server handbook now documents current features and planned
-P4 controls separately, with24 chapters, linked contents and command references.
+A27-page living player/server handbook now documents current features and planned
+P4 controls separately, with25 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
 Saved housing assignments now preserve which whole family occupies each unit,

@@ -1,5 +1,11 @@
 # Single-family home donation controls
 
+October20 current addition: explicit NEW apartment declarations now feed bounded
+inspection, confirmed donation and the normal whole-family runtime. Private units,
+multi-room spaces, shared corridors and separate plots are editable before review.
+Registered layouts are not revised. See APARTMENT_DONATIONS.md; older checkpoint
+limits below describe their dated implementation stage.
+
 Implemented: selected original/player-built home -> bounded current region review
 -> explicit ownership confirmation -> saved village-use permission. The separate
 live runtime now assigns suitable whole families and usable capacity after a fresh
