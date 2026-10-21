@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.16 | 21 October 2026 | Player and server owner edition
+Living draft 0.17 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -12,14 +12,14 @@ This guide explains what you can do now, why the systems behave as they do, and 
 - Villages containing villagers and beds are recognized automatically after complete loaded-area observation. There is no join command.
 - Hold supported plain food and sneak-right-click a managed villager to open village supplies. Wait for the final donation or trade confirmation.
 - Use /civ market near a qualifying livestock business to buy stocked milk or eggs. Bring your own empty bucket for milk.
-- Industry simulation, single-home donation, whole-family housing assignments and confirmed donor repossession work today. Explicit apartment donation is available; automatic physical construction remains unfinished.
+- Industry simulation, single-home donation, whole-family housing assignments and confirmed donor repossession work today. Explicit apartment donation is available. With automatic construction enabled, funded family-home proposals can now become real houses.
 - Server downtime and absent worlds pause new simulation time. An unloaded chunk does not prove death or destruction.
 
 ### Read the status first
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 113 retains family housing and safe bed accounting, and records new adult households. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 has 5 of 16 checklist items complete. Save schema 116 preserves existing housing, records paid construction recovery, and distinguishes village-built homes from player donations. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -48,6 +48,14 @@ Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. 
 - 21 Roadmap and maintaining this guide
 - 22 Protect a building plot
 - 23 Donate a single-family home
+- 24 Live family housing and repossession
+- 25 Declare an apartment building
+- 26 New adult households
+- 27 Separate renovation consent
+- 28 Inspect and cancel unused home projects
+- 29 Automatic home-site planning
+- 30 Read construction materials and protected funds
+- 31 Automatic family-home construction
 
 ## 1 Your first village session
 
@@ -326,13 +334,13 @@ Related chapters: planned building protection and commands. Sources: PEN_CONTROL
 
 ## 13 Construction and shared structures
 
-Status: P4 in progress. Ordinary automatic physical construction is not enabled.
+Status: P4 in progress. Automatic family-home construction is available when enabled in construction.yml. Roads, business construction and civic buildings remain unfinished.
 
 ### Current foundation
 
-Three original editable starter plans exist: path, timber storehouse and four-bed home. Admin catalogue/site previews are read-only. Frozen proposals, saved sites, paid supplies, earned deliveries and public stage labor have backend support. Disposable tests placed/restored a paid path and tested a home across restarts.
+Three original editable starter plans exist: path, timber storehouse and four-bed home. Admin catalogue/site previews are read-only. Saved family-home proposals can now buy actual supplies, wait for delivery and earned public labor, and build in stages through the automatic runtime. Disposable tests also cover a paid path and a complete home across restarts.
 
-This is development evidence, not a player build command. A preview spends no money, starts no project and assigns no home. The physical development writer is restricted to marked disposable test servers.
+A preview spends no money, starts no project and assigns no home. Automatic family-home work uses the guarded normal-server writer when enabled; there is no instant player build command. Standalone development helpers remain restricted to marked disposable test servers.
 
 ### Read why a family needs housing
 
@@ -342,7 +350,7 @@ Operators can use /civ build housing <village UUID> while in that village's worl
 
 Need -> permitted vacancy review -> suitable site -> real funding/materials -> available labor -> staged work -> physical completion -> usable capacity. A draft or frame cannot count as a completed home.
 
-Businesses are intended to fund their premises. Villages fund basic homes/local roads after protecting food and upkeep. Public-work accounting avoids double farm/study labor. Private employee diversion, automatic scheduling and normal-server write authority remain unfinished.
+Businesses are intended to fund their premises. Villages fund basic homes/local roads after protecting food and upkeep. Public-work accounting avoids double farm/study labor. Automatic public family-home work uses real unemployed adult labor, paid supplies and guarded native writes. Private employee diversion, business premises and new local-road construction remain unfinished.
 
 ### Agreed structure catalogue
 
@@ -371,7 +379,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 113 includes construction, separate renovation consent, household-bound home proposals and exact legacy bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 116 includes paid construction recovery, explicit village-built home identity, separate renovation consent, household-bound proposals and exact bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -412,7 +420,7 @@ Status: Read-only reports available. Recovery confirmation is a separate action.
 | Food sale refused | Actual demand, funds, held item, stack size and permissions |
 | Market has no offers | Nearby eligible staffed livestock firm, stock and settings |
 | Business produces nothing | /civ debug businesses <UUID>; workers, inputs, tools, space and sources |
-| No new buildings | Ordinary automatic P4 construction is not enabled |
+| No new homes | Check automatic-construction opt-in, actual family need, a safe loaded site, real suppliers, protected funds and labor; Chapter 31 |
 | Old resources not adopted | /civ debug resources; uncertain history may need reviewed recovery |
 | Village ID refused | Use its full UUID, not a shortened chat label |
 
@@ -468,7 +476,7 @@ Status: Implemented. Requires civilizations.debug, defaulting to operators. Thes
 | /civ debug businesses <UUID> | Businesses, workers, stock and operating reasons |
 | /civ debug workforce <UUID> | Qualifications and competing labor opportunities |
 | /civ debug resources | Resource history, tracking and uncertainty |
-| /civ debug construction | Saved delivery diagnostic; not a build/start command |
+| /civ debug construction | Delivery, site-planning and automatic-home work diagnostics; read-only |
 
 ### Find the right ID
 
@@ -480,7 +488,7 @@ Sources: PopulationDebugCommand, PopulationDiagnostics and PHASE3_PLAYTEST.md.
 
 ## 19 Protection preview and recovery commands
 
-Status: Implemented limited controls, not general plot ownership or normal construction.
+Status: Implemented limited controls, not general plot ownership or an instant construction command.
 
 | Command | Meaning and effect |
 |---|---|
@@ -749,7 +757,7 @@ Related chapters: donation, protection, housing, construction and server backups
 
 ## 28 Inspect and cancel unused home projects
 
-Status: Available operator controls. Automatic normal-server construction remains unfinished, so a new server may have no saved home projects yet. These controls do not start construction.
+Status: Available operator controls. A new server may have no saved projects until planning confirms real family need and a safe site. These controls do not start construction.
 
 ### Read the saved work
 
@@ -810,7 +818,7 @@ This pass checks six vertical layers. Large plans, hills, missing paths or unloa
 - /civ build projects <village UUID>: retained proposals.
 - Chapter 28: confirmed unused cancellation.
 
-If need remains, a later review can propose a fresh project. Disable planning to stop proposals entirely. A reservation grants no access to chests or permission to overwrite builds. Real supplies, labor, physical construction and completed-home activation remain separate P4 work; a proposal grants no free beds or people.
+If need remains, a later review can propose a fresh project. Disable planning to stop proposals entirely. A reservation grants no access to chests or permission to overwrite builds. The separate automatic-construction settings govern paid supplies, earned labor and physical work. A proposal alone grants no free beds or people; see Chapter 31.
 
 Related chapters: housing, protection, construction, recovery and server settings. Sources: HOUSING_PROJECTS.md, CONSTRUCTION.md and AutomaticHomePlanningSettings.
 
@@ -845,3 +853,41 @@ A current saved food period and complete fed-population assessment are required.
 A feasible whole-batch result means the current reference-price budget and haul could cover the remaining inputs. It does not prove any supplier has those goods, grant land rights, reserve stock or authorize payment. Real supplier eligibility, current site evidence and actual payment checks remain necessary.
 
 Related chapters: money, business supply chains, construction, automatic planning and project recovery. Sources: HOUSING_PROJECTS.md and ConstructionSupplyOrders.
+
+
+## 31 Automatic family-home construction
+
+Status: Available prototype for saved family-home proposals. Existing installations must explicitly opt in. This does not build new roads, businesses, docks, apartments or civic structures yet.
+
+### What you can see
+
+A village with a verified housing need can plan a small home beside an existing dirt path. If it can afford the complete remaining material batch from real qualified local suppliers, it pays from village funds after protecting food and essential upkeep. Goods arrive later through the existing hauling system. No chest is emptied and no free materials are added.
+
+Available unemployed adults contribute recorded work. The foundation, walls, roof and beds appear in stages as their work and supplies become ready. All villages share one bounded builder, so several projects take turns. It does not clear trees, flatten hills, overwrite blocks or load chunks.
+
+The completed home stays village-owned. Registration alone adds no housing capacity: the housing inspector must find actual accessible covered bed pairs, then assign a whole eligible saved family. It creates no extra people. Village-built homes are not player donations and cannot use donor repossession or player renovation-consent controls.
+
+### Turn it on or pause it
+
+Stop the server, back up its save and configuration, and edit plugins/Civilizations/construction.yml. Existing files are not replaced automatically. They need both the automatic-home-planning section from Chapter 29 and the complete automatic-construction section described below. AUTOMATIC_CONSTRUCTION.md in the repository provides a copyable YAML example. New files contain both enabled by default.
+
+| Under automatic-construction | Default and meaning |
+|---|---|
+| enabled | true in new files; false or absent pauses this runtime |
+| cells-per-tick | 128 shared survey reads; allowed 16 to 256 |
+| review-seconds | 10 between waiting-project cycles; allowed 1 to 600 |
+| block-interval-ms | 500 minimum milliseconds between native attempts; allowed 0 to 60000 |
+
+Restart after editing. Successful projects rotate sooner; waiting projects retry at the review interval. One native step still requires a full bounded final scene check, capped at 256 reads, on a separate tick from the incremental survey. Large custom plans can exceed this starter writer's size limit.
+
+Village funding, supply prices, hauling, labor and food periods retain their own editable settings. Increasing the calendar speed does not conjure missing supplies or unemployed workers. Disable automatic-construction to pause its future purchases and physical steps. Already accepted saves and earned cargo deliveries finish independently; existing people and completed housing remain saved.
+
+### Understand a pause
+
+Use /civ debug construction for the latest reason, /civ build projects <village UUID> for retained project history, and /civ build funding <project UUID> for materials and protected funds. Complete inputs can still be unavailable because qualified suppliers lack stock. Unknown prices, food pressure, cash reserves, hauling, changed family need or no eligible labor can also delay work.
+
+A missing world or unloaded chunk waits. An entity, changed protection, missing road or altered construction block pauses physical work. A restart with an exact saved block present acknowledges it without placing it again. If a prepared block is absent after restart, its history is ambiguous: it may have been harvested already. The builder refuses a free replacement and requires manual review. There is no force-resume, demolition or free refund command. Preserve the save and report the project ID rather than deleting its database rows.
+
+A flat clear site and real supplies remain necessary. The current starter home has four beds and cannot fit every family. Existing adequate housing is preserved; villages do not replace working homes just to demonstrate construction. Confirmed damage or repossession can create need, but do not damage your world merely to force a test.
+
+Related chapters: housing, protection, automatic planning, funding, recovery, server backups and tuning. Source: AUTOMATIC_CONSTRUCTION.md. Wider P4 growth remains in progress.

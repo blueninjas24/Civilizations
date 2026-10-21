@@ -1,7 +1,8 @@
 # Completed village-owned homes
 
-Current internal backend: `CivBuildingCompletion`, schema116. Ordinary automatic
-construction is still off; full completed-house native acceptance has passed.
+Current backend: `CivBuildingCompletion`, schema116. The bounded automatic
+family-home runtime is connected; full completed-house native acceptance passed.
+See AUTOMATIC_CONSTRUCTION.md for existing-file opt-in and scope.
 
 The frozen home plan produces stable building/unit UUIDs and one explicit private
 unit with the original transformed bed pairs. No inferred apartments, rent, private

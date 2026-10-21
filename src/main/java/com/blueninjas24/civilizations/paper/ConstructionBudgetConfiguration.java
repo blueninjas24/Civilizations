@@ -10,7 +10,7 @@ public final class ConstructionBudgetConfiguration {
     private ConstructionBudgetConfiguration(){}
     public static ConstructionBudgetPolicy read(ConfigurationSection root) {
         Objects.requireNonNull(root);var rootKeys=root.getKeys(false);
-        if(!rootKeys.containsAll(Set.of("format","business","village"))||!Set.of("format","business","village","land","labor","housing","supplies","automatic-home-planning").containsAll(rootKeys))throw new IllegalArgumentException("Missing or unknown construction settings");
+        if(!rootKeys.containsAll(Set.of("format","business","village"))||!Set.of("format","business","village","land","labor","housing","supplies","automatic-home-planning","automatic-construction").containsAll(rootKeys))throw new IllegalArgumentException("Missing or unknown construction settings");
         if(number(root,"format")!=1)throw new IllegalArgumentException("Unsupported construction funding format");
         return new ConstructionBudgetPolicy(account(root.getConfigurationSection("business")),account(root.getConfigurationSection("village")));
     }

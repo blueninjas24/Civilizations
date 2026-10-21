@@ -13,6 +13,13 @@ public final class ConstructionWorkQueue {
     public ConstructionWorkQueue(Connection c){this.c=Objects.requireNonNull(c);}
 
     public Page page(UUID after,int limit,Set<UUID> worlds)throws SQLException{
+        return page(after,limit,worlds,false);
+    }
+    /** Automatic physical work is scoped to formal household-bound homes, never arbitrary paid/manual drafts. */
+    public Page homePage(UUID after,int limit,Set<UUID> worlds)throws SQLException{
+        return page(after,limit,worlds,true);
+    }
+    private Page page(UUID after,int limit,Set<UUID> worlds,boolean homesOnly)throws SQLException{
         var present=Set.copyOf(worlds);if(limit<1||limit>8||present.size()>256)throw new IllegalArgumentException("Construction work page exceeds bounds");
         if(present.isEmpty())return new Page(List.of(),null);
         if(!c.getAutoCommit())throw new SQLException("Construction work snapshot requires idle SQL owner");c.setAutoCommit(false);
@@ -22,8 +29,8 @@ public final class ConstructionWorkQueue {
                 SELECT d.id FROM construction_drafts d
                 JOIN construction_site_reservations p ON p.draft_id=d.id AND p.released_ms IS NULL
                 WHERE d.id>? AND d.world_id IN (
-                """+places+") AND (EXISTS(SELECT 1 FROM housing_project_bindings h WHERE h.draft_id=d.id AND h.cancelled_ms IS NULL)"
-                    +" OR EXISTS(SELECT 1 FROM construction_supply_orders o WHERE o.draft_id=d.id AND o.source='VILLAGE'))"
+                """+places+") AND "+(homesOnly?"EXISTS(SELECT 1 FROM housing_project_bindings h WHERE h.draft_id=d.id AND h.cancelled_ms IS NULL AND h.completed_ms IS NULL)"
+                    :"(EXISTS(SELECT 1 FROM housing_project_bindings h WHERE h.draft_id=d.id AND h.cancelled_ms IS NULL) OR EXISTS(SELECT 1 FROM construction_supply_orders o WHERE o.draft_id=d.id AND o.source='VILLAGE'))")
                     +" AND NOT EXISTS(SELECT 1 FROM construction_supply_orders o JOIN construction_supply_recalls r ON r.order_id=o.operation_id WHERE o.draft_id=d.id)"
                     +" AND NOT EXISTS(SELECT 1 FROM construction_supply_orders o JOIN construction_supply_returns r ON r.order_id=o.operation_id WHERE o.draft_id=d.id) ORDER BY d.id LIMIT ?")){
                 int n=1;s.setString(n++,after==null?"":after.toString());for(var world:new TreeSet<>(present))s.setString(n++,world.toString());s.setInt(n,limit+1);

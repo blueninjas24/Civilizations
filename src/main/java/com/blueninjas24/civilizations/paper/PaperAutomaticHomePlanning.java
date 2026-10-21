@@ -38,7 +38,7 @@ public final class PaperAutomaticHomePlanning extends BukkitRunnable implements 
                                      LongSupplier clock,Consumer<String> diagnostic,Logger logger){
         this.owner=Objects.requireNonNull(owner);this.settings=Objects.requireNonNull(settings);this.surveys=Objects.requireNonNull(surveys);
         this.clock=Objects.requireNonNull(clock);this.diagnostic=Objects.requireNonNull(diagnostic);this.logger=Objects.requireNonNull(logger);
-        diagnostic.accept(settings.enabled()?"Home planning: waiting for verified housing need; no automatic building or spending.":"Home planning: disabled; existing construction.yml files opt in explicitly.");
+        diagnostic.accept(settings.enabled()?"Home planning: waiting for verified housing need; physical work uses separate automatic-construction settings.":"Home planning: disabled; existing construction.yml files opt in explicitly.");
     }
     @Override public void run(){
         if(closed||!settings.enabled())return;long now=clock.getAsLong();

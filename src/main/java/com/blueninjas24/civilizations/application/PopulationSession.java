@@ -120,7 +120,7 @@ public final class PopulationSession implements AutoCloseable {
         if(funding.village().enabled())constructionLabor=labor;
     }
     private volatile String constructionDeliveryFailure;
-    private volatile String constructionDeliveryStatus="Construction: waiting for simulation. Automatic building is not enabled.";
+    private volatile String constructionDeliveryStatus="Construction deliveries: waiting for simulation.";
     private volatile String housingStatus="Housing: waiting for permitted home review";
     private com.blueninjas24.civilizations.population.HouseholdFormationPolicy householdFormation=com.blueninjas24.civilizations.population.HouseholdFormationPolicy.disabled();
     public void configureHouseholdFormation(com.blueninjas24.civilizations.population.HouseholdFormationPolicy policy){
@@ -131,6 +131,9 @@ public final class PopulationSession implements AutoCloseable {
     private volatile String homePlanningStatus="Home planning: disabled or waiting for configured templates";
     public String homePlanningDiagnostic(){return homePlanningStatus;}
     public void publishHomePlanningDiagnostic(String message){homePlanningStatus=java.util.Objects.requireNonNull(message);}
+    private volatile String constructionWorkStatus="Home construction: disabled or waiting for configured runtime";
+    public void publishConstructionWorkDiagnostic(String message){constructionWorkStatus=java.util.Objects.requireNonNull(message);}
+    public String constructionWorkDiagnostic(){return constructionWorkStatus;}
     public String constructionDiagnostic() {
         return constructionDeliveryFailure==null
                 ?constructionDeliveryStatus
@@ -1549,6 +1552,10 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionWorkQueue(database.getConnection())
                 .page(after,limit,loadedWorlds==null?Set.of():loadedWorlds);});
     }
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionWorkQueue.Page> automaticHomeConstructionPage(UUID after,int limit){
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionWorkQueue(database.getConnection())
+                .homePage(after,limit,loadedWorlds==null?Set.of():loadedWorlds);});
+    }
     /** Registers completed village-owned geometry/use only; actual dwelling inspection still controls capacity. */
     public CompletableFuture<com.blueninjas24.civilizations.database.CivBuildingCompletion.Receipt> completeCivHome(
             UUID operation,UUID draft,com.blueninjas24.civilizations.database.CivBuildingCompletion.Evidence evidence){
@@ -1680,7 +1687,7 @@ public final class PopulationSession implements AutoCloseable {
             var report=new com.blueninjas24.civilizations.database.DwellingHousing(database.getConnection()).reconcile(layout,assessment,
                     new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(layout.world(),true,policy,time),
                     householdFormation,settings.population().adulthoodSteps(),status.get().completedMonths());
-            housingStatus="Housing: "+report.explanation()+"; assigned "+report.assigned()+", empty homes released "+report.released()+". Automatic construction remains off.";
+            housingStatus="Housing: "+report.explanation()+"; assigned "+report.assigned()+", empty homes released "+report.released()+".";
             return report;
         });
     }
@@ -1864,13 +1871,13 @@ public final class PopulationSession implements AutoCloseable {
                         .deliveryOnly(database.getConnection()).deliverReady(loadedWorlds,16);
                 int returned=new com.blueninjas24.civilizations.database.ConstructionSupplyReturns(database.getConnection()).deliverReady(loadedWorlds,16);
                 constructionDeliveryFailure=null;
-                constructionDeliveryStatus="Construction: saved cargo deliveries active; last review "+arrivals+" arrivals, "+returned+" return arrivals. Automatic building is not enabled.";
+                constructionDeliveryStatus="Construction: saved cargo deliveries active; last review "+arrivals+" arrivals, "+returned+" return arrivals.";
             }catch(SQLException|RuntimeException failure) {
                 if(!java.util.Objects.equals(constructionDeliveryFailure,failure.getMessage()))
                     logger.log(Level.SEVERE,"Construction delivery deferred; prepaid cargo remains saved",failure);
                 constructionDeliveryFailure=failure.getMessage();
             }
-        }else constructionDeliveryStatus="Construction: deliveries wait for available worlds and current simulation. Automatic building is not enabled.";
+        }else constructionDeliveryStatus="Construction: deliveries wait for available worlds and current simulation.";
         if(allocationPolicy.enabled()&&economy!=null&&status.get().remainingMonths()==0&&economyFailure==null){
             try{resourceInvestmentDiagnostic=resourceInvestment.pulse(status.get().completedMonths(),now.getAsLong(),loadedWorlds);}
             catch(SQLException|RuntimeException failure){

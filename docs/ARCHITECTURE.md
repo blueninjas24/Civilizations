@@ -60,8 +60,8 @@ alone grants no land or free effort. PaperConstructionWriter now supplies the
 internal guarded native boundary: exact intent, full final scene and entity
 recheck,256 cell reads/tick, one-time session-local first-write claim. A resumed
 before-state stays ambiguous; existing after-state may acknowledge. The older
-direct marked fixture writer remains test-only. Ordinary automatic scheduling
-and completed-home activation are unfinished.
+direct marked fixture writer remains test-only. The automatic family-home scheduler now uses this boundary; broader activation
+and started-work repair remain separate.
 
 ## Civ-built housing origin and completion
 
@@ -76,3 +76,17 @@ completed household identity remains historical and no longer blocks new needs.
 Authored bed head identity/provenance is committed before physical placement and
 excluded from legacy housing. Existing positive bed journal history backfills in
 migration; conflicts abort rather than rewriting another village's identity.
+
+## Automatic home scheduling
+
+PaperAutomaticConstruction is the bounded main-thread adapter, separate from
+PopulationSession transactions and the simulation's labor/cargo clocks. Only active
+formal household-bound home proposals enter its scoped owner queue. Stable paged
+UUID rotation preserves later villages after local holds. One survey and accepted
+owner operation at a time; no blocking future waits, SQL or new time accrual on
+the native thread. Survey and writer execute on distinct ticks; paid intent must
+precede native CAS and acknowledgement must finish before another action. Current
+owner contention permits at most two exact renewals inside original evidence
+freshness, with native pacing; no consumed first-write proof is recreated. New
+settings opt existing installations in explicitly. Normal housing reconciliation
+activates completed village homes; scheduler registration alone grants no beds.

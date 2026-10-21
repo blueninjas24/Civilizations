@@ -2,7 +2,7 @@
 
 This checklist expands Phase 4 of ROADMAP.md; it does not move later phases forward.
 Each checked item needs implementation and verification. Four groups, sixteen items;
-current completion **4/16 (25%), 1/4 complete groups**. Partial work is described
+current completion **5/16 (31%), 1/4 complete groups**. Partial work is described
 but does not count as a completed item. This measures scope, not elapsed time.
 
 ## 1. Authored plans and frozen proposals — 4/4
@@ -30,9 +30,9 @@ Unloaded chunks are incomplete evidence. No land approval is inferred. Saved con
 protections are now evaluated through the SQL owner queue. Automatic land screening
 and current-write authority are unfinished, so a preview still cannot authorize work.
 
-## 3. Paid staged work and useful buildings — 0/4
+## 3. Paid staged work and useful buildings — 1/4
 
-- [ ] Need-driven, locally funded projects with reserved real materials, available labor and protected operating budgets.
+- [x] Need-driven, locally funded projects with reserved real materials, available labor and protected operating budgets.
 - [ ] Durable bounded block-write journal with interrupted/repeated-work recovery and conflict-safe pause/repair.
 - [ ] Civic, industrial and residential construction activates actual capacity/function only after safe completion.
 - [ ] Upgrade/reuse/maintenance/physical deterioration preserve sites and history; no automatic disappearance.
@@ -285,3 +285,15 @@ and assigned its saved family; completion replay survived another restart. Nativ
 cells restored, both116 DBs healthy/FK-clean, helper archived/server stopped.
 Ordinary automatic scheduling remains off. Civic/industrial activation, wider
 land/road/reuse/adaptation and started-work repair remain, so4/16 stays25%.
+
+## October21 — automatic paid household-home milestone complete
+
+Formal active family-home proposals now rotate through actual procurement,
+delivery/labor holds, durable intents, bounded normal-server native work and Civ
+completion. Missing configuration keeps existing installations disabled; new
+files explicitly enable the prototype. Focused Wrapper checks and actual full
+120-block automatic Paper home/inspection/family/restart acceptance passed. Real
+money, finite stock and housing conserved;116 DBs healthy, fixture restored/stopped.
+This checks the paid-project milestone using the first public housing delivery.
+Private/civic/industrial activation, terrain/roads, explicit started-work repair,
+upgrades and broad acceptance remain unchecked.5/16 is31%;1/4 whole groups complete.

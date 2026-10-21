@@ -65,7 +65,7 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
         require(command.execute(sender,"civ",new String[]{"build","templates"}),"Root router accepts catalogue");
         require(messages.stream().anyMatch(s->s.contains("starter_storehouse")),"Catalogue reaches command sender");
         messages.clear();command.execute(sender,"civ",new String[]{"debug","construction"});
-        require(messages.size()==1&&messages.getFirst().contains("Automatic building is not enabled"),"Saved delivery diagnostic routed without world writes");
+        require(messages.size()==3&&messages.stream().anyMatch(s->s.startsWith("Home construction")),"Saved delivery, planning and work diagnostics routed without world writes");
         require(command.tabComplete(sender,"civ",new String[]{"debug","con"}).contains("construction"),"Construction diagnostic completion");
         messages.clear();command.execute(sender(messages,false),"civ",new String[]{"build","templates"});
         require(messages.size()==1&&messages.getFirst().contains("permission"),"Unprivileged sender cannot inspect construction");

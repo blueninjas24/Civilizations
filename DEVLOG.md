@@ -1,5 +1,44 @@
 # Civilizations Development Log
 
+## 2026-10-21 — ordinary automatic paid family-home construction
+
+PaperAutomaticConstruction now wires formal household-bound home proposals to
+complete real supplier batches, earned cargo/public labor, exact native intents,
+bounded guarded writes/acknowledgements and Civ completion. One shared survey/
+owner operation,8-job pages, retained fair cursor, local-refusal isolation and
+native pacing. Routine owner contention may renew the same intent twice within
+the original5-second evidence window; no fresh replacement permission is created.
+No Paper operation waits for SQL. Survey/native writer use separate ticks.
+
+New construction.yml defaults enable128 survey reads,10-second waiting review
+and500ms native gap. Existing files explicitly opt in; invalid/missing settings
+fail closed without rewriting config. Only formal active beneficiary-bound homes
+enter the automatic queue; arbitrary paid/manual drafts stay excluded. Plugin
+startup/shutdown owns the runtime; accepted saves drain after close, no later
+native action. Read-only construction diagnostics include delivery/planning/work;
+old claims that all physical work is disabled were removed. No new schema beyond116.
+
+Wrapper37 unit+3 packaged passed1m01s; wired supplier/return/diagnostic57+3 passed
+42.865s; scoped queue/retry27+3 clean verify passed31.494s; final clock overload
+27+3 verify passed36.178s. Temporary DBs only. AutomaticHomeCompletionProbe shares
+the guarded/restored home fixture and passed actual configured procurement,
+delivery/labor and all120 rotated/mirrored native placements on pinned Paper129.
+Actual housing inspection assigned one saved family/four beds; session restart
+and exact completion replay conserved identity, cash, finite goods and people.
+3 orders/120 intents/1 Civ building/1 assignment/4 claims; all captured cells
+restored, both116 DBs integrity ok/FKs0, server stopped/helper archived. First
+accelerated fixture safely refused real/virtual clock mismatch and spent nothing;
+injected matching clocks fixed the fixture, without weakening any guard.
+
+Handbook0.17 adds Chapter31 with opt-in/pacing/holds/housing instructions, updates
+status/diagnostics and is34 pages/31 bookmarks. Rendered all pages and reviewed
+contacts plus updated chapter/contents at full size. Progress checks the first
+paid-project milestone:5/16=31%,1/4 groups. Broader land/road/terrain, private/civic
+activation, explicit started-work repair, upgrades and phase acceptance remain.
+Main and actual server/world/database untouched. Current branch candidate awaits
+hosted full CI; prior b91265c Windows/Linux both green. No current-head whole-suite
+claim. Next useful milestone: stalled-work inspection/recovery and wider growth.
+
 ## 2026-10-21 — full paid native home, completion and housing acceptance
 
 CivHomeCompletionProbe passed on pinned Paper26.2build129 in a new explicitly

@@ -59,6 +59,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperDwellingReview dwellingReview;
     private com.blueninjas24.civilizations.paper.PaperHomeDonation homeDonations;
     private com.blueninjas24.civilizations.paper.PaperHousingRuntime housingRuntime;
+    private com.blueninjas24.civilizations.paper.PaperAutomaticConstruction automaticConstruction;
     private com.blueninjas24.civilizations.paper.PaperHousingCandidates housingCandidates;
     private com.blueninjas24.civilizations.paper.PaperHousingProjectControls housingProjects;
     private com.blueninjas24.civilizations.paper.PaperAutomaticHomePlanning homePlanning;
@@ -212,6 +213,8 @@ public final class Civilizations extends JavaPlugin {
                 homePlanning=new com.blueninjas24.civilizations.paper.PaperAutomaticHomePlanning(population,constructionLibrary,constructionLibrary.homePlanning(),
                         new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(getConfig().getBoolean("building-protection.require-covered-beds",true)),getLogger());
                 homePlanning.runTaskTimer(this,1,1);
+                automaticConstruction=new com.blueninjas24.civilizations.paper.PaperAutomaticConstruction(this,population,constructionLibrary,getLogger());
+                automaticConstruction.runTaskTimer(this,1,1);
                 construction.runTaskTimer(this,1,1);
             }catch(IOException|InvalidConfigurationException|IllegalArgumentException invalid) {
                 getLogger().log(Level.WARNING,"Construction previews disabled; fix construction/*.yml and restart. Population and economy remain active.",invalid);
@@ -325,6 +328,7 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(automaticConstruction!=null){automaticConstruction.cancel();automaticConstruction.close();}
         if(homeReclamation!=null){homeReclamation.cancel();homeReclamation.close();}
         if(housingRuntime!=null){housingRuntime.cancel();housingRuntime.close();}
         if(housingCandidates!=null){housingCandidates.cancel();housingCandidates.close();}

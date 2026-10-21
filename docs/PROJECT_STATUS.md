@@ -1,54 +1,56 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 guarded paid construction foundation
+## Current — Phase4 automatic paid family homes
 
-Branch: codex/phase4-construction-foundation; main untouched. Phase4 remains25%,
-4/16 complete checklist items and1/4 complete groups. P3 prototype complete;
+Branch: codex/phase4-construction-foundation; main untouched. Phase4 is31%,
+5/16 complete checklist items and1/4 complete groups. P3 prototype complete;
 human survival testing deferred. Actual Minecraft server/world/database untouched.
 
 Implemented:
 - Whole-family housing, adult households, explicit home/apartment donation,
   donor reclamation and separate renovation consent.
-- Automatic loaded-only dry home planning with guarded existing-path selection,
-  current protected land/need and editable limits. It still buys/builds nothing.
-- Operator housing/project/funding reports and confirmed unused cancellation.
-- Atomic real supplier procurement, protected food/upkeep cash, actual paid cargo,
-  earned public labor/material escrow and exact saved-work/intent recovery.
-- Pending recall (schema114) and arrived unused public-material return shipments
-  (schema115), with real refunds, reserved storage/shared haul and earned arrival.
-- Two-pass native work survey and nonblocking SQL-owner generation gate.
-- Internal normal-server writer now verifies exact paid intent/full final scene,
-  entities and loaded cells, then one AIR->exact-state CAS.256 cell reads/tick.
-  Session-local first-write proof cannot be replenished by retry/restart; ambiguous
-  old before-state holds for review, exact after-state acknowledges without writing.
+- Automatic loaded-only home-site planning beside existing paths with current
+  protected land/need and editable limits; suitable existing housing comes first.
+- Automatic paid family-home runtime: formal beneficiary-bound projects only,
+  actual complete supplier purchases, earned cargo/labor, two-pass current scenes,
+  durable intents, bounded guarded native writes, acknowledgement and completion.
+- Shared8-project pages, fair retained cursors/local-refusal isolation, one survey/
+  owner operation outstanding, paced native attempts and bounded exact renewals.
+- Existing construction.yml files require explicit automatic-construction opt-in;
+  new files enable the prototype. No config replacement or instant build command.
+- Operator housing/project/funding reports, confirmed unused cancellation, and
+  /civ debug construction now reports deliveries, planning and automatic work.
+- Pending recall/arrived unused real-material returns remain internal reviewed
+  recovery; no free refunds, automatic demolition or force-resume command.
+- Schema116 village-owned home identity/use and atomic proposal/site completion.
+  Actual dwelling inspection/assignment controls capacity; authored beds cannot
+  count early through legacy discovery. Player donation controls reject Civ homes.
 
-Schema116 now adds explicit village-owned completed-home identity/use, atomic
-project/lease completion and authored bed identity/legacy-capacity exclusion.
-Actual domain housing inspection/assignment is connected and tested; completion
-alone grants no capacity. Player donors remain unchanged; Civ has no player donor.
-Confirmed damage can request another project without losing completed history.
+Native safety: present loaded cells/world, exact frozen plan, SQL owner generation
+and current protection, final full scene/entities and one-time first-write proof.
+A survey tick never also performs a native write. Atomic writer max256 reads;
+plans requiring more than255 evidence cells wait. PREPARED plus absent output
+after restart is ambiguous and holds; exact existing output can acknowledge.
 
-Not enabled: ordinary automatic purchasing/building. Full completed-home native
-acceptance passed; the bounded gameplay scheduler remains next. Large templates beyond the writer's current bound, private-premises growth,
-roads/adaptation, upgrades/repair/decay and civic growth remain unfinished.
+Validation: final Wrapper27 unit+3 packaged passed36.178s; earlier37+3 and wired
+57+3 passed. Actual configured scheduler paid3 supply orders, waited for delivery/
+labor, built120 rotated/mirrored blocks, registered the home and released its
+site. Actual native housing inspection assigned one saved family/four beds.
+Session restart/completion replay preserved money, goods, people and capacity.
+All captured cells restored; both116 fixture DBs integrity ok/FKs0; server stopped
+and helper archived. Initial accelerated-fixture clock mismatch correctly refused
+spending; injecting the same clock fixed the fixture, no guard weakened.
+Prior hosted Windows/Linux both passedb91265c; current candidate awaits CI.
+No latest-head full-suite claim.
 
-Validation: latest Wrapper64 unit +3 packaged checks passed1m24s, including116
-upgrade/rollback, housing/damage/replacement and historical fixtures. Earlier80+3
-passed1m16s. Actual full-home native proof passed:120 rotated/mirrored blocks, actual paid
-materials/earned labor, restart before first acknowledgement, completion, real
-dwelling inspection/family assignment and restart replay. All captured cells
-restored; both fixture DBs116/ok/FKs0, server stopped/helper archived. Prior19+3 passed35.164s; preceding
-owner/lifecycle40+3 passed46.167s. Actual paid-path Paper accepted current writer,
-stale permit/neighbor change holds, no regenerated removed output, real session
-restart before ack, exact retries and conflict safety. All five original cells
-restored; both115 DBs healthy, server/helper stopped. Actual planning/funding-hold/
-cancellation/restart proof also passed. Hosted full Windows/Linux both passed
-b91265c (guarded writer); schema116 commit5c7bd73 is running in CI. No latest-head full-suite claim.
+Handbook0.17 is34 pages/31 chapters, rendered and visually reviewed; Chapter31
+covers opt-in, pacing, holds and the actual housing handoff. Sources/configuration
+and docs/PROGRESS.md agree. No schema change beyond116 in this batch.
 
-Handbook0.16 remains32 pages/30 chapters; no new user-facing command was added by
-these internal batches. Update it when gameplay/commands become available.
-No design question currently blocks delegated prototype work. Never merge/push
-main without approval.
+Next: explicit stalled-work inspection/recovery, broader useful-building activation
+and road/site/terrain growth. Private premises, docks, civic catalogue, upgrades,
+repair/decay and whole-phase acceptance remain. No design question currently blocks
+delegated prototype work. Never merge/push main without approval.
 
 ### Earlier P4 checkpoints — historical implementation evidence
 

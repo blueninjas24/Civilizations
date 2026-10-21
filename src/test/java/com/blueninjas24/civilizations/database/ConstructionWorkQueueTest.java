@@ -49,4 +49,15 @@ class ConstructionWorkQueueTest {
         assertEquals(Set.of(f.f.publicDraft.id(),other.id()),Set.of(first.projects().getFirst().draft().id(),second.projects().getFirst().draft().id()));
         assertFalse(first.projects().getFirst().draft().id().equals(f.f.privateDraft.id()));
     }
+    @Test void automaticQueueRequiresFormalFamilyBindingAndNeverAdoptsArbitraryPaidDrafts()throws Exception{
+        f.materials(2);var d=f.f.publicDraft;assertFalse(queue().page(null,8,Set.of(d.world())).projects().isEmpty());
+        assertTrue(queue().homePage(null,8,Set.of(d.world())).projects().isEmpty());
+        UUID family=UUID.randomUUID();f.f.f.db.getPopulationRepository().insertHousehold(new com.blueninjas24.civilizations.population.Household(family,d.settlement(),"Saved proposal family"));
+        f.f.f.sql("UPDATE residents SET household_id='"+family+"' WHERE id='"+f.worker+"'");f.f.f.sql("INSERT INTO household_capacity VALUES('"+family+"',0)");
+        try(var s=f.f.c().prepareStatement("INSERT INTO housing_project_bindings(draft_id,household_id,settlement_id,world_id,plan_hash,residents,previous_capacity,created_ms,cancel_operation,cancelled_ms) VALUES(?,?,?,?,?,1,0,1200,NULL,NULL)")){
+            s.setString(1,d.id().toString());s.setString(2,family.toString());s.setString(3,d.settlement().toString());s.setString(4,d.world().toString());s.setString(5,d.template().fingerprint());s.executeUpdate();
+        }
+        assertEquals(List.of(d.id()),queue().homePage(null,8,Set.of(d.world())).projects().stream().map(w->w.draft().id()).toList());
+        assertTrue(queue().homePage(null,8,Set.of()).projects().isEmpty());
+    }
 }

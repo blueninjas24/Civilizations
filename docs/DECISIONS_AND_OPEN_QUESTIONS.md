@@ -1,5 +1,19 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — delegated first automatic paid home rollout
+
+Use the approved automatic-growth/funding/labor direction for formal family-home
+proposals only. New configuration enables one shared bounded builder; existing
+files must explicitly opt in. Complete real supplier batches, earned delivery/
+public labor, current protection/native review and inspected completion remain
+mandatory. Default128 survey reads/tick,10-second waiting review,500ms global
+native attempt gap; admins can tune these. At most two exact permit renewals may
+handle routine owner contention within original5-second evidence freshness.
+No replacement resources, forced jobs, new wallet, clearing, new roads, private
+premises or later-phase systems. Ambiguous missing prepared output holds for
+manual review; no automatic force-resume/refund/demolition. These conservative
+prototype defaults use the user's explicit delegated P4 recommendations.
+
 ## October21 — village-owned completion handoff under approved housing rules
 
 Keep completed village-funded homes village-owned; do not create a player donor,

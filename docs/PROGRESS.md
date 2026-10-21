@@ -7,51 +7,43 @@
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 4 / 4 | `██████████` 100% - prototype gate passed |
-| 4. Physical Growth | Villages build and improve structures gradually | 1 / 4 | `██▌░░░░░░░` 25% — plans, paid-work foundation; automatic building pending |
+| 4. Physical Growth | Villages build and improve structures gradually | 5 / 16 | `███░░░░░░░` 31% — first automatic paid family homes |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
 | 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
 | 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
 | 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
 
-**Phase 4: 25% — 4/16 checklist items, 1/4 whole groups complete.**
-The bar counts complete gates. Several parts of the next gates now work, but a
-saved plan is not a finished building.
+**Phase 4: 31% — 5/16 checklist items, 1/4 whole groups complete.**
+The bar counts verified checklist items, not time spent. The first paid-project
+milestone now includes ordinary automatic family-home construction.
 
 | P4 part | Current state | Plain-English effect |
 |---|---|---|
-| Starter building plans | Available | Original editable path, storehouse and four-bed home plans |
-| Families and donated housing | Available | Whole families use suitable inspected homes/apartments; donors can repossess |
-| Protection and renovation consent | Available | Player builds stay private; donating use does not allow automatic alteration |
-| Automatic home-site planning | Available preparation | Villages can save a family home plan beside an existing path after guarded loaded-only checks |
-| Project inspection and unused cancellation | Available | Operators can inspect and safely release unused proposals while keeping history |
-| Material and funding report | Available, read-only | Shows missing goods, paid cargo, stage reserves, protected money and haul capacity |
-| Automatic paid physical construction | Unfinished | Paid inputs/labor and guarded internal writes work; ordinary automatic scheduling remains |
-| Wider physical growth | Unfinished | Road expansion, terrain adaptation, business-premises reuse, upgrades and civic builds remain |
+| Starter plans | Available | Original editable path, storehouse and four-bed home plans |
+| Families and donated housing | Available | Whole families use inspected homes/apartments; donors can repossess |
+| Protection and renovation consent | Available | Player builds stay private; donating use does not permit alterations |
+| Home-site planning | Available | Actual family need and safe loaded land beside an existing path can create a proposal |
+| Paid automatic family homes | Available prototype | Real suppliers get paid; cargo and labor take time; house blocks appear in stages |
+| Completed homes | Available | Inspection qualifies actual beds and houses a whole saved family; no free residents |
+| Wider physical growth | Unfinished | New roads, terrain work, business premises, docks, upgrades and civic builds remain |
 
-Automatic planning uses editable limits. Existing construction.yml files must
-explicitly opt in; they are never silently replaced. A failed site in one village
-now leaves other villages' queued work intact. No chunks are loaded for simulation.
+Existing construction.yml files must explicitly add automatic-construction;
+new files enable it. A suitable empty site, real need, supplies, money and labor
+are required. A running village need not immediately request a house. No chunks
+are loaded for simulation. Changed/unknown sites wait; ambiguous missing blocks
+after restart need manual review instead of a free replacement.
 
-The paid construction chain now reaches a guarded internal writer: real supplies,
-real funds, earned labor, saved intents, two matching world scans and a final
-atomic scene check. Current permissions and a one-time write claim prevent stale
-or duplicate placement. It passed an actual five-block disposable-world test,
-including restart and changed/removed-output holds. Ordinary gameplay construction
-is still off pending the bounded gameplay scheduler.
+Final Wrapper27 unit+3 packaged checks passed; earlier wired57+3 and initial37+3
+passed. Actual configured scheduler purchased3 orders and built all120 rotated/
+mirrored home blocks on a disposable Paper server, then native inspection assigned
+one saved family to4 beds. Completion replay survived session restart. All captured
+cells restored, server stopped/helper archived; both116 DBs healthy/FK-clean.
+Prior Windows/Linux both passedb91265c; current candidate awaits hosted CI.
+The handbook is now0.17,34 pages/31 chapters, with automatic homes in Chapter31.
 
-Schema116 now records completed village-owned homes, frees finished project slots
-and keeps authored beds out of early legacy capacity. Actual inspected assignment
-and confirmed damage/replacement passed temporary-database checks; completion
-alone gives no beds. The complete paid120-block rotated/mirrored home now also
-passed real native construction, inspection, family assignment and restart.
-
-Latest Wrapper64 unit +3 packaged checks passed; earlier80+3 and owner/lifecycle40+3
-passed. Test worlds were restored/stopped and both latest fixture DBs are116/ok/FKs0.
-Hosted Windows/Linux both passedb91265c; schema116 is running in hosted CI.
-The living handbook remains edition0.16,32 pages/30 chapters.
-
-Next: the ordinary bounded automatic builder. Wider growth remains. Actual server/worlds/database and main
+Next: useful stalled-work inspection/recovery, then broader sites/roads and
+business/infrastructure construction. Actual server/worlds/database and main
 stay untouched. P3 human survival testing remains deferred.
 
 ## Earlier Phase 4 checkpoints — historical

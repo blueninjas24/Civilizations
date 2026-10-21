@@ -1,6 +1,5 @@
 # Construction budget prototype. Money is in hundredths of an emerald: 100 = 1 emerald.
-# These are eligibility limits, not automatic charges or permission to place blocks.
-# Physical work is currently restricted to marked disposable tests; editing this file cannot enable it.
+# These limits protect actual charges; automatic home construction is controlled separately below.
 # Existing materials are not charged again. Future purchases must pay a real supplier.
 # No separate construction wage/personal-wallet system is introduced.
 format: 1
@@ -10,7 +9,7 @@ land:
   # Confirmed fenced plots remain protected, including empty plots.
   building-buffer: 4
 labor:
-  # These settings describe proposed allocations; live construction scheduling is not enabled yet.
+  # Actual eligible effort is booked through the simulation owner; unused effort is never invented.
   # Village work uses unemployed adults; businesses use only their own qualified staff.
   # Construction replaces some normal work; it never creates extra effort or changes permanent jobs.
   enabled: true
@@ -56,9 +55,22 @@ automatic-home-planning:
   maximum-active-homes: 1
   search-radius: 12
 
+# Build saved family home projects with real suppliers, delayed cargo and earned labor.
+# Existing files MUST explicitly add this entire section; they are never rewritten.
+# New installations enable this prototype. Disable to pause future purchases/native steps.
+# This does not enable private premises, civic buildings, terrain clearing or roads.
+automatic-construction:
+  enabled: true
+  # Shared survey budget. The separate atomic final-write check is capped at256 reads.
+  cells-per-tick: 128
+  # Waiting projects retry after this delay; successful work rotates through all projects sooner.
+  review-seconds: 10
+  # Global minimum gap between native step attempts, in real milliseconds (500 = half a second).
+  block-interval-ms: 500
+
 # Reference prices per actual unit, in the existing hundredths ledger. No goods seeded.
 # Uses existing industry local-delivery periods and shared haul limits/cadence.
-# API only until live demand/project scheduling is connected.
+# Automatic home projects use these real supplier prices; unavailable goods hold the whole purchase.
 supplies:
   enabled: true
   prices:
