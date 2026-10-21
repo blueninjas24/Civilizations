@@ -16,6 +16,13 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Villages can now automatically choose a clear spot beside an existing path and
+save a family home proposal. The spot is checked twice, protected land is excluded,
+and admins can inspect/cancel unused work. This does not build the home yet.
+Editable settings; existing server files opt in explicitly. Wrapper54 +3 and
+actual disposable Paper full planning/cancellation/restart passed. Handbook0.15
+has31 pages/29 chapters. No completed-building or whole P4 gate is claimed.
+
 The automatic-planning work feed now selects verified needs in present worlds,
 with a village project cap and repeatable proposal IDs. It is read-only; final
 preparation checks the cap again. Wrapper40 +3 passed; native scheduling next.

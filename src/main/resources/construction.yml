@@ -45,6 +45,17 @@ village:
 housing:
   maximum-new-proposals: 1
 
+# Prepare at most a small number of unused home plans beside existing paths.
+# This reserves a clear site and family proposal; it buys nothing and places no blocks.
+# Existing construction.yml files opt in by adding this entire section explicitly.
+# Admins inspect /civ build projects and can confirm unused cancellation.
+automatic-home-planning:
+  enabled: true
+  cells-per-tick: 128
+  review-seconds: 30
+  maximum-active-homes: 1
+  search-radius: 12
+
 # Reference prices per actual unit, in the existing hundredths ledger. No goods seeded.
 # Uses existing industry local-delivery periods and shared haul limits/cadence.
 # API only until live demand/project scheduling is connected.

@@ -50,7 +50,7 @@ together; failure rolls both back. Paid supplies, native intents and unreturned
 owned materials hold for reviewed recovery. Exact cancellation receipts never
 reactivate work. Wrapper50 +3 passed51.789s. Live operator controls now connect these SQL-owner APIs, as described below.
 
-Current limitations: no automatic proposal timer, physical production writer,
+Current limitations: no physical production writer,
 completed-home activation, started-project cancellation or migration of historical
 unbound projects. Completed-home lifecycle remains part of the construction gate.
 The village retains ownership of future publicly funded homes under the approved
@@ -95,5 +95,30 @@ whole-family need per village. Unknown/stale capacity or permitted vacancy reuse
 holds new-home work. Deterministic proposal identity includes permanent world,
 household, calendar month and retained proposal count. Final limited preparation
 checks the active-home cap again inside its transaction, preserving exact replay.
-The native survey scheduler is not connected by this backend alone. Wrapper40
+The feed alone is read-only; its native scheduler is now connected as described below. Wrapper40
 unit +3 packaged checks passed39.566s; schema113 is unchanged.
+
+
+## Live automatic site preparation
+
+The feed now runs through PaperAutomaticHomePlanning and PaperHomeSiteSurvey.
+Only one survey advances under the shared automatic-planning budget, and one
+owner save may be pending. Each loaded cell is checked twice; any missing chunk,
+absent world, stale or changed evidence holds. The source never loads chunks or
+adds chunk tickets. Saved protections and actual needs are checked again on the
+SQL owner before the atomic draft/family/site save. Existing dirt paths and flat
+supported clear sites only; no new paths, digging, grading, purchases or writing.
+
+New construction.yml files have automatic-home-planning enabled with defaults
+128 cells-per-tick,30 review-seconds,1 maximum-active-homes and12 search-radius.
+Existing files stay unchanged and explicitly opt in with the complete section.
+Strict bounds are64..256,10..600,1..16 and8..12 respectively. Six vertical layers
+near the village centre keep native reads bounded; larger/uneven sites may wait.
+Debug construction reports the latest cause. See handbook0.15 Chapter29.
+
+Wrapper54 +3 passed39.603s. Actual disposable Paper full automatic native survey,
+real capped SQL proposal, confirmed operator unused cancellation and restart
+passed; missing-world/changed-pass evidence held. One path marker and one test
+air cell restored; both databases113/ok/FKs0. Only test-fixture setup explicitly
+prepared4 chunks in its new guarded host-temporary world; production simulation
+never loads chunks. Native physical building/material purchases remain unfinished.

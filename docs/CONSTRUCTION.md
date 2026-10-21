@@ -71,7 +71,7 @@ Separate stages cannot overwrite the same coordinate.
 User approved automatic growth on suitable nearby clear land, with bounded checks
 for buildings, farms, fences and saved protection. Unknown evidence pauses. Unmarked
 empty player fields cannot be identified retroactively; reserved empty plots can use
-confirmed fenced-area protection. The automatic recognizer is not connected yet.
+confirmed fenced-area protection. The first automatic home-site recognizer is now connected under HOUSING_PROJECTS.md.
 Ordinary gameplay will not require admin-approved build zones under this decision.
 
 The initial native palette supports cobblestone, oak planks/logs/doors, barrels and white beds.
@@ -95,8 +95,8 @@ preserves every stage, cost, coordinate, block state and anchor with a SHA-256
 fingerprint. Subsequent template edits do not rewrite a saved draft. Exact retries
 are idempotent; reusing an ID with changed terms or loading a corrupt snapshot fails.
 
-The repository API is ready; player previews are not yet saved or submitted as
-projects. A draft creates no land rights, budget, material reservation, work credit
+Player site previews remain unsaved. The separate automatic home-planning path
+can now save verified need/site proposals under HOUSING_PROJECTS.md. A draft creates no land rights, budget, material reservation, work credit
 or finished building. Back up before installing newer schema versions: older plugin
 versions correctly refuse a newer database. No development save is reset automatically.
 

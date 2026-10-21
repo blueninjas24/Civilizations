@@ -127,6 +127,9 @@ public final class PopulationSession implements AutoCloseable {
         householdFormation=java.util.Objects.requireNonNull(policy);
     }
     public String housingDiagnostic(){return housingStatus;}
+    private volatile String homePlanningStatus="Home planning: disabled or waiting for configured templates";
+    public String homePlanningDiagnostic(){return homePlanningStatus;}
+    public void publishHomePlanningDiagnostic(String message){homePlanningStatus=java.util.Objects.requireNonNull(message);}
     public String constructionDiagnostic() {
         return constructionDeliveryFailure==null
                 ?constructionDeliveryStatus

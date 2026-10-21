@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — recommended bounded dry automatic home planning
+
+Under delegated P4 recommendations, connect guarded automatic clear-land growth
+to unused home proposals first, with no purchases or physical write permission.
+New construction.yml defaults enable128 shared native reads/tick,30-second cycles,
+1 active home/village and12-block search radius; existing files explicitly opt in
+with the full section. This caps reserved unfinished land while the paid builder
+is connected. Two complete matching loaded-only passes and fresh SQL protection/
+need review precede atomic proposal storage. No terrain clearing or inferred
+use of player structures. Admin confirmed unused cancellation releases the site;
+a later real need may receive a new identity, so disable planning to stop all
+proposals. Settings are documented in handbook0.15 Chapter29.
+
 ## October21 — recommended unstarted home revalidation
 
 Under the user's delegated P4 prototype recommendations, recheck current family

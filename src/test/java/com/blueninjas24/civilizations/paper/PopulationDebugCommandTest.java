@@ -40,7 +40,7 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(false),null,"civ",new String[]{"debug","construction"});
             assertEquals(List.of("You do not have permission to inspect Civilizations."),messages);messages.clear();
             command.onCommand(sender(true),null,"civ",new String[]{"debug","construction"});
-            assertEquals(List.of("Construction: waiting for simulation. Automatic building is not enabled."),messages);
+            assertEquals(List.of("Construction: waiting for simulation. Automatic building is not enabled.","Home planning: disabled or waiting for configured templates"),messages);
             assertEquals(List.of("construction"),command.onTabComplete(sender(true),null,"civ",new String[]{"debug","con"}));
             assertFalse(directory.resolve("civilizations.db").toFile().exists());
         }

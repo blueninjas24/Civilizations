@@ -57,7 +57,7 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             sender.sendMessage(session.housingDiagnostic());return true;
         }
         if(args.length==2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("construction")) {
-            sender.sendMessage(session.constructionDiagnostic());return true;
+            sender.sendMessage(session.constructionDiagnostic());sender.sendMessage(session.homePlanningDiagnostic());return true;
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("status")) {
             PopulationDiagnostics.status(session.status(), session.settings()).forEach(sender::sendMessage);

@@ -46,6 +46,14 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Automatic dry home preparation now connects verified family need, existing dirt
+paths, globally budgeted two-pass loaded-only terrain, rotated/buffered candidates,
+current saved protection and atomic plan/family/site reservation. Editable new
+install defaults/explicit existing-file opt-in. Wrapper54 +3 and actual disposable
+Paper automatic plan, real confirmed cancellation/restart and changed/absent
+evidence refusal passed. New local paths, terrain grading, paid automatic work,
+production writes and business reuse remain unfinished, so no whole gate claimed.
+
 Project reporting and confirmed unused cancellation now have bounded operator
 controls. Saved assets/history and paid/started work remain protected; no writer
 enabled. Wrapper35 +3, final5 +3 and native routed report/permission check passed.

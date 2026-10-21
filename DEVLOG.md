@@ -1,5 +1,37 @@
 # Civilizations Development Log
 
+## 2026-10-21 — live guarded automatic home-site preparation
+
+Connected AutomaticHomePlanningSettings, PaperHomeSiteSurvey and
+PaperAutomaticHomePlanning to production lifecycle and debug construction status.
+Verified family need feeds one globally budgeted two-pass loaded-only survey, then
+current SQL protection/need/cap review and atomic frozen plan/family/site storage.
+No production chunk loading/tickets, purchases, native writes or free capacity.
+New defaults128 cells/tick,30-second cycle,1 active home/village,12-block radius;
+old construction.yml files must explicitly opt in. Strict configurable bounds,
+unknown/changed evidence hold, one pending save, graceful accepted-save draining.
+
+Focused Wrapper clean verify54 unit +3 packaged checks passed39.603s. Two settings
+and three scheduler cases cover opt-in, strict terms, one budget, pending owner
+work, incomplete evidence, retry cadence and close. Existing housing/debug checks
+passed. Initial tests needed CRLF normalization and the extra expected diagnostic.
+
+Actual approved disposable Paper AutomaticHomePlanningProbe passed full native
+two-pass survey -> real owner SQL capped project -> permission rejection -> actual
+operator preview/button-confirmed atomic unused cancellation -> session restart.
+Resident/zero capacity retained; no supplies, stage work or block intents created.
+Absent worlds and an edit between passes returned unknown. Restored one path
+marker and one air test cell; stopped/archived helper; both DBs113/ok/FKs0.
+Two setup failures were fixed only in the fixture: initial spawn lacked the full
+area, so setup explicitly prepared4 chunks in the new marked host-temp world;
+its seeded clock also needed the same migration policy as its real session. No
+application guard was weakened; the production source/simulation never loads
+chunks. Failed temporary fixtures remain retained with stopped helper archived.
+
+Handbook0.15:31 pages/29 chapters, all rendered/visually reviewed, new page31 full
+size, contents/footers checked. Schema113/P4 at25% remain; actual paid work, local
+path expansion, production writes and completed-home activation still ahead.
+
 ## 2026-10-21 — bounded automatic home-planning feed
 
 HousingPlanningJobs pages at most8 permanent saved villages, skips absent worlds

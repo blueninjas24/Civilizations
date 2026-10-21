@@ -7,14 +7,25 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is30-page edition0.14, with
-28 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is31-page edition0.15, with
+29 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
 owned units follow the same occupancy direction as homes. New apartment declarations now have explicit controls; editing registered units remains unfinished.
 
 
 Implemented and verified:
+- Guarded automatic home-site planning is now connected: verified need -> one
+  globally budgeted two-pass loaded-only survey -> fresh saved protection/need
+  review -> atomic frozen plan/family/site reservation. Default new installs:
+  128 reads/tick,30-second cycles,1 active home/village,12-block radius. Existing
+  construction.yml files explicitly opt in; no automatic file overwrite.
+  Debug construction reports decisions. No purchases, physical work or beds yet.
+  Wrapper54 +3 passed39.603s. Actual disposable Paper full automatic plan, real
+  operator confirmation/cancellation, restart, absent-world and changed-pass
+  refusal passed. Both DBs113/ok/FKs0; one path marker/one air test cell restored.
+  Only fixture setup prepared4 temporary chunks; simulation never loads chunks.
+  Handbook0.15:31 pages/29 chapters, all rendered/reviewed.
 - Automatic-planning work feed now pages at most8 saved villages, selects one
   verified housing need per present world/village and respects an active-project
   cap. IDs are deterministic from household/world/month/retained proposal count;

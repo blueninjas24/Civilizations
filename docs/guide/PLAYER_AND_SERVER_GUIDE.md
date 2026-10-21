@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.14 | 21 October 2026 | Player and server owner edition
+Living draft 0.15 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -565,7 +565,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.14 adds retained home-project reports and confirmed unused-project cancellation. The read-only whole-family housing-planning report remains available. Separate renovation-consent controls and saved inspection status remain available. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
+Edition 0.15 adds guarded automatic home-site planning. Retained home-project reports and confirmed unused-project cancellation remain available. The read-only whole-family housing-planning report remains available. Separate renovation-consent controls and saved inspection status remain available. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
 
 
 ## 22 Protect a building plot
@@ -775,3 +775,41 @@ A saved cancellation cannot reactivate its old proposal. A new home needs a fres
 Four players can hold project requests/previews at once. Read checks expire after 30 seconds. A failed accepted save can retry the same live confirmation token; inspect project status if the result is uncertain. No command here enables the normal-server block writer.
 
 Related chapters: housing, construction, donation, backups and the command glossary. Sources: HOUSING_PROJECTS.md, CONSTRUCTION.md and PaperHousingProjectControls.
+
+
+## 29 Automatic home-site planning
+
+Status: Available preparation only. A village can save an unused home proposal beside an existing path. This does not place a home, buy materials or grant beds.
+
+### What the village considers
+
+Suitable permitted vacancies come first. Unknown capacity or stale inspections pause planning. A plan must fit the whole family, and an editable cap limits active unfinished home projects.
+
+The village checks flat supported space beside existing dirt paths. Buildings, fences, crops, trees, water, entities or saved protection can reject a rotated plan. This step does not dig, level hills or make roads.
+
+Loaded blocks are checked twice within a shared budget; missing or changed evidence pauses planning. Simulation never loads chunks. Current protections and family need are rechecked before the plan, family and site reservation save atomically.
+
+### Editable settings
+
+New construction.yml files include these settings. Existing files must opt in with the complete section. Stop, edit, then restart.
+
+| Under automatic-home-planning | Default and meaning |
+|---|---|
+| enabled | true in new files; dry planning only |
+| cells-per-tick | 128 shared reads; allowed 64 to 256 |
+| review-seconds | 30 between cycles; allowed 10 to 600 |
+| maximum-active-homes | 1 per village; allowed 1 to 16 |
+| search-radius | 12 blocks; allowed 8 to 12 |
+
+This pass checks six vertical layers. Large plans, hills, missing paths or unloaded areas may leave no safe site. Protect reserved empty player land with confirmed off-limits protection before the village chooses it.
+
+### Check progress and retain control
+
+- /civ debug construction: latest planning result.
+- /civ build housing <village UUID>: saved family demand and holds.
+- /civ build projects <village UUID>: retained proposals.
+- Chapter 28: confirmed unused cancellation.
+
+If need remains, a later review can propose a fresh project. Disable planning to stop proposals entirely. A reservation grants no access to chests or permission to overwrite builds. Real supplies, labor, physical construction and completed-home activation remain separate P4 work; a proposal grants no free beds or people.
+
+Related chapters: housing, protection, construction, recovery and server settings. Sources: HOUSING_PROJECTS.md, CONSTRUCTION.md and AutomaticHomePlanningSettings.
