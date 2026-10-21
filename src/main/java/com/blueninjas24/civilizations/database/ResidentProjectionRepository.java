@@ -10,9 +10,14 @@ public final class ResidentProjectionRepository {
     public enum State { CLAIMED, ACTIVE, RETIRED }
     public record Projection(UUID residentId, UUID worldId, UUID entityId, State state, UUID householdId, Position position) {}
     public record EntityKey(UUID worldId, UUID entityId) {}
-    public record Home(UUID worldId, Position position) {}
-    public record Snapshot(Map<UUID, Projection> projections, Map<EntityKey, UUID> aliases, Map<UUID, Home> homes) {
-        public Snapshot { projections = Map.copyOf(projections); aliases = Map.copyOf(aliases); homes = Map.copyOf(homes); }
+    public record Home(UUID worldId, Position position, Map<UUID,Position> residentBeds) {
+        public Home(UUID worldId,Position position){this(worldId,position,Map.of());}
+        public Home { Objects.requireNonNull(worldId);Objects.requireNonNull(position);residentBeds=Map.copyOf(residentBeds); }
+        public Position bedFor(UUID resident){return residentBeds.isEmpty()?position:residentBeds.get(resident);}
+    }
+    public record Snapshot(Map<UUID, Projection> projections, Map<EntityKey, UUID> aliases, Map<UUID, Home> homes, Set<UUID> managedHousing) {
+        public Snapshot(Map<UUID,Projection> projections,Map<EntityKey,UUID> aliases,Map<UUID,Home> homes){this(projections,aliases,homes,Set.of());}
+        public Snapshot { projections = Map.copyOf(projections); aliases = Map.copyOf(aliases); homes = Map.copyOf(homes); managedHousing=Set.copyOf(managedHousing); }
         public static Snapshot empty() { return new Snapshot(Map.of(), Map.of(), Map.of()); }
     }
     public record PhysicalDeath(long sequence, UUID residentId, long completedMonth, long observedMillis, String reason) {}
@@ -22,7 +27,6 @@ public final class ResidentProjectionRepository {
     public Snapshot snapshot() throws SQLException {
         var projections = new HashMap<UUID, Projection>();
         var aliases = new HashMap<EntityKey, UUID>();
-        var homes = new HashMap<UUID, Home>();
         try (var statement = connection.createStatement()) {
             try (var result = statement.executeQuery("SELECT * FROM resident_projection ORDER BY resident_id")) {
                 while (result.next()) {
@@ -35,12 +39,9 @@ public final class ResidentProjectionRepository {
             try (var result = statement.executeQuery("SELECT * FROM village_entities")) {
                 while (result.next()) aliases.put(new EntityKey(uuid(result.getString("world_id")), uuid(result.getString("entity_id"))), uuid(result.getString("resident_id")));
             }
-            try (var result = statement.executeQuery("SELECT * FROM village_beds WHERE household_id IS NOT NULL ORDER BY world_id, x, y, z")) {
-                while (result.next()) homes.putIfAbsent(uuid(result.getString("household_id")),
-                        new Home(uuid(result.getString("world_id")), new Position(result.getInt("x"), result.getInt("y"), result.getInt("z"))));
-            }
         }
-        return new Snapshot(projections, aliases, homes);
+        var housing=ResidentProjectionHomes.read(connection,null);
+        return new Snapshot(projections, aliases, housing.homes(),housing.managed());
     }
 
     /** Called inside enrollment's transaction; never replaces an existing or ambiguous identity. */
@@ -64,11 +65,12 @@ public final class ResidentProjectionRepository {
             try (var statement = connection.prepareStatement("""
                     SELECT 1 FROM residents r JOIN settlement_worlds w ON w.settlement_id = r.settlement_id
                     WHERE r.id = ? AND r.status = 'ALIVE' AND r.household_id = ? AND w.world_id = ?
-                    AND EXISTS (SELECT 1 FROM village_beds WHERE household_id = r.household_id AND world_id = w.world_id)
                     """)) {
                 statement.setString(1, person.toString()); statement.setString(2, household.toString()); statement.setString(3, world.toString());
                 try (var result = statement.executeQuery()) { if (!result.next()) return false; }
             }
+            var home=ResidentProjectionHomes.read(connection,household).homes().get(household);
+            if(home==null||!home.worldId().equals(world)||home.bedFor(person)==null)return false;
             try (var statement = connection.prepareStatement("""
                     SELECT state FROM resident_projection WHERE resident_id = ?
                     """)) {

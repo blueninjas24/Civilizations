@@ -1,5 +1,23 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified — resident bodies follow qualified assigned homes
+
+Modern dwelling units now supply distinct bed-head memories to managed resident
+bodies, including households without legacy bed links. Normal durable spawn
+claims accept current qualified assignments; existing identities/density/nearby
+limits remain. Active-body scans refresh memory after moves. Explicit managed
+loss clears HOME instead of falling back to old housing; unknown/unloaded checks
+preserve saved evidence. Housing/consent/protection owner operations publish
+immediately. No teleportation, forced moves, new people or new capacity.
+
+Final review clean verify53 unit+3 packaged passed52.300s; earlier47+3 passed48.087s. Actual disposable Paper rebuilt
+the paid167-block eight-bed house, projected8 actual saved residents with distinct
+real HOME memories, and restored a cleared active-body memory. Actual completion
+restart replay conserved funds, finite goods,9 original people and8 qualified beds.
+Fixture bodies removed/cells restored; both116 DBs integrity ok/FKs0; stopped and
+helper archived. No migration. Handbook0.20,35 pages/32 chapters. P4 stays31%.
+Next: wider road/site growth and useful business premises. No blocking question.
+
 ## Latest verified — larger whole-family homes and correct roof-height surveys
 
 Original editable six/eight-bed homes now join the unchanged four-bed starter.
@@ -17,7 +35,7 @@ large-family siting at bed height passed, including changed-cell holds, confirme
 unused cancellation and restart without free capacity or lost people. Disposable
 servers only; captured cells restored, schema116 integrity/FK checks clean.
 No migration. P4 remains5/16 (31%); this strengthens housing, not a new whole gate.
-Visible resident home-memory projection still needs connecting to modern units.
+Resident home-memory projection is now connected; see the latest checkpoint above.
 Human survival acceptance and broader physical growth remain pending.
 
 ## Current — Phase4 automatic paid family homes
@@ -66,7 +84,7 @@ spending; injecting the same clock fixed the fixture, no guard weakened.
 Prior hosted Windows/Linux both passedb91265c; current candidate awaits CI.
 No latest-head full-suite claim.
 
-Handbook0.19 is35 pages/32 chapters, rendered and visually reviewed. Chapters31/32
+Handbook0.20 is35 pages/32 chapters, rendered and visually reviewed. Chapters31/32
 cover automatic homes, opt-in/pacing, saved inspection and confirmed supply recovery. Sources/configuration
 and docs/PROGRESS.md agree. No schema change beyond116 in this batch.
 

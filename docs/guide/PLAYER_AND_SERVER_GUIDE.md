@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.19 | 21 October 2026 | Player and server owner edition
+Living draft 0.20 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -891,7 +891,7 @@ A missing world or unloaded chunk waits. An entity, changed protection, missing 
 
 A flat clear site and real supplies remain necessary. Original home plans fit four, six or eight people. The smallest adequate plan is chosen; larger families wait for a suitable plan. Existing adequate housing is preserved; villages do not replace working homes just to demonstrate construction. Confirmed damage or repossession can create need, but do not damage your world merely to force a test.
 
-The six/eight-bed plans have a covered center aisle and a wall torch above walking headroom. Default abstract costs are 45 timber, 12 stone and 18 wool for six beds; 53 timber, 14 stone and 24 wool for eight. At default prices these are 39 and 48.7 emerald value. Configured prices and protected budgets apply. Existing installed plans are preserved. Saved housing assignment does not promise visible villager movement yet.
+The six/eight-bed plans have a covered center aisle and a wall torch above walking headroom. Default abstract costs are 45 timber, 12 stone and 18 wool for six beds; 53 timber, 14 stone and 24 wool for eight. At default prices these are 39 and 48.7 emerald value. Configured prices and protected budgets apply. Existing installed plans are preserved. Qualified assigned homes now guide managed villagers to distinct bed heads through their normal Minecraft home memory. Nearby-player and loaded-area limits still apply; villagers use normal walking and sleeping behavior. This does not teleport them or add people. Repossession removes their saved use rights.
 
 Related chapters: housing, protection, automatic planning, funding, recovery, server backups and tuning. Source: AUTOMATIC_CONSTRUCTION.md. Wider P4 growth remains in progress.
 

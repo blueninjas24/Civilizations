@@ -1428,7 +1428,7 @@ public final class PopulationSession implements AutoCloseable {
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.BuildingRegistry.Consent> confirmBuildingConsent(
             UUID player,UUID world,UUID token,boolean declaresOwnership,boolean mayDonate,boolean mayReclaim,boolean administrator) {
-        return submit(()->buildingConsents().confirm(buildingContext(player,world,mayDonate,mayReclaim,administrator),token,declaresOwnership,now.getAsLong()));
+        return submit(()->{var receipt=buildingConsents().confirm(buildingContext(player,world,mayDonate,mayReclaim,administrator),token,declaresOwnership,now.getAsLong());publish(database.getDemographicRepository().load(settings.population(),settings.migration()).orElseThrow().state());return receipt;});
     }
     public CompletableFuture<Void> cancelBuildingConsent(UUID player) {
         return submit(()->{buildingConsents().cancel(player);return null;});
@@ -1701,6 +1701,7 @@ public final class PopulationSession implements AutoCloseable {
             var report=new com.blueninjas24.civilizations.database.DwellingHousing(database.getConnection()).reconcile(layout,assessment,
                     new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(layout.world(),true,policy,time),
                     householdFormation,settings.population().adulthoodSteps(),status.get().completedMonths());
+            publish(database.getDemographicRepository().load(settings.population(),settings.migration()).orElseThrow().state());
             housingStatus="Housing: "+report.explanation()+"; assigned "+report.assigned()+", empty homes released "+report.released()+".";
             return report;
         });
@@ -1711,8 +1712,9 @@ public final class PopulationSession implements AutoCloseable {
             requireBuildingWorld(request.world(),request.world());
             if(!confirmed)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Explicit plot ownership confirmation required");
             database.getVillageIdentityRepository().observeWorld(request.world(),worldName);
-            return new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).exclude(request,
+            var receipt=new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).exclude(request,
                     com.blueninjas24.civilizations.database.BuildingRegistry.Authorization.playerDeclaration(request.actor(),true));
+            publish(database.getDemographicRepository().load(settings.population(),settings.migration()).orElseThrow().state());return receipt;
         });
     }
     public CompletableFuture<Optional<com.blueninjas24.civilizations.database.BuildingRegistry.Exclusion>> buildingExclusion(UUID id) {
@@ -1728,7 +1730,7 @@ public final class PopulationSession implements AutoCloseable {
             var saved=registry.findExclusion(id).orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown building exclusion"));
             requireBuildingWorld(saved.world(),currentWorld);
             registry.releaseExclusion(operation,id,new com.blueninjas24.civilizations.database.BuildingRegistry.Authorization(actor,administrator,false,true),requestedMillis);
-            return null;
+            publish(database.getDemographicRepository().load(settings.population(),settings.migration()).orElseThrow().state());return null;
         });
     }
     /** Trusted adapter supplies fresh enclosure/animal/authority evidence; no Bukkit objects cross threads. */

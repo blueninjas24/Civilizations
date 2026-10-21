@@ -79,7 +79,9 @@ must finish before another project action begins.
 COMPLETE requires fresh native evidence and the existing atomic village-owned
 completion. Stable versioned operation IDs make retries exact. The regular housing
 runtime subsequently inspects actual paired accessible covered beds and assigns
-whole saved families. Completion itself creates no capacity. Player donation,
+whole saved families. Current qualified assignments now feed distinct resident
+bed memories through the normal loaded-only projector. Vanilla walking and
+sleeping still apply; assignment is not a teleport. Completion itself creates no capacity. Player donation,
 reclamation and renovation controls cannot claim village-built homes.
 
 ## Holds and recovery

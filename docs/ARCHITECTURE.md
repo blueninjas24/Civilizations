@@ -1,5 +1,23 @@
 # Civilizations — architecture and engineering contracts
 
+## October21 housing-to-native resident view
+
+ResidentProjectionHomes reads current positive dwelling assignments/consent and
+qualified unit reviews on the SQL owner. It publishes immutable household homes
+with distinct bed-head coordinates per living resident in stable UUID/coordinate
+order. Managed assignment history suppresses fallback to obsolete legacy beds;
+authored/claimed beds cannot leak into legacy homes. Untransitioned households
+retain legacy behavior. Reads never assign a family, alter capacity or spawn.
+
+Durable spawn claims now accept a current qualified modern home without requiring
+legacy village_beds household links. Existing incarnation/alias checks remain.
+Housing review and consent/protection changes publish the new immutable view
+without waiting for a population month. Paper refreshes active bodies' HOME memory
+through its existing bounded loaded-chunk census. It checks actual loaded bed
+heads, never loads chunks or teleports. Explicit managed housing loss clears HOME;
+unknown/unloaded observation alone does not. Vanilla pathfinding still controls
+walking/sleeping and may respond to surrounding POIs.
+
 ## October21 selected-plan survey height
 
 HousingPlanningJobs carries the exact recommended template height (matched ID

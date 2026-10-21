@@ -8,7 +8,10 @@ world/draft-based building/unit identity and transformed original bed pairs.
 Origin/layout/use, binding completion and temporary lease release commit together;
 late failure rolls all back. Completion grants no beds or new people. Existing
 housing review must independently qualify actual beds, cover/access and whole
-families. Completed bindings remain history and stop consuming project caps or
+families. Qualified assigned units now supply distinct resident bed-head memories
+through the normal loaded-only projector, including residents with no legacy bed
+links. Reclaimed/protected homes stop supplying that permission; no teleportation
+or new people. Completed bindings remain history and stop consuming project caps or
 household uniqueness. Later confirmed damage can produce a replacement proposal;
 completion replay never resurrects lost capacity. See CIV_BUILT_HOUSING.md.
 

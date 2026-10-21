@@ -18,6 +18,12 @@
 The bar counts verified checklist items, not time spent. The first paid-project
 milestone now includes ordinary automatic family-home construction.
 
+Latest resident-home connection:53 unit+3 packaged clean verify passed; actual
+Paper eight-bed build projected8 saved residents to distinct real bed memories,
+then verified active-body memory refresh and completion restart conservation.
+Both116 fixture DBs healthy/FK-clean; stopped/helper archived. No schema change.
+This strengthens the same housing milestone; no extra checklist point claimed.
+
 | P4 part | Current state | Plain-English effect |
 |---|---|---|
 | Starter plans | Available | Original editable path, storehouse and four/six/eight-bed home plans |
@@ -25,7 +31,7 @@ milestone now includes ordinary automatic family-home construction.
 | Protection and renovation consent | Available | Player builds stay private; donating use does not permit alterations |
 | Home-site planning | Available | Actual family need and safe loaded land beside an existing path can create a proposal |
 | Paid automatic family homes | Available prototype | Real suppliers get paid; cargo and labor take time; house blocks appear in stages |
-| Completed homes | Available | Inspection qualifies actual beds and houses a whole saved family; no free residents |
+| Completed homes | Available | Inspection qualifies beds; whole families gain distinct actual villager home memories; no free residents |
 | Project inspection and unused supply recovery | Available | Operators inspect stalled work and confirm real supplier refunds/returns; history stays |
 | Wider physical growth | Unfinished | New roads, terrain work, business premises, docks, upgrades and civic builds remain |
 
@@ -41,7 +47,7 @@ mirrored home blocks on a disposable Paper server, then native inspection assign
 one saved family to4 beds. Completion replay survived session restart. All captured
 cells restored, server stopped/helper archived; both116 DBs healthy/FK-clean.
 Prior Windows/Linux both passedb91265c; current candidate awaits hosted CI.
-The handbook is now0.19,35 pages/32 chapters, with automatic homes in Chapter31
+The handbook is now0.20,35 pages/32 chapters, with automatic homes in Chapter31
 and saved inspection/confirmed supplier recovery in Chapter32. Latest recovery
 Wrapper35+3 and15+3 passed; actual Paper permission/confirmation/refund/disconnect/
 restart accepted. Both116 DBs healthy, server stopped; no world/inventory edits.

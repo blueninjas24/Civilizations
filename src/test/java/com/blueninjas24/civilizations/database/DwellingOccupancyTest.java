@@ -68,6 +68,35 @@ class DwellingOccupancyTest {
         var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
         return new HousingProjectPreparation(c).prepare(request,context(time),List.of(template),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(4),42,0);
     }
+    @Test void assignedHomesSupplyDistinctResidentBedsAndClaimsWithoutLegacyLinks()throws Exception {
+        Map<UUID,com.blueninjas24.civilizations.settlement.VillageObservation.Position> saved;
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);var occupancy=new DwellingOccupancy(c);occupancy.review(id(20),building,assessment(1100),context(1100));
+            occupancy.assign(assign(id(21),family,a,id(20),null,1100),context(1100));
+            var repository=new ResidentProjectionRepository(c);var snapshot=repository.snapshot();var home=snapshot.homes().get(family);
+            assertEquals(world,home.worldId());assertEquals(2,home.residentBeds().size());assertEquals(2,new HashSet<>(home.residentBeds().values()).size());
+            assertTrue(snapshot.managedHousing().contains(family));assertNull(home.bedFor(id(12)));assertThrows(UnsupportedOperationException.class,()->home.residentBeds().clear());
+            assertEquals(0,number(c,"SELECT count(*) FROM village_beds"));saved=home.residentBeds();
+            assertTrue(repository.claim(id(10),world,id(30),family,home.bedFor(id(10))));
+            assertFalse(repository.claim(id(12),world,id(31),family,home.position()));healthy(c);
+        }
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){assertEquals(saved,new ResidentProjectionRepository(c).snapshot().homes().get(family).residentBeds());healthy(c);}
+    }
+    @Test void unknownInspectionKeepsHomeButConfirmedLossNeverFallsBackToLegacyBeds()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);var occupancy=new DwellingOccupancy(c);occupancy.review(id(20),building,assessment(1100),context(1100));
+            occupancy.assign(assign(id(21),family,a,id(20),null,1100),context(1100));var repository=new ResidentProjectionRepository(c);
+            var before=repository.snapshot().homes().get(family);assertNotNull(before);
+            new VillageIdentityRepository(c).bindBed(world,new com.blueninjas24.civilizations.settlement.VillageObservation.Position(100,64,100),town);
+            sql(c,"UPDATE village_beds SET household_id='"+family+"'");
+            assertEquals(before,repository.snapshot().homes().get(family)); // Retained old beds cannot override the assignment.
+            assertEquals(Outcome.UNVERIFIED,occupancy.review(id(22),building,assessment(1200,cells(),false,Policy.prototype()),context(1200)));
+            assertEquals(before,repository.snapshot().homes().get(family));
+            new BuildingRegistry(c).reclaim(id(23),building,BuildingRegistry.Authorization.playerDeclaration(donor,true),consent,1300);
+            var lost=repository.snapshot();assertTrue(lost.managedHousing().contains(family));assertFalse(lost.homes().containsKey(family));
+            assertFalse(repository.claim(id(10),world,id(30),family,before.position()));assertEquals(3,number(c,"SELECT count(*) FROM residents"));healthy(c);
+        }
+    }
     @Test void automaticDryPreparationCommitsFamilyPlanAndSiteTogetherAndOnlyReplaysHistory()throws Exception {
         var request=preparation(70);HousingProjectPreparation.Receipt saved;
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){

@@ -1,5 +1,44 @@
 # Civilizations Development Log
 
+## 2026-10-21 — assigned modern homes now reach actual villagers
+
+Fixed a confirmed integration gap: native resident snapshots and durable spawn
+claims used only village_beds.household_id, so modern qualified units with no
+legacy links could not guide/materialize residents. New ResidentProjectionHomes
+reads current assigned unit, world/village, use consent/protection and issue-free
+review; publishes immutable distinct resident bed heads in stable order. History
+prevents stale legacy fallback after loss. Authored/claimed beds cannot become
+legacy capacity. Old-schema/untransitioned households retain their existing homes.
+
+The Paper projector refreshes existing active bodies' HOME memory through its
+bounded loaded-chunk census; it also uses the resident's distinct head when
+materializing through the existing durable claim/activation handshake. Actual
+loaded bed-head validation, nearby/density limits and no-chunk-loading remain.
+Confirmed managed loss clears HOME; unknown/unloaded observation does not erase
+housing. Consent/protection and housing owner operations immediately publish the
+new immutable view. No teleport, capacity change, invented resident or migration.
+
+Focused clean Wrapper verify47 unit+3 packaged passed48.087s; initial same affected
+suite passed46.102s. Two new temporary-SQLite regressions prove immutable distinct
+beds without legacy links, real claim eligibility, persistence/restart, unknown
+inspection preservation and confirmed reclamation refusing stale home claims.
+Actual marked Paper eight-bed home built all167 paid blocks, qualified eight
+beds and projected all8 saved family members with distinct real HOME memories;
+the active-body census restored a deliberately cleared memory. Fixture entities
+removed, completion restarted/replayed, original money/goods/9 people/capacity
+preserved. Captured cells restored; both116 DBs integrity ok/FKs0, server stopped
+and helper archived. No actual dev server or world touched.
+
+Final review clean verify53 unit+3 packaged passed52.300s, including actual
+stale legacy bed links after reclamation, existing consent controls and a guard
+for active residents with no recorded household. Native positive-home behavior
+above was verified before that final null-household guard; no native rerun claimed.
+Handbook0.20 (35 pages/32 chapters) was rendered and visually reviewed; it documents
+normal walking/sleeping rather than teleport guarantees.
+P4 stays5/16=31%,1/4 groups. Prior fa5176c/412c704 hosted Windows/Linux green;
+41e3009 is running. Next wider road/site growth and useful business premises;
+whole-phase human survival acceptance remains deferred.
+
 ## 2026-10-21 — larger lit family homes and real bed-height site coverage
 
 Added family_home_six/eight originals with real paired beds, closed roofs, a

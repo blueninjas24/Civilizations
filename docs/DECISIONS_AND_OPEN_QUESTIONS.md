@@ -1,5 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 assigned homes guide existing resident bodies
+
+Connect already approved whole-family dwelling assignments to normal villager
+home memory, preserving population identity and existing projection density/
+nearby-player limits. Give each modern resident a distinct declared bed head;
+keep legacy homes for untransitioned households. Repossession/protection withdraws
+use rather than erasing people. This implements existing housing consent and
+assignment, with no forced teleportation, invented resident or new ownership rule.
+
 ## October21 delegated whole-family starter homes
 
 Add original editable six/eight-bed covered, lit single-household plans without

@@ -84,8 +84,9 @@ public final class PaperResidentProjector extends BukkitRunnable {
                     apply(villager, person, session.settings().population().adulthoodSteps());
                     // Activation may have committed immediately before shutdown, before its main-thread acknowledgement.
                     if (villager.getPersistentDataContainer().has(PENDING, PersistentDataType.BYTE)) {
-                        release(villager); assignHome(villager, view.identities().homes().get(person.householdId()));
+                        release(villager);
                     }
+                    assignHome(villager,person,view.identities());
                 }
             }
         }
@@ -118,7 +119,7 @@ public final class PaperResidentProjector extends BukkitRunnable {
             if (projection == null && aliasedPeople.contains(person.id())) continue;
             var home = view.identities().homes().get(person.householdId()); if (home == null) continue;
             var world = Bukkit.getWorld(home.worldId()); if (world == null) continue;
-            var location = safeLocation(world, home.position());
+            var location = safeLocation(world, home.bedFor(person.id()));
             if (location == null || !nearby.test(location) || seen.getOrDefault(home.worldId(), Set.of()).size() >= spawnLimit(settings, world.getTime())) continue;
             prepared = world.createEntity(location, Villager.class); freeze(prepared); apply(prepared, person, session.settings().population().adulthoodSteps());
             var position = new Position(location.getBlockX(), location.getBlockY(), location.getBlockZ());
@@ -146,7 +147,7 @@ public final class PaperResidentProjector extends BukkitRunnable {
             if (completed == Work.CLAIM && accepted && current && prepared != null) {
                 var location = prepared.getLocation();
                 var home = view.identities().homes().get(person.householdId());
-                if (home != null && safeLocation(location.getWorld(), home.position()) != null
+                if (home != null && safeLocation(location.getWorld(), home.bedFor(person.id())) != null
                         && loaded(location.getWorld(), location.getBlockX(), location.getBlockZ()) && nearby.test(location) && clear(location)) {
                     location.getWorld().addEntity(prepared);
                     if (prepared.isValid()) {
@@ -161,7 +162,7 @@ public final class PaperResidentProjector extends BukkitRunnable {
             if (completed == Work.ACTIVATE && current && projection.state() == State.ACTIVE && prepared != null && prepared.isValid()) {
                 apply(prepared, person, session.settings().population().adulthoodSteps());
                 release(prepared);
-                assignHome(prepared, view.identities().homes().get(person.householdId()));
+                assignHome(prepared,person,view.identities());
             }
             prepared = null; lastFailure = null;
         } catch (RuntimeException failure) {
@@ -188,9 +189,17 @@ public final class PaperResidentProjector extends BukkitRunnable {
         villager.setAI(true); villager.setGravity(true); villager.setInvulnerable(false); villager.setPersistent(true);
         villager.getPersistentDataContainer().remove(PENDING);
     }
-    private static void assignHome(Villager villager, Home home) {
-        if (home != null && home.worldId().equals(villager.getWorld().getUID()) && loaded(villager.getWorld(), home.position().x(), home.position().z()))
-            villager.setMemory(MemoryKey.HOME, new Location(villager.getWorld(), home.position().x(), home.position().y(), home.position().z()));
+    private static void assignHome(Villager villager,Resident person,Snapshot identities) {
+        if(person.householdId()==null)return; // No recorded household is not an explicit loss of an assigned home.
+        var home=identities.homes().get(person.householdId());
+        if(home==null){if(identities.managedHousing().contains(person.householdId()))villager.setMemory(MemoryKey.HOME,null);return;}
+        var bed=home.bedFor(person.id());if(bed==null)return;
+        if(!home.worldId().equals(villager.getWorld().getUID()))return;
+        if(!loaded(villager.getWorld(),bed.x(),bed.z()))return; // Unloaded does not mean destroyed.
+        var actual=villager.getWorld().getBlockAt(bed.x(),bed.y(),bed.z());
+        if(!(actual.getBlockData() instanceof Bed data)||data.getPart()!=Bed.Part.HEAD)return;
+        var target=new Location(villager.getWorld(),bed.x(),bed.y(),bed.z());
+        if(!target.equals(villager.getMemory(MemoryKey.HOME)))villager.setMemory(MemoryKey.HOME,target);
     }
     public void close() { prepared = null; pending = null; }
     static boolean loaded(World world, int x, int z) {
@@ -198,7 +207,7 @@ public final class PaperResidentProjector extends BukkitRunnable {
                 && world.getChunkAt(Math.floorDiv(x, 16), Math.floorDiv(z, 16)).isEntitiesLoaded();
     }
     static Location safeLocation(World world, Position home) {
-        if (!loaded(world, home.x(), home.z())) return null;
+        if (home==null||!loaded(world, home.x(), home.z())) return null;
         var bed = world.getBlockAt(home.x(), home.y(), home.z());
         if (!(bed.getBlockData() instanceof Bed data) || data.getPart() != Bed.Part.HEAD) return null;
         for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) {

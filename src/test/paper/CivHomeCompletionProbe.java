@@ -29,6 +29,8 @@ public class CivHomeCompletionProbe extends JavaPlugin {
     private CompletableFuture<?> pending;private int phase,ticks,index;private boolean authorized,restored,restarted;
     private PaperConstructionLibrary library;private IndustryRuntimePolicy industryRuntime;
     private PaperAutomaticConstruction automatic;
+    private PaperResidentProjector residentProjector;private int projectionTicks;private boolean memoryCleared;private UUID clearedResident;
+    protected boolean projectResidents(){return false;}
     protected boolean automaticMode(){return false;}
     protected String templateId(){return "starter_home";}
     protected int familyMembers(){return 1;}
@@ -86,7 +88,23 @@ public class CivHomeCompletionProbe extends JavaPlugin {
             case 5->{receipt=(CivBuildingCompletion.Receipt)result;require(index==draft.template().blockCount(),"Every authored block built");phase=6;pending=session.housingPage(null,8);}
             case 6->{var entries=((PopulationSession.HousingPage)result).layouts();require(entries.size()==1,"Completed home joins ordinary housing inspection");layout=entries.getFirst();require(layout.id().equals(CivHomeLayout.from(draft).id()),"Stable transformed home identity");dwelling=new PaperDwellingSurvey(layout,clock.get(),true);phase=7;pending=CompletableFuture.completedFuture(null);}
             case 7->{var observation=dwelling.advance(128,clock.get());if(observation.isEmpty())return;phase=9;pending=session.reconcileHousing(layout,observation.get(),DwellingInspection.Policy.prototype());}
-            case 9->{var report=(DwellingHousing.Report)result;require(report.assigned()==1,"Native inspected home houses actual saved family: "+report);session.close();newSession();phase=10;pending=session.start(false,Set.of(draft.world()));}
+            case 9->{var report=(DwellingHousing.Report)result;require(report.assigned()==1,"Native inspected home houses actual saved family: "+report);
+                if(projectResidents()){residentProjector=new PaperResidentProjector(this,session,new PaperResidentProjector.Settings(64,16,16,8,32),ignored->true);phase=30;pending=CompletableFuture.completedFuture(null);}
+                else restartAfterHousing();}
+            case 30->{
+                require(++projectionTicks<500,"Modern resident projection timeout: "+residentProjector.diagnostic());residentProjector.run();
+                var view=session.projectionView().orElseThrow();var home=view.identities().homes().get(family);require(home!=null&&home.residentBeds().size()==familyMembers(),"Immediate distinct modern housing view");
+                var living=new ArrayList<org.bukkit.entity.Villager>();
+                for(var person:home.residentBeds().keySet()){
+                    var identity=view.identities().projections().get(person);if(identity==null||identity.state()!=ResidentProjectionRepository.State.ACTIVE)return;
+                    var entity=world.getEntity(identity.entityId());if(!(entity instanceof org.bukkit.entity.Villager v))return;
+                    var bed=home.bedFor(person);var expected=new Location(world,bed.x(),bed.y(),bed.z());
+                    if(!expected.equals(v.getMemory(org.bukkit.entity.memory.MemoryKey.HOME)))return;living.add(v);
+                }
+                if(!memoryCleared){memoryCleared=true;clearedResident=home.residentBeds().keySet().iterator().next();var identity=view.identities().projections().get(clearedResident);((org.bukkit.entity.Villager)world.getEntity(identity.entityId())).setMemory(org.bukkit.entity.memory.MemoryKey.HOME,null);return;}
+                residentProjector.close();residentProjector=null;for(var v:living)v.remove();
+                getLogger().info("P4_MODERN_HOME_PROJECTION_PASS: eight saved residents use distinct real bed-head memories without legacy bed links; active-body scan restores cleared memory; no duplicate people; fixture bodies removed.");restartAfterHousing();
+            }
             case 10->{phase=11;pending=session.completeCivHome(completionOperation,draft.id(),automaticMode()
                     ?new CivBuildingCompletion.Evidence(new ConstructionMaterials.Authority(draft.id(),draft.world(),clock.get(),true,true),Map.of()) // Saved completion replay only; never new native evidence.
                     :new CivBuildingCompletion.Evidence(frame.authority(),frame.cells()));}
@@ -109,6 +127,7 @@ public class CivHomeCompletionProbe extends JavaPlugin {
             default->{return false;}
         }
     }
+    private void restartAfterHousing(){session.close();newSession();phase=10;pending=session.start(false,Set.of(draft.world()));}
     private void page(){phase=2;pending=session.constructionWorkPage(null,8);}
     private void newSession(){var p=PopulationSession.Settings.prototype();var config=new PopulationSession.Settings(0,p.millisPerMonth(),p.maximumOfflineMonths(),p.monthsPerBatch(),p.population(),p.migration(),p.recognition(),p.enrollment());
         session=new PopulationSession(folder.toFile(),getLogger(),config,clock::get,settings,FarmObservation.Policy.prototype());session.configureFarmBusinesses(FarmBusinessPolicy.prototype());session.configureConstruction(ConstructionBudgetPolicy.prototype(),new ConstructionLaborPolicy(true,1,1,100,25));if(automaticMode())session.configureIndustryRuntime(industryRuntime);writer=new PaperConstructionWriter(this,session);}
@@ -149,7 +168,7 @@ public class CivHomeCompletionProbe extends JavaPlugin {
         try(var s=c.createStatement();var r=s.executeQuery("SELECT count(*) FROM dwelling_bed_claims")){require(r.getInt(1)==homeBeds(),"Exactly the inspected bed heads claimed");}
         try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){require(r.getString(1).equals("ok"),"Healthy private database");}try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){require(!r.next(),"Valid foreign keys");}database.close();database=null;
     }
-    private void restore(){if(!authorized||world==null||restored)return;for(var entry:originals.entrySet()){var p=entry.getKey();require(world.isChunkLoaded(p.x()>>4,p.z()>>4),"Cleanup must not load chunks");world.getBlockAt(p.x(),p.y(),p.z()).setBlockData(getServer().createBlockData(entry.getValue()),false);}restored=true;world.removePluginChunkTickets(this);}
+    private void restore(){if(residentProjector!=null){residentProjector.close();residentProjector=null;}if(projectResidents()&&session!=null&&session.projectionView().isPresent())for(var projection:session.projectionView().orElseThrow().identities().projections().values()){if(world!=null&&world.getEntity(projection.entityId()) instanceof org.bukkit.entity.Villager v)v.remove();}if(!authorized||world==null||restored)return;for(var entry:originals.entrySet()){var p=entry.getKey();require(world.isChunkLoaded(p.x()>>4,p.z()>>4),"Cleanup must not load chunks");world.getBlockAt(p.x(),p.y(),p.z()).setBlockData(getServer().createBlockData(entry.getValue()),false);}restored=true;world.removePluginChunkTickets(this);}
     @Override public void onDisable(){if(automatic!=null){automatic.cancel();automatic.close();automatic=null;}restore();if(session!=null){session.close();session=null;}owner.execute(()->{if(database!=null){database.close();database=null;}});owner.shutdown();}
     private static void require(boolean condition,String message){if(!condition)throw new IllegalStateException(message);}
 }
