@@ -58,7 +58,7 @@ class PaperHomeDonationTest {
         assertEquals("/civ building confirmhome "+preview.consent().token()+" owned",click);
         confirm(c,UUID.randomUUID());assertEquals(0,confirms);
         command(c,"building","confirmhome",preview.consent().token().toString());assertEquals(0,confirms);
-        confirm(c,preview.consent().token());assertEquals(1,confirms);c.run();assertTrue(messages.getLast().contains("No residents moved"));
+        confirm(c,preview.consent().token());assertEquals(1,confirms);c.run();assertTrue(messages.getLast().contains("no villagers teleport"));
         confirm(c,preview.consent().token());assertEquals(1,confirms);
     }
     @Test void changedSelectionWorldPermissionExpiryAndCancellationCannotConfirmOldHome() {

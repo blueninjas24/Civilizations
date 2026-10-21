@@ -20,7 +20,12 @@ public final class BuildingConsentRequests {
         public Context {Objects.requireNonNull(player);Objects.requireNonNull(world);loadedWorlds=loadedWorlds==null?Set.of():Set.copyOf(loadedWorlds);}
     }
     public record Preview(UUID token,UUID player,UUID world,UUID building,Action action,BuildingLayout layout,
-                          UUID donor,UUID previous,long createdMillis,long expiresMillis,String explanation) {}
+                          UUID donor,UUID previous,long createdMillis,long expiresMillis,String explanation,Set<UUID> housingAssignments,Set<UUID> legacyHousingFamilies) {
+        public Preview{housingAssignments=Set.copyOf(housingAssignments);legacyHousingFamilies=Set.copyOf(legacyHousingFamilies);}
+        public Preview(UUID token,UUID player,UUID world,UUID building,Action action,BuildingLayout layout,UUID donor,UUID previous,long createdMillis,long expiresMillis,String explanation) {
+            this(token,player,world,building,action,layout,donor,previous,createdMillis,expiresMillis,explanation,Set.of(),Set.of());
+        }
+    }
     private static final class Pending {
         final Preview preview;Consent saved;Long submittedMillis;Authorization submittedAuthority;
         Pending(Preview preview){this.preview=preview;}
@@ -47,7 +52,7 @@ public final class BuildingConsentRequests {
         if(entry.latest()==null || entry.latest().action()!=Action.DONATE)throw new Declined("Building has no active donation to reclaim");
         var preview=new Preview(UUID.randomUUID(),context.player(),entry.layout().world(),building,Action.RECLAIM,entry.layout(),
                 entry.donor(),entry.latest().operation(),now,Math.addExact(now,policy.previewMillis()),
-                "Withdraw village use of this building; retain physical structure and history. Live household displacement must be connected before exposing this control.");
+                "Withdraw village use and assigned housing capacity; preserve residents, physical structure and history. Whole families may need another suitable permitted home.",registry.activeHousingAssignments(building),registry.legacyHousingFamilies(building));
         pending.put(context.player(),new Pending(preview));return preview;
     }
     /** Ownership declaration is an explicit second step under the user-approved player-trust policy. */
@@ -61,6 +66,13 @@ public final class BuildingConsentRequests {
         if(preview.action()==Action.RECLAIM && !context.player().equals(preview.donor()) && !context.administrator())
             throw new Declined("Administrator permission changed; review again");
         if(request.saved!=null)return request.saved;
+        if(preview.action()==Action.RECLAIM&&request.submittedMillis!=null&&registry.consentReceipt(preview.token()).isPresent()) {
+            request.saved=registry.reclaim(preview.token(),preview.building(),request.submittedAuthority,preview.previous(),request.submittedMillis);
+            return request.saved; // A committed but unacknowledged withdrawal is history, not a fresh eviction.
+        }
+        if(preview.action()==Action.RECLAIM&&(!preview.housingAssignments().equals(registry.activeHousingAssignments(preview.building()))
+                ||!preview.legacyHousingFamilies().equals(registry.legacyHousingFamilies(preview.building()))))
+            throw new Declined("Household occupancy changed; review reclamation again");
         if(request.submittedMillis==null) {
             request.submittedMillis=now;
             request.submittedAuthority=preview.action()==Action.DONATE?Authorization.playerDeclaration(preview.player(),true)

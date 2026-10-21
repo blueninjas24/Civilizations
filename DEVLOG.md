@@ -1,5 +1,77 @@
 # Civilizations Development Log
 
+## 2026-10-20 — live family housing, safe legacy transition and donor repossession
+
+User approved gradual transition: preserve existing village families/housing and
+assign whole families to inspected donated/Civ-built homes as needed. Implemented
+HousingCapacity as shared population/food authority. Schema110 adds exact complete
+legacy bed contributions and permanent unit claims, backfilling historical109
+assignments transactionally. Old raw capacity remains until an explicit transition;
+ambiguous touched accounting becomes unknown, never guessed or counted twice.
+Managed capacity survives full/partial enrollment scans, damage, moves and restart.
+Reclamation cannot revive old legacy bed capacity, including never-assigned homes.
+Families and all old history remain; no reset or actual user-server/save change.
+
+DwellingHousing preserves suitable incumbent legacy families, refuses splitting or
+displacing other incumbent families, and considers suitable vacancies for known
+crowded/unhoused whole households. Confirmed damage can cause a saved vacancy move;
+unknown frames preserve last-known evidence. Unrelated new villagers are not inserted
+into managed families. Empty occupancy requires saved zero living members. No
+physical villager movement, new household grouping, apartment editing or ordinary
+automatic construction is enabled.
+
+PaperHousingRuntime pages8 saved buildings at a time, skips absent worlds and homes
+without current permission, and shares one loaded-only main-thread cell budget.
+Two passes compare classified cells; edits between observations cannot grant fresh
+authority. They are not an atomic world lock or complete external-editor solution.
+config.yml housing-runtime defaults enabled/128 cells per tick/15 seconds; invalid
+runtime settings disable only that runtime. Combined default housing tools read at
+most384 cells/tick. Large scans may time out under small budgets; no incomplete
+activation. /civ debug housing explains the last global review. JDBC stays queued
+on the existing owner; accepted saves drain on stop.
+
+Added /civ building reclaim, separate confirmreclaim and cancelreclaim. Ordinary
+donors use a default-true reclaim permission; administrators retain their explicit
+override. Expiring previews show assigned-household and legacy-family impact.
+Current authority/world, consent and exact occupant sets are checked before save;
+changed occupants require a new preview. Withdrawal, bed claims and departures
+commit together. Keep residents, structures, contents, donor and history. Existing
+footprints stay protected. Accepted saves drain across disconnect/close; committed
+but unacknowledged withdrawals return their historical receipt on explicit retry.
+
+Verification: focused Maven builds used test-owned temporary SQLite only. Added
+scan/restart capacity integration; provenance/double-count checks; genuine109-to110
+backfill/failure recovery; whole-family vacancy/damage moves; frozen reclamation
+occupants; legacy-only reclamation; committed-but-unacknowledged retry; runtime
+budget/cadence/disabled and UI permission/expiry/confirmation/draining coverage.
+Updated old migration fixture additive lists and changed command-message expectations.
+Final
+`.\mvnw.cmd -Dtest=DwellingOccupancyTest,VillageEnrollmentRepositoryTest,DemographicRepositoryTest,HomeDonationPreviewTest,PaperHousingRuntimeTest,PaperHomeDonationTest,PaperHomeReclamationTest,PaperDwellingReviewTest,PaperBuildingProtectionTest,PopulationDebugCommandTest,BuildingProtectionSettingsTest,BuildingConsentRequestsTest,SchemaMigratorTest,BuildingRegistryTest,ForestryFounderStudyTest,ForestryPersistenceTest,ForestryProvenanceTest,GeneratedTerrainMigrationTest clean verify`
+passed116 unit +3 packaged integration checks in57.283s, zero failures/errors/skips.
+Final delivery rerun after removing a redundant bed-identity write passed the same
+116 +3 checks in1:11, zero failures/errors/skips; Wrapper package succeeded.
+No second broad full-suite run is claimed. Initial live-adapter tests exposed only
+two changed message expectations; corrected them rather than changing behavior.
+
+Actual private Paper26.2 build129 native proof passed real four-bed home donation,
+whole incumbent-family adoption, old eight-capacity becoming four, roof loss zero,
+repair four, changed two-pass evidence unknown, absent-world filtering, session
+restart preserving residents/assignment, and donor-confirmed reclamation yielding
+zero without legacy fallback/resident loss. Restored144 actual cells; fixture stopped
+and helper archived; both schema110 databases integrity-ok/FK-clean. The native
+flow uses trusted fixture actors/owner APIs, not a human-client click-through test.
+The Paper controllers have separate injected-player checks. The final lost-commit-
+acknowledgement guard has an additional real-SQLite injected-commit regression;
+the native world flow was not repeated for that SQL receipt-only change. Actual user server
+untouched. Human survival/editor/scale acceptance remains.
+
+Added HOUSING_RUNTIME.md and updated canonical status/decisions/progress/checklist,
+registry/occupancy/donation notes and handbook0.8. The guide is26 pages/24 chapters
+with linked contents and reviewed layouts. P4 remains4/16 (25%): this advances useful
+housing, but does not complete business-premises reuse or all write-boundary gates.
+Next: household formation for unassigned people, editable apartment declarations,
+and vacancy-first home-project activation under guarded physical construction.
+
 ## 2026-10-20 — saved whole-household dwelling occupancy
 
 Continued from pushed home-control checkpoint f0d67b2 on

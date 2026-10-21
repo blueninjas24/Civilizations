@@ -120,6 +120,8 @@ public final class PopulationSession implements AutoCloseable {
     }
     private volatile String constructionDeliveryFailure;
     private volatile String constructionDeliveryStatus="Construction: waiting for simulation. Automatic building is not enabled.";
+    private volatile String housingStatus="Housing: waiting for permitted home review";
+    public String housingDiagnostic(){return housingStatus;}
     public String constructionDiagnostic() {
         return constructionDeliveryFailure==null
                 ?constructionDeliveryStatus
@@ -1417,6 +1419,43 @@ public final class PopulationSession implements AutoCloseable {
         requireReady();
         if(!expected.equals(current)||loadedWorlds==null||!loadedWorlds.contains(expected))
             throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Building world is absent or changed");
+    }
+
+    public record HousingPage(List<com.blueninjas24.civilizations.construction.BuildingLayout> layouts,UUID next) {
+        public HousingPage{layouts=List.copyOf(layouts);if(layouts.size()>16)throw new IllegalArgumentException("Housing page exceeds budget");}
+    }
+    /** Stable bounded SQL pagination, including a cursor past absent worlds without loading them. */
+    public CompletableFuture<HousingPage> housingPage(UUID after,int limit) {
+        if(limit<1||limit>16)throw new IllegalArgumentException("Housing page budget must be1..16");
+        return submit(()->{
+            requireReady();var layouts=new ArrayList<com.blueninjas24.civilizations.construction.BuildingLayout>();
+            var registry=new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection());
+            UUID last=null;int count=0;
+            try(var s=database.getConnection().prepareStatement("SELECT id,world_id FROM building_records WHERE id>? ORDER BY id LIMIT ?")) {
+                s.setString(1,after==null?"":after.toString());s.setInt(2,limit);
+                try(var r=s.executeQuery()){while(r.next()) {
+                    last=UUID.fromString(r.getString(1));count++;
+                    if(loadedWorlds==null||!loadedWorlds.contains(UUID.fromString(r.getString(2))))continue;
+                    var entry=registry.find(last).orElseThrow();
+                    if(entry.layout().kind()==com.blueninjas24.civilizations.construction.BuildingLayout.Kind.HOUSING
+                            &&registry.hasDonationPermission(last))layouts.add(entry.layout());
+                }}
+            }
+            return new HousingPage(layouts,count==limit?last:null);
+        });
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.DwellingHousing.Report> reconcileHousing(
+            com.blueninjas24.civilizations.construction.BuildingLayout layout,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Observation observation,
+            com.blueninjas24.civilizations.construction.DwellingInspection.Policy policy) {
+        return submit(()->{
+            requireBuildingWorld(layout.world(),observation.world());long time=now.getAsLong();
+            var assessment=com.blueninjas24.civilizations.construction.DwellingInspection.inspect(layout,observation,time,30_000,policy);
+            var report=new com.blueninjas24.civilizations.database.DwellingHousing(database.getConnection()).reconcile(layout,assessment,
+                    new com.blueninjas24.civilizations.database.DwellingOccupancy.Context(layout.world(),true,policy,time));
+            housingStatus="Housing: "+report.explanation()+"; assigned "+report.assigned()+", empty homes released "+report.released()+". Automatic construction remains off.";
+            return report;
+        });
     }
     public CompletableFuture<com.blueninjas24.civilizations.database.BuildingRegistry.Exclusion> protectBuilding(
             com.blueninjas24.civilizations.database.BuildingRegistry.Exclusion request,String worldName,boolean confirmed) {

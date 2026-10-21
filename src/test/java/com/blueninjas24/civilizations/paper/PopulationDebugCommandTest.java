@@ -61,7 +61,7 @@ class PopulationDebugCommandTest {
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "settlement", "bad-id"});
             assertEquals(List.of("Settlement ID must be a UUID."), messages); messages.clear();
             command.onCommand(sender(true), null, "civ", new String[]{"debug", "simulate", "1000"});
-            assertEquals(List.of("Usage: /civ debug status | construction | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest"), messages);
+            assertEquals(List.of("Usage: /civ debug status | housing | construction | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest"), messages);
             assertEquals(0, session.status().targetMonths());
             assertEquals(List.of("status", "settlement"),
                     command.onTabComplete(sender(true), null, "civ", new String[]{"debug", "s"}));

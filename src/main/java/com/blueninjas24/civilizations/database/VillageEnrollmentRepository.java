@@ -56,10 +56,14 @@ public final class VillageEnrollmentRepository {
             var people = database.getPopulationRepository();
             var homes = new HashMap<VillageObservation.Position, UUID>();
             var observedBedsPerHome = new HashMap<UUID, Integer>();
-            for (var group : homeGroups(candidate.beds(), policy.homeBedRadius())) {
+            var legacyBeds=new ArrayList<VillageObservation.Position>();
+            for(var bed:candidate.beds()) {
+                identity.bindBed(observation.worldId(),bed,settlementId);
+                if(!HousingCapacity.claimed(connection,observation.worldId(),bed.x(),bed.y(),bed.z()))legacyBeds.add(bed);
+            }
+            for (var group : homeGroups(legacyBeds, policy.homeBedRadius())) {
                 var knownHomes = new HashSet<UUID>();
                 for (var bed : group) {
-                    identity.bindBed(observation.worldId(), bed, settlementId);
                     UUID home = readBedHome(observation.worldId(), bed);
                     if (home != null) knownHomes.add(home);
                 }
@@ -75,10 +79,21 @@ public final class VillageEnrollmentRepository {
             try (var statement = connection.prepareStatement("""
                     DELETE FROM household_capacity WHERE household_id IN (SELECT id FROM households WHERE settlement_id = ?)
                     """)) { statement.setString(1, settlementId.toString()); statement.executeUpdate(); }
+            try(var s=connection.prepareStatement("DELETE FROM household_capacity_sources WHERE household_id IN (SELECT id FROM households WHERE settlement_id=?)")) {
+                s.setString(1,settlementId.toString());s.executeUpdate();
+            }
             if (observation.complete()) {
                 for (var entry : observedBedsPerHome.entrySet()) database.getDemographicRepository().recordCapacity(
                         entry.getKey(), Math.multiplyExact(entry.getValue(), policy.residentsPerBed()));
+                try(var s=connection.prepareStatement("INSERT INTO household_capacity_sources VALUES(?,?,?,?,?,?)")) {
+                    for(var entry:homes.entrySet()) {
+                        s.setString(1,observation.worldId().toString());s.setInt(2,entry.getKey().x());s.setInt(3,entry.getKey().y());s.setInt(4,entry.getKey().z());
+                        s.setString(5,entry.getValue().toString());s.setInt(6,policy.residentsPerBed());s.executeUpdate();
+                    }
+                }
             }
+            var importBeds=new ArrayList<VillageObservation.Position>();
+            for(var bed:legacyBeds)if(!HousingCapacity.managed(connection,homes.get(bed)))importBeds.add(bed);
             int imported = 0;
             var bindings = new HashMap<UUID, Resident>();
             for (var observed : candidate.villagers()) {
@@ -89,11 +104,11 @@ public final class VillageEnrollmentRepository {
                 } else {
                     UUID residentId = UUID.nameUUIDFromBytes(("Civilizations:resident:" + observation.worldId() + ":" + observed.entityId())
                             .getBytes(StandardCharsets.UTF_8));
-                    var nearest = candidate.beds().stream().min(Comparator
+                    var nearest = importBeds.stream().min(Comparator
                             .comparingDouble((VillageObservation.Position bed) -> bed.squaredDistance(observed.position()))
-                            .thenComparing(VillageObservation.Position.ORDER)).orElseThrow();
+                            .thenComparing(VillageObservation.Position.ORDER));
                     person = new Resident(residentId, observed.existingName() == null ? "Resident " + residentId.toString().substring(0, 8)
-                            : observed.existingName(), settlementId, homes.get(nearest),
+                            : observed.existingName(), settlementId, nearest.map(homes::get).orElse(null),
                             observed.adult() ? policy.initialAdultAgeSteps() : policy.initialChildAgeSteps(), Resident.Status.ALIVE);
                     people.insertResident(person); identity.bindEntity(observation.worldId(), observed.entityId(), residentId); imported++;
                 }

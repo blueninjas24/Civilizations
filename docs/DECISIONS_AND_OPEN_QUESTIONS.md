@@ -1,16 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
-## October20 — pending: gradual transition from legacy housing
+## October20 — approved: gradual transition from legacy housing
 
 Existing enrollment assigns bed groups to families and rewrites their capacity on
 complete scans. P4 introduces explicitly inspected homes with separate saved
-occupancy; using both capacity sources blindly would double-count beds. Asked the
-user whether to preserve existing families/current housing while gradually moving
-whole families into inspected donated or Civ-built homes as needed (recommended),
-or require all existing homes to qualify immediately. No answer recorded yet.
-Unrecorded buildings gain no new alteration/use rights through either proposal.
-The schema109 occupancy backend preserves legacy capacity and resident identity;
-live transition/capacity replacement is deliberately not enabled pending the choice.
+occupancy; using both capacity sources blindly would double-count beds. The user
+approved preserving existing families/current housing and gradually assigning
+whole families to inspected donated or Civ-built homes as needed. Do not require
+every old home to qualify immediately or silently split families. Unrecorded
+buildings gain no new alteration/use rights. Schema110 separates exact observed
+legacy bed contributions from permanently transitioned unit beds. Existing family
+identity survives assignments, damage, reclamation, unknown frames and restart.
 
 ## October20 — approved: covered sleeping areas for housing
 
@@ -37,7 +37,8 @@ this is not a general anti-grief system or third-party claim-plugin integration.
 Implemented backend: player-bound expiring donation/reclamation previews, a separate
 explicit ownership declaration, current world/permissions and protection checks,
 expected prior-consent matching and bounded exact retries on the SQL owner. Explicit off-limits building sign/selection controls are now verified; live
-building donation, unit boundaries and housing assignment remain unfinished.
+single-home donation, whole-family assignment and confirmed donor reclamation now
+work; editable apartment-unit boundaries remain unfinished.
 
 ## October20 — village owned apartments without rent and a living user handbook
 
@@ -45,8 +46,8 @@ User explicitly deferred rent and landlords. Initial apartments are village-owne
 housing using the same household occupancy/assignment direction as homes. The word
 acquire is interpreted as obtaining occupancy here; no private sale price, landlord
 account or property-title transfer is introduced. A later private purchase system
-would require its own economic decision. Unit recognition and live assignments
-remain unimplemented.
+would require its own economic decision. Apartment-unit editing remains unfinished;
+single-home whole-family assignments are now live under HOUSING_RUNTIME.md.
 
 User requested a comprehensive living how-to guide alongside development, in DOCX
 or PDF, with overview, chapters by feature, TL DR, command glossary, feature purpose,

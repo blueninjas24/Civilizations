@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.7 | 20 October 2026 | Player and server owner edition
+Living draft 0.8 | 20 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -12,14 +12,14 @@ This guide explains what you can do now, why the systems behave as they do, and 
 - Villages containing villagers and beds are recognized automatically after complete loaded-area observation. There is no join command.
 - Hold supported plain food and sneak-right-click a managed villager to open village supplies. Wait for the final donation or trade confirmation.
 - Use /civ market near a qualifying livestock business to buy stocked milk or eggs. Bring your own empty bucket for milk.
-- Industry simulation and single-home donation permission work today. Automatic construction, household assignment, apartments and repossession are unfinished.
+- Industry simulation, single-home donation, whole-family housing assignments and confirmed donor repossession work today. Automatic physical construction and apartment editing remain unfinished.
 - Server downtime and absent worlds pause new simulation time. An unloaded chunk does not prove death or destruction.
 
 ### Read the status first
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 109 adds saved dwelling occupancy records. Single-home donation controls are available; live household assignment remains unfinished. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 110 connects family housing and safe bed accounting. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -97,7 +97,7 @@ Related chapters: resources and administration. Sources: ONLINE_WORLD_PAUSE.md, 
 
 ## 3 People households and jobs
 
-Status: Persistent population and employment available. P4 physical home assignment is unfinished.
+Status: Persistent population, employment and inspected whole-family home assignments are available. Home-specific villager movement remains unfinished.
 
 ### Families and households
 
@@ -119,7 +119,7 @@ Related chapters: housing, business ownership and industry. Sources: POPULATION_
 
 ## 4 Homes and apartments
 
-Status: P4 design and planning foundation. Live apartment recognition and assignment are not implemented.
+Status: Whole-family housing in inspected donated homes is live. Editable apartment recognition remains unfinished.
 
 ### Separate the land building and homes
 
@@ -131,7 +131,7 @@ The initial direction is village ownership without rent or landlords. A househol
 
 Authored plans would declare units, beds and entrances. Donated buildings would be inspected, with proposed units previewed for confirmation. Editable three-dimensional boundaries are proposed so upstairs and downstairs apartments can share the same ground footprint.
 
-A unit needs suitable usable capacity, a reachable entrance and non-overlapping private space. Shared access should not require crossing another household's apartment. Exact validation controls remain to be built.
+A unit needs usable capacity, a reachable entrance and non-overlapping private space. Shared access must not cross another household's private unit. Bed/access/cover validation is implemented; an editable apartment-unit interface remains unfinished.
 
 ### Inspect saved housing
 
@@ -141,13 +141,13 @@ This inspection command cannot register a house. Chapter 23 explains the separat
 
 ### What empty means
 
-A vacancy should mean no household is assigned, not that nobody is standing inside. Going to work, logging out or unloading a chunk must not create a vacancy. Suitable permitted vacancies should be reused before new construction. Families should fit as a whole.
+A vacancy means no saved household is assigned, rather than nobody standing inside. Going to work or unloading a chunk does not create a vacancy. The live housing review preserves incumbent families and can assign known overcrowded families to suitable permitted vacancies. Families must fit as a whole; see Chapter 24.
 
 Related chapters: donation and construction. Sources: DECISIONS_AND_OPEN_QUESTIONS.md, CONSTRUCTION.md and HousingProjectPlanner.
 
 ## 5 Donate protect and reclaim buildings
 
-Status: Off-limits protection and single-home donation permission are available. Household assignments, apartment selection and housing reclamation remain unfinished.
+Status: Off-limits protection, single-home donation, whole-family assignments and confirmed housing reclamation are available. Apartment editing remains unfinished.
 
 ### Explicit consent
 
@@ -159,13 +159,13 @@ Players explicitly declare that an unrecorded home belongs to them; first donati
 
 For an off-limits plot, select opposite corners and preview its visible outline before confirming ownership. Chapter 22 gives the commands and optional protection sign. Selected X/Z columns are excluded at every height. Single homes use explicit floor-to-roof corners; separate apartment boundaries remain planned. More land does not create beds or production.
 
-Saved protection survives sign removal. Private buildings still need explicit donation even without this extra marker. Protection governs Civilizations construction; it does not prevent other players editing or vanilla villagers walking through. Releasing an exclusion changes construction permission; housing reclamation remains planned.
+Saved protection survives sign removal. Private buildings still need explicit donation even without this extra marker. Protection governs Civilizations construction; it does not prevent other players editing or vanilla villagers walking through. Releasing an exclusion changes construction permission. Housing reclamation is a separate confirmed action; see Chapter 24.
 
 ### Repossession changes village capacity
 
-Reclaiming a donated home should withdraw its village capacity while keeping the physical building intact. Households need another home. Reclaiming a workplace may pause business work or create demand for replacement premises. Residents, business assets and history remain saved; unrelated cash and goods do not automatically become the player's property.
+Reclaiming a donated home withdraws village housing use while keeping the building intact. Households need another suitable home; residents and history remain saved. Contents and unrelated money do not become the player's property. Business-premises reclamation controls remain future work.
 
-Recorded-donor/admin confirmation, per-unit reclamation and permissions surviving accidental sign removal are proposed safeguards. A preview should show affected households before confirmation.
+Recorded donors or administrators preview affected households, then confirm separately. Changed occupants require a fresh preview. Removing a sign does not reclaim a home. Individual apartment-unit reclamation remains unfinished.
 
 Related chapters: housing and protection. Source: DECISIONS_AND_OPEN_QUESTIONS.md.
 
@@ -365,7 +365,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 109 includes construction, building-consent and household-occupancy history. New occupancy records begin empty; existing families and bed capacity are preserved. Live family moves and capacity replacement are not enabled. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 110 includes construction, consent, occupancy and exact legacy bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -442,7 +442,7 @@ Sneak-right-click a managed villager with supported plain food for donation/sale
 
 civilizations.aid.preview permits previews; civilizations.aid.donate permits donations; civilizations.trade permits trading and stocked livestock purchases. They default to ordinary players, but server owners can change permissions/settings.
 
-Off-limits building plot selection/protection/release commands are available in Chapter 22. Single-home donation commands are in Chapter 23. Apartment, repossess and rent controls remain unfinished.
+Off-limits plot commands are in Chapter 22, single-home donation in Chapter 23, and confirmed donor repossession in Chapter 24. Apartment editing and rent controls remain unfinished.
 
 Sources: plugin.yml, FoodAidPreviewCommand, FoodBargainingCommand, FoodBarterCommand and LivestockMarketMenu.
 
@@ -453,6 +453,7 @@ Status: Implemented. Requires civilizations.debug, defaulting to operators. Thes
 | Command | What it explains |
 |---|---|
 | /civ debug status | Readiness, population, calendar queue and reported failures |
+| /civ debug housing | Last global home review, assignments and empty-home releases |
 | /civ debug observation | Scan progress and incomplete discovery evidence |
 | /civ debug villages | Saved names and full village UUIDs |
 | /civ debug settlement <UUID> | Population and household records |
@@ -557,7 +558,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.7 adds saved housing-assignment and departure records behind the scenes. Live household assignment, apartment controls and reclamation remain unfinished. Single-family-home donation permission is available. Village-owned apartments defer rent and landlords.
+Edition 0.8 adds live whole-family housing, safe legacy bed accounting, housing diagnostics and confirmed donor repossession. Apartment editing and normal automatic construction remain unfinished. Village-owned apartments defer rent and landlords.
 
 
 ## 22 Protect a building plot
@@ -600,7 +601,7 @@ civilizations.building.protect defaults true; civilizations.building.admin defau
 
 ## 23 Donate a single-family home
 
-Status: Available for village-use permission only. Families do not move in yet; usable housing capacity is not activated.
+Status: Available. Donation saves use permission; enabled automatic reviews can then assign a suitable whole saved family and activate its housing capacity.
 
 ### Prepare and review
 
@@ -610,7 +611,7 @@ Status: Available for village-use permission only. Families do not move in yet; 
 - Wait for the review. Check the village, three-dimensional bounds and bed count. This declares ONE family home, regardless of bedrooms or beds.
 - Click Confirm: I own and donate this home. Wait for the final saved message.
 
-You must own the building. This grants village use, not title, contents or occupied housing. Another recorded donor, protected pen/plot or reserved project can block donation. Do not confirm a building belonging to someone else.
+You must own the building. This grants village use, not title or contents. Family assignment follows a separate current housing review. Another recorded donor, protected pen/plot or reserved project can block donation. Do not confirm a building belonging to someone else.
 
 ### Commands and safeguards
 
@@ -626,6 +627,36 @@ Beds must be real, paired, supported, clear and reachable from the chosen entran
 
 ### Settings and current limits
 
-civilizations.building.donate defaults true; no first-donation admin approval is required. building-protection.enabled controls availability; require-covered-beds controls overhead cover. Restart after editing config.yml. All live housing tools together read at most 256 cells per tick, with four reviews per tool and timeouts.
+civilizations.building.donate defaults true; no first-donation admin approval is required. building-protection.enabled controls availability; require-covered-beds controls overhead cover. Restart after editing config.yml. Inspection and donation use up to 256 cells per tick together. The new housing runtime adds one shared budget of 128 by default; see Chapter 24.
 
-No donation sign, apartment editor, reclamation command, household assignment or normal automatic construction is enabled. Registration protects the saved footprint even after future reclamation. Related chapters: housing, protection and construction.
+Donation signs, apartment editing and normal automatic construction remain unfinished. Confirmed reclamation and whole-family housing now work; see Chapter 24. The saved footprint stays protected after reclamation. Related chapters: housing, protection and construction.
+
+
+## 24 Live family housing and repossession
+
+Status: Available for saved families and explicitly donated homes. No physical construction, apartment editor or automatic villager teleporting.
+
+### After donating a home
+
+Enabled reviews inspect permitted housing in loaded areas. A suitable existing family can keep its home under the new records. Otherwise a known overcrowded or unhoused family may take a suitable vacancy. Whole families must fit; they are never split to fill beds. Existing village housing remains while families transition gradually. A house can remain vacant when nobody suitable needs it.
+
+Saved residents and families remain the same people. New unrelated villagers are not inserted into a managed family simply because they stand nearby. Forming homes for people who have no saved household remains unfinished.
+
+### Damage and repairs
+
+Complete evidence of a broken bed, roof or route can remove usable capacity. The family stays recorded and may move to another suitable permitted vacancy. Restoring the home allows a later successful review to restore capacity. Missing chunks or an absent world are unknown, not proof that a home was destroyed. Reviews observe changes over time; they are not instantaneous world locks.
+
+### Repossess your donated home
+
+- Run /civ building reclaim <building UUID> in its saved world. Use the building ID from the donation receipt.
+- Read the preview: assigned households lose their unit; affected legacy families lose those beds' contribution. Residents, contents, blocks and history remain.
+- Click Confirm withdrawal of village use, or run /civ building confirmreclaim <token>. A changed household roster requires a fresh preview.
+- Use /civ building cancelreclaim to discard an unsubmitted preview. An accepted save finishes even if you disconnect.
+
+Only the recorded donor or an administrator can reclaim. civilizations.building.reclaim defaults true; it does not authorize reclaiming somebody else's home. The footprint stays protected from Civilizations construction. Rehousing needs another suitable permitted vacancy; nobody is deleted and old bed accounting cannot silently grant use again.
+
+### Server settings and diagnosis
+
+config.yml housing-runtime defaults to enabled, 128 cells-per-tick and review-seconds 15. Both survey passes share that budget. Budget range is 16 to 256; cadence is 5 to 600 seconds. Large structures can time out with a small budget and stay unverified. Default combined housing reads are at most 384 per tick. Restart after editing.
+
+/civ debug housing requires administrator debug permission and explains the last global review. It is not an address book or a promise that someone needs every donated home. Sources: HOUSING_RUNTIME.md and DWELLING_OCCUPANCY.md.

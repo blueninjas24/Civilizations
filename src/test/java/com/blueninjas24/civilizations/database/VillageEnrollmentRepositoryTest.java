@@ -1,6 +1,10 @@
 package com.blueninjas24.civilizations.database;
 
 import com.blueninjas24.civilizations.population.*;
+import com.blueninjas24.civilizations.construction.BuildingLayout;
+import com.blueninjas24.civilizations.construction.ConstructionTemplate.Position;
+import com.blueninjas24.civilizations.construction.ConstructionTemplate.Direction;
+import com.blueninjas24.civilizations.construction.DwellingInspection;
 import com.blueninjas24.civilizations.settlement.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -170,5 +174,44 @@ class VillageEnrollmentRepositoryTest {
         assertEquals(world, database.getVillageIdentityRepository().findWorld(first.settlementId()).orElseThrow());
         assertEquals(first.observedResidents().get(firstEntity).id(), database.getVillageIdentityRepository().findResident(world, firstEntity).orElseThrow());
         assertEquals(2, database.getPopulationRepository().countLivingResidents(first.settlementId()));
+    }
+
+    @Test void assignedFamilySurvivesCompletePartialAndNewResidentScansWithoutDuplicateHomes()throws SQLException {
+        var first=enroll(observed(true));var family=first.observedResidents().get(firstEntity).householdId();
+        java.util.function.IntFunction<Position> p=x->new Position(x,64,0);
+        var bounds=new BuildingLayout.Bounds(
+                new Position(-2,63,-1),
+                new Position(3,66,2));
+        var unit=new BuildingLayout.Unit(UUID.randomUUID(),p.apply(-2),List.of(bounds),List.of(
+                new BuildingLayout.Bed(p.apply(-1),Direction.EAST),
+                new BuildingLayout.Bed(p.apply(1),Direction.EAST)));
+        var layout=new BuildingLayout(UUID.randomUUID(),first.settlementId(),world,
+                BuildingLayout.Kind.HOUSING,bounds,bounds,p.apply(-2),List.of(),List.of(unit));
+        var cells=new java.util.HashMap<Position,DwellingInspection.Cell>();
+        for(var pos:DwellingInspection.requiredCells(layout))cells.put(pos,
+                DwellingInspection.Cell.of(pos.y()==63||pos.y()==66?
+                        DwellingInspection.Type.SUPPORT:DwellingInspection.Type.PASSABLE));
+        for(var b:unit.beds()) {
+            cells.put(b.foot(),DwellingInspection.Cell.bed(false,"minecraft:white_bed",b.facing()));
+            cells.put(b.head(),DwellingInspection.Cell.bed(true,"minecraft:white_bed",b.facing()));
+        }
+        var donor=UUID.randomUUID();var c=database.getConnection();
+        new BuildingRegistry(c).donate(UUID.randomUUID(),layout,donor,BuildingRegistry.Authorization.playerDeclaration(donor,true),null,1000);
+        var context=new DwellingOccupancy.Context(world,true,DwellingInspection.Policy.prototype(),1100);
+        var frame=new DwellingInspection.Observation(world,layout.fingerprint(),1100,true,cells);
+        var review=DwellingInspection.inspect(layout,frame,1100,30_000);
+        var occupancy=new DwellingOccupancy(c);var operation=UUID.randomUUID();occupancy.review(operation,layout.id(),review,context);
+        occupancy.assign(new DwellingOccupancy.Assignment(UUID.randomUUID(),family,unit.id(),operation,null,1100),context);
+        assertEquals(2,database.getDemographicRepository().readPopulationState().householdCapacity().get(family));
+        enroll(observed(false));enroll(observed(true));
+        assertEquals(2,database.getDemographicRepository().readPopulationState().householdCapacity().get(family));
+        assertEquals(1,database.getPopulationRepository().findHouseholds(first.settlementId()).size());
+        var people=new java.util.ArrayList<>(observed(true).villagers());var stranger=UUID.randomUUID();
+        people.add(new VillageObservation.Person(stranger,bed(0),true,"Newcomer"));
+        var result=enroll(new VillageObservation(world,"test-world",2000,true,observed(true).beds(),people));
+        assertNull(result.observedResidents().get(stranger).householdId());
+        assertEquals(family,result.observedResidents().get(firstEntity).householdId());
+        assertEquals(1,database.getPopulationRepository().findHouseholds(first.settlementId()).size());
+        database.close();open();assertEquals(2,database.getDemographicRepository().readPopulationState().householdCapacity().get(family));
     }
 }

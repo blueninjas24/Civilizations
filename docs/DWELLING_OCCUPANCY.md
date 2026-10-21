@@ -1,8 +1,8 @@
 # Saved dwelling occupancy — P4 backend
 
-This is the SQL-owner foundation for household assignments, not a live command,
-automatic relocation system or active replacement for the older bed-group capacity.
-No residents move and no housing capacity changes merely by installing this batch.
+This describes the schema109 SQL-owner foundation. Schema110 now connects these
+records to live whole-family assignment and shared housing capacity; see
+HOUSING_RUNTIME.md. It does not teleport villagers or enable ordinary construction.
 
 ## Records and boundaries
 
@@ -45,16 +45,17 @@ An empty household can free a unit only when its saved living-member count is ze
 Unloaded residents do not count as dead. Reclamation now withdraws all assignments
 in the building in the same transaction as the consent event, retaining each
 departure and the family itself. Exact retries cannot evict a later redonation's
-occupants. Reclamation UI remains disabled until capacity reconciliation is ready.
+occupants. Confirmed donor reclamation and capacity reconciliation are now live;
+see HOUSING_RUNTIME.md for the separate permission/confirmation controls.
 
 ## Integration still ahead
 
 The existing enrollment system groups observed beds into household_capacity.
 Writing the new capacity there directly would be overwritten by subsequent scans
-and could double-count beds. A transition policy for existing families/housing is
-pending user choice; no silent replacement is made here. Live assignment scheduling,
-capacity reconciliation, donor reclamation controls, apartment editing and
-vacancy-first automatic home construction remain unfinished.
+and could double-count beds. The user approved gradual transition; schema110's
+explicit legacy bed contributions and permanent unit claims prevent that overwrite
+and duplication. Assignment scheduling, capacity reconciliation and donor
+reclamation are live. Apartment editing and ordinary construction remain ahead.
 
 Native surveys collect evidence incrementally; production activation also needs
 current-world/edit reconciliation, not merely a recent timestamp. This backend

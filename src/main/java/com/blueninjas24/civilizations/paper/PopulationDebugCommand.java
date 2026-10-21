@@ -53,6 +53,9 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             if(!asyncReady(sender))return true;
             inspect(sender,session.resourceReview());return true;
         }
+        if(args.length==2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("housing")) {
+            sender.sendMessage(session.housingDiagnostic());return true;
+        }
         if(args.length==2&&args[0].equalsIgnoreCase("debug")&&args[1].equalsIgnoreCase("construction")) {
             sender.sendMessage(session.constructionDiagnostic());return true;
         }
@@ -132,7 +135,7 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             } catch (IllegalArgumentException invalid) { sender.sendMessage("Settlement ID must be a UUID."); }
             return true;
         }
-        sender.sendMessage("Usage: /civ debug status | construction | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest");
+        sender.sendMessage("Usage: /civ debug status | housing | construction | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest");
         return true;
     }
 
@@ -158,7 +161,7 @@ public final class PopulationDebugCommand implements CommandExecutor, TabComplet
             return session.settlementNames().keySet().stream().map(UUID::toString).filter(id->id.startsWith(prefix)).sorted().limit(32).toList();
         }
         List<String> choices = args.length == 1 ? List.of("debug")
-                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "construction", "observation", "villages", "resources", "workforce", "settlement", "explain", "economy", "businesses", "recover-ore", "recover-forest") : List.of();
+                : args.length == 2 && args[0].equalsIgnoreCase("debug") ? List.of("status", "housing", "construction", "observation", "villages", "resources", "workforce", "settlement", "explain", "economy", "businesses", "recover-ore", "recover-forest") : List.of();
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(java.util.Locale.ROOT);
         return choices.stream().filter(value -> value.startsWith(prefix)).toList();
     }

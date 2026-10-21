@@ -22,11 +22,16 @@ public final class PaperDwellingSurvey {
     private int x,y,z,remaining;
     private final Map<Position,Cell> cells=new HashMap<>();
     private boolean incomplete;
+    private boolean revalidate,validating;
     private Observation finished;
 
     public PaperDwellingSurvey(BuildingLayout layout,long now) {
         this(layout.world(),layout.structure(),layout.fingerprint(),now);
         if(layout.kind()!=BuildingLayout.Kind.HOUSING)throw new IllegalArgumentException("Housing survey required");
+    }
+    /** Runtime housing reads each cell again within the same total caller budget. Changed evidence is unknown. */
+    public PaperDwellingSurvey(BuildingLayout layout,long now,boolean revalidate) {
+        this(layout,now);this.revalidate=revalidate;
     }
     public static PaperDwellingSurvey forHomeDeclaration(UUID world,BuildingLayout.Bounds structure,long now) {
         return new PaperDwellingSurvey(world,structure,com.blueninjas24.civilizations.construction.HomeDeclaration.regionHash(world,structure),now);
@@ -53,9 +58,15 @@ public final class PaperDwellingSurvey {
             if(p.y()<world.getMinHeight() || p.y()>=world.getMaxHeight() || !world.isChunkLoaded(p.x()>>4,p.z()>>4)) {
                 incomplete=true;continue;
             }
-            cells.put(p,classify(world.getBlockAt(p.x(),p.y(),p.z())));
+            var cell=classify(world.getBlockAt(p.x(),p.y(),p.z()));
+            if(validating){if(!cell.equals(cells.get(p)))incomplete=true;}
+            else cells.put(p,cell);
         }
         if(remaining>0)return Optional.empty();
+        if(revalidate&&!validating&&!incomplete) {
+            validating=true;x=bounds.min().x();y=bounds.min().y();z=bounds.min().z();remaining=Math.toIntExact(bounds.volume());
+            return Optional.empty();
+        }
         if(world!=null) {
             for(int x=bounds.min().x()>>4;x<=bounds.max().x()>>4;x++)for(int z=bounds.min().z()>>4;z<=bounds.max().z()>>4;z++)
                 if(!world.isChunkLoaded(x,z))incomplete=true;

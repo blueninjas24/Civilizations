@@ -16,15 +16,25 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
-A25-page living player/server handbook now documents current features and planned
-P4 controls separately, with23 chapters, linked contents and command references.
+New usable housing progress: permitted donated homes can house whole saved families
+after bounded inspection. Existing families/housing are preserved; rescans cannot
+double-count beds or replace assigned capacity. Confirmed damage can lead to a
+suitable saved vacancy. Donors can preview and separately confirm repossession,
+with affected households shown and buildings/residents retained. /civ debug housing
+explains the last review. Wrapper116 +3 checks and actual disposable Paper adoption,
+damage/repair/restart/reclamation passed. Normal physical construction, apartments
+and business-premises reuse remain. Older notes below describe earlier checkpoints;
+no additional whole checklist item is counted complete.
+
+A26-page living player/server handbook now documents current features and planned
+P4 controls separately, with24 chapters, linked contents and command references.
 Documentation progress does not complete a gameplay milestone.
 
 Saved housing assignments now preserve which whole family occupies each unit,
 prevent double-booking, and retain move/reclamation history transactionally.
 Installing this backend does not move residents or replace existing bed capacity.
-The transition for existing villages awaits a user choice. Live assignment,
-reclamation controls and automatic homes remain ahead; P4 stays4/16 (25%).
+The user approved gradual transition, now implemented above. Automatic physical
+construction remains ahead; P4 stays4/16 (25%).
 Final focused Wrapper build:49 unit +3 packaged checks passed, including corrected
 older migration fixtures. The preceding full run's four fixture failures and
 passing rerun are recorded in DEVLOG.md; no second full-suite success is claimed.

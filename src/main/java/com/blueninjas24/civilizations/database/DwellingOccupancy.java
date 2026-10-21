@@ -137,6 +137,7 @@ public final class DwellingOccupancy {
             var previous=forHousehold(request.household());
             if(!Objects.equals(previous.map(Assignment::operation).orElse(null),request.previous()))throw new Declined("Household occupancy changed; review again");
             if(forUnit(request.unit()).isPresent())throw new Declined("Unit already has a household");
+            HousingCapacity.claim(connection,request.unit(),request.household());
             if(previous.isPresent()) {
                 entry(building(previous.get().unit()),context);
                 if(context.now()<previous.get().atMillis())throw new Declined("Move predates saved assignment");
@@ -200,6 +201,8 @@ public final class DwellingOccupancy {
     static void reclaimed(Connection connection,UUID building,UUID consent,long now)throws SQLException {
         if(connection.getAutoCommit())throw new SQLException("Reclamation occupancy must share the consent transaction");
         var repository=new DwellingOccupancy(connection);var assignments=new ArrayList<Assignment>();
+        var layout=new BuildingRegistry(connection).find(building).orElseThrow().layout();
+        for(var unit:layout.units())HousingCapacity.claim(connection,unit.id(),null);
         var review=repository.currentReview(building);
         if(review.isPresent()&&review.get().recordedMillis()>now)throw new Declined("Reclamation predates the latest housing review");
         try(var s=connection.prepareStatement("SELECT a.* FROM dwelling_assignments a JOIN dwelling_active_occupancy o ON o.assignment_id=a.operation_id JOIN building_units u ON u.id=a.unit_id WHERE u.building_id=? ORDER BY a.operation_id LIMIT 65")) {

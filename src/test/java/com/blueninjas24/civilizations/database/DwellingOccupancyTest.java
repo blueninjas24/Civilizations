@@ -45,16 +45,16 @@ class DwellingOccupancyTest {
 
     @Test void wholeHouseholdAndExclusiveUnitSurviveReopenWithoutTouchingLegacyCapacity()throws Exception {
         var request=assign(id(21),family,a,id(20),null,1100);
-        try(var c=open(109)){seed(c);var r=new DwellingOccupancy(c);assertEquals(Outcome.RECORDED,r.review(id(20),building,assessment(1100),context(1100)));
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);assertEquals(Outcome.RECORDED,r.review(id(20),building,assessment(1100),context(1100)));
             assertEquals(request,r.assign(request,context(1100)));assertEquals(request,r.assign(request,context(1100)));
             assertThrows(BuildingRegistry.Declined.class,()->r.assign(assign(id(22),other,a,id(20),null,1100),context(1100)));
             assertThrows(BuildingRegistry.Declined.class,()->r.assign(assign(id(23),family,b,id(20),null,1100),context(1100)));
             assertEquals(List.of(b),r.vacancies(building,context(1100)).units().stream().map(UnitStatus::unit).toList());
             assertEquals(7,number(c,"SELECT capacity FROM household_capacity"));assertEquals(3,number(c,"SELECT count(*) FROM residents"));healthy(c);}
-        try(var c=open(109)){var r=new DwellingOccupancy(c);assertEquals(request,r.forHousehold(family).orElseThrow());assertEquals(request,r.forUnit(a).orElseThrow());healthy(c);}
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){var r=new DwellingOccupancy(c);assertEquals(request,r.forHousehold(family).orElseThrow());assertEquals(request,r.forUnit(a).orElseThrow());healthy(c);}
     }
     @Test void oversizedFamilyEmptyHouseholdWrongVillageAbsentWorldAndStaleOrChangedPolicyAreRejected()throws Exception {
-        try(var c=open(109)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));
             var people=new PopulationRepository(c);people.insertResident(new Resident(id(13),"Fourth",town,family,120,Resident.Status.ALIVE));
             assertThrows(BuildingRegistry.Declined.class,()->r.assign(assign(id(21),family,a,id(20),null,1100),context(1100)));
             assertThrows(BuildingRegistry.Declined.class,()->r.assign(assign(id(21),other,a,id(20),null,40_000),context(40_000)));
@@ -67,7 +67,7 @@ class DwellingOccupancyTest {
             assertThrows(BuildingRegistry.Declined.class,()->r.assign(assign(id(21),id(91),a,id(20),null,1100),context(1100)));assertEquals(0,number(c,"SELECT count(*) FROM dwelling_active_occupancy"));healthy(c);}
     }
     @Test void incompleteOldAndReplayReviewsNeverEraseOrResurrectCurrentState()throws Exception {
-        try(var c=open(109)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));var assigned=assign(id(21),family,a,id(20),null,1100);r.assign(assigned,context(1100));
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));var assigned=assign(id(21),family,a,id(20),null,1100);r.assign(assigned,context(1100));
             assertEquals(Outcome.UNVERIFIED,r.review(id(22),building,assessment(1200,cells(),false,Policy.prototype()),context(1200)));
             assertEquals(id(20),r.unit(a).orElseThrow().review().operation());assertEquals(assigned,r.forUnit(a).orElseThrow());
             var changed=cells();changed.put(p(1,3,3),Cell.of(Type.PASSABLE));r.review(id(23),building,assessment(1300,changed,true,Policy.prototype()),context(1300));
@@ -78,14 +78,14 @@ class DwellingOccupancyTest {
             assertFalse(r.vacancies(building,context(40_000)).verified());healthy(c);}
     }
     @Test void atomicMovesRetainOldHomeOnSqlFailureAndOldAssignmentReplayDoesNotMoveBack()throws Exception {
-        try(var c=open(109)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));var first=assign(id(21),family,a,id(20),null,1100);r.assign(first,context(1100));
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));var first=assign(id(21),family,a,id(20),null,1100);r.assign(first,context(1100));
             var move=assign(id(22),family,b,id(20),first.operation(),1200);sql(c,"CREATE TRIGGER fail_move BEFORE INSERT ON dwelling_assignments WHEN NEW.operation_id='"+move.operation()+"' BEGIN SELECT RAISE(ABORT,'injected'); END");
             assertThrows(SQLException.class,()->r.assign(move,context(1200)));assertEquals(first,r.forHousehold(family).orElseThrow());assertEquals(0,number(c,"SELECT count(*) FROM dwelling_departures"));
             sql(c,"DROP TRIGGER fail_move");assertEquals(move,r.assign(move,context(1200)));assertTrue(r.forUnit(a).isEmpty());assertEquals(1,number(c,"SELECT count(*) FROM dwelling_departures"));
             assertEquals(first,r.assign(first,context(1100)));assertEquals(move,r.forHousehold(family).orElseThrow());healthy(c);}
     }
     @Test void reclaimAndOccupancyWithdrawalAreOneTransactionAndOldReclaimCannotEndLaterRedonation()throws Exception {
-        try(var c=open(109)){seed(c);var r=new DwellingOccupancy(c);var registry=new BuildingRegistry(c);r.review(id(20),building,assessment(1100),context(1100));var first=assign(id(21),family,a,id(20),null,1100);r.assign(first,context(1100));
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);var registry=new BuildingRegistry(c);r.review(id(20),building,assessment(1100),context(1100));var first=assign(id(21),family,a,id(20),null,1100);r.assign(first,context(1100));
             sql(c,"CREATE TRIGGER fail_departure BEFORE INSERT ON dwelling_departures BEGIN SELECT RAISE(ABORT,'injected'); END");
             var authority=BuildingRegistry.Authorization.playerDeclaration(donor,true);
             assertThrows(SQLException.class,()->registry.reclaim(id(22),building,authority,consent,1200));assertTrue(registry.hasDonationPermission(building));assertEquals(first,r.forUnit(a).orElseThrow());
@@ -97,7 +97,7 @@ class DwellingOccupancyTest {
             registry.reclaim(id(22),building,authority,consent,1200);assertEquals(second,r.forUnit(a).orElseThrow());assertTrue(registry.hasDonationPermission(building));healthy(c);}
     }
     @Test void onlySavedDeathOfEveryHouseholdMemberFreesTheUnitAndOldDepartureReplayIsHarmless()throws Exception {
-        try(var c=open(109)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));var first=assign(id(21),family,a,id(20),null,1100);r.assign(first,context(1100));
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));var first=assign(id(21),family,a,id(20),null,1100);r.assign(first,context(1100));
             assertThrows(BuildingRegistry.Declined.class,()->r.releaseEmpty(id(22),first.operation(),context(1200)));
             sql(c,"UPDATE residents SET status='DECEASED' WHERE household_id='"+family+"'");var departure=r.releaseEmpty(id(22),first.operation(),context(1200));assertEquals("EMPTY",departure.reason());assertTrue(r.forUnit(a).isEmpty());
             r.assign(assign(id(23),other,a,id(20),null,1300),context(1300));assertEquals(departure,r.releaseEmpty(id(22),first.operation(),context(1200)));assertEquals(other,r.forUnit(a).orElseThrow().household());healthy(c);}
@@ -106,7 +106,115 @@ class DwellingOccupancyTest {
         try(var c=open(108)){seed(c);assertEquals(108,number(c,"PRAGMA user_version"));sql(c,"CREATE TABLE dwelling_review_units(injected INTEGER)");
             assertThrows(SQLException.class,()->new SchemaMigrator().migrate(c));assertEquals(108,number(c,"PRAGMA user_version"));
             assertEquals(0,number(c,"SELECT count(*) FROM sqlite_master WHERE name='dwelling_reviews'"));assertEquals(3,number(c,"SELECT count(*) FROM residents"));
-            sql(c,"DROP TABLE dwelling_review_units");new SchemaMigrator().migrate(c);assertEquals(109,number(c,"PRAGMA user_version"));
+            sql(c,"DROP TABLE dwelling_review_units");new SchemaMigrator().migrate(c);assertEquals(SchemaMigrator.CURRENT_VERSION,number(c,"PRAGMA user_version"));
             assertEquals(1,number(c,"SELECT count(*) FROM building_records"));assertEquals(7,number(c,"SELECT capacity FROM household_capacity"));healthy(c);}
+    }
+
+    @Test void sharedCapacityPreservesLegacyThenUsesAssignedHomeThroughDamageUnknownAndReclamation()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);assertEquals(Map.of(family,7),HousingCapacity.read(c));
+            var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));
+            r.assign(assign(id(21),family,a,id(20),null,1100),context(1100));
+            assertEquals(2,HousingCapacity.read(c).get(family));
+            assertEquals(2,new HouseholdNeedsRepository(c).population(town).householdCapacity().get(family));
+            sql(c,"UPDATE household_capacity SET capacity=99");assertEquals(2,HousingCapacity.read(c).get(family));
+            var changed=cells();changed.put(p(1,3,3),Cell.of(Type.PASSABLE));r.review(id(22),building,assessment(1200,changed,true,Policy.prototype()),context(1200));
+            assertEquals(0,HousingCapacity.read(c).get(family));
+            r.review(id(23),building,assessment(1300,cells(),false,Policy.prototype()),context(1300));assertEquals(0,HousingCapacity.read(c).get(family));
+            r.review(id(24),building,assessment(1400),context(1400));assertEquals(2,HousingCapacity.read(c).get(family));
+            new BuildingRegistry(c).reclaim(id(25),building,BuildingRegistry.Authorization.playerDeclaration(donor,true),consent,1500);
+            assertEquals(0,HousingCapacity.read(c).get(family));assertEquals(3,number(c,"SELECT count(*) FROM residents"));healthy(c);
+        }
+    }
+
+    @Test void otherLivingLegacyFamilyIsProtectedAndKnownEmptyBedSourcesAreNotDoubleCounted()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));
+            sql(c,"INSERT INTO village_beds VALUES('"+world+"',2,1,3,'"+town+"','"+other+"')");
+            assertThrows(BuildingRegistry.Declined.class,()->r.assign(assign(id(21),family,a,id(20),null,1100),context(1100)));
+            assertEquals(0,number(c,"SELECT count(*) FROM dwelling_bed_claims"));
+            sql(c,"UPDATE residents SET status='DECEASED' WHERE household_id='"+other+"'");
+            sql(c,"INSERT INTO household_capacity VALUES('"+other+"',4)");
+            sql(c,"INSERT INTO household_capacity_sources VALUES('"+world+"',2,1,3,'"+other+"',2),('"+world+"',20,1,3,'"+other+"',2)");
+            r.assign(assign(id(21),family,a,id(20),null,1100),context(1100));
+            assertEquals(2,HousingCapacity.read(c).get(family));assertEquals(2,HousingCapacity.read(c).get(other));
+            sql(c,"DELETE FROM household_capacity_sources");assertFalse(HousingCapacity.read(c).containsKey(other));healthy(c);
+        }
+    }
+
+    @Test void schema110BackfillsExistingAssignmentsAndRollsBackNewTablesOnFailure()throws Exception {
+        try(var c=open(109)){seed(c);sql(c,"INSERT INTO dwelling_reviews VALUES('"+id(20)+"','"+building+"','"+consent+"','"+"0".repeat(64)+"',1100,1100,1)");
+            sql(c,"INSERT INTO dwelling_review_units VALUES('"+id(20)+"','"+a+"',2,'')");
+            sql(c,"INSERT INTO dwelling_current_reviews VALUES('"+building+"','"+id(20)+"')");
+            sql(c,"INSERT INTO dwelling_assignments VALUES('"+id(21)+"','"+family+"','"+a+"','"+id(20)+"',NULL,1100)");
+            sql(c,"INSERT INTO dwelling_active_occupancy VALUES('"+family+"','"+a+"','"+id(21)+"')");
+            sql(c,"CREATE TABLE dwelling_bed_claims(injected INTEGER)");
+            assertThrows(SQLException.class,()->new SchemaMigrator().migrate(c));assertEquals(109,number(c,"PRAGMA user_version"));
+            assertEquals(0,number(c,"SELECT count(*) FROM sqlite_master WHERE name='household_capacity_sources'"));
+            sql(c,"DROP TABLE dwelling_bed_claims");new SchemaMigrator().migrate(c);
+            assertEquals(2,number(c,"SELECT count(*) FROM dwelling_bed_claims"));assertEquals(2,HousingCapacity.read(c).get(family));
+            assertEquals(7,number(c,"SELECT capacity FROM household_capacity"));healthy(c);
+        }
+    }
+
+    @Test void housingReconciliationUsesVacancyForOvercrowdedFamilyThenMovesItAfterConfirmedDamage()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);sql(c,"UPDATE household_capacity SET capacity=1");
+            var housing=new DwellingHousing(c);var first=housing.reconcile(layout(),assessment(1100),context(1100));
+            assertEquals(1,first.assigned());var occupancy=new DwellingOccupancy(c);
+            assertEquals(a,occupancy.forHousehold(family).orElseThrow().unit());assertEquals(2,HousingCapacity.read(c).get(family));
+            assertEquals(0,housing.reconcile(layout(),assessment(1200),context(1200)).assigned());
+            var changed=cells();changed.put(p(1,3,3),Cell.of(Type.PASSABLE));
+            assertEquals(1,housing.reconcile(layout(),assessment(1300,changed,true,Policy.prototype()),context(1300)).assigned());
+            assertEquals(b,occupancy.forHousehold(family).orElseThrow().unit());assertTrue(occupancy.forUnit(a).isEmpty());
+            assertEquals(2,HousingCapacity.read(c).get(family));assertEquals(3,number(c,"SELECT count(*) FROM residents"));healthy(c);
+        }
+    }
+
+    @Test void housingReconciliationUpgradesIncumbentWithoutMovingOrSplittingOtherLegacyFamilies()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);sql(c,"INSERT INTO village_beds VALUES('"+world+"',2,1,3,'"+town+"','"+family+"')");
+            var housing=new DwellingHousing(c);assertEquals(1,housing.reconcile(layout(),assessment(1100),context(1100)).assigned());
+            assertEquals(a,new DwellingOccupancy(c).forHousehold(family).orElseThrow().unit());
+        }
+    }
+
+    @Test void reclamationConfirmationRejectsChangedOccupantsThenRemovesCapacityWithoutLegacyFallback()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var r=new DwellingOccupancy(c);r.review(id(20),building,assessment(1100),context(1100));
+            var first=assign(id(21),family,a,id(20),null,1100);r.assign(first,context(1100));
+            var requests=new com.blueninjas24.civilizations.application.BuildingConsentRequests(new BuildingRegistry(c),com.blueninjas24.civilizations.application.BuildingConsentRequests.Policy.prototype());
+            var authority=new com.blueninjas24.civilizations.application.BuildingConsentRequests.Context(donor,world,false,true,false,Set.of(world));
+            var preview=requests.reclamation(authority,building,1200);assertEquals(Set.of(first.operation()),preview.housingAssignments());
+            r.assign(assign(id(22),family,b,id(20),first.operation(),1250),context(1250));
+            assertThrows(BuildingRegistry.Declined.class,()->requests.confirm(authority,preview.token(),false,1300));
+            assertTrue(new BuildingRegistry(c).hasDonationPermission(building));
+            var current=requests.reclamation(authority,building,1350);requests.confirm(authority,current.token(),false,1400);
+            assertEquals(0,HousingCapacity.read(c).get(family));assertEquals(3,number(c,"SELECT count(*) FROM residents"));healthy(c);
+        }
+    }
+
+    @Test void reclaimedUnassignedHomeWithdrawsOnlyItsProvenLegacyBedContribution()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);
+            sql(c,"INSERT INTO village_beds VALUES('"+world+"',2,1,3,'"+town+"','"+family+"')");
+            sql(c,"INSERT INTO household_capacity_sources VALUES('"+world+"',2,1,3,'"+family+"',2),('"+world+"',20,1,3,'"+family+"',5)");
+            var registry=new BuildingRegistry(c);assertEquals(Set.of(family),registry.legacyHousingFamilies(building));
+            registry.reclaim(id(21),building,BuildingRegistry.Authorization.playerDeclaration(donor,true),consent,1200);
+            assertEquals(5,HousingCapacity.read(c).get(family));assertEquals(4,number(c,"SELECT count(*) FROM dwelling_bed_claims"));
+            assertEquals(3,number(c,"SELECT count(*) FROM residents"));healthy(c);
+        }
+    }
+
+    @Test void committedReclamationWithLostCommitAcknowledgementReturnsSavedReceiptOnRetry()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){seed(c);var occupancy=new DwellingOccupancy(c);occupancy.review(id(20),building,assessment(1100),context(1100));
+            occupancy.assign(assign(id(21),family,a,id(20),null,1100),context(1100));
+            var loseAck=new java.util.concurrent.atomic.AtomicBoolean(true);
+            var proxy=(Connection)java.lang.reflect.Proxy.newProxyInstance(Connection.class.getClassLoader(),new Class<?>[]{Connection.class},(p,m,args)->{
+                if(m.getName().equals("commit")&&loseAck.getAndSet(false)){c.commit();throw new SQLException("Injected lost commit acknowledgement");}
+                try{return m.invoke(c,args);}catch(java.lang.reflect.InvocationTargetException e){throw e.getCause();}
+            });
+            var requests=new com.blueninjas24.civilizations.application.BuildingConsentRequests(new BuildingRegistry(proxy),com.blueninjas24.civilizations.application.BuildingConsentRequests.Policy.prototype());
+            var authority=new com.blueninjas24.civilizations.application.BuildingConsentRequests.Context(donor,world,false,true,false,Set.of(world));
+            var preview=requests.reclamation(authority,building,1200);
+            assertThrows(SQLException.class,()->requests.confirm(authority,preview.token(),false,1300));
+            assertFalse(new BuildingRegistry(c).hasDonationPermission(building));assertTrue(occupancy.forUnit(a).isEmpty());
+            var receipt=requests.confirm(authority,preview.token(),false,1400);assertEquals(preview.token(),receipt.operation());
+            assertEquals(1300,receipt.atMillis());assertEquals(1,number(c,"SELECT count(*) FROM dwelling_departures"));healthy(c);
+        }
     }
 }

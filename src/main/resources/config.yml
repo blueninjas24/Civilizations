@@ -67,3 +67,11 @@ building-protection:
   maximum-requests: 16
   preview-seconds: 60
   selection-seconds: 300
+
+# Gradually assign whole saved families to explicitly donated, inspected homes.
+# Existing families and legacy housing are retained; no block/entity moves or automatic construction.
+housing-runtime:
+  enabled: true
+  # One shared loaded-only survey, read twice to reject edits during capture.
+  cells-per-tick: 128
+  review-seconds: 15

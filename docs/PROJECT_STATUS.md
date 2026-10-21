@@ -1,14 +1,14 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 saved dwelling occupancy; live capacity integration pending
+## Current — Phase4 live family housing and confirmed donor repossession
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 4/16 complete checklist items,1/4 complete groups. Phase3 prototype is complete;
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is the25-page edition0.7, with
-23 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is26-page edition0.8, with
+24 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
 owned units follow the same occupancy direction as homes. No live unit control is
@@ -16,6 +16,30 @@ claimed by documenting it.
 
 
 Implemented and verified:
+- Approved gradual transition is live: preserve existing families/housing while
+  loaded-only reviews adopt a suitable incumbent family or house a known crowded/
+  unhoused whole household in an inspected donated vacancy. Population and food
+  accounting share effective capacity. Schema110 records exact legacy bed sources
+  and permanent unit claims, preventing double counts, scan overwrites and legacy
+  fallback after reclamation. No family splitting, stranger insertion into managed
+  families, force-loading or villager teleporting. Missing evidence preserves known
+  state; confirmed damage can cause relocation to a suitable saved vacancy.
+- /civ building reclaim <UUID> previews assigned-household/legacy-family impact
+  for the donor or administrator. Separate confirmreclaim/cancelreclaim recheck
+  frozen occupants, authority, world, expiry and consent. Changed occupants require
+  a new preview. Withdrawal, bed claims and departures commit together. Retain
+  residents, blocks, contents and history; saved footprint remains protected.
+- housing-runtime config: enabled=true, shared128 cells/tick,15-second cadence.
+  Two passes compare evidence under one budget; no atomic world-lock claim.
+  Default combined housing reads at most384/tick. /civ debug housing explains the
+  last global review. Invalid runtime settings disable only that runtime.
+  Final focused clean verify116 unit +3 packaged checks passed1:11, no failures,
+  errors or skips. Actual disposable Paper passed real home adoption, four beds
+  replacing old eight-capacity, roof damage/repair, changed-scan refusal, absent
+  worlds, session restart and confirmed donor reclamation without resident loss
+  or legacy fallback. Restored144 cells. No actual user-server changes.
+  See HOUSING_RUNTIME.md. Earlier checkpoint housing limitations below are
+  superseded here. Normal physical construction and apartment editing remain off.
 - Schema109 adds saved housing reviews, whole-household assignments and departure
   history. Unit exclusivity, exact retry safety, transactional moves/reclamation,
   current donation/cover policy and fresh complete evidence are checked. Families,

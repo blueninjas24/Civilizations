@@ -37,6 +37,18 @@ public final class BuildingRegistry {
     public record Consent(UUID operation, UUID building, UUID actor, Action action, UUID previous,
                           boolean administrator, long atMillis) {}
     public record Entry(BuildingLayout layout, UUID donor, long createdMillis, Consent latest) {}
+    public Set<UUID> activeHousingAssignments(UUID building)throws SQLException {
+        var ids=new TreeSet<UUID>();
+        try(var s=connection.prepareStatement("SELECT o.assignment_id FROM dwelling_active_occupancy o JOIN building_units u ON u.id=o.unit_id WHERE u.building_id=? ORDER BY o.assignment_id LIMIT 65")) {
+            s.setString(1,building.toString());try(var r=s.executeQuery()){while(r.next())ids.add(UUID.fromString(r.getString(1)));}
+        }
+        if(ids.size()>BuildingLayout.MAX_UNITS)throw new SQLException("Housing occupancy exceeds building unit budget");
+        return Set.copyOf(ids);
+    }
+    public Set<UUID> legacyHousingFamilies(UUID building)throws SQLException {
+        return HousingCapacity.legacyFamilies(connection,find(building).orElseThrow(()->new Declined("Unknown building")).layout());
+    }
+    public Optional<Consent> consentReceipt(UUID operation)throws SQLException{return event(operation);}
     public record Exclusion(UUID id, UUID world, UUID actor, Bounds bounds, long createdMillis) {
         public Exclusion {
             Objects.requireNonNull(id);Objects.requireNonNull(world);Objects.requireNonNull(actor);Objects.requireNonNull(bounds);time(createdMillis);

@@ -44,8 +44,10 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     private boolean closed;
     private CommandExecutor inspection;
     private CommandExecutor homes;
+    private CommandExecutor reclamation;
     public void configureInspection(CommandExecutor inspection){this.inspection=Objects.requireNonNull(inspection);}
     public void configureHomes(CommandExecutor homes){this.homes=Objects.requireNonNull(homes);}
+    public void configureReclamation(CommandExecutor reclamation){this.reclamation=Objects.requireNonNull(reclamation);}
     /** Immutable selection only; caller supplies its own current action permission checks. */
     public Bounds selectedHomeBounds(Player player){prune();return bounds(player);}
     public PaperBuildingProtection(PopulationSession session,BuildingProtectionSettings settings,Logger logger) {
@@ -118,6 +120,10 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!(sender instanceof Player player)){sender.sendMessage("Use building protection in game.");return true;}
+        if(args.length>1&&Set.of("reclaim","confirmreclaim","cancelreclaim").contains(args[1].toLowerCase(Locale.ROOT))) {
+            if(reclamation!=null)return reclamation.onCommand(sender,command,label,args);
+            player.sendMessage("Housing reclamation controls are unavailable.");return true;
+        }
         if(args.length>1&&Set.of("home","confirmhome","cancelhome").contains(args[1].toLowerCase(Locale.ROOT))) {
             if(homes!=null)return homes.onCommand(sender,command,label,args);
             player.sendMessage("Home donation controls are unavailable.");return true;
@@ -214,6 +220,7 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
         if(args.length!=2)return List.of();var options=new ArrayList<String>();
         if(sender.hasPermission(MANAGE)||sender.hasPermission(ADMIN))options.addAll(List.of("corner1","corner2","preview","protect","here","release","inspect","cancel"));
         if(homes!=null&&sender.hasPermission(PaperHomeDonation.PERMISSION))options.addAll(List.of("corner1","corner2","home","cancelhome"));
+        if(reclamation!=null&&(sender.hasPermission(PaperHomeReclamation.PERMISSION)||sender.hasPermission(ADMIN)))options.addAll(List.of("reclaim","cancelreclaim"));
         return options.stream().distinct().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();
     }
     @Override public void close(){closed=true;selections.clear();proposals.clear();releases.clear();pending.clear();}

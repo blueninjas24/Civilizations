@@ -57,6 +57,8 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperBuildingProtection buildings;
     private com.blueninjas24.civilizations.paper.PaperDwellingReview dwellingReview;
     private com.blueninjas24.civilizations.paper.PaperHomeDonation homeDonations;
+    private com.blueninjas24.civilizations.paper.PaperHousingRuntime housingRuntime;
+    private com.blueninjas24.civilizations.paper.PaperHomeReclamation homeReclamation;
     private com.blueninjas24.civilizations.paper.FoodBarterCommand barterCommand;
 
     private com.blueninjas24.civilizations.paper.PaperFisheryStartup fisheryStartup;
@@ -175,6 +177,15 @@ public final class Civilizations extends JavaPlugin {
                             new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(buildingSettings.requireCoveredBeds()),buildings::selectedHomeBounds,getLogger());
                     buildings.configureHomes(homeDonations);homeDonations.runTaskTimer(this,1,1);
                     getServer().getPluginManager().registerEvents(homeDonations,this);
+                    homeReclamation=new com.blueninjas24.civilizations.paper.PaperHomeReclamation(population,getLogger());
+                    buildings.configureReclamation(homeReclamation);homeReclamation.runTaskTimer(this,1,1);
+                    getServer().getPluginManager().registerEvents(homeReclamation,this);
+                    try {
+                        housingRuntime=new com.blueninjas24.civilizations.paper.PaperHousingRuntime(population,
+                                com.blueninjas24.civilizations.paper.PaperHousingRuntime.Settings.read(getConfig()),
+                                new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(buildingSettings.requireCoveredBeds()),getLogger());
+                        housingRuntime.runTaskTimer(this,1,1);
+                    }catch(IllegalArgumentException invalid){getLogger().log(Level.WARNING,"Housing runtime disabled; fix housing-runtime settings and restart.",invalid);}
                 }
                 buildings.runTaskTimer(this,1,1);getServer().getPluginManager().registerEvents(buildings,this);
             }catch(IllegalArgumentException invalid){getLogger().log(Level.WARNING,"Building protection disabled; fix building-protection settings and restart.",invalid);}
@@ -295,6 +306,8 @@ public final class Civilizations extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(homeReclamation!=null){homeReclamation.cancel();homeReclamation.close();}
+        if(housingRuntime!=null){housingRuntime.cancel();housingRuntime.close();}
         if(homeDonations!=null){homeDonations.cancel();homeDonations.close();}
         if(dwellingReview!=null){dwellingReview.cancel();dwellingReview.close();}
         if(buildings!=null){buildings.cancel();buildings.close();}

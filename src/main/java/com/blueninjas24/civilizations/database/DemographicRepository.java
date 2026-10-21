@@ -221,7 +221,7 @@ public final class DemographicRepository {
         var residents = new ArrayList<Resident>();
         var households = new ArrayList<Household>();
         var ties = new ArrayList<FamilyTie>();
-        var capacities = new HashMap<UUID, Integer>();
+        var capacities = HousingCapacity.read(connection);
         try (var statement = connection.createStatement()) {
             try (var result = statement.executeQuery("SELECT * FROM residents ORDER BY id")) {
                 while (result.next()) residents.add(PopulationRepository.readResident(result));
@@ -233,9 +233,6 @@ public final class DemographicRepository {
             try (var result = statement.executeQuery("SELECT * FROM family_ties ORDER BY type, first_id, second_id")) {
                 while (result.next()) ties.add(new FamilyTie(UUID.fromString(result.getString("first_id")),
                         UUID.fromString(result.getString("second_id")), FamilyTie.Type.valueOf(result.getString("type"))));
-            }
-            try (var result = statement.executeQuery("SELECT * FROM household_capacity")) {
-                while (result.next()) capacities.put(UUID.fromString(result.getString("household_id")), result.getInt("capacity"));
             }
         }
         return new PopulationState(residents, households, ties, capacities);

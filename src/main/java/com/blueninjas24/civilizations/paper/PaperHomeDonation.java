@@ -95,7 +95,7 @@ public final class PaperHomeDonation extends BukkitRunnable implements CommandEx
                 if(r.saving!=null) {
                     if(!r.saving.isDone())continue;
                     var receipt=r.saving.join();requests.remove(r.actor);
-                    if(player!=null)player.sendMessage("Home donation permission saved: "+receipt.building()+". Ownership is retained; household assignment is still under development. No residents moved.");
+                    if(player!=null)player.sendMessage("Home donation permission saved: "+receipt.building()+". Ownership is retained. Enabled housing reviews can assign a suitable whole family; no villagers teleport. /civ debug housing explains the last review.");
                     continue;
                 }
                 if(player==null||!current(player,r)){discard(r.actor);continue;}

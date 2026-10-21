@@ -1,5 +1,9 @@
 # P4 saved building permission foundation
 
+Current live housing assignment/capacity and donor reclamation now use this saved
+permission backend. See HOUSING_RUNTIME.md for schema110 and current behavior;
+the dated verification notes below describe earlier checkpoints.
+
 BuildingRegistry is a SQL-owner backend, not a player command or sign handler.
 It records an explicitly reviewed donation without pretending to authenticate
 the caller or inspect Minecraft blocks. User approved players explicitly declaring

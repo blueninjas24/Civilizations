@@ -12,12 +12,7 @@ final class HouseholdNeedsRepository {
     HouseholdNeedsRepository(Connection connection) { this.connection = connection; }
     PopulationState population(UUID town) throws SQLException {
         var people = new PopulationRepository(connection);
-        var capacities = new HashMap<UUID, Integer>();
-        try (var s = connection.prepareStatement("SELECT c.* FROM household_capacity c JOIN households h ON h.id=c.household_id WHERE h.settlement_id=?")) {
-            s.setString(1, town.toString()); try (var r = s.executeQuery()) {
-                while (r.next()) capacities.put(UUID.fromString(r.getString("household_id")), r.getInt("capacity"));
-            }
-        }
+        var capacities = HousingCapacity.read(connection,town);
         return new PopulationState(people.findResidents(town), people.findHouseholds(town), List.of(), capacities);
     }
     void save(Assessment needs) throws SQLException {

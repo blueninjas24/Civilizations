@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 109;
+    static final int CURRENT_VERSION = 110;
 
     @FunctionalInterface
     interface Migration {
@@ -958,7 +958,8 @@ final class SchemaMigrator {
                 ConstructionSupplyOrders::createSchema,
                 ConstructionPublicWork::createSchema,
                 BuildingRegistry::createSchema,
-                DwellingOccupancy::createSchema
+                DwellingOccupancy::createSchema,
+                HousingCapacity::createSchema
 
 
         ));
@@ -1165,6 +1166,10 @@ final class SchemaMigrator {
                 requireColumns(connection,"resource_investment_reviews",Set.of("business_id","settlement_id","sequence","proposal","industry","observed_step","observed_ms","demand_value","policy","explanation"));
             }
             if(migrations.size()>=102){requireColumns(connection,"construction_material_reservations",Set.of("operation_id","draft_id","business_id","reserved_ms"));requireColumns(connection,"construction_material_items",Set.of("operation_id","commodity","units","before_units","after_units"));}
+            if(migrations.size()>=110){
+                requireColumns(connection,"household_capacity_sources",Set.of("world_id","x","y","z","household_id","capacity"));
+                requireColumns(connection,"dwelling_bed_claims",Set.of("world_id","x","y","z","unit_id"));
+            }
             if(migrations.size()>=109){
                 requireColumns(connection,"dwelling_reviews",Set.of("operation_id","building_id","consent_id","fingerprint","observed_ms","recorded_ms","require_cover"));
                 requireColumns(connection,"dwelling_review_units",Set.of("review_id","unit_id","beds","issues"));

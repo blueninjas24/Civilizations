@@ -8,8 +8,11 @@ description: Evolving, autonomous civilizations for Minecraft.
 commands:
   civ:
     description: Civilizations construction previews, pen protection, village food aid, bargaining, livestock market and administrative diagnostics.
-    usage: /civ market or /civ aid [settlement UUID] or /civ bargain <emeralds|accept> [settlement UUID] or /civ barter <timber|stone|accept> [settlement UUID] or /civ debug status | construction | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest
+    usage: /civ market or /civ aid [settlement UUID] or /civ bargain <emeralds|accept> [settlement UUID] or /civ barter <timber|stone|accept> [settlement UUID] or /civ debug status | housing | construction | observation | villages | resources | workforce <uuid> | settlement <uuid> | explain <uuid> | economy <uuid> | businesses <uuid> | recover-ore | recover-forest
 permissions:
+  civilizations.building.reclaim:
+    description: Preview and confirm withdrawal of village housing use from your own donated building, preserving residents and structure.
+    default: true
   civilizations.building.donate:
     description: Review a selected single-family home and explicitly declare ownership to grant village-use permission; no occupied capacity or title transfer.
     default: true

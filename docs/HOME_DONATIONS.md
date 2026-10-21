@@ -1,8 +1,10 @@
 # Single-family home donation controls
 
 Implemented: selected original/player-built home -> bounded current region review
--> explicit ownership confirmation -> saved village-use permission. No household
-move, usable capacity, title, inventory or automatic block placement is activated.
+-> explicit ownership confirmation -> saved village-use permission. The separate
+live runtime now assigns suitable whole families and usable capacity after a fresh
+review; see HOUSING_RUNTIME.md. Donation itself transfers no title/inventory and
+places no blocks.
 No apartment inference: selecting several bedrooms/beds still declares one home.
 
 ## In game
