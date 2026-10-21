@@ -22,7 +22,7 @@ public final class PaperAutomaticHomePlanning extends BukkitRunnable implements 
     private UUID cursor;private long nextPage;private boolean closed;private HousingPlanningJobs.Job current;private Survey survey;
     private CompletableFuture<HousingPlanningJobs.Page> page;private CompletableFuture<HousingProjectPreparation.Receipt> saving;
     public PaperAutomaticHomePlanning(PopulationSession session,PaperConstructionLibrary library,AutomaticHomePlanningSettings settings,DwellingInspection.Policy policy,Logger logger){
-        this(source(session,library,settings,policy),settings,(job,now)->new PaperHomeSiteSurvey(job.world(),job.need(),settings.searchRadius(),now)::advance,
+        this(source(session,library,settings,policy),settings,(job,now)->new PaperHomeSiteSurvey(job.world(),job.need(),settings.searchRadius(),job.templateHeight(),now)::advance,
                 System::currentTimeMillis,session::publishHomePlanningDiagnostic,logger);
     }
     private static Owner source(PopulationSession session,PaperConstructionLibrary library,AutomaticHomePlanningSettings settings,DwellingInspection.Policy policy){

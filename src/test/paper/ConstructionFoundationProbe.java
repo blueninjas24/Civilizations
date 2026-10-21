@@ -16,7 +16,7 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
     @Override public void onEnable(){
         try {
             var root=getServer().getWorldContainer().toPath().toRealPath();
-            require(Files.readString(root.resolve("civilizations-dev-marker.txt")).trim().equals("Disposable Civilizations Phase 1 test environment")
+            require(root.getParent().equals(java.nio.file.Path.of(System.getProperty("java.io.tmpdir")).toRealPath())&&root.getFileName().toString().startsWith("civilizations-p4-preview-")&&Files.readString(root.resolve("civilizations-dev-marker.txt")).trim().equals("Disposable Civilizations Phase 1 test environment")
                     &&getServer().getIp().equals("127.0.0.1")&&getServer().getPort()==25578&&getServer().getOnlinePlayers().isEmpty(),"Marked private fixture required");
             authorized=true;
             getServer().getScheduler().runTask(this,()->{
@@ -28,7 +28,7 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
     }
     private void verify()throws Exception {
         var plugin=(JavaPlugin)getServer().getPluginManager().getPlugin("Civilizations");require(plugin!=null&&plugin.isEnabled(),"Production plugin active");
-        var library=PaperConstructionLibrary.load(plugin);require(library.templates().size()==3,"Three installed original templates");
+        var library=PaperConstructionLibrary.load(plugin);require(library.templates().size()==5,"Five installed original templates");
         require(library.funding().equals(com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy.prototype())&&library.land().buildingBuffer()==4
                 &&library.labor().equals(com.blueninjas24.civilizations.construction.ConstructionLaborPolicy.prototype())&&library.housing().maximumNewProposals()==1
                 &&library.supplies().equals(com.blueninjas24.civilizations.construction.ConstructionSupplyPolicy.prototype()),"Installed construction policy defaults");
@@ -44,9 +44,11 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
             for(var stage:plan.stages())for(var block:stage.blocks().entrySet())require(plan.size().contains(block.getKey()),"All native placements inside bounds");
         }
         require(source.fingerprint().equals(sourceHash),"Native preparation cannot mutate source blueprint");
-        var home=library.templates().get("starter_home");require(home.blockCount()==120,"Original four-bed home geometry");
+        for(var homeId:List.of("starter_home","family_home_six","family_home_eight")){
+        var home=library.templates().get(homeId);int expectedBeds=homeId.equals("starter_home")?4:homeId.equals("family_home_six")?6:8;
+        require(home.blockCount()==(expectedBeds==4?120:expectedBeds==6?143:167),"Original family-home geometry");
         for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true)) {
-            var plan=PaperConstructionLibrary.prepare(home,new Transform(rotation,mirror));var beds=plan.stages().getLast().blocks();int feet=0;
+            var plan=PaperConstructionLibrary.prepare(home,new Transform(rotation,mirror));var beds=plan.stages().stream().filter(s->s.id().equals("beds")).findFirst().orElseThrow().blocks();int feet=0;
             for(var entry:beds.entrySet()) {
                 var bed=(org.bukkit.block.data.type.Bed)getServer().createBlockData(entry.getValue());
                 if(bed.getPart()!=org.bukkit.block.data.type.Bed.Part.FOOT)continue;feet++;
@@ -55,7 +57,14 @@ public final class ConstructionFoundationProbe extends JavaPlugin {
                 var head=(org.bukkit.block.data.type.Bed)getServer().createBlockData(beds.get(headAt));
                 require(head.getPart()==org.bukkit.block.data.type.Bed.Part.HEAD&&head.getFacing()==facing,"Paired native bed states agree");
             }
-            require(feet==4,"Four complete bed pairs in every orientation");
+            require(feet==expectedBeds,"Complete real bed pairs in every orientation");
+            for(var stage:plan.stages())for(var block:stage.blocks().entrySet()){
+                var data=getServer().createBlockData(block.getValue());if(data.getMaterial()!=org.bukkit.Material.WALL_TORCH)continue;
+                var facing=((Directional)data).getFacing();var support=block.getKey().plus(new Position(-facing.getModX(),0,-facing.getModZ()));
+                String backing=plan.stages().stream().map(s->s.blocks().get(support)).filter(Objects::nonNull).findFirst().orElseThrow();
+                require(getServer().createBlockData(backing).getMaterial().isSolid(),"Rotated wall light has authored backing");require(block.getKey().y()>=3,"Light fitting stays above resident headroom");
+            }
+        }
         }
         var beam=new ConstructionTemplate("beam",1,"Beam","Original test",Purpose.PATH,new Size(2,1,1),List.of(new Stage("frame",1,
                 Map.of(new com.blueninjas24.civilizations.economy.Commodity("timber"),1L),Map.of(new Position(0,0,0),"minecraft:oak_log[axis=x]"))),List.of());

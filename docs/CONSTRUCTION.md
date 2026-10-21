@@ -1,9 +1,9 @@
 # Construction foundation — current prototype
 
-Phase 4 has started. Normal gameplay cannot place blocks yet. A guarded writer
-exists only for marked disposable tests. Its first tools let an
-administrator inspect authored plans and inspect a possible site without changing
-blocks, player inventory, accounts or industry capacity.
+Phase 4 now includes automatic paid family-home construction when explicitly
+enabled. See AUTOMATIC_CONSTRUCTION.md for scope, settings and safety;
+CONSTRUCTION_RECOVERY.md covers saved inspection and confirmed unused supplies.
+The preview commands below remain read-only and grant no construction authority.
 
 ## Commands
 
@@ -36,7 +36,7 @@ cells, unloaded chunks, unsuitable ground and missing entrance paths are reporte
 The initial support whitelist is deliberately conservative; no excavation or
 grading is performed. Existing buildings cannot be approved through this tool.
 
-Every site currently lacks a validated construction permission. Saved confirmed
+A player preview itself grants no validated construction permission. Saved confirmed
 fenced plots are checked through the SQL owner queue; empty plots remain protected
 and released claims retain their history. Other claim plugins are not integrated. A preview
 is a series of observations, not an atomic promise that blocks will remain safe.
@@ -53,13 +53,14 @@ unused cancellation, with separate `/civ build confirmcancel <token>` and
 `/civ build cancelrequest` controls. Management defaults to operators and is
 separate from read-only preview permission. Paid supplies, unreturned stock and
 prepared physical work hold for reviewed recovery; history always remains.
-See HOUSING_PROJECTS.md and handbook Chapter28. No automatic builder is enabled.
+See HOUSING_PROJECTS.md and handbook Chapters28,31 and32 for the enabled home
+coordinator and separately confirmed recovery.
 
 ## Editable starter files
 
-On first startup, the plugin copies three original files to
-`plugins/Civilizations/construction/`: `starter_path.yml` and
-`starter_storehouse.yml` and `starter_home.yml`. Existing files are preserved. Stop the server to edit,
+On startup, the plugin installs five original files when absent in
+`plugins/Civilizations/construction/`: `starter_path.yml`, `starter_storehouse.yml`,
+`starter_home.yml`, `family_home_six.yml` and `family_home_eight.yml`. Existing files are preserved. Stop the server to edit,
 then restart; there is no live reload yet. An invalid template disables construction
 previews with a logged reason while population/economy remain available.
 
@@ -231,10 +232,10 @@ arrival even after restart or disabling new purchasing. Late SQL failures roll
 back payer, supplier, stock and receipt together. supplies.enabled and positive
 supplies.prices in construction.yml are editable, with defaults for old files.
 
-This remains a backend API: no automatic project orders or native building writes
-are enabled. Paid cargo has no cancellation/refund shortcut yet; its saved assets
-and site remain retained. Stage consumption, real booked work and the live project
-coordinator must be connected before ordinary construction is enabled.
+Historical schema106 boundary: purchasing initially existed only as a backend
+API. The current automatic family-home coordinator now connects payment, earned
+delivery/labor and guarded native writes. Confirmed unused recall/return controls
+retain saved assets/history; started physical work cannot be refunded.
 
 The normal PopulationSession owner pulse now settles up to16 ready prepaid orders
 in one transaction after existing simulation clocks advance. Ready orders are
@@ -274,9 +275,9 @@ ConstructionBlockJournal.preparePublic validates full stage effort against its
 resident receipts and backed material escrow, fresh exact-draft/site evidence,
 current saved protection and ordered prior acknowledgements. It confers no native
 writer/ownership permission or completed capacity. The generic journal entry point
-remains for explicitly bounded development probes; normal gameplay still has no
-physical writer. Private employee diversion, automatic demand/site/order scheduling
-and completed home activation are subsequent work. No family gets a home merely
+remains for explicitly bounded development probes; current normal family-home
+construction instead uses the full public gate and guarded writer. Private
+employee diversion and broader premises remain future work. No family gets a home merely
 because abstract work is saved.
 
 Focused verification86 unit +3 packaged passed59.632s; earlier affected migration/

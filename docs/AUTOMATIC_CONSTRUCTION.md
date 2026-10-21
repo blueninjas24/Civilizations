@@ -1,5 +1,24 @@
 # Automatic paid family-home construction
 
+## October21 larger-family catalogue
+
+The legacy starter_home remains unchanged. New family_home_six and
+family_home_eight files install only when absent. They have six/eight real paired
+beds, a covered center aisle and a wall torch above walking headroom. Materials
+and effort are paid/earned under the existing abstraction; fixture timber covers
+sticks, charcoal and assembly. No new commodity or free supplier stock is added.
+Defaults: six beds cost45 timber/12 stone/18 wool (3900 hundredths); eight beds
+cost53 timber/14 stone/24 wool (4870 hundredths). Actual configured prices apply.
+The smallest adequate plan wins; suitable vacancies still precede construction.
+
+The site feed carries the exact recommended plan's height. Two loaded-only passes
+cover need.y-3 through need.y+height-1, under the existing per-tick/frame limits.
+This fixes a confirmed bug: settlement centers normally sit at bed height, and
+the former fixed upper bound could miss even the starter home's roof. Tall custom
+plans exceeding the total observation limit refuse before reads or allocation.
+Both new plans fit the final native writer cap in every orientation:211/253
+required cells, plus the write read, at most256. No schema change beyond116.
+
 Implemented prototype: `PaperAutomaticConstruction` coordinates the existing
 saved home queue, supplier payments, earned cargo/work, guarded native writer and
 Civ completion. It does not introduce another money account, timer for labor,
@@ -32,7 +51,7 @@ saves drain; earned saved deliveries and existing housing keep their own behavio
 Only formal active household-bound home proposals enter the automatic queue.
 Arbitrary paid drafts, paths and private premises do not. Suitable existing homes
 still come first; unknown housing evidence is not homelessness. Existing adequate
-homes remain. A four-bed starter plan cannot fit every family. There is no clearing,
+homes remain. Original plans now fit four, six or eight people in one household; larger families still wait for an adequate plan. There is no clearing,
 terrain grading, new road, chest access, property takeover or extra people.
 
 One shared runtime reads at most8 saved jobs at a time. Each project gets one

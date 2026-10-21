@@ -17,7 +17,9 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /** Genuine loaded-only native survey and SQL/admin cancellation, solely in the marked empty disposable world. */
-public final class AutomaticHomePlanningProbe extends JavaPlugin {
+public class AutomaticHomePlanningProbe extends JavaPlugin {
+    protected int familyMembers(){return 1;}
+    protected String expectedTemplate(){return "starter_home";}
     private final UUID town=UUID.randomUUID(),family=UUID.randomUUID(),resident=UUID.randomUUID(),actor=UUID.randomUUID();
     private final Map<Position,String> originals=new HashMap<>();private final List<String> messages=new ArrayList<>();private final List<Component> buttons=new ArrayList<>();
     private World world;private Path data;private Position need;private PopulationSession session;private PaperConstructionLibrary library;
@@ -48,7 +50,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
                         var request=new HousingProjectPreparation.Request(new HousingProjects.Proposal(job.proposal(),job.household(),now),job.village(),job.world(),job.need(),frame.search(),frame.survey(),frame.terrain());
                         return session.prepareLimitedHousingProject(request,List.copyOf(library.templates().values()),library.housing(),library.land(),DwellingInspection.Policy.prototype(),settings.maximumActiveHomes());
                     }
-                },settings,(job,now)->{var source=new PaperHomeSiteSurvey(job.world(),job.need(),settings.searchRadius(),now);
+                },settings,(job,now)->{var source=new PaperHomeSiteSurvey(job.world(),job.need(),settings.searchRadius(),job.templateHeight(),now);
                     return(budget,time)->{largestBudget=Math.max(largestBudget,budget);return source.advance(budget,time);};
                 },System::currentTimeMillis,s->diagnostic=s,getLogger());work=null;phase=2;}
             case 2->{if(!diagnostic.contains("retained unused project"))return;runtime.close();runtime=null;
@@ -58,6 +60,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
                 work=session.constructionWorkPage(null,8);phase=10;}
             case 10->{var page=(ConstructionWorkQueue.Page)work.join();check(page.projects().size()==1,"Actual bounded saved-work page contains dry home");nativeWork=page.projects().getFirst();
                 check(nativeWork.draft().id().equals(project)&&nativeWork.state()==ConstructionWorkQueue.State.WAIT_MATERIALS,"Dry work waits for real materials");
+                check(nativeWork.draft().template().id().equals(expectedTemplate()),"Automatic source chooses a fitting whole-family home");
                 workSurvey=new PaperConstructionWorkSurvey(nativeWork,System.currentTimeMillis());work=null;phase=11;}
             case 11->{var frame=workSurvey.advance(128,System.currentTimeMillis());if(frame.isEmpty())return;
                 check(frame.get().authority().siteCleared(),"Actual two-pass saved-work survey verifies unchanged empty site");
@@ -94,7 +97,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
                 session.close();session=null;
                 try(var c=DriverManager.getConnection("jdbc:sqlite:"+data.resolve("civilizations.db"));var s=c.createStatement()){
                     for(String table:List.of("construction_supply_orders","construction_block_journal","construction_stage_work"))try(var r=s.executeQuery("SELECT count(*) FROM "+table)){check(r.getInt(1)==0,"No goods, work or native placement manufactured");}
-                    try(var r=s.executeQuery("SELECT count(*) FROM residents WHERE status='ALIVE'")){check(r.getInt(1)==1,"Original resident retained");}
+                    try(var r=s.executeQuery("SELECT count(*) FROM residents WHERE status='ALIVE'")){check(r.getInt(1)==familyMembers(),"Original whole family retained");}
                     try(var r=s.executeQuery("SELECT capacity FROM household_capacity")){check(r.getInt(1)==0,"Proposal grants no housing capacity");}
                     try(var r=s.executeQuery("PRAGMA integrity_check")){check(r.getString(1).equals("ok"),"SQLite integrity");}
                     try(var r=s.executeQuery("PRAGMA foreign_key_check")){check(!r.next(),"Foreign keys");}
@@ -124,7 +127,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
             if(!world.isChunkLoaded(cx,cz))world.getChunkAt(cx,cz);
             check(world.isChunkLoaded(cx,cz),"Prepared disposable chunk must be loaded before observation");world.addPluginChunkTicket(cx,cz,this);
         }
-        int y=world.getHighestBlockYAt(x,z);need=new Position(x,y+2,z);var at=new Position(x,y,z);
+        int y=world.getHighestBlockYAt(x,z);need=new Position(x,y+1,z);var at=new Position(x,y,z); // Real discovered bed-level village center.
         originals.put(at,world.getBlockAt(x,y,z).getBlockData().getAsString());world.getBlockAt(x,y,z).setType(Material.DIRT_PATH,false);
     }
     private void seed()throws Exception{
@@ -132,6 +135,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
             try(var s=db.getConnection().prepareStatement("INSERT INTO observed_worlds VALUES(?,'fixture')")){s.setString(1,world.getUID().toString());s.executeUpdate();}
             try(var s=db.getConnection().prepareStatement("INSERT INTO settlement_worlds VALUES(?,?)")){s.setString(1,town.toString());s.setString(2,world.getUID().toString());s.executeUpdate();}
             db.getPopulationRepository().insertHousehold(new Household(family,town,"Fixture household"));db.getPopulationRepository().insertResident(new Resident(resident,"Fixture adult",town,family,240,Resident.Status.ALIVE));
+            for(int child=1;child<familyMembers();child++)db.getPopulationRepository().insertResident(new Resident(UUID.randomUUID(),"Fixture child "+child,town,family,5,Resident.Status.ALIVE));
             try(var s=db.getConnection().prepareStatement("INSERT INTO household_capacity VALUES(?,0)")){s.setString(1,family.toString());s.executeUpdate();}
             db.getDemographicRepository().initializeClock(42,PopulationPolicy.prototype(),MigrationPolicy.prototype());
         }finally{db.close();}

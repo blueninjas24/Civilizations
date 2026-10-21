@@ -17,12 +17,21 @@ public final class PaperHomeSiteSurvey {
     private final List<Position> positions;private int cursor;private boolean verifying,incomplete;private Frame finished;
     private final Map<Position,Cell> cells=new HashMap<>();private final Map<Position,ConstructionLandPolicy.Kind> terrain=new HashMap<>();
     public PaperHomeSiteSurvey(UUID world,Position need,int radius,long now){
+        this(world,need,radius,4,now);
+    }
+    public PaperHomeSiteSurvey(UUID world,Position need,int radius,int templateHeight,long now){
         requireMain();worldId=Objects.requireNonNull(world);Objects.requireNonNull(need);
-        if(radius<8||radius>12||now<0)throw new IllegalArgumentException("Invalid bounded home survey");
-        search=new Bounds(need.plus(new Position(-radius,-3,-radius)),need.plus(new Position(radius,2,radius)));started=now;captured=now;
+        if(now<0)throw new IllegalArgumentException("Invalid bounded home survey time");
+        search=bounds(need,radius,templateHeight);started=now;captured=now;
         var list=new ArrayList<Position>();
-        for(int y=-3;y<=2;y++)for(int z=-radius;z<=radius;z++)for(int x=-radius;x<=radius;x++)list.add(need.plus(new Position(x,y,z)));
+        for(int y=-3;y<templateHeight;y++)for(int z=-radius;z<=radius;z++)for(int x=-radius;x<=radius;x++)list.add(need.plus(new Position(x,y,z)));
         positions=List.copyOf(list);
+    }
+    static Bounds bounds(Position need,int radius,int height){
+        Objects.requireNonNull(need);if(radius<8||radius>12||height<1||height>64||(long)(radius*2+1)*(radius*2+1)*(height+3)>ConstructionPreview.MAX_OBSERVATION_CELLS)
+            throw new IllegalArgumentException("Selected home exceeds bounded site survey coverage");
+        // Settlements are usually centered at bed height, one above the road. Include the entire roof.
+        return new Bounds(need.plus(new Position(-radius,-3,-radius)),need.plus(new Position(radius,height-1,radius)));
     }
     public Optional<Frame> advance(int budget,long now){
         requireMain();if(budget<1||budget>256||now<0)throw new IllegalArgumentException("Invalid home survey budget/time");

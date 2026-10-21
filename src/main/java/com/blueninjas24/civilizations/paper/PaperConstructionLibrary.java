@@ -14,7 +14,7 @@ import java.util.*;
 /** Small, explicitly supported catalogue. Invalid local edits disable previews, never existing simulation. */
 public final class PaperConstructionLibrary {
     private static final Set<Material> SUPPORTED=Set.of(Material.COBBLESTONE,Material.OAK_PLANKS,
-            Material.OAK_LOG,Material.BARREL,Material.OAK_DOOR,Material.WHITE_BED);
+            Material.OAK_LOG,Material.BARREL,Material.OAK_DOOR,Material.WHITE_BED,Material.WALL_TORCH);
     private final Map<String,ConstructionTemplate> templates;
     private final com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding;
     private final com.blueninjas24.civilizations.construction.ConstructionLandPolicy land;
@@ -43,7 +43,7 @@ public final class PaperConstructionLibrary {
         if(Files.isSymbolicLink(settings)||!Files.isRegularFile(settings)||Files.size(settings)>65_536)throw new IOException("Invalid construction.yml");
         var yaml=new org.bukkit.configuration.file.YamlConfiguration();yaml.load(settings.toFile());
         var funding=ConstructionBudgetConfiguration.read(yaml);
-        for(String file:List.of("starter_path.yml","starter_storehouse.yml","starter_home.yml")) {
+        for(String file:List.of("starter_path.yml","starter_storehouse.yml","starter_home.yml","family_home_six.yml","family_home_eight.yml")) {
             String resource="construction/"+file;Path path=plugin.getDataFolder().toPath().resolve(resource);
             if(!Files.exists(path))plugin.saveResource(resource,false);
             if(Files.isSymbolicLink(path)||!Files.isRegularFile(path)||Files.size(path)>ConstructionTemplateConfiguration.MAX_FILE_BYTES)

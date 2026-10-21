@@ -8,7 +8,10 @@ import java.util.*;
 
 /** Read-only bounded work feed for loaded-world home-site surveys. No family, draft, site or funds created. */
 public final class HousingPlanningJobs {
-    public record Job(UUID proposal,UUID household,UUID village,UUID world,Position need){}
+    public record Job(UUID proposal,UUID household,UUID village,UUID world,Position need,int templateHeight){
+        public Job(UUID proposal,UUID household,UUID village,UUID world,Position need){this(proposal,household,village,world,need,4);}
+        public Job{if(templateHeight<1||templateHeight>64)throw new IllegalArgumentException("Invalid selected home height");}
+    }
     public record Page(List<Job> jobs,UUID next,int reviewed,int absent,int projectHolds){public Page{jobs=List.copyOf(jobs);}}
     private record Village(UUID id,UUID world,Position at){}
     private final Connection c;
@@ -36,7 +39,10 @@ public final class HousingPlanningJobs {
                     s.setString(1,household.toString());try(var r=s.executeQuery()){previous=r.getLong(1);}
                 }
                 UUID proposal=UUID.nameUUIDFromBytes(("Civilizations:home-proposal:"+village.world()+":"+household+":"+period+":"+previous).getBytes(StandardCharsets.UTF_8));
-                jobs.add(new Job(proposal,household,village.id(),village.world(),village.at()));
+                var choice=recommendation.orElseThrow();
+                int height=templates.stream().filter(t->t.id().equals(choice.templateId())&&t.fingerprint().equals(choice.fingerprint())).findFirst()
+                        .orElseThrow(()->new SQLException("Recommended home differs from selected catalogue")).size().y();
+                jobs.add(new Job(proposal,household,village.id(),village.world(),village.at(),height));
             }
             c.commit();c.setAutoCommit(true);return new Page(jobs,villages.size()>limit?cursor:null,reviewed,absent,held);
         }catch(SQLException|RuntimeException failure){try{c.rollback();c.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}

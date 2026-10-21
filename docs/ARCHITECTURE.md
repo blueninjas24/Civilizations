@@ -1,5 +1,16 @@
 # Civilizations — architecture and engineering contracts
 
+## October21 selected-plan survey height
+
+HousingPlanningJobs carries the exact recommended template height (matched ID
+and fingerprint); PaperAutomaticHomePlanning passes it into the bounded two-pass
+site reader. The full roof must fit above a normal bed-height settlement center.
+A pure checked bounds function refuses overflow or oversized observation frames
+before allocation/reads. Final preparation still revalidates current family,
+plan, funds, protection and scene. Native block/journal authority is unchanged.
+The original starter plan is preserved; optional six/eight-bed originals fit the
+existing256-read writer cap in all rotations/mirrors. No migration is needed.
+
 ## Boundaries
 - **Domain/simulation (plain Java):** resident, household, settlement, resources, business, economy, pressure, decisions, calendar, history, relationships. No `org.bukkit` types in core calculation interfaces where practical.
 - **Application/services:** orchestrate settlement lifecycle, simulation ticks, decisions, transactions, projects and world observations; avoid monolithic listener logic.

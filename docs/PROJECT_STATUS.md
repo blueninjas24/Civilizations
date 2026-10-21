@@ -1,5 +1,25 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified — larger whole-family homes and correct roof-height surveys
+
+Original editable six/eight-bed homes now join the unchanged four-bed starter.
+Smallest whole-family fit, real wool/timber/stone, earned labor and protected
+budgets apply; suitable vacancy still comes first. New files install only when
+absent. Taller covered plans include a wall torch and fit the native writer cap.
+Fixed the site reader's roof coverage at actual bed-height village centers.
+
+Focused clean Wrapper verify:38 unit+3 packaged passed38.863s; catalogue11+3 and
+final fixtures2+3 also passed. Actual Paper built all167 rotated/mirrored eight-bed
+blocks, inspected eight usable beds and housed the whole saved eight-person
+family; completion replay preserved money/goods/people/capacity after restart.
+Native catalogue checks cover all five plans and eight orientations. Actual
+large-family siting at bed height passed, including changed-cell holds, confirmed
+unused cancellation and restart without free capacity or lost people. Disposable
+servers only; captured cells restored, schema116 integrity/FK checks clean.
+No migration. P4 remains5/16 (31%); this strengthens housing, not a new whole gate.
+Visible resident home-memory projection still needs connecting to modern units.
+Human survival acceptance and broader physical growth remain pending.
+
 ## Current — Phase4 automatic paid family homes
 
 Branch: codex/phase4-construction-foundation; main untouched. Phase4 is31%,
@@ -46,7 +66,7 @@ spending; injecting the same clock fixed the fixture, no guard weakened.
 Prior hosted Windows/Linux both passedb91265c; current candidate awaits CI.
 No latest-head full-suite claim.
 
-Handbook0.18 is35 pages/32 chapters, rendered and visually reviewed. Chapters31/32
+Handbook0.19 is35 pages/32 chapters, rendered and visually reviewed. Chapters31/32
 cover automatic homes, opt-in/pacing, saved inspection and confirmed supply recovery. Sources/configuration
 and docs/PROGRESS.md agree. No schema change beyond116 in this batch.
 

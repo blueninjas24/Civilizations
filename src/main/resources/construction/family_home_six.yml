@@ -1,0 +1,64 @@
+# Original Civilizations 6-bed family home. Tall rooms keep light fittings above headroom.
+# Fixture timber covers sticks/charcoal and assembly under the same abstract real-material budget.
+format: 1
+id: family_home_six
+revision: 1
+name: 6-bed village family home
+attribution: Original Civilizations starter build
+purpose: home
+size: {x: 7, y: 5, z: 5}
+palette:
+  C: minecraft:cobblestone
+  P: minecraft:oak_planks
+  L: minecraft:oak_log[axis=y]
+  D: minecraft:oak_door[facing=north,half=lower,hinge=left,open=false,powered=false]
+  U: minecraft:oak_door[facing=north,half=upper,hinge=left,open=false,powered=false]
+  F: minecraft:white_bed[facing=west,occupied=false,part=foot]
+  H: minecraft:white_bed[facing=west,occupied=false,part=head]
+  I: minecraft:white_bed[facing=east,occupied=false,part=foot]
+  J: minecraft:white_bed[facing=east,occupied=false,part=head]
+  T: minecraft:wall_torch[facing=north]
+stages:
+  - id: foundation
+    work: 35
+    materials: {stone: 12}
+    layers:
+      - y: 0
+        rows: [CCCCCCC, CCCCCCC, CCCCCCC, CCCCCCC, CCCCCCC]
+  - id: walls
+    work: 60
+    materials: {timber: 20}
+    layers:
+      - y: 1
+        rows: [LPPDPPL, P.....P, P.....P, P.....P, LPPPPPL]
+      - y: 2
+        rows: [LPPUPPL, P.....P, P.....P, P.....P, LPPPPPL]
+      - y: 3
+        rows: [LPPPPPL, P.....P, P.....P, P.....P, LPPPPPL]
+  - id: roof
+    work: 35
+    materials: {timber: 12}
+    layers:
+      - y: 4
+        rows: [PPPPPPP, PPPPPPP, PPPPPPP, PPPPPPP, PPPPPPP]
+  - id: beds
+    work: 12
+    materials: {timber: 12, wool: 18}
+    layers:
+      - y: 1
+        rows: [......., .HF.IJ., .HF.IJ., .HF.IJ., .......]
+  - id: fixtures
+    work: 4
+    materials: {timber: 1}
+    layers:
+      - y: 3
+        rows: [......., ......., ......., ...T..., .......]
+anchors:
+  - {role: entrance, at: [3, 1, 0], facing: north}
+  - {role: road, at: [3, -1, -1], facing: north}
+  - {role: bed, at: [2, 1, 1], facing: west}
+  - {role: bed, at: [4, 1, 1], facing: east}
+  - {role: bed, at: [2, 1, 2], facing: west}
+  - {role: bed, at: [4, 1, 2], facing: east}
+  - {role: bed, at: [2, 1, 3], facing: west}
+  - {role: bed, at: [4, 1, 3], facing: east}

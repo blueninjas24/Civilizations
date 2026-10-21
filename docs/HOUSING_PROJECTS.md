@@ -15,7 +15,8 @@ completion replay never resurrects lost capacity. See CIV_BUILT_HOUSING.md.
 ## Guarded internal native writer
 
 PaperConstructionWriter is now an internal normal-server boundary, tested only in
-marked temporary worlds. It is not called by ordinary gameplay yet. Saved paid
+marked temporary worlds. The ordinary automatic family-home coordinator now
+calls it through the full paid public gate; see AUTOMATIC_CONSTRUCTION.md. Saved paid
 work, exact authored transformed ordinal/state, complete immutable native frame
 and current owner permit are mandatory. Its final scene/entity check and one CAS
 run under the nonblocking owner gate;256 cell reads/tick per shared writer limit

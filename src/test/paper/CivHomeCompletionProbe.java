@@ -30,6 +30,11 @@ public class CivHomeCompletionProbe extends JavaPlugin {
     private PaperConstructionLibrary library;private IndustryRuntimePolicy industryRuntime;
     private PaperAutomaticConstruction automatic;
     protected boolean automaticMode(){return false;}
+    protected String templateId(){return "starter_home";}
+    protected int familyMembers(){return 1;}
+    protected int homeBeds(){return 4;}
+    protected long expectedCost(){return 2940;}
+    protected long initialStock(){return 50;}
 
     @Override public void onEnable(){try{
         var root=getServer().getWorldContainer().toPath().toRealPath();
@@ -41,7 +46,7 @@ public class CivHomeCompletionProbe extends JavaPlugin {
             var config=new org.bukkit.configuration.file.YamlConfiguration();var file=new java.io.File(plugin.getDataFolder(),"construction.yml");config.load(file);
             config.set("automatic-construction.enabled",true);config.set("automatic-construction.review-seconds",1);config.set("automatic-construction.block-interval-ms",0);config.save(file);
         }
-        library=PaperConstructionLibrary.load(plugin);var template=library.templates().get("starter_home");var transform=new Transform(ConstructionTemplate.Rotation.CLOCKWISE_90,true);
+        library=PaperConstructionLibrary.load(plugin);var template=library.templates().get(templateId());var transform=new Transform(ConstructionTemplate.Rotation.CLOCKWISE_90,true);
         draft=new ConstructionDraft(UUID.randomUUID(),UUID.randomUUID(),world.getUID(),new Position(x,world.getHighestBlockYAt(x,z)+1,z),transform,template,1000);
         var held=new HashSet<Long>();
         for(var p:ConstructionPreview.requiredCells(template,transform,draft.origin())){
@@ -86,7 +91,7 @@ public class CivHomeCompletionProbe extends JavaPlugin {
                     ?new CivBuildingCompletion.Evidence(new ConstructionMaterials.Authority(draft.id(),draft.world(),clock.get(),true,true),Map.of()) // Saved completion replay only; never new native evidence.
                     :new CivBuildingCompletion.Evidence(frame.authority(),frame.cells()));}
             case 11->{require(receipt.equals(result),"Exact completion survives actual session restart");session.close();session=null;phase=12;pending=CompletableFuture.runAsync(()->{try{verify();}catch(Exception e){throw new CompletionException(e);}},owner);}
-            case 12->{restore();require(restored,"All captured native cells restored");getLogger().info((automaticMode()?"P4_AUTOMATIC_HOME_PASS: actual configured scheduler bought real inputs, waited for cargo/labor, built all120 rotated/mirrored blocks and registered the home; ":"P4_HOME_COMPLETION_PASS: real supplier payment and delayed cargo; earned unemployed builder labor; all "+index+" rotated/mirrored native blocks through guarded writer; exact retries and actual restart before first acknowledgement; ")+"village-owned completion releases site; real two-pass native dwelling inspection assigns one whole saved household and four beds; completion restart replay conserves money, goods, people and capacity; original cells restored.");phase=13;getServer().shutdown();}
+            case 12->{restore();require(restored,"All captured native cells restored");getLogger().info((automaticMode()?"P4_AUTOMATIC_HOME_PASS: actual configured scheduler bought real inputs, waited for cargo/labor, built all"+index+" rotated/mirrored blocks of "+templateId()+" and registered the home; ":"P4_HOME_COMPLETION_PASS: real supplier payment and delayed cargo; earned unemployed builder labor; all "+index+" rotated/mirrored native blocks through guarded writer; exact retries and actual restart before first acknowledgement; ")+"village-owned completion releases site; real two-pass native dwelling inspection assigns one whole saved household and "+homeBeds()+" beds; completion restart replay conserves money, goods, people and capacity; original cells restored.");phase=13;getServer().shutdown();}
             default->{}
         }
     }
@@ -99,7 +104,7 @@ public class CivHomeCompletionProbe extends JavaPlugin {
                 if(found.layouts().isEmpty()){phase=20;pending=CompletableFuture.completedFuture(null);return true;}
                 automatic.cancel();automatic.close();automatic=null;session.close();session=null;phase=22;
                 pending=CompletableFuture.supplyAsync(()->{try{database=new DatabaseManager(folder.toFile(),getLogger());database.initialize();var saved=new CivBuildingCompletion(database.getConnection()).findDraft(draft.id()).orElseThrow();database.close();database=null;return saved;}catch(Exception e){throw new CompletionException(e);}},owner);return true;}
-            case 22->{receipt=(CivBuildingCompletion.Receipt)result;completionOperation=receipt.operation();index=120;newSession();phase=23;pending=session.start(false,Set.of(draft.world()));return true;}
+            case 22->{receipt=(CivBuildingCompletion.Receipt)result;completionOperation=receipt.operation();index=draft.template().blockCount();newSession();phase=23;pending=session.start(false,Set.of(draft.world()));return true;}
             case 23->{phase=6;pending=session.housingPage(null,8);return true;}
             default->{return false;}
         }
@@ -114,14 +119,15 @@ public class CivHomeCompletionProbe extends JavaPlugin {
         new ConstructionDraftRepository(c).save(draft);new ConstructionSiteReservations(c).reserve(draft.id(),new ConstructionMaterials.Authority(draft.id(),draft.world(),clock.get(),true,true),clock.get());
         var people=database.getPopulationRepository();UUID ownerId=UUID.randomUUID(),builder=UUID.randomUUID();people.insertHousehold(new Household(family,town,"Private home beneficiary"));
         people.insertResident(new Resident(ownerId,"Private supplier",town,null,300,Resident.Status.ALIVE));people.insertResident(new Resident(builder,"Private builder",town,family,300,Resident.Status.ALIVE));
+        for(int child=1;child<familyMembers();child++)people.insertResident(new Resident(UUID.randomUUID(),"Private fixture child "+child,town,family,5,Resident.Status.ALIVE));
         try(var s=c.prepareStatement("INSERT INTO household_capacity VALUES(?,0)")){s.setString(1,family.toString());s.executeUpdate();}
-        try(var s=c.prepareStatement("INSERT INTO housing_project_bindings(draft_id,household_id,settlement_id,world_id,plan_hash,residents,previous_capacity,created_ms,cancel_operation,cancelled_ms) VALUES(?,?,?,?,?,1,0,1000,NULL,NULL)")){
-            s.setString(1,draft.id().toString());s.setString(2,family.toString());s.setString(3,town.toString());s.setString(4,draft.world().toString());s.setString(5,draft.template().fingerprint());s.executeUpdate();}
+        try(var s=c.prepareStatement("INSERT INTO housing_project_bindings(draft_id,household_id,settlement_id,world_id,plan_hash,residents,previous_capacity,created_ms,cancel_operation,cancelled_ms) VALUES(?,?,?,?,?,?,0,1000,NULL,NULL)")){
+            s.setString(1,draft.id().toString());s.setString(2,family.toString());s.setString(3,town.toString());s.setString(4,draft.world().toString());s.setString(5,draft.template().fingerprint());s.setInt(6,familyMembers());s.executeUpdate();}
         new TreasuryRepository(c).initialize(UUID.randomUUID(),town,100000,"Explicit disposable fixture money");supplier=UUID.randomUUID();
         var site=new BusinessSite(UUID.randomUUID(),town,draft.world(),0,64,0,10,"Explicit fixture workplace");var company=new Business(supplier,town,"Fixture warehouse",ownerId,ownerId,"warehouse",site.id(),2,0);var requirements=new JobRequirements(216,Map.of());
         database.getBusinessRepository().found(new BusinessFounding(company,site,requirements,requirements,500,"Explicit fixture opportunity"));database.getBusinessRepository().hire(UUID.randomUUID(),supplier,ownerId,0);
         database.getIndustryRepository().openStore(supplier,256,Map.of(Commodity.STONE,1L,Commodity.TIMBER,1L,new Commodity("wool"),1L),0);
-        try(var s=c.prepareStatement("UPDATE industry_stock SET units=50 WHERE business_id=?")){s.setString(1,supplier.toString());require(s.executeUpdate()==3,"Explicit finite fixture stock");}
+        try(var s=c.prepareStatement("UPDATE industry_stock SET units=? WHERE business_id=?")){s.setLong(1,initialStock());s.setString(2,supplier.toString());require(s.executeUpdate()==3,"Explicit finite fixture stock");}
         var bands=new EnumMap<CommodityAccounting.Condition,Integer>(CommodityAccounting.Condition.class);for(var band:CommodityAccounting.Condition.values())bands.put(band,100);
         settings=new EconomySettings(1,3,2,2,1,4,100,new CommodityAccounting.Policy(5000,12500,20000,3),Map.of(Commodity.FOOD,automaticMode()?10000L:100L),Map.of(Commodity.FOOD,java.math.BigDecimal.ONE),bands);
         long now=clock.get();var economy=new EconomyRuntimeRepository(c,settings,FarmObservation.Policy.prototype(),216);economy.observe(new FarmObservation(town,draft.world(),now,true,0),now);economy.startOnline(now,Set.of(draft.world()));economy.pulse(now+1000,false);
@@ -131,16 +137,16 @@ public class CivHomeCompletionProbe extends JavaPlugin {
         if(automaticMode()){clock.set(now+1000);database.close();database=null;return;} // Leave purchasing, delivery and all labor to the real scheduler/owner loop.
         var bought=new ConstructionVillageProcurement(c,ConstructionBudgetPolicy.prototype(),ConstructionSupplyPolicy.prototype(),runtime,BusinessOperationPolicy.prototype()).purchaseRemaining(draft.id(),new ConstructionMaterials.Authority(draft.id(),draft.world(),now+1000,true,true),now+1001,Set.of(draft.world()));require(bought.purchases().size()==3,"All real home material purchases");
         economy.pulse(now+2000,false);require(ConstructionSupplyOrders.deliveryOnly(c).deliverReady(Set.of(draft.world()),8)==3,"Real earned-period cargo arrival");
-        var workRuntime=new EconomyRuntimeRepository(c,settings,FarmObservation.Policy.prototype(),216);workRuntime.configureFarmBusinesses(FarmBusinessPolicy.prototype());workRuntime.configureConstruction(new ConstructionLaborPolicy(true,1,1,100,25));workRuntime.startOnline(now+2000,Set.of(draft.world()));workRuntime.pulse(now+3000,false);require(new ConstructionPublicWork(c).work(draft.id(),0)==36,"Foundation labor earned");clock.set(now+3000);database.close();database=null;
+        var workRuntime=new EconomyRuntimeRepository(c,settings,FarmObservation.Policy.prototype(),216);workRuntime.configureFarmBusinesses(FarmBusinessPolicy.prototype());workRuntime.configureConstruction(new ConstructionLaborPolicy(true,1,1,100,25));workRuntime.startOnline(now+2000,Set.of(draft.world()));workRuntime.pulse(now+3000,false);require(new ConstructionPublicWork(c).work(draft.id(),0)==draft.template().stages().getFirst().work(),"Foundation labor earned");clock.set(now+3000);database.close();database=null;
     }
     private void verify()throws Exception{
         database=new DatabaseManager(folder.toFile(),getLogger());database.initialize();var c=database.getConnection();var entry=new BuildingRegistry(c).find(receipt.building()).orElseThrow();require(entry.villageOwned()&&entry.donor()==null,"Village origin has no player donor");
         require(new HousingProjects(c).find(draft.id()).orElseThrow().completed(),"Completed family binding");require(!new ConstructionSiteReservations(c).find(draft.id()).orElseThrow().active(),"Completed site released");
-        var unit=layout.units().getFirst().id();var qualified=new DwellingOccupancy(c).unit(unit).orElseThrow();require(qualified.beds()==4&&qualified.issues().isEmpty()&&qualified.review().consent().equals(entry.latest().operation()),"Four actually inspected housing places saved");
+        var unit=layout.units().getFirst().id();var qualified=new DwellingOccupancy(c).unit(unit).orElseThrow();require(qualified.beds()==homeBeds()&&qualified.issues().isEmpty()&&qualified.review().consent().equals(entry.latest().operation()),"Actual inspected housing capacity saved");
         try(var s=c.prepareStatement("SELECT unit_id FROM dwelling_active_occupancy WHERE household_id=?")){s.setString(1,family.toString());try(var r=s.executeQuery()){require(r.next()&&r.getString(1).equals(unit.toString()),"Saved family occupies qualified unit");}}
-        require(new TreasuryRepository(c).load(draft.settlement()).orElseThrow().hundredths()==96560,"Actual home price debited exactly once after the real 500-unit warehouse founding cost");var store=database.getIndustryRepository().store(supplier).orElseThrow();require(store.hundredths()==2940&&store.units().get(Commodity.STONE)==38&&store.units().get(Commodity.TIMBER)==14&&store.units().get(new Commodity("wool"))==38,"Finite goods and money conserved");
-        try(var s=c.createStatement();var r=s.executeQuery("SELECT count(*) FROM residents WHERE status='ALIVE'")){require(r.getInt(1)==2,"No fabricated residents");}
-        try(var s=c.createStatement();var r=s.executeQuery("SELECT count(*) FROM dwelling_bed_claims")){require(r.getInt(1)==4,"Exactly four claimed bed heads");}
+        require(new TreasuryRepository(c).load(draft.settlement()).orElseThrow().hundredths()==99500-expectedCost(),"Actual home price debited exactly once after the real 500-unit warehouse founding cost");var store=database.getIndustryRepository().store(supplier).orElseThrow();require(store.hundredths()==expectedCost(),"Exact supplier payment conserved");for(var material:draft.template().materials().entrySet())require(store.units().get(material.getKey())==initialStock()-material.getValue(),"Finite goods conserved");
+        try(var s=c.createStatement();var r=s.executeQuery("SELECT count(*) FROM residents WHERE status='ALIVE'")){require(r.getInt(1)==familyMembers()+1,"No fabricated residents");}
+        try(var s=c.createStatement();var r=s.executeQuery("SELECT count(*) FROM dwelling_bed_claims")){require(r.getInt(1)==homeBeds(),"Exactly the inspected bed heads claimed");}
         try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){require(r.getString(1).equals("ok"),"Healthy private database");}try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){require(!r.next(),"Valid foreign keys");}database.close();database=null;
     }
     private void restore(){if(!authorized||world==null||restored)return;for(var entry:originals.entrySet()){var p=entry.getKey();require(world.isChunkLoaded(p.x()>>4,p.z()>>4),"Cleanup must not load chunks");world.getBlockAt(p.x(),p.y(),p.z()).setBlockData(getServer().createBlockData(entry.getValue()),false);}restored=true;world.removePluginChunkTickets(this);}

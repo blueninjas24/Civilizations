@@ -20,7 +20,7 @@ milestone now includes ordinary automatic family-home construction.
 
 | P4 part | Current state | Plain-English effect |
 |---|---|---|
-| Starter plans | Available | Original editable path, storehouse and four-bed home plans |
+| Starter plans | Available | Original editable path, storehouse and four/six/eight-bed home plans |
 | Families and donated housing | Available | Whole families use inspected homes/apartments; donors can repossess |
 | Protection and renovation consent | Available | Player builds stay private; donating use does not permit alterations |
 | Home-site planning | Available | Actual family need and safe loaded land beside an existing path can create a proposal |
@@ -41,7 +41,7 @@ mirrored home blocks on a disposable Paper server, then native inspection assign
 one saved family to4 beds. Completion replay survived session restart. All captured
 cells restored, server stopped/helper archived; both116 DBs healthy/FK-clean.
 Prior Windows/Linux both passedb91265c; current candidate awaits hosted CI.
-The handbook is now0.18,35 pages/32 chapters, with automatic homes in Chapter31
+The handbook is now0.19,35 pages/32 chapters, with automatic homes in Chapter31
 and saved inspection/confirmed supplier recovery in Chapter32. Latest recovery
 Wrapper35+3 and15+3 passed; actual Paper permission/confirmation/refund/disconnect/
 restart accepted. Both116 DBs healthy, server stopped; no world/inventory edits.

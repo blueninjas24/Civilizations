@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.18 | 21 October 2026 | Player and server owner edition
+Living draft 0.19 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -339,7 +339,7 @@ Status: P4 in progress. Automatic family-home construction is available when ena
 
 ### Current foundation
 
-Three original editable starter plans exist: path, timber storehouse and four-bed home. Admin catalogue/site previews are read-only. Saved family-home proposals can now buy actual supplies, wait for delivery and earned public labor, and build in stages through the automatic runtime. Disposable tests also cover a paid path and a complete home across restarts.
+Five original editable starter plans exist: path, timber storehouse and homes for four, six or eight people. Admin catalogue/site previews are read-only. Saved family-home proposals can now buy actual supplies, wait for delivery and earned public labor, and build in stages through the automatic runtime. Disposable tests also cover a paid path and a complete home across restarts.
 
 A preview spends no money, starts no project and assigns no home. Automatic family-home work uses the guarded normal-server writer when enabled; there is no instant player build command. Standalone development helpers remain restricted to marked disposable test servers.
 
@@ -810,7 +810,7 @@ New construction.yml files include these settings. Existing files must opt in wi
 | maximum-active-homes | 1 per village; allowed 1 to 16 |
 | search-radius | 12 blocks; allowed 8 to 12 |
 
-This pass checks six vertical layers. Large plans, hills, missing paths or unloaded areas may leave no safe site. Protect reserved empty player land with confirmed off-limits protection before the village chooses it.
+This pass covers the selected home's full height above normal village bed level, within a strict total scan limit. Large plans, hills, missing paths or unloaded areas may leave no safe site. Protect reserved empty player land with confirmed off-limits protection before the village chooses it.
 
 ### Check progress and retain control
 
@@ -889,7 +889,9 @@ Use /civ debug construction for the latest reason, /civ build projects <village 
 
 A missing world or unloaded chunk waits. An entity, changed protection, missing road or altered construction block pauses physical work. A restart with an exact saved block present acknowledges it without placing it again. If a prepared block is absent after restart, its history is ambiguous: it may have been harvested already. The builder refuses a free replacement and requires manual review. There is no force-resume, demolition or free refund command. Preserve the save and report the project ID rather than deleting its database rows.
 
-A flat clear site and real supplies remain necessary. The current starter home has four beds and cannot fit every family. Existing adequate housing is preserved; villages do not replace working homes just to demonstrate construction. Confirmed damage or repossession can create need, but do not damage your world merely to force a test.
+A flat clear site and real supplies remain necessary. Original home plans fit four, six or eight people. The smallest adequate plan is chosen; larger families wait for a suitable plan. Existing adequate housing is preserved; villages do not replace working homes just to demonstrate construction. Confirmed damage or repossession can create need, but do not damage your world merely to force a test.
+
+The six/eight-bed plans have a covered center aisle and a wall torch above walking headroom. Default abstract costs are 45 timber, 12 stone and 18 wool for six beds; 53 timber, 14 stone and 24 wool for eight. At default prices these are 39 and 48.7 emerald value. Configured prices and protected budgets apply. Existing installed plans are preserved. Saved housing assignment does not promise visible villager movement yet.
 
 Related chapters: housing, protection, automatic planning, funding, recovery, server backups and tuning. Source: AUTOMATIC_CONSTRUCTION.md. Wider P4 growth remains in progress.
 

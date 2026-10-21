@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 delegated whole-family starter homes
+
+Add original editable six/eight-bed covered, lit single-household plans without
+replacing existing user files or frozen plans. Keep smallest adequate fit and
+vacancy priority; do not split families or force moves. Fixture timber represents
+sticks/charcoal/assembly under the existing non-1:1 material abstraction. Existing
+real supplier payment, wool, labor, food protection and transport limits apply.
+No apartments, private title, new currency, free stock or physical NPC relocation
+is implied by these catalogue plans. Larger households wait for a suitable plan.
+
 ## October21 — delegated confirmed unused-supply operator recovery
 
 Expose the already approved pending recall/arrived buyback through explicit

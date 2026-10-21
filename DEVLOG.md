@@ -1,5 +1,37 @@
 # Civilizations Development Log
 
+## 2026-10-21 — larger lit family homes and real bed-height site coverage
+
+Added family_home_six/eight originals with real paired beds, closed roofs, a
+center aisle and safely supported wall torch above headroom. Existing four-bed
+file/frozen saves are untouched. Six:143 blocks/146 work,45 timber/12 stone/18 wool,
+3900 hundredths at defaults. Eight:167 blocks/170 work,53 timber/14 stone/24 wool,
+4870 hundredths.211/253 required native cells in all orientations fit256-read cap.
+Library allows wall torches; actual native backing/direction checks verified.
+Planner chooses smallest adequate whole-family plan and preserves vacancy-first.
+
+Confirmed/fixed site coverage bug: discovery centers at bed height, whereas the
+old fixed upper scan bound missed roofs; the earlier fixture used an artificially
+higher center. Job metadata now carries the exact recommended plan height, and
+checked bounded surveys include its full roof. Oversize/overflow refuses before
+allocation/read; same per-tick budget, two passes, no chunk loading or grading.
+
+Final clean verify38 unit+3 packaged passed38.863s; catalogue11+3 passed27.621s,
+fixtures2+3 passed21.535s. Actual disposable eight-family build paid original real
+suppliers, waited for cargo/work, placed all167 rotated/mirrored blocks, qualified
+8 beds and assigned the whole family; restart replay preserved94630 treasury,
+4870 supplier payment, finite goods and9 original residents. Catalogue native
+checks covered all5 plans/eight transforms. Large bed-height siting passed after
+correcting an old fixture-only one-person final assertion to actual family size;
+no production safety relaxed. Restored captured cells, healthy116/FK-clean saves,
+servers stopped/helper jars archived. No schema change or real server edits.
+
+Four-bed real bed-height siting also passed native Paper; both fixture DBs
+healthy/FK-clean and helper archived. Handbook0.19 (35 rendered, visually reviewed
+pages/32 chapters) and current technical docs now distinguish enabled automatic homes
+from historical backend-only checkpoints. Progress stays5/16=31%; larger homes
+strengthen that completed delivery item, not completion of wider P4 growth.
+
 ## 2026-10-21 — operator saved-work inspection and exact unused-supply recovery
 
 Added inspectproject for saved origin/rotation/work and unresolved intent position/
