@@ -1,5 +1,16 @@
 # Civilizations — architecture and engineering contracts
 
+## October21 frozen local road recipe conversion
+
+LocalRoadDesign is pure construction-domain preparation using existing immutable
+ConstructionTemplate/Stage/Anchor types. It validates whole flat corridor geometry,
+excludes the existing road endpoint, normalizes only actual cells and scales each
+editable recipe material/work quantity upward by new cells / authored batch size.
+The resulting template can use existing snapshot hashing/draft persistence; no
+new save schema or native authority. Its returned recipe hash is contextual
+provenance, not a newly persisted table. Exact-ground before-state authorization
+and road completion remain separate. Existing AIR-only writer is unchanged.
+
 ## October21 local access corridors remain domain-only
 
 LocalRoadAccessPlanner consumes existing immutable survey/classification types;

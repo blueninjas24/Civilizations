@@ -1,5 +1,31 @@
 # Civilizations Development Log
 
+## 2026-10-21 — freeze local road shape and editable recipe costs
+
+Added LocalRoadDesign: complete READY flat routes become existing immutable
+ConstructionTemplate geometry with ground origin, retained endpoint/facing and
+source recipe hash. Uses the editable single-flat-stage uniform starter_path
+recipe rather than introducing a new configuration framework. Each actual recipe
+material/work quantity scales by new surface cells / recipe blocks, rounded up
+once. Default8 new cells cost4 stone/8 work; existing endpoint stays untouched.
+Bends author only their actual cells, not a filled rectangle. Unsupported surfaces,
+slopes, duplicate/disconnected/partial/miscounted routes refuse; zero-new returns
+no project. Supported paving is deliberately limited to seven solid materials.
+
+Final clean Wrapper verify11 unit+3 packaged passed28.859s; earlier10+3 passed
+28.545s. Three focused domain cases cover default cost, shape/anchor/snapshot,
+admin-edited cost/surface and invalid geometry. One added temporary SQLite case
+proves a generated road draft keeps exact terms across actual close/reopen,
+refuses an edited-recipe overwrite, and creates0 site leases/orders/block intents.
+Existing route and draft regressions passed. No native test needed for this pure
+preparation; no Paper calls, world writes, payments, labor or automatic road
+scheduling were added. No migration beyond116, no actual server/database edits.
+
+P4 remains5/16=31%; frozen design is part of the next road gate. Next is versioned
+exact-ground replacement authority/journaling, then corridor funding/labor and
+saved road completion. Docs/PROGRESS and PROJECT_STATUS updated. Handbook0.21
+already labels automatic paving unfinished; there is no new player action.
+
 ## 2026-10-21 — reconcile current P4 gates and concrete road handoff
 
 Updated PHASE4_CHECKLIST current scope to reflect enabled paid homes, larger

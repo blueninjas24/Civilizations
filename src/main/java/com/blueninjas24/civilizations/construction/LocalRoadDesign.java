@@ -1,0 +1,46 @@
+package com.blueninjas24.civilizations.construction;
+
+import com.blueninjas24.civilizations.construction.ConstructionTemplate.*;
+import com.blueninjas24.civilizations.economy.Commodity;
+import java.util.*;
+
+/** Freeze a local corridor using an editable flat path recipe. No terrain replacement or financial authority. */
+public final class LocalRoadDesign {
+    private static final Set<String> SURFACES=Set.of("minecraft:cobblestone","minecraft:stone","minecraft:stone_bricks",
+            "minecraft:andesite","minecraft:diorite","minecraft:granite","minecraft:cobbled_deepslate");
+    public record Design(Position origin,Position connection,ConstructionTemplate template,String recipeHash) {
+        public Design { Objects.requireNonNull(origin);Objects.requireNonNull(connection);Objects.requireNonNull(template);Objects.requireNonNull(recipeHash); }
+    }
+    private LocalRoadDesign(){}
+    public static Optional<Design> freeze(LocalRoadAccessPlanner.Result route,ConstructionTemplate recipe){
+        Objects.requireNonNull(route);Objects.requireNonNull(recipe);
+        if(route.status()!=LocalRoadAccessPlanner.Status.READY)throw new IllegalArgumentException("Road design requires a complete safe route");
+        if(recipe.purpose()!=Purpose.PATH||recipe.size().y()!=1||recipe.stages().size()!=1)
+            throw new IllegalArgumentException("Local road recipe must be one flat path stage");
+        var source=recipe.stages().getFirst();var states=new HashSet<>(source.blocks().values());
+        if(states.size()!=1||!SURFACES.contains(states.iterator().next()))throw new IllegalArgumentException("Local road recipe requires one supported solid paving material");
+        var points=route.corridor();int fresh=route.newSurfaceCells();
+        if(points.isEmpty()||fresh<0||fresh>64||points.size()!=fresh+1||new HashSet<>(points).size()!=points.size())
+            throw new IllegalArgumentException("Invalid bounded complete road geometry");
+        for(int i=1;i<points.size();i++){
+            var a=points.get(i-1);var b=points.get(i);
+            if(a.y()!=b.y()||Math.abs((long)a.x()-b.x())+Math.abs((long)a.z()-b.z())!=1)
+                throw new IllegalArgumentException("Road corridor must be flat cardinal contiguous cells");
+        }
+        if(fresh==0)return Optional.empty(); // Existing road is not a new paid project.
+        var newCells=points.subList(0,fresh);int x=newCells.stream().mapToInt(Position::x).min().orElseThrow(),z=newCells.stream().mapToInt(Position::z).min().orElseThrow();
+        var origin=new Position(x,points.getFirst().y(),z);var blocks=new TreeMap<Position,String>();
+        for(var p:newCells)blocks.put(relative(p,origin),states.iterator().next());
+        var size=new Size(Math.addExact(Math.subtractExact(newCells.stream().mapToInt(Position::x).max().orElseThrow(),x),1),1,
+                Math.addExact(Math.subtractExact(newCells.stream().mapToInt(Position::z).max().orElseThrow(),z),1));
+        var materials=new TreeMap<Commodity,Long>();source.materials().forEach((commodity,units)->materials.put(commodity,scaled(units,fresh,source.blocks().size())));
+        var connection=points.getLast();var previous=points.get(fresh-1);
+        var facing=connection.x()>previous.x()?Direction.EAST:connection.x()<previous.x()?Direction.WEST:connection.z()>previous.z()?Direction.SOUTH:Direction.NORTH;
+        var template=new ConstructionTemplate("local_road_access",recipe.revision(),"Local village access",recipe.attribution(),Purpose.PATH,size,
+                List.of(new Stage("surface",scaled(source.work(),fresh,source.blocks().size()),materials,blocks)),
+                List.of(new Anchor(Role.ROAD,relative(connection,origin),facing)));
+        return Optional.of(new Design(origin,connection,template,recipe.fingerprint()));
+    }
+    private static Position relative(Position p,Position origin){return new Position(Math.subtractExact(p.x(),origin.x()),Math.subtractExact(p.y(),origin.y()),Math.subtractExact(p.z(),origin.z()));}
+    private static long scaled(long units,int cells,int batch){return Math.addExact(Math.multiplyExact(units,cells),batch-1)/batch;}
+}

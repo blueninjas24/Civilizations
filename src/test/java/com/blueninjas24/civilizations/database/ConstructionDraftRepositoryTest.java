@@ -26,6 +26,26 @@ class ConstructionDraftRepositoryTest {
         var template=ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_storehouse.yml"));
         return new ConstructionDraft(UUID.randomUUID(),town,world,new Position(-17,64,31),new Transform(Rotation.COUNTERCLOCKWISE_90,true),template,1000);
     }
+    @Test void generatedRoadDraftKeepsItsExactShapeAndRecipeCostsAcrossRestartWithoutStartingWork()throws Exception {
+        var source=ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_path.yml"));
+        var points=new ArrayList<Position>();for(int x=8;x>=0;x--)points.add(new Position(x,63,0));
+        var route=new LocalRoadAccessPlanner.Result(LocalRoadAccessPlanner.Status.READY,points,8,20);
+        var design=LocalRoadDesign.freeze(route,source).orElseThrow();var draft=new ConstructionDraft(UUID.randomUUID(),town,world,design.origin(),Transform.identity(),design.template(),1000);
+        try(var c=open()){
+            village(c);assertEquals(draft,new ConstructionDraftRepository(c).save(draft));
+            for(String table:List.of("construction_site_reservations","construction_supply_orders","construction_block_journal"))
+                try(var q=c.createStatement();var r=q.executeQuery("SELECT count(*) FROM "+table)){assertEquals(0,r.getInt(1));}
+        }
+        try(var c=open()){
+            var repository=new ConstructionDraftRepository(c);assertEquals(draft,repository.find(draft.id()).orElseThrow());
+            var stage=source.stages().getFirst();var changed=new ConstructionTemplate(source.id(),2,source.name(),source.attribution(),source.purpose(),source.size(),
+                    List.of(new Stage(stage.id(),stage.work()*2,stage.materials(),stage.blocks())),source.anchors());
+            var future=LocalRoadDesign.freeze(route,changed).orElseThrow();assertNotEquals(draft.template().fingerprint(),future.template().fingerprint());
+            assertThrows(SQLException.class,()->repository.save(new ConstructionDraft(draft.id(),town,world,future.origin(),Transform.identity(),future.template(),1000)));
+            assertEquals(draft,repository.find(draft.id()).orElseThrow());
+            try(var q=c.createStatement();var r=q.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
+        }
+    }
     @Test void draftSurvivesReopenAndTemplateChangesWithoutAcquiringEconomicOrBlockAuthority()throws Exception {
         var draft=draft();
         try(var c=open()){village(c);var repository=new ConstructionDraftRepository(c);assertEquals(draft,repository.save(draft));assertEquals(draft,repository.save(draft));}

@@ -56,3 +56,41 @@ not a material quote, native road design or reserved permission. The terrain is 
 series of observations, so new work must independently inspect it again. Unknown
 or missing evidence cannot become READY. Existing construction settings still
 govern the separate automatic home builder.
+
+## Frozen physical road designs
+
+LocalRoadDesign now converts a complete flat READY corridor into the existing
+ConstructionTemplate format, plus its ground origin, existing-road connection and
+source-recipe fingerprint. This backend does not run automatically. It does not
+change the read-only access preview's geometric output into a paid quote.
+
+Use the existing editable starter_path.yml as the default recipe: five cobblestone
+surface cells, two abstract stone units and five work units. Scale each material
+and work separately by new cells / recipe-authored cells, rounding upward once per
+project. Eight new cells therefore need four stone units and eight work. This is
+the approved material abstraction, not one physical block per economic unit. The
+existing connecting path is not rebuilt or charged as new surface. Admin changes
+to the source recipe apply to future designs; source files are preserved and
+normal configuration changes require restart. No new settings framework.
+
+Recipes must be PATH, one flat stage and one supported solid surface throughout:
+cobblestone, stone, stone bricks, andesite, diorite, granite or cobbled deepslate.
+Decorative, mixed-state, multi-stage or sloped custom schematics cannot be silently
+flattened into this prototype recipe. Positive bounded existing material/work
+rules still apply. A complete route must contain unique flat cardinal neighbors,
+at most64 new cells and exactly one final existing-road endpoint. A zero-new-cell
+connection returns no design; rejected/partial routes never produce a blueprint.
+
+Only actual new corridor cells are authored, so bends do not fill their bounding
+rectangle. The ground-level road anchor records the retained endpoint and facing.
+The generated template/cost/work can be frozen in ConstructionDraftRepository;
+temporary SQLite verification proves exact restart persistence, no site/orders/
+block intents created by saving, and refusal to overwrite that ID after recipe
+edits. The source fingerprint is returned with the design; this does not add a
+new persisted recipe-provenance table or save migration.
+
+The physical design targets the ground surface. The current journal and native
+writer still require AIR before-state, so this is deliberately not executable on
+natural ground yet. Exact natural-ground replacement, its versioned migration,
+current corridor protection, paid effort/supplies and saved road completion remain
+the next integration step. Do not weaken the writer to make a frozen plan run.

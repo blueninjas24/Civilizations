@@ -38,6 +38,7 @@ fixture blocks restored and healthy116 save closed. Handbook0.21 is35 pages.
 | Completed homes | Available | Inspection qualifies beds; whole families gain distinct actual villager home memories; no free residents |
 | Project inspection and unused supply recovery | Available | Operators inspect stalled work and confirm real supplier refunds/returns; history stays |
 | Local road access | Planner and read-only preview available | /civ build access finds short safe flat routes; paid paving remains |
+| Road shape and recipe | Preparation verified | Bends keep their shape; editable path recipe sets real materials and labor; paving remains off |
 | Wider physical growth | Unfinished | New roads, terrain work, business premises, docks, upgrades and civic builds remain |
 
 Existing construction.yml files must explicitly add automatic-construction;

@@ -1,5 +1,21 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified — frozen local road designs and real recipe costs
+
+LocalRoadDesign now freezes a complete safe flat route into the existing template
+format, with actual corridor cells, ground origin and retained existing-road
+endpoint. Editable starter_path terms supply real material/work ratios; default
+8 new cells require4 stone units/8 labor. No free endpoint replacement; no filled
+rectangle at bends. Unsupported/sloping/partial/inconsistent geometry refuses.
+
+Final clean verify11 unit+3 packaged passed28.859s. Temporary SQLite verified exact
+generated draft persistence/reopen, immutable terms after source edits and zero
+site/order/block-intent creation. No native operations, migration or gameplay
+paving enabled. The current AIR-only journal remains unchanged; exact ground
+replacement must get a versioned, tested authority boundary before execution.
+P4 remains5/16=31%. Next: that boundary, actual corridor reservation/funding/labor
+and saved road completion. Existing home construction/player guide remain current.
+
 ## Latest verified — operator local access preview
 
 /civ build access now previews a short flat connection to existing road eight

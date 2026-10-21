@@ -73,8 +73,9 @@ earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.21 i
 remain deferred. See PROJECT_STATUS.md and DEVLOG.md for precise evidence.
 
 Next cohesive local-road delivery:
-1. Freeze an authored physical design and its exact footprint/cost/work, rather
-   than using geometric cell counts as commodity units or granting free work.
+1. Frozen local design is now verified: existing editable path recipe supplies
+   exact scaled cost/work and actual corridor geometry. Integration must retain
+   those immutable terms and never treat geometry as free goods or labor.
 2. Reserve/revalidate the actual corridor with current protection and entities.
 3. Version/test native ground replacement and restart handling; preserve player
    paving/builds and harvested-output ambiguity. Register actual Civ road identity
