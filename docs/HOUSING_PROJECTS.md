@@ -1,5 +1,16 @@
 # Household-bound housing proposals
 
+## Current loaded-world work review
+
+PaperConstructionWorkSurvey accepts saved paid-work snapshots and checks the
+current exact geometry in two matching, bounded, main-thread loaded-only passes.
+Acknowledged prefix blocks must still match; a PREPARED cell may be its exact
+before/after state for lost-ack recovery. Unjournaled matching future blocks are
+not adopted. Support, road, interiors, chunks, border, freshness and entity holds
+apply. Original authored ordinals precede rotation/mirroring. The returned frame
+is evidence for separate SQL/native checks, never land or world-write permission.
+No ordinary automatic caller/writer is enabled by this read-only adapter.
+
 ## Saved paid-work handoff
 
 ConstructionWorkQueue pages at most8 active public/home projects in present

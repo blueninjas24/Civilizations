@@ -44,6 +44,12 @@ passed40.923s. Actual packaged schema115 planning/cancellation native acceptance
 also passed; both isolated DBs healthy, test cells restored, server/helper stopped.
 This adds no ordinary native writes or completed-home capacity; P4 gates stay25%.
 
+Current partial-work world review now requires two exact loaded-only passes,
+journal-backed prefix/pending states and current support/road/entity evidence.
+Unjournaled matching blocks are refused. Authored ordinals survive mirroring.
+Wrapper9+3 and actual final disposable Paper passed; both DBs115/ok/FKs0, three
+test cells restored, server/helper stopped. This still grants no write permission.
+
 Next: paid-work/native handoff and completed-home
 activation. Local roads, terrain adaptation, business-premises reuse, upgrades and
 civic growth remain unfinished. No design question currently blocks under delegated

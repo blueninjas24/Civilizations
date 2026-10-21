@@ -1,5 +1,24 @@
 # Civilizations Development Log
 
+## 2026-10-21 — bounded live review of journal-backed partial construction
+
+PaperConstructionWorkSurvey now reads only loaded main-thread cells, under a
+shared caller1..256 cell budget. Two complete exact matching passes check support,
+road, air/interior, acknowledged-prefix states, an exact pending intent and
+current entity obstruction. Unknown/changing/unloaded/expired evidence holds.
+Unjournaled blocks are refused even if they match future plans; no block/chunk
+writes, land grant or economic/native authority is inferred. Authored journal
+ordering is preserved BEFORE transformation; mirror reordering found during
+review was fixed and covered by an explicit saved-intent regression.
+
+Final Wrapper9 unit +3 packaged checks passed30.368s. Actual marked temporary
+Paper passed saved-work page -> two-pass empty-site review -> refusal of a matching
+unjournaled placed test block, then existing funding hold/confirmed unused
+cancellation/restart/changed-evidence acceptance. Schema115/ok/FKs0 in both DBs;
+one path and two air test cells restored, fixture/helper stopped/archived. Initial
+test-only failures needed valid entrance metadata and explicit Rotation import.
+No normal writer or automatic spending is enabled. No real server touched.
+
 ## 2026-10-21 — saved paid-work queue and exact native-intent handoff
 
 ConstructionWorkQueue and a serialized session page now distinguish missing

@@ -46,6 +46,14 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Current backend adds atomic real supplier procurement, exact pending recall and
+real arrived-material return cargo (schemas114/115), actual reserved storage/
+shared hauling and earned owner-loop delivery. A paged saved-work handoff carries
+paid readiness/exact intents; loaded-only two-pass partial-work review refuses
+unjournaled blocks. Focused Wrapper and actual disposable Paper passed. Normal
+native execution, useful completion and wider growth remain;4/16 stays unchanged.
+
+
 Automatic dry home preparation now connects verified family need, existing dirt
 paths, globally budgeted two-pass loaded-only terrain, rotated/buffered candidates,
 current saved protection and atomic plan/family/site reservation. Editable new

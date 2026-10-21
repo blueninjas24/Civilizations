@@ -23,6 +23,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
     private World world;private Path data;private Position need;private PopulationSession session;private PaperConstructionLibrary library;
     private PaperAutomaticHomePlanning runtime;private PaperHousingProjectControls controls;private PaperConstructionPreview route;private CompletableFuture<?> work;
     private Player player;private UUID project;private boolean authorized,manage;private int phase,ticks,largestBudget;private String diagnostic="";
+    private PaperConstructionWorkSurvey workSurvey;private ConstructionWorkQueue.Work nativeWork;private Position workCell;
     private PaperHomeSiteSurvey changedSurvey;private int surveyTicks;private Position changedCell;
     @Override public void onEnable(){try{
         var root=getServer().getWorldContainer().toPath().toRealPath();
@@ -54,6 +55,19 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
                 work=session.housingProjectStatus(town,world.getUID(),DwellingInspection.Policy.prototype());phase=3;}
             case 3->{var report=(HousingProjectStatus.Report)work.join();check(report.items().size()==1,"One capped automatic project");var item=report.items().getFirst();project=item.family().proposal().draft();
                 check(item.unused()&&item.siteHeld()&&item.paidOrders()==0&&item.intents()==0,"Real dry site/family proposal with no paid or physical work");
+                work=session.constructionWorkPage(null,8);phase=10;}
+            case 10->{var page=(ConstructionWorkQueue.Page)work.join();check(page.projects().size()==1,"Actual bounded saved-work page contains dry home");nativeWork=page.projects().getFirst();
+                check(nativeWork.draft().id().equals(project)&&nativeWork.state()==ConstructionWorkQueue.State.WAIT_MATERIALS,"Dry work waits for real materials");
+                workSurvey=new PaperConstructionWorkSurvey(nativeWork,System.currentTimeMillis());work=null;phase=11;}
+            case 11->{var frame=workSurvey.advance(128,System.currentTimeMillis());if(frame.isEmpty())return;
+                check(frame.get().authority().siteCleared(),"Actual two-pass saved-work survey verifies unchanged empty site");
+                workCell=nativeWork.draft().origin();check(world.getBlockAt(workCell.x(),workCell.y(),workCell.z()).getType()==Material.AIR,"Unbuilt home cell is exact air");
+                originals.putIfAbsent(workCell,world.getBlockAt(workCell.x(),workCell.y(),workCell.z()).getBlockData().getAsString());world.getBlockAt(workCell.x(),workCell.y(),workCell.z()).setType(Material.COBBLESTONE,false);
+                workSurvey=new PaperConstructionWorkSurvey(nativeWork,System.currentTimeMillis());phase=12;}
+            case 12->{var frame=workSurvey.advance(128,System.currentTimeMillis());if(frame.isEmpty())return;
+                check(!frame.get().authority().siteCleared(),"Matching but unjournaled native block never becomes Civ property or overwrite permission");
+                world.getBlockAt(workCell.x(),workCell.y(),workCell.z()).setBlockData(getServer().createBlockData(originals.get(workCell)),false);phase=13;}
+            case 13->{
                 player=(Player)java.lang.reflect.Proxy.newProxyInstance(getClassLoader(),new Class<?>[]{Player.class},(p,m,a)->switch(m.getName()){
                     case "getUniqueId"->actor;case "getWorld"->world;case "hasPermission"->a[0].equals(PaperConstructionPreview.PERMISSION)||manage&&a[0].equals(PaperHousingProjectControls.MANAGE);
                     case "sendMessage"->{if(a[0] instanceof String text)messages.add(text);else buttons.add((Component)a[0]);yield null;}default->throw new IllegalStateException("Unexpected player access "+m.getName());});
@@ -92,7 +106,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
                     originals.put(changedCell,world.getBlockAt(changedCell.x(),changedCell.y(),changedCell.z()).getBlockData().getAsString());
                     check(world.getBlockAt(changedCell.x(),changedCell.y(),changedCell.z()).getType().isAir(),"Tracked disposable air test cell");world.getBlockAt(changedCell.x(),changedCell.y(),changedCell.z()).setType(Material.COBBLESTONE,false);}
                 if(frame.isEmpty())return;check(surveyTicks>30&&!frame.orElseThrow().survey().complete(),"Changed second-pass evidence remains unknown");cleanup();
-                getLogger().info("P4_AUTOMATIC_HOME_PASS: actual loaded-only two-pass site survey; deterministic real SQL family/plan/site preparation; capped one project; funding report refuses missing current financial context; operator preview and real confirmed unused cancellation; restart retains released site/cancelled identity; resident and zero housing capacity preserved; no paid stock or physical intents; absent world and changed second-pass evidence held unknown; one path marker and one air test cell restored;128 cell advance limit");phase=99;}
+                getLogger().info("P4_AUTOMATIC_HOME_PASS: actual loaded-only two-pass site survey; saved-work queue and native partial-work survey; unjournaled matching block refused; deterministic real SQL family/plan/site preparation; capped one project; funding report refuses missing current financial context; operator preview and real confirmed unused cancellation; restart retains released site/cancelled identity; resident and zero housing capacity preserved; no paid stock or physical intents; absent world and changed second-pass evidence held unknown; one path marker and two air test cells restored;128 cell advance limit");phase=99;}
             default->throw new IllegalStateException("Unknown phase");
         }
     }
