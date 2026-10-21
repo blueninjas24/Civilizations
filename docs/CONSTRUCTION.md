@@ -15,6 +15,9 @@ The same global candidate/cell-review limits include the buffer; rejected
 candidates retain specific land findings. This preparation API does not enable
 automatic scheduling, imply land permission or alter the native writer boundary.
 
+- `/civ build access`: read-only flat access check eight blocks ahead, sharing the
+  preview queue/budget and saved protection. No paving or reservation; see
+  LOCAL_ROAD_ACCESS.md and handbook Chapter13.
 - `/civ build templates`: list installed plans, sizes, stages and abstract costs.
 - `/civ build housing <village UUID>`: read saved whole-family decisions in your
   current world. Use `/civ debug villages` for the full saved ID. Explains existing

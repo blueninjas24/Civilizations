@@ -24,6 +24,10 @@ then verified active-body memory refresh and completion restart conservation.
 Both116 fixture DBs healthy/FK-clean; stopped/helper archived. No schema change.
 This strengthens the same housing milestone; no extra checklist point claimed.
 
+Road-access preview:10 unit+3 packaged passed; actual Paper command used saved
+protection and found8 new route cells. No construction orders/projects created;
+fixture blocks restored and healthy116 save closed. Handbook0.21 is35 pages.
+
 | P4 part | Current state | Plain-English effect |
 |---|---|---|
 | Starter plans | Available | Original editable path, storehouse and four/six/eight-bed home plans |
@@ -33,7 +37,7 @@ This strengthens the same housing milestone; no extra checklist point claimed.
 | Paid automatic family homes | Available prototype | Real suppliers get paid; cargo and labor take time; house blocks appear in stages |
 | Completed homes | Available | Inspection qualifies beds; whole families gain distinct actual villager home memories; no free residents |
 | Project inspection and unused supply recovery | Available | Operators inspect stalled work and confirm real supplier refunds/returns; history stays |
-| Local road access | Planning component verified | Finds short safe flat routes; paving and funding integration remain |
+| Local road access | Planner and read-only preview available | /civ build access finds short safe flat routes; paid paving remains |
 | Wider physical growth | Unfinished | New roads, terrain work, business premises, docks, upgrades and civic builds remain |
 
 Existing construction.yml files must explicitly add automatic-construction;
@@ -48,7 +52,7 @@ mirrored home blocks on a disposable Paper server, then native inspection assign
 one saved family to4 beds. Completion replay survived session restart. All captured
 cells restored, server stopped/helper archived; both116 DBs healthy/FK-clean.
 Prior Windows/Linux both passedb91265c; current candidate awaits hosted CI.
-The handbook is now0.20,35 pages/32 chapters, with automatic homes in Chapter31
+The handbook is now0.21,35 pages/32 chapters, with automatic homes in Chapter31
 and saved inspection/confirmed supplier recovery in Chapter32. Latest recovery
 Wrapper35+3 and15+3 passed; actual Paper permission/confirmation/refund/disconnect/
 restart accepted. Both116 DBs healthy, server stopped; no world/inventory edits.

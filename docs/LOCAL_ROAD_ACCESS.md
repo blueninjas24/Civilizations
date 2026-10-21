@@ -1,8 +1,8 @@
 # Bounded local road-access planning
 
-Status: implemented read-only domain preparation. This does not enable automatic
+Status: implemented read-only planner and operator preview. This does not enable automatic
 roads or relax the current requirement that home sites touch an existing path.
-No command, SQLite migration, supplier payment, material estimate, labor grant,
+No SQLite migration, supplier payment, material estimate, labor grant,
 land lease or world modification is introduced.
 
 LocalRoadAccessPlanner finds a shortest flat one-column access corridor from a
@@ -37,3 +37,22 @@ natural ground must be explicit at that future write boundary; this planner cann
 turn a clear-looking ground observation into a block replacement. Completed Civ
 road provenance must also feed future connectors without adopting arbitrary
 player paving. Regional routes/trade stay Phase5.
+
+## Read-only operator preview
+
+Use /civ build access while standing at the intended ground level and facing a
+possible connection point. It checks a point eight blocks ahead, in a17x17 flat
+frame at one block below your feet, with two clear cells above. Hills/water and
+unknown terrain do not count as flat usable access. The player/entity itself can
+block a corridor; move away from the point being inspected if necessary.
+
+Permission is civilizations.construction.preview (operators by default). It shares
+the existing eight-request/per-player limits, global64 cell reads per tick and
+30-second lifetime with template previews. World/permission/disconnect are checked
+before reads/results. No chunk loading. Actual saved protection comes from the SQL
+owner future; failure or missing protection holds the result. Entity evidence is
+capped at128. Output gives status, search nodes, new ground cells and endpoints,
+not a material quote, native road design or reserved permission. The terrain is a
+series of observations, so new work must independently inspect it again. Unknown
+or missing evidence cannot become READY. Existing construction settings still
+govern the separate automatic home builder.

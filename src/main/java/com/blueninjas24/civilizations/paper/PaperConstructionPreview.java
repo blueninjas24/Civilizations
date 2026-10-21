@@ -24,6 +24,7 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
             Material.ROOTED_DIRT,Material.PODZOL,Material.MYCELIUM,Material.ANDESITE,Material.DIORITE,Material.GRANITE,Material.SANDSTONE,Material.RED_SANDSTONE,Material.BEDROCK);
     private static final Set<Material> NATURAL_LOOKING_GROUND=Set.of(Material.GRASS_BLOCK,Material.DIRT,Material.COARSE_DIRT,Material.ROOTED_DIRT,Material.PODZOL,Material.MYCELIUM);
     private final PaperConstructionLibrary library;
+    private final java.util.function.Function<UUID,Player> playerLookup;
     private CommandExecutor housing;
     public void configureHousing(CommandExecutor housing){this.housing=Objects.requireNonNull(housing);}
     private CommandExecutor projects;
@@ -35,13 +36,19 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
         final ArrayDeque<Position> remaining;final Map<Position,Cell> cells=new HashMap<>();boolean incomplete;
         final Map<Position,ConstructionLandPolicy.Kind> landKinds=new HashMap<>();
         CompletableFuture<Set<Column>> protections;
+        Request(Player player,Position start){
+            this.player=player.getUniqueId();world=player.getWorld().getUID();template=null;origin=start;started=System.currentTimeMillis();
+            remaining=new ArrayDeque<>();for(int y=0;y<3;y++)for(int z=-8;z<=8;z++)for(int x=-8;x<=8;x++)remaining.add(start.plus(new Position(x,y,z)));
+        }
         Request(Player player,ConstructionTemplate template,Position origin,ConstructionLandPolicy land) {
             this.player=player.getUniqueId();world=player.getWorld().getUID();this.template=template;this.origin=origin;
             started=System.currentTimeMillis();remaining=new ArrayDeque<>(land.requiredCells(template,origin));
         }
     }
     public PaperConstructionPreview(PaperConstructionLibrary library){this(library,null);}
-    public PaperConstructionPreview(PaperConstructionLibrary library,java.util.function.BiFunction<UUID,Bounds,CompletableFuture<Set<Column>>> protectionReader){this.library=Objects.requireNonNull(library);this.protectionReader=protectionReader;}
+    public PaperConstructionPreview(PaperConstructionLibrary library,java.util.function.BiFunction<UUID,Bounds,CompletableFuture<Set<Column>>> protectionReader){this(library,protectionReader,Bukkit::getPlayer);}
+    /** Native test harness can supply a command actor without creating a fake online player. */
+    public PaperConstructionPreview(PaperConstructionLibrary library,java.util.function.BiFunction<UUID,Bounds,CompletableFuture<Set<Column>>> protectionReader,java.util.function.Function<UUID,Player> playerLookup){this.library=Objects.requireNonNull(library);this.protectionReader=protectionReader;this.playerLookup=Objects.requireNonNull(playerLookup);}
     static boolean stableSupport(Material material){return SUPPORT.contains(material);}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(args.length>=2&&Set.of("projects","funding","inspectproject","recoverproject","confirmrecovery","cancelproject","confirmcancel","cancelrequest").contains(args[1].toLowerCase(Locale.ROOT))){
@@ -58,6 +65,18 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
             return true;
         }
         if(!(sender instanceof Player player)){sender.sendMessage("Use /civ build templates; site previews require a player.");return true;}
+        if(args.length==2&&args[1].equalsIgnoreCase("access")){
+            if(pending.containsKey(player.getUniqueId())){sender.sendMessage("Your current site preview is still being checked.");return true;}
+            if(pending.size()>=MAX_REQUESTS){sender.sendMessage("Construction preview queue is full; try again shortly.");return true;}
+            var location=player.getLocation();var forward=location.getDirection().setY(0);if(forward.lengthSquared()<0.01)forward=new org.bukkit.util.Vector(0,0,1);
+            location.add(forward.normalize().multiply(8));
+            try{
+                var start=new Position(location.getBlockX(),Math.subtractExact(player.getLocation().getBlockY(),1),location.getBlockZ());var request=new Request(player,start);
+                if(protectionReader!=null)request.protections=protectionReader.apply(request.world,accessFrame(start));
+                pending.put(player.getUniqueId(),request);sender.sendMessage("Checking flat road access eight blocks ahead. Read-only: no road, reservation or payment.");
+            }catch(IllegalArgumentException|ArithmeticException invalid){sender.sendMessage("Road access preview is outside bounded coverage.");}
+            return true;
+        }
         if(args.length<3||args.length>5||!args[1].equalsIgnoreCase("preview")){usage(sender);return true;}
         var template=library.templates().get(args[2]);if(template==null){sender.sendMessage("Unknown template. Use /civ build templates.");return true;}
         int rotation=0;
@@ -87,7 +106,7 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
         // Global budget, round robin across requests; no per-player multiplication of the block-read budget.
         int budget=CELLS_PER_TICK;
         for(var iterator=pending.values().iterator();iterator.hasNext();) {
-            var request=iterator.next();var player=Bukkit.getPlayer(request.player);var world=Bukkit.getWorld(request.world);
+            var request=iterator.next();var player=playerLookup.apply(request.player);var world=Bukkit.getWorld(request.world);
             if(player==null||!player.getWorld().getUID().equals(request.world)||!player.hasPermission(PERMISSION)||world==null){iterator.remove();continue;}
             if(System.currentTimeMillis()-request.started>30_000){player.sendMessage("Site preview expired; try again.");iterator.remove();continue;}
             int allowance=Math.min(budget,Math.max(1,CELLS_PER_TICK/pending.size()));
@@ -104,6 +123,7 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
         }
     }
     private void finish(Player player,World world,Request request) {
+        if(request.template==null){finishAccess(player,world,request);return;}
         var bounds=ConstructionPreview.footprint(request.template,Transform.identity(),request.origin);
         boolean complete=!request.incomplete;
         boolean protectionComplete=request.protections!=null;
@@ -128,6 +148,27 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
         player.sendMessage("Buffered clear-land screen: "+(land.suitable()?"suitable in this bounded observation":land.findings())+". "+(protectionComplete?"Saved fenced plots checked.":"Saved protection incomplete."));
         player.sendMessage("Preview only: no funded project or construction authority. Terrain and protection must be checked again before future work.");
     }
+    private static Bounds accessFrame(Position start){return new Bounds(start.plus(new Position(-8,0,-8)),start.plus(new Position(8,2,8)));}
+    private void finishAccess(Player player,World world,Request request){
+        var frame=accessFrame(request.origin);boolean complete=!request.incomplete,protectionComplete=request.protections!=null;
+        if(protectionComplete)try{
+            var protectedColumns=request.protections.join();request.cells.replaceAll((p,c)->new Cell(c.air(),c.stableSupport(),c.road(),c.protectedWork()||protectedColumns.contains(new Column(p.x(),p.z()))));
+        }catch(java.util.concurrent.CompletionException|java.util.concurrent.CancellationException failed){protectionComplete=false;}
+        for(int x=frame.minimum().x()>>4;x<=frame.maximum().x()>>4;x++)for(int z=frame.minimum().z()>>4;z<=frame.maximum().z()>>4;z++)if(!world.isChunkLoaded(x,z))complete=false;
+        var entities=new ArrayList<Bounds>();
+        if(complete)for(var entity:world.getNearbyEntities(new BoundingBox(frame.minimum().x(),frame.minimum().y(),frame.minimum().z(),frame.maximum().x()+1.0,frame.maximum().y()+1.0,frame.maximum().z()+1.0))){
+            if(entities.size()==com.blueninjas24.civilizations.construction.ConstructionSitePlanner.MAX_EXCLUSIONS){complete=false;break;}
+            var b=entity.getBoundingBox();entities.add(new Bounds(new Position((int)Math.floor(b.getMinX()),(int)Math.floor(b.getMinY()),(int)Math.floor(b.getMinZ())),new Position((int)Math.floor(b.getMaxX()),(int)Math.floor(b.getMaxY()),(int)Math.floor(b.getMaxZ()))));
+        }
+        var ground=new Bounds(frame.minimum(),new Position(frame.maximum().x(),request.origin.y(),frame.maximum().z()));
+        var survey=new com.blueninjas24.civilizations.construction.ConstructionSitePlanner.Survey(request.world,request.started,complete,protectionComplete,request.cells,List.of(),entities);
+        var result=com.blueninjas24.civilizations.construction.LocalRoadAccessPlanner.select(request.world,request.origin,ground,survey,request.landKinds,com.blueninjas24.civilizations.construction.LocalRoadAccessPlanner.Policy.prototype(),System.currentTimeMillis(),30_000,0);
+        player.sendMessage("Flat local road access: "+result.status()+"; new surface cells "+result.newSurfaceCells()+"; search nodes "+result.reviewed()+".");
+        if(!result.corridor().isEmpty()){
+            var end=result.corridor().getLast();player.sendMessage("Ground route from "+request.origin.x()+", "+request.origin.y()+", "+request.origin.z()+" to existing path at "+end.x()+", "+end.y()+", "+end.z()+".");
+        }
+        player.sendMessage("Read-only observation: no site rights, supplies, labor or paving. Changed ground/protection needs a fresh check. Homes still require an existing path.");
+    }
     private static String explain(Issue issue){return switch(issue){
         case NO_APPROVED_AREA->"validated construction permission required";case WRONG_WORLD->"wrong world";
         case STALE_OR_FUTURE->"expired observation";case INCOMPLETE->"incomplete terrain or saved protection evidence";
@@ -135,13 +176,13 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
         case OBSTRUCTED->"existing blocks in building space";case UNSUPPORTED->"uneven or unsupported ground";
         case ROAD_REQUIRED->"entrance needs a dirt-path connection";case LAND_UNSUITABLE->"buffered land check did not pass";};}
     private static void usage(CommandSender sender){
-        sender.sendMessage("/civ build templates | housing <village UUID> | projects <village UUID> | funding <project UUID> | preview <template> [0|90|180|270] [mirror]");
+        sender.sendMessage("/civ build templates | housing <village UUID> | projects <village UUID> | funding <project UUID> | access | preview <template> [0|90|180|270] [mirror]");
         sender.sendMessage("Project inspection/recovery: /civ build inspectproject/recoverproject/cancelproject <project UUID> | confirmrecovery/confirmcancel <token> | cancelrequest");
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
         boolean preview=sender.hasPermission(PERMISSION),manage=sender.hasPermission(PaperHousingProjectControls.MANAGE);
         if(!preview&&!manage)return List.of();
-        if(args.length==2){var choices=new ArrayList<String>();if(preview)choices.addAll(List.of("templates","housing","projects","funding","inspectproject","preview"));if(manage)choices.addAll(List.of("recoverproject","confirmrecovery","cancelproject","confirmcancel","cancelrequest"));return choices.stream().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();}
+        if(args.length==2){var choices=new ArrayList<String>();if(preview)choices.addAll(List.of("templates","housing","projects","funding","inspectproject","access","preview"));if(manage)choices.addAll(List.of("recoverproject","confirmrecovery","cancelproject","confirmcancel","cancelrequest"));return choices.stream().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();}
         if(!preview)return List.of();
         List<String> options=switch(args.length){case 2->List.of("templates","housing","preview");case 3->args[1].equalsIgnoreCase("preview")?List.copyOf(library.templates().keySet()):List.of();case 4->args[1].equalsIgnoreCase("preview")?List.of("0","90","180","270"):List.of();case 5->args[1].equalsIgnoreCase("preview")?List.of("mirror"):List.of();default->List.of();};
         return options.stream().filter(s->s.startsWith(args[args.length-1].toLowerCase(Locale.ROOT))).toList();

@@ -1,5 +1,31 @@
 # Civilizations Development Log
 
+## 2026-10-21 — read-only local access command
+
+Added /civ build access to existing construction previews/tab completion. It
+checks a point8 blocks ahead at the player's ground level,17x17 ground cells
+with two cells of headroom. Same preview permission,8-request/per-player bounds,
+shared global64 reads/tick and30-second timeout; current world/permission/player
+presence checked before native reads/results. Real saved protections come through
+the owner future; missing/failure never becomes permission. Rechecks loaded chunks
+before bounded128-entity observation. No new schedule, chunk load, purchase, labor,
+lease or physical write. Reports route status/new surface cells/endpoints; warns
+that no construction authority is granted. Normal homes still need existing path.
+
+Final clean Wrapper10 unit+3 packaged passed28.961s (earlier preview27.847s).
+Actual marked disposable Paper exercised command/read permission, incremental
+loaded-world reads and actual PopulationSession saved-protection query; found an
+8-cell route. Five explicit fixture path cells restored; no player/entity
+created, no project/order/payment. Initial fixture refused because its initial
+chunks had unloaded; fixture now retains only already-loaded chunks until cleanup.
+No production chunk policy relaxed. Both116 main fixture DBs integrity ok/FKs0,
+0 drafts/0 orders; stopped, helpers archived. No migrations.
+
+Handbook0.21 is35 pages/32 chapters, rendered/visually reviewed including the
+updated command glossary. Technical access doc and tracker agree. P4 remains31%
+(5/16), because the next whole milestone still needs paid automatic local paving.
+No blocking design question or changes to actual server files/main.
+
 ## 2026-10-21 — bounded flat local access corridors
 
 Added plain-Java LocalRoadAccessPlanner for the next road/site milestone.

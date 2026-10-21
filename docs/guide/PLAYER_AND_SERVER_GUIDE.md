@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.20 | 21 October 2026 | Player and server owner edition
+Living draft 0.21 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -341,6 +341,8 @@ Status: P4 in progress. Automatic family-home construction is available when ena
 
 Five original editable starter plans exist: path, timber storehouse and homes for four, six or eight people. Admin catalogue/site previews are read-only. Saved family-home proposals can now buy actual supplies, wait for delivery and earned public labor, and build in stages through the automatic runtime. Disposable tests also cover a paid path and a complete home across restarts.
 
+Operators can use /civ build access to inspect short flat road access to a point eight blocks ahead. It checks clear ground, saved protection and existing paths under the shared preview budget. READY is a possible route, not a reservation, priced quote or building order. Roads are still awaiting paid construction integration. LOCAL_ROAD_ACCESS.md explains the limits.
+
 A preview spends no money, starts no project and assigns no home. Automatic family-home work uses the guarded normal-server writer when enabled; there is no instant player build command. Standalone development helpers remain restricted to marked disposable test servers.
 
 ### Read why a family needs housing
@@ -499,6 +501,7 @@ Status: Implemented limited controls, not general plot ownership or an instant c
 | /civ pen confirmrelease | Confirm area release; animal ownership/history remain |
 | /civ pen cancel | Cancel an unsubmitted preview, not an already submitted save |
 | /civ build templates | Read installed plans with construction preview permission |
+| /civ build access | Read-only flat access check eight blocks ahead; no paving |
 | /civ build housing <village UUID> | Read saved whole-family housing decisions in your current world; starts no project |
 | /civ build preview <template> [rotation] [mirror] | Read-only site inspection eight blocks ahead; player required; rotation 0, 90, 180 or 270 |
 

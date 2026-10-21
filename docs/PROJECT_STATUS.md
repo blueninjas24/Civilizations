@@ -1,5 +1,21 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified — operator local access preview
+
+/civ build access now previews a short flat connection to existing road eight
+blocks ahead. It uses the same preview permission/shared64-cell budget/8-request
+limit and actual saved protection reader. Read-only status and endpoints confer
+no land lease, supply order, labor or paving permission. No chunk loading.
+
+Final clean verify10 unit+3 packaged passed28.961s. Actual disposable Paper command
+permission/native observations/real SQL protection reader found8 new surface cells;
+5 explicit test path blocks restored,0 saved projects/orders, healthy116/FK-clean
+DB. An initial unloaded-fixture refusal was corrected by retaining its initially
+loaded chunks, with production guards unchanged. Server stopped/helpers archived.
+Handbook0.21 (35 pages/32 chapters) rendered and visually reviewed. No migration.
+P4 stays5/16=31%. Next: paid local paving and completed-road provenance, then useful
+business premises and wider terrain/upgrade/civic growth. Human acceptance remains.
+
 ## Latest verified — local road-access preparation
 
 A bounded deterministic plain-Java planner can now find short flat corridors
