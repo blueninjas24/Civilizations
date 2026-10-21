@@ -7,14 +7,22 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is31-page edition0.15, with
-29 feature/reference chapters, linked contents, command glossary and implemented/
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is32-page edition0.16, with
+30 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
 owned units follow the same occupancy direction as homes. New apartment declarations now have explicit controls; editing registered units remains unfinished.
 
 
 Implemented and verified:
+- `/civ build funding <project UUID>` now exposes real material/escrow and
+  protected-cash/haul readiness with emerald-value formatting, bounded to8
+  material rows. Uses configured construction prices/budgets and existing read
+  permission. No seller selection, payment or native authority. Wrapper28 +3
+  passed42.393s. Native routed funding refused missing current financial context
+  without inventing money, then actual cancellation/restart proof passed.
+  Both fixture DBs113/ok/FKs0;2 test cells restored. Handbook0.16:32 pages/30
+  chapters, all rendered/reviewed, linked contents kept on one readable page.
 - Read-only village material/funding readiness now separates required, paid,
   incoming, delivered, free and stage-escrowed goods. Already bought/escrowed
   inputs never become a new purchase need. Uses actual current fed population,

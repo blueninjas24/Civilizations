@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.15 | 21 October 2026 | Player and server owner edition
+Living draft 0.16 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -565,7 +565,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.15 adds guarded automatic home-site planning. Retained home-project reports and confirmed unused-project cancellation remain available. The read-only whole-family housing-planning report remains available. Separate renovation-consent controls and saved inspection status remain available. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
+Edition 0.16 adds a read-only construction funding/material report. Guarded automatic home-site planning remains available. Retained home-project reports and confirmed unused-project cancellation remain available. The read-only whole-family housing-planning report remains available. Separate renovation-consent controls and saved inspection status remain available. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
 
 
 ## 22 Protect a building plot
@@ -813,3 +813,35 @@ This pass checks six vertical layers. Large plans, hills, missing paths or unloa
 If need remains, a later review can propose a fresh project. Disable planning to stop proposals entirely. A reservation grants no access to chests or permission to overwrite builds. Real supplies, labor, physical construction and completed-home activation remain separate P4 work; a proposal grants no free beds or people.
 
 Related chapters: housing, protection, construction, recovery and server settings. Sources: HOUSING_PROJECTS.md, CONSTRUCTION.md and AutomaticHomePlanningSettings.
+
+
+## 30 Read construction materials and protected funds
+
+Status: Available read-only operator report. It does not buy goods or enable automatic construction.
+
+### Use the report
+
+Run /civ build funding <project UUID> in the project's world. Find retained home-project IDs with /civ build projects <village UUID>. The existing civilizations.construction.preview permission allows reading; cancellation permission is separate.
+
+The report shows current village money, protected food/upkeep money, spendable funds and construction spending this food period. Values are expressed as emerald value; actual bookkeeping uses hundredths. It also shows the reference cost of remaining inputs and available shared hauling capacity.
+
+### Understand the material counts
+
+| Report field | Meaning |
+|---|---|
+| still needed | Frozen requirement minus goods already purchased |
+| paid | All actual committed orders, including cargo and delivered goods |
+| incoming | Paid cargo that has not completed its delivery |
+| delivered | Goods that reached this project's saved stock |
+| free | Delivered goods not yet set aside for an earned stage |
+| held for stages | Delivered goods already reserved for recorded work |
+
+Example: twelve stone units were paid for and delivered, then reserved for foundation work. Free stock can be zero while still needed is also zero. Buying those twelve again would duplicate spending; stage reserves are already covered.
+
+### Why a quote can wait
+
+A current saved food period and complete fed-population assessment are required. Missing finances, absent worlds, changed housing need, protected money, spending limits, hauling limits or unknown prices can hold the report or its readiness result. An unknown price is never zero or free. The report shows at most eight material types; others remain recorded.
+
+A feasible whole-batch result means the current reference-price budget and haul could cover the remaining inputs. It does not prove any supplier has those goods, grant land rights, reserve stock or authorize payment. Real supplier eligibility, current site evidence and actual payment checks remain necessary.
+
+Related chapters: money, business supply chains, construction, automatic planning and project recovery. Sources: HOUSING_PROJECTS.md and ConstructionSupplyOrders.

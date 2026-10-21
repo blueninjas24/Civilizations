@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## 2026-10-21 — live read-only construction funding report
+
+Added funding mode/routing/completion to the existing bounded operator project
+controller. Production passes actual editable budget/supply policies; current
+world/read permission are rechecked before delivery. Shows emerald value, real
+protected/available funds, spending, remaining reference cost, shared haul and
+at most8 material rows. Incoming/delivered/free/escrow counts stay distinct.
+Expected missing-current-finance holds are reported without noisy error logs;
+no supplier is selected and no money, goods, rights or blocks are changed.
+
+Focused Wrapper28 unit +3 packaged checks passed42.393s, including real economic
+stock/payment/escrow tests and one new routing/permission/value-format check.
+Actual approved disposable Paper full automatic planning -> funding report
+refuses missing current financial context -> operator unused cancellation ->
+restart/unknown-world/changed-pass proof passed. Both DBs113/ok/FKs0;2 tracked
+test cells restored, server stopped and helper archived. This native fixture
+proves safe uninitialized-finance refusal; positive budgets/paid-goods reporting
+are covered by real temporary-SQLite cases, not claimed as a human client test.
+
+Handbook0.16:32 pages/30 chapters. All pages rendered and visually reviewed,
+contents/new chapter full size; source/table-of-contents row padding adjusted
+to avoid one orphaned contents entry. No fonts shrunk. No migration or actual
+server change; automatic paid work/native building still ahead, P4 remains25%.
+
 ## 2026-10-21 — actual material and protected-funding readiness
 
 ConstructionSupplyOrders.quoteVillageMaterials reads actual frozen requirements,

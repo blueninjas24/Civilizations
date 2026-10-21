@@ -207,7 +207,7 @@ public final class Civilizations extends JavaPlugin {
                         new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(getConfig().getBoolean("building-protection.require-covered-beds",true)),getLogger());
                 construction.configureHousing(housingCandidates);housingCandidates.runTaskTimer(this,1,1);
                 housingProjects=new com.blueninjas24.civilizations.paper.PaperHousingProjectControls(population,
-                        new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(getConfig().getBoolean("building-protection.require-covered-beds",true)),getLogger());
+                        new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(getConfig().getBoolean("building-protection.require-covered-beds",true)),constructionLibrary.funding(),constructionLibrary.supplies(),getLogger());
                 construction.configureProjects(housingProjects);housingProjects.runTaskTimer(this,1,1);
                 homePlanning=new com.blueninjas24.civilizations.paper.PaperAutomaticHomePlanning(population,constructionLibrary,constructionLibrary.homePlanning(),
                         new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(getConfig().getBoolean("building-protection.require-covered-beds",true)),getLogger());

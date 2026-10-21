@@ -92,6 +92,11 @@ def build(source=SOURCE, output=OUTPUT):
                                       fontSize=11, leading=15, spaceAfter=6,
                                       textColor=colors.black, leftIndent=0,
                                       firstLineIndent=0)]
+    # TOC entries are table rows; paragraph spaceAfter does not control their padding.
+    toc.tableStyle = TableStyle(toc.tableStyle.getCommands() + [
+        ('TOPPADDING', (0, 0), (-1, -1), 1),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+    ])
     story = []
     lines = text.splitlines()
     index = 0

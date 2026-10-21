@@ -45,6 +45,8 @@ before-states at the actual write boundary.
 
 ## Retained home projects
 
+`/civ build funding <project UUID>` reads actual material/escrow and protected
+village money/hauling readiness; it chooses no seller and spends nothing.
 `/civ build projects <village UUID>` reads saved project/family/site and asset
 status in the current world. `/civ build cancelproject <project UUID>` previews
 unused cancellation, with separate `/civ build confirmcancel <token>` and

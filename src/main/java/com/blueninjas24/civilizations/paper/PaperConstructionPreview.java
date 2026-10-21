@@ -44,7 +44,7 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
     public PaperConstructionPreview(PaperConstructionLibrary library,java.util.function.BiFunction<UUID,Bounds,CompletableFuture<Set<Column>>> protectionReader){this.library=Objects.requireNonNull(library);this.protectionReader=protectionReader;}
     static boolean stableSupport(Material material){return SUPPORT.contains(material);}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
-        if(args.length>=2&&Set.of("projects","cancelproject","confirmcancel","cancelrequest").contains(args[1].toLowerCase(Locale.ROOT))){
+        if(args.length>=2&&Set.of("projects","funding","cancelproject","confirmcancel","cancelrequest").contains(args[1].toLowerCase(Locale.ROOT))){
             if(projects!=null)return projects.onCommand(sender,command,label,args);
             sender.sendMessage("Home project controls are unavailable; check the server settings.");return true;
         }
@@ -135,13 +135,13 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
         case OBSTRUCTED->"existing blocks in building space";case UNSUPPORTED->"uneven or unsupported ground";
         case ROAD_REQUIRED->"entrance needs a dirt-path connection";case LAND_UNSUITABLE->"buffered land check did not pass";};}
     private static void usage(CommandSender sender){
-        sender.sendMessage("/civ build templates | housing <village UUID> | projects <village UUID> | preview <template> [0|90|180|270] [mirror]");
+        sender.sendMessage("/civ build templates | housing <village UUID> | projects <village UUID> | funding <project UUID> | preview <template> [0|90|180|270] [mirror]");
         sender.sendMessage("Unused project recovery: /civ build cancelproject <project UUID> | confirmcancel <token> | cancelrequest");
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
         boolean preview=sender.hasPermission(PERMISSION),manage=sender.hasPermission(PaperHousingProjectControls.MANAGE);
         if(!preview&&!manage)return List.of();
-        if(args.length==2){var choices=new ArrayList<String>();if(preview)choices.addAll(List.of("templates","housing","projects","preview"));if(manage)choices.addAll(List.of("cancelproject","confirmcancel","cancelrequest"));return choices.stream().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();}
+        if(args.length==2){var choices=new ArrayList<String>();if(preview)choices.addAll(List.of("templates","housing","projects","funding","preview"));if(manage)choices.addAll(List.of("cancelproject","confirmcancel","cancelrequest"));return choices.stream().filter(s->s.startsWith(args[1].toLowerCase(Locale.ROOT))).toList();}
         if(!preview)return List.of();
         List<String> options=switch(args.length){case 2->List.of("templates","housing","preview");case 3->args[1].equalsIgnoreCase("preview")?List.copyOf(library.templates().keySet()):List.of();case 4->args[1].equalsIgnoreCase("preview")?List.of("0","90","180","270"):List.of();case 5->args[1].equalsIgnoreCase("preview")?List.of("mirror"):List.of();default->List.of();};
         return options.stream().filter(s->s.startsWith(args[args.length-1].toLowerCase(Locale.ROOT))).toList();

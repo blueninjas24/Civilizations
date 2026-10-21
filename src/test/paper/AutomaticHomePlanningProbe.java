@@ -61,7 +61,11 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
                     public CompletableFuture<HousingProjectStatus.Report> status(UUID v,UUID w){return session.housingProjectStatus(v,w,DwellingInspection.Policy.prototype());}
                     public CompletableFuture<HousingProjectStatus.Item> inspect(UUID d,UUID w){return session.housingProjectInspection(d,w,DwellingInspection.Policy.prototype());}
                     public CompletableFuture<HousingProjects.Binding> retire(UUID o,UUID d,UUID w,long at){return session.retireUnusedHousingProject(o,d,w,at);}
+                    public CompletableFuture<ConstructionSupplyOrders.VillageFunding> funding(UUID d,UUID w){return session.constructionVillageFunding(d,w,library.funding(),library.supplies());}
                 },id->player,System::currentTimeMillis,getLogger());route=new PaperConstructionPreview(library);route.configureProjects(controls);
+                command("funding",project.toString());work=null;phase=9;}
+            case 9->{if(messages.stream().noneMatch(s->s.startsWith("Project request could not finish;")))return;
+                check(messages.stream().anyMatch(s->s.contains("Current saved owner clock required")||s.contains("current complete fed population assessment")||s.contains("Real village treasury required")),"No current food/treasury context becomes invented funding");
                 command("cancelproject",project.toString());check(messages.getLast().contains("do not have permission"),"Read permission cannot cancel");
                 manage=true;command("cancelproject",project.toString());work=null;phase=4;}
             case 4->{if(messages.stream().noneMatch(s->s.startsWith("Unused cancellation preview:")))return;
@@ -88,7 +92,7 @@ public final class AutomaticHomePlanningProbe extends JavaPlugin {
                     originals.put(changedCell,world.getBlockAt(changedCell.x(),changedCell.y(),changedCell.z()).getBlockData().getAsString());
                     check(world.getBlockAt(changedCell.x(),changedCell.y(),changedCell.z()).getType().isAir(),"Tracked disposable air test cell");world.getBlockAt(changedCell.x(),changedCell.y(),changedCell.z()).setType(Material.COBBLESTONE,false);}
                 if(frame.isEmpty())return;check(surveyTicks>30&&!frame.orElseThrow().survey().complete(),"Changed second-pass evidence remains unknown");cleanup();
-                getLogger().info("P4_AUTOMATIC_HOME_PASS: actual loaded-only two-pass site survey; deterministic real SQL family/plan/site preparation; capped one project; operator preview and real confirmed unused cancellation; restart retains released site/cancelled identity; resident and zero housing capacity preserved; no paid stock or physical intents; absent world and changed second-pass evidence held unknown; one path marker and one air test cell restored;128 cell advance limit");phase=99;}
+                getLogger().info("P4_AUTOMATIC_HOME_PASS: actual loaded-only two-pass site survey; deterministic real SQL family/plan/site preparation; capped one project; funding report refuses missing current financial context; operator preview and real confirmed unused cancellation; restart retains released site/cancelled identity; resident and zero housing capacity preserved; no paid stock or physical intents; absent world and changed second-pass evidence held unknown; one path marker and one air test cell restored;128 cell advance limit");phase=99;}
             default->throw new IllegalStateException("Unknown phase");
         }
     }

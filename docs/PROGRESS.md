@@ -16,6 +16,10 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Operators can now run `/civ build funding <project UUID>` to read missing supplies,
+paid cargo, stage reserves, protected money and hauling limits. It spends nothing.
+Wrapper28 +3 and disposable Paper passed. Handbook0.16 has32 pages/30 chapters.
+
 The material-payment handoff now has a read-only readiness check: it distinguishes
 what is still needed from paid cargo and stage reserves, protects food money and
 checks hauling limits. Wrapper30 +3 passed. Automatic purchases are still pending.

@@ -30,6 +30,8 @@ class PaperHousingProjectControlsTest {
         public CompletableFuture<HousingProjectStatus.Report> status(UUID v,UUID w){lookups++;return CompletableFuture.completedFuture(new HousingProjectStatus.Report(List.of(item()),false));}
         public CompletableFuture<HousingProjectStatus.Item> inspect(UUID d,UUID w){lookups++;assertEquals(draft,d);assertEquals(worldId,w);return CompletableFuture.completedFuture(item());}
         public CompletableFuture<HousingProjects.Binding> retire(UUID operation,UUID d,UUID w,long at){saves++;operations.add(operation);assertEquals(draft,d);assertEquals(worldId,w);if(submitted==0)submitted=at;else assertEquals(submitted,at);return saving;}
+        public CompletableFuture<ConstructionSupplyOrders.VillageFunding> funding(UUID d,UUID w){lookups++;assertEquals(draft,d);assertEquals(worldId,w);return CompletableFuture.completedFuture(
+                new ConstructionSupplyOrders.VillageFunding(draft,2,List.of(new ConstructionSupplyOrders.MaterialNeed(new com.blueninjas24.civilizations.economy.Commodity("stone"),12,2,1,1,0,1)),2940L,5000,3500,1500,50,128,false,"Reference readiness only"));}
     },id->online?player(id):null,()->now,Logger.getLogger("ProjectControlsTest"));}
     private void command(PaperHousingProjectControls c,UUID player,String...parts){var args=new ArrayList<>(List.of("build"));args.addAll(List.of(parts));c.onCommand(player(player),null,"civ",args.toArray(String[]::new));}
     private String token(){return ((ClickEvent.Payload.Text)buttons.getLast().clickEvent().payload()).value().split(" ")[3];}
@@ -62,5 +64,14 @@ class PaperHousingProjectControlsTest {
         manage=false;preview=true;var c=controls();command(c,actor,"projects",town.toString());c.run();assertTrue(messages.stream().anyMatch(s->s.contains("Inspection only")));
         command(c,actor,"projects",town.toString());command(c,actor,"cancelrequest");c.run();assertEquals(0,saves);
         command(c,actor,"cancelproject",draft.toString());assertEquals(2,lookups);
+    }
+    @Test void fundingReportUsesReadPermissionFormatsValueAndNeverSavesOrGrantsConfirmation(){
+        manage=false;preview=true;var c=controls();var route=new PaperConstructionPreview(new PaperConstructionLibrary(Map.of()));route.configureProjects(c);
+        route.onCommand(player(actor),null,"civ",new String[]{"build","funding",draft.toString()});c.run();
+        assertTrue(messages.stream().anyMatch(s->s.contains("village 50; protected 35; available 15")));
+        assertTrue(messages.stream().anyMatch(s->s.contains("Remaining reference cost: 29.4")));
+        assertTrue(messages.stream().anyMatch(s->s.contains("still needed 10")&&s.contains("held for stages 1")));
+        assertTrue(messages.getLast().contains("no supplier selected"));assertEquals(0,saves);assertTrue(buttons.isEmpty());
+        command(c,actor,"funding",draft.toString());preview=false;int count=messages.size();c.run();assertEquals(count,messages.size());assertEquals(0,saves);
     }
 }

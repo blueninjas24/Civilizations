@@ -135,3 +135,13 @@ unknown, not zero. Fully ordered inputs request no further purchase. Whole-batch
 reference feasibility is not proof of real supplier stock or fresh native safety,
 and selects no seller or transfers money. Automatic purchasing remains ahead.
 Wrapper30 +3 passed46.404s, including real payments, delivery and stage-work cases.
+
+
+`/civ build funding <project UUID>` now exposes that readiness through the existing
+read-only preview permission in the project's world. Emerald-value balances,
+protected/available money, period spend, haul and eight material rows are bounded
+and labelled; unknown prices stay unknown. It selects no seller and transfers no
+funds. Production uses current configured construction budget/prices. Expected
+missing-finance context holds are explained without inventing a treasury. Wrapper
+28 +3 passed42.393s; native routed missing-context refusal and the full planning/
+cancellation/restart proof passed. See handbook0.16 Chapter30.
