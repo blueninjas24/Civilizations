@@ -7,7 +7,7 @@ Branch: codex/phase4-construction-foundation; main untouched. Phase4 stays25%,
 human survival testing remains deferred. No deployment to the user's server.
 
 Living user handbook: docs/guide/PLAYER_AND_SERVER_GUIDE.md is the editable source;
-output/pdf/Civilizations_Player_and_Server_Guide.pdf is29-page edition0.12, with
+output/pdf/Civilizations_Player_and_Server_Guide.pdf is29-page edition0.13, with
 27 feature/reference chapters, linked contents, command glossary and implemented/
 planned labels. Update it alongside user-facing feature batches using the workflow
 in docs/guide/README.md. Apartment rents/landlords are explicitly deferred; village
@@ -15,6 +15,13 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Read-only `/civ build housing <village UUID>` now explains saved family housing
+  decisions/reuse/proposal/holds in the player's current world. Existing operator
+  preview permission, four queued reports,30-second expiry and authority/world/
+  disconnect checks; no block reads, force loading or project writes. Wrapper27
+  +3 passed36.586s. Actual disposable Paper routed report/permission/read-only SQL
+  check passed, alongside apartment/renovation/restart proof;144 cells restored.
+  Both fixture DBs schema113/integrity/FKs clean; helper stopped/archived.
 - Atomic home preparation now connects known family need, vacancy-first planning,
   buffered road-first site selection, current saved protection, frozen template,
   beneficiary binding and unused site reservation in one SQL transaction. A failed

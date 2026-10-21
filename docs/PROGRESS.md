@@ -16,6 +16,10 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Operators can now read `/civ build housing <village UUID>` to see why families
+reuse homes, need new ones or wait. This starts no construction. Wrapper27 +3
+and actual disposable Paper passed; handbook0.13 remains29 pages/27 chapters.
+
 Home preparation now joins family need, a safe road-connected site and the saved
 project in one transaction. Failed saves leave no half-created project; protected
 land is checked again against current records. Wrapper67 +3 checks passed. No

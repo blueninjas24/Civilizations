@@ -1,5 +1,24 @@
 # Civilizations Development Log
 
+## 2026-10-21 — in-game housing decision report and handbook0.13
+
+Added PaperHousingCandidates and `/civ build housing <village UUID>` routing with
+the existing construction-preview permission. Four one-per-player owner-queued
+reads,30-second expiry, main-thread result delivery, changed-world/authority and
+disconnect/close safeguards. Shows real saved vacancy-first family decisions and
+unknown/project holds; starts no scan, land claim, proposal, purchase or capacity.
+
+Focused `.\mvnw.cmd -Dtest=PaperHousingCandidatesTest,CivilizationsCommandTest,DwellingOccupancyTest clean verify` passed27 unit +3 packaged checks36.586s.
+Actual approved disposable Paper26.2 build129 routed controller/read-only report
+and permission rejection passed alongside apartment/renovation/session-restart
+proof. Restored144 fixture cells, stopped server, archived only helper JAR; both
+fixture databases schema113/integrity ok/FKs0. No real server changes.
+
+Handbook0.13 remains29 pages/27 chapters, with updated command glossary, planning
+explanation and schema113 baseline. All29 pages rendered and visually reviewed;
+changed pages1/15/21 inspected at full size, contents/bookmarks/footers checked.
+P4 remains25%/4 of16; actual automatic construction remains ahead.
+
 ## 2026-10-21 — atomic need-driven home preparation
 
 HousingProjectPreparation connects the real saved-family planner to buffered

@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.12 | 21 October 2026 | Player and server owner edition
+Living draft 0.13 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 112 retains family housing and safe bed accounting, and records new adult households. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 foundation at 4 of 16 checklist items. Save schema 113 retains family housing and safe bed accounting, and records new adult households. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
 
 ## Chapter list
 
@@ -334,6 +334,10 @@ Three original editable starter plans exist: path, timber storehouse and four-be
 
 This is development evidence, not a player build command. A preview spends no money, starts no project and assigns no home. The physical development writer is restricted to marked disposable test servers.
 
+### Read why a family needs housing
+
+Operators can use /civ build housing <village UUID> while in that village's world. Find the saved ID with /civ debug villages. The report explains suitable existing housing, vacant-home reuse, new-home proposals and why a family must wait. Unknown capacity and stale inspections never count as homelessness. A pending home holds its own family; older unmapped projects remain conservative holds. This reads saved evidence; it does not scan buildings, reserve a plot, spend money or start construction. Reports expire after 30 seconds, with four simultaneous requests.
+
 ### The intended chain
 
 Need -> permitted vacancy review -> suitable site -> real funding/materials -> available labor -> staged work -> physical completion -> usable capacity. A draft or frame cannot count as a completed home.
@@ -367,7 +371,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 112 includes construction, consent, occupancy and exact legacy bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 113 includes construction, separate renovation consent, household-bound home proposals and exact legacy bed accounting. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -486,6 +490,7 @@ Status: Implemented limited controls, not general plot ownership or normal const
 | /civ pen confirmrelease | Confirm area release; animal ownership/history remain |
 | /civ pen cancel | Cancel an unsubmitted preview, not an already submitted save |
 | /civ build templates | Read installed plans with construction preview permission |
+| /civ build housing <village UUID> | Read saved whole-family housing decisions in your current world; starts no project |
 | /civ build preview <template> [rotation] [mirror] | Read-only site inspection eight blocks ahead; player required; rotation 0, 90, 180 or 270 |
 
 ### Scoped resource recovery
@@ -560,7 +565,7 @@ Each chapter should explain purpose, use, what changes or pauses the feature, an
 
 Code and PROJECT_STATUS.md establish current behavior. MASTER_DESIGN.md, ROADMAP.md, ARCHITECTURE.md, SIMULATION_RULES.md and DECISIONS_AND_OPEN_QUESTIONS.md define intent. Older feature documents retain dated checkpoints; prefer current code/status when wording conflicts.
 
-Edition 0.12 adds separate renovation-consent controls and saved inspection status. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
+Edition 0.13 adds a read-only whole-family housing-planning report. Separate renovation-consent controls and saved inspection status remain available. Donation still grants use only. Configurable new households for unassigned adults and recorded partners preserve existing families. Explicit new apartment declarations include private rooms, shared spaces and separate plots. Donor inspection, live whole-family housing and confirmed donor repossession remain available. Normal construction and saved-layout revisions remain unfinished; rent and landlords stay deferred.
 
 
 ## 22 Protect a building plot

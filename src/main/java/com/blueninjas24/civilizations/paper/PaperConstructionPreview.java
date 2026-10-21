@@ -24,6 +24,8 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
             Material.ROOTED_DIRT,Material.PODZOL,Material.MYCELIUM,Material.ANDESITE,Material.DIORITE,Material.GRANITE,Material.SANDSTONE,Material.RED_SANDSTONE,Material.BEDROCK);
     private static final Set<Material> NATURAL_LOOKING_GROUND=Set.of(Material.GRASS_BLOCK,Material.DIRT,Material.COARSE_DIRT,Material.ROOTED_DIRT,Material.PODZOL,Material.MYCELIUM);
     private final PaperConstructionLibrary library;
+    private CommandExecutor housing;
+    public void configureHousing(CommandExecutor housing){this.housing=Objects.requireNonNull(housing);}
     private final java.util.function.BiFunction<UUID,Bounds,CompletableFuture<Set<Column>>> protectionReader;
     private final LinkedHashMap<UUID,Request> pending=new LinkedHashMap<>();
     private static final class Request {
@@ -41,6 +43,10 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
     static boolean stableSupport(Material material){return SUPPORT.contains(material);}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!sender.hasPermission(PERMISSION)){sender.sendMessage("You do not have permission to preview construction.");return true;}
+        if(args.length>=2&&args[1].equalsIgnoreCase("housing")){
+            if(housing!=null)return housing.onCommand(sender,command,label,args);
+            sender.sendMessage("Housing planning reports are unavailable; check the server settings.");return true;
+        }
         if(args.length==2&&args[1].equalsIgnoreCase("templates")) {
             for(var template:library.templates().values())sender.sendMessage(template.id()+": "+template.name()+"; "+template.size().x()+"x"+template.size().y()+"x"+template.size().z()+"; "+template.stages().size()+" stages; materials "+template.materials());
             return true;
@@ -122,10 +128,10 @@ public final class PaperConstructionPreview extends BukkitRunnable implements Co
         case ENTITY_PRESENT->"entity in building space";case PROTECTED->"protected area";
         case OBSTRUCTED->"existing blocks in building space";case UNSUPPORTED->"uneven or unsupported ground";
         case ROAD_REQUIRED->"entrance needs a dirt-path connection";case LAND_UNSUITABLE->"buffered land check did not pass";};}
-    private static void usage(CommandSender sender){sender.sendMessage("/civ build templates or /civ build preview <template> [0|90|180|270] [mirror]");}
+    private static void usage(CommandSender sender){sender.sendMessage("/civ build templates | housing <village UUID> | preview <template> [0|90|180|270] [mirror]");}
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
         if(!sender.hasPermission(PERMISSION))return List.of();
-        List<String> options=switch(args.length){case 2->List.of("templates","preview");case 3->args[1].equalsIgnoreCase("preview")?List.copyOf(library.templates().keySet()):List.of();case 4->List.of("0","90","180","270");case 5->List.of("mirror");default->List.of();};
+        List<String> options=switch(args.length){case 2->List.of("templates","housing","preview");case 3->args[1].equalsIgnoreCase("preview")?List.copyOf(library.templates().keySet()):List.of();case 4->args[1].equalsIgnoreCase("preview")?List.of("0","90","180","270"):List.of();case 5->args[1].equalsIgnoreCase("preview")?List.of("mirror"):List.of();default->List.of();};
         return options.stream().filter(s->s.startsWith(args[args.length-1].toLowerCase(Locale.ROOT))).toList();
     }
 }

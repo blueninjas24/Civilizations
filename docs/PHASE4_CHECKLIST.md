@@ -46,6 +46,11 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+The operator `/civ build housing <village UUID>` command now reads actual saved
+family decisions in the current world. Bounded queued reports, no terrain reads
+or project writes. Wrapper27 +3 and actual disposable Paper passed; handbook0.13
+is29 pages/27 chapters, fully rendered/reviewed. No whole gate newly completed.
+
 Atomic SQL-owner home preparation now joins actual family need, verified vacancies,
 buffered site alternatives, current saved protection, frozen draft, beneficiary
 and unused site reservation. All commit or roll back together; replay is history,

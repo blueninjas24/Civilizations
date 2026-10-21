@@ -16,6 +16,12 @@ candidates retain specific land findings. This preparation API does not enable
 automatic scheduling, imply land permission or alter the native writer boundary.
 
 - `/civ build templates`: list installed plans, sizes, stages and abstract costs.
+- `/civ build housing <village UUID>`: read saved whole-family decisions in your
+  current world. Use `/civ debug villages` for the full saved ID. Explains existing
+  housing, permitted vacancy reuse, proposed homes and world/project/survey holds.
+  This does not scan terrain, start a project, claim land or spend anything. Four
+  reports may queue; one per player,30-second expiry. Permission/world/disconnect
+  are rechecked on the server thread before delivery; SQL stays on its owner.
 - `/civ build preview starter_storehouse [0|90|180|270] [mirror]`: inspect a plan
   centered eight horizontal blocks ahead, with its floor at the player's feet.
   Rotation is clockwise; mirroring flips the original east/west axis first.
