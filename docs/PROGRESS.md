@@ -33,6 +33,7 @@ This strengthens the same housing milestone; no extra checklist point claimed.
 | Paid automatic family homes | Available prototype | Real suppliers get paid; cargo and labor take time; house blocks appear in stages |
 | Completed homes | Available | Inspection qualifies beds; whole families gain distinct actual villager home memories; no free residents |
 | Project inspection and unused supply recovery | Available | Operators inspect stalled work and confirm real supplier refunds/returns; history stays |
+| Local road access | Planning component verified | Finds short safe flat routes; paving and funding integration remain |
 | Wider physical growth | Unfinished | New roads, terrain work, business premises, docks, upgrades and civic builds remain |
 
 Existing construction.yml files must explicitly add automatic-construction;

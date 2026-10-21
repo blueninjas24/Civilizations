@@ -1,5 +1,28 @@
 # Civilizations Development Log
 
+## 2026-10-21 — bounded flat local access corridors
+
+Added plain-Java LocalRoadAccessPlanner for the next road/site milestone.
+It reuses complete recent world/protection/classified survey evidence, searches
+shortest flat routes to existing road, avoids protected/occupied/unsupported
+cells and needs two clear cells above each ground step. Seeded tie order is
+repeatable; immutable results distinguish known route, missing road, unsafe route,
+unknown evidence and exhausted budgets. Prototype16 new surface cells/1024
+reviewed nodes, hard64/4096 and4096-cell frame limits. Surface counts are geometry,
+not material grants. No slopes, clearing, bridges, inferred player paving or
+regional roads. No SQL, migration, native reads/writes or scheduling added.
+
+Focused clean Wrapper verify10 unit+3 packaged passed25.484s: four focused route
+checks plus six existing site-planner checks. Covers shortest deterministic
+connection/already-connected zero cost geometry, protection/headroom/entity
+avoidance, full barrier, bounded refusal without partial success, world/time/
+protection/missing/contradictory evidence. No native server run is needed for this
+pure calculation; it has not enabled automatic paving. LOCAL_ROAD_ACCESS.md
+records the remaining integration: actual corridor reservation, frozen physical
+design, natural-ground replacement authority, real supplies/labor and completed
+road provenance. P4 remains5/16=31%; partial road preparation is not a whole gate.
+Handbook0.20 already labels roads unfinished; no new player commands to document.
+
 ## 2026-10-21 — assigned modern homes now reach actual villagers
 
 Fixed a confirmed integration gap: native resident snapshots and durable spawn

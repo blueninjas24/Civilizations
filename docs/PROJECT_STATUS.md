@@ -1,5 +1,20 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified — local road-access preparation
+
+A bounded deterministic plain-Java planner can now find short flat corridors
+from a proposed ground point to a verified existing road, avoiding protection,
+occupied headroom/entities and unsuitable ground. Complete recent evidence and
+strict search/distance/frame limits apply; no half route is usable.10 unit+3
+packaged checks passed clean verify25.484s. See LOCAL_ROAD_ACCESS.md.
+
+This does not enable paving, introduce payments or authorize ground replacement.
+Next: connect actual corridor reservations, authored road design, paid supply/
+booked labor and completed-road provenance to the guarded world writer. Current
+automatic homes still require existing path access. No migration; P4 remains31%.
+The housing/resident milestones below are implemented and backed up; human survival
+acceptance, business premises, docks/civic growth, upgrades and decay remain.
+
 ## Latest verified — resident bodies follow qualified assigned homes
 
 Modern dwelling units now supply distinct bed-head memories to managed resident

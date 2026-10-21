@@ -1,5 +1,16 @@
 # Civilizations — architecture and engineering contracts
 
+## October21 local access corridors remain domain-only
+
+LocalRoadAccessPlanner consumes existing immutable survey/classification types;
+it has no Paper, JDBC, timer or financial dependency. Complete three-layer flat
+frame preflight is capped at4096 ground cells; bounded BFS search has a separate
+review/distance policy. Stable seed tie ordering and explicit refusal statuses
+make decisions explainable. Its immutable corridor is geometry, never a material
+quote, land lease or write permission. Future integration must independently
+freeze design, reserve space, fund/book work, prove native before-state and record
+Civ-road provenance. Automatic home sites still need existing road connectors.
+
 ## October21 housing-to-native resident view
 
 ResidentProjectionHomes reads current positive dwelling assignments/consent and
