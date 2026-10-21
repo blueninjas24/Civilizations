@@ -76,7 +76,7 @@ public final class PaperConstructionWorkSurvey {
         for(var at:positions)if(!available(world,at))return Optional.of(finish(false,"Required chunk or world boundary changed before final review"));
         if(now-captured>5000)return Optional.of(finish(false,"Verification pass is too old for a new economic step"));
         var min=footprint.minimum();var max=footprint.maximum();
-        if(!world.getNearbyEntities(new BoundingBox(min.x(),min.y(),min.z(),max.x()+1.0,max.y()+1.0,max.z()+1.0)).isEmpty())return Optional.of(finish(false,"Entity occupies construction space"));
+        if(work.state()!=ConstructionWorkQueue.State.COMPLETE&&!world.getNearbyEntities(new BoundingBox(min.x(),min.y(),min.z(),max.x()+1.0,max.y()+1.0,max.z()+1.0)).isEmpty())return Optional.of(finish(false,"Entity occupies construction space"));
         return Optional.of(finish(true,"Two matching loaded-only passes; SQL protection, actual funding/labor and native-step checks remain separate"));
     }
     private boolean available(World world,Position at){return at.y()>=world.getMinHeight()&&at.y()<world.getMaxHeight()

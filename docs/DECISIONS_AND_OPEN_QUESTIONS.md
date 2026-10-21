@@ -1,5 +1,18 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 — village-owned completion handoff under approved housing rules
+
+Keep completed village-funded homes village-owned; do not create a player donor,
+private title, rent or landlord. An explicit Civ-origin record authorizes shared
+village use after paid/earned/native completion; actual dwelling inspection still
+controls all capacity and whole-family assignments. Completion frees the temporary
+project/family slot while preserving history and permanent building protection.
+New confirmed need can request replacement. Authored beds retain the original
+village UUID and never count early through legacy discovery. Existing player
+ownership stays untouched; player donation/reclaim/renovation controls do not
+apply to Civ-owned homes. This implements already approved/delegated direction,
+not a new ownership system or permission to alter player additions.
+
 ## October21 — delegated conservative ambiguous-native recovery
 
 A current session may authorize one first write for an intent it newly saved.

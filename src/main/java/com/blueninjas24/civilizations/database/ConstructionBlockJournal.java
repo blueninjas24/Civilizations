@@ -60,12 +60,14 @@ public final class ConstructionBlockJournal {
             var value=old.orElseThrow();if(!value.draft().equals(draftId)||value.ordinal()!=ordinal||!value.at().equals(at)||!value.after().equals(nativeAfter))
                 throw new SQLException("Construction operation identity reused with changed terms");
             excludeAuthoredTrees(draft,at,material);
+            if(material.endsWith("_bed"))bindAuthoredBedHead(connection,draft,at);
             return value;
         }
         try(var s=connection.prepareStatement("SELECT count(*) FROM construction_block_journal WHERE draft_id=? AND ordinal<? AND state='APPLIED'")){
             s.setString(1,draftId.toString());s.setInt(2,ordinal);try(var r=s.executeQuery()){if(!r.next()||r.getInt(1)!=ordinal)throw new SQLException("Earlier construction intent is incomplete or conflicted");}
         }
         excludeAuthoredTrees(draft,at,material);
+        if(material.endsWith("_bed"))bindAuthoredBedHead(connection,draft,at);
         try(var s=connection.prepareStatement("INSERT INTO construction_block_journal VALUES(?,?,?,?,?,?,'minecraft:air',?,'PREPARED')")) {
             s.setString(1,operation.toString());s.setString(2,draftId.toString());s.setInt(3,ordinal);s.setInt(4,at.x());s.setInt(5,at.y());s.setInt(6,at.z());s.setString(7,nativeAfter);s.executeUpdate();
         }
@@ -78,6 +80,12 @@ public final class ConstructionBlockJournal {
             s.setString(1,draft.world().toString());s.setInt(2,at.x());s.setInt(3,at.y());s.setInt(4,at.z());s.setLong(5,draft.createdMillis());
             s.setString(6,"Authored construction intent "+draft.id());s.executeUpdate();
         }
+    }
+    /** Before native head placement, save its actual village identity; it must never create a duplicate town. */
+    static void bindAuthoredBedHead(Connection c,ConstructionDraft draft,Position at)throws SQLException{
+        if(draft.template().purpose()!=ConstructionTemplate.Purpose.HOME)return;
+        for(var unit:CivHomeLayout.from(draft).units())for(var bed:unit.beds())if(bed.head().equals(at))
+            new VillageIdentityRepository(c).bindBed(draft.world(),new com.blueninjas24.civilizations.settlement.VillageObservation.Position(at.x(),at.y(),at.z()),draft.settlement());
     }
     /** An exact observed after-state is required; a conflict is sticky until a future explicit resolution workflow. */
     public Intent acknowledge(UUID operation,String observed)throws SQLException {

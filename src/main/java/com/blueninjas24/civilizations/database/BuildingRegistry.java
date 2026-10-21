@@ -28,6 +28,7 @@ public final class BuildingRegistry {
         Objects.requireNonNull(layout);Objects.requireNonNull(donor);
         var old=find(layout.id());
         if(old.isPresent()) {
+            if(!old.get().playerOwned())throw new Declined("Village-owned buildings cannot become player donations");
             if(!old.get().layout().equals(layout) || !old.get().donor().equals(donor))
                 throw new Declined("Building identity/layout/donor differs from saved registration");
             if(old.get().latest()!=null && old.get().latest().action()==Action.DONATE)throw new Declined("Building is already donated");
@@ -36,7 +37,13 @@ public final class BuildingRegistry {
     }
     public record Consent(UUID operation, UUID building, UUID actor, Action action, UUID previous,
                           boolean administrator, long atMillis) {}
-    public record Entry(BuildingLayout layout, UUID donor, long createdMillis, Consent latest) {}
+    public enum Origin { PLAYER, CIVILIZATIONS }
+    public record Entry(BuildingLayout layout, UUID donor, long createdMillis, Consent latest,Origin origin) {
+        public Entry(BuildingLayout layout,UUID donor,long createdMillis,Consent latest){this(layout,donor,createdMillis,latest,Origin.PLAYER);}
+        public Entry{Objects.requireNonNull(origin);if(origin==Origin.PLAYER)Objects.requireNonNull(donor);else if(donor!=null)throw new IllegalArgumentException("Village-owned building has no player donor");}
+        public boolean playerOwned(){return origin==Origin.PLAYER;}
+        public boolean villageOwned(){return origin==Origin.CIVILIZATIONS;}
+    }
     public Set<UUID> activeHousingAssignments(UUID building)throws SQLException {
         var ids=new TreeSet<UUID>();
         try(var s=connection.prepareStatement("SELECT o.assignment_id FROM dwelling_active_occupancy o JOIN building_units u ON u.id=o.unit_id WHERE u.building_id=? ORDER BY o.assignment_id LIMIT 65")) {
@@ -123,6 +130,7 @@ public final class BuildingRegistry {
         requireAuthority(authority, donor, true); time(now);
         return transaction(() -> {
             var prior = find(layout.id()); var replay = event(operation);
+            if(prior.isPresent()&&!prior.get().playerOwned())throw new Declined("Village-owned buildings cannot become player donations");
             if (prior.isPresent() && (!prior.get().layout().equals(layout) || !prior.get().donor().equals(donor)))
                 throw new Declined("Building identity/layout/donor differs from saved registration");
             var requested = new Consent(operation,layout.id(),authority.actor(),Action.DONATE,expectedPrevious,authority.administrator(),now);
@@ -131,8 +139,8 @@ public final class BuildingRegistry {
             requirePrevious(latest,expectedPrevious,now);
             if (latest != null && latest.action() == Action.DONATE) throw new Declined("Building is already donated");
             requireClear(layout);
-            if (prior.isEmpty()) insert(layout,donor,now);
-            append(requested); return requested;
+            if (prior.isEmpty()) insertRows(layout,donor,now);
+            appendRows(requested); return requested;
         });
     }
 
@@ -141,12 +149,13 @@ public final class BuildingRegistry {
         Objects.requireNonNull(operation); Objects.requireNonNull(building); time(now);
         return transaction(() -> {
             var saved = find(building).orElseThrow(() -> new Declined("Unknown building"));
+            if(!saved.playerOwned())throw new Declined("Village-owned buildings cannot use player-donation reclamation");
             requireAuthority(authority,saved.donor(),false);
             var requested = new Consent(operation,building,authority.actor(),Action.RECLAIM,expectedPrevious,authority.administrator(),now);
             var replay = event(operation); if (replay.isPresent()) { exact(replay.get(),requested); return replay.get(); }
             requirePrevious(saved.latest(),expectedPrevious,now);
             if (saved.latest() == null || saved.latest().action() != Action.DONATE) throw new Declined("Building has no active donation to reclaim");
-            append(requested);
+            appendRows(requested);
             DwellingOccupancy.reclaimed(connection,building,operation,now);
             return requested;
         });
@@ -177,7 +186,8 @@ public final class BuildingRegistry {
                     try (var q = connection.prepareStatement("SELECT * FROM building_consent_events WHERE building_id=? ORDER BY sequence DESC LIMIT 1")) {
                         q.setString(1,building.toString()); try (var rows = q.executeQuery()) { if(rows.next()) latest = consent(rows); }
                     }
-                    return Optional.of(new Entry(layout,UUID.fromString(r.getString("donor_id")),r.getLong("created_ms"),latest));
+                    UUID contributor=UUID.fromString(r.getString("donor_id"));boolean civ=CivBuildingCompletion.villageOwned(connection,layout,contributor);
+                    return Optional.of(new Entry(layout,civ?null:contributor,r.getLong("created_ms"),latest,civ?Origin.CIVILIZATIONS:Origin.PLAYER));
                 } catch (IOException | IllegalArgumentException invalid) { throw new SQLException("Invalid saved building layout",invalid); }
             }
         }
@@ -257,7 +267,7 @@ public final class BuildingRegistry {
     private void requireExclusionRights(Exclusion e,Authorization authority)throws SQLException {
         if(authority.administrator())return;
         for(String sql:List.of(
-                "SELECT 1 FROM building_records WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=? AND donor_id<>? LIMIT 1",
+                "SELECT 1 FROM building_records WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=? AND "+(CivBuildingCompletion.schemaAvailable(connection)?"(donor_id<>? OR EXISTS(SELECT 1 FROM civ_built_buildings c WHERE c.building_id=building_records.id))":"donor_id<>?")+" LIMIT 1",
                 "SELECT 1 FROM building_exclusions e WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=? AND actor_id<>? AND NOT EXISTS(SELECT 1 FROM building_exclusion_releases r WHERE r.exclusion_id=e.id) LIMIT 1",
                 "SELECT 1 FROM protected_pen_columns c JOIN active_pen_claims a ON a.pen_id=c.pen_id JOIN protected_pens p ON p.id=c.pen_id WHERE c.world_id=? AND c.x<=? AND c.x>=? AND c.z<=? AND c.z>=? AND p.owner_id<>? LIMIT 1",
                 "SELECT 1 FROM construction_site_reservations WHERE world_id=? AND min_x<=? AND max_x>=? AND min_z<=? AND max_z>=? AND released_ms IS NULL LIMIT 1")) {
@@ -284,7 +294,7 @@ public final class BuildingRegistry {
             area(s,world,b);s.setString(6,layout.id().toString());try(var r=s.executeQuery()){if(r.next())throw new Declined("Building plots overlap");}
         }
     }
-    private void insert(BuildingLayout layout, UUID donor, long now) throws SQLException {
+    void insertRows(BuildingLayout layout, UUID donor, long now) throws SQLException {
         try(var s=connection.prepareStatement("INSERT INTO building_records VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
             s.setString(1,layout.id().toString());s.setString(2,layout.settlement().toString());s.setString(3,layout.world().toString());s.setString(4,donor.toString());
             s.setString(5,layout.fingerprint());s.setBytes(6,BuildingLayoutSnapshot.encode(layout));bindBounds(s,7,layout.plot());s.setLong(13,now);s.executeUpdate();
@@ -298,7 +308,7 @@ public final class BuildingRegistry {
             s.setString(1,operation.toString());try(var r=s.executeQuery()){return r.next()?Optional.of(consent(r)):Optional.empty();}
         }
     }
-    private void append(Consent event) throws SQLException {
+    void appendRows(Consent event) throws SQLException {
         try(var s=connection.prepareStatement("INSERT INTO building_consent_events(operation_id,building_id,actor_id,action,previous_operation,administrator,at_ms) VALUES(?,?,?,?,?,?,?)")) {
             s.setString(1,event.operation().toString());s.setString(2,event.building().toString());s.setString(3,event.actor().toString());s.setString(4,event.action().name());
             s.setString(5,event.previous()==null?null:event.previous().toString());s.setBoolean(6,event.administrator());s.setLong(7,event.atMillis());s.executeUpdate();

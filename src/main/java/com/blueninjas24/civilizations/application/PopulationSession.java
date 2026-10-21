@@ -1440,7 +1440,7 @@ public final class PopulationSession implements AutoCloseable {
         var entry=new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()).find(building)
                 .orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown saved building; donate and confirm a home first"));
         requireBuildingWorld(entry.layout().world(),currentWorld);
-        if(!administrator&&!entry.donor().equals(actor))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Only its recorded donor or an administrator can inspect this layout");
+        if(!administrator&&!actor.equals(entry.donor()))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Only its recorded donor or an administrator can inspect this layout");
         if(entry.layout().kind()!=com.blueninjas24.civilizations.construction.BuildingLayout.Kind.HOUSING)
             throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("This saved building is not declared housing");
         return entry;
@@ -1548,6 +1548,14 @@ public final class PopulationSession implements AutoCloseable {
     public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionWorkQueue.Page> constructionWorkPage(UUID after,int limit){
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionWorkQueue(database.getConnection())
                 .page(after,limit,loadedWorlds==null?Set.of():loadedWorlds);});
+    }
+    /** Registers completed village-owned geometry/use only; actual dwelling inspection still controls capacity. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.CivBuildingCompletion.Receipt> completeCivHome(
+            UUID operation,UUID draft,com.blueninjas24.civilizations.database.CivBuildingCompletion.Evidence evidence){
+        return submit(()->{requireBuildingWorld(evidence.authority().world(),evidence.authority().world());
+            return new com.blueninjas24.civilizations.database.CivBuildingCompletion(database.getConnection())
+                    .completeHome(operation,draft,evidence,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
+        });
     }
     public record PreparedConstructionStep(com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent intent,NativeConstructionGate.Permit permit){}
     /** Compatibility intent view; actual native execution requires the separately returned owner permit. */

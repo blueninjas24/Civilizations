@@ -62,3 +62,17 @@ recheck,256 cell reads/tick, one-time session-local first-write claim. A resumed
 before-state stays ambiguous; existing after-state may acknowledge. The older
 direct marked fixture writer remains test-only. Ordinary automatic scheduling
 and completed-home activation are unfinished.
+
+## Civ-built housing origin and completion
+
+Schema116 keeps explicit completed Civ origin beside shared immutable building/
+unit/use records. Existing player records remain PLAYER; Civ records have village
+ownership and no public player donor. The legacy SQL donor_id slot stores that
+typed village contributor only for positive Civ-origin rows; no authenticated
+player donation/reclamation/renovation route accepts them. Shared housing consumes
+the use grant through existing inspected occupancy, never through a bed count at
+completion. Source proposal/site release and origin/layout/use are one transaction;
+completed household identity remains historical and no longer blocks new needs.
+Authored bed head identity/provenance is committed before physical placement and
+excluded from legacy housing. Existing positive bed journal history backfills in
+migration; conflicts abort rather than rewriting another village's identity.

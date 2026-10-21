@@ -41,6 +41,9 @@ class PaperConstructionWorkSurveyTest {
     @Test void twoPassBudgetAndCurrentEntitiesNeverGrantWorldWritePermission(){
         var frame=finish(survey(0,Optional.empty()));assertTrue(frame.authority().siteCleared());assertEquals("minecraft:air",frame.nextObserved());
         occupied=true;assertFalse(finish(survey(0,Optional.empty())).authority().siteCleared());
+        changed.put(origin,Material.COBBLESTONE);changed.put(origin.plus(new Position(1,0,0)),Material.COBBLESTONE);
+        var complete=new ConstructionWorkQueue.Work(draft,ConstructionWorkQueue.State.COMPLETE,2,Optional.empty(),"Fully acknowledged geometry; inspection only");
+        assertTrue(finish(new PaperConstructionWorkSurvey(complete,plan,1000,id->world,()->primary)).authority().siteCleared(),"People inside completed buildings do not prevent read-only registration");
     }
     @Test void onlyAcknowledgedPrefixOrExactPendingAfterStateMayOccupyTheVolume(){
         changed.put(origin,Material.COBBLESTONE);assertFalse(finish(survey(0,Optional.empty())).authority().siteCleared(),"An unjournaled matching block is not ours");

@@ -38,7 +38,7 @@ class ConstructionPublicWorkTest {
         f.f.sql("UPDATE residents SET household_id='"+household+"' WHERE id='"+worker+"'");
         f.f.sql("INSERT INTO household_capacity VALUES('"+household+"',1)");
         // Model a previously valid, paid proposal whose family has since gained housing.
-        try(var s=f.c().prepareStatement("INSERT INTO housing_project_bindings VALUES(?,?,?,?,?,1,0,1200,NULL,NULL)")){
+        try(var s=f.c().prepareStatement("INSERT INTO housing_project_bindings(draft_id,household_id,settlement_id,world_id,plan_hash,residents,previous_capacity,created_ms,cancel_operation,cancelled_ms) VALUES(?,?,?,?,?,1,0,1200,NULL,NULL)")){
             s.setString(1,f.publicDraft.id().toString());s.setString(2,household.toString());s.setString(3,f.f.town.toString());s.setString(4,f.f.world.toString());s.setString(5,f.publicDraft.template().fingerprint());s.executeUpdate();
         }
         var runtime=runtime(true);runtime.pulse(6000,false);

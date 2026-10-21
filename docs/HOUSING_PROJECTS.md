@@ -1,5 +1,17 @@
 # Household-bound housing proposals
 
+## Completed Civ-owned homes
+
+Schema116 and CivBuildingCompletion connect paid complete journals plus current
+native evidence to a persistent village-owned home. CivHomeLayout supplies stable
+world/draft-based building/unit identity and transformed original bed pairs.
+Origin/layout/use, binding completion and temporary lease release commit together;
+late failure rolls all back. Completion grants no beds or new people. Existing
+housing review must independently qualify actual beds, cover/access and whole
+families. Completed bindings remain history and stop consuming project caps or
+household uniqueness. Later confirmed damage can produce a replacement proposal;
+completion replay never resurrects lost capacity. See CIV_BUILT_HOUSING.md.
+
 ## Guarded internal native writer
 
 PaperConstructionWriter is now an internal normal-server boundary, tested only in

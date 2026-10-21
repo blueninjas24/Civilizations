@@ -22,12 +22,19 @@ Implemented:
   Session-local first-write proof cannot be replenished by retry/restart; ambiguous
   old before-state holds for review, exact after-state acknowledges without writing.
 
-Not enabled: ordinary automatic purchasing/building. Completed Civ-building
-identity, safe finished-home activation and the bounded gameplay scheduler remain
-next. Large templates beyond the writer's current bound, private-premises growth,
+Schema116 now adds explicit village-owned completed-home identity/use, atomic
+project/lease completion and authored bed identity/legacy-capacity exclusion.
+Actual domain housing inspection/assignment is connected and tested; completion
+alone grants no capacity. Player donors remain unchanged; Civ has no player donor.
+Confirmed damage can request another project without losing completed history.
+
+Not enabled: ordinary automatic purchasing/building. Full completed-home native
+acceptance and the bounded gameplay scheduler remain next. Large templates beyond the writer's current bound, private-premises growth,
 roads/adaptation, upgrades/repair/decay and civic growth remain unfinished.
 
-Validation: latest Wrapper19 unit +3 packaged checks passed35.164s; preceding
+Validation: latest Wrapper64 unit +3 packaged checks passed1m24s, including116
+upgrade/rollback, housing/damage/replacement and historical fixtures. Earlier80+3
+passed1m16s. Actual full-home native proof remains pending. Prior19+3 passed35.164s; preceding
 owner/lifecycle40+3 passed46.167s. Actual paid-path Paper accepted current writer,
 stale permit/neighbor change holds, no regenerated removed output, real session
 restart before ack, exact retries and conflict safety. All five original cells

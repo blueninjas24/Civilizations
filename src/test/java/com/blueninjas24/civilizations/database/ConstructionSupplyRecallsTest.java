@@ -76,7 +76,7 @@ class ConstructionSupplyRecallsTest {
         f.f.db.getPopulationRepository().insertHousehold(new com.blueninjas24.civilizations.population.Household(family,f.f.town,"Retained project family"));
         f.f.sql("UPDATE residents SET household_id='"+family+"' WHERE id='"+f.f.person+"'");f.f.sql("INSERT INTO household_capacity VALUES('"+family+"',0)");
         // Historical valid paid binding; binding creation itself is covered by DwellingOccupancyTest.
-        try(var s=f.c().prepareStatement("INSERT INTO housing_project_bindings VALUES(?,?,?,?,?,1,0,3000,NULL,NULL)")){
+        try(var s=f.c().prepareStatement("INSERT INTO housing_project_bindings(draft_id,household_id,settlement_id,world_id,plan_hash,residents,previous_capacity,created_ms,cancel_operation,cancelled_ms) VALUES(?,?,?,?,?,1,0,3000,NULL,NULL)")){
             s.setString(1,f.publicDraft.id().toString());s.setString(2,family.toString());s.setString(3,f.f.town.toString());s.setString(4,f.f.world.toString());s.setString(5,f.publicDraft.template().fingerprint());s.executeUpdate();
         }
         var context=new DwellingOccupancy.Context(f.f.world,true,DwellingInspection.Policy.prototype(),3002);

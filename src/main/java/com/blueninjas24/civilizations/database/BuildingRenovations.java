@@ -58,6 +58,7 @@ public final class BuildingRenovations {
         c.setAutoCommit(false);
         try{
             var registry=new BuildingRegistry(c);var entry=registry.find(request.building()).orElseThrow(()->new BuildingRegistry.Declined("Unknown building"));
+            if(!entry.playerOwned())throw new BuildingRegistry.Declined("Player renovation consent does not apply to village-owned buildings");
             if(!authority.worldPresent()||!authority.world().equals(entry.layout().world())||!authority.permitted()||!authority.confirmed())
                 throw new BuildingRegistry.Declined("Explicit current renovation confirmation and world/permission required");
             if(!entry.donor().equals(authority.actor())&&(request.action()==Action.GRANT||!authority.administrator()))

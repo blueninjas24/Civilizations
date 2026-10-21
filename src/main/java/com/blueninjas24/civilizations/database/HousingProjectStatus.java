@@ -12,7 +12,7 @@ public final class HousingProjectStatus {
         public List<String> describe(){
             var lines=new ArrayList<String>();lines.add("Saved home projects: "+items.size()+(more?" shown; more retained":"")+". Inspection only; no funds, site or work changed.");
             for(var item:items){
-                lines.add("Project "+item.family().proposal().draft()+"; family "+item.family().proposal().household()+"; plan "+item.plan()+"; "+(item.family().active()?"active":"cancelled")+".");
+                lines.add("Project "+item.family().proposal().draft()+"; family "+item.family().proposal().household()+"; plan "+item.plan()+"; "+(item.family().completed()?"completed home "+item.family().completedBuilding():item.family().active()?"active":"cancelled")+".");
                 lines.add("Site "+(item.siteHeld()?"reserved":"not held")+"; paid orders "+item.paidOrders()+"; physical intents "+item.intents()+"; unused cancellation "+(item.unused()?"eligible after confirmation":"unavailable")+". "+item.pause().orElse("Normal funding, labor and current-world checks still required."));
             }
             if(more)lines.add("Showing the first 8 retained projects; no history was discarded.");return List.copyOf(lines);
@@ -28,7 +28,7 @@ public final class HousingProjectStatus {
                 s.setString(1,village.toString());s.setString(2,context.world().toString());try(var r=s.executeQuery()){if(!r.next())throw new BuildingRegistry.Declined("Housing village does not belong to this world");}
             }
             var ids=new ArrayList<UUID>();
-            try(var s=c.prepareStatement("SELECT draft_id FROM housing_project_bindings WHERE settlement_id=? AND world_id=? ORDER BY cancelled_ms IS NOT NULL,created_ms DESC,draft_id LIMIT 9")){
+            try(var s=c.prepareStatement("SELECT draft_id FROM housing_project_bindings WHERE settlement_id=? AND world_id=? ORDER BY "+(CivBuildingCompletion.schemaAvailable(c)?"(cancelled_ms IS NOT NULL OR completed_ms IS NOT NULL)":"cancelled_ms IS NOT NULL")+",created_ms DESC,draft_id LIMIT 9")){
                 s.setString(1,village.toString());s.setString(2,context.world().toString());try(var r=s.executeQuery()){while(r.next())ids.add(UUID.fromString(r.getString(1)));}
             }
             var items=new ArrayList<Item>();
@@ -50,7 +50,7 @@ public final class HousingProjectStatus {
         var draft=new ConstructionDraftRepository(c).find(id).orElseThrow();var site=new ConstructionSiteReservations(c).find(id);
         long orders=count("construction_supply_orders",id),intents=count("construction_block_journal",id);
         boolean unused=family.active()&&(orders==0||new ConstructionSupplyRecalls(c).recalled(id)||new ConstructionSupplyReturns(c).dispatched(id))&&intents==0&&context.present()&&returned(id);
-        var pause=family.active()?(context.present()?projects.pauseReasonRows(draft):Optional.of("World absent; no new work authorized")):Optional.of("Saved cancellation retained; cannot reactivate");
+        var pause=family.active()?(context.present()?projects.pauseReasonRows(draft):Optional.of("World absent; no new work authorized")):Optional.of(family.completed()?"Completed home history retained; occupancy still requires current inspection":"Saved cancellation retained; cannot reactivate");
         return new Item(family,draft.template().id(),site.isPresent()&&site.orElseThrow().active(),orders,intents,unused,pause);
     }
     private long count(String table,UUID draft)throws SQLException{

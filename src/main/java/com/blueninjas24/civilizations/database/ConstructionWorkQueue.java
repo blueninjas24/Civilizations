@@ -33,7 +33,7 @@ public final class ConstructionWorkQueue {
             c.commit();return new Page(work,ids.size()>limit?ids.get(limit-1):null);
         }catch(SQLException|RuntimeException failure){try{c.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}finally{c.setAutoCommit(true);}
     }
-    private Work reviewRows(UUID id)throws SQLException{
+    Work reviewRows(UUID id)throws SQLException{
         var draft=new ConstructionDraftRepository(c).find(id).orElseThrow();var site=new ConstructionSiteReservations(c).find(id).orElseThrow();
         var pause=new HousingProjects(c).pauseReasonRows(draft);
         if(pause.isPresent())return held(draft,State.PAUSED,0,pause.get());

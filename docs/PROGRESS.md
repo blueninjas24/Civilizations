@@ -40,12 +40,17 @@ or duplicate placement. It passed an actual five-block disposable-world test,
 including restart and changed/removed-output holds. Ordinary gameplay construction
 is still off until finished Civ homes can register and activate safely.
 
-Latest Wrapper19 unit +3 packaged checks passed; preceding owner/lifecycle40+3
+Schema116 now records completed village-owned homes, frees finished project slots
+and keeps authored beds out of early legacy capacity. Actual inspected assignment
+and confirmed damage/replacement passed temporary-database checks; completion
+alone gives no beds. Full completed-house native acceptance remains pending.
+
+Latest Wrapper64 unit +3 packaged checks passed; earlier80+3 and owner/lifecycle40+3
 passed. Test worlds were restored/stopped and databases stayed healthy at115.
 Hosted Windows/Linux both passed77b56e8; newer commits await full hosted builds.
 The living handbook remains edition0.16,32 pages/30 chapters.
 
-Next: Civ-built identity, verified completed-home activation, then the ordinary
+Next: full completed-home native acceptance, then the ordinary
 bounded builder. Wider growth remains. Actual server/worlds/database and main
 stay untouched. P3 human survival testing remains deferred.
 

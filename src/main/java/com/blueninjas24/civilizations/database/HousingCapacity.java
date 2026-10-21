@@ -54,8 +54,15 @@ final class HousingCapacity {
     }
     static boolean claimed(Connection c,UUID world,int x,int y,int z)throws SQLException {
         try(var s=c.prepareStatement("SELECT 1 FROM dwelling_bed_claims WHERE world_id=? AND x=? AND y=? AND z=?")) {
-            bind(s,world,new Position(x,y,z));try(var r=s.executeQuery()){return r.next();}
+            bind(s,world,new Position(x,y,z));try(var r=s.executeQuery()){if(r.next())return true;}
         }
+        // Authored beds must never become early/duplicate legacy capacity, including before final registration.
+        try(var s=c.prepareStatement("SELECT j.after_state FROM construction_block_journal j JOIN construction_drafts d ON d.id=j.draft_id WHERE d.world_id=? AND j.world_x=? AND j.world_y=? AND j.world_z=? LIMIT 129")){
+            bind(s,world,new Position(x,y,z));int count=0;try(var r=s.executeQuery()){while(r.next()){
+                if(++count>128)throw new SQLException("Authored bed provenance review budget exceeded");
+                if(r.getString(1).split("\\[",2)[0].endsWith("_bed"))return true;
+            }}
+        }return false;
     }
     /** Historical claims survive reclamation: legacy scanning cannot silently re-adopt a donated bed. */
     static void claim(Connection c,UUID unit,UUID household)throws SQLException {

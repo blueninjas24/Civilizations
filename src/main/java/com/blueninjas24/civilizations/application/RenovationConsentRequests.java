@@ -22,6 +22,7 @@ public final class RenovationConsentRequests {
     public RenovationConsentRequests(Connection c){buildings=new BuildingRegistry(c);renovations=new BuildingRenovations(c);}
     public Preview preview(Context context,UUID building,Action action,long now)throws SQLException{
         prune(now);var entry=buildings.find(building).orElseThrow(()->new BuildingRegistry.Declined("Unknown donated building"));
+        if(!entry.playerOwned())throw new BuildingRegistry.Declined("Player renovation consent does not apply to village-owned buildings");
         require(context,entry.layout().world(),entry.donor(),action);
         if(!pending.containsKey(context.player())&&pending.size()>=64)throw new BuildingRegistry.Declined("Renovation reviews busy; retry shortly");
         if(entry.latest()==null||action==Action.GRANT&&!buildings.hasDonationPermission(building))throw new BuildingRegistry.Declined("An active permitted donation is required to allow renovations");

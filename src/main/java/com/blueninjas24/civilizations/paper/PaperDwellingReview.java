@@ -71,7 +71,7 @@ public final class PaperDwellingReview extends BukkitRunnable implements Command
                     r.entry=r.lookup.join();
                 }
                 // Recheck current authority after lookup and before every survey/result tick.
-                if(!r.entry.donor().equals(r.actor)&&!player.hasPermission(PaperBuildingProtection.ADMIN)) {
+                if(!r.actor.equals(r.entry.donor())&&!player.hasPermission(PaperBuildingProtection.ADMIN)) {
                     player.sendMessage("Building inspection authority changed; no housing state changed.");requests.remove(r.actor);continue;
                 }
                 if(r.result==null) {

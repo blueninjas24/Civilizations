@@ -1,5 +1,38 @@
 # Civilizations Development Log
 
+## 2026-10-21 — schema116 Civ-owned completed homes and housing handoff
+
+CivHomeLayout derives a stable single-household declaration from frozen home
+geometry/beds in all eight orientations. CivBuildingCompletion requires actual
+paid/labor-backed COMPLETE journal and fresh full native evidence, then atomically
+registers village-owned layout/use/origin, completes its family proposal and
+releases the temporary site lease. Permanent building protection remains. Declared
+beds grant no capacity: existing actual dwelling inspection/assignment must qualify
+them. Completed projects no longer consume active caps or the household's unique
+proposal slot; confirmed later housing loss can request a real replacement.
+
+Schema116 adds civ_built_buildings, binding completion fields/indices and authored
+coordinate lookup. Existing player donors/history stay unchanged. Explicit origin
+makes the legacy contributor slot a village for Civ records; public Entry.donor
+is null there. Player donation/reclaim/renovation routes refuse Civ origin, even
+for matching UUID/admin; admin inspection remains null-safe. No private title/rent.
+Authored bed heads bind permanent village identity before native placement, with
+migration backfill from positive journal provenance. Authored beds cannot become
+early/duplicate legacy capacity. Every identity/provenance change shares the
+journal/migration transaction; foreign village history refuses, never overwrites.
+
+Wrapper80 unit +3 packaged checks passed1m16s; final64+3 passed1m24s. Covers real
+supplies and earned four-stage history, completion/late rollback,115 migration
+failure/retry preserving player ownership, typed authority, no early capacity,
+actual domain dwelling qualification/assignment, restart, later damage/replacement
+and no capacity resurrection on completion replay. Old raw test bindings now name
+historic columns; historical fixture rewinds restore their exact prior shape.
+No full current-head suite or real completed-house native proof claimed yet.
+
+Ordinary auto-spending/building remains off. Next: actual full-home native
+construction/completion/inspection acceptance, then the bounded gameplay scheduler.
+No actual server/world/database changed.
+
 ## 2026-10-21 — guarded internal normal-server writer and one-time first writes
 
 PaperConstructionWriter now requires actual paid ready work, exact transformed

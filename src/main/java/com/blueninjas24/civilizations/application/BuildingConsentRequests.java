@@ -47,6 +47,7 @@ public final class BuildingConsentRequests {
     }
     public Preview reclamation(Context context,UUID building,long now)throws SQLException {
         var entry=registry.find(building).orElseThrow(()->new Declined("Unknown building"));
+        if(!entry.playerOwned())throw new Declined("Village-owned buildings are not player donations to reclaim");
         requireContext(context,entry.layout().world(),Action.RECLAIM);room(context.player(),now);
         if(!context.player().equals(entry.donor()) && !context.administrator())throw new Declined("Only the recorded donor or an administrator can reclaim");
         if(entry.latest()==null || entry.latest().action()!=Action.DONATE)throw new Declined("Building has no active donation to reclaim");

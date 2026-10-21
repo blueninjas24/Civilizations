@@ -10,7 +10,11 @@ public final class HousingProjects {
         public Proposal{Objects.requireNonNull(draft);Objects.requireNonNull(household);if(createdMillis<0)throw new IllegalArgumentException("Negative proposal time");}
     }
     public record Binding(Proposal proposal,UUID village,UUID world,String planHash,int residents,int previousCapacity,
-                          UUID cancellation,Long cancelledMillis){public boolean active(){return cancelledMillis==null;}}
+                          UUID cancellation,Long cancelledMillis,UUID completedBuilding,Long completedMillis){
+        public Binding(Proposal proposal,UUID village,UUID world,String planHash,int residents,int previousCapacity,UUID cancellation,Long cancelledMillis){this(proposal,village,world,planHash,residents,previousCapacity,cancellation,cancelledMillis,null,null);}
+        public boolean active(){return cancelledMillis==null&&completedMillis==null;}
+        public boolean completed(){return completedMillis!=null;}
+    }
     private final Connection c;
     public HousingProjects(Connection c){this.c=Objects.requireNonNull(c);}
     static void createSchema(Connection c)throws SQLException{
@@ -38,21 +42,25 @@ public final class HousingProjects {
             s.setString(1,draft.toString());try(var r=s.executeQuery()){
                 if(!r.next())return Optional.empty();String cancellation=r.getString("cancel_operation");
                 Long cancelled=cancellation==null?null:r.getLong("cancelled_ms");
+                String completed=CivBuildingCompletion.schemaAvailable(c)?r.getString("completed_building"):null;
+                Long completedAt=completed==null?null:r.getLong("completed_ms");
+                if(completed!=null){var origin=new CivBuildingCompletion(c).findDraft(draft).orElseThrow(()->new SQLException("Completed household project lost building origin"));
+                    if(!origin.building().toString().equals(completed)||origin.completedMillis()!=completedAt)throw new SQLException("Household completion differs from retained building origin");}
                 return Optional.of(new Binding(new Proposal(UUID.fromString(r.getString("draft_id")),UUID.fromString(r.getString("household_id")),r.getLong("created_ms")),
                         UUID.fromString(r.getString("settlement_id")),UUID.fromString(r.getString("world_id")),r.getString("plan_hash"),r.getInt("residents"),r.getInt("previous_capacity"),
-                        cancellation==null?null:UUID.fromString(cancellation),cancelled));
+                        cancellation==null?null:UUID.fromString(cancellation),cancelled,completed==null?null:UUID.fromString(completed),completedAt));
             }
         }
     }
     public Set<UUID> activeHouseholds(UUID village,UUID world)throws SQLException{
         var ids=new TreeSet<UUID>();
-        try(var s=c.prepareStatement("SELECT b.household_id FROM housing_project_bindings b JOIN households h ON h.id=b.household_id WHERE h.settlement_id=? AND b.world_id=? AND b.cancelled_ms IS NULL ORDER BY b.household_id LIMIT 1025")){
+        try(var s=c.prepareStatement("SELECT b.household_id FROM housing_project_bindings b JOIN households h ON h.id=b.household_id WHERE h.settlement_id=? AND b.world_id=? AND b.cancelled_ms IS NULL "+(CivBuildingCompletion.schemaAvailable(c)?"AND b.completed_ms IS NULL ":"")+"ORDER BY b.household_id LIMIT 1025")){
             s.setString(1,village.toString());s.setString(2,world.toString());try(var r=s.executeQuery()){while(r.next())ids.add(UUID.fromString(r.getString(1)));}
         }
         if(ids.size()>1024)throw new BuildingRegistry.Declined("Housing project budget exceeded");return Set.copyOf(ids);
     }
     long activeCount(UUID village,UUID world)throws SQLException{
-        try(var s=c.prepareStatement("SELECT count(*) FROM housing_project_bindings WHERE settlement_id=? AND world_id=? AND cancelled_ms IS NULL")){
+        try(var s=c.prepareStatement("SELECT count(*) FROM housing_project_bindings WHERE settlement_id=? AND world_id=? AND cancelled_ms IS NULL"+(CivBuildingCompletion.schemaAvailable(c)?" AND completed_ms IS NULL":""))){
             s.setString(1,village.toString());s.setString(2,world.toString());try(var r=s.executeQuery()){return r.getLong(1);}
         }
     }
@@ -61,6 +69,7 @@ public final class HousingProjects {
         if(c.getAutoCommit())throw new SQLException("Housing need review requires the SQL owner's transaction");
         var saved=find(draft.id());if(saved.isEmpty())return Optional.empty(); // Historical unbound projects retain existing checks.
         var binding=saved.orElseThrow();
+        if(binding.completed())return Optional.of("Home completed and registered as village-owned building "+binding.completedBuilding());
         if(!binding.active())return Optional.of("Household proposal was cancelled");
         if(new ConstructionSupplyRecalls(c).recalled(draft.id()))return Optional.of("Pending supplies recalled; unused proposal may be cancelled, never restarted");
         if(new ConstructionSupplyReturns(c).dispatched(draft.id()))return Optional.of("Unused supplies sold back into return cargo; cancel the unused proposal, never restart it");
@@ -112,7 +121,7 @@ public final class HousingProjects {
         }
         Integer capacity=HousingCapacity.read(c,draft.settlement()).get(proposal.household());
         if(capacity==null||capacity>=residents||residents>HomePlanCapacity.beds(draft.template()))throw new BuildingRegistry.Declined("Whole household no longer fits or needs this home");
-        try(var s=c.prepareStatement("INSERT INTO housing_project_bindings VALUES(?,?,?,?,?,?,?,?,NULL,NULL)")){
+        try(var s=c.prepareStatement("INSERT INTO housing_project_bindings(draft_id,household_id,settlement_id,world_id,plan_hash,residents,previous_capacity,created_ms,cancel_operation,cancelled_ms) VALUES(?,?,?,?,?,?,?,?,NULL,NULL)")){
             s.setString(1,proposal.draft().toString());s.setString(2,proposal.household().toString());s.setString(3,draft.settlement().toString());s.setString(4,draft.world().toString());
             s.setString(5,draft.template().fingerprint());s.setInt(6,residents);s.setInt(7,capacity);s.setLong(8,proposal.createdMillis());s.executeUpdate();
         }
@@ -129,6 +138,7 @@ public final class HousingProjects {
         if(!context.present()||!binding.world().equals(context.world())||atMillis<binding.proposal().createdMillis()||atMillis>context.now())
             throw new BuildingRegistry.Declined("Home cancellation world/time changed");
         if(!binding.active()){
+            if(binding.completed())throw new BuildingRegistry.Declined("Completed village home cannot use unused-project cancellation");
             if(!operation.equals(binding.cancellation())||!Objects.equals(atMillis,binding.cancelledMillis()))throw new BuildingRegistry.Declined("Home project already cancelled under different terms");
             return binding;
         }
