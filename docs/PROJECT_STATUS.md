@@ -15,6 +15,11 @@ owned units follow the same occupancy direction as homes. New apartment declarat
 
 
 Implemented and verified:
+- Road-first candidate selection now applies the configured surrounding-land
+  buffer to all rotations/mirrors before ranking. Missing/contradictory terrain,
+  protected margins and neighboring obstacles reject candidates with reasons;
+  buffer cells count against the existing global review budget. Wrapper14 +3
+  checks passed27.281s. No native adapter or automatic writer changed.
 - Schema113 links a frozen home proposal to its actual whole household, village,
   permanent world and reviewed plan. Only that family waits behind its project;
   unrelated families can proceed. Unknown capacity, stale vacancies, suitable

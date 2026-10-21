@@ -15,6 +15,20 @@ class ConstructionLandPolicyTest {
         var cells=new HashMap<Position,Cell>();for(var p:policy.requiredCells(template,origin))cells.put(p,new Cell(p.y()==63?Kind.NATURAL_LOOKING_GROUND:Kind.AIR,false));
         cells.put(origin.plus(new Position(2,-1,-1)),new Cell(Kind.ROAD,false));return cells;
     }
+    @Test void rectangularRotationsAndMirrorsScreenTheirActualFootprintAndConnector() {
+        var plan=new ConstructionTemplate("rectangle",1,"Rectangle","Original test",Purpose.WORKSHOP,new Size(3,2,5),
+                List.of(new Stage("base",1,Map.of(Commodity.STONE,1L),Map.of(new Position(0,0,0),"minecraft:cobblestone"))),
+                List.of(new Anchor(Role.ENTRANCE,new Position(1,1,0),Direction.NORTH),new Anchor(Role.ROAD,new Position(1,-1,-1),Direction.NORTH)));
+        var policy=new ConstructionLandPolicy(2);
+        for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true)){
+            var transform=new Transform(rotation,mirror);var cells=new HashMap<Position,Cell>();
+            for(var p:policy.requiredCells(plan,transform,origin))cells.put(p,new Cell(p.y()==origin.y()-1?Kind.NATURAL_LOOKING_GROUND:Kind.AIR,false));
+            var road=origin.plus(transform.apply(new Position(1,-1,-1),plan.size()));cells.put(road,new Cell(Kind.ROAD,false));
+            assertEquals(189,cells.size());assertTrue(policy.review(plan,transform,origin,cells,true).suitable());
+            var corner=ConstructionPreview.footprint(plan,transform,origin).maximum();cells.put(corner,new Cell(Kind.OTHER,false));
+            assertTrue(policy.review(plan,transform,origin,cells,true).findings().contains(Finding.FOOTPRINT_OCCUPIED));
+        }
+    }
     @Test void completeClearLandWithBufferedRoadCanPassWithoutPretendingToKnowWhoClearedIt()throws Exception {
         var policy=new ConstructionLandPolicy(4);var template=template();var cells=clean(policy,template);
         assertTrue(policy.review(template,origin,cells,true).suitable());

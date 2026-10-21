@@ -1,5 +1,19 @@
 # Civilizations Development Log
 
+## 2026-10-21 — buffered road-first site alternatives
+
+Connected transformed ConstructionLandPolicy requirements to the deterministic
+ConstructionSitePlanner. Every rotation/mirror now checks clear surroundings
+before viable sites are ranked, retaining exact land findings. Missing/conflicting
+terrain classifications cannot masquerade as safe air; protected margins count.
+The existing65,536 total cell-review budget includes buffer work. Legacy explicit
+development review remains available; no production permissions or world edits
+are inferred. Rectangular eight-orientation checks and candidate fallback/unknown/
+protection coverage added. Focused `.\mvnw.cmd -Dtest=ConstructionSitePlannerTest,ConstructionLandPolicyTest,ConstructionPreviewTest clean verify` passed14 unit
++3 packaged checks27.281s. First protected fixture accidentally excluded its road;
+fixture corrected to exercise candidate rejection. No server changes or migration.
+P4 remains25%/4 of16; safe automatic scheduling/write authority remains unfinished.
+
 ## 2026-10-21 — household-bound home proposals
 
 Schema113 adds durable whole-household/plan/village/world proposal identity,

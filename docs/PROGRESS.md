@@ -16,6 +16,11 @@
 
 **Phase 4: 25% — 4/16 checklist items, 1/4 complete groups.**
 
+Buffered road-first site selection now checks the space around every rotated
+plan before choosing it. Crowded/protected/uncertain spots are rejected with
+reasons under the same shared review budget. Wrapper14 +3 checks passed.
+This is preparation for the automatic builder; P4 remains25%.
+
 Housing project preparation now remembers which family each proposed home serves.
 One pending home no longer blocks all other families; unused cancellations retain
 history and cannot restart. Schema113; Wrapper55 +3 checks passed. This remains

@@ -46,6 +46,12 @@ and current-write authority are unfinished, so a preview still cannot authorize 
 
 ## Partial work after the first gate
 
+Buffered road-first planning now combines transformed footprint/road review with
+configured clear-land margins for every candidate before ranking alternatives.
+Missing, contradictory or protected margin evidence blocks that site; all reviewed
+cells count against the global limit. Wrapper14 +3 passed27.281s. The production
+world reader/land authority/write boundary still need connection.
+
 Schema113 identifies each new home proposal's beneficiary without spending or
 reserving land. Only that family waits behind it; unknown evidence and older
 unbound projects still hold safely. Unused cancellation retains history and

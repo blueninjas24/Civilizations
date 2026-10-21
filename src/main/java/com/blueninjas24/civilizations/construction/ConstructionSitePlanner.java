@@ -16,8 +16,9 @@ public final class ConstructionSitePlanner {
                 throw new IllegalArgumentException("Site survey exceeds bounded limits");
         }
     }
-    public record Candidate(Position origin,Transform transform,long distance,long tieBreak,Assessment assessment) {
-        public Candidate{Objects.requireNonNull(origin);Objects.requireNonNull(transform);Objects.requireNonNull(assessment);}
+    public record Candidate(Position origin,Transform transform,long distance,long tieBreak,Assessment assessment,Set<ConstructionLandPolicy.Finding> landFindings) {
+        public Candidate{Objects.requireNonNull(origin);Objects.requireNonNull(transform);Objects.requireNonNull(assessment);landFindings=Set.copyOf(landFindings);}
+        public Candidate(Position origin,Transform transform,long distance,long tieBreak,Assessment assessment){this(origin,transform,distance,tieBreak,assessment,Set.of());}
     }
     public record Result(Status status,Optional<Candidate> selected,List<Candidate> reviewed,int roadsConsidered,boolean budgetLimited) {
         public Result{Objects.requireNonNull(status);selected=Objects.requireNonNull(selected);reviewed=List.copyOf(reviewed);}
@@ -26,7 +27,15 @@ public final class ConstructionSitePlanner {
     private ConstructionSitePlanner(){}
     public static Result select(ConstructionTemplate template,UUID world,Position need,Survey survey,ApprovedArea approval,
                                 long now,long maximumAgeMillis,long seed) {
+        return select(template,world,need,survey,approval,now,maximumAgeMillis,seed,null,Map.of());
+    }
+    /** Buffered selection screens every orientation before ranking; it still cannot grant land/write authority. */
+    public static Result select(ConstructionTemplate template,UUID world,Position need,Survey survey,ApprovedArea approval,
+                                long now,long maximumAgeMillis,long seed,ConstructionLandPolicy land,
+                                Map<Position,ConstructionLandPolicy.Kind> terrain) {
         Objects.requireNonNull(template);Objects.requireNonNull(world);Objects.requireNonNull(need);Objects.requireNonNull(survey);
+        terrain=Map.copyOf(terrain);
+        if(terrain.size()>ConstructionPreview.MAX_OBSERVATION_CELLS||land==null&&!terrain.isEmpty())throw new IllegalArgumentException("Invalid buffered terrain evidence");
         if(now<0||maximumAgeMillis<1||maximumAgeMillis>3_600_000)throw new IllegalArgumentException("Invalid site survey time limits");
         if(approval==null||!approval.world().equals(world))return blocked(Status.NO_PERMISSION);
         if(!survey.world().equals(world))return blocked(Status.WRONG_WORLD);
@@ -49,18 +58,29 @@ public final class ConstructionSitePlanner {
                     if(!keys.add(new Key(origin,transform)))continue;
                     if(reviewed.size()==MAX_CANDIDATES){limited=true;break outer;}
                     Set<Position> required;Bounds footprint;
-                    try{required=ConstructionPreview.requiredCells(template,transform,origin);footprint=ConstructionPreview.footprint(template,transform,origin);}
+                    try{required=land==null?ConstructionPreview.requiredCells(template,transform,origin):land.requiredCells(template,transform,origin);footprint=ConstructionPreview.footprint(template,transform,origin);}
                     catch(ArithmeticException outside){continue;}
                     if(required.size()>MAX_CELL_REVIEWS-cellReviews){limited=true;break outer;}cellReviews+=required.size();
-                    var cells=new TreeMap<Position,Cell>();boolean complete=true;
+                    var cells=new TreeMap<Position,Cell>();var landCells=new HashMap<Position,ConstructionLandPolicy.Cell>();boolean complete=true;
                     for(var p:required) {
                         var cell=survey.cells().get(p);if(cell==null){complete=false;continue;}
                         cells.put(p,new Cell(cell.air(),cell.stableSupport(),cell.road(),cell.protectedWork()||protectedCells.contains(p)));
+                        if(land!=null){
+                            var kind=terrain.get(p);
+                            if(kind==null||(kind==ConstructionLandPolicy.Kind.AIR)!=cell.air()||(kind==ConstructionLandPolicy.Kind.ROAD)!=cell.road()
+                                    ||kind==ConstructionLandPolicy.Kind.NATURAL_LOOKING_GROUND&&!cell.stableSupport())complete=false;
+                            if(kind!=null)landCells.put(p,new ConstructionLandPolicy.Cell(kind,cell.protectedWork()||protectedCells.contains(p)));
+                        }
                     }
                     boolean entity=survey.entities().stream().anyMatch(bounds->overlaps(bounds,footprint));
                     var observation=new Observation(world,origin,survey.capturedMillis(),complete,entity,cells);
                     var assessment=ConstructionPreview.assess(template,transform,world,origin,observation,approval,now,maximumAgeMillis);
-                    reviewed.add(new Candidate(origin,transform,distance(origin,need),mix(seed,origin,transform),assessment));
+                    Set<ConstructionLandPolicy.Finding> landFindings=Set.of();
+                    if(land!=null){
+                        landFindings=land.review(template,transform,origin,landCells,complete).findings();
+                        if(!landFindings.isEmpty()){var issues=EnumSet.noneOf(Issue.class);issues.addAll(assessment.issues());issues.add(Issue.LAND_UNSUITABLE);assessment=new Assessment(assessment.footprint(),assessment.plannedBlocks(),issues);}
+                    }
+                    reviewed.add(new Candidate(origin,transform,distance(origin,need),mix(seed,origin,transform),assessment,landFindings));
                 }
             }
         }

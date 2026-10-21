@@ -18,6 +18,34 @@ class ConstructionSitePlannerTest {
         return new Survey(world,1000,complete,protectionsComplete,cells,protections,entities);
     }
     private Result select(Survey survey,ApprovedArea permission)throws Exception{return ConstructionSitePlanner.select(template(),world,new Position(8,64,0),survey,permission,1100,1000,42);}
+    private Map<Position,ConstructionLandPolicy.Kind> terrain(Survey survey){
+        var result=new HashMap<Position,ConstructionLandPolicy.Kind>();survey.cells().forEach((p,c)->result.put(p,c.road()?ConstructionLandPolicy.Kind.ROAD:c.air()?ConstructionLandPolicy.Kind.AIR:ConstructionLandPolicy.Kind.NATURAL_LOOKING_GROUND));return result;
+    }
+    private Result buffered(Survey survey,Map<Position,ConstructionLandPolicy.Kind> terrain)throws Exception {
+        return ConstructionSitePlanner.select(template(),world,new Position(8,64,0),survey,new ApprovedArea(new UUID(0,1),world,area),1100,1000,42,new ConstructionLandPolicy(4),terrain);
+    }
+    @Test void bufferedSearchScreensEveryOrientationAndRejectsNeighborsBeforeChoosingAlternatives()throws Exception {
+        var clean=survey(true,true,List.of(),List.of());var result=buffered(clean,terrain(clean));
+        assertEquals(Status.READY,result.status());assertEquals(8,result.reviewed().size());
+        assertTrue(result.reviewed().stream().allMatch(c->c.landFindings().isEmpty()));
+        var first=result.selected().orElseThrow();var at=first.origin().plus(new Position(-4,0,0));
+        var cells=new HashMap<>(clean.cells());cells.put(at,new Cell(false,false,false,false));
+        var kinds=terrain(clean);kinds.put(at,ConstructionLandPolicy.Kind.OTHER);
+        var changed=buffered(new Survey(world,1000,true,true,cells,List.of(),List.of()),kinds);
+        var rejected=changed.reviewed().stream().filter(c->c.origin().equals(first.origin())&&c.transform().equals(first.transform())).findFirst().orElseThrow();
+        assertTrue(rejected.landFindings().contains(ConstructionLandPolicy.Finding.NEARBY_OBSTACLE));assertFalse(rejected.assessment().suitable());
+        assertTrue(changed.selected().isEmpty()||!changed.selected().orElseThrow().origin().equals(first.origin())||!changed.selected().orElseThrow().transform().equals(first.transform()));
+        assertEquals(changed,buffered(new Survey(world,1000,true,true,cells,List.of(),List.of()),new TreeMap<>(kinds)));
+    }
+    @Test void missingContradictoryAndProtectedBufferEvidenceNeverCountsAsAvailableLand()throws Exception {
+        var clean=survey(true,true,List.of(),List.of());
+        assertEquals(Status.NO_SAFE_SITE,buffered(clean,Map.of()).status());
+        var contradictory=terrain(clean);contradictory.replaceAll((p,k)->ConstructionLandPolicy.Kind.AIR);
+        assertEquals(Status.NO_SAFE_SITE,buffered(clean,contradictory).status());
+        var protectedAll=new Survey(world,1000,true,true,clean.cells(),List.of(new Bounds(new Position(-20,64,-20),area.maximum())),List.of());
+        assertEquals(Status.NO_SAFE_SITE,buffered(protectedAll,terrain(clean)).status());
+        assertTrue(buffered(protectedAll,terrain(clean)).reviewed().stream().allMatch(c->c.landFindings().contains(ConstructionLandPolicy.Finding.PROTECTED)));
+    }
     @Test void roadFirstSelectionIsDeterministicAcrossInputOrderingAndCannotInventARoad()throws Exception {
         var survey=survey(true,true,List.of(),List.of());var approval=new ApprovedArea(UUID.randomUUID(),world,area);
         var result=select(survey,approval);assertEquals(Status.READY,result.status());assertEquals(8,result.reviewed().size());

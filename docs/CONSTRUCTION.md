@@ -7,6 +7,14 @@ blocks, player inventory, accounts or industry capacity.
 
 ## Commands
 
+The pure road-first site planner also accepts the configured surrounding-land
+buffer for every rotation and mirror. It checks actual transformed dimensions,
+connector coverage, nearby obstacles and protected cells before ranking viable
+alternatives. Missing or contradictory classified terrain is incomplete evidence.
+The same global candidate/cell-review limits include the buffer; rejected
+candidates retain specific land findings. This preparation API does not enable
+automatic scheduling, imply land permission or alter the native writer boundary.
+
 - `/civ build templates`: list installed plans, sizes, stages and abstract costs.
 - `/civ build preview starter_storehouse [0|90|180|270] [mirror]`: inspect a plan
   centered eight horizontal blocks ahead, with its floor at the player's feet.

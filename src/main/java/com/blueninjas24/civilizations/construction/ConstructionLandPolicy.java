@@ -12,17 +12,24 @@ public record ConstructionLandPolicy(int buildingBuffer) {
     public record Report(Set<Finding> findings){public Report{findings=Set.copyOf(findings);}public boolean suitable(){return findings.isEmpty();}}
     public ConstructionLandPolicy{if(buildingBuffer<0||buildingBuffer>16)throw new IllegalArgumentException("Construction building buffer must be 0..16");}
     public Set<Position> requiredCells(ConstructionTemplate template,Position origin) {
-        long width=template.size().x()+2L*buildingBuffer,depth=template.size().z()+2L*buildingBuffer;
-        if(width*depth*(template.size().y()+1L)>ConstructionPreview.MAX_OBSERVATION_CELLS)throw new IllegalArgumentException("Template and buffer exceed the bounded site preview budget");
+        return requiredCells(template,Transform.identity(),origin);
+    }
+    public Set<Position> requiredCells(ConstructionTemplate template,Transform transform,Position origin) {
+        var size=transform.size(template.size());
+        long width=size.x()+2L*buildingBuffer,depth=size.z()+2L*buildingBuffer;
+        if(width*depth*(size.y()+1L)>ConstructionPreview.MAX_OBSERVATION_CELLS)throw new IllegalArgumentException("Template and buffer exceed the bounded site preview budget");
         var cells=new TreeSet<Position>();
-        for(int y=-1;y<template.size().y();y++)for(int z=-buildingBuffer;z<template.size().z()+buildingBuffer;z++)for(int x=-buildingBuffer;x<template.size().x()+buildingBuffer;x++)cells.add(origin.plus(new Position(x,y,z)));
-        cells.addAll(ConstructionPreview.requiredCells(template,Transform.identity(),origin));
+        for(int y=-1;y<size.y();y++)for(int z=-buildingBuffer;z<size.z()+buildingBuffer;z++)for(int x=-buildingBuffer;x<size.x()+buildingBuffer;x++)cells.add(origin.plus(new Position(x,y,z)));
+        cells.addAll(ConstructionPreview.requiredCells(template,transform,origin));
         if(cells.size()>ConstructionPreview.MAX_OBSERVATION_CELLS)throw new IllegalArgumentException("Buffered connector coverage exceeds bounded budget");return Collections.unmodifiableSet(cells);
     }
     public Report review(ConstructionTemplate template,Position origin,Map<Position,Cell> observations,boolean complete) {
-        var required=requiredCells(template,origin);var findings=EnumSet.noneOf(Finding.class);
+        return review(template,Transform.identity(),origin,observations,complete);
+    }
+    public Report review(ConstructionTemplate template,Transform transform,Position origin,Map<Position,Cell> observations,boolean complete) {
+        var required=requiredCells(template,transform,origin);var findings=EnumSet.noneOf(Finding.class);
         if(!complete||!observations.keySet().containsAll(required))return new Report(Set.of(Finding.INCOMPLETE));
-        Bounds footprint=ConstructionPreview.footprint(template,Transform.identity(),origin);
+        Bounds footprint=ConstructionPreview.footprint(template,transform,origin);
         for(var p:required) {
             var cell=observations.get(p);if(cell.protectedArea())findings.add(Finding.PROTECTED);
             if(footprint.contains(p)) {if(cell.kind()!=Kind.AIR)findings.add(Finding.FOOTPRINT_OCCUPIED);}
