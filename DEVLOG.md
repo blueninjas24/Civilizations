@@ -1,5 +1,9 @@
 # Civilizations Development Log
 
+## 2026-10-21 — retain safe access at the road connection
+
+Fixed a review gap at the retained existing-road endpoint: its two headroom cells and all three protected positions must also be present, clear and unprotected. A player obstruction or changed protection there now refuses the entire before-state map. Focused clean Wrapper verify6 unit+3 packaged passed27.386s. One added regression covers blocked/protected endpoint access. No schema, writer, world, payment or server changes; automatic paving remains unfinished and P4 stays31%.
+
 ## 2026-10-21 — exact road ground evidence
 
 Exact road-ground evidence review now preserves each proposed cell's actual natural before-state and requires clear headroom and the retained dirt-path connection. Changed/player-like blocks, protection, missing cells and stale/wrong-world evidence refuse the whole before-state map. This is read-only domain preparation, not land provenance, entity clearance or replacement authority. Existing AIR-only journal/writer and schema116 remain unchanged. Focused clean Wrapper verify5 unit+3 packaged passed26.981s. No native test needed: no Paper calls, database or world mutations. P4 remains5/16=31%; next is transactional versioned ground-state journaling and paid corridor integration. No decisions required.

@@ -30,6 +30,7 @@ fixture blocks restored and healthy116 save closed. Handbook0.21 is35 pages.
 
 Exact natural-ground evidence is now verified (5 unit+3 packaged checks). It
 records safe before-states only; automatic paving and replacement authority remain off.
+Endpoint headroom/protection is now rechecked too;6 unit+3 packaged passed.
 
 
 | P4 part | Current state | Plain-English effect |

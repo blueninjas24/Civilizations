@@ -34,7 +34,12 @@ public final class RoadGroundReview {
         }
         if(!observation.states().containsKey(design.connection()))issues.add(Issue.INCOMPLETE);
         else if(!"minecraft:dirt_path".equals(observation.states().get(design.connection())))issues.add(Issue.CONNECTION_CHANGED);
-        if(observation.protectedCells().contains(design.connection()))issues.add(Issue.PROTECTED);
+        for(int y=0;y<3;y++){
+            var cell=design.connection().plus(new Position(0,y,0));
+            if(observation.protectedCells().contains(cell))issues.add(Issue.PROTECTED);
+            if(!observation.states().containsKey(cell))issues.add(Issue.INCOMPLETE);
+            else if(y>0&&!AIR.contains(observation.states().get(cell)))issues.add(Issue.HEADROOM_BLOCKED);
+        }
         return new Result(issues,issues.isEmpty()?before:Map.of());
     }
 }
