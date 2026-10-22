@@ -54,7 +54,7 @@ public final class ConstructionSiteReservations {
         if(!authority.draft().equals(draft.id())||!authority.world().equals(draft.world())||!authority.worldLoaded()||!authority.siteCleared()
                 ||authority.checkedMillis()>now||now-authority.checkedMillis()>5000)
             throw new SQLException("Fresh complete world/site/protection evidence required before reserving land");
-        if(!new ConstructionLandRepository(c).protectedColumns(draft.world(),bounds).isEmpty())
+        if(hasProtectedRequiredColumns(draft,null))
             throw new SQLException("Saved protected plot or active construction occupies this site");
         try(var s=c.prepareStatement("INSERT INTO construction_site_reservations VALUES(?,?,?,?,?,?,?,?,?,?,NULL)")) {
             s.setString(1,draftId.toString());s.setString(2,draft.world().toString());
@@ -94,8 +94,23 @@ public final class ConstructionSiteReservations {
         requireHouseholdProject(draft);
         if(new ConstructionSupplyRecalls(c).recalled(draft.id())||new ConstructionSupplyReturns(c).dispatched(draft.id()))throw new SQLException("Project supplies recovered; new purchasing/work prohibited");
         var saved=find(draft.id()).orElseThrow(()->new SQLException("Materials require an active saved site reservation"));
-        if(!saved.active()||!new ConstructionLandRepository(c).protectedColumns(draft.world(),saved.footprint(),draft.id()).isEmpty())
+        if(!saved.active()||hasProtectedRequiredColumns(draft,draft.id()))
             throw new SQLException("Construction site released or newly protected; material reservation paused");
+    }
+    /** Access anchors are required evidence, but remain shared access rather than reserved land. */
+    boolean hasProtectedRequiredColumns(ConstructionDraft draft,UUID ownDraft)throws SQLException {
+        var required=ConstructionPreview.requiredCells(draft.template(),draft.transform(),draft.origin());
+        int minX=Integer.MAX_VALUE,minY=Integer.MAX_VALUE,minZ=Integer.MAX_VALUE;
+        int maxX=Integer.MIN_VALUE,maxY=Integer.MIN_VALUE,maxZ=Integer.MIN_VALUE;
+        var columns=new HashSet<ConstructionLandRepository.Column>();
+        for(var p:required) {
+            minX=Math.min(minX,p.x());minY=Math.min(minY,p.y());minZ=Math.min(minZ,p.z());
+            maxX=Math.max(maxX,p.x());maxY=Math.max(maxY,p.y());maxZ=Math.max(maxZ,p.z());
+            columns.add(new ConstructionLandRepository.Column(p.x(),p.z()));
+        }
+        var bounds=new Bounds(new Position(minX,minY,minZ),new Position(maxX,maxY,maxZ));
+        var protectedColumns=new ConstructionLandRepository(c).protectedColumns(draft.world(),bounds,ownDraft);
+        return protectedColumns.stream().anyMatch(columns::contains);
     }
     private void requireHouseholdProject(ConstructionDraft draft)throws SQLException {
         var reason=new HousingProjects(c).pauseReasonRows(draft);

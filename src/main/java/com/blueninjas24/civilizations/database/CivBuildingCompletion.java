@@ -92,7 +92,7 @@ public final class CivBuildingCompletion {
             if(count!=draft.template().blockCount())throw new BuildingRegistry.Declined("Incomplete native home journal");
             var registry=new BuildingRegistry(c);if(registry.find(layout.id()).isPresent())throw new BuildingRegistry.Declined("Completed home building identity already belongs to another record");
             var site=new ConstructionSiteReservations(c).find(draftId).orElseThrow();
-            if(!site.active()||!new ConstructionLandRepository(c).protectedColumns(draft.world(),site.footprint(),draftId).isEmpty())throw new BuildingRegistry.Declined("Completed home land authority changed");
+            if(!site.active()||new ConstructionSiteReservations(c).hasProtectedRequiredColumns(draft,draftId))throw new BuildingRegistry.Declined("Completed home land/access authority changed");
             // Legacy donor_id is the typed contributor slot. Origin metadata below makes this a village, never a player declaration.
             registry.insertRows(layout,draft.settlement(),now);UUID use=UUID.nameUUIDFromBytes(("civ-built-use-v1|"+draftId).getBytes(StandardCharsets.UTF_8));
             registry.appendRows(new BuildingRegistry.Consent(use,layout.id(),draft.settlement(),BuildingRegistry.Action.DONATE,null,false,now));

@@ -2,6 +2,10 @@
 
 ## Current — Phase 4 physical growth
 
+Protection follow-up: new saved claims at a required external road connection now
+pause the project, including completion.33 unit+3 packaged clean verify passed;
+no new milestone count or native/server changes.
+
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |

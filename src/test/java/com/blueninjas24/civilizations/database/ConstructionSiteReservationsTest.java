@@ -64,4 +64,33 @@ class ConstructionSiteReservationsTest {
         assertTrue(sites().reserve(d.id(),clear(d),1001).active());
         try(var s=f.db.getConnection().createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){assertFalse(r.next());}
     }
+    @Test void savedProtectionAtExternalAccessRefusesNewAndRenewedAuthorityWithoutClaimingTheRoad()throws Exception {
+        // Body z=3..7 is clear; its required road anchor (0,63,2) touches the pen boundary.
+        var existing=draft(-2,3);var receipt=sites().reserve(existing.id(),clear(existing),1001);
+        assertEquals(3,receipt.footprint().minimum().z());
+        assertFalse(new ConstructionLandRepository(f.db.getConnection()).protectedColumns(f.world,
+                new ConstructionPreview.Bounds(new Position(0,63,2),new Position(0,63,2))).contains(new ConstructionLandRepository.Column(0,2)));
+        f.repo().save(f.pen(f.id,f.owner,Set.of()),true);
+        var c=f.db.getConnection();c.setAutoCommit(false);
+        try{
+            assertEquals(ConstructionWorkQueue.State.PAUSED,new ConstructionWorkQueue(c).reviewRows(existing.id()).state());
+            assertThrows(SQLException.class,()->sites().requireActiveRows(existing));
+        }
+        finally{c.rollback();c.setAutoCommit(true);}
+        // Receipt replay is historical only and must not refresh authority.
+        assertEquals(receipt,sites().reserve(existing.id(),clear(existing),1002));
+        sites().releaseUnused(existing.id(),2000);
+        var next=draft(-2,3);
+        assertThrows(SQLException.class,()->sites().reserve(next.id(),clear(next),2001));
+        assertTrue(sites().find(next.id()).isEmpty());
+        assertEquals(0,f.scalar("SELECT COUNT(*) FROM construction_block_journal"));
+        assertEquals(0,f.scalar("SELECT COUNT(*) FROM construction_material_reservations"));
+    }
+    @Test void unrelatedProtectedColumnBesideAccessDoesNotExcludeTheWholeBoundingRectangle()throws Exception {
+        f.repo().save(f.pen(f.id,f.owner,Set.of()),true);
+        // Body starts at z=3; anchor (3,63,2) is outside the pen. Bounding corners (1,2)/(2,2) are not used.
+        var d=draft(1,3);assertTrue(sites().reserve(d.id(),clear(d),1001).active());
+        var c=f.db.getConnection();c.setAutoCommit(false);
+        try{sites().requireActiveRows(d);}finally{c.rollback();c.setAutoCommit(true);}
+    }
 }

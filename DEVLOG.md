@@ -1,5 +1,18 @@
 # Civilizations Development Log
 
+## 2026-10-21 — respect saved protection at external construction access
+
+Site reservation, current work/funding authority and completed-home review now
+screen required external ROAD anchors as well as the building footprint. New
+saved protection can pause an existing project even when its body is clear.
+Shared access is not reserved; unrelated bounding-rectangle corners stay usable.
+Two temporary-SQLite regressions cover initial/refreshed refusal, historical
+receipt replay, no material/intent creation and unrelated neighboring protection.
+Clean Wrapper verify33 unit+3 packaged passed1m24s. An initial regression called
+an owner-only helper outside its transaction; corrected the fixture, preserving
+the production transaction guard. No native API/schema/server changes. P4 stays
+6/16=38%; permanent road completion/connector recognition remains next.
+
 ## 2026-10-21 — paid native road boundary and first world acceptance gate
 
 Added PaperRoadWorkSurvey and PaperRoadWriter, separate from home AIR placement.

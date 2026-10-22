@@ -2,6 +2,12 @@
 
 ## Current — Phase4 at38%, paid native road boundary verified
 
+Latest protection fix: required external road-access anchors now receive current
+saved protection checks at reservation, work review and completed-home handoff.
+Shared roads are not claimed and unrelated neighboring columns do not reject a
+site. Clean Wrapper33 unit+3 packaged passed1m24s. No schema/native/server changes;
+this strengthens existing gates without adding a checklist point.
+
 Phase4 now has6/16 checked milestones (38%),1/4 whole groups complete. The new
 checked item is4.1: actual paid path/home construction with restart/refusal and
 transaction rollback acceptance in disposable worlds. Wider phase acceptance,

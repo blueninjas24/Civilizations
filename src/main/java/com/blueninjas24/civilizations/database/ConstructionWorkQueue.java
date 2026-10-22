@@ -44,7 +44,7 @@ public final class ConstructionWorkQueue {
         var draft=new ConstructionDraftRepository(c).find(id).orElseThrow();var site=new ConstructionSiteReservations(c).find(id).orElseThrow();
         var pause=new HousingProjects(c).pauseReasonRows(draft);
         if(pause.isPresent())return held(draft,State.PAUSED,0,pause.get());
-        if(!new ConstructionLandRepository(c).protectedColumns(draft.world(),site.footprint(),id).isEmpty())return held(draft,State.PAUSED,0,"Saved land protection changed; no new native authority");
+        if(new ConstructionSiteReservations(c).hasProtectedRequiredColumns(draft,id))return held(draft,State.PAUSED,0,"Saved site/access protection changed; no new native authority");
         int applied=0,total=0;UUID pending=null;ConstructionBlockJournal.State pendingState=null;
         try(var s=c.prepareStatement("SELECT operation_id,ordinal,state FROM construction_block_journal WHERE draft_id=? ORDER BY ordinal LIMIT 16385")){
             s.setString(1,id.toString());try(var r=s.executeQuery()){while(r.next()){

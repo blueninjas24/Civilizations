@@ -152,3 +152,10 @@ This completes the path/home example-world acceptance item, not normal automatic
 road growth. Completed-road provenance/registration, home-connector recognition
 and ordinary demand/preparation/supply scheduling remain next. No instant paving
 command was added; /civ build access is still read-only. Regional routes remain P5.
+
+Saved protection checks also cover every required external ROAD anchor during
+initial site reservation, current paid/native work review and home completion.
+Only the actual footprint and required access columns are screened; unrelated
+corners of the enclosing rectangle do not exclude a site. Access is screened,
+not added to the project's reserved footprint. A historical reservation replay
+does not refresh permission after protection changes. No schema change.
