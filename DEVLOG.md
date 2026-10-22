@@ -8,7 +8,7 @@ repeatable seed so later reviews do not always inspect the same crowded center.
 No wider scan, extra node/cell budgets, unsafe terrain or new spending authority.
 An added regression finds a safe outlying home/road when the near center is blocked.
 Clean Wrapper6 unit+3 packaged passed29.034s. Actual Paper joint selection/new SQL
-protection refusal repeated successfully (3 cells/2 stone/3 work), no projects/
+protection refusal repeated successfully (5 cells/2 stone/5 work), no projects/
 orders/intents/people, both118 saves healthy/FK-clean; stopped/restored/helper
 archived. No user-server/schema change. P4 stays7/16=44%; automatic orders next.
 
