@@ -212,3 +212,9 @@ scheduling that road is the next step, not a feature enabled by the report.
 The native selection fixture used buffer0 and found3 paving cells/2 stone/3 work;
 new saved protection refused it. Five fixture cells restored, both118 saves healthy,
 server stopped/helper archived. This completes flat selection item2.2 only.
+
+Entrance sampling retains eight nearest choices and distributes24 across the
+observed area. A family/period-derived seed varies later reviews predictably;
+the same crowded center cannot monopolize every bounded choice. Search/frame/
+protection limits are unchanged. A crowded-center regression and repeated actual
+Paper selection/protection check passed (6 unit+3 packaged). No automatic orders.

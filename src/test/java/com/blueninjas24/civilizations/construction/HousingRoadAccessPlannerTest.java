@@ -49,4 +49,13 @@ class HousingRoadAccessPlannerTest {
     @Test void exhaustedRouteBudgetReturnsNoPartialRouteOrRoadAuthority()throws Exception {
         blockInfill();var result=review(survey(),new LocalRoadAccessPlanner.Policy(16,1));assertTrue(result.expansion().isEmpty());assertTrue(result.budgetLimited());assertTrue(result.routeNodes()<=HousingRoadAccessPlanner.MAX_ROUTE_NODES);
     }
+    @Test void crowdedNearCenterDoesNotConsumeEveryReviewWhileSafeLocalOutskirtsRemain()throws Exception {
+        for(int x=-4;x<=4;x++)for(int z=-4;z<=4;z++)if(Math.abs(x)+Math.abs(z)<=4&&!(x==0&&z>=0)){
+            var at=new Position(x,64,z);cells.put(at,new Cell(false,false,false,false));terrain.put(at,ConstructionLandPolicy.Kind.OTHER);
+        }
+        var result=review(survey(),LocalRoadAccessPlanner.Policy.prototype());
+        assertEquals(HousingRoadAccessPlanner.Status.READY,result.status(),result.toString());
+        assertTrue(result.infill().selected().isEmpty());assertTrue(result.expansion().isPresent());
+        assertEquals(result.expansion(),review(survey(),LocalRoadAccessPlanner.Policy.prototype()).expansion());
+    }
 }

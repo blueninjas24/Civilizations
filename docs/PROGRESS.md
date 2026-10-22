@@ -2,6 +2,9 @@
 
 ## Current — Phase 4 physical growth
 
+Joint planning now samples beyond crowded centers under the same limits.6 unit+3
+packaged checks and real Paper acceptance passed; no extra milestone counted.
+
 Hosted follow-up: repaired three historical migration snapshot tests that omitted
 new empty road tables;13 unit+3 packaged checks passed. Current hosted results are
 pending. This changes no gameplay or milestone count.

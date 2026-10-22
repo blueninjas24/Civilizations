@@ -66,7 +66,8 @@ public final class HousingProjectPreparation {
                 if(result.selected().isEmpty()){
                     var road=templates.stream().filter(t->t.purpose()==Purpose.PATH&&t.id().equals("starter_path")).findFirst();
                     if(road.isPresent()&&result.status()==ConstructionSitePlanner.Status.NO_SAFE_SITE){
-                        var access=HousingRoadAccessPlanner.select(template,road.get(),request.world(),request.need(),survey,envelope,land,terrain,LocalRoadAccessPlanner.Policy.prototype(),context.now(),5000,seed);
+                        long accessSeed=seed^Long.rotateLeft(period,23)^request.proposal().household().hashCode();
+                        var access=HousingRoadAccessPlanner.select(template,road.get(),request.world(),request.need(),survey,envelope,land,terrain,LocalRoadAccessPlanner.Policy.prototype(),context.now(),5000,accessSeed);
                         if(access.expansion().isPresent()){
                             var plan=access.expansion().orElseThrow();
                             throw new BuildingRegistry.Declined("Home site waits: road-first candidate needs "+plan.road().template().blockCount()+" paving cells, "+plan.road().template().materials()+" and "+plan.road().template().work()+" earned work; automatic road ordering remains unfinished; no site, supplies or home saved");

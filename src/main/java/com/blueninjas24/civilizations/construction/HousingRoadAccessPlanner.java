@@ -29,7 +29,7 @@ public final class HousingRoadAccessPlanner {
                 .sorted(Comparator.comparingLong((Position p)->distance(p,need)).thenComparingLong(p->mix(seed,p)).thenComparing(Comparator.naturalOrder())).toList();
         var rejected=new EnumMap<Rejection,Integer>(Rejection.class);var choices=new ArrayList<Expansion>();
         int candidates=0,cellReviews=0,routeNodes=0;boolean limited=starts.size()>MAX_ENTRANCES;
-        outer:for(var entrance:starts.subList(0,Math.min(starts.size(),MAX_ENTRANCES)))for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true)){
+        outer:for(var entrance:sampleEntrances(starts,seed))for(var rotation:Rotation.values())for(boolean mirror:List.of(false,true)){
             var transform=new Transform(rotation,mirror);var anchor=home.anchors().stream().filter(a->a.role()==Role.ROAD).findFirst().orElseThrow(()->new IllegalArgumentException("Home needs an access anchor"));
             var offset=transform.apply(anchor.at(),home.size());Position origin;
             Set<Position> required;
@@ -69,6 +69,14 @@ public final class HousingRoadAccessPlanner {
     }
     private static Result result(Status status,Expansion expansion,ConstructionSitePlanner.Result infill,Map<Rejection,Integer> rejected,int candidates,int cells,int nodes,boolean limited){return new Result(status,Optional.ofNullable(expansion),infill,rejected,candidates,cells,nodes,limited);}
     private static void reject(Map<Rejection,Integer> rejected,Rejection reason){rejected.merge(reason,1,Integer::sum);}
+    /** Keep nearby choices, but do not spend every bounded review on the same crowded town center. */
+    private static List<Position> sampleEntrances(List<Position> sorted,long seed){
+        if(sorted.size()<=MAX_ENTRANCES)return sorted;
+        var selected=new LinkedHashSet<Position>(sorted.subList(0,8));int remaining=sorted.size()-8,slots=MAX_ENTRANCES-8;
+        int offset=(int)Math.floorMod(seed,remaining);
+        for(int i=0;i<slots;i++)selected.add(sorted.get(8+(int)((offset+(long)i*remaining/slots)%remaining)));
+        return List.copyOf(selected);
+    }
     private static long distance(Position a,Position b){return Math.abs((long)a.x()-b.x())+Math.abs((long)a.y()-b.y())+Math.abs((long)a.z()-b.z());}
     private static long mix(long seed,Position p){long n=seed^((long)p.x()*0x9e3779b97f4a7c15L)^((long)p.z()*0xc2b2ae3d27d4eb4fL)^p.y();return (n^(n>>>30))*0xbf58476d1ce4e5b9L;}
     private static boolean overlaps(Bounds a,Bounds b){return a.minimum().x()<=b.maximum().x()&&a.maximum().x()>=b.minimum().x()&&a.minimum().y()<=b.maximum().y()&&a.maximum().y()>=b.minimum().y()&&a.minimum().z()<=b.maximum().z()&&a.maximum().z()>=b.minimum().z();}

@@ -2,6 +2,11 @@
 
 ## Current — Phase4 at44%, joint local-road/home selection verified
 
+Latest refinement: bounded entrance sampling keeps eight nearby choices and
+spreads24 across observed land; family/period seed variation avoids repeating
+only a crowded center.6 unit+3 packaged checks and actual Paper positive/new-
+protection refusal passed. Same strict budgets, no orders/rights/schema changes.
+
 Hosted follow-up: da6c8eb failed three old forestry migration snapshots on both
 platforms because they omitted the new empty road tables. Corrected their later-
 table lists and added explicit empty-table checks, preserving full predecessor

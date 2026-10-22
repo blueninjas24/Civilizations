@@ -1,5 +1,17 @@
 # Civilizations Development Log
 
+## 2026-10-21 — bounded expansion search reaches beyond a crowded center
+
+Keep eight nearby entrance choices and spread the remaining24 across the observed
+area, preserving the32-candidate-point cap. Family and saved period vary the
+repeatable seed so later reviews do not always inspect the same crowded center.
+No wider scan, extra node/cell budgets, unsafe terrain or new spending authority.
+An added regression finds a safe outlying home/road when the near center is blocked.
+Clean Wrapper6 unit+3 packaged passed29.034s. Actual Paper joint selection/new SQL
+protection refusal repeated successfully (3 cells/2 stone/3 work), no projects/
+orders/intents/people, both118 saves healthy/FK-clean; stopped/restored/helper
+archived. No user-server/schema change. P4 stays7/16=44%; automatic orders next.
+
 ## 2026-10-21 — correct historical forestry migration snapshots exposed by CI
 
 Hosted Windows/Linux on da6c8eb reported three forestry migration-test failures.
