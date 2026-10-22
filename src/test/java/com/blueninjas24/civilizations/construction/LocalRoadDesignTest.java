@@ -30,6 +30,14 @@ class LocalRoadDesignTest {
         assertFalse(result.template().stages().getFirst().blocks().containsKey(new Position(1,0,0))); // Corner's empty cell stays empty.
         assertThrows(UnsupportedOperationException.class,()->result.template().stages().getFirst().blocks().clear());
     }
+    @Test void directDesignConstructionCannotSmuggleOtherPurposesOrAnUnconnectedSurface()throws Exception{
+        var design=LocalRoadDesign.freeze(route(List.of(p(3,0),p(2,0),p(1,0))),recipe()).orElseThrow();var t=design.template();
+        var home=new ConstructionTemplate(t.id(),1,t.name(),t.attribution(),Purpose.HOME,t.size(),t.stages(),List.of(t.anchors().getFirst(),new Anchor(Role.ENTRANCE,new Position(0,0,0),Direction.WEST)));
+        assertThrows(IllegalArgumentException.class,()->new LocalRoadDesign.Design(design.origin(),design.connection(),home,design.recipeHash()));
+        var disconnected=new ConstructionTemplate(t.id(),1,t.name(),t.attribution(),Purpose.PATH,t.size(),List.of(new Stage("surface",1,t.materials(),Map.of(new Position(1,0,0),"minecraft:cobblestone"))),t.anchors());
+        assertThrows(IllegalArgumentException.class,()->new LocalRoadDesign.Design(design.origin(),design.connection(),disconnected,design.recipeHash()));
+        assertThrows(IllegalArgumentException.class,()->new LocalRoadDesign.Design(design.origin(),p(99,99),t,design.recipeHash()));
+    }
     @Test void incompleteDisconnectedDuplicateOrSlopingRoutesCannotBecomePlans()throws Exception{
         var source=recipe();assertTrue(LocalRoadDesign.freeze(route(List.of(p(0,0))),source).isEmpty());
         assertThrows(IllegalArgumentException.class,()->LocalRoadDesign.freeze(new Result(Status.BUDGET_LIMIT,List.of(),0,20),source));

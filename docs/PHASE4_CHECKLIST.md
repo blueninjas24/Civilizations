@@ -37,9 +37,9 @@ The new pure flat access planner and /civ build access preview find short safe
 routes to existing path under strict observation/search budgets. Neither starts
 paving. Physical road design, real corridor reservation/funding/labor, exact
 natural-ground replacement authority and completed-road provenance remain before
-the complete local-path selection/authority gate can be checked. Current native
-journal CHECK requires minecraft:air before-state; do not silently relax it for
-roads. A versioned tested migration and exact typed authority are necessary.
+the complete local-path selection/authority gate can be checked. Schema117 now records exact paid natural-ground intents with immutable receipts.
+The native writer remains AIR-only; it must gain a dedicated exact road boundary
+rather than silently broadening home permissions.
 
 ## 3. Paid staged work and useful buildings — 1/4
 
@@ -57,7 +57,7 @@ roads. A versioned tested migration and exact typed authority are necessary.
 
 ## Current verification and next delivery
 
-Current schema116. Family homes use real finite supplier stock, original money,
+Current schema117. Family homes use real finite supplier stock, original money,
 earned cargo/work, paced per-block journaling, exact native scene checks and
 completion registration. Four/six/eight-bed catalogue geometry and actual rotated/
 mirrored eight-bed construction passed disposable Paper; eight actual residents
@@ -77,7 +77,8 @@ Next cohesive local-road delivery:
    exact scaled cost/work and actual corridor geometry. Integration must retain
    those immutable terms and never treat geometry as free goods or labor.
 2. Reserve/revalidate the actual corridor with current protection and entities.
-3. Version/test native ground replacement and restart handling; preserve player
+3. SQL exact-ground migration/preparation is verified; connect/test the dedicated
+   native ground replacement and restart handling; preserve player
    paving/builds and harvested-output ambiguity. Register actual Civ road identity
    so homes can recognize it without adopting arbitrary player cobblestone.
 4. Connect protected village funds, finite suppliers, shared hauling, earned labor

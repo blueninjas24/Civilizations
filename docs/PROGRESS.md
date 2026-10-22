@@ -33,6 +33,10 @@ records safe before-states only; automatic paving and replacement authority rema
 Endpoint headroom/protection is now rechecked too;6 unit+3 packaged passed.
 
 
+Schema117 road intents now require paid materials, earned work and exact current
+ground/access evidence.88 unit+3 packaged checks and the existing native paid-home
+smoke passed; old histories preserved. Native paving remains off. Handbook0.22.
+
 | P4 part | Current state | Plain-English effect |
 |---|---|---|
 | Starter plans | Available | Original editable path, storehouse and four/six/eight-bed home plans |
@@ -58,7 +62,7 @@ mirrored home blocks on a disposable Paper server, then native inspection assign
 one saved family to4 beds. Completion replay survived session restart. All captured
 cells restored, server stopped/helper archived; both116 DBs healthy/FK-clean.
 Prior Windows/Linux both passedb91265c; current candidate awaits hosted CI.
-The handbook is now0.21,35 pages/32 chapters, with automatic homes in Chapter31
+The handbook is now0.22,35 pages/32 chapters, with automatic homes in Chapter31
 and saved inspection/confirmed supplier recovery in Chapter32. Latest recovery
 Wrapper35+3 and15+3 passed; actual Paper permission/confirmation/refund/disconnect/
 restart accepted. Both116 DBs healthy, server stopped; no world/inventory edits.

@@ -1,5 +1,16 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October21 delegated conservative road-ground journal boundary
+
+Use the approved local-road/public funding direction for exact frozen flat
+corridors only. Accept a closed set of natural-looking dirt/grass variants, never
+ore, storage, player-like paving or arbitrary materials, after paid inputs/earned
+labor and fresh protected access checks. Preserve already acknowledged blocks;
+ambiguous missing output still cannot receive free replacement. Schema117 retains
+exact ground receipts atomically but enables no native paving. Existing air/home
+writer permission is not widened. This is implementation of delegated guarded
+growth, not permission to alter known player work or introduce regional routes.
+
 ## October21 assigned homes guide existing resident bodies
 
 Connect already approved whole-family dwelling assignments to normal villager

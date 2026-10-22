@@ -1,5 +1,45 @@
 # Civilizations Development Log
 
+## 2026-10-21 — schema117 exact paid road-ground intents
+
+Schema117 transactionally rebuilds the native journal to support a closed set
+of exact natural-ground before-states alongside existing AIR. It preserves every
+old intent/ID/state and the authored-position index. construction_road_ground
+records immutable matching preparation facts, with deferred FK to the journal;
+a trigger refuses a non-AIR insert without its exact ground receipt. Existing
+home/non-road preparation still creates AIR intents; generic Paper writer still
+refuses non-AIR. No automatic paving or terrain replacement enabled.
+
+ConstructionRoadIntents requires an exact frozen connected local-road design,
+current world, active protected site, current saved protection including retained
+endpoint, fully earned public stage work and delivered/escrowed real goods. Fresh
+full ground/headroom/access evidence is rechecked, acknowledged prefix blocks must
+match exact saved output, and ground receipt plus intent commit or roll back
+together. Exact operation replay is historical only, never refreshed native
+permission or a second material/labor charge. Earlier ordinals still must finish.
+LocalRoadDesign's public record now enforces road-only connected geometry, solid
+surface whitelist, source-hash syntax and retained endpoint exclusion.
+
+Focused clean Wrapper88 unit+3 packaged passed1m05s after correcting a malformed
+negative-test HOME fixture and the historical generated-terrain table-count list.
+Earlier core35+3 passed43.374s. Tests include populated116-to117 preserve/reopen,
+late migration rollback/table/index/version recovery, raw unproved ground insert
+refusal, real supplier-funded/earned road preparation, prefix/restart/replay,
+unworked/absent/edited/protected refusal and late journal rollback. Housing,
+resident projection, backup and historical migration compatibility included.
+Actual disposable Paper schema117 rebuilt the unchanged120-block paid home,
+qualified4 real beds/one saved family, and replayed completion after restart with
+money/goods/people/capacity conserved. All captured cells restored, both117 DBs
+integrity ok/FKs0, server stopped/helper archived. No actual dev server edits.
+
+Final saved-endpoint protection/replay checks7 unit+3 packaged passed24.192s;
+current SQL protection overrode an older empty native protection set.
+Handbook0.22 (35 pages/32 chapters) rendered/visually reviewed; current save version
+and rollback instructions accurate. P4 remains5/16=31%: a SQL road intent is not a
+native paved road. Next connect a dedicated road scene/writer under the existing
+owner gate, then ordinary corridor demand/funding/labor/completion/provenance.
+No canonical roadmap changes or blocking gameplay decision.
+
 ## 2026-10-21 — retain safe access at the road connection
 
 Fixed a review gap at the retained existing-road endpoint: its two headroom cells and all three protected positions must also be present, clear and unprotected. A player obstruction or changed protection there now refuses the entire before-state map. Focused clean Wrapper verify6 unit+3 packaged passed27.386s. One added regression covers blocked/protected endpoint access. No schema, writer, world, payment or server changes; automatic paving remains unfinished and P4 stays31%.

@@ -1,5 +1,19 @@
 # Civilizations — architecture and engineering contracts
 
+## Schema117 — separate exact road-ground preparation
+
+The journal preserves its existing column/order/identity semantics. A versioned
+transactional rebuild widens only its closed before-state set; an exact matching
+immutable construction_road_ground receipt is mandatory for non-AIR inserts.
+Receipt and intent have deferred referential integrity and commit together.
+ConstructionRoadIntents reuses the existing paid public stage/stock/site guards;
+it checks saved protection over the retained endpoint as well as the corridor.
+Positive native ground/headroom evidence and validated acknowledged prefix are
+facts for SQL preparation, never native authority. Historical replay remains a
+receipt only. Normal home/air preparation and the current native writer remain
+unchanged; a dedicated gated road writer must be connected before paving.
+No direct SQL/world calls on Paper thread, no extra money/labor or chunk loading.
+
 ## October21 frozen local road recipe conversion
 
 LocalRoadDesign is pure construction-domain preparation using existing immutable

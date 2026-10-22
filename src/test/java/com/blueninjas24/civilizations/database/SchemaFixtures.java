@@ -6,16 +6,28 @@ import java.sql.SQLException;
 /** Reconstruct prior schema shapes only inside test-owned temporary databases. */
 final class SchemaFixtures {
     private SchemaFixtures() {}
-    /** Additive schemas95-116 must create only empty tables in earlier migration fixtures. */
+    /** Additional schemas95-117 must create only empty tables in earlier migration fixtures. */
     static void removeEmptyRecoveryAndAllocationAdditions(java.util.Map<String,? extends java.util.List<?>> snapshot) {
         for(var table:java.util.List.of("mineral_recoveries","resource_recovery_epochs","forest_recoveries",
                 "business_allocation_state","business_allocation_reviews","resource_investment_state","resource_investment_reviews","generated_resource_chunks",
-                "construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders","construction_stage_work","construction_public_work","building_records","building_units","building_consent_events","building_exclusions","building_exclusion_releases",
+                "construction_road_ground","construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders","construction_stage_work","construction_public_work","building_records","building_units","building_consent_events","building_exclusions","building_exclusion_releases",
                 "dwelling_reviews","dwelling_review_units","dwelling_current_reviews","dwelling_assignments","dwelling_active_occupancy","dwelling_departures","household_capacity_sources","dwelling_bed_claims","household_formations","household_formation_members","building_renovation_events","housing_project_bindings","construction_supply_recalls","construction_supply_returns","civ_built_buildings"))
             org.junit.jupiter.api.Assertions.assertEquals(java.util.List.of(),snapshot.remove(table),table+" must exist and start empty");
     }
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<117){
+                statement.execute("DROP TRIGGER IF EXISTS construction_ground_intent_required");
+                statement.execute("DROP TABLE IF EXISTS construction_road_ground");
+                boolean journal;try(var r=statement.executeQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='construction_block_journal'")){journal=r.next();}
+                if(journal){
+                    statement.execute("ALTER TABLE construction_block_journal RENAME TO construction_block_journal_current");
+                    ConstructionBlockJournal.createSchema(connection);
+                    statement.execute("INSERT INTO construction_block_journal SELECT * FROM construction_block_journal_current");
+                    statement.execute("DROP TABLE construction_block_journal_current");
+                    if(version>=116)statement.execute("CREATE INDEX construction_authored_positions ON construction_block_journal(world_x,world_y,world_z,draft_id)");
+                }
+            }
             if(version<116){
                 statement.execute("DROP TABLE IF EXISTS civ_built_buildings");statement.execute("DROP INDEX IF EXISTS construction_authored_positions");
                 boolean completed;try(var r=statement.executeQuery("SELECT count(*) FROM pragma_table_info('housing_project_bindings') WHERE name='completed_ms'")){completed=r.getInt(1)>0;}

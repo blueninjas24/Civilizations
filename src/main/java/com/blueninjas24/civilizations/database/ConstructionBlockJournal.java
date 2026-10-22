@@ -11,8 +11,9 @@ public final class ConstructionBlockJournal {
     public record Intent(UUID operation,UUID draft,int ordinal,Position at,String before,String after,State state){}
     private final Connection connection;
     public ConstructionBlockJournal(Connection connection){this.connection=Objects.requireNonNull(connection);}
-    static void createSchema(Connection c)throws SQLException {
-        try(var s=c.createStatement()){s.execute("""
+    static void createSchema(Connection c)throws SQLException {createSchema(c,false);}
+    static void createSchema(Connection c,boolean roadGround)throws SQLException {
+        String ddl="""
             CREATE TABLE construction_block_journal (
                 operation_id TEXT PRIMARY KEY NOT NULL,
                 draft_id TEXT NOT NULL REFERENCES construction_drafts(id),
@@ -25,7 +26,9 @@ public final class ConstructionBlockJournal {
                 state TEXT NOT NULL CHECK(state IN ('PREPARED','APPLIED','CONFLICT')),
                 UNIQUE(draft_id,ordinal), UNIQUE(draft_id,world_x,world_y,world_z)
             )
-            """);}
+            """;
+        if(roadGround)ddl=ddl.replace("CHECK(before_state='minecraft:air')","CHECK(before_state IN ('minecraft:air',"+String.join(",",RoadGroundReview.naturalGroundStates().stream().sorted().map(v->"'"+v+"'").toList())+"))");
+        try(var s=c.createStatement()){s.execute(ddl);}
     }
     /** Must be committed BEFORE a future physical writer acts. Earlier intents must be acknowledged. */
     public Intent prepare(UUID operation,UUID draftId,int ordinal,String nativeAfter)throws SQLException {
@@ -46,7 +49,8 @@ public final class ConstructionBlockJournal {
             return prepareRows(operation,draftId,ordinal,nativeAfter);
         });
     }
-    private Intent prepareRows(UUID operation,UUID draftId,int ordinal,String nativeAfter)throws SQLException {
+    private Intent prepareRows(UUID operation,UUID draftId,int ordinal,String nativeAfter)throws SQLException {return prepareRows(operation,draftId,ordinal,nativeAfter,"minecraft:air");}
+    Intent prepareRows(UUID operation,UUID draftId,int ordinal,String nativeAfter,String before)throws SQLException {
         var draft=new ConstructionDraftRepository(connection).find(draftId).orElseThrow(()->new SQLException("Unknown construction draft"));
         var placements=new ArrayList<Map.Entry<Position,String>>();draft.template().stages().forEach(stage->placements.addAll(stage.blocks().entrySet()));
         if(ordinal<0||ordinal>=placements.size())throw new IllegalArgumentException("Construction ordinal outside frozen plan");
@@ -57,7 +61,7 @@ public final class ConstructionBlockJournal {
             throw new IllegalArgumentException("Native state changes the frozen plan material");
         var old=find(operation);
         if(old.isPresent()) {
-            var value=old.orElseThrow();if(!value.draft().equals(draftId)||value.ordinal()!=ordinal||!value.at().equals(at)||!value.after().equals(nativeAfter))
+            var value=old.orElseThrow();if(!value.draft().equals(draftId)||value.ordinal()!=ordinal||!value.at().equals(at)||!value.after().equals(nativeAfter)||!value.before().equals(before))
                 throw new SQLException("Construction operation identity reused with changed terms");
             excludeAuthoredTrees(draft,at,material);
             if(material.endsWith("_bed"))bindAuthoredBedHead(connection,draft,at);
@@ -68,10 +72,10 @@ public final class ConstructionBlockJournal {
         }
         excludeAuthoredTrees(draft,at,material);
         if(material.endsWith("_bed"))bindAuthoredBedHead(connection,draft,at);
-        try(var s=connection.prepareStatement("INSERT INTO construction_block_journal VALUES(?,?,?,?,?,?,'minecraft:air',?,'PREPARED')")) {
-            s.setString(1,operation.toString());s.setString(2,draftId.toString());s.setInt(3,ordinal);s.setInt(4,at.x());s.setInt(5,at.y());s.setInt(6,at.z());s.setString(7,nativeAfter);s.executeUpdate();
+        try(var s=connection.prepareStatement("INSERT INTO construction_block_journal VALUES(?,?,?,?,?,?,?,?,'PREPARED')")) {
+            s.setString(1,operation.toString());s.setString(2,draftId.toString());s.setInt(3,ordinal);s.setInt(4,at.x());s.setInt(5,at.y());s.setInt(6,at.z());s.setString(7,before);s.setString(8,nativeAfter);s.executeUpdate();
         }
-        return new Intent(operation,draftId,ordinal,at,"minecraft:air",nativeAfter,State.PREPARED);
+        return new Intent(operation,draftId,ordinal,at,before,nativeAfter,State.PREPARED);
     }
     /** Native plugin writes do not emit player placement events: authored logs must never become natural timber sources. */
     private void excludeAuthoredTrees(ConstructionDraft draft,Position at,String material)throws SQLException {
@@ -111,10 +115,11 @@ public final class ConstructionBlockJournal {
                     if(intent.ordinal()<0||intent.ordinal()>=placements.size())throw new SQLException("Construction intent ordinal outside frozen plan");
                     var placement=placements.get(intent.ordinal());
                     if(!intent.at().equals(draft.origin().plus(draft.transform().apply(placement.getKey(),draft.template().size())))
-                            ||!"minecraft:air".equals(intent.before())||intent.after()==null||intent.after().length()>256
+                            ||!("minecraft:air".equals(intent.before())||RoadGroundReview.naturalGroundStates().contains(intent.before()))||intent.after()==null||intent.after().length()>256
                             ||!intent.after().matches("minecraft:[a-z0-9_]+(?:\\[[a-z0-9_=,]+\\])?")
                             ||!placement.getValue().split("\\[",2)[0].equals(intent.after().split("\\[",2)[0]))
                         throw new SQLException("Construction intent differs from frozen geometry or material");
+                    if(!"minecraft:air".equals(intent.before()))new ConstructionRoadIntents(connection).requireReceipt(intent,draft);
                     return Optional.of(intent);
                 }
                 catch(IllegalArgumentException invalid){throw new SQLException("Invalid construction intent",invalid);}

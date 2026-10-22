@@ -2,8 +2,8 @@
 
 Status: implemented read-only planner and operator preview. This does not enable automatic
 roads or relax the current requirement that home sites touch an existing path.
-No SQLite migration, supplier payment, material estimate, labor grant,
-land lease or world modification is introduced.
+The preview itself makes no supplier payment, labor grant, land lease or world
+modification. The separate schema117 backend now records exact paid road intents.
 
 LocalRoadAccessPlanner finds a shortest flat one-column access corridor from a
 specified ground surface to a verified existing road within a supplied frame.
@@ -89,15 +89,37 @@ block intents created by saving, and refusal to overwrite that ID after recipe
 edits. The source fingerprint is returned with the design; this does not add a
 new persisted recipe-provenance table or save migration.
 
-The physical design targets the ground surface. The current journal and native
-writer still require AIR before-state, so this is deliberately not executable on
-natural ground yet. Exact natural-ground replacement, its versioned migration,
+The physical design targets the ground surface. Schema117 now supports exact paid ground intents; the current native writer
+still requires AIR and therefore cannot execute these road designs on ground. Exact natural-ground replacement, its versioned migration,
 current corridor protection, paid effort/supplies and saved road completion remain
 the next integration step. Do not weaken the writer to make a frozen plan run.
 
 ## Exact before-state review
 
-Exact road-ground evidence review now preserves each proposed cell's actual natural before-state and requires clear headroom and the retained dirt-path connection. Changed/player-like blocks, protection, missing cells and stale/wrong-world evidence refuse the whole before-state map. This is read-only domain preparation, not land provenance, entity clearance or replacement authority. Existing AIR-only journal/writer and schema116 remain unchanged. Focused clean Wrapper verify5 unit+3 packaged passed26.981s. No native test needed: no Paper calls, database or world mutations. P4 remains5/16=31%; next is transactional versioned ground-state journaling and paid corridor integration. No decisions required.
+Exact road-ground evidence review now preserves each proposed cell's actual natural before-state and requires clear headroom and the retained dirt-path connection. Changed/player-like blocks, protection, missing cells and stale/wrong-world evidence refuse the whole before-state map. This is read-only domain preparation, not land provenance, entity clearance or replacement authority. That read-only review checkpoint changed no journal; schema117 now adds typed
+paid SQL intents, while the native AIR writer remains unchanged. Focused clean Wrapper verify5 unit+3 packaged passed26.981s. No native test needed: no Paper calls, database or world mutations. P4 remains5/16=31%; next is transactional versioned ground-state journaling and paid corridor integration. No decisions required.
 
 The retained endpoint also needs both clear headroom cells and protection checks
 through that space; otherwise the exact-ground review refuses the whole proposal.
+
+## Schema117 paid SQL intents
+
+ConstructionRoadIntents prepares only exact frozen connected local-road geometry,
+with current world/site/protection, earned public work and actually delivered
+escrowed goods. It checks saved protection at the retained road endpoint even if
+an earlier native observation claimed it was clear. Complete fresh observations
+must preserve all remaining natural cells, two clear headroom cells and the old
+path connection. Acknowledged prefix must still match exact native output.
+
+construction_road_ground stores each exact natural before-state and observation
+time. Receipt plus ordinary journal intent commit atomically, with deferred FK,
+immutable history and a trigger against unproved non-AIR insertion. Earlier
+ordinals must be acknowledged. Replaying an accepted operation returns history;
+it is not a new native permit, refund, material source or labor credit. Late SQL
+failure rolls both rows back. Generic home preparation still records AIR only.
+
+The migration preserves old journal identities/states and its authored-position
+index. Populated116 upgrade/reopen and injected late rollback passed. Current
+PaperConstructionWriter still rejects non-AIR, so these intents are not automatic
+road construction. Native scene/proximity/entity review, gated one-time exact
+replacement, corridor scheduling/funding and saved road completion remain next.

@@ -16,16 +16,23 @@ public final class RoadGroundReview {
         public Result{issues=Set.copyOf(issues);beforeStates=Map.copyOf(beforeStates);}
         public boolean suitable(){return issues.isEmpty();}
     }
+    public static Set<String> naturalGroundStates(){return GROUND;}
     private RoadGroundReview(){}
     public static Result inspect(UUID world,LocalRoadDesign.Design design,Observation observation,long now){
-        Objects.requireNonNull(world);Objects.requireNonNull(design);Objects.requireNonNull(observation);if(now<0)throw new IllegalArgumentException("Invalid road review time");
+        return inspect(world,design,observation,now,Map.of());
+    }
+    public static Result inspect(UUID world,LocalRoadDesign.Design design,Observation observation,long now,Map<Position,String> acknowledged){
+        Objects.requireNonNull(world);Objects.requireNonNull(design);Objects.requireNonNull(observation);acknowledged=Map.copyOf(acknowledged);if(now<0)throw new IllegalArgumentException("Invalid road review time");
         var issues=EnumSet.noneOf(Issue.class);var before=new TreeMap<Position,String>();
         if(!world.equals(observation.world()))issues.add(Issue.WRONG_WORLD);
         if(now<observation.capturedMillis()||now-observation.capturedMillis()>5000)issues.add(Issue.STALE);
         if(!observation.complete())issues.add(Issue.INCOMPLETE);
         for(var stage:design.template().stages())for(var offset:stage.blocks().keySet()){
             var at=design.origin().plus(offset);String state=observation.states().get(at);
-            if(state==null)issues.add(Issue.INCOMPLETE);else if(!GROUND.contains(state))issues.add(Issue.GROUND_CHANGED);else before.put(at,state);
+            String prior=acknowledged.get(at);
+            if(state==null)issues.add(Issue.INCOMPLETE);
+            else if(prior!=null){if(!prior.equals(stage.blocks().get(offset))||!state.equals(prior))issues.add(Issue.GROUND_CHANGED);}
+            else if(!GROUND.contains(state))issues.add(Issue.GROUND_CHANGED);else before.put(at,state);
             for(int y=0;y<3;y++){
                 var cell=at.plus(new Position(0,y,0));if(observation.protectedCells().contains(cell))issues.add(Issue.PROTECTED);
                 if(!observation.states().containsKey(cell))issues.add(Issue.INCOMPLETE);

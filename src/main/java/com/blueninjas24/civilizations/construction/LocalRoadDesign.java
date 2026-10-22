@@ -9,7 +9,21 @@ public final class LocalRoadDesign {
     private static final Set<String> SURFACES=Set.of("minecraft:cobblestone","minecraft:stone","minecraft:stone_bricks",
             "minecraft:andesite","minecraft:diorite","minecraft:granite","minecraft:cobbled_deepslate");
     public record Design(Position origin,Position connection,ConstructionTemplate template,String recipeHash) {
-        public Design { Objects.requireNonNull(origin);Objects.requireNonNull(connection);Objects.requireNonNull(template);Objects.requireNonNull(recipeHash); }
+        public Design {
+            Objects.requireNonNull(origin);Objects.requireNonNull(connection);Objects.requireNonNull(template);Objects.requireNonNull(recipeHash);
+            if(!recipeHash.matches("[0-9a-f]{64}")||!template.id().equals("local_road_access")||template.purpose()!=Purpose.PATH
+                    ||template.size().y()!=1||template.stages().size()!=1||template.blockCount()>64||template.anchors().size()!=1
+                    ||template.anchors().getFirst().role()!=Role.ROAD||!origin.plus(template.anchors().getFirst().at()).equals(connection))
+                throw new IllegalArgumentException("Invalid frozen local road design");
+            var blocks=template.stages().getFirst().blocks();var end=template.anchors().getFirst().at();
+            if(blocks.containsKey(end)||!SURFACES.containsAll(blocks.values()))throw new IllegalArgumentException("Invalid road surface or retained endpoint");
+            var remaining=new HashSet<>(blocks.keySet());var queue=new ArrayDeque<Position>();queue.add(end);
+            while(!queue.isEmpty()){
+                var at=queue.removeFirst();for(var candidate:new ArrayList<>(remaining))if(at.y()==candidate.y()
+                        &&Math.abs((long)at.x()-candidate.x())+Math.abs((long)at.z()-candidate.z())==1){remaining.remove(candidate);queue.addLast(candidate);}
+            }
+            if(!remaining.isEmpty())throw new IllegalArgumentException("Road design is disconnected from retained endpoint");
+        }
     }
     private LocalRoadDesign(){}
     public static Optional<Design> freeze(LocalRoadAccessPlanner.Result route,ConstructionTemplate recipe){

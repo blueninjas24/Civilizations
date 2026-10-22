@@ -1,5 +1,26 @@
 # Civilizations — implementation status and handoff
 
+## Latest verified — schema117 paid natural-ground road intents
+
+Saved construction now supports typed exact road-ground intents after real
+supplier materials, earned public labor, current protected-site/access checks
+and fresh full ground/headroom evidence. Immutable ground receipt and journal
+commit together; late failure rolls both back. Populated116 migration preserves
+old IDs/states/index and rolls back cleanly on a forced late failure. Existing
+home/non-road intents stay AIR; the native writer still refuses natural ground.
+
+Clean Wrapper88 unit+3 packaged passed1m05s, covering affected migration, paid
+work, housing, resident and backup paths. Actual disposable Paper117 automatic
+home smoke passed:120 blocks,4 qualified beds/one saved family, exact completion
+restart replay and conserved money/goods/people/capacity. Original cells restored;
+both117 DBs integrity ok/FKs0; stopped/helper archived. No changes to the user's dev server.
+Handbook0.22 is35 pages/32 chapters, rendered and visually reviewed.
+
+P4 remains5/16=31%. Automatic paving is not enabled; next is dedicated native road
+scene/write handling, then demand, corridor reservation, paid scheduling and
+completed-road provenance. Migration changes only save structure/history support;
+real player playtesting remains deferred. Latest hosted candidate still needs CI.
+
 ## 2026-10-21 — retain safe access at the road connection
 
 Fixed a review gap at the retained existing-road endpoint: its two headroom cells and all three protected positions must also be present, clear and unprotected. A player obstruction or changed protection there now refuses the entire before-state map. Focused clean Wrapper verify6 unit+3 packaged passed27.386s. One added regression covers blocked/protected endpoint access. No schema, writer, world, payment or server changes; automatic paving remains unfinished and P4 stays31%.
