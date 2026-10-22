@@ -42,6 +42,7 @@ class GeneratedTerrainMigrationTest {
             new SchemaMigrator().migrate(connection);
             assertEquals(SchemaMigrator.CURRENT_VERSION, scalar(connection, "PRAGMA user_version"));
             Map<String, List<List<String>>> after = snapshot(connection, "");
+            for(var additive:List.of("civ_road_cells","civ_roads"))assertEquals(List.of(),after.remove(additive),"Later road provenance starts empty");
             for(var additive:List.of("construction_road_ground","construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders","construction_stage_work","construction_public_work","building_records","building_units","building_consent_events","building_exclusions","building_exclusion_releases","dwelling_reviews","dwelling_review_units","dwelling_current_reviews","dwelling_assignments","dwelling_active_occupancy","dwelling_departures","household_capacity_sources","dwelling_bed_claims","household_formations","household_formation_members","building_renovation_events","housing_project_bindings","construction_supply_recalls","construction_supply_returns","civ_built_buildings"))
                 assertEquals(List.of(),after.remove(additive),"Later construction additions must start empty");
             assertEquals(before.size() + 1, after.size());

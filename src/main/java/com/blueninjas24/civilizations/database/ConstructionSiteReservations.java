@@ -56,6 +56,7 @@ public final class ConstructionSiteReservations {
             throw new SQLException("Fresh complete world/site/protection evidence required before reserving land");
         if(hasProtectedRequiredColumns(draft,null))
             throw new SQLException("Saved protected plot or active construction occupies this site");
+        if(new CivRoadCompletion(c).occupiesProjectGround(draft))throw new SQLException("Retained Civ road occupies proposed ground; repair/reuse requires separate review");
         try(var s=c.prepareStatement("INSERT INTO construction_site_reservations VALUES(?,?,?,?,?,?,?,?,?,?,NULL)")) {
             s.setString(1,draftId.toString());s.setString(2,draft.world().toString());
             s.setInt(3,bounds.minimum().x());s.setInt(4,bounds.minimum().y());s.setInt(5,bounds.minimum().z());
@@ -96,6 +97,7 @@ public final class ConstructionSiteReservations {
         var saved=find(draft.id()).orElseThrow(()->new SQLException("Materials require an active saved site reservation"));
         if(!saved.active()||hasProtectedRequiredColumns(draft,draft.id()))
             throw new SQLException("Construction site released or newly protected; material reservation paused");
+        if(new CivRoadCompletion(c).occupiesProjectGround(draft))throw new SQLException("Retained Civ road occupies construction ground; no replacement authority");
     }
     /** Access anchors are required evidence, but remain shared access rather than reserved land. */
     boolean hasProtectedRequiredColumns(ConstructionDraft draft,UUID ownDraft)throws SQLException {

@@ -159,3 +159,19 @@ Only the actual footprint and required access columns are screened; unrelated
 corners of the enclosing rectangle do not exclude a site. Access is screened,
 not added to the project's reserved footprint. A historical reservation replay
 does not refresh permission after protection changes. No schema change.
+
+## Permanent completed-road provenance (schema118)
+
+CivRoadCompletion now registers a stable UUID from world/draft identity, original
+village/frozen plan and exact paid ground-journal cells. Every block must already
+be APPLIED with real supplies/earned work, and a new complete current native scene
+must still match the output, walking headroom and configured clearances. Current
+saved protection overrides an older clear frame. Origin/cells/site release are
+one transaction; replay is a receipt, never repair authority. Immutable history
+continues excluding old road ground from new projects after physical damage.
+
+expectedStates returns bounded positive saved provenance, not a claim that the
+blocks are presently there or safe. Callers must match current exact world states
+and protection. No automatic road ordering or home connector recognition yet.
+24 unit+3 packaged checks and actual Paper completion/restart passed; both118
+saves healthy, original fixture cells restored. Regional routing remains Phase5.

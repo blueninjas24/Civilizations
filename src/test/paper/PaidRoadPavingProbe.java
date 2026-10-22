@@ -50,9 +50,9 @@ public final class PaidRoadPavingProbe extends JavaPlugin {
         switch(phase){
             case 0->{openSession();phase=1;pending=session.start(false,Set.of(world.getUID()));}
             case 1->{phase=2;pending=session.constructionWorkPage(null,8);}
-            case 2->{var page=(ConstructionWorkQueue.Page)result;var first=page.projects().stream().filter(w->w.draft().id().equals(drafts.getFirst().id())).findFirst().orElseThrow();
-                if(first.state()==ConstructionWorkQueue.State.COMPLETE)firstComplete=true;
-                work=firstComplete?page.projects().stream().filter(w->w.draft().id().equals(drafts.get(1).id())).findFirst().orElseThrow():first;
+            case 2->{var page=(ConstructionWorkQueue.Page)result;
+                work=page.projects().stream().filter(w->w.draft().id().equals(drafts.get(firstComplete?1:0).id())).findFirst().orElseThrow();
+                if(!firstComplete&&work.state()==ConstructionWorkQueue.State.COMPLETE){survey=new PaperRoadWorkSurvey(work,4,clock.get());phase=10;pending=CompletableFuture.completedFuture(null);return;}
                 require(work.state()==ConstructionWorkQueue.State.READY||work.state()==ConstructionWorkQueue.State.RESUME,"Actual paid work ready: "+work);
                 operation=work.pending().map(ConstructionBlockJournal.Intent::operation).orElseGet(UUID::randomUUID);survey=new PaperRoadWorkSurvey(work,4,clock.get());phase=3;pending=CompletableFuture.completedFuture(null);}
             case 3->{var next=survey.advance(128,clock.get());if(next.isEmpty())return;frame=next.get();require(frame.ready(),"Two-pass native road scene: "+frame.explanation());authorize();}
@@ -68,7 +68,9 @@ public final class PaidRoadPavingProbe extends JavaPlugin {
                 if(!afterWriteRestart){afterWriteRestart=true;require(outcome.state()==PaperConstructionStep.State.APPLIED,"First cell actually paved");restart();return;}
                 phase=7;pending=session.acknowledgePublicConstructionStep(operation,work.draft().id(),world.getUID(),prepared.intent().after(),clock.get());}
             case 7->{require(((ConstructionBlockJournal.Intent)result).state()==ConstructionBlockJournal.State.APPLIED,"Road acknowledgement durable");phase=2;pending=session.constructionWorkPage(null,8);}
-            case 8->{restore();getLogger().info("P4_PAID_ROAD_PASS: two paid stone-brick cells replace exact natural ground under current owner gate; configured4-cell clearance; changed neighbor/entity holds; actual restart after write acknowledges without duplicate; second paid road prepared-before-write restart holds ambiguous ground; real supplier stock/cash,3 earned work units and117 FK integrity conserved; original cells restored.");phase=9;getServer().shutdown();}
+            case 8->{restore();getLogger().info("P4_PAID_ROAD_PASS: two paid stone-brick cells replace exact natural ground under current owner gate; configured4-cell clearance; changed neighbor/entity holds; actual restart after write acknowledges without duplicate; completed road origin/cells/site release survive another restart; second paid road prepared-before-write restart holds ambiguous ground; real supplier stock/cash,3 earned work units and118 FK integrity conserved; original cells restored.");phase=9;getServer().shutdown();}
+            case 10->{var next=survey.advance(128,clock.get());if(next.isEmpty())return;frame=next.get();require(frame.ready(),"Completed road still matches its full native scene");phase=11;pending=session.completeCivRoad(UUID.randomUUID(),work.draft().id(),frame.observation(),frame.buffer());}
+            case 11->{var receipt=(CivRoadCompletion.Receipt)result;require(receipt.draft().equals(drafts.getFirst().id()),"Permanent road receipt belongs to original draft");firstComplete=true;restart();}
         }
     }
     private void authorize(){phase=4;var placements=work.draft().template().stages().getFirst().blocks().values().stream().toList();pending=session.prepareAuthorizedRoadStep(operation,work.draft().id(),work.nextOrdinal(),placements.get(work.nextOrdinal()),frame.geometry(),frame.observation(),frame.buffer());}
@@ -94,7 +96,9 @@ public final class PaidRoadPavingProbe extends JavaPlugin {
     private void verify()throws Exception{
         db=new DatabaseManager(folder.toFile(),getLogger());db.initialize();var c=db.getConnection();require(new TreasuryRepository(c).load(drafts.getFirst().settlement()).orElseThrow().hundredths()==99450,"No duplicate public spending after500 startup/50 actual supplies");var store=db.getIndustryRepository().store(seller).orElseThrow();require(store.hundredths()==50&&store.units().get(Commodity.STONE)==18,"Finite paid supplier goods and funds conserved");
         for(String sql:List.of("SELECT count(*)=3 FROM construction_road_ground","SELECT count(*)=2 FROM construction_block_journal WHERE state='APPLIED'","SELECT count(*)=1 FROM construction_block_journal WHERE state='PREPARED'","SELECT sum(effort)=3 FROM construction_public_work","SELECT count(*)=2 FROM residents"))try(var s=c.createStatement();var r=s.executeQuery(sql)){require(r.getInt(1)==1,"Saved real history: "+sql);}
-        try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){require(r.getString(1).equals("ok"),"Healthy117 private save");}try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){require(!r.next(),"Valid117 foreign keys");}db.close();db=null;
+        var roads=new CivRoadCompletion(c);require(roads.findDraft(drafts.getFirst().id()).isPresent(),"Completed road origin survives restart");require(!new ConstructionSiteReservations(c).find(drafts.getFirst().id()).orElseThrow().active(),"Completed road frees only its temporary site");
+        var first=drafts.getFirst();var origin=first.origin();var bounds=ConstructionPreview.footprint(first.template(),first.transform(),origin);require(roads.expectedStates(first.world(),bounds).size()==2,"Exactly two paid paving cells retain permanent origin");
+        try(var s=c.createStatement();var r=s.executeQuery("PRAGMA integrity_check")){require(r.getString(1).equals("ok"),"Healthy118 private save");}try(var s=c.createStatement();var r=s.executeQuery("PRAGMA foreign_key_check")){require(!r.next(),"Valid118 foreign keys");}db.close();db=null;
     }
     private void restore(){if(!authorized||restored||world==null)return;if(obstruction!=null){obstruction.remove();obstruction=null;}for(var e:originals.entrySet()){var at=e.getKey();require(world.isChunkLoaded(at.x()>>4,at.z()>>4),"Cleanup cannot load chunks");world.getBlockAt(at.x(),at.y(),at.z()).setBlockData(getServer().createBlockData(e.getValue()),false);}restored=true;world.removePluginChunkTickets(this);}
     @Override public void onDisable(){restore();if(session!=null){session.close();session=null;}owner.execute(()->{if(db!=null){db.close();db=null;}});owner.shutdown();}

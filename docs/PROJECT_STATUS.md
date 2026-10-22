@@ -2,6 +2,14 @@
 
 ## Current — Phase4 at38%, paid native road boundary verified
 
+Schema118 now saves permanent completed-road origin and exact paid cells, releasing
+the temporary site atomically after current exact inspection. History is immutable;
+lost road surface cannot silently authorize fresh replacement.24 unit+3 packaged
+clean verify passed45.079s; disposable Paper completed two paid stone-brick cells,
+restarted again and retained origin/cells/site release with conserved funds/goods/
+labor. Both118 DBs healthy/FK-clean; stopped/helper archived/cells restored. The
+user's dev server is untouched. Connector recognition/automatic ordering are next.
+
 Latest protection fix: required external road-access anchors now receive current
 saved protection checks at reservation, work review and completed-home handoff.
 Shared roads are not claimed and unrelated neighboring columns do not reject a

@@ -32,7 +32,7 @@ class ConstructionRoadMigrationTest {
     @Test void upgradesPopulated116WithoutChangingAnySavedIntentAndReopens()throws Exception{
         List<ConstructionBlockJournal.Intent> old;
         try(var c=open()){
-            old=oldSave(c);new SchemaMigrator().migrate(c);preserved(c,old);assertEquals(117,number(c,"PRAGMA user_version"));
+            old=oldSave(c);new SchemaMigrator().migrate(c);preserved(c,old);assertEquals(SchemaMigrator.CURRENT_VERSION,number(c,"PRAGMA user_version"));
             assertEquals(0,number(c,"SELECT count(*) FROM construction_road_ground"));assertEquals(1,number(c,"SELECT count(*) FROM sqlite_master WHERE type='index' AND name='construction_authored_positions'"));
             assertThrows(SQLException.class,()->sql(c,"INSERT INTO construction_block_journal SELECT '"+UUID.randomUUID()+"',draft_id,2,12,64,10,'minecraft:dirt',after_state,'PREPARED' FROM construction_block_journal LIMIT 1"));
         }
@@ -45,7 +45,7 @@ class ConstructionRoadMigrationTest {
             assertThrows(SQLException.class,()->new SchemaMigrator(migrations).migrate(c));assertTrue(c.getAutoCommit());
             assertEquals(116,number(c,"PRAGMA user_version"));assertEquals(before,schema(c));preserved(c,old);
             assertEquals(0,number(c,"SELECT count(*) FROM sqlite_master WHERE name='construction_road_ground' OR name='construction_block_journal_v116'"));
-            new SchemaMigrator().migrate(c);preserved(c,old);assertEquals(117,number(c,"PRAGMA user_version"));
+            new SchemaMigrator().migrate(c);preserved(c,old);assertEquals(SchemaMigrator.CURRENT_VERSION,number(c,"PRAGMA user_version"));
         }
     }
 }

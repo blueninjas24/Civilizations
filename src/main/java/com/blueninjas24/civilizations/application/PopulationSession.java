@@ -1579,6 +1579,14 @@ public final class PopulationSession implements AutoCloseable {
         });
     }
     public record PreparedConstructionStep(com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent intent,NativeConstructionGate.Permit permit){}
+    /** Saves paid road provenance and releases its temporary site; grants no repair or native writes. */
+    public CompletableFuture<com.blueninjas24.civilizations.database.CivRoadCompletion.Receipt> completeCivRoad(
+            UUID operation,UUID draft,com.blueninjas24.civilizations.construction.RoadGroundReview.Observation observation,int buffer){
+        return submit(()->{requireBuildingWorld(observation.world(),observation.world());
+            return new com.blueninjas24.civilizations.database.CivRoadCompletion(database.getConnection())
+                    .complete(operation,draft,observation,buffer,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds);
+        });
+    }
     /** Compatibility intent view; actual native execution requires the separately returned owner permit. */
     public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionBlockJournal.Intent> preparePublicConstructionStep(
             UUID operation,UUID draft,int ordinal,String nativeAfter,com.blueninjas24.civilizations.database.ConstructionMaterials.Authority authority){

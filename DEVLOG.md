@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## 2026-10-21 — permanent paid road identity and transactional completion
+
+Schema118 adds immutable civ_roads/civ_road_cells. A stable world/draft-derived
+road UUID retains village, plan, exact original paid intents and completed cells.
+Completion requires all paid/earned work, validated APPLIED ground intents, fresh
+full exact native clearance/access and current SQL protection. Origin, cells and
+temporary site release commit together; late failure rolls everything back.
+Replay returns history without new native rights or repair. Retained road cells
+cannot silently become fresh building/paving ground when their surface is lost.
+Bounded read-only expected-state lookup still requires actual physical matching.
+
+Clean Wrapper24 unit+3 packaged passed45.079s. Temporary SQLite covers paid restart,
+conservation, wrong/stale/edited/protected evidence, immutable history, declined
+replacement, populated117 upgrade and forced late118 migration/completion failure.
+Actual disposable Paper paid two stone-brick cells, completed origin/site release,
+restarted again, retained exact cells and conserved50 payment/2 stone/3 work; lost
+acknowledgement and ambiguous-before-write holds remain verified. Both118 saves
+integrity ok/FKs0, cells restored/server stopped/helper archived. User dev server
+untouched. P4 remains6/16=38%; connector recognition and automatic ordering next.
+
 ## 2026-10-21 — respect saved protection at external construction access
 
 Site reservation, current work/funding authority and completed-home review now

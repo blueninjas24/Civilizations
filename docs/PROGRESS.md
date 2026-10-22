@@ -2,6 +2,12 @@
 
 ## Current — Phase 4 physical growth
 
+Completed roads now retain permanent identity and paid-cell history after their
+temporary construction site is released.24 unit+3 packaged checks and real Paper
+completion/restart passed; this strengthens existing gates. P4 stays6/16=38%.
+Homes do not yet recognize the new surfaces as connectors; automatic roads remain
+unfinished.
+
 Protection follow-up: new saved claims at a required external road connection now
 pause the project, including completion.33 unit+3 packaged clean verify passed;
 no new milestone count or native/server changes.

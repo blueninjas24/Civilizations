@@ -145,6 +145,12 @@ before-state stays ambiguous; existing after-state may acknowledge. The older
 direct marked fixture writer remains test-only. The automatic family-home scheduler now uses this boundary; broader activation
 and started-work repair remain separate.
 
+Schema118 completed local roads retain immutable public origin and exact paid
+cell/journal identity in civ_roads/civ_road_cells. Current exact inspection, paid
+effort and saved protection precede atomic registration/site release. Expected
+saved states are evidence for later native matching, never replacement rights or
+proof of current block presence. Historical replay grants no new authority.
+
 ## Civ-built housing origin and completion
 
 Schema116 keeps explicit completed Civ origin beside shared immutable building/
