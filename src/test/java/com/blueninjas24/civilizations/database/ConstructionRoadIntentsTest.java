@@ -71,4 +71,10 @@ class ConstructionRoadIntentsTest {
         assertThrows(SQLException.class,()->f.f.sql("DELETE FROM construction_road_ground"));
         assertThrows(SQLException.class,()->new ConstructionBlockJournal(f.c()).prepare(operation,f.publicDraft.id(),0,"minecraft:cobblestone"));
     }
+    @Test void callerCannotInventCompletedRoadProvenanceForPlayerPaving()throws Exception {
+        fundAndWork();var cells=cells();cells.put(p(220,63),"minecraft:stone_bricks");
+        var forged=new RoadGroundReview.Observation(f.f.world,6100,true,cells,Set.of(),Map.of(p(220,63),"minecraft:stone_bricks"));
+        assertThrows(SQLException.class,()->new ConstructionRoadIntents(f.c()).prepare(UUID.randomUUID(),f.publicDraft.id(),0,"minecraft:cobblestone",design,forged,6101,Set.of(f.f.world)));
+        assertEquals(0,count("construction_road_ground"));assertEquals(0,count("construction_block_journal"));
+    }
 }

@@ -27,6 +27,7 @@ public final class PaperRoadWriter {
         if(!geometry.origin().plus(expected.getKey()).equals(intent.at())||!expected.getValue().equals(intent.after()))return outcome(State.CONFLICT,"Road position/material differs from frozen plan");
         PaperConstructionLibrary.prepare(draft.template(),draft.transform());
         var required=RoadGroundReview.requiredCells(geometry,frame.buffer());if(!observation.states().keySet().containsAll(required))return outcome(State.WAIT,"Road frame lacks complete clearance");
+        if(!observation.registeredRoads().equals(RoadGroundReview.registeredWithin(work.roadSurfaces(),required)))return outcome(State.CONFLICT,"Road frame provenance differs from immutable owner snapshot");
         var prefix=new HashMap<Position,String>();for(int i=0;i<intent.ordinal();i++)prefix.put(geometry.origin().plus(placements.get(i).getKey()),placements.get(i).getValue());
         if(intent.after().equals(observation.states().get(intent.at())))prefix.put(intent.at(),intent.after());
         if(!RoadGroundReview.inspect(draft.world(),geometry,observation,observation.capturedMillis(),prefix,frame.buffer()).suitable())return outcome(State.WAIT,"Road frame no longer satisfies its exact clearance profile");

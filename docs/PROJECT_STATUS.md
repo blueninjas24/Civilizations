@@ -2,6 +2,14 @@
 
 ## Current — Phase4 at38%, paid native road boundary verified
 
+Road extensions now recognize exact registered endpoints and neighboring paving.
+The owner ignores invented caller origin and uses real saved registry states;
+native scene provenance must match its immutable work snapshot.22 unit+3 packaged
+clean verify passed46.131s, including a paid parent/child road chain. Actual Paper
+accepted/refused the same extension scene with/without saved origin; no extension
+was written by that read-only proof. Paid paving/restart checks repeated. Both118
+DBs healthy/FK-clean; stopped/restored/helper archived. P4 stays6/16=38%.
+
 Latest: home-site planning and native home work now recognize exact matching
 completed Civ paving, with immutable SQL origin snapshots and two-pass exact
 native states. Missing/changed paving holds; private stone is not adopted.22

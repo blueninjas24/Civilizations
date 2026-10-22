@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## 2026-10-21 — road extensions retain exact existing paving
+
+Exact road review now accepts registered Civ paving at retained connections and
+buffered neighbors while preserving its original material. SQL prepare/completion
+replace caller-supplied origin claims with the actual saved registry. Native road
+surveys scope immutable owner snapshots; writer rejects mismatched provenance.
+Work snapshots include bounded nearby public paving for configured clearance.
+No target can overwrite a retained road, and no lost surface receives free repair.
+
+Clean Wrapper22 unit+3 packaged passed46.131s. A real temporary-SQLite parent/child
+road chain buys finite materials, earns delivery/work, completes both identities
+and preserves the parent and money. A forged caller origin for player stone is
+rejected. The first test used an outdated economy period; fixed the fixture to
+read the actual earned period, retaining the production clock guard. Actual Paper
+accepted the current stone-brick endpoint/neighbor scene only with SQL origin and
+refused identical unregistered paving (read-only extension proof). Existing paid
+paving/home connector/restart checks repeated, both118 saves healthy/FK-clean,
+server stopped/cells restored/helper archived. No user-server change. P4 stays38%;
+need-driven automatic road/home joint planning is next.
+
 ## 2026-10-21 — homes recognize exact completed Civ paving
 
 Loaded-only home-site surveys now retain and compare exact block data across both

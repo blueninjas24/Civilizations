@@ -9,14 +9,18 @@ public final class RoadGroundReview {
             "minecraft:dirt","minecraft:coarse_dirt","minecraft:rooted_dirt","minecraft:podzol[snowy=false]","minecraft:podzol[snowy=true]","minecraft:mycelium[snowy=false]","minecraft:mycelium[snowy=true]");
     private static final Set<String> AIR=Set.of("minecraft:air","minecraft:cave_air","minecraft:void_air");
     public enum Issue { WRONG_WORLD, STALE, INCOMPLETE, PROTECTED, GROUND_CHANGED, HEADROOM_BLOCKED, CONNECTION_CHANGED }
-    public record Observation(UUID world,long capturedMillis,boolean complete,Map<Position,String> states,Set<Position> protectedCells){
-        public Observation{Objects.requireNonNull(world);states=Map.copyOf(states);protectedCells=Set.copyOf(protectedCells);if(capturedMillis<0||states.size()>256||protectedCells.size()>256)throw new IllegalArgumentException("Invalid road ground frame");}
+    public record Observation(UUID world,long capturedMillis,boolean complete,Map<Position,String> states,Set<Position> protectedCells,Map<Position,String> registeredRoads){
+        public Observation{Objects.requireNonNull(world);states=Map.copyOf(states);protectedCells=Set.copyOf(protectedCells);registeredRoads=Map.copyOf(registeredRoads);if(capturedMillis<0||states.size()>256||protectedCells.size()>256||registeredRoads.size()>256)throw new IllegalArgumentException("Invalid road ground frame");}
+        public Observation(UUID world,long capturedMillis,boolean complete,Map<Position,String> states,Set<Position> protectedCells){this(world,capturedMillis,complete,states,protectedCells,Map.of());}
     }
     public record Result(Set<Issue> issues,Map<Position,String> beforeStates){
         public Result{issues=Set.copyOf(issues);beforeStates=Map.copyOf(beforeStates);}
         public boolean suitable(){return issues.isEmpty();}
     }
     public static Set<String> naturalGroundStates(){return GROUND;}
+    public static Map<Position,String> registeredWithin(Map<Position,String> saved,Set<Position> required){
+        var result=new TreeMap<Position,String>();saved.forEach((p,state)->{if(required.contains(p))result.put(p,state);});return Collections.unmodifiableMap(result);
+    }
     private RoadGroundReview(){}
     public static Result inspect(UUID world,LocalRoadDesign.Design design,Observation observation,long now){
         return inspect(world,design.geometry(),observation,now,Map.of(),0);
@@ -53,7 +57,7 @@ public final class RoadGroundReview {
             }
         }
         if(!observation.states().containsKey(design.connection()))issues.add(Issue.INCOMPLETE);
-        else if(!"minecraft:dirt_path".equals(observation.states().get(design.connection())))issues.add(Issue.CONNECTION_CHANGED);
+        else if(!observation.registeredRoads().getOrDefault(design.connection(),"minecraft:dirt_path").equals(observation.states().get(design.connection())))issues.add(Issue.CONNECTION_CHANGED);
         for(int y=0;y<3;y++){
             var cell=design.connection().plus(new Position(0,y,0));
             if(observation.protectedCells().contains(cell))issues.add(Issue.PROTECTED);
@@ -65,6 +69,7 @@ public final class RoadGroundReview {
             if(observation.protectedCells().contains(at))issues.add(Issue.PROTECTED);
             if(at.y()>design.origin().y()){if(!AIR.contains(state))issues.add(Issue.HEADROOM_BLOCKED);}
             else if(acknowledged.containsKey(at)){if(!state.equals(acknowledged.get(at)))issues.add(Issue.GROUND_CHANGED);}
+            else if(observation.registeredRoads().containsKey(at)){if(!state.equals(observation.registeredRoads().get(at)))issues.add(Issue.GROUND_CHANGED);}
             else if(!at.equals(design.connection())&&!GROUND.contains(state)&&!"minecraft:dirt_path".equals(state))issues.add(Issue.GROUND_CHANGED);
         }
         return new Result(issues,issues.isEmpty()?before:Map.of());

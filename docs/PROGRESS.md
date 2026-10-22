@@ -2,6 +2,10 @@
 
 ## Current — Phase 4 physical growth
 
+Roads can now connect to exact registered Civ paving and retain it in their safety
+buffer.22 unit+3 packaged checks and positive/negative Paper scene checks passed.
+Automatic road orders remain next; P4 stays6/16=38%.
+
 Home planning/construction now recognize actual matching Civ paving from saved
 road origin. Private stone and damaged/unknown paving do not qualify.22 unit+3
 packaged checks and real Paper positive/negative connector checks passed. No

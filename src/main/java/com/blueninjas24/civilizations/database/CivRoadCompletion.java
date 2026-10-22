@@ -111,7 +111,9 @@ public final class CivRoadCompletion {
                     intents.add(intent);states.put(intent.at(),intent.after());
                 }}
             }
-            if(intents.size()!=draft.template().blockCount()||!RoadGroundReview.inspect(draft.world(),design,observation,now,states,buffer).suitable())throw new SQLException("Completed road native inspection differs from its acknowledged plan");
+            var registered=RoadGroundReview.registeredWithin(expectedStates(draft.world(),new ConstructionPreview.Bounds(min,max)),required);
+            var authoritative=new RoadGroundReview.Observation(observation.world(),observation.capturedMillis(),observation.complete(),observation.states(),observation.protectedCells(),registered);
+            if(intents.size()!=draft.template().blockCount()||!RoadGroundReview.inspect(draft.world(),design,authoritative,now,states,buffer).suitable())throw new SQLException("Completed road native inspection differs from its acknowledged plan");
             var road=identity(draft);
             try(var s=c.prepareStatement("INSERT INTO civ_roads VALUES(?,?,?,?,?,?,?)")){
                 s.setString(1,road.toString());s.setString(2,draftId.toString());s.setString(3,operation.toString());s.setString(4,draft.settlement().toString());s.setString(5,draft.world().toString());s.setString(6,draft.template().fingerprint());s.setLong(7,now);s.executeUpdate();

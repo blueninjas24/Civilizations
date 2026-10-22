@@ -12,10 +12,12 @@ public final class PaperRoadWorkSurvey {
     public record Frame(LocalRoadDesign.Geometry geometry,int buffer,RoadGroundReview.Observation observation,boolean ready,String explanation){}
     private final ConstructionWorkQueue.Work work;private final LocalRoadDesign.Geometry geometry;private final int buffer;
     private final List<Position> cells;private final Map<Position,String> first=new TreeMap<>(),prefix=new HashMap<>();
+    private final Map<Position,String> registered;
     private final long started;private final BoundingBox entities;private int cursor;private boolean verifying,unsafe;private String reason;private Frame finished;
     public PaperRoadWorkSurvey(ConstructionWorkQueue.Work work,int buffer,long now){
         main();this.work=Objects.requireNonNull(work);this.buffer=buffer;geometry=LocalRoadDesign.geometry(work.draft());started=now;
         if(now<0)throw new IllegalArgumentException("Invalid road survey time");cells=List.copyOf(RoadGroundReview.requiredCells(geometry,buffer));
+        registered=RoadGroundReview.registeredWithin(work.roadSurfaces(),Set.copyOf(cells));
         var placements=work.draft().template().stages().getFirst().blocks().entrySet().stream().toList();
         if(work.nextOrdinal()<0||work.nextOrdinal()>placements.size())throw new IllegalArgumentException("Road work ordinal differs from frozen design");
         PaperConstructionLibrary.prepare(work.draft().template(),work.draft().transform());
@@ -46,12 +48,12 @@ public final class PaperRoadWorkSurvey {
         if(!unsafe&&!world.getNearbyEntities(entities).isEmpty()){unsafe=true;reason="Entity occupies road or retained access";}
         var known=new HashMap<>(prefix);
         if(work.pending().isPresent()){var p=work.pending().get();String current=first.get(p.at());if(p.after().equals(current))known.put(p.at(),p.after());else if(!p.before().equals(current)){unsafe=true;reason="Retained road before-state changed";}}
-        var observation=new RoadGroundReview.Observation(work.draft().world(),now,!unsafe,first,Set.of());
+        var observation=new RoadGroundReview.Observation(work.draft().world(),now,!unsafe,first,Set.of(),registered);
         var result=RoadGroundReview.inspect(work.draft().world(),geometry,observation,now,known,buffer);
         if(!result.suitable()){unsafe=true;if(reason==null)reason="Road evidence refused: "+result.issues();}
         return Optional.of(finish(now,!unsafe,unsafe?reason:"Two exact road/clearance passes complete; paid owner authorization still required"));
     }
-    private Frame finish(long now,boolean ready,String explanation){finished=new Frame(geometry,buffer,new RoadGroundReview.Observation(work.draft().world(),now,ready,first,Set.of()),ready,explanation);return finished;}
+    private Frame finish(long now,boolean ready,String explanation){finished=new Frame(geometry,buffer,new RoadGroundReview.Observation(work.draft().world(),now,ready,first,Set.of(),registered),ready,explanation);return finished;}
     static BoundingBox entityBounds(LocalRoadDesign.Geometry geometry){
         int minX=geometry.connection().x(),maxX=minX,minZ=geometry.connection().z(),maxZ=minZ;
         for(var local:geometry.template().stages().getFirst().blocks().keySet()){var at=geometry.origin().plus(local);minX=Math.min(minX,at.x());maxX=Math.max(maxX,at.x());minZ=Math.min(minZ,at.z());maxZ=Math.max(maxZ,at.z());}

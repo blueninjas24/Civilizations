@@ -85,4 +85,24 @@ class CivRoadCompletionTest {
         assertEquals(money,f.f.money());assertTrue(new ConstructionSiteReservations(c()).find(f.f.publicDraft.id()).orElseThrow().active());
         assertEquals(0,scalar("SELECT count(*) FROM pragma_foreign_key_check"));
     }
+    @Test void anotherPaidRoadCanConnectToExactRegisteredPavingWithoutReplacingItsParent()throws Exception {
+        var parentCells=finished();var parent=complete(UUID.randomUUID(),parentCells);
+        var recipe=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_path.yml"));
+        var at=new Position(221,63,1);var design=LocalRoadDesign.freeze(new LocalRoadAccessPlanner.Result(LocalRoadAccessPlanner.Status.READY,List.of(at,p(221,63)),1,2),recipe).orElseThrow();
+        var draft=new ConstructionDraft(UUID.randomUUID(),parent.village(),parent.world(),design.origin(),com.blueninjas24.civilizations.construction.ConstructionTemplate.Transform.identity(),design.template(),6102);
+        new ConstructionDraftRepository(c()).save(draft);var authority=new ConstructionMaterials.Authority(draft.id(),draft.world(),6102,true,true);
+        new ConstructionSiteReservations(c()).reserve(draft.id(),authority,6102);
+        long period=scalar("SELECT completed_periods FROM economy_accounts WHERE settlement_id='"+draft.settlement()+"'");
+        f.f.orders().purchase(new ConstructionSupplyOrders.Request(UUID.randomUUID(),draft.id(),f.f.seller,ConstructionBudgetPolicy.Source.VILLAGE,null,com.blueninjas24.civilizations.economy.Commodity.STONE,1,period),authority,6102,Set.of(draft.world()));
+        var runtime=new EconomyRuntimeRepository(c(),f.f.f.settings,com.blueninjas24.civilizations.economy.FarmObservation.Policy.prototype(),216);
+        runtime.configureFarmBusinesses(com.blueninjas24.civilizations.industry.FarmBusinessPolicy.prototype());runtime.configureConstruction(new ConstructionLaborPolicy(true,2,1,10,25));runtime.startOnline(6102,Set.of(draft.world()));
+        runtime.pulse(7102,false);assertEquals(1,ConstructionSupplyOrders.deliveryOnly(c()).deliverReady(Set.of(draft.world()),8));runtime.pulse(8102,false);
+        assertEquals(1,new ConstructionPublicWork(c()).work(draft.id(),0));long money=f.f.money();
+        var nativeCells=new HashMap<Position,String>();for(var cell:RoadGroundReview.requiredCells(design.geometry(),0))nativeCells.put(cell,cell.y()>63?"minecraft:air":cell.equals(at)?"minecraft:grass_block[snowy=false]":"minecraft:cobblestone");
+        var evidence=new RoadGroundReview.Observation(draft.world(),8102,true,nativeCells,Set.of());
+        var intent=new ConstructionRoadIntents(c()).prepareCurrent(UUID.randomUUID(),draft.id(),0,"minecraft:cobblestone",design.geometry(),evidence,8102,Set.of(draft.world()),0);
+        assertEquals(at,intent.at());new ConstructionBlockJournal(c()).acknowledge(intent.operation(),intent.after());nativeCells.put(at,intent.after());
+        roads().complete(UUID.randomUUID(),draft.id(),new RoadGroundReview.Observation(draft.world(),8102,true,nativeCells,Set.of()),0,8102,Set.of(draft.world()));
+        assertEquals(parent,roads().findDraft(parent.draft()).orElseThrow());assertEquals(2,count("civ_roads"));assertEquals(3,count("civ_road_cells"));assertEquals(money,f.f.money());
+    }
 }

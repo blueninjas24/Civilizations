@@ -81,6 +81,11 @@ public final class ConstructionWorkQueue {
         var cells=ConstructionPreview.requiredCells(draft.template(),draft.transform(),draft.origin());
         var min=new Position(cells.stream().mapToInt(Position::x).min().orElseThrow(),cells.stream().mapToInt(Position::y).min().orElseThrow(),cells.stream().mapToInt(Position::z).min().orElseThrow());
         var max=new Position(cells.stream().mapToInt(Position::x).max().orElseThrow(),cells.stream().mapToInt(Position::y).max().orElseThrow(),cells.stream().mapToInt(Position::z).max().orElseThrow());
+        if(draft.template().purpose()==com.blueninjas24.civilizations.construction.ConstructionTemplate.Purpose.PATH){
+            int padX=(int)Math.min(16,(95L-max.x()+min.x())/2),padZ=(int)Math.min(16,(95L-max.z()+min.z())/2);
+            min=new Position((int)Math.max(Integer.MIN_VALUE,(long)min.x()-padX),min.y(),(int)Math.max(Integer.MIN_VALUE,(long)min.z()-padZ));
+            max=new Position((int)Math.min(Integer.MAX_VALUE,(long)max.x()+padX),(int)Math.min(Integer.MAX_VALUE,(long)max.y()+2),(int)Math.min(Integer.MAX_VALUE,(long)max.z()+padZ));
+        }
         return new Work(draft,state,ordinal,pending,reason,new CivRoadCompletion(c).expectedStates(draft.world(),new ConstructionPreview.Bounds(min,max)));
     }
 }

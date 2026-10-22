@@ -37,4 +37,13 @@ class RoadGroundReviewTest {
         assertTrue(RoadGroundReview.inspect(world,design,new RoadGroundReview.Observation(world,1000,true,states(),Set.of()),7000).issues().contains(RoadGroundReview.Issue.STALE));
         var cells=states();cells.remove(new Position(1,65,0));assertTrue(RoadGroundReview.inspect(world,design,new RoadGroundReview.Observation(world,1000,true,cells,Set.of()),1100).issues().contains(RoadGroundReview.Issue.INCOMPLETE));
     }
+    @Test void exactRegisteredPavingCanSupplyConnectionAndBufferedNeighborsButNeverNewGround()throws Exception {
+        var geometry=design().geometry();var required=RoadGroundReview.requiredCells(geometry,4);var cells=new HashMap<Position,String>();
+        for(var at:required)cells.put(at,at.y()==63?"minecraft:grass_block[snowy=false]":"minecraft:air");
+        var neighbor=new Position(0,63,1);cells.put(geometry.connection(),"minecraft:stone_bricks");cells.put(neighbor,"minecraft:cobblestone");
+        assertFalse(RoadGroundReview.inspect(world,geometry,new RoadGroundReview.Observation(world,1000,true,cells,Set.of()),1100,Map.of(),4).suitable());
+        var saved=Map.of(geometry.connection(),"minecraft:stone_bricks",neighbor,"minecraft:cobblestone");
+        assertTrue(RoadGroundReview.inspect(world,geometry,new RoadGroundReview.Observation(world,1000,true,cells,Set.of(),saved),1100,Map.of(),4).suitable());
+        cells.put(geometry.connection(),"minecraft:dirt_path");assertFalse(RoadGroundReview.inspect(world,geometry,new RoadGroundReview.Observation(world,1000,true,cells,Set.of(),saved),1100,Map.of(),4).suitable());
+    }
 }

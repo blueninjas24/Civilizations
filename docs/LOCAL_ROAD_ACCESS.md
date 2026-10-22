@@ -183,3 +183,12 @@ require the saved connector's exact material. Actual paid stone-brick paving
 passed a real Paper home survey only with SQL origin; no origin refused the same
 scene.22 unit+3 packaged checks passed. This does not enable automatic road orders
 or treat arbitrary player stone as public infrastructure.
+
+Road extension scenes also recognize exact registered paving at connections and
+buffered neighbors. SQL current preparation/completion independently reloads that
+origin rather than accepting a caller's claim. Native frames must carry the same
+scoped immutable owner provenance. Changed registered paving fails, including
+replacement with a different otherwise valid road material. New target cells
+still cannot overwrite retained infrastructure. Temporary SQLite verified a fully
+paid parent/child chain; actual Paper positive/negative extension scenes passed
+without creating extra road blocks in the read-only proof. No schema change.

@@ -50,7 +50,7 @@ public final class ConstructionRoadIntents {
     private ConstructionBlockJournal.Intent prepare(UUID operation,UUID draftId,int ordinal,String nativeAfter,LocalRoadDesign.Geometry design,
             RoadGroundReview.Observation observation,long now,Set<UUID> worlds,int buffer,boolean current)throws SQLException{
         Objects.requireNonNull(operation);Objects.requireNonNull(design);Objects.requireNonNull(observation);var present=Set.copyOf(worlds);
-        RoadGroundReview.requiredCells(design,buffer);
+        var required=RoadGroundReview.requiredCells(design,buffer);
         if(!c.getAutoCommit())throw new SQLException("Road intent preparation requires idle SQL owner");c.setAutoCommit(false);
         try{
             var draft=new ConstructionDraftRepository(c).find(draftId).orElseThrow(()->new SQLException("Unknown road draft"));
@@ -75,7 +75,9 @@ public final class ConstructionRoadIntents {
                 s.setString(1,draftId.toString());try(var r=s.executeQuery()){while(r.next()){var applied=journal.find(UUID.fromString(r.getString(1))).orElseThrow();prefix.put(applied.at(),applied.after());}}
             }
             if(old.isPresent()&&old.get().after().equals(observation.states().get(old.get().at())))prefix.put(old.get().at(),old.get().after());
-            var review=RoadGroundReview.inspect(draft.world(),design,observation,now,prefix,buffer);
+            var registered=RoadGroundReview.registeredWithin(new CivRoadCompletion(c).expectedStates(draft.world(),accessBounds),required);
+            var authoritative=new RoadGroundReview.Observation(observation.world(),observation.capturedMillis(),observation.complete(),observation.states(),observation.protectedCells(),registered);
+            var review=RoadGroundReview.inspect(draft.world(),design,authoritative,now,prefix,buffer);
             if(!review.suitable())throw new SQLException("Road ground review refused: "+review.issues());
             if(old.isPresent()){
                 var intent=old.get();String state=observation.states().get(intent.at());
