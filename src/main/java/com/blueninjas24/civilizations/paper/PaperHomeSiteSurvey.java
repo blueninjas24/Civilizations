@@ -9,13 +9,15 @@ import java.util.*;
 
 /** Two loaded-only passes under one caller budget; no block changes, chunk loading or land permission. */
 public final class PaperHomeSiteSurvey {
-    public record Frame(Bounds search,ConstructionSitePlanner.Survey survey,Map<Position,ConstructionLandPolicy.Kind> terrain){
-        public Frame{Objects.requireNonNull(search);Objects.requireNonNull(survey);terrain=Map.copyOf(terrain);}
+    public record Frame(Bounds search,ConstructionSitePlanner.Survey survey,Map<Position,ConstructionLandPolicy.Kind> terrain,Map<Position,String> states){
+        public Frame{Objects.requireNonNull(search);Objects.requireNonNull(survey);terrain=Map.copyOf(terrain);states=Map.copyOf(states);}
+        public Frame(Bounds search,ConstructionSitePlanner.Survey survey,Map<Position,ConstructionLandPolicy.Kind> terrain){this(search,survey,terrain,Map.of());}
     }
     private static final Set<Material> NATURAL=Set.of(Material.GRASS_BLOCK,Material.DIRT,Material.COARSE_DIRT,Material.ROOTED_DIRT,Material.PODZOL,Material.MYCELIUM);
     private final UUID worldId;private final Bounds search;private final long started;private long captured;
     private final List<Position> positions;private int cursor;private boolean verifying,incomplete;private Frame finished;
     private final Map<Position,Cell> cells=new HashMap<>();private final Map<Position,ConstructionLandPolicy.Kind> terrain=new HashMap<>();
+    private final Map<Position,String> states=new HashMap<>();
     public PaperHomeSiteSurvey(UUID world,Position need,int radius,long now){
         this(world,need,radius,4,now);
     }
@@ -42,12 +44,12 @@ public final class PaperHomeSiteSurvey {
         while(budget-->0&&cursor<positions.size()){
             var at=positions.get(cursor++);
             if(at.y()<world.getMinHeight()||at.y()>=world.getMaxHeight()||!world.isChunkLoaded(at.x()>>4,at.z()>>4)){incomplete=true;continue;}
-            var material=world.getBlockAt(at.x(),at.y(),at.z()).getType();
+            var block=world.getBlockAt(at.x(),at.y(),at.z());var material=block.getType();String state=block.getBlockData().getAsString();
             var cell=new Cell(material.isAir(),PaperConstructionPreview.stableSupport(material),material==Material.DIRT_PATH,false);
             var kind=material.isAir()?ConstructionLandPolicy.Kind.AIR:NATURAL.contains(material)?ConstructionLandPolicy.Kind.NATURAL_LOOKING_GROUND
                     :material==Material.DIRT_PATH?ConstructionLandPolicy.Kind.ROAD:ConstructionLandPolicy.Kind.OTHER;
-            if(verifying){if(!cell.equals(cells.get(at))||kind!=terrain.get(at))incomplete=true;}
-            else{cells.put(at,cell);terrain.put(at,kind);}
+            if(verifying){if(!cell.equals(cells.get(at))||kind!=terrain.get(at)||!state.equals(states.get(at)))incomplete=true;}
+            else{cells.put(at,cell);terrain.put(at,kind);states.put(at,state);}
         }
         if(cursor<positions.size())return Optional.empty();
         if(!verifying&&!incomplete){verifying=true;cursor=0;captured=now;return Optional.empty();}
@@ -63,7 +65,7 @@ public final class PaperHomeSiteSurvey {
                         new Position((int)Math.floor(b.getMaxX()),(int)Math.floor(b.getMaxY()),(int)Math.floor(b.getMaxZ()))));
             }
         }
-        finished=new Frame(search,new ConstructionSitePlanner.Survey(worldId,captured,complete,complete,cells,List.of(),entities),terrain);return finished;
+        finished=new Frame(search,new ConstructionSitePlanner.Survey(worldId,captured,complete,complete,cells,List.of(),entities),terrain,states);return finished;
     }
     private static void requireMain(){if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Home site survey requires the server thread");}
 }

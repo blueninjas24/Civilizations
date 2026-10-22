@@ -29,7 +29,7 @@ public final class PaperAutomaticHomePlanning extends BukkitRunnable implements 
         var templates=List.copyOf(library.templates().values());return new Owner(){
             public CompletableFuture<HousingPlanningJobs.Page> page(UUID after){return session.housingPlanningJobs(after,8,templates,library.housing(),policy,settings.maximumActiveHomes());}
             public CompletableFuture<HousingProjectPreparation.Receipt> prepare(HousingPlanningJobs.Job job,PaperHomeSiteSurvey.Frame frame,long now){
-                var request=new HousingProjectPreparation.Request(new HousingProjects.Proposal(job.proposal(),job.household(),now),job.village(),job.world(),job.need(),frame.search(),frame.survey(),frame.terrain());
+                var request=new HousingProjectPreparation.Request(new HousingProjects.Proposal(job.proposal(),job.household(),now),job.village(),job.world(),job.need(),frame.search(),frame.survey(),frame.terrain(),frame.states());
                 return session.prepareLimitedHousingProject(request,templates,library.housing(),library.land(),policy,settings.maximumActiveHomes());
             }
         };

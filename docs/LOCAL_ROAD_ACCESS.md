@@ -175,3 +175,11 @@ blocks are presently there or safe. Callers must match current exact world state
 and protection. No automatic road ordering or home connector recognition yet.
 24 unit+3 packaged checks and actual Paper completion/restart passed; both118
 saves healthy, original fixture cells restored. Regional routing remains Phase5.
+
+Home recognition is now connected: exact two-pass raw states reach the SQL owner,
+which compares registered paving before classifying a ROAD. Missing/changed states
+remain OTHER; protection persists. Immutable work snapshots let native home review
+require the saved connector's exact material. Actual paid stone-brick paving
+passed a real Paper home survey only with SQL origin; no origin refused the same
+scene.22 unit+3 packaged checks passed. This does not enable automatic road orders
+or treat arbitrary player stone as public infrastructure.

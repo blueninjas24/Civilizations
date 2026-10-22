@@ -1,13 +1,18 @@
 package com.blueninjas24.civilizations.database;
 
 import com.blueninjas24.civilizations.construction.ConstructionDraft;
+import com.blueninjas24.civilizations.construction.ConstructionPreview;
+import com.blueninjas24.civilizations.construction.ConstructionTemplate.Position;
 import java.sql.*;
 import java.util.*;
 
 /** Bounded saved-work handoff. Readiness is never current native permission or completed housing capacity. */
 public final class ConstructionWorkQueue {
     public enum State { WAIT_MATERIALS,WAIT_LABOR,READY,RESUME,CONFLICT,PAUSED,COMPLETE }
-    public record Work(ConstructionDraft draft,State state,int nextOrdinal,Optional<ConstructionBlockJournal.Intent> pending,String explanation){}
+    public record Work(ConstructionDraft draft,State state,int nextOrdinal,Optional<ConstructionBlockJournal.Intent> pending,String explanation,Map<Position,String> roadSurfaces){
+        public Work{roadSurfaces=Map.copyOf(roadSurfaces);if(roadSurfaces.size()>4096)throw new IllegalArgumentException("Work road snapshot exceeds local bounds");}
+        public Work(ConstructionDraft draft,State state,int nextOrdinal,Optional<ConstructionBlockJournal.Intent> pending,String explanation){this(draft,state,nextOrdinal,pending,explanation,Map.of());}
+    }
     public record Page(List<Work> projects,UUID next){public Page{projects=List.copyOf(projects);}}
     private final Connection c;
     public ConstructionWorkQueue(Connection c){this.c=Objects.requireNonNull(c);}
@@ -59,7 +64,7 @@ public final class ConstructionWorkQueue {
             return held(draft,State.COMPLETE,applied,"All native intents acknowledged with paid materials/earned labor; current final inspection and activation still required");
         }
         Optional<ConstructionBlockJournal.Intent> intent=pending==null?Optional.empty():new ConstructionBlockJournal(c).find(pending);
-        if(pendingState==ConstructionBlockJournal.State.CONFLICT)return new Work(draft,State.CONFLICT,applied,intent,"Saved native conflict requires explicit review; no overwrite authorized");
+        if(pendingState==ConstructionBlockJournal.State.CONFLICT)return snapshot(draft,State.CONFLICT,applied,intent,"Saved native conflict requires explicit review; no overwrite authorized");
         int stage=0,offset=0;while(applied>=offset+draft.template().stages().get(stage).blocks().size())offset+=draft.template().stages().get(stage++).blocks().size();
         var terms=draft.template().stages().get(stage);long earned=labor.work(id,stage);var stock=ConstructionSupplyOrders.deliveryOnly(c).stock(id);
         if(earned>terms.work())throw new SQLException("Saved construction work exceeds frozen stage");
@@ -69,7 +74,13 @@ public final class ConstructionWorkQueue {
             return held(draft,materials?State.WAIT_LABOR:State.WAIT_MATERIALS,applied,materials?"Delivered stage inputs held; waiting for actual eligible construction effort":"Waiting for required actual arrived stage inputs; no free materials");
         }
         labor.requireReadyRows(draft,applied);
-        return new Work(draft,pending==null?State.READY:State.RESUME,applied,intent,pending==null?"Paid stage work ready; fresh loaded-world/protection review and durable native intent still required":"Resume this exact durable native intent; first compare current native state, never invent replacement work");
+        return snapshot(draft,pending==null?State.READY:State.RESUME,applied,intent,pending==null?"Paid stage work ready; fresh loaded-world/protection review and durable native intent still required":"Resume this exact durable native intent; first compare current native state, never invent replacement work");
     }
-    private static Work held(ConstructionDraft draft,State state,int ordinal,String reason){return new Work(draft,state,ordinal,Optional.empty(),reason);}
+    private Work held(ConstructionDraft draft,State state,int ordinal,String reason)throws SQLException{return snapshot(draft,state,ordinal,Optional.empty(),reason);}
+    private Work snapshot(ConstructionDraft draft,State state,int ordinal,Optional<ConstructionBlockJournal.Intent> pending,String reason)throws SQLException {
+        var cells=ConstructionPreview.requiredCells(draft.template(),draft.transform(),draft.origin());
+        var min=new Position(cells.stream().mapToInt(Position::x).min().orElseThrow(),cells.stream().mapToInt(Position::y).min().orElseThrow(),cells.stream().mapToInt(Position::z).min().orElseThrow());
+        var max=new Position(cells.stream().mapToInt(Position::x).max().orElseThrow(),cells.stream().mapToInt(Position::y).max().orElseThrow(),cells.stream().mapToInt(Position::z).max().orElseThrow());
+        return new Work(draft,state,ordinal,pending,reason,new CivRoadCompletion(c).expectedStates(draft.world(),new ConstructionPreview.Bounds(min,max)));
+    }
 }

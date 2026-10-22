@@ -9,14 +9,15 @@ import java.util.*;
 /** Atomic dry preparation under approved guarded automatic growth. Never funds work or writes the world. */
 public final class HousingProjectPreparation {
     public record Request(HousingProjects.Proposal proposal,UUID village,UUID world,Position need,Bounds search,
-                          ConstructionSitePlanner.Survey survey,Map<Position,ConstructionLandPolicy.Kind> terrain){
+                          ConstructionSitePlanner.Survey survey,Map<Position,ConstructionLandPolicy.Kind> terrain,Map<Position,String> states){
         public Request{
             Objects.requireNonNull(proposal);Objects.requireNonNull(village);Objects.requireNonNull(world);Objects.requireNonNull(need);
-            Objects.requireNonNull(search);Objects.requireNonNull(survey);terrain=Map.copyOf(terrain);
+            Objects.requireNonNull(search);Objects.requireNonNull(survey);terrain=Map.copyOf(terrain);states=Map.copyOf(states);
             long width=(long)search.maximum().x()-search.minimum().x()+1,depth=(long)search.maximum().z()-search.minimum().z()+1;
-            if(width>96||depth>96||!search.contains(need)||terrain.size()>ConstructionPreview.MAX_OBSERVATION_CELLS)
+            if(width>96||depth>96||!search.contains(need)||terrain.size()>ConstructionPreview.MAX_OBSERVATION_CELLS||states.size()>ConstructionPreview.MAX_OBSERVATION_CELLS)
                 throw new IllegalArgumentException("Home preparation exceeds bounded local search");
         }
+        public Request(HousingProjects.Proposal proposal,UUID village,UUID world,Position need,Bounds search,ConstructionSitePlanner.Survey survey,Map<Position,ConstructionLandPolicy.Kind> terrain){this(proposal,village,world,need,search,survey,terrain,Map.of());}
     }
     /** Empty review means historical receipt only: it never refreshes authority or reactivates cancelled work. */
     public record Receipt(ConstructionDraft draft,HousingProjects.Binding family,ConstructionSiteReservations.Reservation site,
@@ -53,14 +54,15 @@ public final class HousingProjectPreparation {
                 if(recommendation.action()!=HousingProjectPlanner.Action.PROPOSE)throw new BuildingRegistry.Declined("Home preparation waits: "+recommendation.explanation());
                 var template=templates.stream().filter(t->t.fingerprint().equals(recommendation.fingerprint())).findFirst().orElseThrow();
                 var exclusions=new ConstructionLandRepository(c).protectedColumns(request.world(),request.search());
-                var nativeSurvey=request.survey();var cells=new HashMap<Position,Cell>();
+                var nativeSurvey=request.survey();var cells=new HashMap<Position,Cell>();var terrain=new HashMap<>(request.terrain());
                 nativeSurvey.cells().forEach((p,cell)->{if(request.search().contains(p))cells.put(p,new Cell(cell.air(),cell.stableSupport(),cell.road(),cell.protectedWork()
                         ||exclusions.contains(new ConstructionLandRepository.Column(p.x(),p.z()))));});
+                classifyRoads(cells,terrain,request.states(),new CivRoadCompletion(c).expectedStates(request.world(),request.search()));
                 var survey=new ConstructionSitePlanner.Survey(nativeSurvey.world(),nativeSurvey.capturedMillis(),nativeSurvey.complete(),nativeSurvey.protectionsComplete(),
                         cells,nativeSurvey.protections(),nativeSurvey.entities());
                 // This is only the search envelope of the approved clear-land heuristic, never native write permission.
                 var envelope=new ApprovedArea(request.proposal().draft(),request.world(),request.search());
-                var result=ConstructionSitePlanner.select(template,request.world(),request.need(),survey,envelope,context.now(),5000,seed,land,request.terrain());
+                var result=ConstructionSitePlanner.select(template,request.world(),request.need(),survey,envelope,context.now(),5000,seed,land,terrain);
                 var selected=result.selected().orElseThrow(()->new BuildingRegistry.Declined("Home site waits: "+result.status()));
                 var draft=new ConstructionDraft(request.proposal().draft(),request.village(),request.world(),selected.origin(),selected.transform(),template,request.proposal().createdMillis());
                 drafts.saveRows(draft);
@@ -70,5 +72,14 @@ public final class HousingProjectPreparation {
             }
             c.commit();c.setAutoCommit(true);return receipt;
         }catch(SQLException|RuntimeException failure){try{c.rollback();c.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
+    }
+    /** Only the SQL owner's positive road registry can supply expected; raw paving alone grants nothing. */
+    static void classifyRoads(Map<Position,Cell> cells,Map<Position,ConstructionLandPolicy.Kind> terrain,Map<Position,String> states,Map<Position,String> expected){
+        expected.forEach((at,state)->{
+            var cell=cells.get(at);if(cell==null)return;
+            boolean matches=state.equals(states.get(at));
+            cells.put(at,new Cell(cell.air(),cell.stableSupport(),matches,cell.protectedWork()));
+            terrain.put(at,matches?ConstructionLandPolicy.Kind.ROAD:ConstructionLandPolicy.Kind.OTHER);
+        });
     }
 }

@@ -81,4 +81,13 @@ class PaperConstructionWorkSurveyTest {
         assertTrue(finish(new PaperConstructionWorkSurvey(ready,path,1000,id->world,()->primary)).authority().siteCleared());
         assertFalse(finish(survey(0,Optional.empty())).authority().siteCleared(),"Buildings still require an actual entrance path");
     }
+    @Test void onlyPositiveSavedCivPavingCanReplaceTheDefaultDirtPathConnection(){
+        var anchor=new Position(0,63,-1);changed.put(anchor,Material.STONE_BRICKS);
+        assertFalse(finish(survey(0,Optional.empty())).authority().siteCleared(),"Unregistered player-like paving is not public road evidence");
+        var supplied=new HashMap<Position,String>();supplied.put(anchor,"minecraft:stone_bricks");
+        var saved=new ConstructionWorkQueue.Work(draft,ConstructionWorkQueue.State.READY,0,Optional.empty(),"Positive SQL road origin",supplied);supplied.clear();
+        assertTrue(finish(new PaperConstructionWorkSurvey(saved,plan,1000,id->world,()->primary)).authority().siteCleared());
+        changed.put(anchor,Material.DIRT_PATH);
+        assertFalse(finish(new PaperConstructionWorkSurvey(saved,plan,1000,id->world,()->primary)).authority().siteCleared(),"Changed registered road retains its exact identity; no silent material substitution");
+    }
 }

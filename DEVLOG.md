@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## 2026-10-21 — homes recognize exact completed Civ paving
+
+Loaded-only home-site surveys now retain and compare exact block data across both
+passes. SQL preparation classifies a road only from positive completed origin plus
+matching actual state; missing/changed evidence stays unsuitable. Protection stays
+authoritative. Work snapshots carry immutable scoped road provenance so native
+home survey checks the actual saved connector material, including stone bricks,
+instead of assuming every road is dirt_path. Player stone gains no rights; old
+dirt-path recognition remains. No repair, replacement or free housing capacity.
+
+Clean Wrapper22 unit+3 packaged passed36.522s. Tests verify owner classification,
+protection retention, missing states, actual work snapshot and native matching/
+private-paving refusal. Actual disposable Paper accepted a home connection beside
+the paid stone-brick road only with SQL origin, refused the same scene without it,
+and repeated road completion/restart/conservation checks. No home was built by
+the read-only connector proof. Both118 saves healthy/FK-clean; stopped/restored/
+helper archived. Handbook0.24 remains35 pages/32 chapters, rendered and visually
+reviewed after removing a small overflow page. P4 stays6/16=38%; automatic road
+demand/preparation/supplies/scheduling and wider P4 buildings remain next.
+
 ## 2026-10-21 — permanent paid road identity and transactional completion
 
 Schema118 adds immutable civ_roads/civ_road_cells. A stable world/draft-derived

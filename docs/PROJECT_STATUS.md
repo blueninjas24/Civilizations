@@ -2,6 +2,15 @@
 
 ## Current — Phase4 at38%, paid native road boundary verified
 
+Latest: home-site planning and native home work now recognize exact matching
+completed Civ paving, with immutable SQL origin snapshots and two-pass exact
+native states. Missing/changed paving holds; private stone is not adopted.22
+unit+3 packaged clean verify passed36.522s. Actual Paper accepted stone-brick home
+access only with positive SQL origin; same scene without origin refused. Road
+completion/restart/conservation repeated, both118 saves healthy/FK-clean, fixture
+stopped/restored/helper archived. Handbook0.24 is35 pages/32 chapters, rendered
+and visually reviewed. P4 stays38%; automatic road ordering is the next gap.
+
 Schema118 now saves permanent completed-road origin and exact paid cells, releasing
 the temporary site atomically after current exact inspection. History is immutable;
 lost road surface cannot silently authorize fresh replacement.24 unit+3 packaged

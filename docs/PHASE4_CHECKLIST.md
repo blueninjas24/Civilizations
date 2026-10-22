@@ -36,10 +36,12 @@ private business premises and broader land/corridor reuse are not complete.
 The new pure flat access planner and /civ build access preview find short safe
 routes to existing path under strict observation/search budgets. Neither starts
 paving. Physical road design, real corridor reservation/funding/labor, exact
-natural-ground replacement authority and completed-road provenance remain before
-the complete local-path selection/authority gate can be checked. Schema117 now records exact paid natural-ground intents with immutable receipts.
+natural-ground replacement authority, completed-road provenance and automatic
+scheduling are separate parts of the full local-path gate. Schema117 records exact paid natural-ground intents with immutable receipts.
 A dedicated road boundary now performs exact paid replacement while the home
-writer remains AIR-only; automatic road scheduling is not yet connected.
+writer remains AIR-only. Schema118 retains completed road identity/cells, and
+homes recognize exact matching Civ paving. Automatic road scheduling remains
+unfinished; private paving is never adopted from appearance alone.
 
 ## 3. Paid staged work and useful buildings — 1/4
 
@@ -63,7 +65,7 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
-Current schema117. Family homes use real finite supplier stock, original money,
+Current schema118. Family homes use real finite supplier stock, original money,
 earned cargo/work, paced per-block journaling, exact native scene checks and
 completion registration. Four/six/eight-bed catalogue geometry and actual rotated/
 mirrored eight-bed construction passed disposable Paper; eight actual residents
@@ -71,10 +73,11 @@ received distinct bed memories, with active-body refresh and restart conservatio
 Confirmed unused recall/returns and retained intent inspection are available;
 started ambiguous work still requires manual review, with no force-resume.
 
-Most recent focused clean Wrapper checks: housing/resident53 unit+3 packaged;
-route/preview10+3. Actual road command checked real SQL protections, found8 surface
-cells and made0 projects/orders. Newest head still needs hosted CI completion;
-earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.21 is
+Most recent focused clean Wrapper checks: road completion24 unit+3 packaged;
+road/home connectors22+3. Actual Paper completed two paid road cells, retained
+identity/site release through restart and accepted home access only with positive
+saved origin. Same paving without origin refused. Newest head still needs hosted
+CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.24 is
 35 pages/32 chapters, rendered and visually reviewed. Live player survival tests
 remain deferred. See PROJECT_STATUS.md and DEVLOG.md for precise evidence.
 
@@ -83,10 +86,9 @@ Next cohesive local-road delivery:
    exact scaled cost/work and actual corridor geometry. Integration must retain
    those immutable terms and never treat geometry as free goods or labor.
 2. Reserve/revalidate the actual corridor with current protection and entities.
-3. SQL exact-ground migration/preparation is verified; connect/test the dedicated
-   native ground replacement and restart handling; preserve player
-   paving/builds and harvested-output ambiguity. Register actual Civ road identity
-   so homes can recognize it without adopting arbitrary player cobblestone.
+3. SQL exact-ground preparation, native replacement/restarts and permanent road
+   completion are verified. Homes recognize actual matching saved Civ paving;
+   private paving and harvested-output ambiguity retain their protection.
 4. Connect protected village funds, finite suppliers, shared hauling, earned labor
    and paced writer; then prove interruption/protection/restart on disposable Paper.
 

@@ -2,6 +2,11 @@
 
 ## Current — Phase 4 physical growth
 
+Home planning/construction now recognize actual matching Civ paving from saved
+road origin. Private stone and damaged/unknown paving do not qualify.22 unit+3
+packaged checks and real Paper positive/negative connector checks passed. No
+additional checklist item; automatic road ordering remains unfinished.
+
 Completed roads now retain permanent identity and paid-cell history after their
 temporary construction site is released.24 unit+3 packaged checks and real Paper
 completion/restart passed; this strengthens existing gates. P4 stays6/16=38%.

@@ -34,6 +34,17 @@ class CivRoadCompletionTest {
         assertFalse(new ConstructionSiteReservations(c()).find(f.f.publicDraft.id()).orElseThrow().active());
         var bounds=new ConstructionPreview.Bounds(p(220,63),p(222,65));
         assertEquals(Map.of(p(221,63),"minecraft:cobblestone",p(222,63),"minecraft:cobblestone"),roads().expectedStates(f.f.f.world,bounds));
+        var nativeCells=new HashMap<Position,ConstructionPreview.Cell>();var terrain=new HashMap<Position,ConstructionLandPolicy.Kind>();
+        nativeCells.put(p(221,63),new ConstructionPreview.Cell(false,true,false,true));terrain.put(p(221,63),ConstructionLandPolicy.Kind.OTHER);
+        var expected=roads().expectedStates(f.f.f.world,bounds);
+        HousingProjectPreparation.classifyRoads(nativeCells,terrain,cells,expected);
+        assertTrue(nativeCells.get(p(221,63)).road());assertTrue(nativeCells.get(p(221,63)).protectedWork());assertEquals(ConstructionLandPolicy.Kind.ROAD,terrain.get(p(221,63)));
+        HousingProjectPreparation.classifyRoads(nativeCells,terrain,Map.of(),expected);
+        assertFalse(nativeCells.get(p(221,63)).road());assertEquals(ConstructionLandPolicy.Kind.OTHER,terrain.get(p(221,63)),"Missing exact state cannot turn history into a present road");
+        var homePlan=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+        var home=new ConstructionDraft(UUID.randomUUID(),receipt.village(),receipt.world(),new Position(219,64,1),com.blueninjas24.civilizations.construction.ConstructionTemplate.Transform.identity(),homePlan,6102);
+        new ConstructionDraftRepository(c()).save(home);new ConstructionSiteReservations(c()).reserve(home.id(),new ConstructionMaterials.Authority(home.id(),home.world(),6102,true,true),6102);
+        c().setAutoCommit(false);try{assertEquals("minecraft:cobblestone",new ConstructionWorkQueue(c()).reviewRows(home.id()).roadSurfaces().get(p(221,63)));}finally{c().rollback();c().setAutoCommit(true);}
         assertTrue(roads().expectedStates(UUID.randomUUID(),bounds).isEmpty());assertEquals(1,count("civ_roads"));assertEquals(2,count("civ_road_cells"));
         f.f.f.db.close();f.f.f.open();assertEquals(receipt,roads().findDraft(f.f.publicDraft.id()).orElseThrow());
         assertEquals(receipt,roads().complete(op,receipt.draft(),observation(Map.of()),0,99000,Set.of()));

@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.23 | 21 October 2026 | Player and server owner edition
+Living draft 0.24 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -339,11 +339,13 @@ Status: P4 in progress. Automatic family-home construction is available when ena
 
 ### Current foundation
 
-Five original editable starter plans exist: path, timber storehouse and homes for four, six or eight people. Admin catalogue/site previews are read-only. Saved family-home proposals can now buy actual supplies, wait for delivery and earned public labor, and build in stages through the automatic runtime. Disposable tests also cover a paid path and a complete home across restarts.
+Five original editable plans cover paths, storehouses and four/six/eight-person homes. Saved family-home proposals can buy real supplies, wait for delivery and earned labor, then build in stages. Disposable tests cover paid paths/homes across restarts.
 
-Operators can use /civ build access to inspect short flat road access to a point eight blocks ahead. It checks clear ground, saved protection and existing paths under the shared preview budget. READY is a possible route, not a reservation, priced quote or building order. Roads are still awaiting paid construction integration. LOCAL_ROAD_ACCESS.md explains the limits.
+Operators can use /civ build access to preview short flat access eight blocks ahead. It checks ground, protection and existing paths. READY grants no reservation, quote or order. Automatic road ordering remains unfinished; see LOCAL_ROAD_ACCESS.md.
 
-A preview spends no money, starts no project and assigns no home. Automatic family-home work uses the guarded normal-server writer when enabled; there is no instant player build command. Standalone development helpers remain restricted to marked disposable test servers.
+Completed Civ roads retain permanent paid-paving records. Home planning/construction recognize them only when actual blocks match. Player stone is not adopted. Damage waits for review, never free replacement. New saved protection at a required road connection pauses the project.
+
+A preview spends nothing and assigns no home. Automatic homes use the guarded writer when enabled; no instant build command exists. Development helpers belong only on marked disposable test servers.
 
 ### Read why a family needs housing
 
@@ -382,7 +384,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 117 includes paid construction recovery, village-built home identity, renovation consent, household-bound proposals, exact bed accounting and paid road-ground records. The road records support guarded native ground replacement; automatic road scheduling remains unfinished. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 118 includes paid construction recovery, village-built home identity, renovation consent, household-bound proposals, exact bed accounting and permanent completed-road origin/cells. The road records support guarded paid paving and later home connections; automatic road scheduling remains unfinished. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -797,7 +799,7 @@ Status: Available preparation only. A village can save an unused home proposal b
 
 Suitable permitted vacancies come first. Unknown capacity or stale inspections pause planning. A plan must fit the whole family, and an editable cap limits active unfinished home projects.
 
-The village checks flat supported space beside existing dirt paths. Buildings, fences, crops, trees, water, entities or saved protection can reject a rotated plan. This step does not dig, level hills or make roads.
+The village checks flat supported space beside existing dirt paths or exact registered Civ paving. Buildings, fences, crops, trees, water, entities or saved protection can reject a rotated plan. This step does not dig, level hills or make roads.
 
 Loaded blocks are checked twice within a shared budget; missing or changed evidence pauses planning. Simulation never loads chunks. Current protections and family need are rechecked before the plan, family and site reservation save atomically.
 
@@ -865,7 +867,7 @@ Status: Available prototype for saved family-home proposals. Existing installati
 
 ### What you can see
 
-A village with a verified housing need can plan a small home beside an existing dirt path. If it can afford the complete remaining material batch from real qualified local suppliers, it pays from village funds after protecting food and essential upkeep. Goods arrive later through the existing hauling system. No chest is emptied and no free materials are added.
+A village with a verified housing need can plan a small home beside an existing dirt path or verified Civ road. If it can afford the complete remaining material batch from real qualified local suppliers, it pays from village funds after protecting food and essential upkeep. Goods arrive later through the existing hauling system. No chest is emptied and no free materials are added.
 
 Available unemployed adults contribute recorded work. The foundation, walls, roof and beds appear in stages as their work and supplies become ready. All villages share one bounded builder, so several projects take turns. It does not clear trees, flatten hills, overwrite blocks or load chunks.
 

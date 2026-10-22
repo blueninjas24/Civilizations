@@ -15,7 +15,7 @@ public final class PaperConstructionWorkSurvey {
     }
     private final ConstructionWorkQueue.Work work;private final Function<UUID,World> worlds;private final BooleanSupplier primary;
     private final List<Position> positions;private final Map<Position,String> prefix=new HashMap<>(),first=new HashMap<>();
-    private final Set<Position> roads=new HashSet<>(),authored=new HashSet<>();private final ConstructionPreview.Bounds footprint;
+    private final Map<Position,String> roads=new HashMap<>();private final Set<Position> authored=new HashSet<>();private final ConstructionPreview.Bounds footprint;
     private final Position next;private final String nextAfter;private final long started;private long captured;private int cursor;
     private boolean verifying,unsafe;private String reason;private Frame finished;
     public PaperConstructionWorkSurvey(ConstructionWorkQueue.Work work,long now){
@@ -43,7 +43,7 @@ public final class PaperConstructionWorkSurvey {
             if(ordinal==work.nextOrdinal()){atNext=at;afterNext=after;}ordinal++;
         }
         next=atNext;nextAfter=afterNext;
-        if(nativePlan.purpose()!=Purpose.PATH)for(var anchor:nativePlan.anchors())if(anchor.role()==Role.ROAD)roads.add(draft.origin().plus(anchor.at()));
+        if(nativePlan.purpose()!=Purpose.PATH)for(var anchor:nativePlan.anchors())if(anchor.role()==Role.ROAD){var at=draft.origin().plus(anchor.at());roads.put(at,work.roadSurfaces().getOrDefault(at,"minecraft:dirt_path"));}
         if(work.pending().isPresent()){
             var intent=work.pending().get();if(!intent.draft().equals(draft.id())||intent.ordinal()!=work.nextOrdinal()||!intent.at().equals(next)||!intent.after().equals(nextAfter))throw new IllegalArgumentException("Pending intent differs from frozen native plan");
         }
@@ -61,7 +61,7 @@ public final class PaperConstructionWorkSurvey {
             if(verifying){if(!state.equals(first.get(at)))fail("Native evidence changed between complete passes");}
             else first.put(at,state);
             if(at.y()<footprint.minimum().y()&&!PaperConstructionPreview.stableSupport(block.getType()))fail("Ground support changed");
-            if(roads.contains(at)&&block.getType()!=Material.DIRT_PATH)fail("Saved entrance road changed");
+            if(roads.containsKey(at)&&!roads.get(at).equals(state))fail("Saved entrance road changed");
             if(footprint.contains(at)){
                 String expected=prefix.get(at);
                 if(expected!=null){if(!state.equals(expected))fail("Acknowledged construction block changed at "+at.x()+" "+at.y()+" "+at.z()+"; expected "+expected+", observed "+state+"; no replacement authority");}
