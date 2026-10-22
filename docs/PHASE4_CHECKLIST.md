@@ -2,7 +2,7 @@
 
 This checklist expands Phase 4 of ROADMAP.md; it does not move later phases forward.
 Each checked item needs implementation and verification. Four groups, sixteen items;
-current completion **5/16 (31%), 1/4 complete groups**. Partial work is described
+current completion **6/16 (38%), 1/4 complete groups**. Partial work is described
 but does not count as a completed item. This measures scope, not elapsed time.
 
 ## 1. Authored plans and frozen proposals — 4/4
@@ -38,8 +38,8 @@ routes to existing path under strict observation/search budgets. Neither starts
 paving. Physical road design, real corridor reservation/funding/labor, exact
 natural-ground replacement authority and completed-road provenance remain before
 the complete local-path selection/authority gate can be checked. Schema117 now records exact paid natural-ground intents with immutable receipts.
-The native writer remains AIR-only; it must gain a dedicated exact road boundary
-rather than silently broadening home permissions.
+A dedicated road boundary now performs exact paid replacement while the home
+writer remains AIR-only; automatic road scheduling is not yet connected.
 
 ## 3. Paid staged work and useful buildings — 1/4
 
@@ -48,12 +48,18 @@ rather than silently broadening home permissions.
 - [ ] Civic, industrial and residential construction activates actual capacity/function only after safe completion.
 - [ ] Upgrade/reuse/maintenance/physical deterioration preserve sites and history; no automatic disappearance.
 
-## 4. Acceptance and handoff — 0/4
+## 4. Acceptance and handoff — 1/4
 
-- [ ] Real disposable-world path/building construction and restart/failure/rollback acceptance.
+- [x] Real disposable-world path/building construction and restart/failure/rollback acceptance.
 - [ ] Protected player land, changed blocks/entities, unavailable worlds/chunks and editor compatibility acceptance.
 - [ ] Existing P1–P3 economy/population regression plus hosted Windows/Linux green for the completed phase candidate.
 - [ ] Administrator settings/playtest guide and accurate progress/status/release candidate, with remaining survival tuning stated.
+
+Item4.1 is the paid path/home example-world gate, not certification of all P4.
+Actual gated road paving, entity/neighbor refusal, both restart windows and real
+money/goods/labor conservation now join the completed home and transactional
+migration rollback proofs. Operator repair, wider buildings, edit compatibility
+and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 

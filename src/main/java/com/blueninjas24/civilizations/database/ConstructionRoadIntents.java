@@ -40,7 +40,17 @@ public final class ConstructionRoadIntents {
     }
     public ConstructionBlockJournal.Intent prepare(UUID operation,UUID draftId,int ordinal,String nativeAfter,
             LocalRoadDesign.Design design,RoadGroundReview.Observation observation,long now,Set<UUID> worlds)throws SQLException {
+        return prepare(operation,draftId,ordinal,nativeAfter,design.geometry(),observation,now,worlds,0,false);
+    }
+    /** Fresh paid/site review for a future owner permit, including exact-output recovery. */
+    public ConstructionBlockJournal.Intent prepareCurrent(UUID operation,UUID draftId,int ordinal,String nativeAfter,LocalRoadDesign.Geometry design,
+            RoadGroundReview.Observation observation,long now,Set<UUID> worlds,int buffer)throws SQLException{
+        return prepare(operation,draftId,ordinal,nativeAfter,design,observation,now,worlds,buffer,true);
+    }
+    private ConstructionBlockJournal.Intent prepare(UUID operation,UUID draftId,int ordinal,String nativeAfter,LocalRoadDesign.Geometry design,
+            RoadGroundReview.Observation observation,long now,Set<UUID> worlds,int buffer,boolean current)throws SQLException{
         Objects.requireNonNull(operation);Objects.requireNonNull(design);Objects.requireNonNull(observation);var present=Set.copyOf(worlds);
+        RoadGroundReview.requiredCells(design,buffer);
         if(!c.getAutoCommit())throw new SQLException("Road intent preparation requires idle SQL owner");c.setAutoCommit(false);
         try{
             var draft=new ConstructionDraftRepository(c).find(draftId).orElseThrow(()->new SQLException("Unknown road draft"));
@@ -50,21 +60,28 @@ public final class ConstructionRoadIntents {
             var journal=new ConstructionBlockJournal(c);var old=journal.find(operation);
             if(old.isPresent()){
                 var receipt=old.orElseThrow();if(!receipt.draft().equals(draftId)||receipt.ordinal()!=ordinal||!receipt.after().equals(nativeAfter)||"minecraft:air".equals(receipt.before()))throw new SQLException("Road operation identity reused");
-                c.commit();return receipt; // Historical receipt only; no fresh native authority.
+                if(current&&receipt.state()==ConstructionBlockJournal.State.CONFLICT)throw new SQLException("Road conflict requires explicit review");
+                if(!current){c.commit();return receipt;} // Historical receipt only; no fresh native authority.
             }
             if(!present.contains(draft.world()))throw new SQLException("Road world is absent");
             new ConstructionSiteReservations(c).requireActiveRows(draft);
             var footprint=ConstructionPreview.footprint(draft.template(),draft.transform(),draft.origin());var end=design.connection();
-            var accessBounds=new ConstructionPreview.Bounds(new Position(Math.min(footprint.minimum().x(),end.x()),draft.origin().y(),Math.min(footprint.minimum().z(),end.z())),
-                    new Position(Math.max(footprint.maximum().x(),end.x()),Math.addExact(draft.origin().y(),2),Math.max(footprint.maximum().z(),end.z())));
+            var accessBounds=new ConstructionPreview.Bounds(new Position(Math.subtractExact(Math.min(footprint.minimum().x(),end.x()),buffer),draft.origin().y(),Math.subtractExact(Math.min(footprint.minimum().z(),end.z()),buffer)),
+                    new Position(Math.addExact(Math.max(footprint.maximum().x(),end.x()),buffer),Math.addExact(draft.origin().y(),2),Math.addExact(Math.max(footprint.maximum().z(),end.z()),buffer)));
             if(!new ConstructionLandRepository(c).protectedColumns(draft.world(),accessBounds,draft.id()).isEmpty())throw new SQLException("Road corridor or retained access is newly protected");
             new ConstructionPublicWork(c).requireReadyRows(draft,ordinal);
             var prefix=new HashMap<Position,String>();
             try(var s=c.prepareStatement("SELECT operation_id FROM construction_block_journal WHERE draft_id=? AND state='APPLIED' ORDER BY ordinal")){
                 s.setString(1,draftId.toString());try(var r=s.executeQuery()){while(r.next()){var applied=journal.find(UUID.fromString(r.getString(1))).orElseThrow();prefix.put(applied.at(),applied.after());}}
             }
-            var review=RoadGroundReview.inspect(draft.world(),design,observation,now,prefix);
+            if(old.isPresent()&&old.get().after().equals(observation.states().get(old.get().at())))prefix.put(old.get().at(),old.get().after());
+            var review=RoadGroundReview.inspect(draft.world(),design,observation,now,prefix,buffer);
             if(!review.suitable())throw new SQLException("Road ground review refused: "+review.issues());
+            if(old.isPresent()){
+                var intent=old.get();String state=observation.states().get(intent.at());
+                if(!intent.before().equals(state)&&!intent.after().equals(state))throw new SQLException("Retained road before-state changed");
+                c.commit();return intent;
+            }
             var at=draft.origin().plus(placements.get(ordinal).getKey());var before=review.beforeStates().get(at);
             if(before==null)throw new SQLException("New road intent has no exact natural before-state");
             try(var s=c.prepareStatement("INSERT INTO construction_road_ground VALUES(?,?,?,?,?,?,?,?)")){
@@ -73,7 +90,7 @@ public final class ConstructionRoadIntents {
             var intent=journal.prepareRows(operation,draftId,ordinal,nativeAfter,before);c.commit();return intent;
         }catch(SQLException|RuntimeException failure){try{c.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}finally{c.setAutoCommit(true);}
     }
-    private static void requireDesign(ConstructionDraft draft,LocalRoadDesign.Design design)throws SQLException{
+    private static void requireDesign(ConstructionDraft draft,LocalRoadDesign.Geometry design)throws SQLException{
         var t=draft.template();
         if(!t.id().equals("local_road_access")||t.purpose()!=Purpose.PATH||t.size().y()!=1||t.stages().size()!=1||t.blockCount()>64||!draft.transform().equals(Transform.identity())
                 ||!draft.origin().equals(design.origin())||!t.fingerprint().equals(design.template().fingerprint())||t.anchors().size()!=1
@@ -82,7 +99,7 @@ public final class ConstructionRoadIntents {
     void requireReceipt(ConstructionBlockJournal.Intent intent,ConstructionDraft draft)throws SQLException{
         var t=draft.template();
         if(t.purpose()!=Purpose.PATH||!t.id().equals("local_road_access")||t.size().y()!=1||t.stages().size()!=1||t.blockCount()>64||t.anchors().size()!=1||!draft.transform().equals(Transform.identity()))throw new SQLException("Ground intent is not a local-road draft");
-        try{new LocalRoadDesign.Design(draft.origin(),draft.origin().plus(t.anchors().getFirst().at()),t,t.fingerprint());}
+        try{LocalRoadDesign.geometry(draft);}
         catch(IllegalArgumentException|IndexOutOfBoundsException invalid){throw new SQLException("Invalid retained road geometry",invalid);}
         try(var s=c.prepareStatement("SELECT 1 FROM construction_road_ground WHERE operation_id=? AND draft_id=? AND ordinal=? AND world_x=? AND world_y=? AND world_z=? AND before_state=?")){
             s.setString(1,intent.operation().toString());s.setString(2,intent.draft().toString());s.setInt(3,intent.ordinal());s.setInt(4,intent.at().x());s.setInt(5,intent.at().y());s.setInt(6,intent.at().z());s.setString(7,intent.before());try(var r=s.executeQuery()){if(!r.next())throw new SQLException("Missing exact road-ground preparation receipt");}

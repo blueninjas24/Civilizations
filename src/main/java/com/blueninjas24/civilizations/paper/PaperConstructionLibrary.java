@@ -13,7 +13,7 @@ import java.util.*;
 
 /** Small, explicitly supported catalogue. Invalid local edits disable previews, never existing simulation. */
 public final class PaperConstructionLibrary {
-    private static final Set<Material> SUPPORTED=Set.of(Material.COBBLESTONE,Material.OAK_PLANKS,
+    private static final Set<Material> SUPPORTED=Set.of(Material.COBBLESTONE,Material.STONE,Material.STONE_BRICKS,Material.ANDESITE,Material.DIORITE,Material.GRANITE,Material.COBBLED_DEEPSLATE,Material.OAK_PLANKS,
             Material.OAK_LOG,Material.BARREL,Material.OAK_DOOR,Material.WHITE_BED,Material.WALL_TORCH);
     private final Map<String,ConstructionTemplate> templates;
     private final com.blueninjas24.civilizations.construction.ConstructionBudgetPolicy funding;

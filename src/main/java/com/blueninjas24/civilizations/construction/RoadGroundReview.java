@@ -19,9 +19,22 @@ public final class RoadGroundReview {
     public static Set<String> naturalGroundStates(){return GROUND;}
     private RoadGroundReview(){}
     public static Result inspect(UUID world,LocalRoadDesign.Design design,Observation observation,long now){
-        return inspect(world,design,observation,now,Map.of());
+        return inspect(world,design.geometry(),observation,now,Map.of(),0);
     }
-    public static Result inspect(UUID world,LocalRoadDesign.Design design,Observation observation,long now,Map<Position,String> acknowledged){
+    public static Result inspect(UUID world,LocalRoadDesign.Design design,Observation observation,long now,Map<Position,String> acknowledged){return inspect(world,design.geometry(),observation,now,acknowledged,0);}
+    public static Set<Position> requiredCells(LocalRoadDesign.Geometry design,int buffer){
+        if(buffer<0||buffer>16)throw new IllegalArgumentException("Invalid road buffer");var cells=new TreeSet<Position>();var centers=new ArrayList<Position>();
+        design.template().stages().getFirst().blocks().keySet().forEach(p->centers.add(design.origin().plus(p)));centers.add(design.connection());
+        for(var center:centers){
+            for(int z=-buffer;z<=buffer;z++)for(int x=-buffer;x<=buffer;x++)for(int y=0;y<2;y++){
+                cells.add(center.plus(new Position(x,y,z)));if(cells.size()>255)throw new IllegalArgumentException("Road evidence exceeds256-read native writer cap");
+            }
+            cells.add(center.plus(new Position(0,2,0)));if(cells.size()>255)throw new IllegalArgumentException("Road evidence exceeds256-read native writer cap");
+        }
+        return Collections.unmodifiableSet(cells);
+    }
+    public static Result inspect(UUID world,LocalRoadDesign.Geometry design,Observation observation,long now,Map<Position,String> acknowledged,int buffer){
+        var required=requiredCells(design,buffer);
         Objects.requireNonNull(world);Objects.requireNonNull(design);Objects.requireNonNull(observation);acknowledged=Map.copyOf(acknowledged);if(now<0)throw new IllegalArgumentException("Invalid road review time");
         var issues=EnumSet.noneOf(Issue.class);var before=new TreeMap<Position,String>();
         if(!world.equals(observation.world()))issues.add(Issue.WRONG_WORLD);
@@ -46,6 +59,13 @@ public final class RoadGroundReview {
             if(observation.protectedCells().contains(cell))issues.add(Issue.PROTECTED);
             if(!observation.states().containsKey(cell))issues.add(Issue.INCOMPLETE);
             else if(y>0&&!AIR.contains(observation.states().get(cell)))issues.add(Issue.HEADROOM_BLOCKED);
+        }
+        for(var at:required){
+            String state=observation.states().get(at);if(state==null){issues.add(Issue.INCOMPLETE);continue;}
+            if(observation.protectedCells().contains(at))issues.add(Issue.PROTECTED);
+            if(at.y()>design.origin().y()){if(!AIR.contains(state))issues.add(Issue.HEADROOM_BLOCKED);}
+            else if(acknowledged.containsKey(at)){if(!state.equals(acknowledged.get(at)))issues.add(Issue.GROUND_CHANGED);}
+            else if(!at.equals(design.connection())&&!GROUND.contains(state)&&!"minecraft:dirt_path".equals(state))issues.add(Issue.GROUND_CHANGED);
         }
         return new Result(issues,issues.isEmpty()?before:Map.of());
     }

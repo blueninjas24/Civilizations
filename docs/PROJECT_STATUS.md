@@ -1,5 +1,30 @@
 # Civilizations — implementation status and handoff
 
+## Current — Phase4 at38%, paid native road boundary verified
+
+Phase4 now has6/16 checked milestones (38%),1/4 whole groups complete. The new
+checked item is4.1: actual paid path/home construction with restart/refusal and
+transaction rollback acceptance in disposable worlds. Wider phase acceptance,
+human survival/editor compatibility and automatic road scheduling remain pending.
+
+A dedicated road survey/writer now handles exact paid natural-ground replacement
+under the existing nonblocking owner gate. Configured clearances,255-cell scene
+cap, complete loaded block/entity census, exact states and one-time first-write
+proof apply. Native home/AIR permissions are unchanged. Ground receipts alone
+are not permission; current owner checks repeat funds/earned work/site/protection.
+
+Clean Wrapper25 unit+3 packaged passed34.838s. Actual Paper paved two stone-brick
+cells, held changed neighbor/entity, recovered a lost acknowledgement after actual
+session restart, and held a separate prepared-before-write restart as ambiguous.
+Real50-unit payment,2 stone/3 work, source stock18,99450 treasury,50 supplier and2
+original people conserved. Both117 DBs integrity ok/FKs0; original cells restored;
+server stopped/helper archived. No user dev-server files or database changed.
+Handbook0.23 (35 pages/32 chapters) rendered/visually reviewed.
+
+Next: register completed Civ-road identity and recognize those surfaces as home
+connectors, then connect ordinary demand, corridor preparation and paid scheduling.
+The read-only access command still cannot order paving. No decision needed.
+
 ## Latest verified — schema117 paid natural-ground road intents
 
 Saved construction now supports typed exact road-ground intents after real

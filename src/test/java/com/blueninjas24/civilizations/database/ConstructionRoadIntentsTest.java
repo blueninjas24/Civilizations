@@ -55,6 +55,14 @@ class ConstructionRoadIntentsTest {
         assertThrows(SQLException.class,()->prepare(UUID.randomUUID(),0,cells()));
         assertEquals(0,count("construction_road_ground"));assertEquals(0,count("construction_block_journal"));assertEquals(2,work.work());
     }
+    @Test void nativeRenewalAlwaysChecksFreshEvidenceWhileHistoryReplayRemainsOnlyAReceipt()throws Exception{
+        fundAndWork();UUID operation=UUID.randomUUID();var first=prepare(operation,0,cells());var road=new ConstructionRoadIntents(f.c());
+        assertThrows(SQLException.class,()->road.prepareCurrent(operation,f.publicDraft.id(),0,"minecraft:cobblestone",design.geometry(),observation(cells()),99000,Set.of(f.f.world),0));
+        assertThrows(SQLException.class,()->road.prepareCurrent(operation,f.publicDraft.id(),0,"minecraft:cobblestone",design.geometry(),observation(cells()),6101,Set.of(),0));
+        var after=cells();after.put(first.at(),first.after());
+        assertEquals(first,road.prepareCurrent(operation,f.publicDraft.id(),0,"minecraft:cobblestone",design.geometry(),observation(after),6101,Set.of(f.f.world),0));
+        assertEquals(1,count("construction_road_ground"));assertEquals(1,count("construction_block_journal"));
+    }
     @Test void lateJournalFailureRollsBackReceiptAndExactRetryKeepsPaidAssets()throws Exception{
         fundAndWork();long money=f.money();var operation=UUID.randomUUID();
         f.f.sql("CREATE TRIGGER reject_road AFTER INSERT ON construction_block_journal WHEN NEW.before_state<>'minecraft:air' BEGIN SELECT RAISE(ABORT,'fixture late road failure'); END");

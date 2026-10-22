@@ -1598,6 +1598,20 @@ public final class PopulationSession implements AutoCloseable {
             return new PreparedConstructionStep(intent,nativeConstructionGate.capture(operation,draft,authority.world(),authority.checkedMillis()));
         });
     }
+    /** Road-only exact-ground preparation. Normal home/air writer permissions are unchanged. */
+    public CompletableFuture<PreparedConstructionStep> prepareAuthorizedRoadStep(UUID operation,UUID draft,int ordinal,String nativeAfter,
+            com.blueninjas24.civilizations.construction.LocalRoadDesign.Geometry geometry,
+            com.blueninjas24.civilizations.construction.RoadGroundReview.Observation observation,int buffer){
+        return submit(()->{requireBuildingWorld(observation.world(),observation.world());
+            if(constructionLabor==null||!constructionLabor.enabled())throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Public construction is disabled; retained road assets preserved");
+            var journal=new com.blueninjas24.civilizations.database.ConstructionBlockJournal(database.getConnection());boolean fresh=journal.find(operation).isEmpty();
+            if(fresh&&!nativeConstructionGate.canRememberFresh(operation))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Pending native-intent memory budget exhausted; no new road intent saved");
+            var intent=new com.blueninjas24.civilizations.database.ConstructionRoadIntents(database.getConnection()).prepareCurrent(operation,draft,ordinal,nativeAfter,geometry,observation,now.getAsLong(),loadedWorlds==null?Set.of():loadedWorlds,buffer);
+            if(intent.state()==com.blueninjas24.civilizations.database.ConstructionBlockJournal.State.CONFLICT)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Conflicted road intent needs review");
+            if(fresh)nativeConstructionGate.rememberFresh(operation);
+            return new PreparedConstructionStep(intent,nativeConstructionGate.capture(operation,draft,observation.world(),observation.capturedMillis()));
+        });
+    }
     /** Adapter supplies one bounded main-thread CAS only. Empty means retry review; never waits for SQL. */
     public <T>Optional<T> tryNativeConstructionStep(PreparedConstructionStep prepared,java.util.function.Supplier<T> action){
         java.util.Objects.requireNonNull(prepared);java.util.Objects.requireNonNull(action);

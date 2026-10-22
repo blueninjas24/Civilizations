@@ -1,5 +1,48 @@
 # Civilizations Development Log
 
+## 2026-10-21 — paid native road boundary and first world acceptance gate
+
+Added PaperRoadWorkSurvey and PaperRoadWriter, separate from home AIR placement.
+The loaded-only two-pass scene covers actual road/endpoint cells, two cells of
+walking headroom and configured construction clearance (ground plus first air
+layer). Full scene must fit255 cells plus post-write read within256; large plans
+hold before reads. Nearby structures/fences/protection, entities, absent border/
+height/chunks or changed cells hold. Every chunk intersecting the entity census,
+including bent-route interiors, must already have block/entity data loaded.
+No simulation chunk loading, future waits or SQL in native callbacks.
+
+PopulationSession's road owner method repeats fresh paid/site/clearance checks,
+captures the same native gate generation and remembers one first-write proof only
+for newly saved intents. Immutable history replay cannot renew authority alone.
+Current renewal can acknowledge exact after-state but refuses changed original
+before-state, stale/absent worlds and conflict. The writer rechecks exact frozen
+ordinal/material, current scene/entities and one-time proof under owner exclusion;
+only the paid natural target changes. No mining/drop API or free replacement.
+Source geometry is recoverable from the frozen draft without inventing original
+recipe provenance. Solid paving support now includes the seven configured recipe
+surfaces, tested with actual stone bricks; home writer remains AIR-only.
+
+Focused clean verify25 unit+3 packaged passed34.838s (earlier33.323s). Actual marked
+Paper proof paved two paid stone-brick cells, paused for a changed buffered fence
+and actual armor stand, restarted after a lost acknowledgement and acknowledged
+without duplicating output, then refused a second paid road's original ground
+when restart erased first-write certainty.50 hundredths paid once,2 finite stone
+units delivered,3 real work units booked;99450 treasury/50 supplier/18 source stock,
+2 original people and3 immutable ground intents conserved. Both117 DBs healthy/FKs0,
+all captured cells restored, stopped/helper archived. Initial fixture exceeded its
+loaded area; fitting both scenarios inside one initially loaded chunk fixed the
+fixture without relaxing production guards. Final native rerun passed the added
+complete entity-census guard. No actual user server/world/database touched.
+
+P4 world-example acceptance item4.1 now passes: paid path and home construction,
+restart, native refusal and transactional rollback are verified. Combined with the
+prior120/167-block home proofs and117 rollback tests, this advances6/16=38%, still
+1/4 whole groups. It does not complete automatic road scheduling, regional routes,
+all building types, editor compatibility, started-work repair or human survival.
+Handbook0.23 is35 pages/32 chapters, rendered and visually reviewed. Next saved
+road completion/provenance and its use as home connectors, then automatic demand/
+reservation/funding/scheduling. No new schema beyond117 or design question.
+
 ## 2026-10-21 — schema117 exact paid road-ground intents
 
 Schema117 transactionally rebuilds the native journal to support a closed set

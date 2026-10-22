@@ -123,3 +123,32 @@ index. Populated116 upgrade/reopen and injected late rollback passed. Current
 PaperConstructionWriter still rejects non-AIR, so these intents are not automatic
 road construction. Native scene/proximity/entity review, gated one-time exact
 replacement, corridor scheduling/funding and saved road completion remain next.
+
+## Dedicated native boundary, not automatic scheduling
+
+PaperRoadWorkSurvey now collects two exact loaded-only passes under a caller
+budget. It covers configured construction clearances: ground/first-air layer in
+the buffer plus both walking-headroom cells over every planned cell/endpoint.
+Neighbor structures/fences and changed states hold. All block/entity chunks in the
+entity census bounding box must already be loaded, even in a bent route's interior.
+No chunk loading. The complete scene must fit255 cells; an atomic write/post-check
+fits the existing256-read cap. Large custom route/buffer combinations wait.
+
+prepareAuthorizedRoadStep repeats current SQL paid/material/labor/site/protection
+checks and captures the existing owner gate. Historical receipt replay is not a
+native permit. PaperRoadWriter rechecks exact plan/ordinal/states, full scene and
+entities under that gate, then consumes a one-time newly prepared intent proof
+before replacing only its original natural ground. It uses no mining/drop API.
+An exact after-state acknowledges without writing. Missing certainty after restart
+holds original ground; no free repair or replacement. Home writer stays AIR-only.
+
+Actual disposable Paper paved two paid stone-brick cells, held a changed buffered
+neighbor and real entity, recovered lost acknowledgement across actual session
+restart, and held a separate prepared-before-write restart as ambiguous. Original
+world cells restored and both117 saves healthy. Final25 unit+3 packaged checks
+passed. Seven solid recipe surfaces are now supported by the native catalogue.
+
+This completes the path/home example-world acceptance item, not normal automatic
+road growth. Completed-road provenance/registration, home-connector recognition
+and ordinary demand/preparation/supply scheduling remain next. No instant paving
+command was added; /civ build access is still read-only. Regional routes remain P5.

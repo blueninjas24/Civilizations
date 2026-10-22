@@ -8,10 +8,10 @@ import java.util.*;
 public final class LocalRoadDesign {
     private static final Set<String> SURFACES=Set.of("minecraft:cobblestone","minecraft:stone","minecraft:stone_bricks",
             "minecraft:andesite","minecraft:diorite","minecraft:granite","minecraft:cobbled_deepslate");
-    public record Design(Position origin,Position connection,ConstructionTemplate template,String recipeHash) {
-        public Design {
-            Objects.requireNonNull(origin);Objects.requireNonNull(connection);Objects.requireNonNull(template);Objects.requireNonNull(recipeHash);
-            if(!recipeHash.matches("[0-9a-f]{64}")||!template.id().equals("local_road_access")||template.purpose()!=Purpose.PATH
+    public record Geometry(Position origin,Position connection,ConstructionTemplate template) {
+        public Geometry {
+            Objects.requireNonNull(origin);Objects.requireNonNull(connection);Objects.requireNonNull(template);
+            if(!template.id().equals("local_road_access")||template.purpose()!=Purpose.PATH
                     ||template.size().y()!=1||template.stages().size()!=1||template.blockCount()>64||template.anchors().size()!=1
                     ||template.anchors().getFirst().role()!=Role.ROAD||!origin.plus(template.anchors().getFirst().at()).equals(connection))
                 throw new IllegalArgumentException("Invalid frozen local road design");
@@ -24,6 +24,15 @@ public final class LocalRoadDesign {
             }
             if(!remaining.isEmpty())throw new IllegalArgumentException("Road design is disconnected from retained endpoint");
         }
+    }
+    /** Source recipe provenance belongs to planning; native recovery uses only the exact frozen geometry. */
+    public record Design(Position origin,Position connection,ConstructionTemplate template,String recipeHash) {
+        public Design { new Geometry(origin,connection,template);Objects.requireNonNull(recipeHash);if(!recipeHash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("Invalid recipe hash"); }
+        public Geometry geometry(){return new Geometry(origin,connection,template);}
+    }
+    public static Geometry geometry(ConstructionDraft draft){
+        if(!draft.transform().equals(Transform.identity())||draft.template().anchors().size()!=1)throw new IllegalArgumentException("Invalid frozen road transform/connection");
+        return new Geometry(draft.origin(),draft.origin().plus(draft.template().anchors().getFirst().at()),draft.template());
     }
     private LocalRoadDesign(){}
     public static Optional<Design> freeze(LocalRoadAccessPlanner.Result route,ConstructionTemplate recipe){

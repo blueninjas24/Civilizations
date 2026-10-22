@@ -21,6 +21,14 @@ class RoadGroundReviewTest {
         var protectedAccess=RoadGroundReview.inspect(world,design,new RoadGroundReview.Observation(world,1000,true,states(),Set.of(new Position(0,65,0))),1100);
         assertTrue(protectedAccess.issues().contains(RoadGroundReview.Issue.PROTECTED));assertTrue(protectedAccess.beforeStates().isEmpty());
     }
+    @Test void configuredClearanceScreensNearbyStructuresAndHoldsPlansAboveAtomicReadCap()throws Exception{
+        var geometry=design().geometry();var required=RoadGroundReview.requiredCells(geometry,4);assertEquals(182,required.size());
+        var cells=new HashMap<Position,String>();for(var at:required)cells.put(at,at.y()==63?"minecraft:grass_block[snowy=false]":"minecraft:air");cells.put(geometry.connection(),"minecraft:dirt_path");
+        assertTrue(RoadGroundReview.inspect(world,geometry,new RoadGroundReview.Observation(world,1000,true,cells,Set.of()),1100,Map.of(),4).suitable());
+        cells.put(new Position(-3,64,3),"minecraft:oak_fence[east=false,north=false,south=false,waterlogged=false,west=false]");
+        assertTrue(RoadGroundReview.inspect(world,geometry,new RoadGroundReview.Observation(world,1000,true,cells,Set.of()),1100,Map.of(),4).issues().contains(RoadGroundReview.Issue.HEADROOM_BLOCKED));
+        assertThrows(IllegalArgumentException.class,()->RoadGroundReview.requiredCells(geometry,16));
+    }
     @Test void editedProtectedUnknownOrStaleGroundCannotYieldPartialReplacementEvidence()throws Exception{
         for(String unsafe:List.of("minecraft:stone","minecraft:chest","minecraft:diamond_ore","minecraft:water","minecraft:cobblestone","minecraft:air")){
             var cells=states();cells.put(new Position(1,63,0),unsafe);var result=RoadGroundReview.inspect(world,design(),new RoadGroundReview.Observation(world,1000,true,cells,Set.of()),1100);assertFalse(result.suitable());assertTrue(result.beforeStates().isEmpty());

@@ -19,7 +19,7 @@ import com.blueninjas24.civilizations.construction.ConstructionLandPolicy;
 public final class PaperConstructionPreview extends BukkitRunnable implements CommandExecutor,TabCompleter {
     public static final String PERMISSION="civilizations.construction.preview";
     private static final int CELLS_PER_TICK=64,MAX_REQUESTS=8;
-    private static final Set<Material> SUPPORT=Set.of(Material.STONE,Material.COBBLESTONE,Material.DEEPSLATE,
+    private static final Set<Material> SUPPORT=Set.of(Material.STONE,Material.STONE_BRICKS,Material.COBBLESTONE,Material.DEEPSLATE,
             Material.COBBLED_DEEPSLATE,Material.DIRT,Material.GRASS_BLOCK,Material.DIRT_PATH,Material.COARSE_DIRT,
             Material.ROOTED_DIRT,Material.PODZOL,Material.MYCELIUM,Material.ANDESITE,Material.DIORITE,Material.GRANITE,Material.SANDSTONE,Material.RED_SANDSTONE,Material.BEDROCK);
     private static final Set<Material> NATURAL_LOOKING_GROUND=Set.of(Material.GRASS_BLOCK,Material.DIRT,Material.COARSE_DIRT,Material.ROOTED_DIRT,Material.PODZOL,Material.MYCELIUM);

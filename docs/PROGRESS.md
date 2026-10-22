@@ -7,14 +7,14 @@
 | 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
 | 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 4 / 4 | `██████████` 100% - prototype gate passed |
-| 4. Physical Growth | Villages build and improve structures gradually | 5 / 16 | `███░░░░░░░` 31% — first automatic paid family homes |
+| 4. Physical Growth | Villages build and improve structures gradually | 6 / 16 | `████░░░░░░` 38% — first automatic paid family homes |
 | 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
 | 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
 | 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
 | 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
 
-**Phase 4: 31% — 5/16 checklist items, 1/4 whole groups complete.**
+**Phase 4: 38% — 6/16 checklist items, 1/4 whole groups complete.**
 The bar counts verified checklist items, not time spent. The first paid-project
 milestone now includes ordinary automatic family-home construction.
 
@@ -37,6 +37,11 @@ Schema117 road intents now require paid materials, earned work and exact current
 ground/access evidence.88 unit+3 packaged checks and the existing native paid-home
 smoke passed; old histories preserved. Native paving remains off. Handbook0.22.
 
+Newly complete: the disposable-world path/home acceptance milestone. Paid native
+road paving now passes changed-scene/entity and both restart-window checks.
+25 unit+3 packaged passed; actual finite goods/money/work conserved. Automatic
+road scheduling remains unfinished; current road ordering is not a player command.
+
 | P4 part | Current state | Plain-English effect |
 |---|---|---|
 | Starter plans | Available | Original editable path, storehouse and four/six/eight-bed home plans |
@@ -48,6 +53,7 @@ smoke passed; old histories preserved. Native paving remains off. Handbook0.22.
 | Project inspection and unused supply recovery | Available | Operators inspect stalled work and confirm real supplier refunds/returns; history stays |
 | Local road access | Planner and read-only preview available | /civ build access finds short safe flat routes; paid paving remains |
 | Road shape and recipe | Preparation verified | Bends keep their shape; editable path recipe sets real materials and labor; paving remains off |
+| Paid road writer | Native boundary verified | Safe paid ground replacement works; automatic ordering/completion recognition remain |
 | Wider physical growth | Unfinished | New roads, terrain work, business premises, docks, upgrades and civic builds remain |
 
 Existing construction.yml files must explicitly add automatic-construction;
@@ -62,7 +68,7 @@ mirrored home blocks on a disposable Paper server, then native inspection assign
 one saved family to4 beds. Completion replay survived session restart. All captured
 cells restored, server stopped/helper archived; both116 DBs healthy/FK-clean.
 Prior Windows/Linux both passedb91265c; current candidate awaits hosted CI.
-The handbook is now0.22,35 pages/32 chapters, with automatic homes in Chapter31
+The handbook is now0.23,35 pages/32 chapters, with automatic homes in Chapter31
 and saved inspection/confirmed supplier recovery in Chapter32. Latest recovery
 Wrapper35+3 and15+3 passed; actual Paper permission/confirmation/refund/disconnect/
 restart accepted. Both116 DBs healthy, server stopped; no world/inventory edits.

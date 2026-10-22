@@ -1,5 +1,22 @@
 # Civilizations — architecture and engineering contracts
 
+## Native road steps — exact ground rather than home AIR placement
+
+PaperRoadWorkSurvey/Writer are separate bounded adapters. Frozen road Geometry
+can be read from its draft; source recipe hash remains planning provenance rather
+than fabricated native recovery metadata. RoadGroundReview derives configured
+buffer/headroom evidence and rejects frames above255 cells before native reads.
+Complete loaded entity census includes a bent route's bounding-box chunks.
+
+PopulationSession.prepareAuthorizedRoadStep repeats current paid/material/labor/
+protection/scene validation through ConstructionRoadIntents.prepareCurrent before
+capturing an owner permit. Historical prepare replay remains distinct. New intents
+alone receive one first-write proof; renewal never replenishes consumed/lost proof.
+The main-thread writer performs full exact scene/entity recheck and a single CAS
+under the nonblocking owner gate; no SQL or future wait there. Post-restart exact
+output may acknowledge; original ground without first-write certainty holds.
+Automatic road scheduling and completed-road publication are subsequent work.
+
 ## Schema117 — separate exact road-ground preparation
 
 The journal preserves its existing column/order/identity semantics. A versioned
