@@ -4,20 +4,23 @@ Civilizations is a PaperMC plugin that transforms vanilla Minecraft villages int
 
 The long-term goal is villages that grow, build, trade and form regional
 civilizations. The current prototype has persistent people, village economies and
-working business simulations. Physical construction comes in Phase4; regional
-trade and roads come in Phase5.
+working business simulations and the first automatic family homes. Physical
+growth is Phase4; regional trade and roads remain Phase5.
 
-Phase4 has begun with editable original starter plans and read-only admin site
-previews. Normal gameplay still cannot place blocks; guarded disposable checks can. See [construction tools](docs/CONSTRUCTION.md)
-and the [P4 checklist](docs/PHASE4_CHECKLIST.md). P3's human survival playtest remains
-pending while protected construction foundations proceed separately.
+Phase4 is at44% (7/16 verified checklist items). When enabled, villages can buy
+real supplies, wait for delivery/earned labor and build family homes in stages.
+Paid local-road placement, permanent paving identity and joint road/home site
+selection are verified; automatic road ordering remains unfinished. See
+[current progress](docs/PROGRESS.md), [construction tools](docs/CONSTRUCTION.md)
+and the [P4 checklist](docs/PHASE4_CHECKLIST.md). P3 human survival playtesting and
+wider P4 terrain/business/civic/repair work remain pending.
 
 ## Player and server guide
 
 Read the [living PDF handbook](output/pdf/Civilizations_Player_and_Server_Guide.pdf)
 for a TL DR, first-session walkthrough, feature chapters, command glossary and
-administration/troubleshooting. Planned housing, donation and repossession controls
-are labelled separately from working features. Its [editable source and update
+administration/troubleshooting. Working housing, donation and repossession controls
+are distinguished from future construction features. Its [editable source and update
 workflow](docs/guide/README.md) are maintained alongside development.
 
 ## What works now

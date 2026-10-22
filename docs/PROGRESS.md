@@ -2,6 +2,10 @@
 
 ## Current — Phase 4 physical growth
 
+Hosted follow-up: repaired three historical migration snapshot tests that omitted
+new empty road tables;13 unit+3 packaged checks passed. Current hosted results are
+pending. This changes no gameplay or milestone count.
+
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families change over time | 10 / 10 | `██████████` 100% — prototype gate passed |

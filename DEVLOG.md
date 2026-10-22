@@ -1,5 +1,17 @@
 # Civilizations Development Log
 
+## 2026-10-21 — correct historical forestry migration snapshots exposed by CI
+
+Hosted Windows/Linux on da6c8eb reported three forestry migration-test failures.
+Their manual predecessor snapshots excluded later empty construction tables but
+omitted schema117 road-ground and schema118 completed-road additions. Updated
+those three historical exclusion lists and explicitly require the new tables to
+start empty; every predecessor table/row is still compared. No application or
+save migration behavior changed. Clean Wrapper13 unit+3 packaged passed37.351s
+for ForestryFounderStudyTest, ForestryPersistenceTest and ForestryProvenanceTest.
+Latest hosted builds remain pending; do not infer full-suite green from this
+focused repair. README now reflects actual automatic homes/P4 scope. P4 stays44%.
+
 ## 2026-10-21 — joint home/road selection completes P4 item2.2
 
 HousingRoadAccessPlanner prefers verified existing-road infill. If no safe infill

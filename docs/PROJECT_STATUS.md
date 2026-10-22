@@ -2,6 +2,12 @@
 
 ## Current — Phase4 at44%, joint local-road/home selection verified
 
+Hosted follow-up: da6c8eb failed three old forestry migration snapshots on both
+platforms because they omitted the new empty road tables. Corrected their later-
+table lists and added explicit empty-table checks, preserving full predecessor
+comparisons.13 unit+3 packaged clean verify passed37.351s. No runtime/save behavior
+change; current hosted Windows/Linux remains pending, not claimed green.
+
 Phase4 has7/16 checked milestones (44%),1/4 whole groups complete. Item2.2 now
 passes the flat local prototype: prefer existing access, otherwise find a safe
 conditional whole-home site and short road together, preserve real recipe costs,
