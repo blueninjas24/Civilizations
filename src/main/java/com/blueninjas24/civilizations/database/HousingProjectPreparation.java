@@ -63,7 +63,19 @@ public final class HousingProjectPreparation {
                 // This is only the search envelope of the approved clear-land heuristic, never native write permission.
                 var envelope=new ApprovedArea(request.proposal().draft(),request.world(),request.search());
                 var result=ConstructionSitePlanner.select(template,request.world(),request.need(),survey,envelope,context.now(),5000,seed,land,terrain);
-                var selected=result.selected().orElseThrow(()->new BuildingRegistry.Declined("Home site waits: "+result.status()));
+                if(result.selected().isEmpty()){
+                    var road=templates.stream().filter(t->t.purpose()==Purpose.PATH&&t.id().equals("starter_path")).findFirst();
+                    if(road.isPresent()&&result.status()==ConstructionSitePlanner.Status.NO_SAFE_SITE){
+                        var access=HousingRoadAccessPlanner.select(template,road.get(),request.world(),request.need(),survey,envelope,land,terrain,LocalRoadAccessPlanner.Policy.prototype(),context.now(),5000,seed);
+                        if(access.expansion().isPresent()){
+                            var plan=access.expansion().orElseThrow();
+                            throw new BuildingRegistry.Declined("Home site waits: road-first candidate needs "+plan.road().template().blockCount()+" paving cells, "+plan.road().template().materials()+" and "+plan.road().template().work()+" earned work; automatic road ordering remains unfinished; no site, supplies or home saved");
+                        }
+                        throw new BuildingRegistry.Declined("Home site waits: "+access.status()+"; road/home candidates "+access.candidates()+", rejected "+access.rejected()+"; no project created");
+                    }
+                    throw new BuildingRegistry.Declined("Home site waits: "+result.status());
+                }
+                var selected=result.selected().orElseThrow();
                 var draft=new ConstructionDraft(request.proposal().draft(),request.village(),request.world(),selected.origin(),selected.transform(),template,request.proposal().createdMillis());
                 drafts.saveRows(draft);
                 var family=projects.bindRows(request.proposal(),context,planner,seed,period);

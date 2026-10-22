@@ -2,101 +2,51 @@
 
 ## Current — Phase 4 physical growth
 
-Roads can now connect to exact registered Civ paving and retain it in their safety
-buffer.22 unit+3 packaged checks and positive/negative Paper scene checks passed.
-Automatic road orders remain next; P4 stays6/16=38%.
-
-Home planning/construction now recognize actual matching Civ paving from saved
-road origin. Private stone and damaged/unknown paving do not qualify.22 unit+3
-packaged checks and real Paper positive/negative connector checks passed. No
-additional checklist item; automatic road ordering remains unfinished.
-
-Completed roads now retain permanent identity and paid-cell history after their
-temporary construction site is released.24 unit+3 packaged checks and real Paper
-completion/restart passed; this strengthens existing gates. P4 stays6/16=38%.
-Homes do not yet recognize the new surfaces as connectors; automatic roads remain
-unfinished.
-
-Protection follow-up: new saved claims at a required external road connection now
-pause the project, including completion.33 unit+3 packaged clean verify passed;
-no new milestone count or native/server changes.
-
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
-| 1. Foundation & Population | Villages remember their people; families and population change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
-| 2. Needs & Economy | Villages track shortages, learn from food deliveries and offer affordable responses | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 3. Businesses & Industry | Farms, mines and workshops create jobs and shape each town | 4 / 4 | `██████████` 100% - prototype gate passed |
-| 4. Physical Growth | Villages build and improve structures gradually | 6 / 16 | `████░░░░░░` 38% — first automatic paid family homes |
-| 5. Trade & Roads | Settlements trade, connect by roads and depend on each other | 0 / 4 | `░░░░░░░░░░` 0% |
-| 6. Identity & History | Leaders, reputation and relationships create memorable local histories | 0 / 4 | `░░░░░░░░░░` 0% |
-| 7. Growth & Decline | Towns thrive, struggle, leave ruins and sometimes recover | 0 / 4 | `░░░░░░░░░░` 0% |
-| 8. Advanced Civilization | Territory, player settlements and rare crises enrich the world | 0 / 4 | `░░░░░░░░░░` 0% |
-| 9. Polish & Release | Many settlements run smoothly in a balanced, tested survival world | 0 / 4 | `░░░░░░░░░░` 0% |
+| 1. Foundation & Population | Villages remember their people; families change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
+| 2. Needs & Economy | Villages track shortages and respond to your food deliveries | 4 / 4 | `██████████` 100% — prototype gate passed |
+| 3. Businesses & Industry | Farms, mines and workshops create connected local industries | 4 / 4 | `██████████` 100% — prototype gate passed |
+| 4. Physical Growth | Villages build and improve structures gradually | 7 / 16 | `████░░░░░░` 44% — homes and road-first site selection |
+| 5. Trade & Roads | Settlements trade and connect regionally | 0 / 4 | `░░░░░░░░░░` 0% |
+| 6. Identity & History | Leaders, reputation and relationships shape towns | 0 / 4 | `░░░░░░░░░░` 0% |
+| 7. Growth & Decline | Towns thrive, struggle, leave ruins and recover | 0 / 4 | `░░░░░░░░░░` 0% |
+| 8. Advanced Civilization | Territory, player settlements and contextual crises | 0 / 4 | `░░░░░░░░░░` 0% |
+| 9. Polish & Release | Balanced survival play and many settlements | 0 / 4 | `░░░░░░░░░░` 0% |
 
-**Phase 4: 38% — 6/16 checklist items, 1/4 whole groups complete.**
-The bar counts verified checklist items, not time spent. The first paid-project
-milestone now includes ordinary automatic family-home construction.
+**Phase4:44% —7/16 checklist items,1/4 whole groups complete.**
+This counts verified checklist scope, not time spent or a promise of completion.
 
-Latest resident-home connection:53 unit+3 packaged clean verify passed; actual
-Paper eight-bed build projected8 saved residents to distinct real bed memories,
-then verified active-body memory refresh and completion restart conservation.
-Both116 fixture DBs healthy/FK-clean; stopped/helper archived. No schema change.
-This strengthens the same housing milestone; no extra checklist point claimed.
-
-Road-access preview:10 unit+3 packaged passed; actual Paper command used saved
-protection and found8 new route cells. No construction orders/projects created;
-fixture blocks restored and healthy116 save closed. Handbook0.21 is35 pages.
-
-Exact natural-ground evidence is now verified (5 unit+3 packaged checks). It
-records safe before-states only; automatic paving and replacement authority remain off.
-Endpoint headroom/protection is now rechecked too;6 unit+3 packaged passed.
-
-
-Schema117 road intents now require paid materials, earned work and exact current
-ground/access evidence.88 unit+3 packaged checks and the existing native paid-home
-smoke passed; old histories preserved. Native paving remains off. Handbook0.22.
-
-Newly complete: the disposable-world path/home acceptance milestone. Paid native
-road paving now passes changed-scene/entity and both restart-window checks.
-25 unit+3 packaged passed; actual finite goods/money/work conserved. Automatic
-road scheduling remains unfinished; current road ordering is not a player command.
+Newly checked2.2: flat local road-first site/path selection. The planner prefers a
+home beside an existing road. If that fails, it can find a conditional home and
+short paid-road design together, avoiding the future house and explaining holds.
+Current SQL need/protection checks precede the housing diagnostic.23 unit+3
+packaged checks passed; actual Paper found a3-cell/2-stone/3-work candidate and
+refused it after new saved protection. No road order or new house was created by
+that read-only check. Automatic road purchasing/scheduling remains unfinished.
 
 | P4 part | Current state | Plain-English effect |
 |---|---|---|
-| Starter plans | Available | Original editable path, storehouse and four/six/eight-bed home plans |
-| Families and donated housing | Available | Whole families use inspected homes/apartments; donors can repossess |
-| Protection and renovation consent | Available | Player builds stay private; donating use does not permit alterations |
-| Home-site planning | Available | Actual family need and safe loaded land beside an existing path can create a proposal |
-| Paid automatic family homes | Available prototype | Real suppliers get paid; cargo and labor take time; house blocks appear in stages |
-| Completed homes | Available | Inspection qualifies beds; whole families gain distinct actual villager home memories; no free residents |
-| Project inspection and unused supply recovery | Available | Operators inspect stalled work and confirm real supplier refunds/returns; history stays |
-| Local road access | Planner and read-only preview available | /civ build access finds short safe flat routes; paid paving remains |
-| Road shape and recipe | Preparation verified | Bends keep their shape; editable path recipe sets real materials and labor; paving remains off |
-| Paid road writer | Native boundary verified | Safe paid ground replacement works; automatic ordering/completion recognition remain |
-| Wider physical growth | Unfinished | New roads, terrain work, business premises, docks, upgrades and civic builds remain |
+| Plans | Available | Editable path/storehouse and four/six/eight-person homes |
+| Housing and consent | Available | Families use inspected homes/apartments; donors can repossess; renovation needs separate consent |
+| Automatic family homes | Available prototype | Actual suppliers, money, delivery and labor produce staged houses |
+| Useful completed homes | Available | Inspection qualifies beds and gives existing residents distinct home memories |
+| Project recovery | Available for unused work | Inspect stalled projects; confirm real supplier returns/refunds |
+| Local road access | Read-only preview | /civ build access finds short safe flat access; grants no order |
+| Paid road boundary | Verified | Exact paid paving, restart holds and conserved inputs; normal scheduling remains |
+| Road identity and connectors | Verified | Exact saved Civ paving supports homes/extensions; private stone is not adopted |
+| Joint road/home selection | Verified | Conditional expansion proposals preserve real costs and keep roads out of the house |
+| Wider physical growth | Unfinished | Automatic roads, business/civic premises, docks, terrain work, repairs/upgrades/decay |
 
-Existing construction.yml files must explicitly add automatic-construction;
-new files enable it. A suitable empty site, real need, supplies, money and labor
-are required. A running village need not immediately request a house. No chunks
-are loaded for simulation. Changed/unknown sites wait; ambiguous missing blocks
-after restart need manual review instead of a free replacement.
+Schema118 preserves road/building history. Existing construction.yml files must
+opt into automatic homes explicitly; settings never create free goods or people.
+No simulation chunk loading. Unknown/changed sites wait; ambiguous missing output
+needs review. Latest handbook0.25; actual user server/world/database and main are
+untouched. Hosted green is claimed only for explicitly checked commits. P3 human
+survival and wider P4 acceptance remain deferred.
 
-Final Wrapper27 unit+3 packaged checks passed; earlier wired57+3 and initial37+3
-passed. Actual configured scheduler purchased3 orders and built all120 rotated/
-mirrored home blocks on a disposable Paper server, then native inspection assigned
-one saved family to4 beds. Completion replay survived session restart. All captured
-cells restored, server stopped/helper archived; both116 DBs healthy/FK-clean.
-Prior Windows/Linux both passedb91265c; current candidate awaits hosted CI.
-The handbook is now0.23,35 pages/32 chapters, with automatic homes in Chapter31
-and saved inspection/confirmed supplier recovery in Chapter32. Latest recovery
-Wrapper35+3 and15+3 passed; actual Paper permission/confirmation/refund/disconnect/
-restart accepted. Both116 DBs healthy, server stopped; no world/inventory edits.
-Schema116/home checkpoints0a0a2da,5c7bd73,fa5176c and recovery412c704 hosted green.
-Later heads remain queued/running; do not infer latest-head green.
-
-Next: broader sites/roads and
-business/infrastructure construction. Actual server/worlds/database and main
-stay untouched. P3 human survival testing remains deferred.
+Next: save the housing need behind a road proposal, then connect real purchases,
+shared hauling, earned work and paced native scheduling. No design answer needed.
 
 ## Earlier Phase 4 checkpoints — historical
 

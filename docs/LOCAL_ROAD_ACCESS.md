@@ -192,3 +192,23 @@ replacement with a different otherwise valid road material. New target cells
 still cannot overwrite retained infrastructure. Temporary SQLite verified a fully
 paid parent/child chain; actual Paper positive/negative extension scenes passed
 without creating extra road blocks in the read-only proof. No schema change.
+
+## Conditional road-first housing selection
+
+HousingRoadAccessPlanner first tries existing-road infill. Otherwise it reviews
+up to32 natural entrance points and256 home orientations, with262144 additional
+cell reviews and4096 route nodes. Only a complete safe home/flat route pair may
+be returned; the future home's ground/body is excluded from paving. The actual
+configured clearance and current255-cell native road limit still apply. Large
+or congested cases can hold rather than obtain partial construction authority.
+
+Selected access retains exact path recipe costs/work and home template hash.
+Seeded tie order and rejected-home/route/native-limit counts explain alternatives.
+Housing preparation checks current saved household need and SQL protection before
+reporting a conditional candidate, then creates no site/draft/order. Buying and
+scheduling that road is the next step, not a feature enabled by the report.
+
+23 unit+3 packaged checks and actual two-pass Paper/SQL-protection selection passed.
+The native selection fixture used buffer0 and found3 paving cells/2 stone/3 work;
+new saved protection refused it. Five fixture cells restored, both118 saves healthy,
+server stopped/helper archived. This completes flat selection item2.2 only.

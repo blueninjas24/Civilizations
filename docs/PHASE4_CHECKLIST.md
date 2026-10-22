@@ -2,7 +2,7 @@
 
 This checklist expands Phase 4 of ROADMAP.md; it does not move later phases forward.
 Each checked item needs implementation and verification. Four groups, sixteen items;
-current completion **6/16 (38%), 1/4 complete groups**. Partial work is described
+current completion **7/16 (44%), 1/4 complete groups**. Partial work is described
 but does not count as a completed item. This measures scope, not elapsed time.
 
 ## 1. Authored plans and frozen proposals — 4/4
@@ -20,10 +20,10 @@ housing inspection qualifies beds/assigns families. Modern assignments now guide
 distinct actual resident home memories. Existing user files and original people
 remain. Supplied fitting plans preserve whole families; no forced splitting.
 
-## 2. Sites, roads and permission — 0/4
+## 2. Sites, roads and permission — 1/4
 
 - [ ] Persistent guarded land-use authority under approved automatic growth, with player/pen/protected-land checks at every write boundary.
-- [ ] Bounded deterministic road-first local site/path selection, with explainable rejected alternatives.
+- [x] Bounded deterministic road-first local site/path selection, with explainable rejected alternatives.
 - [ ] Terrain-aware permitted site adaptation and loaded-chunk revalidation, including entities and neighboring edits.
 - [ ] Suitable vacant-premises reuse before new construction, with occupancy/permission records and collision prevention.
 
@@ -42,6 +42,14 @@ A dedicated road boundary now performs exact paid replacement while the home
 writer remains AIR-only. Schema118 retains completed road identity/cells, and
 homes recognize exact matching Civ paving. Automatic road scheduling remains
 unfinished; private paving is never adopted from appearance alone.
+
+Item2.2 now passes the bounded flat prototype: HousingRoadAccessPlanner prefers
+existing access, otherwise jointly evaluates a conditional home and frozen paid
+road design, avoiding the future house. Rejected home/route/native-budget choices
+are counted; seed and strict candidate/cell/route limits apply. Current actual
+saved household need/protection precede preparation diagnostics.23 unit+3 packaged
+checks and real two-pass Paper scene/SQL protection acceptance passed. Automatic
+road ordering, slopes/terrain work and broader authority remain separate gates.
 
 ## 3. Paid staged work and useful buildings — 1/4
 
@@ -77,7 +85,7 @@ Most recent focused clean Wrapper checks: road completion24 unit+3 packaged;
 road/home connectors22+3. Actual Paper completed two paid road cells, retained
 identity/site release through restart and accepted home access only with positive
 saved origin. Same paving without origin refused. Newest head still needs hosted
-CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.24 is
+CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.25 is
 35 pages/32 chapters, rendered and visually reviewed. Live player survival tests
 remain deferred. See PROJECT_STATUS.md and DEVLOG.md for precise evidence.
 

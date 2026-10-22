@@ -1,6 +1,41 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at38%, paid native road boundary verified
+## Current — Phase4 at44%, joint local-road/home selection verified
+
+Phase4 has7/16 checked milestones (44%),1/4 whole groups complete. Item2.2 now
+passes the flat local prototype: prefer existing access, otherwise find a safe
+conditional whole-home site and short road together, preserve real recipe costs,
+avoid the future house, explain rejected alternatives and respect strict budgets.
+This is selection, not automatic road ordering or physical terrain adaptation.
+
+Housing preparation already rechecks actual saved household need, current SQL
+protection and Civ-road provenance before reporting the conditional road's cells,
+materials and earned work. It saves no site/order/draft on that refusal.23 unit+3
+packaged clean Wrapper checks passed29.224s. Actual disposable Paper used a real
+two-pass scene: obstructed infill refused,3-cell road/2 stone/3 work candidate
+found, future home avoided, new saved protection refused. No project/order/intent/
+resident created; both118 saves healthy/FK-clean. Five fixture cells restored,
+server stopped/helper archived. Initial fixture activation timing was corrected
+by waiting for already loaded block/entity coverage, without forcing chunks.
+
+Schema118 retains immutable completed Civ-road identity/exact paid cells and
+atomically releases temporary sites. Homes and road extensions recognize only
+actual matching registered paving; private stone is not adopted. Paid road/native
+restart, failure and conservation checks passed earlier in this batch. Current
+saved access protection overrides older frames. Lost/ambiguous output gets no
+free replacement. Ordinary automatic paid family homes remain available.
+
+Handbook0.25 is35 pages/32 chapters, rendered and visually reviewed. P3 human survival tests, broader
+editor acceptance, automatic road ordering, business/civic/dock construction,
+terrain adaptation and paid repair/upgrade/decay remain unfinished. No user dev
+server/world/database or main changed. Feature branch backups remain authorized;
+latest hosted CI is pending until explicitly verified.
+
+Next: bind a proposed access road to its saved housing need, then connect protected
+purchases, earned cargo/labor and the shared native scheduler. No decision needed.
+
+## Earlier October21 road checkpoints — historical
+
 
 Road extensions now recognize exact registered endpoints and neighboring paving.
 The owner ignores invented caller origin and uses real saved registry states;

@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.24 | 21 October 2026 | Player and server owner edition
+Living draft 0.25 | 21 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 has 6 of 16 checklist items complete. Save schema 117 preserves existing housing and construction history, distinguishes village-built homes from donations, and prepares exact paid road-ground records. Automatic road paving is not enabled. Donated homes can house eligible saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This is a living draft, not a release certification.
+Snapshot: P3 prototype gate complete; P4 has 7 of 16 checklist items complete (44%). Save schema 118 preserves housing/construction history and permanent completed-road identity. Automatic road ordering remains unfinished. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
 
 ## Chapter list
 
@@ -345,11 +345,11 @@ Operators can use /civ build access to preview short flat access eight blocks ah
 
 Completed Civ roads retain permanent paid-paving records. Home planning/construction recognize them only when actual blocks match. Player stone is not adopted. Damage waits for review, never free replacement. New saved protection at a required road connection pauses the project.
 
-A preview spends nothing and assigns no home. Automatic homes use the guarded writer when enabled; no instant build command exists. Development helpers belong only on marked disposable test servers.
+A stalled home proposal can now report a conditional short path with real material/labor needs. The road-first planner avoids the future house; it does not order the path yet. Previews spend nothing and assign no home. Automatic homes use the guarded writer; development helpers belong only on disposable test servers.
 
 ### Read why a family needs housing
 
-Operators can use /civ build housing <village UUID> while in that village's world. Find the saved ID with /civ debug villages. The report explains suitable existing housing, vacant-home reuse, new-home proposals and why a family must wait. Unknown capacity and stale inspections never count as homelessness. A pending home holds its own family; older unmapped projects remain conservative holds. This reads saved evidence; it does not scan buildings, reserve a plot, spend money or start construction. Reports expire after 30 seconds, with four simultaneous requests. Chapter 28 covers saved project status and safe unused cancellation.
+Operators use /civ build housing <village UUID> in that village's world; find IDs with /civ debug villages. It explains permitted vacancies, proposals and family holds from saved evidence. Unknown capacity is not homelessness. The report creates no plot, spending or housing assignment. Reports expire after 30 seconds, with four pending. Chapter 28 covers project status/cancellation.
 
 ### The intended chain
 

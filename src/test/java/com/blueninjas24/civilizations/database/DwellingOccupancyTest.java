@@ -68,6 +68,25 @@ class DwellingOccupancyTest {
         var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
         return new HousingProjectPreparation(c).prepare(request,context(time),List.of(template),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(4),42,0);
     }
+    @Test void blockedInfillExplainsConditionalPaidRoadWithoutSavingOrBypassingNewProtection()throws Exception {
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var raw=preparation(70);
+            var observed=new HashMap<>(raw.survey().cells());var terrain=new HashMap<>(raw.terrain());
+            for(var p:List.of(p(202,64,200),p(198,64,200),p(200,64,202),p(200,64,198))){observed.put(p,new ConstructionPreview.Cell(false,false,false,false));terrain.put(p,ConstructionLandPolicy.Kind.OTHER);}
+            var survey=new ConstructionSitePlanner.Survey(world,1100,true,true,observed,List.of(),List.of());
+            var request=new HousingProjectPreparation.Request(raw.proposal(),town,world,p(200,64,200),raw.search(),survey,terrain);
+            var home=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+            var road=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_path.yml"));
+            long before=number(c,"SELECT total_changes()");
+            var declined=assertThrows(BuildingRegistry.Declined.class,()->new HousingProjectPreparation(c).prepare(request,context(1200),List.of(home,road),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(0),42,0));
+            assertTrue(declined.getMessage().contains("road-first candidate"),declined.getMessage());assertTrue(declined.getMessage().contains("earned work"));
+            assertEquals(before,number(c,"SELECT total_changes()"));assertEquals(0,number(c,"SELECT count(*) FROM construction_drafts"));assertEquals(0,number(c,"SELECT count(*) FROM construction_site_reservations"));
+            var excluded=new BuildingRegistry.Exclusion(id(80),world,donor,new Bounds(p(180,63,180),p(220,70,220)),1200);
+            new BuildingRegistry(c).exclude(excluded,BuildingRegistry.Authorization.playerDeclaration(donor,true));
+            var protectedResult=assertThrows(BuildingRegistry.Declined.class,()->new HousingProjectPreparation(c).prepare(request,context(1200),List.of(home,road),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(0),42,0));
+            assertFalse(protectedResult.getMessage().contains("road-first candidate"));assertEquals(0,number(c,"SELECT count(*) FROM construction_drafts"));assertTrue(c.getAutoCommit());healthy(c);
+        }
+    }
     @Test void assignedHomesSupplyDistinctResidentBedsAndClaimsWithoutLegacyLinks()throws Exception {
         Map<UUID,com.blueninjas24.civilizations.settlement.VillageObservation.Position> saved;
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){

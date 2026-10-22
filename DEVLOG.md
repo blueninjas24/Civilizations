@@ -1,5 +1,35 @@
 # Civilizations Development Log
 
+## 2026-10-21 — joint home/road selection completes P4 item2.2
+
+HousingRoadAccessPlanner prefers verified existing-road infill. If no safe infill
+exists, it evaluates conditional home entrances/orientations and complete flat
+routes together, excludes the future house from paving and freezes real editable
+path recipe costs/work. No conditional home gains present access, land, funds or
+beds. Rejected-home/route/native-limit counts, deterministic seed and strict
+entrance/candidate/cell/route budgets explain holds. HousingProjectPreparation
+uses actual saved family need and current SQL protection/road origin before
+reporting a candidate's paving/material/earned-work requirements; failure creates
+no draft/site/order. Automatic road ordering remains unfinished.
+
+Clean Wrapper23 unit+3 packaged passed29.224s (initial pure18+3 passed29.938s).
+Tests cover existing-access preference, positive joint plan, future-home exclusion,
+repeatability/budgets, stale/missing/protected evidence and actual owner read-only
+diagnostics. Actual disposable Paper used a real two-pass loaded scene and SQL
+protection: blocked infill refused,3-cell/2-stone/3-work candidate found, then new
+protection refused it with0 projects/orders/intents/people. This selection fixture
+uses configurable buffer0; production uses its actual configured buffer/read cap.
+Initial fixture setup preceded entity activation; corrected it to wait for the
+exact already-loaded neighborhood, preserving no-force-load guards. Both118 DBs
+healthy/FK-clean; five original cells restored, server stopped/helpers archived.
+
+P4 now7/16=44%,1/4 groups: item2.2 is bounded flat selection, not automatic road
+orders, slopes, broad land authority or paid repair. Reconciled current progress
+and status while retaining historical checkpoints. Handbook0.25 is35 pages/32
+chapters, rendered and visually reviewed. Next: persist the beneficiary
+behind an access road and connect protected supplier purchases, hauling, earned
+labor and shared scheduling. No user server/world/database or main changed.
+
 ## 2026-10-21 — road extensions retain exact existing paving
 
 Exact road review now accepts registered Civ paving at retained connections and
