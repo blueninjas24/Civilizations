@@ -51,6 +51,13 @@ public final class HousingProjectStatus {
         long orders=count("construction_supply_orders",id),intents=count("construction_block_journal",id);
         boolean unused=family.active()&&(orders==0||new ConstructionSupplyRecalls(c).recalled(id)||new ConstructionSupplyReturns(c).dispatched(id))&&intents==0&&context.present()&&returned(id);
         var pause=family.active()?(context.present()?projects.pauseReasonRows(draft):Optional.of("World absent; no new work authorized")):Optional.of(family.completed()?"Completed home history retained; occupancy still requires current inspection":"Saved cancellation retained; cannot reactivate");
+        var access=new HousingRoadProjects(c).findHome(id);
+        if(access.isPresent()&&family.active()){
+            UUID road=access.orElseThrow().roadDraft();
+            try{new HousingRoadProjects(c).requireRetiredRoadRows(id);}
+            catch(BuildingRegistry.Declined held){unused=false;}
+            if(pause.isEmpty())pause=Optional.of("Access road "+road+" precedes this frozen home; current supplies, labor and native handoff still required");
+        }
         return new Item(family,draft.template().id(),site.isPresent()&&site.orElseThrow().active(),orders,intents,unused,pause);
     }
     private long count(String table,UUID draft)throws SQLException{

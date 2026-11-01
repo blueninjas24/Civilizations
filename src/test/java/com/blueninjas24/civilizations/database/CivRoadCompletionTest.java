@@ -80,7 +80,7 @@ class CivRoadCompletionTest {
         migrations.add(connection->{CivRoadCompletion.createSchema(connection);throw new SQLException("fixture late118 failure");});
         assertThrows(SQLException.class,()->new SchemaMigrator(migrations).migrate(c()));
         assertEquals(117,scalar("PRAGMA user_version"));assertEquals(0,scalar("SELECT count(*) FROM sqlite_master WHERE name IN('civ_roads','civ_road_cells')"));
-        new SchemaMigrator().migrate(c());assertEquals(118,scalar("PRAGMA user_version"));assertEquals(0,count("civ_roads"));
+        new SchemaMigrator().migrate(c());assertEquals(SchemaMigrator.CURRENT_VERSION,scalar("PRAGMA user_version"));assertEquals(0,count("civ_roads"));
         for(var intent:intents)assertEquals(intent,new ConstructionBlockJournal(c()).find(intent.operation()).orElseThrow());
         assertEquals(money,f.f.money());assertTrue(new ConstructionSiteReservations(c()).find(f.f.publicDraft.id()).orElseThrow().active());
         assertEquals(0,scalar("SELECT count(*) FROM pragma_foreign_key_check"));

@@ -218,3 +218,32 @@ observed area. A family/period-derived seed varies later reviews predictably;
 the same crowded center cannot monopolize every bounded choice. Search/frame/
 protection limits are unchanged. A crowded-center regression and repeated actual
 Paper selection/protection check passed (6 unit+3 packaged). No automatic orders.
+
+
+## October31 — saved household purpose and atomic access preparation
+
+Schema119 adds immutable housing_road_projects: one frozen local access draft
+links to one frozen future HOME and its existing actual household reservation.
+It reuses HousingProjects rather than adding a competing family-allocation system.
+Both drafts must share settlement/world identity, connect at the home's declared
+road anchor, and keep every paving column out of the future home's body. Existing
+vacancies, current saved month, whole-family fit and real shortage are rechecked.
+
+HousingRoadPreparation is a backend operation, not a normal runtime caller yet.
+It prefers existing-access home sites, reviews bounded road/home alternatives,
+uses current SQL protection and exact native ground states, then saves both
+frozen drafts, family binding, purpose and only the road site in one transaction.
+A late failure leaves none of them. Exact retry/reopen returns history without
+reactivation. It grants no home land lease, bed capacity, supplies, money or work.
+
+New land/material/effort/first-intent checks pause an unstarted access road when
+its family no longer needs the home, its frozen size fails or the future home
+is protected. Started durable intents retain existing recovery/completion paths.
+Home cancellation cannot strand an active/started access road; status reports its
+linked road and withholds unused-cancellation eligibility until safe retirement.
+Completed public paving/history is retained when unused future housing retires.
+
+The normal scheduler still handles HOME only. Automatic road procurement, earned
+cargo/labor, native dispatch and the eventual road-to-home site handoff remain
+next work. No schema119 backfill creates historical roads, families or projects.
+Upgrade/failure/retry tests use temporary SQLite saves only. P4 stays7/16=44%.

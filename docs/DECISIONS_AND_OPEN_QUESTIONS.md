@@ -1,5 +1,14 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October31 — delegated road-first housing purpose
+
+Use the approved household-driven road-first expansion direction. Preserve the
+chosen future home and existing household reservation while its access is built;
+reserve only actual road land now. No extra family slot, invented need, home-use
+rights or new spending rule. Changed need/protection pauses unstarted work;
+started infrastructure requires retained recovery/history. This is groundwork,
+not normal automatic road rollout. No new consequential decision required.
+
 ## October21 delegated conservative road-ground journal boundary
 
 Use the approved local-road/public funding direction for exact frozen flat

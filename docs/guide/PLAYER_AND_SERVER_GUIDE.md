@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.25 | 21 October 2026 | Player and server owner edition
+Living draft 0.26 | 31 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 has 7 of 16 checklist items complete (44%). Save schema 118 preserves housing/construction history and permanent completed-road identity. Automatic road ordering remains unfinished. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
+Snapshot: P3 prototype gate complete; P4 has 7 of 16 checklist items complete (44%). Save schema 119 also preserves the link between a proposed access road and its future family home. Automatic road ordering remains unfinished. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
 
 ## Chapter list
 
@@ -384,7 +384,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 118 includes paid construction recovery, village-built home identity, renovation consent, household-bound proposals, exact bed accounting and permanent completed-road origin/cells. The road records support guarded paid paving and later home connections; automatic road scheduling remains unfinished. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 119 includes paid construction recovery, village-built home identity, renovation consent, household-bound proposals, exact bed accounting, completed-road origin and saved road-to-home purpose. The road records support guarded paid paving and later home connections; automatic road scheduling remains unfinished. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -897,6 +897,8 @@ A missing world or unloaded chunk waits. An entity, changed protection, missing 
 A flat clear site and real supplies remain necessary. Original home plans fit four, six or eight people. The smallest adequate plan is chosen; larger families wait for a suitable plan. Existing adequate housing is preserved; villages do not replace working homes just to demonstrate construction. Confirmed damage or repossession can create need, but do not damage your world merely to force a test.
 
 The six/eight-bed plans have a covered center aisle and a wall torch above walking headroom. Default abstract costs are 45 timber, 12 stone and 18 wool for six beds; 53 timber, 14 stone and 24 wool for eight. At default prices these are 39 and 48.7 emerald value. Configured prices and protected budgets apply. Existing installed plans are preserved. Qualified assigned homes now guide managed villagers to distinct bed heads through their normal Minecraft home memory. Nearby-player and loaded-area limits still apply; villagers use normal walking and sleeping behavior. This does not teleport them or add people. Repossession removes their saved use rights.
+
+Development groundwork now saves a proposed access road, future home and actual family together, reserving only the road site. Changed need or protected future housing holds unstarted access work. Normal automatic road purchasing/building and the later home handoff are still unfinished.
 
 Related chapters: housing, protection, automatic planning, funding, recovery, server backups and tuning. Source: AUTOMATIC_CONSTRUCTION.md. Wider P4 growth remains in progress.
 

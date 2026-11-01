@@ -27,6 +27,26 @@ class ConstructionRoadIntentsTest {
     private ConstructionBlockJournal.Intent prepare(UUID operation,int ordinal,Map<Position,String> cells)throws Exception{return new ConstructionRoadIntents(f.c()).prepare(operation,f.publicDraft.id(),ordinal,"minecraft:cobblestone",design,observation(cells),6101,Set.of(f.f.world));}
     private void fundAndWork()throws Exception{work.materials(1);work.runtime(true).pulse(6000,false);assertEquals(2,work.work());}
     private long count(String table)throws Exception{return work.count(table);}
+    @Test void publicRoadLaborWaitsWhenItsFutureFamilyHomeIsNoLongerNeeded()throws Exception{
+        work.materials(1);
+        var family=UUID.randomUUID();f.f.db.getPopulationRepository().insertHousehold(new com.blueninjas24.civilizations.population.Household(family,f.f.town,"Access beneficiary"));
+        f.f.sql("UPDATE residents SET household_id='"+family+"' WHERE id='"+work.worker+"'");
+        f.f.sql("INSERT INTO household_capacity VALUES('"+family+"',1)");
+        var template=ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+        var anchor=template.anchors().stream().filter(a->a.role()==Role.ROAD).findFirst().orElseThrow().at();
+        var home=new ConstructionDraft(UUID.randomUUID(),f.f.town,f.f.world,new Position(222-anchor.x(),63-anchor.y(),-anchor.z()),Transform.identity(),template,3000);
+        new ConstructionDraftRepository(f.c()).save(home);
+        // Previously valid saved purpose; its beneficiary has since gained adequate housing.
+        try(var s=f.c().prepareStatement("INSERT INTO housing_project_bindings(draft_id,household_id,settlement_id,world_id,plan_hash,residents,previous_capacity,created_ms,cancel_operation,cancelled_ms) VALUES(?,?,?,?,?,1,0,3000,NULL,NULL)")){
+            s.setString(1,home.id().toString());s.setString(2,family.toString());s.setString(3,f.f.town.toString());s.setString(4,f.f.world.toString());s.setString(5,template.fingerprint());s.executeUpdate();
+        }
+        f.f.sql("INSERT INTO housing_road_projects VALUES('"+f.publicDraft.id()+"','"+home.id()+"',3000)");
+        var runtime=work.runtime(true);runtime.pulse(6000,false);
+        assertEquals(0,work.work());assertEquals(0,count("construction_public_work"));
+        assertEquals(1,f.orders().stock(f.publicDraft.id()).get(com.blueninjas24.civilizations.economy.Commodity.STONE));
+        f.f.sql("UPDATE household_capacity SET capacity=0 WHERE household_id='"+family+"'");runtime.pulse(7000,false);
+        assertEquals(2,work.work());assertEquals(1,count("construction_public_work"));assertEquals(0,count("construction_block_journal"));
+    }
     @Test void paidNaturalBeforeStateAndExactPrefixSurviveRestartAndReplayWithoutMoreMoney()throws Exception{
         fundAndWork();long money=f.money();var operation=UUID.randomUUID();var first=prepare(operation,0,cells());
         assertEquals("minecraft:grass_block[snowy=false]",first.before());assertEquals(p(221,63),first.at());

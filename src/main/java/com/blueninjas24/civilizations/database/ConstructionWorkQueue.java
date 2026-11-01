@@ -48,6 +48,7 @@ public final class ConstructionWorkQueue {
     Work reviewRows(UUID id)throws SQLException{
         var draft=new ConstructionDraftRepository(c).find(id).orElseThrow();var site=new ConstructionSiteReservations(c).find(id).orElseThrow();
         var pause=new HousingProjects(c).pauseReasonRows(draft);
+        if(pause.isEmpty())pause=new HousingRoadProjects(c).pauseReasonRows(draft);
         if(pause.isPresent())return held(draft,State.PAUSED,0,pause.get());
         if(new ConstructionSiteReservations(c).hasProtectedRequiredColumns(draft,id))return held(draft,State.PAUSED,0,"Saved site/access protection changed; no new native authority");
         int applied=0,total=0;UUID pending=null;ConstructionBlockJournal.State pendingState=null;

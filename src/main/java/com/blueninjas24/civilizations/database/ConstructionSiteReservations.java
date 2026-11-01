@@ -116,6 +116,7 @@ public final class ConstructionSiteReservations {
     }
     private void requireHouseholdProject(ConstructionDraft draft)throws SQLException {
         var reason=new HousingProjects(c).pauseReasonRows(draft);
+        if(reason.isEmpty())reason=new HousingRoadProjects(c).pauseReasonRows(draft);
         if(reason.isPresent())throw new SQLException(reason.orElseThrow()+"; no new land, materials or block intent authorized");
     }
     public Optional<Reservation> find(UUID draftId)throws SQLException {

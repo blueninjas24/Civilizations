@@ -68,6 +68,50 @@ class DwellingOccupancyTest {
         var template=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
         return new HousingProjectPreparation(c).prepare(request,context(time),List.of(template),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(4),42,0);
     }
+    private HousingProjectPreparation.Request roadPreparation(){
+        var raw=preparation(70);var observed=new HashMap<>(raw.survey().cells());var terrain=new HashMap<>(raw.terrain());var states=new HashMap<Position,String>();
+        for(var at:observed.keySet())states.put(at,at.y()>63?"minecraft:air":at.equals(p(200,63,200))?"minecraft:dirt_path":"minecraft:grass_block[snowy=false]");
+        for(var at:List.of(p(202,64,200),p(198,64,200),p(200,64,202),p(200,64,198))){observed.put(at,new ConstructionPreview.Cell(false,false,false,false));terrain.put(at,ConstructionLandPolicy.Kind.OTHER);states.put(at,"minecraft:oak_fence");}
+        return new HousingProjectPreparation.Request(raw.proposal(),town,world,p(200,64,200),raw.search(),new ConstructionSitePlanner.Survey(world,1100,true,true,observed,List.of(),List.of()),terrain,states);
+    }
+    private HousingRoadPreparation.Receipt prepareRoad(Connection c,HousingProjectPreparation.Request request)throws Exception{
+        var home=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+        var road=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_path.yml"));
+        return new HousingRoadPreparation(c).prepare(id(71),request,context(1200),List.of(home,road),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(0),42,0,1);
+    }
+    @Test void preparesRoadAndFutureFamilyHomeAtomicallyWithNoHomeLeaseOrFreeResources()throws Exception{
+        HousingRoadPreparation.Receipt saved;
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);saved=prepareRoad(c,roadPreparation());
+            assertEquals(2,number(c,"SELECT count(*) FROM construction_drafts"));assertEquals(1,number(c,"SELECT count(*) FROM construction_site_reservations"));
+            assertTrue(saved.site().active());assertTrue(new ConstructionSiteReservations(c).find(saved.home().id()).isEmpty());
+            assertEquals(saved.home().id(),saved.family().proposal().draft());assertEquals(saved.road().id(),saved.purpose().roadDraft());
+            var status=new HousingProjectStatus(c).find(saved.home().id(),context(1200));
+            assertFalse(status.unused());assertTrue(status.pause().orElseThrow().contains(saved.road().id().toString()));
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_supply_orders"));assertEquals(0,number(c,"SELECT count(*) FROM construction_block_journal"));
+            assertEquals(0,number(c,"SELECT capacity FROM household_capacity WHERE household_id='"+family+"'"));assertEquals(3,number(c,"SELECT count(*) FROM residents"));
+            assertEquals(saved,prepareRoad(c,roadPreparation()));healthy(c);
+        }
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){assertEquals(saved,prepareRoad(c,roadPreparation()));healthy(c);}
+    }
+    @Test void accessPreparationRollsBackBothDraftsAndFamilyWhenFinalSiteSaveFails()throws Exception{
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);
+            sql(c,"CREATE TRIGGER fixture_site_failure BEFORE INSERT ON construction_site_reservations BEGIN SELECT RAISE(ABORT,'fixture late failure'); END");
+            assertThrows(SQLException.class,()->prepareRoad(c,roadPreparation()));
+            for(var table:List.of("construction_drafts","housing_project_bindings","housing_road_projects","construction_site_reservations"))assertEquals(0,number(c,"SELECT count(*) FROM "+table));
+            assertTrue(c.getAutoCommit());sql(c,"DROP TRIGGER fixture_site_failure");assertTrue(prepareRoad(c,roadPreparation()).site().active());healthy(c);
+        }
+    }
+    @Test void accessPreparationRefusesMissingExactGroundAndNewSavedProtection()throws Exception{
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var raw=roadPreparation();
+            var missing=new HousingProjectPreparation.Request(raw.proposal(),town,world,raw.need(),raw.search(),raw.survey(),raw.terrain());
+            assertThrows(BuildingRegistry.Declined.class,()->prepareRoad(c,missing));assertEquals(0,number(c,"SELECT count(*) FROM construction_drafts"));
+            new BuildingRegistry(c).exclude(new BuildingRegistry.Exclusion(id(80),world,donor,new Bounds(raw.search().minimum(),raw.search().maximum()),1200),BuildingRegistry.Authorization.playerDeclaration(donor,true));
+            assertThrows(BuildingRegistry.Declined.class,()->prepareRoad(c,raw));assertEquals(0,number(c,"SELECT count(*) FROM housing_project_bindings"));healthy(c);
+        }
+    }
     @Test void blockedInfillExplainsConditionalPaidRoadWithoutSavingOrBypassingNewProtection()throws Exception {
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){
             seed(c);verifiedShortage(c);var raw=preparation(70);

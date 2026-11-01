@@ -144,6 +144,7 @@ public final class HousingProjects {
         }
         var site=new ConstructionSiteReservations(c).find(draft);
         if(site.isPresent()&&site.get().active())throw new BuildingRegistry.Declined("Release the unused site before cancelling its household proposal");
+        new HousingRoadProjects(c).requireRetiredRoadRows(draft);
         for(var table:List.of("construction_block_journal","construction_supply_orders"))if(hasRows(table,draft)
                 &&(!table.equals("construction_supply_orders")||(!new ConstructionSupplyRecalls(c).recalled(draft)&&!new ConstructionSupplyReturns(c).dispatched(draft))))
             throw new BuildingRegistry.Declined("Started or paid-supply home needs reviewed recovery; household reservation retained");

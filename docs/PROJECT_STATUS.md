@@ -1,12 +1,24 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at44%, joint local-road/home selection verified
+## Current — Phase4 at44%, road-first purpose/preparation
+
+October31 schema119 saves a proposed road, frozen future family home and existing
+household reservation together. Backend access preparation rechecks actual need,
+vacancy priority, current protection, exact ground and bounded route clearance,
+then reserves only the road site atomically. It purchases nothing and creates no
+beds, residents or home land lease. Exact retry/reopen retains the same receipts.
+Changed need/future protection pauses unstarted road funding, labor and intent;
+started work retains recovery. Cancellation/status cannot strand linked access.
+Normal runtime road scheduling/home handoff remain next, not enabled by this API.
+Temporary SQLite verification recorded in DEVLOG. Handbook0.26 remains35 pages,
+rendered/reviewed. No actual server/save or main changed. P4 stays7/16=44%.
+
 
 October31 resume:9fc7ac7 hosted Linux passed; Windows reported one integrated
 industry acceptance error. Scenario passes locally unchanged; exact hosted cause
 unconfirmed (detailed logs403). Bounded test wait now30 seconds, with safe timeout
 counts in CI diagnostics.1 unit+3 packaged clean verify passed53.546s; application
-behavior unchanged. New hosted result pending. Road/home persistence is next.
+behavior unchanged. New hosted result pending; Linux on0969f45 has passed, Windows is still running.
 
 Latest refinement: bounded entrance sampling keeps eight nearby choices and
 spreads24 across observed land; family/period seed variation avoids repeating
@@ -48,8 +60,8 @@ terrain adaptation and paid repair/upgrade/decay remain unfinished. No user dev
 server/world/database or main changed. Feature branch backups remain authorized;
 latest hosted CI is pending until explicitly verified.
 
-Next: bind a proposed access road to its saved housing need, then connect protected
-purchases, earned cargo/labor and the shared native scheduler. No decision needed.
+Next: connect protected road purchases, earned cargo/labor and the shared native
+scheduler, then hand completed access to its frozen future home. No decision needed.
 
 ## Earlier October21 road checkpoints — historical
 

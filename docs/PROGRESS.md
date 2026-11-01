@@ -2,6 +2,12 @@
 
 ## Current — Phase 4 physical growth
 
+October31: saved road-to-family purpose and atomic access preparation now preserve
+both frozen plans, reserving only road land. Changed family need/protection holds
+unstarted access; status/cancellation retain safe history. This is backend
+preparation, not ordinary automatic road building. P4 remains7/16=44%.
+
+
 October31: resumed clean feature branch. Hosted Linux passed; one Windows
 acceptance error is under investigation. Local scenario passes; bounded test-wait
 mitigation and safer CI diagnostics are verified locally. P4 remains44%.
@@ -49,10 +55,10 @@ that read-only check. Automatic road purchasing/scheduling remains unfinished.
 | Joint road/home selection | Verified | Conditional expansion proposals preserve real costs and keep roads out of the house |
 | Wider physical growth | Unfinished | Automatic roads, business/civic premises, docks, terrain work, repairs/upgrades/decay |
 
-Schema118 preserves road/building history. Existing construction.yml files must
+Schema119 also preserves road-to-home/family purpose. Existing construction.yml files must
 opt into automatic homes explicitly; settings never create free goods or people.
 No simulation chunk loading. Unknown/changed sites wait; ambiguous missing output
-needs review. Latest handbook0.25; actual user server/world/database and main are
+needs review. Latest handbook0.26; actual user server/world/database and main are
 untouched. Hosted green is claimed only for explicitly checked commits. P3 human
 survival and wider P4 acceptance remain deferred.
 

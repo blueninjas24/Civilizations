@@ -1,5 +1,23 @@
 # Civilizations Development Log
 
+## 2026-10-31 — saved road-first family purpose and atomic access preparation
+
+Schema119 adds immutable road-to-frozen-home purpose using the existing real
+household binding. Atomic backend preparation checks need/vacancy/current month,
+whole-family plan, SQL protection and exact bounded ground, then saves both drafts,
+family/link and only road land together. A late site failure rolls all back;
+retry/reopen retains history. No home lease, purchases, free labor/beds/people.
+Changed beneficiary/protected future homes hold unstarted road funding/labor/intent;
+status/cancellation preserve active/started road recovery. Normal automatic road
+dispatch and home handoff are still next. Historical migration snapshots include
+the new empty table while preserving every predecessor row.
+
+Clean Windows Wrapper verify with the focused housing/road/labor/forestry/migration
+classes passed:88 unit+3 packaged integration checks (80 seconds). Initial
+fixture compile/state mismatches and overbroad ground frame were corrected; the
+final successful run exercises the corrected source. Handbook0.26 remains35 pages,
+rendered and visually reviewed. P4 stays7/16=44%. No human server/save or main used.
+
 ## 2026-10-31 — resume and investigate Windows acceptance timing
 
 Resumed clean9fc7ac7 feature branch. Its hosted Linux build passed; Windows had
