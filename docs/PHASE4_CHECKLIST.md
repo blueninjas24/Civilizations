@@ -2,7 +2,7 @@
 
 This checklist expands Phase 4 of ROADMAP.md; it does not move later phases forward.
 Each checked item needs implementation and verification. Four groups, sixteen items;
-current completion **7/16 (44%), 1/4 complete groups**. Partial work is described
+current completion **8/16 (50%), 1/4 complete groups**. Partial work is described
 but does not count as a completed item. This measures scope, not elapsed time.
 
 ## 1. Authored plans and frozen proposals — 4/4
@@ -20,9 +20,9 @@ housing inspection qualifies beds/assigns families. Modern assignments now guide
 distinct actual resident home memories. Existing user files and original people
 remain. Supplied fitting plans preserve whole families; no forced splitting.
 
-## 2. Sites, roads and permission — 1/4
+## 2. Sites, roads and permission — 2/4
 
-- [ ] Persistent guarded land-use authority under approved automatic growth, with player/pen/protected-land checks at every write boundary.
+- [x] Persistent guarded land-use authority under approved automatic growth, with player/pen/protected-land checks at every write boundary.
 - [x] Bounded deterministic road-first local site/path selection, with explainable rejected alternatives.
 - [ ] Terrain-aware permitted site adaptation and loaded-chunk revalidation, including entities and neighboring edits.
 - [ ] Suitable vacant-premises reuse before new construction, with occupancy/permission records and collision prevention.
@@ -49,7 +49,8 @@ road design, avoiding the future house. Rejected home/route/native-budget choice
 are counted; seed and strict candidate/cell/route limits apply. Current actual
 saved household need/protection precede preparation diagnostics.23 unit+3 packaged
 checks and real two-pass Paper scene/SQL protection acceptance passed. Automatic
-road ordering, slopes/terrain work and broader authority remain separate gates.
+road ordering has since been connected (item2.1 below); slopes/terrain work and
+broader premises remain separate gates.
 
 ## 3. Paid staged work and useful buildings — 1/4
 
@@ -73,6 +74,21 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
+October31: item2.1 now passes for the persistent guarded land-authority mechanism
+used by flat family homes/local access. Ordinary loaded-only housing planning can
+freeze the family/home/road, reserve only access, buy real inputs and build/register
+paving, then revisit the exact home through fresh whole-road/home/protection
+checks. Actual Paper completed that normal loop (5 cells,2 stone,50 hundredths,
+5 earned work), with one retained family/project pair and no free housing/people.
+This adds one milestone,8/16=50%; no industrial/civic terrain or repair scope added.
+
+The combined native fixture explicitly bootstrapped its disposable3x3 test area
+and used configurable buffer0. Production code loads no chunks; default buffer4
+and the255-cell road evidence cap remain unchanged. Larger/congested routes hold.
+Both119 saves healthy/FK-clean; captured blocks restored/server stopped.62 unit+3
+packaged clean Wrapper checks passed52.583s; hosted candidate remains pending.
+
+
 Current schema119. Family homes use real finite supplier stock, original money,
 earned cargo/work, paced per-block journaling, exact native scene checks and
 completion registration. Four/six/eight-bed catalogue geometry and actual rotated/
@@ -85,7 +101,7 @@ Most recent focused clean Wrapper checks: road completion24 unit+3 packaged;
 road/home connectors22+3. Actual Paper completed two paid road cells, retained
 identity/site release through restart and accepted home access only with positive
 saved origin. Same paving without origin refused. Newest head still needs hosted
-CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.28 is
+CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.29 is
 35 pages/32 chapters, rendered and visually reviewed. Live player survival tests
 remain deferred. See PROJECT_STATUS.md and DEVLOG.md for precise evidence.
 
@@ -96,14 +112,17 @@ Next cohesive local-road delivery:
 2. Atomic backend preparation now freezes road/home/family together and reserves
    only access land after current protection/exact ground checks. Completed access
    can hand off its frozen home site after a fresh whole-road/home review. Normal
-   scheduling remains unfinished; no extra checklist item is counted here.
+   scheduling is now connected and verified; the separate native proof below
+   supports land-authority item2.1.
 3. SQL exact-ground preparation, native replacement/restarts and permanent road
    completion are verified. Homes recognize actual matching saved Civ paving;
    private paving and harvested-output ambiguity retain their protection.
 4. Shared dispatch now processes formal saved access with protected funds, finite
    suppliers, shared hauling/labor and paced dedicated writer; actual Paper passed
-   payment-to-native-completion conservation. Connect ordinary proposal creation
-   and home-handoff scheduling, then validate the combined normal growth loop.
+   payment-to-native-completion conservation. Ordinary proposal creation and fresh
+   home-handoff scheduling are now connected and verified on actual Paper.
+5. Next: wider terrain-aware sites, vacant premises, nonresidential construction
+   and separately funded repair/upgrade/decay; preserve this authority boundary.
 
 This is local village access in P4. Regional trade/routes remain P5. Business/civic/
 dock construction, wider terrain work, repair/upgrade/decay and acceptance remain.

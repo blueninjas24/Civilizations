@@ -288,3 +288,28 @@ cells, completion identity and temporary site release, no extra residents or hom
 capacity. All captured blocks restored; both119 DBs healthy/FK-clean, helper
 archived and server stopped. This does not yet connect ordinary road-first
 proposal creation or automatic home-site handoff scheduling. P4 stays7/16=44%.
+
+
+## October31 — ordinary road-first housing and home-site return
+
+Opted-in ordinary housing preparation now uses the atomic road-first operation
+inside its existing SQL transaction when infill fails. Stable road identity derives
+from the saved home proposal; exact retry returns the original access receipt,
+including after the road switch is disabled, without renewed native authority.
+The family binding still names the future home, not its road.
+
+Once its paid road is registered, bounded HousingPlanningJobs offers the frozen
+home for fresh loaded-only review before the new-project cap. Original proposal
+time/geometry/height are retained independently of current catalogue. No second
+family slot or new draft. Successful handoff creates only that home's site;
+normal paid home purchases/labor/native placement remain necessary afterward.
+
+62 unit+3 packaged clean Wrapper checks and actual Paper normal growth passed:
+5 paid paving cells,2 stone/50 hundredths,5 earned work, original home/site returned,
+no extra people/bed capacity. Current protection/need/world checks, failed-save
+rollback and switch behavior remain. First native setup lacked loaded terrain;
+only the marked disposable fixture now explicitly prepares its3x3 area. Production
+never force-loads chunks. Fixture buffer0, unchanged production default4/read cap.
+Both119 saves healthy/FK-clean, captured blocks restored/stopped/helper archived.
+Persistent land-authority item2.1 now closes for flat home/local-road machinery;
+P4 becomes8/16=50%,1/4 groups. Wider premises/terrain/repair remain separate.

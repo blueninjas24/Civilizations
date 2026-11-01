@@ -138,6 +138,23 @@ class DwellingOccupancyTest {
             assertFalse(protectedResult.getMessage().contains("road-first candidate"));assertEquals(0,number(c,"SELECT count(*) FROM construction_drafts"));assertTrue(c.getAutoCommit());healthy(c);
         }
     }
+    @Test void optedInOrdinaryHomePreparationCreatesAccessAtomicallyAndRetainsItsExactReceipt()throws Exception{
+        try(var c=open(SchemaMigrator.CURRENT_VERSION)){
+            seed(c);verifiedShortage(c);var request=roadPreparation();
+            var home=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_home.yml"));
+            var road=com.blueninjas24.civilizations.paper.ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_path.yml"));
+            var preparation=new HousingProjectPreparation(c);
+            sql(c,"CREATE TRIGGER fixture_automatic_access_failure BEFORE INSERT ON construction_site_reservations BEGIN SELECT RAISE(ABORT,'fixture automatic access failure'); END");
+            assertThrows(SQLException.class,()->preparation.prepare(request,context(1200),List.of(home,road),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(0),42,0,1,true));
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_drafts"));assertEquals(0,number(c,"SELECT count(*) FROM housing_project_bindings"));
+            sql(c,"DROP TRIGGER fixture_automatic_access_failure");
+            var saved=preparation.prepare(request,context(1200),List.of(home,road),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(0),42,0,1,true);
+            assertEquals(Purpose.PATH,saved.draft().template().purpose());assertEquals(request.proposal(),saved.family().proposal());
+            assertEquals(saved.draft().id(),saved.access().orElseThrow().roadDraft());assertEquals(1,number(c,"SELECT count(*) FROM construction_site_reservations"));
+            assertEquals(saved,preparation.prepare(request,context(1200),List.of(home,road),HousingProjectPlanner.prototype(),new ConstructionLandPolicy(0),42,0,1,false));
+            assertEquals(0,number(c,"SELECT count(*) FROM construction_supply_orders"));healthy(c);
+        }
+    }
     @Test void assignedHomesSupplyDistinctResidentBedsAndClaimsWithoutLegacyLinks()throws Exception {
         Map<UUID,com.blueninjas24.civilizations.settlement.VillageObservation.Position> saved;
         try(var c=open(SchemaMigrator.CURRENT_VERSION)){

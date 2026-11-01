@@ -1,6 +1,26 @@
 # Automatic paid family-home construction
 
-## October31 — shared saved-access builder
+## October31 — normal road-first family expansion
+
+With automatic home planning, construction and local-roads-enabled, ordinary
+housing need can create a frozen road/home/family pair when existing-access infill
+fails. Save all purpose/identity and only access land atomically; use existing
+protected purchases/cargo/labor. The shared builder paves/registers that access.
+
+HousingPlanningJobs then offers the existing frozen home for loaded-only review
+before checking the new-project cap. This is the same already reserved household,
+not an extra proposal. Preserve its original created time, origin, transform, plan
+and height even if catalogue files change. HousingRoadHandoff repeats current
+whole-road/home/protection/need checks before reserving its home site; normal paid
+home construction can then proceed. Missing/changed/unloaded evidence holds.
+
+Actual Paper normal growth passed5 paving cells/2 stone/50 hundredths/5 earned
+work and subsequent fresh home-site handoff, with real conservation and no extra
+people or usable beds. This fixture used explicitly prepared disposable terrain
+and configurable buffer0. Production default4 and255-cell evidence cap remain;
+no production chunk loading. Terrain adaptation and nonresidential work remain.
+
+## Earlier October31 — shared saved-access builder checkpoint
 
 Schema119 remains current. With automatic-construction.local-roads-enabled=true,
 the single shared builder also processes formal HousingRoadProjects access drafts.

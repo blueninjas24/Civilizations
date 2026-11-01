@@ -2,6 +2,19 @@
 
 ## Current — Phase 4 physical growth
 
+October31: normal village housing need can now cause a paid short access road,
+then a fresh check of the original home site. Actual Paper passed the complete
+road-first planning/payment/paving/site-handoff loop. This closes guarded persistent
+land authority (item2.1): **8/16=50%,1/4 whole groups complete**. No extra resident,
+free home, terrain excavation or industrial/civic construction is implied.
+
+The verified fixture used configurable buffer0; default4/safety limits remain.
+Production never loads chunks. New/changed/uncertain sites wait. No human server
+was changed. Handbook0.29; exact evidence is in DEVLOG/PROJECT_STATUS.
+
+## Earlier October31 checkpoint notes (historical)
+
+
 October31: the single configured builder now buys inputs and builds formal saved
 access roads with real money, stock, delivery and labor. Actual disposable Paper
 passed and was restored/stopped. New road-first proposal and home-handoff
@@ -26,28 +39,31 @@ Hosted follow-up: repaired three historical migration snapshot tests that omitte
 new empty road tables;13 unit+3 packaged checks passed. Current hosted results are
 pending. This changes no gameplay or milestone count.
 
+## Current phase totals
+
 | Phase | What you will experience | Milestones complete | Progress |
 |---|---|---|---|
 | 1. Foundation & Population | Villages remember their people; families change over time | 10 / 10 | `██████████` 100% — prototype gate passed |
 | 2. Needs & Economy | Villages track shortages and respond to your food deliveries | 4 / 4 | `██████████` 100% — prototype gate passed |
 | 3. Businesses & Industry | Farms, mines and workshops create connected local industries | 4 / 4 | `██████████` 100% — prototype gate passed |
-| 4. Physical Growth | Villages build and improve structures gradually | 7 / 16 | `████░░░░░░` 44% — homes and road-first site selection |
+| 4. Physical Growth | Villages build and improve structures gradually | 8 / 16 | `█████░░░░░` 50% — guarded homes and road-first expansion |
 | 5. Trade & Roads | Settlements trade and connect regionally | 0 / 4 | `░░░░░░░░░░` 0% |
 | 6. Identity & History | Leaders, reputation and relationships shape towns | 0 / 4 | `░░░░░░░░░░` 0% |
 | 7. Growth & Decline | Towns thrive, struggle, leave ruins and recover | 0 / 4 | `░░░░░░░░░░` 0% |
 | 8. Advanced Civilization | Territory, player settlements and contextual crises | 0 / 4 | `░░░░░░░░░░` 0% |
 | 9. Polish & Release | Balanced survival play and many settlements | 0 / 4 | `░░░░░░░░░░` 0% |
 
-**Phase4:44% —7/16 checklist items,1/4 whole groups complete.**
+**Phase4:50% —8/16 checklist items,1/4 whole groups complete.**
 This counts verified checklist scope, not time spent or a promise of completion.
 
-Newly checked2.2: flat local road-first site/path selection. The planner prefers a
+Earlier checked2.2: flat local road-first site/path selection. The planner prefers a
 home beside an existing road. If that fails, it can find a conditional home and
 short paid-road design together, avoiding the future house and explaining holds.
 Current SQL need/protection checks precede the housing diagnostic.23 unit+3
 packaged checks passed; actual Paper found a3-cell/2-stone/3-work candidate and
 refused it after new saved protection. No road order or new house was created by
-that read-only check. Automatic road purchasing/scheduling remains unfinished.
+that earlier read-only check. Ordinary paid road-first scheduling now passes
+under item2.1, described above.
 
 | P4 part | Current state | Plain-English effect |
 |---|---|---|
@@ -57,15 +73,15 @@ that read-only check. Automatic road purchasing/scheduling remains unfinished.
 | Useful completed homes | Available | Inspection qualifies beds and gives existing residents distinct home memories |
 | Project recovery | Available for unused work | Inspect stalled projects; confirm real supplier returns/refunds |
 | Local road access | Read-only preview | /civ build access finds short safe flat access; grants no order |
-| Paid road boundary | Verified | Exact paid paving, restart holds and conserved inputs; normal scheduling remains |
+| Paid road boundary | Verified | Formal access shares paid supplies, labor and the guarded home builder |
 | Road identity and connectors | Verified | Exact saved Civ paving supports homes/extensions; private stone is not adopted |
-| Joint road/home selection | Verified | Conditional expansion proposals preserve real costs and keep roads out of the house |
-| Wider physical growth | Unfinished | Automatic roads, business/civic premises, docks, terrain work, repairs/upgrades/decay |
+| Road-first family expansion | Available prototype | Need creates a paid access road, then fresh review of the saved home site |
+| Wider physical growth | Unfinished | Business/civic premises, docks, terrain work, repairs/upgrades/decay |
 
 Schema119 also preserves road-to-home/family purpose. Existing construction.yml files must
 opt into automatic homes explicitly; settings never create free goods or people.
 No simulation chunk loading. Unknown/changed sites wait; ambiguous missing output
-needs review. Latest handbook0.28; actual user server/world/database and main are
+needs review. Latest handbook0.29; actual user server/world/database and main are
 untouched. Hosted green is claimed only for explicitly checked commits. P3 human
 survival and wider P4 acceptance remain deferred.
 

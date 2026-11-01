@@ -8,8 +8,9 @@ import java.util.*;
 
 /** Read-only bounded work feed for loaded-world home-site surveys. No family, draft, site or funds created. */
 public final class HousingPlanningJobs {
-    public record Job(UUID proposal,UUID household,UUID village,UUID world,Position need,int templateHeight){
-        public Job(UUID proposal,UUID household,UUID village,UUID world,Position need){this(proposal,household,village,world,need,4);}
+    public record Job(UUID proposal,UUID household,UUID village,UUID world,Position need,int templateHeight,Optional<HousingProjects.Proposal> handoff){
+        public Job(UUID proposal,UUID household,UUID village,UUID world,Position need){this(proposal,household,village,world,need,4,Optional.empty());}
+        public Job(UUID proposal,UUID household,UUID village,UUID world,Position need,int height){this(proposal,household,village,world,need,height,Optional.empty());}
         public Job{if(templateHeight<1||templateHeight>64)throw new IllegalArgumentException("Invalid selected home height");}
     }
     public record Page(List<Job> jobs,UUID next,int reviewed,int absent,int projectHolds){public Page{jobs=List.copyOf(jobs);}}
@@ -18,6 +19,10 @@ public final class HousingPlanningJobs {
     public HousingPlanningJobs(Connection c){this.c=Objects.requireNonNull(c);}
     public Page page(UUID after,int limit,Set<UUID> worlds,List<ConstructionTemplate> templates,HousingProjectPlanner planner,
                      DwellingInspection.Policy policy,long now,long seed,long period,int maximumActive)throws SQLException{
+        return page(after,limit,worlds,templates,planner,policy,now,seed,period,maximumActive,false);
+    }
+    public Page page(UUID after,int limit,Set<UUID> worlds,List<ConstructionTemplate> templates,HousingProjectPlanner planner,
+                     DwellingInspection.Policy policy,long now,long seed,long period,int maximumActive,boolean roads)throws SQLException{
         worlds=Set.copyOf(worlds);templates=List.copyOf(templates);Objects.requireNonNull(planner);Objects.requireNonNull(policy);
         if(limit<1||limit>8||maximumActive<1||maximumActive>64||now<0||period<0)throw new IllegalArgumentException("Invalid home planning page limits");
         if(!c.getAutoCommit())throw new SQLException("Home planning feed requires an idle SQL owner");c.setAutoCommit(false);
@@ -31,6 +36,7 @@ public final class HousingPlanningJobs {
             for(var village:villages.stream().limit(limit).toList()){
                 reviewed++;cursor=village.id();
                 if(!worlds.contains(village.world())){absent++;continue;}
+                if(roads){var access=handoff(village);if(access.isPresent()){jobs.add(access.orElseThrow());continue;}}
                 if(new HousingProjects(c).activeCount(village.id(),village.world())>=maximumActive){held++;continue;}
                 var report=new HousingPlanning(c).review(village.id(),new DwellingOccupancy.Context(village.world(),true,policy,now),templates,planner,seed,period);
                 var recommendation=report.plan().recommendations().stream().filter(r->r.action()==HousingProjectPlanner.Action.PROPOSE).findFirst();
@@ -47,4 +53,24 @@ public final class HousingPlanningJobs {
             c.commit();c.setAutoCommit(true);return new Page(jobs,villages.size()>limit?cursor:null,reviewed,absent,held);
         }catch(SQLException|RuntimeException failure){try{c.rollback();c.setAutoCommit(true);}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
     }
+    private Optional<Job> handoff(Village village)throws SQLException{
+        var candidates=new ArrayList<UUID>();
+        try(var s=c.prepareStatement("""
+                SELECT a.home_draft FROM housing_road_projects a
+                JOIN housing_project_bindings h ON h.draft_id=a.home_draft
+                JOIN civ_roads r ON r.draft_id=a.road_draft
+                WHERE h.settlement_id=? AND h.world_id=? AND h.cancelled_ms IS NULL AND h.completed_ms IS NULL
+                AND NOT EXISTS(SELECT 1 FROM construction_site_reservations p WHERE p.draft_id=a.home_draft)
+                ORDER BY a.created_ms,a.home_draft LIMIT 64
+                """)){
+            s.setString(1,village.id().toString());s.setString(2,village.world().toString());try(var r=s.executeQuery()){while(r.next())candidates.add(UUID.fromString(r.getString(1)));}
+        }
+        for(var id:candidates){
+            new HousingRoadProjects(c).findHome(id).orElseThrow();var home=new ConstructionDraftRepository(c).find(id).orElseThrow();
+            var family=new HousingProjects(c).find(id).orElseThrow();if(new HousingProjects(c).pauseReasonRows(home).isPresent())continue;
+            return Optional.of(new Job(id,family.proposal().household(),village.id(),village.world(),home.origin(),home.template().size().y(),Optional.of(family.proposal())));
+        }
+        return Optional.empty();
+    }
+
 }

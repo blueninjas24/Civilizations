@@ -22,15 +22,19 @@ public final class PaperAutomaticHomePlanning extends BukkitRunnable implements 
     private UUID cursor;private long nextPage;private boolean closed;private HousingPlanningJobs.Job current;private Survey survey;
     private CompletableFuture<HousingPlanningJobs.Page> page;private CompletableFuture<HousingProjectPreparation.Receipt> saving;
     public PaperAutomaticHomePlanning(PopulationSession session,PaperConstructionLibrary library,AutomaticHomePlanningSettings settings,DwellingInspection.Policy policy,Logger logger){
+        this(session,library,settings,policy,System::currentTimeMillis,logger);
+    }
+    public PaperAutomaticHomePlanning(PopulationSession session,PaperConstructionLibrary library,AutomaticHomePlanningSettings settings,DwellingInspection.Policy policy,LongSupplier clock,Logger logger){
         this(source(session,library,settings,policy),settings,(job,now)->new PaperHomeSiteSurvey(job.world(),job.need(),settings.searchRadius(),job.templateHeight(),now)::advance,
-                System::currentTimeMillis,session::publishHomePlanningDiagnostic,logger);
+                clock,session::publishHomePlanningDiagnostic,logger);
     }
     private static Owner source(PopulationSession session,PaperConstructionLibrary library,AutomaticHomePlanningSettings settings,DwellingInspection.Policy policy){
         var templates=List.copyOf(library.templates().values());return new Owner(){
-            public CompletableFuture<HousingPlanningJobs.Page> page(UUID after){return session.housingPlanningJobs(after,8,templates,library.housing(),policy,settings.maximumActiveHomes());}
+            public CompletableFuture<HousingPlanningJobs.Page> page(UUID after){return session.housingPlanningJobs(after,8,templates,library.housing(),policy,settings.maximumActiveHomes(),library.automaticConstruction().localRoadsEnabled());}
             public CompletableFuture<HousingProjectPreparation.Receipt> prepare(HousingPlanningJobs.Job job,PaperHomeSiteSurvey.Frame frame,long now){
-                var request=new HousingProjectPreparation.Request(new HousingProjects.Proposal(job.proposal(),job.household(),now),job.village(),job.world(),job.need(),frame.search(),frame.survey(),frame.terrain(),frame.states());
-                return session.prepareLimitedHousingProject(request,templates,library.housing(),library.land(),policy,settings.maximumActiveHomes());
+                var request=new HousingProjectPreparation.Request(job.handoff().orElseGet(()->new HousingProjects.Proposal(job.proposal(),job.household(),now)),job.village(),job.world(),job.need(),frame.search(),frame.survey(),frame.terrain(),frame.states());
+                if(job.handoff().isPresent())return session.handoffHousingAccess(request,library.land(),policy);
+                return session.prepareLimitedHousingProject(request,templates,library.housing(),library.land(),policy,settings.maximumActiveHomes(),library.automaticConstruction().localRoadsEnabled());
             }
         };
     }
@@ -45,7 +49,7 @@ public final class PaperAutomaticHomePlanning extends BukkitRunnable implements 
         try{
             if(saving!=null){
                 if(!saving.isDone())return;var receipt=saving.join();saving=null;current=null;survey=null;
-                diagnostic.accept("Home planning: retained unused project "+receipt.draft().id()+"; real materials, labor and native construction still required.");
+                diagnostic.accept("Home planning: retained unused project "+receipt.draft().id()+(receipt.access().isPresent()?"; access road precedes frozen family home "+receipt.family().proposal().draft():"")+"; real materials, labor and native construction still required.");
             }
             if(page!=null){
                 if(!page.isDone())return;var result=page.join();page=null;cursor=result.next();waiting.addAll(result.jobs());

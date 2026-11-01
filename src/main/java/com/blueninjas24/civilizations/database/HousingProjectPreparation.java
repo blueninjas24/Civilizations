@@ -19,9 +19,12 @@ public final class HousingProjectPreparation {
         }
         public Request(HousingProjects.Proposal proposal,UUID village,UUID world,Position need,Bounds search,ConstructionSitePlanner.Survey survey,Map<Position,ConstructionLandPolicy.Kind> terrain){this(proposal,village,world,need,search,survey,terrain,Map.of());}
     }
-    /** Empty review means historical receipt only: it never refreshes authority or reactivates cancelled work. */
+    /** Saved preparation receipt, never current native permission. Access names the road while family names its frozen future home. */
     public record Receipt(ConstructionDraft draft,HousingProjects.Binding family,ConstructionSiteReservations.Reservation site,
-                          Optional<ConstructionSitePlanner.Result> review){}
+                          Optional<ConstructionSitePlanner.Result> review,Optional<HousingRoadProjects.Link> access){
+        public Receipt(ConstructionDraft draft,HousingProjects.Binding family,ConstructionSiteReservations.Reservation site,Optional<ConstructionSitePlanner.Result> review){this(draft,family,site,review,Optional.empty());}
+        static Receipt access(HousingRoadPreparation.Receipt road){return new Receipt(road.road(),road.family(),road.site(),Optional.empty(),Optional.of(road.purpose()));}
+    }
     private final Connection c;
     public HousingProjectPreparation(Connection c){this.c=Objects.requireNonNull(c);}
     public Receipt prepare(Request request,DwellingOccupancy.Context context,List<ConstructionTemplate> templates,
@@ -30,6 +33,10 @@ public final class HousingProjectPreparation {
     }
     public Receipt prepare(Request request,DwellingOccupancy.Context context,List<ConstructionTemplate> templates,
                            HousingProjectPlanner planner,ConstructionLandPolicy land,long seed,long period,int maximumActive)throws SQLException {
+        return prepare(request,context,templates,planner,land,seed,period,maximumActive,false);
+    }
+    public Receipt prepare(Request request,DwellingOccupancy.Context context,List<ConstructionTemplate> templates,
+                           HousingProjectPlanner planner,ConstructionLandPolicy land,long seed,long period,int maximumActive,boolean roads)throws SQLException {
         Objects.requireNonNull(request);Objects.requireNonNull(context);templates=List.copyOf(templates);Objects.requireNonNull(planner);Objects.requireNonNull(land);
         if(maximumActive<1||maximumActive>64)throw new IllegalArgumentException("Active home proposal limit must be 1..64");
         if(!c.getAutoCommit())throw new SQLException("Home preparation requires an idle SQL owner");c.setAutoCommit(false);
@@ -43,8 +50,12 @@ public final class HousingProjectPreparation {
                 var binding=old.orElseThrow();
                 if(!binding.proposal().equals(request.proposal())||!binding.village().equals(request.village())||!binding.world().equals(request.world()))
                     throw new BuildingRegistry.Declined("Prepared home identity changed");
-                receipt=new Receipt(drafts.find(request.proposal().draft()).orElseThrow(),binding,
-                        sites.find(request.proposal().draft()).orElseThrow(()->new SQLException("Prepared home has no retained site receipt")),Optional.empty());
+                var site=sites.find(request.proposal().draft());var access=new HousingRoadProjects(c).findHome(request.proposal().draft());
+                if(site.isEmpty()&&access.isPresent()){
+                    var link=access.orElseThrow();receipt=new Receipt(drafts.find(link.roadDraft()).orElseThrow(),binding,
+                            sites.find(link.roadDraft()).orElseThrow(()->new SQLException("Prepared access has no retained site receipt")),Optional.empty(),access);
+                }else receipt=new Receipt(drafts.find(request.proposal().draft()).orElseThrow(),binding,
+                        site.orElseThrow(()->new SQLException("Prepared home has no retained site receipt")),Optional.empty());
             }else{
                 if(projects.activeCount(request.village(),request.world())>=maximumActive)throw new BuildingRegistry.Declined("Village active-home proposal limit reached");
                 if(drafts.find(request.proposal().draft()).isPresent())throw new BuildingRegistry.Declined("Automatic preparation requires a new draft identity");
@@ -70,7 +81,12 @@ public final class HousingProjectPreparation {
                         var access=HousingRoadAccessPlanner.select(template,road.get(),request.world(),request.need(),survey,envelope,land,terrain,LocalRoadAccessPlanner.Policy.prototype(),context.now(),5000,accessSeed);
                         if(access.expansion().isPresent()){
                             var plan=access.expansion().orElseThrow();
-                            throw new BuildingRegistry.Declined("Home site waits: road-first candidate needs "+plan.road().template().blockCount()+" paving cells, "+plan.road().template().materials()+" and "+plan.road().template().work()+" earned work; automatic road ordering remains unfinished; no site, supplies or home saved");
+                            if(roads){
+                                UUID roadId=UUID.nameUUIDFromBytes(("Civilizations:housing-access-v1:"+request.proposal().draft()).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                                var preparedAccess=new HousingRoadPreparation(c).prepareRows(roadId,request,context,templates,planner,land,seed,period,maximumActive);
+                                c.commit();c.setAutoCommit(true);return Receipt.access(preparedAccess);
+                            }
+                            throw new BuildingRegistry.Declined("Home site waits: road-first candidate needs "+plan.road().template().blockCount()+" paving cells, "+plan.road().template().materials()+" and "+plan.road().template().work()+" earned work; access-road preparation is disabled for this request; no site, supplies or home saved");
                         }
                         throw new BuildingRegistry.Declined("Home site waits: "+access.status()+"; road/home candidates "+access.candidates()+", rejected "+access.rejected()+"; no project created");
                     }

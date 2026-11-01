@@ -7,10 +7,11 @@ civilizations. The current prototype has persistent people, village economies an
 working business simulations and the first automatic family homes. Physical
 growth is Phase4; regional trade and roads remain Phase5.
 
-Phase4 is at44% (7/16 verified checklist items). When enabled, villages can buy
+Phase4 is at50% (8/16 verified checklist items). When enabled, villages can buy
 real supplies, wait for delivery/earned labor and build family homes in stages.
 Paid local-road placement, permanent paving identity and joint road/home site
-selection are verified; automatic road ordering remains unfinished. See
+selection are verified; ordinary road-first home proposals now reach paid paving
+and fresh home-site handoff. See
 [current progress](docs/PROGRESS.md), [construction tools](docs/CONSTRUCTION.md)
 and the [P4 checklist](docs/PHASE4_CHECKLIST.md). P3 human survival playtesting and
 wider P4 terrain/business/civic/repair work remain pending.

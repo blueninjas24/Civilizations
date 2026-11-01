@@ -1,5 +1,33 @@
 # Civilizations Development Log
 
+## 2026-10-31 — ordinary road-first home planning and fresh home-site return
+
+Connect opted-in housing preparation to atomic road/home/family creation inside
+its original SQL transaction, using stable road identity from the home proposal.
+Exact access retry retains history. Completed roads return the same frozen home
+through bounded loaded-world planning before the new-project cap; preserve its
+original proposal time/geometry/height, no second family slot. Fresh whole-road/
+home/protection/need review precedes home land. Normal protected paid construction
+then handles home materials/work; no free beds or residents. Schema remains119.
+
+Clean Windows Wrapper62 unit+3 packaged checks passed44.289s after final wording
+cleanup (earlier passing run52.583s). Tests include atomic late failure, disabled request behavior, exact retry,
+cap-independent frozen handoff and absent-world/switch exclusion. Initial compile
+name collision and fixture population expectation were corrected before success.
+Actual RoadFirstHousingGrowthProbe exercised production planners/shared builder:
+real family need -> frozen access/home -> supplier payment/cargo/earned work ->
+5 native paving cells -> registry/site release -> fresh original-home site handoff.
+2 stone/50 hundredths/5 work; real stock/cash and two original people conserved.
+The unfunded home correctly waits for its own missing materials.
+
+First isolated setup lacked the required loaded scene. Explicit disposable3x3
+bootstrap is now test setup only; production adapters still never load chunks.
+Native prototype buffer0; production default4/255-cell limit unchanged. Both119
+DBs healthy/FK-clean, all captured cells restored, server stopped/helper archived.
+This closes persistent guarded land-authority item2.1:8/16=50%,1/4 groups. No claim
+for terrain adaptation, private premises, repair or useful civic/industrial output.
+Handbook0.29 updated/rendered/reviewed. No user server/save or main changed.
+
 ## 2026-10-31 — shared automatic builder processes saved formal access roads
 
 One bounded PaperAutomaticConstruction now dispatches formal family homes and

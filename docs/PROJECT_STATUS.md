@@ -1,6 +1,28 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at44%, shared saved-road/home builder
+## Current — Phase4 at50%, ordinary road-first family expansion
+
+October31: normal home planning now creates the actual frozen road/home/family
+pair when infill fails and a safe bounded corridor exists. The shared builder
+pays real suppliers, waits for cargo/labor, paves/registers access, and normal
+loaded-only planning revisits the original frozen home before reserving its site.
+The existing family slot is reused, even at the new-project cap. Fresh protection,
+world/scene/need checks remain; old configs need local-roads-enabled explicitly.
+
+Actual Paper normal growth passed:5 paving cells,2 stone/50 hundredths,5 earned
+work, one family/home/road purpose, no extra people or usable housing. The home
+waits for its own real missing materials. Fixture buffer0/explicit disposable
+3x3 terrain preparation only; production default4 and no chunk loading unchanged.
+Both119 saves healthy/FK-clean, captured blocks restored, stopped/helper archived.
+62 unit+3 packaged clean Wrapper passed44.289s. Item2.1 closes:8/16=50%, still1/4
+whole groups. Handbook0.29 is35 pages, rendered/reviewed. No human server or main
+changed. Hosted CI for the latest candidate remains pending.
+
+Next: terrain-aware siting, permitted vacant premises and useful nonresidential
+construction, followed by separately funded upgrades/repair/decay. No decision needed.
+
+## Earlier October31 — shared saved-road/home builder checkpoint
+
 
 October31: configured shared runtime now processes formal saved access roads with
 real supplier purchases, earned cargo/labor, dedicated exact-ground writer and

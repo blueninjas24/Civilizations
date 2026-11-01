@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.28 | 31 October 2026 | Player and server owner edition
+Living draft 0.29 | 31 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 has 7 of 16 checklist items complete (44%). Save schema 119 also preserves the link between a proposed access road and its future family home. Automatic road-first proposals and home-site handoff scheduling remain unfinished. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
+Snapshot: P3 prototype gate complete; P4 has 8 of 16 checklist items complete (50%). Save schema 119 also preserves the link between a proposed access road and its future family home. Guarded road-first home proposals and their site handoff are connected. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
 
 ## Chapter list
 
@@ -335,17 +335,17 @@ Related chapters: planned building protection and commands. Sources: PEN_CONTROL
 
 ## 13 Construction and shared structures
 
-Status: P4 in progress. Automatic family-home construction is available when enabled in construction.yml. Roads, business construction and civic buildings remain unfinished.
+Status: P4 in progress. Automatic family-home construction is available when enabled in construction.yml. Business construction and civic buildings remain unfinished.
 
 ### Current foundation
 
 Five original editable plans cover paths, storehouses and four/six/eight-person homes. Saved family-home proposals can buy real supplies, wait for delivery and earned labor, then build in stages. Disposable tests cover paid paths/homes across restarts.
 
-Operators can use /civ build access to preview short flat access eight blocks ahead. It checks ground, protection and existing paths. READY grants no reservation, quote or order. Automatic road ordering remains unfinished; see LOCAL_ROAD_ACCESS.md.
+Operators can use /civ build access to preview short flat access eight blocks ahead. It checks ground, protection and existing paths. READY grants no reservation, quote or order. Normal housing planning can separately order qualifying access; see Chapter 31.
 
 Completed Civ roads retain permanent paid-paving records. Home planning/construction recognize them only when actual blocks match. Player stone is not adopted. Damage waits for review, never free replacement. New saved protection at a required road connection pauses the project.
 
-A stalled home proposal can now report a conditional short path with real material/labor needs. The road-first planner avoids the future house; it does not order the path yet. Previews spend nothing and assign no home. Automatic homes use the guarded writer; development helpers belong only on disposable test servers.
+A needed home can receive a short paid access road. It avoids the future house; a fresh site review precedes home construction. Previews spend nothing and assign no home. Automatic work uses guarded writers; development helpers belong only on disposable test servers.
 
 ### Read why a family needs housing
 
@@ -355,7 +355,7 @@ Operators use /civ build housing <village UUID> in that village's world; find ID
 
 Need -> permitted vacancy review -> suitable site -> real funding/materials -> available labor -> staged work -> physical completion -> usable capacity. A draft or frame cannot count as a completed home.
 
-Businesses are intended to fund their premises. Villages fund basic homes/local roads after protecting food and upkeep. Public-work accounting avoids double farm/study labor. Automatic public family-home work uses real unemployed adult labor, paid supplies and guarded native writes. Private employee diversion, business premises and new local-road construction remain unfinished.
+Businesses are intended to fund their premises. Villages fund basic homes/local roads after protecting food and upkeep. Public-work accounting avoids double farm/study labor. Automatic public family-home work uses real unemployed adult labor, paid supplies and guarded native writes. Private employee diversion and business premises remain unfinished.
 
 ### Agreed structure catalogue
 
@@ -384,7 +384,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 119 includes paid construction recovery, village-built home identity, renovation consent, household-bound proposals, exact bed accounting, completed-road origin and saved road-to-home purpose. The road records support guarded paid paving and later home connections; automatic road scheduling remains unfinished. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 119 includes paid construction recovery, village-built home identity, renovation consent, household-bound proposals, exact bed accounting, completed-road origin and saved road-to-home purpose. The road records support guarded paid paving and checked home-site handoff. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 
@@ -863,11 +863,11 @@ Related chapters: money, business supply chains, construction, automatic plannin
 
 ## 31 Automatic family-home construction
 
-Status: Available prototype for saved family-home proposals. Existing installations must explicitly opt in. The shared builder also supports saved formal access roads as development groundwork. Automatic road-first proposals, businesses, docks, apartments and civic construction remain unfinished.
+Status: Available prototype for saved family-home proposals. Existing installations must explicitly opt in. With road work enabled, a needed home can first receive a short paid access road. Businesses, docks, apartments and civic construction remain unfinished.
 
 ### What you can see
 
-A village with a verified housing need can plan a small home beside an existing dirt path or verified Civ road. If it can afford the complete remaining material batch from real qualified local suppliers, it pays from village funds after protecting food and essential upkeep. Goods arrive later through the existing hauling system. No chest is emptied and no free materials are added.
+A village with verified housing need first seeks a home beside existing access. With local-roads-enabled, it may instead plan a short paid road and future home together. After paving, it rechecks the original home site before proceeding. If it can afford the complete remaining material batch from real qualified local suppliers, it pays from village funds after protecting food and essential upkeep. Goods arrive later through the existing hauling system. No chest is emptied and no free materials are added.
 
 Available unemployed adults contribute recorded work. The foundation, walls, roof and beds appear in stages as their work and supplies become ready. All villages share one bounded builder, so several projects take turns. It does not clear trees, flatten hills, overwrite blocks or load chunks.
 
@@ -899,7 +899,7 @@ A flat clear site and real supplies remain necessary. Original home plans fit fo
 
 The six/eight-bed plans have a covered center aisle and a wall torch above walking headroom. Default abstract costs are 45 timber, 12 stone and 18 wool for six beds; 53 timber, 14 stone and 24 wool for eight. At default prices these are 39 and 48.7 emerald value. Configured prices and protected budgets apply. Existing installed plans are preserved. Qualified assigned homes now guide managed villagers to distinct bed heads through their normal Minecraft home memory. Nearby-player and loaded-area limits still apply; villagers use normal walking and sleeping behavior. This does not teleport them or add people. Repossession removes their saved use rights.
 
-Development groundwork now saves a proposed access road, future home and actual family together, reserving only the road site. Changed need or protected future housing holds unstarted access work. The backend home-site handoff now requires a completed road that is still intact, clear and permitted. With local-roads-enabled, the shared builder can buy real inputs and pave saved formal access projects. Automatic creation of these road-first proposals and scheduling the later home handoff remain unfinished.
+Road-first expansion saves the access road, future home and actual family together, initially reserving only road land. Changed need or protected future housing holds unstarted access. After paid paving, a fresh loaded-area scan must find the road intact and the original home site still safe. Then that home needs its own real supplies and labor. Terrain/buffer/read limits can hold crowded or longer routes; the plugin does not clear obstacles or load chunks.
 
 Related chapters: housing, protection, automatic planning, funding, recovery, server backups and tuning. Source: AUTOMATIC_CONSTRUCTION.md. Wider P4 growth remains in progress.
 

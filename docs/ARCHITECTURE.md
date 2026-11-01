@@ -16,8 +16,8 @@ The main-thread writer performs full exact scene/entity recheck and a single CAS
 under the nonblocking owner gate; no SQL or future wait there. Post-restart exact
 output may acknowledge; original ground without first-write certainty holds.
 Completed-road publication is saved since118. The shared configured builder now
-dispatches formal saved household access; ordinary proposal/home-site handoff
-scheduling remains next. Homes retain their separate AIR-only native boundary.
+dispatches formal saved household access; ordinary housing planning now freezes needed access and schedules its fresh
+completed-road-to-home site handoff. Homes retain their separate AIR-only native boundary.
 
 ## Schema117 — separate exact road-ground preparation
 

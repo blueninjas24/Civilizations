@@ -75,4 +75,14 @@ class HousingRoadHandoffTest {
         assertThrows(SQLException.class,()->handoff(Map.of()));assertTrue(c().getAutoCommit());assertEquals(1,count("civ_roads"));assertEquals(1,count("housing_road_projects"));assertEquals(1,count("housing_project_bindings"));
         assertTrue(new ConstructionSiteReservations(c()).find(home.id()).isEmpty());f.f.f.sql("DROP TRIGGER fixture_handoff_failure");assertTrue(handoff(Map.of()).site().active());
     }
+    @Test void completedAccessReturnsToLoadedPlanningBeforeNewProjectCapWithoutReinventingTheHome()throws Exception{
+        finishedRoad();long people=count("residents");var feed=new HousingPlanningJobs(c());
+        var before=feed.page(null,8,Set.of(home.world()),List.of(),HousingProjectPlanner.prototype(),DwellingInspection.Policy.prototype(),6102,42,0,1,true);
+        assertEquals(1,before.jobs().size());var job=before.jobs().getFirst();assertEquals(Optional.of(proposal),job.handoff());
+        assertEquals(home.origin(),job.need());assertEquals(home.template().size().y(),job.templateHeight());
+        assertTrue(feed.page(null,8,Set.of(),List.of(),HousingProjectPlanner.prototype(),DwellingInspection.Policy.prototype(),6102,42,0,1,true).jobs().isEmpty());
+        assertTrue(feed.page(null,8,Set.of(home.world()),List.of(),HousingProjectPlanner.prototype(),DwellingInspection.Policy.prototype(),6102,42,0,1,false).jobs().isEmpty());
+        handoff(Map.of());assertTrue(feed.page(null,8,Set.of(home.world()),List.of(),HousingProjectPlanner.prototype(),DwellingInspection.Policy.prototype(),6102,42,0,1,true).jobs().isEmpty());
+        assertEquals(1,count("housing_project_bindings"));assertEquals(people,count("residents"));
+    }
 }

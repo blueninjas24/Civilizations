@@ -15,10 +15,16 @@ public final class HousingRoadPreparation {
     public Receipt prepare(UUID roadId,HousingProjectPreparation.Request request,DwellingOccupancy.Context context,
             List<ConstructionTemplate> templates,HousingProjectPlanner planner,ConstructionLandPolicy land,
             long seed,long period,int maximumActive)throws SQLException{
+        if(!c.getAutoCommit())throw new SQLException("Road-first preparation requires idle SQL owner");c.setAutoCommit(false);
+        try{var receipt=prepareRows(roadId,request,context,templates,planner,land,seed,period,maximumActive);c.commit();return receipt;
+        }catch(SQLException|RuntimeException failure){try{c.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}finally{c.setAutoCommit(true);}
+    }
+    Receipt prepareRows(UUID roadId,HousingProjectPreparation.Request request,DwellingOccupancy.Context context,
+            List<ConstructionTemplate> templates,HousingProjectPlanner planner,ConstructionLandPolicy land,
+            long seed,long period,int maximumActive)throws SQLException{
         Objects.requireNonNull(roadId);templates=List.copyOf(templates);
         if(maximumActive<1||maximumActive>64)throw new IllegalArgumentException("Active home proposal limit must be 1..64");
-        if(!c.getAutoCommit())throw new SQLException("Road-first preparation requires idle SQL owner");c.setAutoCommit(false);
-        try{
+        if(c.getAutoCommit())throw new SQLException("Access rows require the SQL owner transaction");
             if(!context.present()||!context.world().equals(request.world())||context.now()<request.proposal().createdMillis())
                 throw new BuildingRegistry.Declined("Road-first preparation needs present world and current proposal time");
             var links=new HousingRoadProjects(c);var drafts=new ConstructionDraftRepository(c);var projects=new HousingProjects(c);var sites=new ConstructionSiteReservations(c);
@@ -69,7 +75,6 @@ public final class HousingRoadPreparation {
                 var site=sites.reserveRows(roadId,new ConstructionMaterials.Authority(roadId,request.world(),survey.capturedMillis(),true,true),context.now());
                 receipt=new Receipt(road,home,projects.find(home.id()).orElseThrow(),link,site);
             }
-            c.commit();return receipt;
-        }catch(SQLException|RuntimeException failure){try{c.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}finally{c.setAutoCommit(true);}
+            return receipt;
     }
 }
