@@ -87,6 +87,11 @@ class DwellingOccupancyTest {
             assertTrue(saved.site().active());assertTrue(new ConstructionSiteReservations(c).find(saved.home().id()).isEmpty());
             var future=saved.home();
             assertThrows(SQLException.class,()->new ConstructionSiteReservations(c).reserve(future.id(),new ConstructionMaterials.Authority(future.id(),world,1200,true,true),1200));
+            assertTrue(new ConstructionWorkQueue(c).homePage(null,8,Set.of(world)).projects().isEmpty());
+            var queue=new ConstructionWorkQueue(c).automaticPage(null,8,Set.of(world),true);
+            assertEquals(List.of(saved.road().id()),queue.projects().stream().map(w->w.draft().id()).toList());
+            assertEquals(ConstructionWorkQueue.State.WAIT_MATERIALS,queue.projects().getFirst().state());
+            assertTrue(new ConstructionWorkQueue(c).automaticPage(null,8,Set.of(world),false).projects().isEmpty());
             assertEquals(saved.home().id(),saved.family().proposal().draft());assertEquals(saved.road().id(),saved.purpose().roadDraft());
             var status=new HousingProjectStatus(c).find(saved.home().id(),context(1200));
             assertFalse(status.unused());assertTrue(status.pause().orElseThrow().contains(saved.road().id().toString()));

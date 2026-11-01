@@ -1,5 +1,15 @@
 # Civilizations — locked decisions and unresolved questions
 
+## October31 — delegated separate saved-road runtime opt-in
+
+Connect already approved paid local access to the existing shared builder rather
+than a separate clock/labor system. Keep formal household purpose, exact native
+checks, real protected funding and earned inputs. Missing local-roads-enabled in
+old construction.yml means false; new files default true. The main runtime switch
+still controls both. This conservative rollout uses delegated P4 recommendations;
+no new spending, property or regional-road rule. Ordinary proposal/handoff runtime
+is still unfinished; no user decision blocks that integration.
+
 ## October31 — delegated road-first housing purpose
 
 Use the approved household-driven road-first expansion direction. Preserve the

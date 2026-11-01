@@ -2,11 +2,17 @@
 
 ## Current — Phase 4 physical growth
 
+October31: the single configured builder now buys inputs and builds formal saved
+access roads with real money, stock, delivery and labor. Actual disposable Paper
+passed and was restored/stopped. New road-first proposal and home-handoff
+scheduling remain; P4 stays7/16=44%, no extra whole checklist milestone counted.
+
+
 October31: saved road-to-family purpose and atomic access preparation now preserve
 both frozen plans, reserving only road land. Changed family need/protection holds
 unstarted access; status/cancellation retain safe history. Completed access can
 hand off the frozen home site after a fresh whole-road/home review. These are
-backend operations; normal automatic road scheduling remains. P4 stays7/16=44%.
+backend operations; ordinary proposal/home-handoff scheduling remains. P4 stays7/16=44%.
 
 
 October31: resumed clean feature branch. Hosted Linux passed; one Windows
@@ -59,7 +65,7 @@ that read-only check. Automatic road purchasing/scheduling remains unfinished.
 Schema119 also preserves road-to-home/family purpose. Existing construction.yml files must
 opt into automatic homes explicitly; settings never create free goods or people.
 No simulation chunk loading. Unknown/changed sites wait; ambiguous missing output
-needs review. Latest handbook0.27; actual user server/world/database and main are
+needs review. Latest handbook0.28; actual user server/world/database and main are
 untouched. Hosted green is claimed only for explicitly checked commits. P3 human
 survival and wider P4 acceptance remain deferred.
 

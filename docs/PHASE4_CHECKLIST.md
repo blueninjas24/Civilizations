@@ -85,7 +85,7 @@ Most recent focused clean Wrapper checks: road completion24 unit+3 packaged;
 road/home connectors22+3. Actual Paper completed two paid road cells, retained
 identity/site release through restart and accepted home access only with positive
 saved origin. Same paving without origin refused. Newest head still needs hosted
-CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.27 is
+CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.28 is
 35 pages/32 chapters, rendered and visually reviewed. Live player survival tests
 remain deferred. See PROJECT_STATUS.md and DEVLOG.md for precise evidence.
 
@@ -100,8 +100,10 @@ Next cohesive local-road delivery:
 3. SQL exact-ground preparation, native replacement/restarts and permanent road
    completion are verified. Homes recognize actual matching saved Civ paving;
    private paving and harvested-output ambiguity retain their protection.
-4. Connect protected village funds, finite suppliers, shared hauling, earned labor
-   and paced writer; then prove interruption/protection/restart on disposable Paper.
+4. Shared dispatch now processes formal saved access with protected funds, finite
+   suppliers, shared hauling/labor and paced dedicated writer; actual Paper passed
+   payment-to-native-completion conservation. Connect ordinary proposal creation
+   and home-handoff scheduling, then validate the combined normal growth loop.
 
 This is local village access in P4. Regional trade/routes remain P5. Business/civic/
 dock construction, wider terrain work, repair/upgrade/decay and acceptance remain.

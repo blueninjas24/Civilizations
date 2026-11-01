@@ -1,5 +1,29 @@
 # Automatic paid family-home construction
 
+## October31 — shared saved-access builder
+
+Schema119 remains current. With automatic-construction.local-roads-enabled=true,
+the single shared builder also processes formal HousingRoadProjects access drafts.
+This key defaults true only in new construction.yml files; absent in an existing
+file means false. The normal enabled switch must also be true. No rewrite of old
+files. Arbitrary paid/manual paths and private premises stay outside this queue.
+
+Roads use exact two-pass loaded-only ground/clearance evidence for procurement,
+actual finite supplier payments, earned delivery/labor, dedicated road intents/
+writer and immutable completion/site release. Homes keep the AIR-only writer.
+Both share one queue, per-tick read budget and global native pacing; no additional
+labor or hauling clock. Evidence kinds cannot cross writers. Optional road state
+in the Paper frame carries only immutable observation, never new authority.
+
+Automatic creation of road-first family proposals and scheduling the completed-
+road-to-home handoff are still unfinished. This addition processes saved formal
+access projects; it does not yet create them through ordinary home planning.
+Actual disposable Paper verified the configured production builder buying one
+stone unit for25 hundredths, waiting for cargo/two earned work, paving two cells
+and retaining completion/site release. Saved cash/goods/people conserved; original
+fixture cells restored, both119 saves healthy/FK-clean, server stopped.
+
+
 ## October21 larger-family catalogue
 
 The legacy starter_home remains unchanged. New family_home_six and

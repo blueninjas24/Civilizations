@@ -43,15 +43,16 @@ public final class PaperAutomaticConstruction extends BukkitRunnable implements 
     /** Use the same clock as the owner in accelerated fixtures; ordinary runtime uses wall time. */
     public PaperAutomaticConstruction(JavaPlugin host,PopulationSession session,PaperConstructionLibrary library,LongSupplier clock,Logger logger){
         this(source(session,library),library.automaticConstruction(),nativeStep(host,session),
-                (work,now)->new PaperConstructionWorkSurvey(work,now)::advance,clock,session::publishConstructionWorkDiagnostic,logger);
+                (work,now)->survey(work,library.land().buildingBuffer(),now),clock,session::publishConstructionWorkDiagnostic,logger);
     }
     private static Owner source(PopulationSession session,PaperConstructionLibrary library){return new Owner(){
-        public CompletableFuture<ConstructionWorkQueue.Page> page(UUID after){return session.automaticHomeConstructionPage(after,8);}
+        public CompletableFuture<ConstructionWorkQueue.Page> page(UUID after){return session.automaticConstructionPage(after,8,library.automaticConstruction().localRoadsEnabled());}
         public CompletableFuture<Boolean> procure(ConstructionWorkQueue.Work work,PaperConstructionWorkSurvey.Frame frame){
             return session.procureVillageConstructionInputs(work.draft().id(),frame.authority(),library.funding(),library.supplies()).thenApply(result->!result.purchases().isEmpty());
         }
         public CompletableFuture<PopulationSession.PreparedConstructionStep> prepare(ConstructionWorkQueue.Work work,PaperConstructionWorkSurvey.Frame frame,String after){
             UUID operation=work.pending().map(ConstructionBlockJournal.Intent::operation).orElseGet(()->identity("block",work.draft().id(),work.nextOrdinal()));
+            if(frame.road().isPresent()){var road=frame.road().orElseThrow();return session.prepareAuthorizedRoadStep(operation,work.draft().id(),work.nextOrdinal(),after,road.geometry(),road.observation(),road.buffer());}
             return session.prepareAuthorizedPublicConstructionStep(operation,work.draft().id(),work.nextOrdinal(),after,frame.authority());
         }
         public CompletableFuture<Void> acknowledge(PopulationSession.PreparedConstructionStep prepared,long observedMillis){var intent=prepared.intent();
@@ -59,18 +60,26 @@ public final class PaperAutomaticConstruction extends BukkitRunnable implements 
                     .thenAccept(saved->{if(saved.state()!=ConstructionBlockJournal.State.APPLIED)throw new CompletionException(new BuildingRegistry.Declined("Native acknowledgement did not retain exact output"));});
         }
         public CompletableFuture<Void> complete(ConstructionWorkQueue.Work work,PaperConstructionWorkSurvey.Frame frame){
+            if(frame.road().isPresent()){var road=frame.road().orElseThrow();return session.completeCivRoad(identity("completion",work.draft().id(),0),work.draft().id(),road.observation(),road.buffer()).thenAccept(ignored->{});}
             return session.completeCivHome(identity("completion",work.draft().id(),0),work.draft().id(),new CivBuildingCompletion.Evidence(frame.authority(),frame.cells())).thenAccept(ignored->{});
         }
     };}
-    private static NativeStep nativeStep(JavaPlugin host,PopulationSession session){var writer=new PaperConstructionWriter(host,session);return new NativeStep(){
+    private static NativeStep nativeStep(JavaPlugin host,PopulationSession session){var writer=new PaperConstructionWriter(host,session);var roads=new PaperRoadWriter(host,session);return new NativeStep(){
         public String after(ConstructionWorkQueue.Work work){
             var draft=work.draft();var nativePlan=PaperConstructionLibrary.prepare(draft.template(),draft.transform());int ordinal=0;
             for(int stage=0;stage<draft.template().stages().size();stage++)for(var local:draft.template().stages().get(stage).blocks().keySet())
                 if(ordinal++==work.nextOrdinal())return nativePlan.stages().get(stage).blocks().get(draft.transform().apply(local,draft.template().size()));
             throw new IllegalArgumentException("No native block at saved ordinal");
         }
-        public PaperConstructionStep.Outcome attempt(ConstructionWorkQueue.Work work,PaperConstructionWorkSurvey.Frame frame,PopulationSession.PreparedConstructionStep prepared){return writer.attempt(work,frame,prepared);}
+        public PaperConstructionStep.Outcome attempt(ConstructionWorkQueue.Work work,PaperConstructionWorkSurvey.Frame frame,PopulationSession.PreparedConstructionStep prepared){return frame.road().isPresent()?roads.attempt(work,frame.road().orElseThrow(),prepared):writer.attempt(work,frame,prepared);}
     };}
+    private static Survey survey(ConstructionWorkQueue.Work work,int buffer,long now){
+        if(work.draft().template().purpose()!=Purpose.PATH)return new PaperConstructionWorkSurvey(work,now)::advance;
+        var road=new PaperRoadWorkSurvey(work,buffer,now);
+        return (budget,time)->road.advance(budget,time).map(frame->new PaperConstructionWorkSurvey.Frame(
+                new ConstructionMaterials.Authority(work.draft().id(),work.draft().world(),frame.observation().capturedMillis(),frame.ready(),frame.ready()),
+                "",frame.explanation(),frame.observation().states(),Optional.of(frame)));
+    }
     private static UUID identity(String kind,UUID draft,int ordinal){return UUID.nameUUIDFromBytes(("automatic-home-work-v1|"+kind+"|"+draft+"|"+ordinal).getBytes(StandardCharsets.UTF_8));}
     public PaperAutomaticConstruction(Owner owner,AutomaticConstructionSettings settings,NativeStep nativeStep,
             BiFunction<ConstructionWorkQueue.Work,Long,Survey> surveys,LongSupplier clock,Consumer<String> diagnostic,Logger logger){
@@ -84,7 +93,7 @@ public final class PaperAutomaticConstruction extends BukkitRunnable implements 
             if(purchasing!=null){if(!purchasing.isDone())return;boolean changed=purchasing.join();cycleProgress|=changed;
                 explain(changed?"supplies bought; waiting for earned delivery and labor":"supplies already paid; waiting for earned delivery and labor");finish();return;}
             if(acknowledging!=null){if(!acknowledging.isDone())return;acknowledging.join();cycleProgress=true;explain("saved block "+(current.nextOrdinal()+1)+"/"+current.draft().template().blockCount());finish();return;}
-            if(completing!=null){if(!completing.isDone())return;completing.join();cycleProgress=true;explain("home completed; actual housing inspection will qualify beds and assign a family");finish();return;}
+            if(completing!=null){if(!completing.isDone())return;completing.join();cycleProgress=true;explain(current.draft().template().purpose()==Purpose.PATH?"road completed and registered; future home still needs a fresh site handoff":"home completed; actual housing inspection will qualify beds and assign a family");finish();return;}
             if(preparing!=null){
                 if(!preparing.isDone()||now<nextNative)return;var prepared=preparing.join();preparing=null;
                 var outcome=nativeStep.attempt(current,frame,prepared);nextNative=Math.addExact(now,settings.blockIntervalMillis());
@@ -110,14 +119,16 @@ public final class PaperAutomaticConstruction extends BukkitRunnable implements 
                     if(now<nextCycle)return;nextCycle=0;page=owner.page(null);return;
                 }
                 current=waiting.removeFirst();
-                if(current.draft().template().purpose()!=Purpose.HOME){finish();return;}
+                boolean road=current.draft().template().purpose()==Purpose.PATH;
+                if(current.draft().template().purpose()!=Purpose.HOME&&!(road&&settings.localRoadsEnabled()&&current.draft().template().id().equals("local_road_access"))){finish();return;}
                 if(current.state()==ConstructionWorkQueue.State.WAIT_LABOR||current.state()==ConstructionWorkQueue.State.PAUSED||current.state()==ConstructionWorkQueue.State.CONFLICT){explain(current.explanation());finish();return;}
-                if(ConstructionPreview.requiredCells(current.draft().template(),current.draft().transform(),current.draft().origin()).size()+1>PaperConstructionWriter.CELL_READS_PER_TICK){explain("paused: home exceeds bounded native writer size");finish();return;}
+                if(!road&&ConstructionPreview.requiredCells(current.draft().template(),current.draft().transform(),current.draft().origin()).size()+1>PaperConstructionWriter.CELL_READS_PER_TICK){explain("paused: home exceeds bounded native writer size");finish();return;}
             }
             // Deliberately separate a survey tick from the native-write tick; never combine their read budgets.
             if(now<nextNative)return;
             if(survey==null)survey=surveys.apply(current,now);
             var observed=survey.advance(settings.cellsPerTick(),now);if(observed.isEmpty())return;frame=observed.get();
+            if((current.draft().template().purpose()==Purpose.PATH)!=frame.road().isPresent())throw new IllegalArgumentException("Construction evidence kind differs from frozen project");
             if(!frame.authority().siteCleared()||!frame.authority().worldLoaded()){explain("paused: "+frame.explanation());finish();return;}
             switch(current.state()){
                 case WAIT_MATERIALS->purchasing=owner.procure(current,frame);
@@ -130,12 +141,12 @@ public final class PaperAutomaticConstruction extends BukkitRunnable implements 
             boolean expected=cause instanceof BuildingRegistry.Declined||cause instanceof ConstructionSupplyOrders.Declined||cause instanceof CancellationException;
             String message=expected?cause.getMessage():"review unavailable; paid assets and saved work retained";
             explain("paused: "+message);
-            if(!expected&&!Objects.equals(lastWarning,cause.toString())){lastWarning=cause.toString();logger.log(Level.WARNING,"Automatic home construction paused; retained history unchanged",cause);}
+            if(!expected&&!Objects.equals(lastWarning,cause.toString())){lastWarning=cause.toString();logger.log(Level.WARNING,"Automatic construction paused; retained history unchanged",cause);}
             boolean local=current!=null;finish();
             if(!local){page=null;waiting.clear();cursor=null;nextCycle=Math.addExact(now,settings.reviewSeconds()*1000L);cycleProgress=false;}
         }
     }
-    private void explain(String message){diagnostic.accept("Home construction"+(current==null?"": " "+current.draft().id())+": "+message+".");}
+    private void explain(String message){diagnostic.accept("Construction"+(current==null?"": " "+current.draft().id())+": "+message+".");}
     private void finish(){current=null;survey=null;frame=null;nativeAttempts=0;purchasing=null;preparing=null;acknowledging=null;completing=null;}
     @Override public void close(){closed=true;waiting.clear();page=null;finish();} // Accepted SQL work drains; no future native write follows close.
 }

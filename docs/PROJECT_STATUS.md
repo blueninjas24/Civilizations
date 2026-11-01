@@ -1,6 +1,15 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at44%, road-first purpose/preparation
+## Current — Phase4 at44%, shared saved-road/home builder
+
+October31: configured shared runtime now processes formal saved access roads with
+real supplier purchases, earned cargo/labor, dedicated exact-ground writer and
+permanent completion/site release. A separate local-roads-enabled key defaults
+false when absent in old files. Actual disposable Paper passed money/goods/work/
+native conservation; restored blocks, both119 saves healthy, server stopped.
+Ordinary automatic road-first proposal creation and home-handoff scheduling are
+still next. Handbook0.28 updated. No user server/save or main changed.
+
 
 October31 schema119 saves a proposed road, frozen future family home and existing
 household reservation together. Backend access preparation rechecks actual need,
@@ -10,9 +19,9 @@ beds, residents or home land lease. Exact retry/reopen retains the same receipts
 Changed need/future protection pauses unstarted road funding, labor and intent;
 started work retains recovery. Cancellation/status cannot strand linked access.
 The verified backend home handoff now requires completed access plus a fresh
-whole-road/home/protection review before reserving its frozen site. Normal runtime
-road dispatch and scheduling this handoff remain next, not enabled by these APIs.
-Temporary SQLite verification recorded in DEVLOG. Handbook0.27 remains35 pages,
+whole-road/home/protection review before reserving its frozen site. Shared runtime road dispatch is now verified; ordinary proposal creation and
+scheduling this handoff remain next.
+Temporary SQLite verification recorded in DEVLOG. Handbook0.28 remains35 pages,
 rendered/reviewed. No actual server/save or main changed. P4 stays7/16=44%.
 
 
@@ -62,8 +71,8 @@ terrain adaptation and paid repair/upgrade/decay remain unfinished. No user dev
 server/world/database or main changed. Feature branch backups remain authorized;
 latest hosted CI is pending until explicitly verified.
 
-Next: connect protected road purchases, earned cargo/labor and the shared native
-scheduler, then schedule the verified completed-road-to-home handoff. No decision needed.
+Next: connect ordinary road-first home proposals and schedule the verified
+completed-road-to-home handoff through bounded loaded-world observation. No decision needed.
 
 ## Earlier October21 road checkpoints — historical
 

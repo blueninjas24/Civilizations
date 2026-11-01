@@ -1,5 +1,28 @@
 # Civilizations Development Log
 
+## 2026-10-31 — shared automatic builder processes saved formal access roads
+
+One bounded PaperAutomaticConstruction now dispatches formal family homes and
+HousingRoadProjects access through their separate home AIR/road exact-ground
+boundaries. Formal automatic queue excludes arbitrary paid/manual drafts; missing
+local-roads-enabled stays false for old files, new files default true under the
+main runtime switch. A waiting road may gather exact procurement evidence; it
+earns no work until existing real supply/cargo/labor ledgers permit it. Both kinds
+share pacing/read budgets; evidence kinds cannot cross writers. No new schema.
+
+Clean Windows Wrapper verify passed64 unit+3 packaged integration checks55.454s.
+New checks cover config compatibility/typing, road opt-in, real formal queue and
+exclusion of arbitrary paid drafts; existing home/asynchronous/retry cases pass.
+Actual Paper AutomaticRoadConstructionProbe used the configured production
+builder to buy one finite stone for25 hundredths, earn cargo/two work, pave two
+blocks and save permanent completion/site release. Treasury99475/supplier25,
+stock19, two original residents; no extra housing. Both119 saves healthy/FK-clean,
+all captured blocks restored, server stopped/helper archived. No human server used.
+
+Normal automatic road-first proposal creation and loaded-only home-site handoff
+scheduling remain next; the saved-road runtime is not the entire growth loop.
+Handbook0.28 remains35 pages, rendered and visually reviewed. P4 stays7/16=44%.
+
 ## 2026-10-31 — completed-road handoff to the original frozen family home
 
 HousingRoadHandoff requires actual registered paid access and a fresh complete

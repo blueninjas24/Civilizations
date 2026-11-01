@@ -52,6 +52,7 @@ class ConstructionWorkQueueTest {
     @Test void automaticQueueRequiresFormalFamilyBindingAndNeverAdoptsArbitraryPaidDrafts()throws Exception{
         f.materials(2);var d=f.f.publicDraft;assertFalse(queue().page(null,8,Set.of(d.world())).projects().isEmpty());
         assertTrue(queue().homePage(null,8,Set.of(d.world())).projects().isEmpty());
+        assertTrue(queue().automaticPage(null,8,Set.of(d.world()),true).projects().isEmpty());
         UUID family=UUID.randomUUID();f.f.f.db.getPopulationRepository().insertHousehold(new com.blueninjas24.civilizations.population.Household(family,d.settlement(),"Saved proposal family"));
         f.f.f.sql("UPDATE residents SET household_id='"+family+"' WHERE id='"+f.worker+"'");f.f.f.sql("INSERT INTO household_capacity VALUES('"+family+"',0)");
         try(var s=f.f.c().prepareStatement("INSERT INTO housing_project_bindings(draft_id,household_id,settlement_id,world_id,plan_hash,residents,previous_capacity,created_ms,cancel_operation,cancelled_ms) VALUES(?,?,?,?,?,1,0,1200,NULL,NULL)")){

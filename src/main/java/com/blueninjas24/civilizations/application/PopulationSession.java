@@ -1570,6 +1570,10 @@ public final class PopulationSession implements AutoCloseable {
         return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionWorkQueue(database.getConnection())
                 .homePage(after,limit,loadedWorlds==null?Set.of():loadedWorlds);});
     }
+    public CompletableFuture<com.blueninjas24.civilizations.database.ConstructionWorkQueue.Page> automaticConstructionPage(UUID after,int limit,boolean roads){
+        return submit(()->{requireReady();return new com.blueninjas24.civilizations.database.ConstructionWorkQueue(database.getConnection())
+                .automaticPage(after,limit,loadedWorlds==null?Set.of():loadedWorlds,roads);});
+    }
     /** Registers completed village-owned geometry/use only; actual dwelling inspection still controls capacity. */
     public CompletableFuture<com.blueninjas24.civilizations.database.CivBuildingCompletion.Receipt> completeCivHome(
             UUID operation,UUID draft,com.blueninjas24.civilizations.database.CivBuildingCompletion.Evidence evidence){

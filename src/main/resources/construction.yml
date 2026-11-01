@@ -60,6 +60,7 @@ automatic-home-planning:
 # New installations enable this prototype. Disable to pause future purchases/native steps.
 # This does not enable private premises, civic buildings, terrain clearing or roads.
 automatic-construction:
+  local-roads-enabled: true
   enabled: true
   # Shared survey budget. The separate atomic final-write check is capped at256 reads.
   cells-per-tick: 128

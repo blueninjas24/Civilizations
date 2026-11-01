@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.27 | 31 October 2026 | Player and server owner edition
+Living draft 0.28 | 31 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 has 7 of 16 checklist items complete (44%). Save schema 119 also preserves the link between a proposed access road and its future family home. Automatic road ordering remains unfinished. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
+Snapshot: P3 prototype gate complete; P4 has 7 of 16 checklist items complete (44%). Save schema 119 also preserves the link between a proposed access road and its future family home. Automatic road-first proposals and home-site handoff scheduling remain unfinished. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
 
 ## Chapter list
 
@@ -863,7 +863,7 @@ Related chapters: money, business supply chains, construction, automatic plannin
 
 ## 31 Automatic family-home construction
 
-Status: Available prototype for saved family-home proposals. Existing installations must explicitly opt in. This does not build new roads, businesses, docks, apartments or civic structures yet.
+Status: Available prototype for saved family-home proposals. Existing installations must explicitly opt in. The shared builder also supports saved formal access roads as development groundwork. Automatic road-first proposals, businesses, docks, apartments and civic construction remain unfinished.
 
 ### What you can see
 
@@ -880,6 +880,7 @@ Stop the server, back up its save and configuration, and edit plugins/Civilizati
 | Under automatic-construction | Default and meaning |
 |---|---|
 | enabled | true in new files; false or absent pauses this runtime |
+| local-roads-enabled | true in new files; absent or false keeps saved access-road work disabled |
 | cells-per-tick | 128 shared survey reads; allowed 16 to 256 |
 | review-seconds | 10 between waiting-project cycles; allowed 1 to 600 |
 | block-interval-ms | 500 minimum milliseconds between native attempts; allowed 0 to 60000 |
@@ -898,7 +899,7 @@ A flat clear site and real supplies remain necessary. Original home plans fit fo
 
 The six/eight-bed plans have a covered center aisle and a wall torch above walking headroom. Default abstract costs are 45 timber, 12 stone and 18 wool for six beds; 53 timber, 14 stone and 24 wool for eight. At default prices these are 39 and 48.7 emerald value. Configured prices and protected budgets apply. Existing installed plans are preserved. Qualified assigned homes now guide managed villagers to distinct bed heads through their normal Minecraft home memory. Nearby-player and loaded-area limits still apply; villagers use normal walking and sleeping behavior. This does not teleport them or add people. Repossession removes their saved use rights.
 
-Development groundwork now saves a proposed access road, future home and actual family together, reserving only the road site. Changed need or protected future housing holds unstarted access work. The backend home-site handoff now requires a completed road that is still intact, clear and permitted. Normal automatic road purchasing/building and scheduling this handoff remain unfinished.
+Development groundwork now saves a proposed access road, future home and actual family together, reserving only the road site. Changed need or protected future housing holds unstarted access work. The backend home-site handoff now requires a completed road that is still intact, clear and permitted. With local-roads-enabled, the shared builder can buy real inputs and pave saved formal access projects. Automatic creation of these road-first proposals and scheduling the later home handoff remain unfinished.
 
 Related chapters: housing, protection, automatic planning, funding, recovery, server backups and tuning. Source: AUTOMATIC_CONSTRUCTION.md. Wider P4 growth remains in progress.
 

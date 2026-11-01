@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PaperAutomaticConstructionTest {
     private ConstructionDraft draft;private long now=1000;private int pages,surveys,advances,buys,prepares,writes,acks,completions;
-    private boolean safe=true;private final List<UUID> visited=new ArrayList<>();private final List<String> diagnostics=new ArrayList<>();
+    private boolean safe=true,allowRoads;private final List<UUID> visited=new ArrayList<>();private final List<String> diagnostics=new ArrayList<>();
     private CompletableFuture<ConstructionWorkQueue.Page> page=new CompletableFuture<>();
     private CompletableFuture<Boolean> buying=new CompletableFuture<>();private CompletableFuture<Void> ack=new CompletableFuture<>(),complete=new CompletableFuture<>();
     private CompletableFuture<PopulationSession.PreparedConstructionStep> preparing=new CompletableFuture<>();
@@ -29,13 +29,21 @@ class PaperAutomaticConstructionTest {
             public CompletableFuture<PopulationSession.PreparedConstructionStep> prepare(ConstructionWorkQueue.Work work,PaperConstructionWorkSurvey.Frame frame,String after){prepares++;return preparing;}
             public CompletableFuture<Void> acknowledge(PopulationSession.PreparedConstructionStep prepared,long time){acks++;assertEquals(now,time);return ack;}
             public CompletableFuture<Void> complete(ConstructionWorkQueue.Work work,PaperConstructionWorkSurvey.Frame frame){completions++;return complete;}
-        },new AutomaticConstructionSettings(enabled,128,10,500),new PaperAutomaticConstruction.NativeStep(){
+        },new AutomaticConstructionSettings(enabled,128,10,500,allowRoads),new PaperAutomaticConstruction.NativeStep(){
             public String after(ConstructionWorkQueue.Work work){return "minecraft:cobblestone";}
             public PaperConstructionStep.Outcome attempt(ConstructionWorkQueue.Work work,PaperConstructionWorkSurvey.Frame frame,PopulationSession.PreparedConstructionStep prepared){writes++;return new PaperConstructionStep.Outcome(nativeResult,"Fixture native result");}
-        },(work,start)->{surveys++;visited.add(work.draft().id());return (budget,time)->{advances++;assertEquals(128,budget);return Optional.of(new PaperConstructionWorkSurvey.Frame(new ConstructionMaterials.Authority(work.draft().id(),work.draft().world(),time,safe,safe),"minecraft:air",safe?"verified":"unavailable",Map.of()));};},()->now,diagnostics::add,Logger.getLogger("AutomaticConstructionTest"));
+        },(work,start)->{surveys++;visited.add(work.draft().id());return (budget,time)->{advances++;assertEquals(128,budget);return Optional.of(new PaperConstructionWorkSurvey.Frame(new ConstructionMaterials.Authority(work.draft().id(),work.draft().world(),time,safe,safe),"minecraft:air",safe?"verified":"unavailable",Map.of(),work.draft().template().purpose()==Purpose.PATH?Optional.of(new PaperRoadWorkSurvey.Frame(LocalRoadDesign.geometry(work.draft()),0,new RoadGroundReview.Observation(work.draft().world(),time,safe,Map.of(),Set.of()),safe,"fixture")):Optional.empty()));};},()->now,diagnostics::add,Logger.getLogger("AutomaticConstructionTest"));
     }
     private PopulationSession.PreparedConstructionStep prepared(){var operation=UUID.randomUUID();return new PopulationSession.PreparedConstructionStep(new ConstructionBlockJournal.Intent(operation,draft.id(),0,draft.origin(),"minecraft:air","minecraft:cobblestone",ConstructionBlockJournal.State.PREPARED),new NativeConstructionGate.Permit(UUID.randomUUID(),1,operation,draft.id(),draft.world(),now));}
     private void start(PaperAutomaticConstruction r,ConstructionWorkQueue.Work work){r.run();now+=10_000;r.run();page.complete(new ConstructionWorkQueue.Page(List.of(work),null));r.run();r.run();}
+    @Test void formalLocalRoadUsesTheSharedPurchaseQueueOnlyWhenExplicitlyEnabled()throws Exception{
+        var recipe=ConstructionTemplateConfiguration.read(getClass().getResourceAsStream("/construction/starter_path.yml"));
+        var plan=LocalRoadDesign.freeze(new LocalRoadAccessPlanner.Result(LocalRoadAccessPlanner.Status.READY,List.of(new Position(2,63,0),new Position(1,63,0),new Position(0,63,0)),2,3),recipe).orElseThrow();
+        draft=new ConstructionDraft(draft.id(),draft.settlement(),draft.world(),plan.origin(),Transform.identity(),plan.template(),1000);
+        var off=runtime(true);start(off,work(ConstructionWorkQueue.State.WAIT_MATERIALS));assertEquals(0,buys);assertEquals(0,surveys);off.close();
+        page=new CompletableFuture<>();allowRoads=true;var on=runtime(true);start(on,work(ConstructionWorkQueue.State.WAIT_MATERIALS));
+        assertEquals(1,buys);assertEquals(1,surveys);on.run();assertEquals(1,buys);assertEquals(0,writes);on.close();
+    }
     @Test void asynchronousPurchasesHaveOneBoundedSurveyAndCannotSpendAgainWhilePending(){
         var r=runtime(true);start(r,work(ConstructionWorkQueue.State.WAIT_MATERIALS));assertEquals(1,buys);assertEquals(1,advances);
         r.run();r.run();assertEquals(1,buys);assertEquals(1,surveys);buying.complete(true);r.run();assertTrue(diagnostics.getLast().contains("supplies bought"));

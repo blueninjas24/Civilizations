@@ -10,8 +10,9 @@ import java.util.function.*;
 
 /** Read-only two-pass review of empty or journal-backed partial work. Never loads chunks or writes blocks. */
 public final class PaperConstructionWorkSurvey {
-    public record Frame(ConstructionMaterials.Authority authority,String nextObserved,String explanation,Map<Position,String> cells){
-        public Frame{cells=Map.copyOf(cells);}
+    public record Frame(ConstructionMaterials.Authority authority,String nextObserved,String explanation,Map<Position,String> cells,Optional<PaperRoadWorkSurvey.Frame> road){
+        public Frame{cells=Map.copyOf(cells);road=Objects.requireNonNull(road);}
+        public Frame(ConstructionMaterials.Authority authority,String nextObserved,String explanation,Map<Position,String> cells){this(authority,nextObserved,explanation,cells,Optional.empty());}
     }
     private final ConstructionWorkQueue.Work work;private final Function<UUID,World> worlds;private final BooleanSupplier primary;
     private final List<Position> positions;private final Map<Position,String> prefix=new HashMap<>(),first=new HashMap<>();

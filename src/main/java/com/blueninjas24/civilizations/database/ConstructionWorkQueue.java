@@ -18,23 +18,29 @@ public final class ConstructionWorkQueue {
     public ConstructionWorkQueue(Connection c){this.c=Objects.requireNonNull(c);}
 
     public Page page(UUID after,int limit,Set<UUID> worlds)throws SQLException{
-        return page(after,limit,worlds,false);
+        return page(after,limit,worlds,0);
     }
     /** Automatic physical work is scoped to formal household-bound homes, never arbitrary paid/manual drafts. */
     public Page homePage(UUID after,int limit,Set<UUID> worlds)throws SQLException{
-        return page(after,limit,worlds,true);
+        return page(after,limit,worlds,1);
     }
-    private Page page(UUID after,int limit,Set<UUID> worlds,boolean homesOnly)throws SQLException{
+    /** Formal homes and their saved access only; arbitrary paid roads never enter automatic work. */
+    public Page automaticPage(UUID after,int limit,Set<UUID> worlds,boolean roads)throws SQLException{
+        return page(after,limit,worlds,roads?2:1);
+    }
+    private Page page(UUID after,int limit,Set<UUID> worlds,int mode)throws SQLException{
         var present=Set.copyOf(worlds);if(limit<1||limit>8||present.size()>256)throw new IllegalArgumentException("Construction work page exceeds bounds");
         if(present.isEmpty())return new Page(List.of(),null);
         if(!c.getAutoCommit())throw new SQLException("Construction work snapshot requires idle SQL owner");c.setAutoCommit(false);
         try{
             var ids=new ArrayList<UUID>();String places=String.join(",",Collections.nCopies(present.size(),"?"));
+            String formal="EXISTS(SELECT 1 FROM housing_project_bindings h WHERE h.draft_id=d.id AND h.cancelled_ms IS NULL AND h.completed_ms IS NULL)";
+            if(mode==2)formal="("+formal+" OR EXISTS(SELECT 1 FROM housing_road_projects a JOIN housing_project_bindings h ON h.draft_id=a.home_draft WHERE a.road_draft=d.id AND h.cancelled_ms IS NULL AND h.completed_ms IS NULL))";
             try(var s=c.prepareStatement("""
                 SELECT d.id FROM construction_drafts d
                 JOIN construction_site_reservations p ON p.draft_id=d.id AND p.released_ms IS NULL
                 WHERE d.id>? AND d.world_id IN (
-                """+places+") AND "+(homesOnly?"EXISTS(SELECT 1 FROM housing_project_bindings h WHERE h.draft_id=d.id AND h.cancelled_ms IS NULL AND h.completed_ms IS NULL)"
+                """+places+") AND "+(mode>0?formal
                     :"(EXISTS(SELECT 1 FROM housing_project_bindings h WHERE h.draft_id=d.id AND h.cancelled_ms IS NULL) OR EXISTS(SELECT 1 FROM construction_supply_orders o WHERE o.draft_id=d.id AND o.source='VILLAGE'))")
                     +" AND NOT EXISTS(SELECT 1 FROM construction_supply_orders o JOIN construction_supply_recalls r ON r.order_id=o.operation_id WHERE o.draft_id=d.id)"
                     +" AND NOT EXISTS(SELECT 1 FROM construction_supply_orders o JOIN construction_supply_returns r ON r.order_id=o.operation_id WHERE o.draft_id=d.id) ORDER BY d.id LIMIT ?")){

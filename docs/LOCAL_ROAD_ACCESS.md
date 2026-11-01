@@ -266,3 +266,25 @@ substituting dirt path), satisfied need, new protection and a forced late site
 failure refuse without losing the road/family/history; retry/reopen is stable.
 This is a backend bridge. Normal road procurement/native dispatch and loaded-only
 handoff scheduling remain next; no automatic roads are enabled by this batch.
+
+
+## October31 — shared builder dispatch for saved formal access
+
+The configured single PaperAutomaticConstruction now purchases and builds formal
+linked access roads alongside homes. The bounded automatic queue includes actual
+household home bindings and their retained access links only; ordinary paid/manual
+paths never qualify. local-roads-enabled is a separate editable opt-in for old
+files (missing=false, new-file default=true), under the main runtime switch.
+
+A WAIT_MATERIALS road can gather exact ground evidence without pretending its
+labor is ready. Procurement still pays from protected real funds and finite local
+stock; delivery and labor remain in existing ledgers. READY/RESUME/COMPLETE use
+the dedicated road owner/native paths. Home AIR-only permissions are unchanged.
+One queue/native gap covers both kinds, and mismatched frame kinds refuse.
+
+The actual configured production builder passed disposable Paper end-to-end:
+real25-hundredth payment/one stone, earned delivery/two labor, two actual paved
+cells, completion identity and temporary site release, no extra residents or home
+capacity. All captured blocks restored; both119 DBs healthy/FK-clean, helper
+archived and server stopped. This does not yet connect ordinary road-first
+proposal creation or automatic home-site handoff scheduling. P4 stays7/16=44%.

@@ -15,7 +15,9 @@ alone receive one first-write proof; renewal never replenishes consumed/lost pro
 The main-thread writer performs full exact scene/entity recheck and a single CAS
 under the nonblocking owner gate; no SQL or future wait there. Post-restart exact
 output may acknowledge; original ground without first-write certainty holds.
-Automatic road scheduling and completed-road publication are subsequent work.
+Completed-road publication is saved since118. The shared configured builder now
+dispatches formal saved household access; ordinary proposal/home-site handoff
+scheduling remains next. Homes retain their separate AIR-only native boundary.
 
 ## Schema117 — separate exact road-ground preparation
 

@@ -26,7 +26,7 @@ public final class PaperRoadWorkSurvey {
             var intent=work.pending().get();if(work.nextOrdinal()==placements.size()||!intent.draft().equals(work.draft().id())||intent.ordinal()!=work.nextOrdinal()
                     ||!intent.at().equals(geometry.origin().plus(placements.get(work.nextOrdinal()).getKey()))||!intent.after().equals(placements.get(work.nextOrdinal()).getValue()))throw new IllegalArgumentException("Pending road intent differs from frozen work");
         }
-        if(work.state()!=ConstructionWorkQueue.State.READY&&work.state()!=ConstructionWorkQueue.State.RESUME&&work.state()!=ConstructionWorkQueue.State.COMPLETE){unsafe=true;reason="Road work is not paid/earned and ready";}
+        if(work.state()!=ConstructionWorkQueue.State.WAIT_MATERIALS&&work.state()!=ConstructionWorkQueue.State.READY&&work.state()!=ConstructionWorkQueue.State.RESUME&&work.state()!=ConstructionWorkQueue.State.COMPLETE){unsafe=true;reason="Road work is not paid/earned and ready";}
         int minX=geometry.connection().x(),maxX=minX,minZ=geometry.connection().z(),maxZ=minZ;
         for(var p:placements){var at=geometry.origin().plus(p.getKey());minX=Math.min(minX,at.x());maxX=Math.max(maxX,at.x());minZ=Math.min(minZ,at.z());maxZ=Math.max(maxZ,at.z());}
         entities=new BoundingBox(minX,geometry.origin().y(),minZ,maxX+1.0,geometry.origin().y()+3.0,maxZ+1.0);
