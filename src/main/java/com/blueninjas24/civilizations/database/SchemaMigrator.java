@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** SQLite schema upgrades; all pending steps and their version markers commit together. */
 final class SchemaMigrator {
-    static final int CURRENT_VERSION = 119;
+    static final int CURRENT_VERSION = 120;
 
     @FunctionalInterface
     interface Migration {
@@ -968,7 +968,8 @@ final class SchemaMigrator {
                 CivBuildingCompletion::createSchema,
                 ConstructionRoadIntents::migrate,
                 CivRoadCompletion::createSchema,
-                HousingRoadProjects::createSchema
+                HousingRoadProjects::createSchema,
+                BusinessPremises::createSchema
 
 
         ));
@@ -1192,6 +1193,7 @@ final class SchemaMigrator {
                 requireColumns(connection,"civ_road_cells",Set.of("road_id","world_id","world_x","world_y","world_z","after_state","operation_id"));
             }
             if(migrations.size()>=119)requireColumns(connection,"housing_road_projects",Set.of("road_draft","home_draft","created_ms"));
+            if(migrations.size()>=120)requireColumns(connection,"business_premises",Set.of("operation_id","business_id","building_id","use_consent","layout_hash","created_ms","release_operation","released_ms"));
             if(migrations.size()>=115)requireColumns(connection,"construction_supply_returns",Set.of("order_id","return_operation","refund_operation","dispatched_ms","period","due_period","delivered_period","space_per_unit","haul_window","cadence","seller_before","seller_after","buyer_before","buyer_after"));
             if(migrations.size()>=114)requireColumns(connection,"construction_supply_recalls",Set.of("order_id","recall_operation","refund_operation","recalled_ms","period","seller_before","seller_after","stock_before","stock_after","buyer_before","buyer_after"));
             if(migrations.size()>=113)requireColumns(connection,"housing_project_bindings",Set.of("draft_id","household_id","settlement_id","world_id","plan_hash","residents","previous_capacity","created_ms","cancel_operation","cancelled_ms"));

@@ -74,6 +74,13 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
+October31 workplace reuse groundwork: schema120 now retains exclusive business/
+building holds tied to current use consent and positive fixed-marker evidence.
+Older firms without holds still block inferred vacancy; release/history is tested.
+53 unit+3 packaged checks passed; actual Paper120 startup/queue smoke passed.
+Ordinary reuse, whole-building inspection and workplace donation controls remain
+unfinished. No new checklist item:8/16=50%. See BUSINESS_PREMISES.md; handbook0.31.
+
 October31 housing review reliability: local survey/owner failures retain later
 homes and pagination; failed feeds alone restart after backoff.10 unit+3 packaged
 checks and actual Paper native-survey queue proof passed. No new permissions,

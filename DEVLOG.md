@@ -1,5 +1,29 @@
 # Civilizations Development Log
 
+## 2026-10-31 — retained workplace reservation foundation
+
+Add BusinessPremises and transactional schema120: explicit WORKPLACE consent epoch,
+exact frozen layout, same-world/local fixed business and fresh positive compatible
+marker gate a whole-building hold. Exclusive indexes prevent duplicate retained
+business/building holds. Other older firms count as occupants without new records.
+Only closure/expired sale or withdrawn/replaced/excluded use can release a hold;
+missing bodies/markers/worlds do not prove vacancy. Exact retry returns history,
+never renewed rights. Retain assets, funding, founding sites and consent history.
+
+Six new temporary-SQLite tests cover restart, claims/collisions, legacy occupants,
+freshness/current consent, closure/release/redonation, immutable history, late
+insert rollback and populated119 migration rollback. Initial fixture closure
+lacked its required sale parent; corrected fixture, retained application FKs.
+Final clean Wrapper53 unit+3 packaged integration passed1:03. Actual packaged120
+Paper startup and existing real native housing-queue smoke passed; read-only save
+check healthy/FK0, zero holds. Stopped and helper archived; no terrain changed.
+
+No ordinary runtime calls this backend yet. Whole-building workplace inspection,
+donation controls and reuse-before-new-construction integration remain. No new
+capacity, inventory/land/renovation rights, grants, goods or currency. P4 remains
+8/16=50%. Handbook0.31 is35 pages, rendered/reviewed. No real server/save or main
+changed. See BUSINESS_PREMISES.md for exact migration and rollout boundaries.
+
 ## 2026-10-31 — isolate failed home reviews without starving later housing
 
 PaperHousingRuntime now retains queued homes and the next-page cursor after a

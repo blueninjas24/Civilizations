@@ -6,10 +6,10 @@ import java.sql.SQLException;
 /** Reconstruct prior schema shapes only inside test-owned temporary databases. */
 final class SchemaFixtures {
     private SchemaFixtures() {}
-    /** Additional schemas95-119 must create only empty tables in earlier migration fixtures. */
+    /** Additional schemas95-120 must create only empty tables in earlier migration fixtures. */
     static void removeEmptyRecoveryAndAllocationAdditions(java.util.Map<String,? extends java.util.List<?>> snapshot) {
         for(var table:java.util.List.of("mineral_recoveries","resource_recovery_epochs","forest_recoveries",
-                "housing_road_projects",
+                "business_premises","housing_road_projects",
                 "civ_roads","civ_road_cells",
                 "business_allocation_state","business_allocation_reviews","resource_investment_state","resource_investment_reviews","generated_resource_chunks",
                 "construction_road_ground","construction_drafts","construction_block_journal","construction_material_reservations","construction_material_items","construction_site_reservations","construction_material_returns","construction_supply_orders","construction_stage_work","construction_public_work","building_records","building_units","building_consent_events","building_exclusions","building_exclusion_releases",
@@ -18,6 +18,7 @@ final class SchemaFixtures {
     }
     static void rewind(Connection connection, int version) throws SQLException {
         try (var statement = connection.createStatement()) {
+            if(version<120)statement.execute("DROP TABLE IF EXISTS business_premises");
             if(version<119)statement.execute("DROP TABLE IF EXISTS housing_road_projects");
             if(version<118){statement.execute("DROP TABLE IF EXISTS civ_road_cells");statement.execute("DROP TABLE IF EXISTS civ_roads");}
             if(version<117){

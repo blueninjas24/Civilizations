@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.30 | 31 October 2026 | Player and server owner edition
+Living draft 0.31 | 31 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -19,7 +19,7 @@ This guide explains what you can do now, why the systems behave as they do, and 
 
 Available means implemented, subject to settings and eligibility. Development only means backend or disposable-server work that is not ordinary gameplay. Planned means accepted direction or a proposal whose controls do not exist yet.
 
-Snapshot: P3 prototype gate complete; P4 has 8 of 16 checklist items complete (50%). Save schema 119 also preserves the link between a proposed access road and its future family home. Guarded road-first home proposals and their site handoff are connected. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
+Snapshot: P3 prototype gate complete; P4 has 8 of 16 checklist items complete (50%). Save schema 120 adds workplace reservation records; automatic business-building reuse is still unfinished. Guarded road-first home proposals and their site handoff are connected. Homes and road extensions recognize exact registered Civ paving; private stone is not adopted. Donated homes can house saved families, and donors can confirm repossession. Human survival balance and other plugin combinations still need playtesting. This living draft is not release certification.
 
 ## Chapter list
 
@@ -384,7 +384,7 @@ Never install src/test/paper helper plugins on a human server. Do not hot-reload
 
 ### Back up matching files
 
-SQLite lives under plugins/Civilizations. Current schema 119 includes paid construction recovery, village-built home identity, renovation consent, household-bound proposals, exact bed accounting, completed-road origin and saved road-to-home purpose. The road records support guarded paid paving and checked home-site handoff. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
+SQLite lives under plugins/Civilizations. Current schema 120 retains paid construction recovery, home identity, separate renovation consent, household proposals, exact beds and road-to-home purpose. It adds workplace reservation history, but no automatic relocation or whole-building workplace inspection yet. Existing families/housing are preserved through a gradual transition. Eligible families can receive inspected donated homes without duplicate bed capacity. Upgrade tests use temporary databases; real saves are not disposable. An older plugin can refuse newer schemas. Rollback requires a consistent matching backup, not just the previous JAR.
 
 A live server/database inside OneDrive risks sync conflicts and incomplete backups. Prefer a server outside synchronized folders; relocate it only while stopped after a consistent backup.
 

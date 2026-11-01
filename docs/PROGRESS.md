@@ -2,6 +2,12 @@
 
 ## Current — Phase 4 physical growth
 
+October31: added the saved reservation safeguard needed before businesses can
+reuse buildings. Two firms cannot reserve one premises; old business occupants
+and player permission still count. This backend does not yet relocate businesses
+or approve an interior. Verified schema120; P4 remains8/16=50%. Next is workplace
+suitability and the normal reuse flow. See BUSINESS_PREMISES.md; handbook0.31.
+
 October31: a failed inspection of one home no longer holds up the other homes
 waiting for review. Focused Wrapper and real Paper queue checks passed. This is
 a reliability fix for housing reuse; P4 remains8/16=50%, with wider business

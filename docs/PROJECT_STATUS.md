@@ -1,6 +1,22 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at50%, housing review queue isolation
+## Current — Phase4 at50%, workplace reservation groundwork
+
+October31: SQL-owner BusinessPremises reserves an explicitly permitted registered
+workplace for an existing fixed-marker business, with exclusive retained occupancy,
+legacy-business collision checks and immutable release/history semantics. Consent,
+layout, present world and fresh compatible marker are checked. No operational
+capacity, contents/renovation rights or automatic relocation is enabled.
+
+Schema120 adds an empty table/indexes/triggers without backfill or save reset.
+Six new temporary-SQLite cases plus related regression/migration checks passed:
+53 unit+3 packaged clean Wrapper in1:03. Actual Paper120 startup/native housing
+queue smoke passed; stopped/helper archived,120 DB healthy/FK-clean and zero holds.
+Handbook0.31 is35 pages, rendered/reviewed. No human server or main changed.
+P4 stays8/16=50%; item2.4 still needs actual suitability/donation/ordinary reuse.
+See BUSINESS_PREMISES.md. No new user decision needed.
+
+## Earlier October31 — housing review queue isolation
 
 October31: one failed home survey/save no longer discards unrelated queued homes
 or loses the next-page cursor. Feed failure still waits before restarting. This
