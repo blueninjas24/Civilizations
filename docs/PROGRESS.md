@@ -4,8 +4,9 @@
 
 October31: saved road-to-family purpose and atomic access preparation now preserve
 both frozen plans, reserving only road land. Changed family need/protection holds
-unstarted access; status/cancellation retain safe history. This is backend
-preparation, not ordinary automatic road building. P4 remains7/16=44%.
+unstarted access; status/cancellation retain safe history. Completed access can
+hand off the frozen home site after a fresh whole-road/home review. These are
+backend operations; normal automatic road scheduling remains. P4 stays7/16=44%.
 
 
 October31: resumed clean feature branch. Hosted Linux passed; one Windows
@@ -58,7 +59,7 @@ that read-only check. Automatic road purchasing/scheduling remains unfinished.
 Schema119 also preserves road-to-home/family purpose. Existing construction.yml files must
 opt into automatic homes explicitly; settings never create free goods or people.
 No simulation chunk loading. Unknown/changed sites wait; ambiguous missing output
-needs review. Latest handbook0.26; actual user server/world/database and main are
+needs review. Latest handbook0.27; actual user server/world/database and main are
 untouched. Hosted green is claimed only for explicitly checked commits. P3 human
 survival and wider P4 acceptance remain deferred.
 

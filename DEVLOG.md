@@ -1,5 +1,23 @@
 # Civilizations Development Log
 
+## 2026-10-31 — completed-road handoff to the original frozen family home
+
+HousingRoadHandoff requires actual registered paid access and a fresh complete
+review of its exact paving, endpoint/headroom/protection, plus the frozen home's
+whole-family need and clear site/entity evidence. Reserves only the original home
+site atomically; no replanning, purchases, labor, capacity or new people. Exact
+retry/reopen retains the receipt; late site failure keeps road/family/history.
+Generic home site/funding/labor/intent checks now also enforce road completion,
+closing a possible internal bypass. Status distinguishes pending access from a
+handed-off home site. No normal automatic road/handoff scheduler enabled yet.
+
+Clean Windows Wrapper verify passed61 unit+3 packaged integration checks (62s).
+Tests use temporary SQLite saves and real paid/earned/journalled road completion;
+changed paving, satisfied family, new protection and forced late failure refuse.
+Handbook0.27 is35 pages, rendered and visually reviewed. Schema stays119. P4 stays
+7/16=44%; no completed checklist item added for backend groundwork. No user server,
+world/save or main changed. Next: shared road procurement/native/handoff runtime.
+
 ## 2026-10-31 — saved road-first family purpose and atomic access preparation
 
 Schema119 adds immutable road-to-frozen-home purpose using the existing real

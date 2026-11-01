@@ -9,8 +9,10 @@ then reserves only the road site atomically. It purchases nothing and creates no
 beds, residents or home land lease. Exact retry/reopen retains the same receipts.
 Changed need/future protection pauses unstarted road funding, labor and intent;
 started work retains recovery. Cancellation/status cannot strand linked access.
-Normal runtime road scheduling/home handoff remain next, not enabled by this API.
-Temporary SQLite verification recorded in DEVLOG. Handbook0.26 remains35 pages,
+The verified backend home handoff now requires completed access plus a fresh
+whole-road/home/protection review before reserving its frozen site. Normal runtime
+road dispatch and scheduling this handoff remain next, not enabled by these APIs.
+Temporary SQLite verification recorded in DEVLOG. Handbook0.27 remains35 pages,
 rendered/reviewed. No actual server/save or main changed. P4 stays7/16=44%.
 
 
@@ -61,7 +63,7 @@ server/world/database or main changed. Feature branch backups remain authorized;
 latest hosted CI is pending until explicitly verified.
 
 Next: connect protected road purchases, earned cargo/labor and the shared native
-scheduler, then hand completed access to its frozen future home. No decision needed.
+scheduler, then schedule the verified completed-road-to-home handoff. No decision needed.
 
 ## Earlier October21 road checkpoints — historical
 

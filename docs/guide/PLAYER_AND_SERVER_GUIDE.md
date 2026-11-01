@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.26 | 31 October 2026 | Player and server owner edition
+Living draft 0.27 | 31 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -898,7 +898,7 @@ A flat clear site and real supplies remain necessary. Original home plans fit fo
 
 The six/eight-bed plans have a covered center aisle and a wall torch above walking headroom. Default abstract costs are 45 timber, 12 stone and 18 wool for six beds; 53 timber, 14 stone and 24 wool for eight. At default prices these are 39 and 48.7 emerald value. Configured prices and protected budgets apply. Existing installed plans are preserved. Qualified assigned homes now guide managed villagers to distinct bed heads through their normal Minecraft home memory. Nearby-player and loaded-area limits still apply; villagers use normal walking and sleeping behavior. This does not teleport them or add people. Repossession removes their saved use rights.
 
-Development groundwork now saves a proposed access road, future home and actual family together, reserving only the road site. Changed need or protected future housing holds unstarted access work. Normal automatic road purchasing/building and the later home handoff are still unfinished.
+Development groundwork now saves a proposed access road, future home and actual family together, reserving only the road site. Changed need or protected future housing holds unstarted access work. The backend home-site handoff now requires a completed road that is still intact, clear and permitted. Normal automatic road purchasing/building and scheduling this handoff remain unfinished.
 
 Related chapters: housing, protection, automatic planning, funding, recovery, server backups and tuning. Source: AUTOMATIC_CONSTRUCTION.md. Wider P4 growth remains in progress.
 

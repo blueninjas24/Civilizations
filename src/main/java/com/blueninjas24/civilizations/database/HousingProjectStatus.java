@@ -56,7 +56,7 @@ public final class HousingProjectStatus {
             UUID road=access.orElseThrow().roadDraft();
             try{new HousingRoadProjects(c).requireRetiredRoadRows(id);}
             catch(BuildingRegistry.Declined held){unused=false;}
-            if(pause.isEmpty())pause=Optional.of("Access road "+road+" precedes this frozen home; current supplies, labor and native handoff still required");
+            if(pause.isEmpty())pause=Optional.of("Access road "+road+(site.isEmpty()?" precedes this frozen home; current supplies, labor and native handoff still required":" retained; home site handed off, normal funding/labor/native checks still required"));
         }
         return new Item(family,draft.template().id(),site.isPresent()&&site.orElseThrow().active(),orders,intents,unused,pause);
     }

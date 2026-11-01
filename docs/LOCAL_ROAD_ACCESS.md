@@ -247,3 +247,22 @@ The normal scheduler still handles HOME only. Automatic road procurement, earned
 cargo/labor, native dispatch and the eventual road-to-home site handoff remain
 next work. No schema119 backfill creates historical roads, families or projects.
 Upgrade/failure/retry tests use temporary SQLite saves only. P4 stays7/16=44%.
+
+
+## October31 — completed access hands off its frozen home site
+
+HousingRoadHandoff requires actual paid registered completion of the linked road,
+then checks its entire current paving/endpoint/headroom, exact saved origin and
+current SQL protection. The frozen future HOME must still fit/serve its actual
+family and pass a complete fresh clear-land/site/entity review in the same owner
+transaction. Only then is its own site reserved. Never replan around changed
+private land, spend money, grant work/capacity or create another family/project.
+Generic site/funding/labor/intent checks also prevent a linked home preceding its
+road. A retained site receipt retry never renews a released site.
+
+Temporary SQLite tests run real supplier payments, earned cargo/work, road intents,
+acknowledgements and completion before the home handoff. Changed paving (including
+substituting dirt path), satisfied need, new protection and a forced late site
+failure refuse without losing the road/family/history; retry/reopen is stable.
+This is a backend bridge. Normal road procurement/native dispatch and loaded-only
+handoff scheduling remain next; no automatic roads are enabled by this batch.

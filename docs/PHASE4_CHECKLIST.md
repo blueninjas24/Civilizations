@@ -73,7 +73,7 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
-Current schema118. Family homes use real finite supplier stock, original money,
+Current schema119. Family homes use real finite supplier stock, original money,
 earned cargo/work, paced per-block journaling, exact native scene checks and
 completion registration. Four/six/eight-bed catalogue geometry and actual rotated/
 mirrored eight-bed construction passed disposable Paper; eight actual residents
@@ -85,7 +85,7 @@ Most recent focused clean Wrapper checks: road completion24 unit+3 packaged;
 road/home connectors22+3. Actual Paper completed two paid road cells, retained
 identity/site release through restart and accepted home access only with positive
 saved origin. Same paving without origin refused. Newest head still needs hosted
-CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.25 is
+CI completion; earlier automatic-home/recovery checkpoints passed Windows/Linux. Handbook0.27 is
 35 pages/32 chapters, rendered and visually reviewed. Live player survival tests
 remain deferred. See PROJECT_STATUS.md and DEVLOG.md for precise evidence.
 
@@ -93,7 +93,10 @@ Next cohesive local-road delivery:
 1. Frozen local design is now verified: existing editable path recipe supplies
    exact scaled cost/work and actual corridor geometry. Integration must retain
    those immutable terms and never treat geometry as free goods or labor.
-2. Reserve/revalidate the actual corridor with current protection and entities.
+2. Atomic backend preparation now freezes road/home/family together and reserves
+   only access land after current protection/exact ground checks. Completed access
+   can hand off its frozen home site after a fresh whole-road/home review. Normal
+   scheduling remains unfinished; no extra checklist item is counted here.
 3. SQL exact-ground preparation, native replacement/restarts and permanent road
    completion are verified. Homes recognize actual matching saved Civ paving;
    private paving and harvested-output ambiguity retain their protection.

@@ -85,6 +85,8 @@ class DwellingOccupancyTest {
             seed(c);verifiedShortage(c);saved=prepareRoad(c,roadPreparation());
             assertEquals(2,number(c,"SELECT count(*) FROM construction_drafts"));assertEquals(1,number(c,"SELECT count(*) FROM construction_site_reservations"));
             assertTrue(saved.site().active());assertTrue(new ConstructionSiteReservations(c).find(saved.home().id()).isEmpty());
+            var future=saved.home();
+            assertThrows(SQLException.class,()->new ConstructionSiteReservations(c).reserve(future.id(),new ConstructionMaterials.Authority(future.id(),world,1200,true,true),1200));
             assertEquals(saved.home().id(),saved.family().proposal().draft());assertEquals(saved.road().id(),saved.purpose().roadDraft());
             var status=new HousingProjectStatus(c).find(saved.home().id(),context(1200));
             assertFalse(status.unused());assertTrue(status.pause().orElseThrow().contains(saved.road().id().toString()));

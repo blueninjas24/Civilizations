@@ -70,7 +70,13 @@ public final class HousingRoadProjects {
     }
     Optional<String> pauseReasonRows(ConstructionDraft road)throws SQLException{
         if(c.getAutoCommit())throw new SQLException("Road beneficiary review requires SQL owner transaction");
-        var link=findRoad(road.id());if(link.isEmpty())return Optional.empty();
+        var link=findRoad(road.id());
+        if(link.isEmpty()){
+            var access=findHome(road.id());
+            if(access.isPresent()&&new CivRoadCompletion(c).findDraft(access.orElseThrow().roadDraft()).isEmpty())
+                return Optional.of("Frozen home waits for its retained access road to complete and register");
+            return Optional.empty();
+        }
         var home=draft(link.get().homeDraft());var binding=new HousingProjects(c).find(home.id()).orElseThrow();
         if(!binding.active())return Optional.of("Road's household proposal is cancelled or completed; retained access requires review");
         // Started infrastructure retains the same recovery/completion rule as started homes.
