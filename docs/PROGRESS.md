@@ -2,6 +2,10 @@
 
 ## Current — Phase 4 physical growth
 
+October31: resumed clean feature branch. Hosted Linux passed; one Windows
+acceptance error is under investigation. Local scenario passes; bounded test-wait
+mitigation and safer CI diagnostics are verified locally. P4 remains44%.
+
 Joint planning now samples beyond crowded centers under the same limits.6 unit+3
 packaged checks and real Paper acceptance passed; no extra milestone counted.
 

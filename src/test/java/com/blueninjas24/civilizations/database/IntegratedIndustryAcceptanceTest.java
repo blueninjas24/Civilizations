@@ -177,6 +177,8 @@ class IntegratedIndustryAcceptanceTest {
     }
 
     private static <T> T await(java.util.concurrent.CompletableFuture<T> work) throws Exception {
-        return work.get(5, TimeUnit.SECONDS);
+        // This is a correctness scenario, not a five-second hosted-disk benchmark.
+        // Keep hangs bounded while allowing cold Windows SQLite/migration work to finish.
+        return work.get(30, TimeUnit.SECONDS);
     }
 }

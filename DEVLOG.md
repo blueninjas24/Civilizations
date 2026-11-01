@@ -1,5 +1,17 @@
 # Civilizations Development Log
 
+## 2026-10-31 — resume and investigate Windows acceptance timing
+
+Resumed clean9fc7ac7 feature branch. Its hosted Linux build passed; Windows had
+one error in IntegratedIndustryAcceptanceTest. Detailed hosted logs require access
+unavailable to this session (403), so timeout is a hypothesis, not a confirmed
+root cause. The full ten-year scenario passed locally unchanged (57.496s Wrapper
+verify). Changed only this correctness test's future wait from5 to30 seconds,
+retaining a bound and all simulation/conservation assertions; repeat1 unit+3
+packaged checks passed53.546s. CI summary now counts only the fixed known timeout
+exception type without publishing messages/fixture values; PowerShell parses.
+No application/schema/world change. Hosted confirmation remains pending. P4 stays44%.
+
 ## 2026-10-21 — bounded expansion search reaches beyond a crowded center
 
 Keep eight nearby entrance choices and spread the remaining24 across the observed

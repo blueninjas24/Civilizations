@@ -56,7 +56,14 @@ jobs:
             $failures = [int]$suite.testsuite.failures
             $errors = [int]$suite.testsuite.errors
             if ($failures + $errors -eq 0 -or $shown -ge 20) { continue }
-            Write-Output "::error title=JUnit suite failed::${suiteName}: $failures failures; $errors errors. Reproduce this class locally for details."
+            $timeouts = 0
+            foreach ($case in $suite.testsuite.testcase) {
+              foreach ($errorEntry in @($case.error)) {
+                if ([string]$errorEntry.type -eq 'java.util.concurrent.TimeoutException') { $timeouts++ }
+              }
+            }
+            # Fixed known exception type only; never publish arbitrary messages or fixture values.
+            Write-Output "::error title=JUnit suite failed::${suiteName}: $failures failures; $errors errors; $timeouts future timeouts. Reproduce this class locally for details."
             $shown++
           }
           if ($shown -eq 0) { Write-Output 'No source-verified JUnit failure summary available; inspect the preceding build step.' }

@@ -2,6 +2,12 @@
 
 ## Current — Phase4 at44%, joint local-road/home selection verified
 
+October31 resume:9fc7ac7 hosted Linux passed; Windows reported one integrated
+industry acceptance error. Scenario passes locally unchanged; exact hosted cause
+unconfirmed (detailed logs403). Bounded test wait now30 seconds, with safe timeout
+counts in CI diagnostics.1 unit+3 packaged clean verify passed53.546s; application
+behavior unchanged. New hosted result pending. Road/home persistence is next.
+
 Latest refinement: bounded entrance sampling keeps eight nearby choices and
 spreads24 across observed land; family/period seed variation avoids repeating
 only a crowded center.6 unit+3 packaged checks and actual Paper positive/new-
