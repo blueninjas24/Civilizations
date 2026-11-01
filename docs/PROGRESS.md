@@ -2,6 +2,13 @@
 
 ## Current — Phase 4 physical growth
 
+October31: villages can now inspect naturally higher/lower flat terraces, with
+editable vertical range and full roof coverage. Fixed scans near world height
+limits; no digging, flattening, extra permissions or chunk loading. Unit/packaged
+and actual Paper terrace/protection checks passed. P4 stays8/16=50%; physical
+terrain adaptation remains unfinished. Handbook0.30; see TERRAIN_SITING.md.
+
+
 October31: normal village housing need can now cause a paid short access road,
 then a fresh check of the original home site. Actual Paper passed the complete
 road-first planning/payment/paving/site-handoff loop. This closes guarded persistent

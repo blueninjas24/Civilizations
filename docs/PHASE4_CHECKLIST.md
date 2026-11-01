@@ -74,6 +74,13 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
+October31 terrace increment: optional vertical-search now observes whole higher/
+lower flat sites without changing terrain. World-height clipping fixes impossible
+below-world coverage.21 unit+3 packaged and actual Paper roof/protection checks
+passed. This is observation only; item2.3 remains unchecked, count stays8/16=50%.
+See TERRAIN_SITING.md; current handbook0.30.
+
+
 October31: item2.1 now passes for the persistent guarded land-authority mechanism
 used by flat family homes/local access. Ordinary loaded-only housing planning can
 freeze the family/home/road, reserve only access, buy real inputs and build/register

@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.29 | 31 October 2026 | Player and server owner edition
+Living draft 0.30 | 31 October 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -793,13 +793,13 @@ Related chapters: housing, construction, donation, backups and the command gloss
 
 ## 29 Automatic home-site planning
 
-Status: Available preparation only. A village can save an unused home proposal beside an existing path. This does not place a home, buy materials or grant beds.
+Status: Available preparation only. A village can save unused home/access proposals. This step places no home, buys no materials and grants no beds.
 
 ### What the village considers
 
 Suitable permitted vacancies come first. Unknown capacity or stale inspections pause planning. A plan must fit the whole family, and an editable cap limits active unfinished home projects.
 
-The village checks flat supported space beside existing dirt paths or exact registered Civ paving. Buildings, fences, crops, trees, water, entities or saved protection can reject a rotated plan. This step does not dig, level hills or make roads.
+The village checks flat supported terraces beside existing dirt paths or exact registered Civ paving. Buildings, fences, crops, trees, water, entities or saved protection can reject a rotated plan. This step does not dig, level hills or make roads.
 
 Loaded blocks are checked twice within a shared budget; missing or changed evidence pauses planning. Simulation never loads chunks. Current protections and family need are rechecked before the plan, family and site reservation save atomically.
 
@@ -814,8 +814,9 @@ New construction.yml files include these settings. Existing files must opt in wi
 | review-seconds | 30 between cycles; allowed 10 to 600 |
 | maximum-active-homes | 1 per village; allowed 1 to 16 |
 | search-radius | 12 blocks; allowed 8 to 12 |
+| vertical-search | 2 extra layers above/below; allowed 0 to 4; absent keeps 0 |
 
-This pass covers the selected home's full height above normal village bed level, within a strict total scan limit. Large plans, hills, missing paths or unloaded areas may leave no safe site. Protect reserved empty player land with confirmed off-limits protection before the village chooses it.
+Vertical search finds naturally higher/lower flat sites without digging. Roof coverage, world height and freshness limits still apply; missing evidence refuses. Protect reserved empty player land before the village chooses it.
 
 ### Check progress and retain control
 
@@ -824,7 +825,7 @@ This pass covers the selected home's full height above normal village bed level,
 - /civ build projects <village UUID>: retained proposals.
 - Chapter 28: confirmed unused cancellation.
 
-If need remains, a later review can propose a fresh project. Disable planning to stop proposals entirely. A reservation grants no access to chests or permission to overwrite builds. The separate automatic-construction settings govern paid supplies, earned labor and physical work. A proposal alone grants no free beds or people; see Chapter 31.
+Disable planning to stop new proposals. Reservations never permit chest access or overwriting builds. Paid supplies, labor and physical work use the separate automatic-construction settings; see Chapter 31.
 
 Related chapters: housing, protection, construction, recovery and server settings. Sources: HOUSING_PROJECTS.md, CONSTRUCTION.md and AutomaticHomePlanningSettings.
 

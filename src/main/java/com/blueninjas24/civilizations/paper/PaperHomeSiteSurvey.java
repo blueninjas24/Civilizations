@@ -22,18 +22,30 @@ public final class PaperHomeSiteSurvey {
         this(world,need,radius,4,now);
     }
     public PaperHomeSiteSurvey(UUID world,Position need,int radius,int templateHeight,long now){
+        this(world,need,radius,templateHeight,0,now);
+    }
+    public PaperHomeSiteSurvey(UUID world,Position need,int radius,int templateHeight,int verticalSearch,long now){
         requireMain();worldId=Objects.requireNonNull(world);Objects.requireNonNull(need);
         if(now<0)throw new IllegalArgumentException("Invalid bounded home survey time");
-        search=bounds(need,radius,templateHeight);started=now;captured=now;
+        var requested=bounds(need,radius,templateHeight,verticalSearch);var loaded=Bukkit.getWorld(world);
+        search=loaded==null?requested:withinWorld(requested,loaded.getMinHeight(),loaded.getMaxHeight()).orElse(requested);started=now;captured=now;
         var list=new ArrayList<Position>();
-        for(int y=-3;y<templateHeight;y++)for(int z=-radius;z<=radius;z++)for(int x=-radius;x<=radius;x++)list.add(need.plus(new Position(x,y,z)));
+        for(long y=search.minimum().y();y<=search.maximum().y();y++)for(long z=search.minimum().z();z<=search.maximum().z();z++)for(long x=search.minimum().x();x<=search.maximum().x();x++)list.add(new Position((int)x,(int)y,(int)z));
         positions=List.copyOf(list);
     }
     static Bounds bounds(Position need,int radius,int height){
-        Objects.requireNonNull(need);if(radius<8||radius>12||height<1||height>64||(long)(radius*2+1)*(radius*2+1)*(height+3)>ConstructionPreview.MAX_OBSERVATION_CELLS)
+        return bounds(need,radius,height,0);
+    }
+    static Bounds bounds(Position need,int radius,int height,int verticalSearch){
+        Objects.requireNonNull(need);if(radius<8||radius>12||height<1||height>64||verticalSearch<0||verticalSearch>4||(long)(radius*2+1)*(radius*2+1)*(height+3+2*verticalSearch)>ConstructionPreview.MAX_OBSERVATION_CELLS)
             throw new IllegalArgumentException("Selected home exceeds bounded site survey coverage");
         // Settlements are usually centered at bed height, one above the road. Include the entire roof.
-        return new Bounds(need.plus(new Position(-radius,-3,-radius)),need.plus(new Position(radius,height-1,radius)));
+        return new Bounds(need.plus(new Position(-radius,-3-verticalSearch,-radius)),need.plus(new Position(radius,height-1+verticalSearch,radius)));
+    }
+    static Optional<Bounds> withinWorld(Bounds requested,int minimum,int maximum){
+        if(minimum>=maximum)throw new IllegalArgumentException("Invalid world height");
+        int low=Math.max(requested.minimum().y(),minimum),high=Math.min(requested.maximum().y(),maximum-1);
+        return low>high?Optional.empty():Optional.of(new Bounds(new Position(requested.minimum().x(),low,requested.minimum().z()),new Position(requested.maximum().x(),high,requested.maximum().z())));
     }
     public Optional<Frame> advance(int budget,long now){
         requireMain();if(budget<1||budget>256||now<0)throw new IllegalArgumentException("Invalid home survey budget/time");

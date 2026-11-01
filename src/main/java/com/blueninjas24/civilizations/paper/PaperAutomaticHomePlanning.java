@@ -25,7 +25,7 @@ public final class PaperAutomaticHomePlanning extends BukkitRunnable implements 
         this(session,library,settings,policy,System::currentTimeMillis,logger);
     }
     public PaperAutomaticHomePlanning(PopulationSession session,PaperConstructionLibrary library,AutomaticHomePlanningSettings settings,DwellingInspection.Policy policy,LongSupplier clock,Logger logger){
-        this(source(session,library,settings,policy),settings,(job,now)->new PaperHomeSiteSurvey(job.world(),job.need(),settings.searchRadius(),job.templateHeight(),now)::advance,
+        this(source(session,library,settings,policy),settings,(job,now)->new PaperHomeSiteSurvey(job.world(),job.need(),settings.searchRadius(),job.templateHeight(),job.handoff().isPresent()?0:settings.verticalSearch(),now)::advance,
                 clock,session::publishHomePlanningDiagnostic,logger);
     }
     private static Owner source(PopulationSession session,PaperConstructionLibrary library,AutomaticHomePlanningSettings settings,DwellingInspection.Policy policy){

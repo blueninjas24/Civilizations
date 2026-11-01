@@ -1,5 +1,26 @@
 # Civilizations Development Log
 
+## 2026-10-31 — bounded higher/lower terrace observation
+
+Optional automatic-home-planning.vertical-search0..4 adds complete vertical
+coverage for naturally suitable flat sites (new files2, old absent0). Frozen home
+handoff keeps its exact existing-origin coverage. Preserve total frame, per-tick
+reads, two exact passes and freshness; no grading/filling, land authority or cost
+changes. Constructor clips enumeration to actual present-world height, fixing
+bottom-world rejection from impossible below-world cells. Required missing cells
+still refuse; absent worlds/chunks remain unobservable, never loaded.
+
+Clean Windows Wrapper21 unit+3 packaged checks passed28.731s. Configuration/type/
+backward compatibility, whole roof/height/volume bounds and existing site/planning
+checks pass. Actual disposable Paper: legacy incomplete raised roof refuses;
+extra2 finds a complete site two blocks higher; protection refuses again. No
+project, payment, capacity or building rights. Initial native failure exposed the
+bottom-height edge and unstable buried fixture grass; the fixture now stabilizes
+its substrate explicitly. Final captured terrain restored, server stopped/helper
+archived;119 save healthy/FK-clean. No human server/database or main changed.
+Handbook0.30 updated/rendered/reviewed. P4 stays8/16=50%; item2.3 needs physical
+adaptation and is not claimed complete. Next: paid safe adaptation/wider premises.
+
 ## 2026-10-31 — ordinary road-first home planning and fresh home-site return
 
 Connect opted-in housing preparation to atomic road/home/family creation inside

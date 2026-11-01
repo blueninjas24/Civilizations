@@ -54,11 +54,13 @@ automatic-home-planning:
   review-seconds: 30
   maximum-active-homes: 1
   search-radius: 12
+  # Extra height above/below the existing survey; old files keep0. No grading.
+  vertical-search: 2
 
 # Build saved family home projects with real suppliers, delayed cargo and earned labor.
 # Existing files MUST explicitly add this entire section; they are never rewritten.
 # New installations enable this prototype. Disable to pause future purchases/native steps.
-# This does not enable private premises, civic buildings, terrain clearing or roads.
+# This does not enable private premises, civic buildings, terrain clearing or arbitrary roads.
 automatic-construction:
   local-roads-enabled: true
   enabled: true

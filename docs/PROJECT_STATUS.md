@@ -1,6 +1,20 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at50%, ordinary road-first family expansion
+## Current — Phase4 at50%, bounded terrace observation
+
+October31: home-site planning can now observe naturally higher/lower flat terraces
+using optional vertical-search0..4 (new files2; absent old files0). Full roof,
+protection, volume/read/freshness and no-chunk-loading constraints remain. Requested
+height clips to actual world limits, fixing a bottom-world scan failure. Exact
+frozen-home handoff does not search for another location. This adds no grading,
+excavation, land rights, costs or housing capacity; item2.3 is still unfinished.
+21 unit+3 packaged clean Wrapper passed28.731s. Actual Paper compared legacy roof
+refusal with a complete higher site and protection refusal; restored/stopped,
+helper archived and119 DB healthy. Handbook0.30 updated. P4 stays8/16=50%.
+See TERRAIN_SITING.md. No human server/save or main changed.
+
+## Earlier October31 — ordinary road-first family expansion checkpoint
+
 
 October31: normal home planning now creates the actual frozen road/home/family
 pair when infill fails and a safe bounded corridor exists. The shared builder
