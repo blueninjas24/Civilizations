@@ -2,6 +2,11 @@
 
 ## Current — Phase 4 physical growth
 
+October31: a failed inspection of one home no longer holds up the other homes
+waiting for review. Focused Wrapper and real Paper queue checks passed. This is
+a reliability fix for housing reuse; P4 remains8/16=50%, with wider business
+premises, terrain work and useful building types still ahead.
+
 October31: villages can now inspect naturally higher/lower flat terraces, with
 editable vertical range and full roof coverage. Fixed scans near world height
 limits; no digging, flattening, extra permissions or chunk loading. Unit/packaged

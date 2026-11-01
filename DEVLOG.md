@@ -1,5 +1,25 @@
 # Civilizations Development Log
 
+## 2026-10-31 — isolate failed home reviews without starving later housing
+
+PaperHousingRuntime now retains queued homes and the next-page cursor after a
+local survey/save refusal. Previously the catch path discarded the queue and
+restarted from the beginning, allowing one repeatedly refused home to delay all
+later buildings. Feed failures still back off and restart safely; one native
+budget and one accepted SQL save remain the limits. Shutdown never cancels an
+accepted save. No permissions, capacity, assignment or economic rule changed.
+
+Focused clean Windows Wrapper:10 unit checks (PaperHousingRuntimeTest and
+PaperAutomaticHomePlanningTest) plus3 packaged integration checks passed29.154s.
+Three new cases cover native-survey failure, async owner refusal and feed backoff.
+The command also named DwellingHousingTest, which does not exist and did not run;
+no household-assignment SQL coverage is claimed for that invocation.
+Actual disposable Paper used real two-pass native surveys and synthetic read-only
+owner receipts: local refusal did not discard the second home or next-page third
+home. No registered buildings, people, capacity, money or terrain changed. Server
+stopped, helper archived, schema119 DB integrity/FK clean. No user server or
+migration. P4 stays8/16=50%; wider premises reuse remains unfinished.
+
 ## 2026-10-31 — bounded higher/lower terrace observation
 
 Optional automatic-home-planning.vertical-search0..4 adds complete vertical

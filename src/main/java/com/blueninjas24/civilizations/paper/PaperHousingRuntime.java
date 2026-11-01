@@ -61,7 +61,11 @@ public final class PaperHousingRuntime extends BukkitRunnable implements AutoClo
         }catch(CompletionException|CancellationException|IllegalArgumentException failure) {
             Throwable cause=failure instanceof CompletionException&&failure.getCause()!=null?failure.getCause():failure;
             if(!(cause instanceof BuildingRegistry.Declined||cause instanceof CancellationException))logger.log(Level.WARNING,"Housing review paused; saved families retained",cause);
-            saving=null;page=null;current=null;survey=null;waiting.clear();cursor=null;nextPage=time+settings.reviewSeconds()*1000L;
+            boolean buildingFailure=current!=null;
+            saving=null;current=null;survey=null;
+            // A changed or refused building must not discard unrelated homes or restart pagination.
+            // Feed failures have no safe continuation cursor, so back off and restart that cycle.
+            if(!buildingFailure){page=null;waiting.clear();cursor=null;nextPage=time+settings.reviewSeconds()*1000L;}
         }
     }
     @Override public void close(){closed=true;waiting.clear();page=null;current=null;survey=null;saving=null;}

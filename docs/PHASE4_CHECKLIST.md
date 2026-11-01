@@ -74,6 +74,11 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
+October31 housing review reliability: local survey/owner failures retain later
+homes and pagination; failed feeds alone restart after backoff.10 unit+3 packaged
+checks and actual Paper native-survey queue proof passed. No new permissions,
+assignments or capacity;8/16 stays50%, item2.4 remains unfinished.
+
 October31 terrace increment: optional vertical-search now observes whole higher/
 lower flat sites without changing terrain. World-height clipping fixes impossible
 below-world coverage.21 unit+3 packaged and actual Paper roof/protection checks

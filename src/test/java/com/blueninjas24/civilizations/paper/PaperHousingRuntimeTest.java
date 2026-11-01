@@ -13,6 +13,42 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PaperHousingRuntimeTest {
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
+    void failedBuildingKeepsLaterHomesAndTheNextPage(boolean surveyFailure) {
+        var first=layout();var second=layout();var third=layout();var cursor=UUID.randomUUID();
+        var requested=new ArrayList<UUID>();var reviewed=new ArrayList<UUID>();
+        var accepted=new CompletableFuture<DwellingHousing.Report>();
+        var owner=new PaperHousingRuntime.Owner(){
+            public CompletableFuture<HousingPage> page(UUID after){
+                requested.add(after);return CompletableFuture.completedFuture(after==null?new HousingPage(List.of(first,second),cursor):new HousingPage(List.of(third),null));
+            }
+            public CompletableFuture<DwellingHousing.Report> review(BuildingLayout home,DwellingInspection.Observation frame){
+                reviewed.add(home.id());return home.equals(first)?CompletableFuture.failedFuture(new BuildingRegistry.Declined("Donation changed")):accepted;
+            }
+        };
+        var runtime=new PaperHousingRuntime(owner,new PaperHousingRuntime.Settings(true,32,15),(home,time)->{
+            if(surveyFailure&&home.equals(first))throw new IllegalArgumentException("Local survey unavailable");
+            return (budget,now)->{assertEquals(32,budget);return Optional.of(new DwellingInspection.Observation(home.world(),home.fingerprint(),now,false,Map.of()));};
+        },()->1000,Logger.getAnonymousLogger());
+        for(int i=0;i<5;i++)runtime.run();
+        assertEquals(surveyFailure?List.of(second.id()):List.of(first.id(),second.id()),reviewed);
+        assertEquals(1,requested.size());assertNull(requested.getFirst());
+        accepted.complete(new DwellingHousing.Report(DwellingOccupancy.Outcome.UNVERIFIED,0,0,"Unknown"));
+        for(int i=0;i<3;i++)runtime.run();
+        assertEquals(2,requested.size());assertEquals(cursor,requested.getLast());assertEquals(third.id(),reviewed.getLast());
+        runtime.close();assertFalse(accepted.isCancelled());
+    }
+    @Test void failedFeedWaitsBeforeRestartingPagination() {
+        var time=new AtomicLong(1000);var requested=new ArrayList<UUID>();
+        var owner=new PaperHousingRuntime.Owner(){
+            public CompletableFuture<HousingPage> page(UUID after){requested.add(after);return CompletableFuture.failedFuture(new BuildingRegistry.Declined("Feed unavailable"));}
+            public CompletableFuture<DwellingHousing.Report> review(BuildingLayout home,DwellingInspection.Observation frame){throw new AssertionError("No accepted page");}
+        };
+        var runtime=new PaperHousingRuntime(owner,new PaperHousingRuntime.Settings(true,32,15),(home,now)->{throw new AssertionError("No accepted home");},time::get,Logger.getAnonymousLogger());
+        runtime.run();runtime.run();for(int i=0;i<20;i++)runtime.run();assertEquals(1,requested.size());
+        time.set(16000);runtime.run();assertEquals(2,requested.size());assertTrue(requested.stream().allMatch(Objects::isNull));runtime.close();
+    }
     private BuildingLayout layout() {
         var bounds=new BuildingLayout.Bounds(new Position(0,0,0),new Position(4,3,4));var entrance=new Position(1,1,0);
         return new BuildingLayout(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),BuildingLayout.Kind.HOUSING,bounds,bounds,entrance,List.of(),

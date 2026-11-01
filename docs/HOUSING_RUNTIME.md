@@ -47,6 +47,15 @@ into an established family. Assigning those ungrouped people is a later housing 
 
 ## Automatic loaded-only review
 
+October31 reliability correction: a local survey/save failure retains the remaining
+homes and the current pagination cursor. Later buildings still receive their own
+normal review; no failed inspection is treated as valid housing. Feed failures
+back off and restart pagination because no accepted continuation is available.
+Focused queue tests and a disposable Paper check with real two-pass native surveys
+verify later-home progress and next-page continuation. No new capacity or rights.
+The disposable owner deliberately returns unverified synthetic receipts; it does
+not test SQL household assignments or register physical buildings.
+
 PaperHousingRuntime pages at most8 building records from the SQL owner at a time.
 Absent worlds and buildings lacking village-use permission are excluded. One survey
 is active globally; two bounded passes compare classified housing evidence. Changed,

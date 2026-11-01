@@ -1,6 +1,16 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at50%, bounded terrace observation
+## Current — Phase4 at50%, housing review queue isolation
+
+October31: one failed home survey/save no longer discards unrelated queued homes
+or loses the next-page cursor. Feed failure still waits before restarting. This
+protects ordinary vacancy reviews without granting capacity or skipping consent.
+Focused clean Wrapper10 unit+3 packaged passed29.154s; actual disposable Paper
+real two-pass surveys passed local-refusal/later-home/pagination checks. No blocks,
+funds or housing records changed; stopped/helper archived,119 DB healthy/FK-clean.
+No user server or migration.8/16=50% unchanged; see HOUSING_RUNTIME.md and DEVLOG.
+
+## Earlier October31 — bounded terrace observation
 
 October31: home-site planning can now observe naturally higher/lower flat terraces
 using optional vertical-search0..4 (new files2; absent old files0). Full roof,
