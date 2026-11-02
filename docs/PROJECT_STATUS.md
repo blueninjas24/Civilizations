@@ -1,6 +1,20 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at50%, formal premises permission enforcement
+## Current — Phase4 at50%, atomic workplace donation backend
+
+November1: WorkplaceDonation now commits explicit building use consent, positive
+fixed-marker confirmation and an inspected premises hold together. A late failure
+rolls every component back; exact restart retry retains original terms and never
+revives reclaimed/released use. Existing public wrappers still require idle owner
+transactions; package-local row methods allow only explicit atomic composition.
+No normal workplace donation command or relocation is enabled yet.
+
+Five new cases plus related regression checks passed clean Windows Wrapper39 unit+
+3 packaged in41.592s. No new schema, Paper API, money, goods, capacity or real save
+change. P4 remains8/16=50%. Next: expiring donor preview and fresh confirmed survey.
+See WORKPLACE_DONATIONS.md; handbook0.32 remains accurate for working commands.
+
+## Earlier November1 — formal premises permission enforcement
 
 November1 follow-up: businesses with formal premises history cannot fall back to
 marker-only operation after reclaim/exclusion/consent replacement or hold release.

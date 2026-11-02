@@ -62,31 +62,37 @@ public final class WorkplaceOperations {
         if(!connection.getAutoCommit())throw new SQLException("Marker confirmation requires idle SQL owner");
         connection.setAutoCommit(false);
         try {
-            for(var item:evidence) {
-                if(activeWorlds==null||!activeWorlds.contains(item.anchor().world())||item.capturedMillis()>now||now-item.capturedMillis()>60000)continue;
-                try(var s=connection.prepareStatement("SELECT * FROM business_workplace_anchors WHERE business_id=?")) {
-                    s.setString(1,item.anchor().business().toString());
-                    try(var r=s.executeQuery()) {
-                        if(!r.next()||!read(r).equals(item.anchor()))throw new SQLException("Marker confirmation does not match saved fixed anchor");
-                        long old=r.getLong("captured_millis");
-                        if(item.capturedMillis()<old)continue;
-                        if(item.capturedMillis()==old) {
-                            if(item.present()!=r.getBoolean("present"))throw new SQLException("Conflicting marker confirmation timestamp");
-                            continue;
-                        }
-                    }
-                }
-                try(var s=connection.prepareStatement("UPDATE business_workplace_anchors SET captured_millis=?,present=? WHERE business_id=?")) {
-                    s.setLong(1,item.capturedMillis());s.setBoolean(2,item.present());s.setString(3,item.anchor().business().toString());s.executeUpdate();
-                }
-                // Keep transition history; repeated unchanged point reads update freshness without unbounded audit growth.
-                try(var s=connection.prepareStatement("SELECT present FROM workplace_operation_history WHERE business_id=? ORDER BY captured_millis DESC LIMIT 1")) {
-                    s.setString(1,item.anchor().business().toString());try(var r=s.executeQuery()){if(!r.next()||r.getBoolean(1)!=item.present())audit(item.anchor().business(),item.capturedMillis(),item.present());}
-                }
-            }
+            confirmRows(evidence,now,activeWorlds);
             connection.commit();
         }catch(SQLException|RuntimeException failure){try{connection.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}throw failure;}
         finally{connection.setAutoCommit(true);}
+    }
+    /** Package-local composition for atomic donation/marker/premises publication. */
+    void confirmRows(List<Confirmation> evidence,long now,Set<UUID> activeWorlds)throws SQLException{
+        if(connection.getAutoCommit())throw new SQLException("Marker confirmation rows require an owner transaction");
+        evidence=List.copyOf(evidence);if(evidence.size()>64||now<0)throw new IllegalArgumentException("Invalid marker confirmation page");
+        for(var item:evidence) {
+            if(activeWorlds==null||!activeWorlds.contains(item.anchor().world())||item.capturedMillis()>now||now-item.capturedMillis()>60000)continue;
+            try(var s=connection.prepareStatement("SELECT * FROM business_workplace_anchors WHERE business_id=?")) {
+                s.setString(1,item.anchor().business().toString());
+                try(var r=s.executeQuery()) {
+                    if(!r.next()||!read(r).equals(item.anchor()))throw new SQLException("Marker confirmation does not match saved fixed anchor");
+                    long old=r.getLong("captured_millis");
+                    if(item.capturedMillis()<old)continue;
+                    if(item.capturedMillis()==old) {
+                        if(item.present()!=r.getBoolean("present"))throw new SQLException("Conflicting marker confirmation timestamp");
+                        continue;
+                    }
+                }
+            }
+            try(var s=connection.prepareStatement("UPDATE business_workplace_anchors SET captured_millis=?,present=? WHERE business_id=?")) {
+                s.setLong(1,item.capturedMillis());s.setBoolean(2,item.present());s.setString(3,item.anchor().business().toString());s.executeUpdate();
+            }
+            // Keep transition history; repeated unchanged point reads update freshness without unbounded audit growth.
+            try(var s=connection.prepareStatement("SELECT present FROM workplace_operation_history WHERE business_id=? ORDER BY captured_millis DESC LIMIT 1")) {
+                s.setString(1,item.anchor().business().toString());try(var r=s.executeQuery()){if(!r.next()||r.getBoolean(1)!=item.present())audit(item.anchor().business(),item.capturedMillis(),item.present());}
+            }
+        }
     }
     static boolean paused(Connection connection,UUID business)throws SQLException {
         // Preserve inspection of older schemas after a failed upgrade; do not hide missing tables on current saves.

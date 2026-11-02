@@ -126,22 +126,25 @@ public final class BuildingRegistry {
     /** Explicit reviewed donation only. Layout/identity are immutable; a later redonation uses the same saved layout. */
     public Consent donate(UUID operation, BuildingLayout layout, UUID donor, Authorization authority,
                           UUID expectedPrevious, long now) throws SQLException {
-        Objects.requireNonNull(operation); Objects.requireNonNull(layout); Objects.requireNonNull(donor);
-        requireAuthority(authority, donor, true); time(now);
-        return transaction(() -> {
-            var prior = find(layout.id()); var replay = event(operation);
-            if(prior.isPresent()&&!prior.get().playerOwned())throw new Declined("Village-owned buildings cannot become player donations");
-            if (prior.isPresent() && (!prior.get().layout().equals(layout) || !prior.get().donor().equals(donor)))
-                throw new Declined("Building identity/layout/donor differs from saved registration");
-            var requested = new Consent(operation,layout.id(),authority.actor(),Action.DONATE,expectedPrevious,authority.administrator(),now);
-            if (replay.isPresent()) { exact(replay.get(),requested); return replay.get(); }
-            Consent latest = prior.map(Entry::latest).orElse(null);
-            requirePrevious(latest,expectedPrevious,now);
-            if (latest != null && latest.action() == Action.DONATE) throw new Declined("Building is already donated");
-            requireClear(layout);
-            if (prior.isEmpty()) insertRows(layout,donor,now);
-            appendRows(requested); return requested;
-        });
+        return transaction(() -> donateRows(operation,layout,donor,authority,expectedPrevious,now));
+    }
+    /** Package-local composition only; the caller owns donation and all related rows. */
+    Consent donateRows(UUID operation,BuildingLayout layout,UUID donor,Authorization authority,UUID expectedPrevious,long now)throws SQLException{
+        if(connection.getAutoCommit())throw new SQLException("Donation rows require an owner transaction");
+        Objects.requireNonNull(operation);Objects.requireNonNull(layout);Objects.requireNonNull(donor);
+        requireAuthority(authority,donor,true);time(now);
+        var prior = find(layout.id()); var replay = event(operation);
+        if(prior.isPresent()&&!prior.get().playerOwned())throw new Declined("Village-owned buildings cannot become player donations");
+        if (prior.isPresent() && (!prior.get().layout().equals(layout) || !prior.get().donor().equals(donor)))
+            throw new Declined("Building identity/layout/donor differs from saved registration");
+        var requested = new Consent(operation,layout.id(),authority.actor(),Action.DONATE,expectedPrevious,authority.administrator(),now);
+        if (replay.isPresent()) { exact(replay.get(),requested); return replay.get(); }
+        Consent latest = prior.map(Entry::latest).orElse(null);
+        requirePrevious(latest,expectedPrevious,now);
+        if (latest != null && latest.action() == Action.DONATE) throw new Declined("Building is already donated");
+        requireClear(layout);
+        if (prior.isEmpty()) insertRows(layout,donor,now);
+        appendRows(requested); return requested;
     }
 
     /** Withdraw use rights, retaining layout, units and every consent receipt. No world/entity/economic mutations. */

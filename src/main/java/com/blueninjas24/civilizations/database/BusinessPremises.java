@@ -56,6 +56,17 @@ public final class BusinessPremises {
     public Hold reserveInspected(Request request,WorkplaceInspection.Assessment assessment,Set<UUID> worlds,long now)throws SQLException{
         Objects.requireNonNull(request);Objects.requireNonNull(assessment);
         if(!c.getAutoCommit())throw new SQLException("Inspected premises reservation needs idle SQL owner");
+        requireInspection(request,assessment,now);
+        // Frozen layout/site/founding terms cannot change between these owner-thread checks and reserve().
+        // Current consent, closure, marker freshness and collision checks still occur in its transaction.
+        return reserve(request,worlds,now);
+    }
+    Hold reserveInspectedRows(Request request,WorkplaceInspection.Assessment assessment,Set<UUID> worlds,long now)throws SQLException{
+        if(c.getAutoCommit())throw new SQLException("Inspected premises rows require an owner transaction");
+        requireInspection(request,assessment,now);return reserveRows(request,worlds,now);
+    }
+    private void requireInspection(Request request,WorkplaceInspection.Assessment assessment,long now)throws SQLException{
+        Objects.requireNonNull(request);Objects.requireNonNull(assessment);
         var evidence=assessment.evidence();var observed=evidence.structure();
         var entry=new BuildingRegistry(c).find(request.building()).orElseThrow(()->new BuildingRegistry.Declined("Unknown inspected premises"));
         var firm=new BusinessRepository(c).findFounding(request.business()).orElseThrow(()->new BuildingRegistry.Declined("Unknown inspected business"));
@@ -64,50 +75,51 @@ public final class BusinessPremises {
            ||!observed.world().equals(site.worldId())||observed.capturedMillis()>now||now-observed.capturedMillis()>5000
            ||!evidence.marker().equals(new Position(site.x(),site.y(),site.z()))
            ||evidence.kind().isEmpty()||!evidence.kind().orElseThrow().industry().equals(firm.business().industry()))throw new BuildingRegistry.Declined("Fresh suitable exact-building and fixed-workplace inspection required");
-        // Frozen layout/site/founding terms cannot change between these owner-thread checks and reserve().
-        // Current consent, closure, marker freshness and collision checks still occur in its transaction.
-        return reserve(request,worlds,now);
     }
     /** Fresh positive fixed-marker evidence locates the firm; it does not prove the whole building usable.
      * Exact replay returns history even after release/reclamation, never renewed permission. */
     public Hold reserve(Request request,Set<UUID> presentWorlds,long now)throws SQLException{
+        if(!c.getAutoCommit())throw new SQLException("Premises reservation needs idle SQL owner");c.setAutoCommit(false);
+        try{var saved=reserveRows(request,presentWorlds,now);c.commit();return saved;}
+        catch(SQLException|RuntimeException failure){rollback(failure);throw failure;}finally{c.setAutoCommit(true);}
+    }
+    /** Package-local composition only; never commits another owner's transaction. */
+    Hold reserveRows(Request request,Set<UUID> presentWorlds,long now)throws SQLException{
+        if(c.getAutoCommit())throw new SQLException("Premises rows require an owner transaction");
         Objects.requireNonNull(request);presentWorlds=Set.copyOf(presentWorlds);
         if(now<request.createdMillis())throw new IllegalArgumentException("Reservation time is in the future");
-        if(!c.getAutoCommit())throw new SQLException("Premises reservation needs idle SQL owner");c.setAutoCommit(false);
-        try{
-            var old=find(request.operation());if(old.isPresent()){
-                if(!old.get().request().equals(request))throw new BuildingRegistry.Declined("Premises operation terms changed");
-                c.commit();return old.get();
+        var old=find(request.operation());if(old.isPresent()){
+            if(!old.get().request().equals(request))throw new BuildingRegistry.Declined("Premises operation terms changed");
+            return old.get();
+        }
+        var registry=new BuildingRegistry(c);var entry=registry.find(request.building()).orElseThrow(()->new BuildingRegistry.Declined("Unknown premises building"));
+        var layout=entry.layout();
+        if(layout.kind()!=BuildingLayout.Kind.WORKPLACE||!presentWorlds.contains(layout.world())||!permission(request,entry,registry))throw new BuildingRegistry.Declined("Current explicit workplace use permission and present world required");
+        if(now-request.createdMillis()>5000||request.createdMillis()<entry.latest().atMillis())throw new BuildingRegistry.Declined("Fresh reservation after its current consent required");
+        var founding=new BusinessRepository(c).findFounding(request.business()).orElseThrow(()->new BuildingRegistry.Declined("Unknown premises business"));
+        var site=founding.site();
+        if(!site.settlementId().equals(layout.settlement())||!site.worldId().equals(layout.world())||!layout.structure().contains(new Position(site.x(),site.y(),site.z())))throw new BuildingRegistry.Declined("Fixed business workplace must be inside its local premises");
+        BusinessClosure.requireOpen(c,request.business());
+        try(var s=c.prepareStatement("SELECT kind,captured_millis,present FROM business_workplace_anchors WHERE business_id=? AND world_id=? AND x=? AND y=? AND z=?")){
+            s.setString(1,request.business().toString());s.setString(2,site.worldId().toString());s.setInt(3,site.x());s.setInt(4,site.y());s.setInt(5,site.z());
+            try(var r=s.executeQuery()){
+                if(!r.next()||!r.getBoolean("present")||r.getLong("captured_millis")>now||now-r.getLong("captured_millis")>5000
+                   ||!com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.valueOf(r.getString("kind")).industry().equals(founding.business().industry()))throw new BuildingRegistry.Declined("Fresh positive compatible workplace marker required");
             }
-            var registry=new BuildingRegistry(c);var entry=registry.find(request.building()).orElseThrow(()->new BuildingRegistry.Declined("Unknown premises building"));
-            var layout=entry.layout();
-            if(layout.kind()!=BuildingLayout.Kind.WORKPLACE||!presentWorlds.contains(layout.world())||!permission(request,entry,registry))throw new BuildingRegistry.Declined("Current explicit workplace use permission and present world required");
-            if(now-request.createdMillis()>5000||request.createdMillis()<entry.latest().atMillis())throw new BuildingRegistry.Declined("Fresh reservation after its current consent required");
-            var founding=new BusinessRepository(c).findFounding(request.business()).orElseThrow(()->new BuildingRegistry.Declined("Unknown premises business"));
-            var site=founding.site();
-            if(!site.settlementId().equals(layout.settlement())||!site.worldId().equals(layout.world())||!layout.structure().contains(new Position(site.x(),site.y(),site.z())))throw new BuildingRegistry.Declined("Fixed business workplace must be inside its local premises");
-            BusinessClosure.requireOpen(c,request.business());
-            try(var s=c.prepareStatement("SELECT kind,captured_millis,present FROM business_workplace_anchors WHERE business_id=? AND world_id=? AND x=? AND y=? AND z=?")){
-                s.setString(1,request.business().toString());s.setString(2,site.worldId().toString());s.setInt(3,site.x());s.setInt(4,site.y());s.setInt(5,site.z());
-                try(var r=s.executeQuery()){
-                    if(!r.next()||!r.getBoolean("present")||r.getLong("captured_millis")>now||now-r.getLong("captured_millis")>5000
-                       ||!com.blueninjas24.civilizations.industry.WorkplaceObservation.Kind.valueOf(r.getString("kind")).industry().equals(founding.business().industry()))throw new BuildingRegistry.Declined("Fresh positive compatible workplace marker required");
-                }
-            }
-            // A firm without the new hold table is still an occupant; never infer vacancy from absent rows.
-            try(var s=c.prepareStatement("""
-                SELECT 1 FROM businesses b JOIN business_sites p ON p.id=b.site_id
-                WHERE b.id<>? AND p.world_id=? AND p.x BETWEEN ? AND ? AND p.y BETWEEN ? AND ? AND p.z BETWEEN ? AND ?
-                  AND NOT EXISTS(SELECT 1 FROM business_closures x WHERE x.business_id=b.id) LIMIT 1
-                """)){
-                var bounds=layout.structure();s.setString(1,request.business().toString());s.setString(2,layout.world().toString());s.setInt(3,bounds.min().x());s.setInt(4,bounds.max().x());s.setInt(5,bounds.min().y());s.setInt(6,bounds.max().y());s.setInt(7,bounds.min().z());s.setInt(8,bounds.max().z());
-                try(var r=s.executeQuery()){if(r.next())throw new BuildingRegistry.Declined("Another saved business occupies this building");}
-            }
-            try(var s=c.prepareStatement("INSERT INTO business_premises(operation_id,business_id,building_id,use_consent,layout_hash,created_ms) VALUES(?,?,?,?,?,?)")){
-                s.setString(1,request.operation().toString());s.setString(2,request.business().toString());s.setString(3,request.building().toString());s.setString(4,request.useConsent().toString());s.setString(5,request.layoutHash());s.setLong(6,request.createdMillis());s.executeUpdate();
-            }
-            var saved=find(request.operation()).orElseThrow();c.commit();return saved;
-        }catch(SQLException|RuntimeException failure){rollback(failure);throw failure;}finally{c.setAutoCommit(true);}
+        }
+        // A firm without the new hold table is still an occupant; never infer vacancy from absent rows.
+        try(var s=c.prepareStatement("""
+            SELECT 1 FROM businesses b JOIN business_sites p ON p.id=b.site_id
+            WHERE b.id<>? AND p.world_id=? AND p.x BETWEEN ? AND ? AND p.y BETWEEN ? AND ? AND p.z BETWEEN ? AND ?
+              AND NOT EXISTS(SELECT 1 FROM business_closures x WHERE x.business_id=b.id) LIMIT 1
+            """)){
+            var bounds=layout.structure();s.setString(1,request.business().toString());s.setString(2,layout.world().toString());s.setInt(3,bounds.min().x());s.setInt(4,bounds.max().x());s.setInt(5,bounds.min().y());s.setInt(6,bounds.max().y());s.setInt(7,bounds.min().z());s.setInt(8,bounds.max().z());
+            try(var r=s.executeQuery()){if(r.next())throw new BuildingRegistry.Declined("Another saved business occupies this building");}
+        }
+        try(var s=c.prepareStatement("INSERT INTO business_premises(operation_id,business_id,building_id,use_consent,layout_hash,created_ms) VALUES(?,?,?,?,?,?)")){
+            s.setString(1,request.operation().toString());s.setString(2,request.business().toString());s.setString(3,request.building().toString());s.setString(4,request.useConsent().toString());s.setString(5,request.layoutHash());s.setLong(6,request.createdMillis());s.executeUpdate();
+        }
+        return find(request.operation()).orElseThrow();
     }
     /** Release only a closed firm or revoked/excluded use epoch. Absent worlds and missing markers are not vacancy. */
     public Hold release(UUID operation,UUID reservation,long now)throws SQLException{

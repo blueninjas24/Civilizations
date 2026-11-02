@@ -2,6 +2,11 @@
 
 ## Current — Phase 4 physical growth
 
+November1: workplace donation now has an all-or-nothing saved confirmation backend.
+A failed save cannot leave only half of the building permission/business reservation
+recorded. Restart/retry checks pass. Player confirmation controls are next; this
+does not yet enable normal donations or close the wider reuse gate.8/16=50%.
+
 November1 follow-up: a formally reserved business building now respects later
 reclamation in the production system. The business keeps its supplies and money,
 but cannot use an old reservation or surviving marker to bypass withdrawn use.

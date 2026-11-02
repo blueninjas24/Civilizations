@@ -1,5 +1,26 @@
 # Civilizations Development Log
 
+## 2026-11-01 — atomic workplace donation publication backend
+
+Add WorkplaceDonation to commit explicit frozen-layout donor consent, fresh marker
+confirmation and an inspected fixed-business premises hold in one SQL-owner
+transaction. Extract guarded package-local row composition from BuildingRegistry,
+BusinessPremises and WorkplaceOperations; preserve idle-owner public wrappers and
+existing validation. No generic transaction framework or nested commit.
+
+Deterministic hold identity links the donation receipt to its original business,
+layout/use epoch/time. Late failure rolls all rows and marker history back. Exact
+retries after restart/reclaim/release return history, never renewed rights. Missing
+paired receipts or changed terms refuse instead of guessing a repair.
+
+Five new temporary-SQLite cases plus existing donor/premises/marker regressions:
+clean Wrapper39 unit+3 packaged passed41.592s. Source formatting after extraction
+does not change behavior. No migration beyond120, Paper API changes, real server
+or database modifications. No new money, goods, title, contents/renovation rights,
+population or usable capacity. No normal donation command yet. P4 stays8/16=50%.
+Next: expiring donor preview and fresh explicit confirmation. Handbook0.32 still
+describes working commands accurately. See WORKPLACE_DONATIONS.md.
+
 ## 2026-11-01 — formal premises cannot bypass withdrawn use through markers
 
 Connect a restrictive BusinessPremises.denied check to BusinessOperations and

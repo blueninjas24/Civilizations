@@ -74,6 +74,11 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
+November1 atomic workplace publication backend: explicit donor consent, marker
+confirmation and inspected hold commit/roll back together.39 unit+3 packaged checks
+pass including late failure and exact restart/reclaim replay. No normal donor
+controls yet; item2.4 and count8/16=50% stay unchanged. See WORKPLACE_DONATIONS.md.
+
 November1 formal premises boundary: reported operation and direct processing/trade
 now respect the exact retained use epoch. Reclamation cannot bypass through marker
 fallback; real workshop inputs/cash/history remain.30 unit+3 packaged checks pass.
