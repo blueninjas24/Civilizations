@@ -35,6 +35,15 @@ public final class WorkplaceDonation {
             Objects.requireNonNull(assessment);var evidence=assessment.evidence();
             if(!assessment.suitable()||evidence.kind().isEmpty())throw new BuildingRegistry.Declined("Suitable current workplace inspection required");
             var consent=registry.donateRows(request.operation(),request.layout(),request.donor(),authority,request.previousConsent(),request.atMillis());
+            // Re-donation can retire only this same business/building's already withdrawn use epoch.
+            // The new consent and replacement hold still commit together, including this retained release.
+            if(request.previousConsent()!=null){
+                UUID prior=null;
+                try(var s=c.prepareStatement("SELECT operation_id FROM business_premises WHERE business_id=? AND building_id=? AND released_ms IS NULL")){
+                    s.setString(1,request.business().toString());s.setString(2,request.layout().id().toString());try(var r=s.executeQuery()){if(r.next())prior=UUID.fromString(r.getString(1));}
+                }
+                if(prior!=null)premises.releaseRows(UUID.nameUUIDFromBytes(("Civilizations:workplace-redonation-release-v1:"+request.operation()).getBytes(StandardCharsets.UTF_8)),prior,now);
+            }
             var at=evidence.marker();var anchor=new WorkplaceOperations.Anchor(request.business(),request.layout().world(),new VillageObservation.Position(at.x(),at.y(),at.z()),evidence.kind().orElseThrow());
             new WorkplaceOperations(c).confirmRows(List.of(new WorkplaceOperations.Confirmation(anchor,true,evidence.structure().capturedMillis())),now,worlds);
             var saved=premises.reserveInspectedRows(expected,assessment,worlds,now);

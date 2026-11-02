@@ -74,6 +74,13 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
+November1: reviewed workplace donation, reclaim and explicit same-building/firm
+re-donation are now connected. Fresh confirmation proof, atomic old-hold replacement,
+bounded manual queues and editable shelter preference are verified.70 unit+3
+packaged checks plus actual native/controller/owner flow passed. Automatic vacancy
+selection/different-firm reuse and condition reviews remain: item2.4 stays unchecked,
+8/16=50%. Handbook0.33 is36 pages/33 chapters. See WORKPLACE_DONATIONS.md.
+
 November1 atomic workplace publication backend: explicit donor consent, marker
 confirmation and inspected hold commit/roll back together.39 unit+3 packaged checks
 pass including late failure and exact restart/reclaim replay. No normal donor

@@ -65,6 +65,17 @@ class WorkplaceDonationTest {
         assertThrows(SQLException.class,()->donations().confirm(freshRequest,authority(),assessment,Set.of(world),7000));
         assertEquals(0,count("building_records"));assertTrue(WorkplaceOperations.paused(c(),business));assertTrue(c().getAutoCommit());
     }
+    @Test void redonationReplacesOnlyTheWithdrawnHoldAtomicallyAndKeepsBothHistories()throws Exception{
+        var first=confirm();UUID reclaimed=UUID.randomUUID();new BuildingRegistry(c()).reclaim(reclaimed,layout.id(),authority(),operation,1030);
+        var next=new WorkplaceDonation.Request(UUID.randomUUID(),business,layout,donor,reclaimed,1040);
+        sql("CREATE TRIGGER fixture_redonate_fail AFTER INSERT ON business_premises BEGIN SELECT RAISE(ABORT,'Late redonation failure'); END");
+        assertThrows(SQLException.class,()->donations().confirm(next,authority(),assessment,Set.of(world),1040));
+        assertTrue(new BusinessPremises(c()).find(first.premises().request().operation()).orElseThrow().retained());assertFalse(new BuildingRegistry(c()).hasDonationPermission(layout.id()));
+        sql("DROP TRIGGER fixture_redonate_fail");var restored=donations().confirm(next,authority(),assessment,Set.of(world),1040);
+        assertTrue(restored.premises().retained());assertFalse(new BusinessPremises(c()).find(first.premises().request().operation()).orElseThrow().retained());
+        assertFalse(BusinessPremises.denied(c(),business));assertEquals(2,count("business_premises"));assertEquals(3,count("building_consent_events"));assertEquals(1,count("business_sites"));
+        assertFalse(donations().confirm(request(),authority(),null,Set.of(),1050).premises().retained());
+    }
     @Test void publicWrappersRefuseNestedTransactionsWithoutCommittingTheCallersRows()throws Exception{
         c().setAutoCommit(false);try{
             assertThrows(SQLException.class,this::confirm);

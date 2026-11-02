@@ -2,6 +2,12 @@
 
 ## Current — Phase 4 physical growth
 
+November1: players can now donate space to an existing business, reclaim it and
+explicitly donate it again. A fresh second survey and atomic save protect the
+confirmation; reclaiming pauses use without deleting goods/buildings/history.
+Actual Paper and focused checks passed. This is usable progress, but automatic
+vacant-business reuse is still unfinished:8/16=50%. Guide0.33 adds Chapter33.
+
 November1: workplace donation now has an all-or-nothing saved confirmation backend.
 A failed save cannot leave only half of the building permission/business reservation
 recorded. Restart/retry checks pass. Player confirmation controls are next; this

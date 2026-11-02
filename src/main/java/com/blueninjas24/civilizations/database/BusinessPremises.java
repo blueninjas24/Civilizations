@@ -123,22 +123,25 @@ public final class BusinessPremises {
     }
     /** Release only a closed firm or revoked/excluded use epoch. Absent worlds and missing markers are not vacancy. */
     public Hold release(UUID operation,UUID reservation,long now)throws SQLException{
-        Objects.requireNonNull(operation);Objects.requireNonNull(reservation);
         if(!c.getAutoCommit())throw new SQLException("Premises release needs idle SQL owner");c.setAutoCommit(false);
-        try{
-            var hold=find(reservation).orElseThrow(()->new BuildingRegistry.Declined("Unknown premises reservation"));
-            if(hold.releasedMillis()!=null){
-                if(!operation.equals(hold.releaseOperation())||now!=hold.releasedMillis())throw new BuildingRegistry.Declined("Premises release terms changed");
-                c.commit();return hold;
-            }
-            if(now<hold.request().createdMillis())throw new BuildingRegistry.Declined("Release predates reservation");
-            var registry=new BuildingRegistry(c);var entry=registry.find(hold.request().building()).orElseThrow();
-            if(permission(hold.request(),entry,registry)&&!BusinessClosure.blocked(c,hold.request().business()))throw new BuildingRegistry.Declined("Active permitted business is not vacant");
-            try(var s=c.prepareStatement("UPDATE business_premises SET release_operation=?,released_ms=? WHERE operation_id=? AND released_ms IS NULL")){
-                s.setString(1,operation.toString());s.setLong(2,now);s.setString(3,reservation.toString());if(s.executeUpdate()!=1)throw new SQLException("Premises reservation changed");
-            }
-            var saved=find(reservation).orElseThrow();c.commit();return saved;
-        }catch(SQLException|RuntimeException failure){rollback(failure);throw failure;}finally{c.setAutoCommit(true);}
+        try{var saved=releaseRows(operation,reservation,now);c.commit();return saved;}
+        catch(SQLException|RuntimeException failure){rollback(failure);throw failure;}finally{c.setAutoCommit(true);}
+    }
+    Hold releaseRows(UUID operation,UUID reservation,long now)throws SQLException{
+        if(c.getAutoCommit())throw new SQLException("Premises release rows require an owner transaction");
+        Objects.requireNonNull(operation);Objects.requireNonNull(reservation);
+        var hold=find(reservation).orElseThrow(()->new BuildingRegistry.Declined("Unknown premises reservation"));
+        if(hold.releasedMillis()!=null){
+            if(!operation.equals(hold.releaseOperation())||now!=hold.releasedMillis())throw new BuildingRegistry.Declined("Premises release terms changed");
+            return hold;
+        }
+        if(now<hold.request().createdMillis())throw new BuildingRegistry.Declined("Release predates reservation");
+        var registry=new BuildingRegistry(c);var entry=registry.find(hold.request().building()).orElseThrow();
+        if(permission(hold.request(),entry,registry)&&!BusinessClosure.blocked(c,hold.request().business()))throw new BuildingRegistry.Declined("Active permitted business is not vacant");
+        try(var s=c.prepareStatement("UPDATE business_premises SET release_operation=?,released_ms=? WHERE operation_id=? AND released_ms IS NULL")){
+            s.setString(1,operation.toString());s.setLong(2,now);s.setString(3,reservation.toString());if(s.executeUpdate()!=1)throw new SQLException("Premises reservation changed");
+        }
+        return find(reservation).orElseThrow();
     }
     private boolean permission(Request request,BuildingRegistry.Entry entry,BuildingRegistry registry)throws SQLException{
         return entry.layout().fingerprint().equals(request.layoutHash())&&entry.latest()!=null&&entry.latest().operation().equals(request.useConsent())&&registry.hasDonationPermission(entry.layout().id());

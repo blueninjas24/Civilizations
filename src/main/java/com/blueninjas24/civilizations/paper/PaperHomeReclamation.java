@@ -41,7 +41,7 @@ public final class PaperHomeReclamation extends BukkitRunnable implements Comman
     private boolean allowed(Player p){return p.hasPermission(PERMISSION)||p.hasPermission(PaperBuildingProtection.ADMIN);}
     private boolean current(Player p,Request r){return allowed(p)&&p.getWorld().getUID().equals(r.world);}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
-        if(!(sender instanceof Player p)){sender.sendMessage("Reclaim a donated home in its saved world, in game.");return true;}
+        if(!(sender instanceof Player p)){sender.sendMessage("Reclaim a donated home or workplace in its saved world, in game.");return true;}
         if(closed||!allowed(p)){p.sendMessage("Building reclamation is unavailable or not permitted.");return true;}
         UUID actor=p.getUniqueId();var r=requests.get(actor);String action=args.length>1?args[1].toLowerCase(Locale.ROOT):"";
         try {
@@ -54,7 +54,7 @@ public final class PaperHomeReclamation extends BukkitRunnable implements Comman
                 if(requests.size()>=4){p.sendMessage("Building reclamation busy; retry shortly.");return true;}
                 UUID building=UUID.fromString(args[2]),world=p.getWorld().getUID();
                 requests.put(actor,new Request(actor,world,clock.getAsLong(),owner.preview(actor,world,building,p.hasPermission(PERMISSION),p.hasPermission(PaperBuildingProtection.ADMIN))));
-                p.sendMessage("Reviewing donation ownership and affected saved households. Nothing reclaimed yet.");return true;
+                p.sendMessage("Reviewing donation ownership and affected housing/workplace use. Nothing reclaimed yet.");return true;
             }
             if(action.equals("confirmreclaim")&&args.length==3) {
                 UUID token=UUID.fromString(args[2]);
@@ -75,14 +75,17 @@ public final class PaperHomeReclamation extends BukkitRunnable implements Comman
             try {
                 if(r.saving!=null) {
                     if(!r.saving.isDone())continue;var receipt=r.saving.join();requests.remove(r.actor);
-                    if(p!=null)p.sendMessage("Village use withdrawn: "+receipt.building()+". Building and residents preserved; affected families need other suitable housing. The saved footprint remains protected.");continue;
+                    if(p!=null)p.sendMessage("Village use withdrawn: "+receipt.building()+". Building, people, contents and history preserved; affected housing/workplaces lose use. The saved footprint remains protected.");continue;
                 }
                 if(p==null||!current(p,r)){discard(r.actor);continue;}
                 long deadline=r.preview==null?r.started+30_000:r.preview.expiresMillis();
                 if(now<r.started||now>=deadline){p.sendMessage("Reclamation preview expired; no withdrawal confirmed.");discard(r.actor);continue;}
                 if(r.preview!=null||!r.loading.isDone())continue;r.preview=r.loading.join();
-                if(r.preview.layout().kind()!=com.blueninjas24.civilizations.construction.BuildingLayout.Kind.HOUSING)throw new IllegalArgumentException("This control currently supports housing only");
-                p.sendMessage("Reclaim building "+r.preview.building()+": "+r.preview.housingAssignments().size()+" assigned households lose their unit; "+r.preview.legacyHousingFamilies().size()+" other legacy families lose contributing bed capacity. Residents, blocks, contents and history remain. Rehousing needs a suitable permitted vacancy.");
+                if(r.preview.layout().kind()==com.blueninjas24.civilizations.construction.BuildingLayout.Kind.HOUSING)
+                    p.sendMessage("Reclaim building "+r.preview.building()+": "+r.preview.housingAssignments().size()+" assigned households lose their unit; "+r.preview.legacyHousingFamilies().size()+" other legacy families lose contributing bed capacity. Residents, blocks, contents and history remain. Rehousing needs a suitable permitted vacancy.");
+                else if(r.preview.layout().kind()==com.blueninjas24.civilizations.construction.BuildingLayout.Kind.WORKPLACE)
+                    p.sendMessage("Reclaim workplace "+r.preview.building()+": linked businesses lose premises use and pause. Blocks, contents, business assets and history remain. Resuming use needs current reviewed permission.");
+                else throw new IllegalArgumentException("This control supports housing and workplaces only");
                 p.sendMessage(Component.text("[Confirm withdrawal of village use]").clickEvent(ClickEvent.runCommand("/civ building confirmreclaim "+r.preview.token())));
             }catch(CompletionException|CancellationException|IllegalArgumentException failure) {
                 Throwable cause=failure instanceof CompletionException&&failure.getCause()!=null?failure.getCause():failure;

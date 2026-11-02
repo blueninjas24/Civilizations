@@ -16,13 +16,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class PaperHomeReclamationTest {
     private final UUID actor=UUID.randomUUID(),worldId=UUID.randomUUID(),building=UUID.randomUUID(),token=UUID.randomUUID();
     private long time=1000;private boolean permitted=true,online=true;private UUID currentWorld=worldId;
-    private int confirms,cancels;private final List<String> messages=new ArrayList<>();
+    private int confirms,cancels;private boolean workplace;private final List<String> messages=new ArrayList<>();
     private final CompletableFuture<BuildingRegistry.Consent> saving=new CompletableFuture<>();
     private BuildingConsentRequests.Preview preview() {
         var bounds=new BuildingLayout.Bounds(new Position(0,0,0),new Position(4,3,4));var entry=new Position(1,1,0);
         var layout=new BuildingLayout(building,UUID.randomUUID(),worldId,BuildingLayout.Kind.HOUSING,bounds,bounds,entry,List.of(),
                 List.of(new BuildingLayout.Unit(UUID.randomUUID(),entry,List.of(bounds),List.of(new BuildingLayout.Bed(new Position(2,1,2),Direction.EAST)))));
-        return new BuildingConsentRequests.Preview(token,actor,worldId,building,BuildingRegistry.Action.RECLAIM,layout,actor,UUID.randomUUID(),1000,61000,"Impact",Set.of(UUID.randomUUID()),Set.of());
+        if(workplace)layout=new BuildingLayout(building,layout.settlement(),worldId,BuildingLayout.Kind.WORKPLACE,bounds,bounds,entry,List.of(),List.of());
+        return new BuildingConsentRequests.Preview(token,actor,worldId,building,BuildingRegistry.Action.RECLAIM,layout,actor,UUID.randomUUID(),1000,61000,"Impact",workplace?Set.of():Set.of(UUID.randomUUID()),Set.of());
     }
     private final World world=(World)Proxy.newProxyInstance(World.class.getClassLoader(),new Class<?>[]{World.class},(p,m,a)->{if(m.getName().equals("getUID"))return currentWorld;throw new AssertionError(m.getName());});
     private final Player player=(Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class<?>[]{Player.class},(p,m,a)->switch(m.getName()) {
@@ -58,5 +59,10 @@ class PaperHomeReclamationTest {
     @Test void closingKeepsAlreadyAcceptedSaveAlive() {
         var c=controls();command(c,"building","reclaim",building.toString());c.run();command(c,"building","confirmreclaim",token.toString());
         c.close();assertEquals(0,cancels);assertFalse(saving.isCancelled());
+    }
+    @Test void workplaceWithdrawalReportsBusinessImpactAndStillNeedsSeparateConfirmation(){
+        workplace=true;var c=controls();command(c,"building","reclaim",building.toString());c.run();
+        assertEquals(0,confirms);assertTrue(messages.stream().anyMatch(s->s.contains("linked businesses lose premises use")));
+        command(c,"building","confirmreclaim",token.toString());assertEquals(1,confirms);assertFalse(saving.isCancelled());c.close();
     }
 }

@@ -61,6 +61,8 @@ building-protection:
   # Usable housing defaults to covered sleeping areas. False still requires real safe, accessible beds.
   # Cover must be observed inside the declared structure; does not enable occupancy or construction.
   require-covered-beds: true
+  # New workplace inspections/donations; does not disable support/access or rewrite old permissions.
+  require-covered-workplaces: true
   enabled: true
   maximum-edge: 128
   maximum-area: 4096

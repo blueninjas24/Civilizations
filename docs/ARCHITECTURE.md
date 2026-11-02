@@ -1,5 +1,18 @@
 # Civilizations — architecture and engineering contracts
 
+## November1 — reviewed workplace publication
+
+WorkplaceDonationRequests freezes player/business/layout/consent/policy behind an
+expiring token; Paper performs a second loaded-only survey after explicit ownership
+confirmation. The existing SQL owner publishes donor use, marker confirmation and
+the exclusive premises receipt together through guarded package-local row methods.
+Public standalone wrappers still require idle ownership; no nested transaction
+commit is allowed. Re-donation can release only the same firm/building's withdrawn
+epoch in that same transaction. Old receipts cannot restore current permission.
+Native controllers do no JDBC or blocking waits. Accepted owner saves drain through
+disconnect/close. This grants no title, contents, extra capacity or native write
+authority; broader operating-condition review and vacancy selection remain separate.
+
 ## Native road steps — exact ground rather than home AIR placement
 
 PaperRoadWorkSurvey/Writer are separate bounded adapters. Frozen road Geometry

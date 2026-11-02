@@ -97,6 +97,10 @@ class PaperBuildingProtectionTest {
         assertThrows(IllegalArgumentException.class,()->PaperBuildingProtection.selectedBounds(new Position(0,0,0),new Position(64,0,64),s));
         var config=new YamlConfiguration();assertEquals(s,BuildingProtectionSettings.read(config));
         assertTrue(BuildingProtectionSettings.read(config).requireCoveredBeds());
+        assertTrue(BuildingProtectionSettings.read(config).requireCoveredWorkplaces());
+        config.set("building-protection.require-covered-workplaces",false);assertFalse(BuildingProtectionSettings.read(config).requireCoveredWorkplaces());
+        config.set("building-protection.require-covered-workplaces","false");assertThrows(IllegalArgumentException.class,()->BuildingProtectionSettings.read(config));
+        config.set("building-protection.require-covered-workplaces",true);
         config.set("building-protection.require-covered-beds",false);assertFalse(BuildingProtectionSettings.read(config).requireCoveredBeds());
         config.set("building-protection.require-covered-beds","false");assertThrows(IllegalArgumentException.class,()->BuildingProtectionSettings.read(config));
         config.loadFromString("building-protection:\n  maximum-area: 1024\n  enabled: false\n");

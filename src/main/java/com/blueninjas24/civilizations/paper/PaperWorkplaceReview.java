@@ -31,9 +31,12 @@ public final class PaperWorkplaceReview extends BukkitRunnable implements Comman
     private final Owner owner;private final Function<Player,BuildingLayout.Bounds> selections;private final Function<UUID,Player> players;
     private final Surveys surveys;private final LongSupplier clock;private final Logger logger;private final Map<UUID,Request> requests=new LinkedHashMap<>();private boolean closed;
     public PaperWorkplaceReview(PopulationSession session,Function<Player,BuildingLayout.Bounds> selections,Logger logger){
+        this(session,WorkplaceInspection.Policy.prototype(),selections,logger);
+    }
+    public PaperWorkplaceReview(PopulationSession session,WorkplaceInspection.Policy policy,Function<Player,BuildingLayout.Bounds> selections,Logger logger){
         this(new Owner(){
             public CompletableFuture<BusinessFounding> target(UUID business,UUID world,boolean permitted){return session.workplaceInspectionTarget(business,world,permitted);}
-            public CompletableFuture<WorkplaceInspection.Assessment> inspect(UUID business,BuildingLayout layout,WorkplaceInspection.Evidence evidence){return session.inspectBusinessPremises(business,layout,evidence);}
+            public CompletableFuture<WorkplaceInspection.Assessment> inspect(UUID business,BuildingLayout layout,WorkplaceInspection.Evidence evidence){return session.inspectBusinessPremises(business,layout,evidence,policy);}
         },selections,Bukkit::getPlayer,(layout,marker,now)->new PaperWorkplaceSurvey(layout,marker,now)::advance,System::currentTimeMillis,logger);
     }
     public PaperWorkplaceReview(Owner owner,Function<Player,BuildingLayout.Bounds> selections,Function<UUID,Player> players,Surveys surveys,LongSupplier clock,Logger logger){this.owner=Objects.requireNonNull(owner);this.selections=Objects.requireNonNull(selections);this.players=Objects.requireNonNull(players);this.surveys=Objects.requireNonNull(surveys);this.clock=Objects.requireNonNull(clock);this.logger=Objects.requireNonNull(logger);}

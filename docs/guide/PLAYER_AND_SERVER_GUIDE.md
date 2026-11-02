@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.32 | 1 November 2026 | Player and server owner edition
+Living draft 0.33 | 1 November 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -57,6 +57,7 @@ Snapshot: P3 prototype gate complete; P4 has 8 of 16 checklist items complete (5
 - 30 Read construction materials and protected funds
 - 31 Automatic family-home construction
 - 32 Inspect stalled work and recover unused supplies
+- 33 Donate and reclaim an existing workplace
 
 ## 1 Your first village session
 
@@ -248,7 +249,7 @@ Related chapters: people and industry. Sources: BUSINESS_SUCCESSION.md, AUTOMATI
 
 ## 9 Businesses and supply chains
 
-Status: Saved industry implemented. Physical P4 premises, excavation and felling remain unfinished.
+Status: Saved industry and reviewed workplace donations are available. Industrial construction, excavation and felling remain unfinished.
 
 | Industry | Contribution |
 |---|---|
@@ -265,7 +266,7 @@ Status: Saved industry implemented. Physical P4 premises, excavation and felling
 
 ### Check a workplace before donation
 
-Admins can select floor-to-roof corners with /civ building corner1 and corner2, stand at a safe entrance inside, then run /civ building workplacecheck <business UUID>. Find the business ID in /civ debug businesses <village UUID>. This read-only check reports access to the saved marker, hazards and shelter. Keep the selection while it runs. It does not donate, reserve or activate the building; workplace donation controls are still unfinished.
+Admins can select floor-to-roof corners with /civ building corner1 and corner2, stand at a safe entrance inside, then run /civ building workplacecheck <business UUID>. Find the business ID in /civ debug businesses <village UUID>. This read-only check reports access to the saved marker, hazards and shelter. Keep the selection while it runs. This check grants no rights. Use Chapter 33 to donate a workplace for its existing business; automatic business relocation remains unfinished.
 
 ### More than a job label
 
@@ -942,3 +943,42 @@ To pause for review, stop/edit/restart: automatic-construction.enabled controls 
 Inspection uses civilizations.construction.preview; recovery uses civilizations.construction.manage, both operators by default. Four players can hold requests. Reads expire after 30 seconds; previews after 60. Permissions grant no arbitrary refunds or player-property changes.
 
 Related chapters: construction, project status, funding, backups and settings. Source: CONSTRUCTION_RECOVERY.md. Human survival and compatibility still need playtesting.
+
+
+## 33 Donate and reclaim an existing workplace
+
+Status: Available prototype for an existing business at its saved workplace marker. This does not found or relocate a business, enlarge storage or transfer ownership.
+
+### Donate space you own
+
+1. Ask an admin for the business UUID (/civ debug businesses <village UUID>).
+
+2. Select floor-to-roof corners with /civ building corner1 and corner2; include the marker. Stand at an entrance inside.
+
+3. Run /civ building workplace <business UUID> and review the frozen boundaries.
+
+4. Confirm ownership only if the build is yours. Keep the selection and wait for the second survey and receipt.
+
+Four marker types: smithing table, barrel, smoker or crafting table. Access, support, hazards and shelter are checked. Missing or changed evidence refuses; another firm can block donation. Preview lasts 60 seconds. Shelter is configurable: config.yml building-protection.require-covered-workplaces (true by default); restart after editing.
+
+Use and reservation save atomically. Ownership, chest contents and business goods stay separate. Renovations require separate consent. No assets or capacity are created.
+
+### Commands
+
+| Command | Meaning |
+|---|---|
+| /civ building workplace <business ID> | Review a new workplace donation |
+| /civ building confirmworkplace <token> owned | Declare ownership and start a fresh confirmation survey |
+| /civ building cancelworkplace | Cancel an unsubmitted review |
+| /civ building reclaim <building ID> | Preview withdrawal; then use its confirmation button |
+| /civ building workplace <business ID> <building ID> | Review re-donation of a reclaimed workplace |
+
+Donation uses civilizations.building.donate; reclamation uses civilizations.building.reclaim. Both default true, but only the recorded donor or an authorized administrator may reclaim. An accepted save finishes even if you disconnect; wait for its result before retrying.
+
+### Withdraw and give it back
+
+Reclaiming pauses the linked business without removing blocks, assets or history. Removing a sign does not reclaim it; a surviving marker cannot bypass withdrawal.
+
+To re-donate, include the saved building ID and exactly match the original bounds and entrance. Confirm ownership again. The old reservation remains history; one current reservation replaces it atomically. Layout changes and relocation need later controls.
+
+Related chapters: protection, businesses, separate renovations and backups. Sources: WORKPLACE_DONATIONS.md, WORKPLACE_INSPECTION.md and BusinessPremises.

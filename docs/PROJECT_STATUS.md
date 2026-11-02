@@ -1,6 +1,32 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at50%, atomic workplace donation backend
+## Current — Phase4 at50%, reviewed workplace donation/reclaim/re-donation
+
+November1: players can select an existing business's fixed workplace and explicitly
+donate use through a frozen60-second preview and a new confirmation survey. New
+workplace/confirmworkplace/cancelworkplace controls share bounded manual reads;
+permission, world, selection, expiry and disconnect are checked. Accepted owner
+saves drain. Reclaim now supports workplaces and explains paused business use.
+Explicit re-donation with the saved building ID retains old history and atomically
+replaces only that same firm's withdrawn hold. Geometry/title/contents are not taken.
+
+Covered workplace preference is editable in config.yml, defaults true, and stays
+frozen per preview. No extra money, goods, workers, productive/storage capacity,
+construction or automatic relocation. Schema120 unchanged; no human server/save
+or main changed. Clean Wrapper70 unit+3 packaged checks passed43.393s. Actual final
+Paper/synthetic-player controller-to-owner donation and re-donation passed; registry
+reclaim paused eligibility, then two saved holds (one current, one released) were retained.
+All100 terrain cells restored; stopped/helper archived, both120 saves healthy/FK0.
+
+Handbook0.33 is36 pages/33 chapters, rendered/reviewed. P4 stays8/16=50%; automatic
+vacant-premises selection/different-firm reuse and saved operating-condition reviews
+remain. Human-client acceptance is pending. See WORKPLACE_DONATIONS.md.
+
+Hosted follow-up: both Windows/Linux passed0b5abb6, confirming the four repaired
+schema120 snapshot regressions. Atomic backend1191c1e is running; this newer complete
+donation candidate still needs its own hosted result. No full-phase CI gate claimed.
+
+## Earlier November1 — atomic workplace donation backend
 
 November1: WorkplaceDonation now commits explicit building use consent, positive
 fixed-marker confirmation and an inspected premises hold together. A late failure

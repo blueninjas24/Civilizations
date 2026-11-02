@@ -1351,6 +1351,7 @@ public final class PopulationSession implements AutoCloseable {
         return projectionWork(() -> database.getResidentProjectionRepository().recordPhysicalDeath(world, entity, observedMillis, reason));
     }
     private BuildingConsentRequests buildingConsentRequests;
+    private WorkplaceDonationRequests workplaceDonationRequests;
     private RenovationConsentRequests renovationConsentRequests;
     private RenovationConsentRequests renovations(){requireReady();
         if(renovationConsentRequests==null)renovationConsentRequests=new RenovationConsentRequests(database.getConnection());
@@ -1371,6 +1372,23 @@ public final class PopulationSession implements AutoCloseable {
                 new com.blueninjas24.civilizations.database.BuildingRegistry(database.getConnection()),BuildingConsentRequests.Policy.prototype());
         return buildingConsentRequests;
     }
+    private WorkplaceDonationRequests workplaceDonations()throws SQLException{
+        requireReady();if(workplaceDonationRequests==null)workplaceDonationRequests=new WorkplaceDonationRequests(database.getConnection(),BuildingConsentRequests.Policy.prototype());return workplaceDonationRequests;
+    }
+    public CompletableFuture<WorkplaceDonationRequests.Preview> previewWorkplaceDonation(UUID actor,UUID world,UUID business,
+            com.blueninjas24.civilizations.construction.BuildingLayout layout,com.blueninjas24.civilizations.construction.WorkplaceInspection.Evidence evidence,boolean permitted){
+        return previewWorkplaceDonation(actor,world,business,layout,evidence,com.blueninjas24.civilizations.construction.WorkplaceInspection.Policy.prototype(),permitted);
+    }
+    public CompletableFuture<WorkplaceDonationRequests.Preview> previewWorkplaceDonation(UUID actor,UUID world,UUID business,
+            com.blueninjas24.civilizations.construction.BuildingLayout layout,com.blueninjas24.civilizations.construction.WorkplaceInspection.Evidence evidence,
+            com.blueninjas24.civilizations.construction.WorkplaceInspection.Policy policy,boolean permitted){
+        return submit(()->workplaceDonations().preview(buildingContext(actor,world,permitted,false,false),business,layout,evidence,policy,now.getAsLong()));
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.database.WorkplaceDonation.Receipt> confirmWorkplaceDonation(UUID actor,UUID world,UUID token,
+            com.blueninjas24.civilizations.construction.WorkplaceInspection.Evidence evidence,boolean owned,boolean permitted){
+        return submit(()->workplaceDonations().confirm(buildingContext(actor,world,permitted,false,false),token,owned,evidence,now.getAsLong()));
+    }
+    public CompletableFuture<Void> cancelWorkplaceDonation(UUID actor){return submit(()->{workplaceDonations().cancel(actor);return null;});}
     private BuildingConsentRequests.Context buildingContext(UUID player,UUID world,boolean donate,boolean reclaim,boolean administrator) {
         return new BuildingConsentRequests.Context(player,world,donate,reclaim,administrator,loadedWorlds);
     }
@@ -1385,13 +1403,18 @@ public final class PopulationSession implements AutoCloseable {
     }
     public CompletableFuture<com.blueninjas24.civilizations.construction.WorkplaceInspection.Assessment> inspectBusinessPremises(UUID business,
             com.blueninjas24.civilizations.construction.BuildingLayout layout,com.blueninjas24.civilizations.construction.WorkplaceInspection.Evidence evidence){
+        return inspectBusinessPremises(business,layout,evidence,com.blueninjas24.civilizations.construction.WorkplaceInspection.Policy.prototype());
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.construction.WorkplaceInspection.Assessment> inspectBusinessPremises(UUID business,
+            com.blueninjas24.civilizations.construction.BuildingLayout layout,com.blueninjas24.civilizations.construction.WorkplaceInspection.Evidence evidence,
+            com.blueninjas24.civilizations.construction.WorkplaceInspection.Policy policy){
         return submit(()->{
             requireBuildingWorld(layout.world(),evidence.structure().world());
             var founding=new com.blueninjas24.civilizations.database.BusinessRepository(database.getConnection()).findFounding(business).orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown business"));
             var site=founding.site();
             if(!site.worldId().equals(layout.world())||!site.settlementId().equals(layout.settlement())||!evidence.marker().equals(new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(site.x(),site.y(),site.z()))
                ||evidence.kind().isPresent()&&!evidence.kind().orElseThrow().industry().equals(founding.business().industry()))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Inspection does not match the saved business workplace");
-            return com.blueninjas24.civilizations.construction.WorkplaceInspection.inspect(layout,evidence,now.getAsLong(),5000,com.blueninjas24.civilizations.construction.WorkplaceInspection.Policy.prototype());
+            return com.blueninjas24.civilizations.construction.WorkplaceInspection.inspect(layout,evidence,now.getAsLong(),5000,policy);
         });
     }
     public CompletableFuture<BuildingConsentRequests.Preview> previewBuildingDonation(UUID player,UUID world,

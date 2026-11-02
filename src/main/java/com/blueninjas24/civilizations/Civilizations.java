@@ -59,6 +59,7 @@ public final class Civilizations extends JavaPlugin {
     private com.blueninjas24.civilizations.paper.PaperDwellingReview dwellingReview;
     private com.blueninjas24.civilizations.paper.PaperHomeDonation homeDonations;
     private com.blueninjas24.civilizations.paper.PaperWorkplaceReview workplaceReview;
+    private com.blueninjas24.civilizations.paper.PaperWorkplaceDonation workplaceDonations;
     private com.blueninjas24.civilizations.paper.PaperHousingRuntime housingRuntime;
     private com.blueninjas24.civilizations.paper.PaperAutomaticConstruction automaticConstruction;
     private com.blueninjas24.civilizations.paper.PaperHousingCandidates housingCandidates;
@@ -182,8 +183,11 @@ public final class Civilizations extends JavaPlugin {
                         new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(buildingSettings.requireCoveredBeds()),getLogger());
                 buildings.configureInspection(dwellingReview);dwellingReview.runTaskTimer(this,1,1);
                 if(buildingSettings.enabled()) {
-                    workplaceReview=new com.blueninjas24.civilizations.paper.PaperWorkplaceReview(population,buildings::selectedHomeBounds,getLogger());
+                    workplaceReview=new com.blueninjas24.civilizations.paper.PaperWorkplaceReview(population,new com.blueninjas24.civilizations.construction.WorkplaceInspection.Policy(buildingSettings.requireCoveredWorkplaces()),buildings::selectedHomeBounds,getLogger());
                     buildings.configureWorkplaceInspection(workplaceReview);workplaceReview.runTaskTimer(this,1,1);
+                    workplaceDonations=new com.blueninjas24.civilizations.paper.PaperWorkplaceDonation(population,new com.blueninjas24.civilizations.construction.WorkplaceInspection.Policy(buildingSettings.requireCoveredWorkplaces()),buildings::selectedHomeBounds,getLogger());
+                    buildings.configureWorkplaceDonations(workplaceDonations);workplaceDonations.runTaskTimer(this,1,1);
+                    getServer().getPluginManager().registerEvents(workplaceDonations,this);
                     homeDonations=new com.blueninjas24.civilizations.paper.PaperHomeDonation(population,
                             new com.blueninjas24.civilizations.construction.DwellingInspection.Policy(buildingSettings.requireCoveredBeds()),buildings::selectedHomeBounds,getLogger());
                     buildings.configureHomes(homeDonations);homeDonations.runTaskTimer(this,1,1);
@@ -339,6 +343,7 @@ public final class Civilizations extends JavaPlugin {
         if(homePlanning!=null){homePlanning.cancel();homePlanning.close();}
         if(homeDonations!=null){homeDonations.cancel();homeDonations.close();}
         if(workplaceReview!=null){workplaceReview.cancel();workplaceReview.close();}
+        if(workplaceDonations!=null){workplaceDonations.cancel();workplaceDonations.close();}
         if(renovationConsent!=null){renovationConsent.cancel();renovationConsent.close();}
         if(dwellingReview!=null){dwellingReview.cancel();dwellingReview.close();}
         if(buildings!=null){buildings.cancel();buildings.close();}

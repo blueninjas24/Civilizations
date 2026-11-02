@@ -1,5 +1,41 @@
 # Civilizations Development Log
 
+## 2026-11-01 — usable reviewed workplace donation and reclamation
+
+Wire WorkplaceDonationRequests and PaperWorkplaceDonation to the atomic publisher.
+Player-bound frozen60-second preview, current context/selection checks and a new
+confirmation survey precede explicit ownership/use publication. Evidence captured
+before the preview cannot substitute for confirmation. One128-cell advance per
+tick across four requests in this manual queue; accepted owner saves drain across
+disconnect/close. No blocking SQL or future waits on Paper's thread.
+
+Extend existing reclaim controls to WORKPLACE, reporting business pause instead of
+household loss. Add explicit re-donation using the original building UUID, exact
+bounds and entrance. The publisher can atomically retire only that same business/
+building's withdrawn old hold while creating its replacement; late failure rolls
+every component back. Existing geometry, identity, donor and history remain.
+New require-covered-workplaces setting defaults true, preserves old constructors/
+files and freezes per preview; other safety checks cannot be disabled through it.
+
+Final Windows clean Wrapper70 unit+3 packaged passed43.393s. Coverage includes
+ownership/expiry/context, fresh proof, late failure/retry, public/native controller
+budgets, accepted-save draining and re-donation rollback. Actual final disposable
+Paper uses real surveys, a synthetic player and an independent owner-thread SQLite
+fixture: controller donation confirms, registry reclaim pauses use, explicit new
+controller re-donation restores eligibility with two saved/one current holds.
+No stock/cash/housing/construction created. All100 captured cells restored; stopped,
+helper archived, both120 databases healthy/FK0. Reclaim UI itself uses injected-
+player tests; human survival/client/plugin compatibility remains acceptance work.
+
+No migration beyond120, real server/world/database changes, new rent/title/salary
+rules or main merge/push. Handbook0.33 is36 pages/33 chapters, rendered/reviewed.
+P4 remains8/16=50%; automatic vacant/different-firm premises reuse and persistent
+condition review remain. See WORKPLACE_DONATIONS.md for commands and exact limits.
+
+Hosted milestone:0b5abb6 passed Windows and Linux, including the corrected historical
+schema120 snapshot cases.1191c1e is in progress; the finished donor-flow candidate
+will need its own result after push. This does not close final P4 hosted acceptance.
+
 ## 2026-11-01 — atomic workplace donation publication backend
 
 Add WorkplaceDonation to commit explicit frozen-layout donor consent, fresh marker

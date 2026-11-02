@@ -28,9 +28,9 @@ WorkplaceInspection is Paper-independent. It requires complete matching world/
 layout evidence and safe supported two-block entrance clearance. A deterministic
 bounded search permits conservative one-block steps with extra head clearance.
 It seeks an adjacent same-level standing space at the actual fixed marker. Any
-observed hazard refuses. Covered work is the conservative diagnostic preference;
-its pure policy is explicit, but no new production rule or editable live setting
-is enabled. Roof preference never bypasses support/access/marker checks.
+observed hazard refuses. Covered work defaults true for new diagnostics/donations; edit config.yml
+building-protection.require-covered-workplaces and restart to tune it. An absent
+old-file key keeps true. Existing condition reviews are not retroactively changed. Roof preference never bypasses support/access/marker checks.
 
 The operator queue accepts four requests, one per player, with one shared128-cell
 advance per tick including marker reads. Pending owner lookups do no native reads.
@@ -70,8 +70,9 @@ The native probe exercises the actual reader/assessment, not a human command
 session. Command lifecycle has injected-player tests; human-client acceptance
 remains. This is conservative access/shelter evidence, not structural engineering,
 guaranteed villager AI navigation, future entity clearance, inventory permission,
-or proof that every industry can operate there. Whole-building donation confirmation,
-saved operating reviews, ordinary reuse selection and relocation remain unfinished.
+or proof that every industry can operate there. Reviewed fixed-business donation/reclamation/re-donation are now available under
+WORKPLACE_DONATIONS.md. Saved operating reviews, ordinary vacancy selection and
+relocation remain unfinished.
 P4 item2.4 stays unchecked;8/16=50%. No migration beyond existing schema120.
 
 ## Hosted regression follow-up
