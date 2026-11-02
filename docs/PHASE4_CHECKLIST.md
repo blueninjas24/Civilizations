@@ -74,6 +74,11 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
+November1 formal premises boundary: reported operation and direct processing/trade
+now respect the exact retained use epoch. Reclamation cannot bypass through marker
+fallback; real workshop inputs/cash/history remain.30 unit+3 packaged checks pass.
+No new completed gate; normal workplace donation/reuse and condition reviews remain.
+
 November1: native workplace access/shelter assessment, exact marker bracketing,
 inspected-hold matching and operator workplacecheck preview are verified.47 unit+
 3 packaged combined checks (including repaired old snapshot expectations) and

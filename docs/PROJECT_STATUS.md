@@ -1,6 +1,21 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at50%, native workplace access preview
+## Current — Phase4 at50%, formal premises permission enforcement
+
+November1 follow-up: businesses with formal premises history cannot fall back to
+marker-only operation after reclaim/exclusion/consent replacement or hold release.
+Both reported availability and direct production/trade boundaries enforce current
+use. Old redonation/retry cannot revive a released epoch; a new permitted hold is
+needed. Unbound P3 businesses keep existing behavior. No new capacity or rights.
+
+Actual workshop accounting test preserves delivered inputs, cash and recipe history
+through refused production and restores eligibility only with a new current hold.
+Clean Wrapper30 unit+3 packaged passed50.544s. No new migration or Paper API/writer
+change; preceding native access proof remains described below. No human server/main
+change. P4 stays8/16=50%; workplace donation and ordinary reuse remain next.
+See BUSINESS_PREMISES.md. Current guide remains0.32.
+
+## Earlier November1 — native workplace access preview
 
 November1: operator /civ building workplacecheck reviews selected floor-to-roof
 bounds around a saved fixed business marker. Bounded loaded-only two-pass structure

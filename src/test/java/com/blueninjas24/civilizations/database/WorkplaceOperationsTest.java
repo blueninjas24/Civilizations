@@ -53,6 +53,28 @@ class WorkplaceOperationsTest {
     long count(String table)throws SQLException{try(var s=db.getConnection().createStatement();var r=s.executeQuery("SELECT COUNT(*) FROM "+table)){return r.getLong(1);}}
     void sql(String query)throws SQLException{try(var s=db.getConnection().createStatement()){s.execute(query);}}
     @AfterEach void close(){if(db!=null)db.close();}
+    @Test void reclaimedFormalPremisesBlockProductionWithoutLosingInputsOrFallingBackToMarkerUse()throws Exception{
+        start();deliver();assertTrue(permitted());
+        var bounds=new com.blueninjas24.civilizations.construction.BuildingLayout.Bounds(
+                new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(-1,63,-1),
+                new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(2,67,2));
+        var layout=new com.blueninjas24.civilizations.construction.BuildingLayout(UUID.randomUUID(),town,world,
+                com.blueninjas24.civilizations.construction.BuildingLayout.Kind.WORKPLACE,bounds,bounds,
+                new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(-1,64,0),List.of(),List.of());
+        UUID donor=UUID.randomUUID(),consent=UUID.randomUUID(),hold=UUID.randomUUID();
+        var registry=new BuildingRegistry(db.getConnection());var authority=BuildingRegistry.Authorization.playerDeclaration(donor,true);
+        registry.donate(consent,layout,donor,authority,null,1001);
+        var premises=new BusinessPremises(db.getConnection());var request=new BusinessPremises.Request(hold,business,layout.id(),consent,layout.fingerprint(),1002);
+        premises.reserve(request,Set.of(world),1002);assertTrue(permitted());var before=store();long treasury=cash();
+        UUID reclaimed=UUID.randomUUID();registry.reclaim(reclaimed,layout.id(),authority,consent,1003);assertFalse(permitted());
+        assertThrows(SQLException.class,()->db.getIndustryRepository().process(UUID.randomUUID(),business,recipe,1,1));
+        assertEquals(before,store());assertEquals(treasury,cash());assertEquals(0,count("recipe_runs"));
+        UUID next=UUID.randomUUID();registry.donate(next,layout,donor,authority,reclaimed,1004);assertFalse(permitted());
+        premises.release(UUID.randomUUID(),hold,1005);assertFalse(permitted());
+        assertFalse(premises.reserve(request,Set.of(world),1005).retained());assertFalse(permitted());
+        premises.reserve(new BusinessPremises.Request(UUID.randomUUID(),business,layout.id(),next,layout.fingerprint(),1006),Set.of(world),1006);
+        assertTrue(permitted());assertEquals(1,db.getIndustryRepository().process(UUID.randomUUID(),business,recipe,1,1).receipt().quantity());
+    }
     @Test void confirmedRemovalPausesRealProductionPreservingPaidCargoJobsMoneyAndIdentity()throws Exception {
         start();assertTrue(permitted());confirm(false,1001);assertFalse(permitted());
         assertEquals(1,count("business_employment"));assertEquals(1,count("businesses"));assertEquals(1,count("business_sites"));

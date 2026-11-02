@@ -96,6 +96,7 @@ public final class WorkplaceOperations {
         }
     }
     static void requirePermitted(Connection connection,UUID business)throws SQLException {
+        if(BusinessPremises.denied(connection,business))throw new SQLException("Paused: formal premises use withdrawn or released; marker alone cannot restore permission");
         if(paused(connection,business))throw new SQLException("Paused: workplace marker missing; restore the same saved anchor");
     }
     private static Anchor read(ResultSet r)throws SQLException {

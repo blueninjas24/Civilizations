@@ -1,5 +1,28 @@
 # Civilizations Development Log
 
+## 2026-11-01 — formal premises cannot bypass withdrawn use through markers
+
+Connect a restrictive BusinessPremises.denied check to BusinessOperations and
+WorkplaceOperations.requirePermitted, covering direct production/trading boundaries
+as well as reported availability. A business with formal premises history requires
+its retained current consent epoch; revoked/excluded/replaced consent and released
+holds cannot fall back to prior P3 marker-only use. Existing businesses never
+formally bound to premises keep their current behavior. Historical schema inspection
+before120 remains supported; missing current tables are not swallowed.
+
+One new real workshop accounting case delivers actual paid inputs, binds premises,
+reclaims them and confirms refused processing leaves stock, cash and recipe runs
+unchanged. Redonation/release/old exact replay stay paused; a new current hold
+restores normal eligible processing. Clean Wrapper30 unit+3 packaged passed50.544s.
+No Paper API/writer changes, new migration, disposal or human server change.
+Assets and existing owed cargo remain recorded; no new funding/property rule.
+
+Normal workplace donation and saved operating-condition reviews remain unfinished.
+P4 stays8/16=50%, guide0.32. Next: explicit donor confirmation and ordinary reuse
+coordinator under this boundary. Hosted full-suite results for the newest candidate
+must still be checked; the preceding batch repaired all four reproduced120 snapshot
+fixture failures locally. No main merge/push.
+
 ## 2026-11-01 — native workplace access and in-game operator preview
 
 Add pure WorkplaceInspection, budgeted PaperWorkplaceSurvey and operator-only

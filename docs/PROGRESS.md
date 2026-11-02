@@ -2,6 +2,12 @@
 
 ## Current — Phase 4 physical growth
 
+November1 follow-up: a formally reserved business building now respects later
+reclamation in the production system. The business keeps its supplies and money,
+but cannot use an old reservation or surviving marker to bypass withdrawn use.
+Real accounting checks passed; normal workplace donation/reuse is still next.
+P4 remains8/16=50%.
+
 November1: admins can now check a selected business workplace in game. It reports
 safe access, hazards, shelter and changed workplace markers; it does not claim or
 alter the building. Native checks and focused tests passed. This moves workplace

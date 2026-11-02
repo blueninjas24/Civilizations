@@ -24,6 +24,15 @@ multi-business units and relocation are not inferred from housing apartment unit
 A hold creates no land title, property transfer, contents access, usable work
 capacity, renovation grant, materials, money or labor. Whole-building operational
 inspection and ordinary selection/scheduling remain prerequisites for activation.
+
+November1 enforcement: once a business has formally reserved premises, current
+business availability and direct production/trading boundaries also check that
+premises' exact current use consent. Reclamation, exclusions, replaced consent or
+a released hold restrict further operation; a surviving marker alone cannot
+restore permission. Re-donation needs a fresh hold for the new consent epoch.
+Businesses with no premises history retain their existing P3 marker behavior.
+This is a restriction, not a grant of usable capacity or a replacement for future
+saved physical-condition reviews. Existing paid assets/cargo/history are retained.
 Closed firms retain their original assets, sites and history; none are copied into
 a new business. A building hold does not make the old business's goods public.
 
@@ -48,6 +57,13 @@ retry, current permission/marker/world checks, legacy occupants, closure/release
 redonation epochs, collisions, late transaction rollback and populated119 upgrade
 rollback. The initial closure fixture omitted its required sale-history parent;
 that test-only setup was corrected without relaxing application foreign keys.
+
+Latest permission-boundary regression: a real saved workshop with delivered inputs
+cannot process after reclamation. Its treasury, business store and recipe history
+stay unchanged. Re-donation, release and exact old replay remain paused; a new
+current hold restores normal eligibility. Clean Wrapper30 unit+3 packaged checks
+passed50.544s using WorkplaceOperationsTest,BusinessPremisesTest,IndustryRepositoryTest.
+No new Paper API, migration or physical writer changes in this follow-up.
 
 Clean Windows Wrapper53 unit+3 packaged integration checks passed in1:03:
 

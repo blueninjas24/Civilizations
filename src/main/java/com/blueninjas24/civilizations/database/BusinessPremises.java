@@ -131,5 +131,22 @@ public final class BusinessPremises {
     private boolean permission(Request request,BuildingRegistry.Entry entry,BuildingRegistry registry)throws SQLException{
         return entry.layout().fingerprint().equals(request.layoutHash())&&entry.latest()!=null&&entry.latest().operation().equals(request.useConsent())&&registry.hasDonationPermission(entry.layout().id());
     }
+    /** Restriction only: once formally bound, revoked/released premises cannot fall back to marker-only use.
+     * Businesses never bound to formal premises retain their existing P3 behavior. */
+    static boolean denied(Connection c,UUID business)throws SQLException{
+        try(var s=c.createStatement();var r=s.executeQuery("PRAGMA user_version")){if(r.getInt(1)<120)return false;}
+        UUID operation=null;
+        try(var s=c.prepareStatement("SELECT operation_id FROM business_premises WHERE business_id=? AND released_ms IS NULL")){
+            s.setString(1,business.toString());try(var r=s.executeQuery()){if(r.next())operation=UUID.fromString(r.getString(1));}
+        }
+        if(operation==null){
+            try(var s=c.prepareStatement("SELECT 1 FROM business_premises WHERE business_id=? LIMIT 1")){
+                s.setString(1,business.toString());try(var r=s.executeQuery()){return r.next();}
+            }
+        }
+        var repository=new BusinessPremises(c);var hold=repository.find(operation).orElseThrow(()->new SQLException("Active premises history disappeared"));
+        var registry=new BuildingRegistry(c);var entry=registry.find(hold.request().building()).orElseThrow(()->new SQLException("Active premises building disappeared"));
+        return !repository.permission(hold.request(),entry,registry);
+    }
     private void rollback(Throwable failure){try{c.rollback();}catch(SQLException rollback){failure.addSuppressed(rollback);}}
 }
