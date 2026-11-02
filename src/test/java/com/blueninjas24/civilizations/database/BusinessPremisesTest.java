@@ -63,6 +63,22 @@ class BusinessPremisesTest {
         assertEquals(0,count("business_premises"));assertTrue(c().getAutoCommit());reserve();
         assertThrows(SQLException.class,()->premises().reserve(new BusinessPremises.Request(operation,business,layout.id(),consent,"0".repeat(64),1020),Set.of(world),1020));
     }
+    @Test void inspectedReservationsCannotSubstituteAnotherMarkerOrUseAnUnsafeInterior()throws Exception{
+        var cells=new HashMap<Position,DwellingInspection.Cell>();
+        for(var p:DwellingInspection.requiredCells(layout))cells.put(p,DwellingInspection.Cell.of(p.y()==64||p.y()==68?DwellingInspection.Type.SUPPORT:DwellingInspection.Type.PASSABLE));
+        var marker=new Position(1,65,1);cells.put(marker,DwellingInspection.Cell.of(DwellingInspection.Type.SUPPORT));
+        var observation=new DwellingInspection.Observation(world,layout.fingerprint(),1010,true,cells);
+        var otherCells=new HashMap<>(cells);otherCells.put(new Position(2,65,1),DwellingInspection.Cell.of(DwellingInspection.Type.SUPPORT));
+        var wrong=new WorkplaceInspection.Evidence(new DwellingInspection.Observation(world,layout.fingerprint(),1010,true,otherCells),new Position(2,65,1),Optional.of(WorkplaceObservation.Kind.SMITHING_TABLE),true);
+        var wrongAssessment=WorkplaceInspection.inspect(layout,wrong,1020,5000,WorkplaceInspection.Policy.prototype());
+        assertTrue(wrongAssessment.suitable());assertThrows(SQLException.class,()->premises().reserveInspected(request(),wrongAssessment,Set.of(world),1020));
+        cells.put(layout.entrance(),DwellingInspection.Cell.of(DwellingInspection.Type.BLOCKED));
+        var unsafe=new WorkplaceInspection.Evidence(new DwellingInspection.Observation(world,layout.fingerprint(),1010,true,cells),marker,wrong.kind(),true);
+        assertThrows(SQLException.class,()->premises().reserveInspected(request(),WorkplaceInspection.inspect(layout,unsafe,1020,5000,WorkplaceInspection.Policy.prototype()),Set.of(world),1020));
+        assertEquals(0,count("business_premises"));
+        var exact=new WorkplaceInspection.Evidence(observation,marker,wrong.kind(),true);
+        assertTrue(premises().reserveInspected(request(),WorkplaceInspection.inspect(layout,exact,1020,5000,WorkplaceInspection.Policy.prototype()),Set.of(world),1020).retained());
+    }
     @Test void reclamationReleasesOnlyTheOldUseEpochAndReplayCannotReactivateIt()throws Exception{
         reserve();UUID reclaim=UUID.randomUUID();registry().reclaim(reclaim,layout.id(),authority(),consent,1030);
         UUID release=UUID.randomUUID();var retired=premises().release(release,operation,1040);assertFalse(retired.retained());assertEquals(retired,premises().release(release,operation,1040));

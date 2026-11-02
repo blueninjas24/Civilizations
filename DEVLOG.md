@@ -1,5 +1,43 @@
 # Civilizations Development Log
 
+## 2026-11-01 — native workplace access and in-game operator preview
+
+Add pure WorkplaceInspection, budgeted PaperWorkplaceSurvey and operator-only
+PaperWorkplaceReview. Reuse the existing two-pass structural reader under a typed
+workplace factory; no housing assessment/assignment occurs. Exact marker reads
+bracket structural capture within one caller budget. Supported entrance-to-adjacent
+workpoint routes, conservative covered work, hazards and complete fresh evidence
+are assessed deterministically. SQL-owner reserveInspected rejects unsafe or
+different-building/marker proof before existing transactional hold checks.
+
+Wire /civ building workplacecheck <business UUID> through current enabled/ready
+building controls. Four requests/one per player, one shared128-cell manual advance
+per tick,30-second expiry; changed permission/world/selection or disconnect refuses.
+Lookup and pure assessment use the SQL owner; no JDBC or waits on Paper thread.
+No registration, donation, held land, stock, capacity or construction is activated.
+
+Focused clean Wrapper33 unit+3 packaged checks passed33.223s. Eight new focused cases
+cover inspection, exact-marker hold matching and command lifecycle/budget; existing
+dwelling/registry-controller checks pass. A test-only qualification import was fixed
+before the final run. Actual final packaged Paper passed covered access, one-read
+budget, changed marker, blocked route and missing roof. All100 fixture cells restored;
+server stopped/helper archived, schema120 healthy/FK-clean. No new migration.
+
+Initial native fixture lost its chunk; incomplete evidence correctly refused, and
+its cleanup could not restore unloaded terrain. That disposable failed world was
+stopped/archived, not used as passing evidence. The corrected fixture explicitly
+retains its already loaded chunk; both subsequent passes restored their own blocks.
+Production never loads chunks. Human command acceptance and automatic workplace
+donation/reuse remain. Handbook0.32 is35 pages, rendered/reviewed. P4 stays8/16=50%.
+No human server, real database or main changed. See WORKPLACE_INSPECTION.md.
+
+Hosted follow-up:65647f6 failed both OS jobs in four historical migration snapshot
+fixtures missing the new empty premises table. Reproduced locally; added explicit
+empty-table checks/exclusions while preserving exact predecessor data comparisons.
+Final combined clean Wrapper47 unit+3 packaged passed41.629s, including all four
+reported classes. No production migration/rules changed. Latest hosted candidate
+must still be checked after push.
+
 ## 2026-10-31 — retained workplace reservation foundation
 
 Add BusinessPremises and transactional schema120: explicit WORKPLACE consent epoch,

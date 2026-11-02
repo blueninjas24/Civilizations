@@ -1375,6 +1375,25 @@ public final class PopulationSession implements AutoCloseable {
         return new BuildingConsentRequests.Context(player,world,donate,reclaim,administrator,loadedWorlds);
     }
     /** Authenticated Paper caller supplies player/world/permission facts; layout confirmation stays on SQL owner. */
+    public CompletableFuture<com.blueninjas24.civilizations.industry.BusinessFounding> workplaceInspectionTarget(UUID business,UUID world,boolean permitted){
+        return submit(()->{
+            requireBuildingWorld(world,world);
+            if(!permitted)throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Workplace diagnostic is not permitted");
+            var founding=new com.blueninjas24.civilizations.database.BusinessRepository(database.getConnection()).findFounding(business).orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown business"));
+            if(!founding.site().worldId().equals(world))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Business belongs to another saved world");return founding;
+        });
+    }
+    public CompletableFuture<com.blueninjas24.civilizations.construction.WorkplaceInspection.Assessment> inspectBusinessPremises(UUID business,
+            com.blueninjas24.civilizations.construction.BuildingLayout layout,com.blueninjas24.civilizations.construction.WorkplaceInspection.Evidence evidence){
+        return submit(()->{
+            requireBuildingWorld(layout.world(),evidence.structure().world());
+            var founding=new com.blueninjas24.civilizations.database.BusinessRepository(database.getConnection()).findFounding(business).orElseThrow(()->new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Unknown business"));
+            var site=founding.site();
+            if(!site.worldId().equals(layout.world())||!site.settlementId().equals(layout.settlement())||!evidence.marker().equals(new com.blueninjas24.civilizations.construction.ConstructionTemplate.Position(site.x(),site.y(),site.z()))
+               ||evidence.kind().isPresent()&&!evidence.kind().orElseThrow().industry().equals(founding.business().industry()))throw new com.blueninjas24.civilizations.database.BuildingRegistry.Declined("Inspection does not match the saved business workplace");
+            return com.blueninjas24.civilizations.construction.WorkplaceInspection.inspect(layout,evidence,now.getAsLong(),5000,com.blueninjas24.civilizations.construction.WorkplaceInspection.Policy.prototype());
+        });
+    }
     public CompletableFuture<BuildingConsentRequests.Preview> previewBuildingDonation(UUID player,UUID world,
             com.blueninjas24.civilizations.construction.BuildingLayout layout,boolean permitted) {
         return submit(()->buildingConsents().donation(buildingContext(player,world,permitted,false,false),layout,now.getAsLong()));

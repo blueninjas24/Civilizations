@@ -1,6 +1,6 @@
 # Civilizations Player and Server Guide
 
-Living draft 0.31 | 31 October 2026 | Player and server owner edition
+Living draft 0.32 | 1 November 2026 | Player and server owner edition
 
 Civilizations is a Minecraft server plugin that gives villages persistent people, households and a connected local economy. Businesses need workers, supplies, storage and paying customers. Your food deliveries and purchases can help towns operate.
 
@@ -263,6 +263,10 @@ Status: Saved industry implemented. Physical P4 premises, excavation and felling
 | General craftsman | Configured storage fittings and supply-chain inputs |
 | Warehouse | Paid purchase, storage and local movement of owned goods |
 
+### Check a workplace before donation
+
+Admins can select floor-to-roof corners with /civ building corner1 and corner2, stand at a safe entrance inside, then run /civ building workplacecheck <business UUID>. Find the business ID in /civ debug businesses <village UUID>. This read-only check reports access to the saved marker, hazards and shelter. Keep the selection while it runs. It does not donate, reserve or activate the building; workplace donation controls are still unfinished.
+
 ### More than a job label
 
 Production depends on skills, workers, evidence, money, inputs, tools, storage and paying demand. Existing smithing tables, barrels, smokers and crafting tables can be configured workplace markers. They grant no ownership of player buildings or permission to use chest contents.
@@ -467,7 +471,7 @@ Sources: plugin.yml, FoodAidPreviewCommand, FoodBargainingCommand, FoodBarterCom
 
 ## 18 Admin diagnostic command glossary
 
-Status: Implemented. Requires civilizations.debug, defaulting to operators. These report commands do not reset the simulation.
+Status: Implemented. Debug reports require civilizations.debug; workplacecheck uses civilizations.building.admin. Both default to operators. These reports do not reset the simulation.
 
 | Command | What it explains |
 |---|---|
@@ -482,6 +486,7 @@ Status: Implemented. Requires civilizations.debug, defaulting to operators. Thes
 | /civ debug workforce <UUID> | Qualifications and competing labor opportunities |
 | /civ debug resources | Resource history, tracking and uncertainty |
 | /civ debug construction | Delivery, site-planning and automatic-home work diagnostics; read-only |
+| /civ building workplacecheck <business ID> | Selected workplace access/shelter; civilizations.building.admin required |
 
 ### Find the right ID
 

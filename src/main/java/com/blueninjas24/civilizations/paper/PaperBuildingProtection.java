@@ -49,6 +49,8 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     public void configureRenovations(CommandExecutor renovations){this.renovations=Objects.requireNonNull(renovations);}
     public void configureInspection(CommandExecutor inspection){this.inspection=Objects.requireNonNull(inspection);}
     public void configureHomes(CommandExecutor homes){this.homes=Objects.requireNonNull(homes);}
+    private CommandExecutor workplaces;
+    public void configureWorkplaceInspection(CommandExecutor workplaces){this.workplaces=Objects.requireNonNull(workplaces);}
     public void configureReclamation(CommandExecutor reclamation){this.reclamation=Objects.requireNonNull(reclamation);}
     /** Immutable selection only; caller supplies its own current action permission checks. */
     public Bounds selectedHomeBounds(Player player){prune();return bounds(player);}
@@ -122,6 +124,10 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!(sender instanceof Player player)){sender.sendMessage("Use building protection in game.");return true;}
+        if(args.length>1&&args[1].equalsIgnoreCase("workplacecheck")){
+            if(closed||!settings.enabled()||!owner.ready()||workplaces==null){player.sendMessage("Workplace checks are unavailable or still starting.");return true;}
+            return workplaces.onCommand(sender,command,label,args);
+        }
         if(args.length>1&&Set.of("allowrenovation","denyrenovation","confirmrenovation","cancelrenovation").contains(args[1].toLowerCase(Locale.ROOT))){
             if(closed||!settings.enabled()||!owner.ready()){player.sendMessage("Renovation consent is unavailable or still starting.");return true;}
             if(renovations!=null)return renovations.onCommand(sender,command,label,args);
@@ -228,6 +234,7 @@ public final class PaperBuildingProtection extends BukkitRunnable implements Com
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
         if(args.length==3&&(args[1].equalsIgnoreCase("home")||args[1].equalsIgnoreCase("apartments"))&&homes instanceof TabCompleter completer)return completer.onTabComplete(sender,command,alias,args);
         if(args.length!=2)return List.of();var options=new ArrayList<String>();
+        if(workplaces!=null&&sender.hasPermission(ADMIN))options.add("workplacecheck");
         if(sender.hasPermission(MANAGE)||sender.hasPermission(ADMIN))options.addAll(List.of("corner1","corner2","preview","protect","here","release","inspect","cancel"));
         if(homes!=null&&sender.hasPermission(PaperHomeDonation.PERMISSION)){
             options.addAll(List.of("corner1","corner2","home","cancelhome"));options.addAll(PaperApartmentDrafts.ACTIONS);

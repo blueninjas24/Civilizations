@@ -3,8 +3,10 @@
 Implemented October31 as groundwork for P4 vacancy reuse, not normal automatic
 business relocation. Existing business markers remain location evidence; they do
 not prove ownership, an empty building, safe interiors or permission to renovate.
-No player command, new building donation flow or production capacity is enabled
-by this batch. P4 checklist item2.4 remains unfinished.
+November1 addition: /civ building workplacecheck now provides an operator-only
+read-only access/shelter preview; reserveInspected can gate holds with its computed
+exact-building/marker evidence. See WORKPLACE_INSPECTION.md. No workplace donation
+flow or production capacity is enabled. P4 checklist item2.4 remains unfinished.
 
 BusinessPremises runs only on the SQL owner. A new hold requires an explicitly
 registered WORKPLACE building, its exact current use-consent epoch and frozen
@@ -56,6 +58,6 @@ housing-queue smoke probe. Its empty120 database was healthy/FK-clean, server st
 and helper archived. This is startup/regression evidence, not a native workplace
 inspection or live premises reservation proof. No terrain changes were made.
 
-Next: bounded whole-building suitability inspection, explicit workplace donation
-controls and the ordinary reuse-before-construction coordinator. Preserve fixed
+Next: explicit workplace donation controls, saved operational reviews and the
+ordinary reuse-before-construction coordinator. Preserve fixed
 business identity, current player consent and separately approved renovation rights.

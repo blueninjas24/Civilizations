@@ -2,6 +2,12 @@
 
 ## Current — Phase 4 physical growth
 
+November1: admins can now check a selected business workplace in game. It reports
+safe access, hazards, shelter and changed workplace markers; it does not claim or
+alter the building. Native checks and focused tests passed. This moves workplace
+reuse forward, but normal donation/automatic reuse remain unfinished:8/16=50%.
+See WORKPLACE_INSPECTION.md; handbook0.32.
+
 October31: added the saved reservation safeguard needed before businesses can
 reuse buildings. Two firms cannot reserve one premises; old business occupants
 and player permission still count. This backend does not yet relocate businesses

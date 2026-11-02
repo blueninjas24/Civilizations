@@ -1,6 +1,23 @@
 # Civilizations — implementation status and handoff
 
-## Current — Phase4 at50%, workplace reservation groundwork
+## Current — Phase4 at50%, native workplace access preview
+
+November1: operator /civ building workplacecheck reviews selected floor-to-roof
+bounds around a saved fixed business marker. Bounded loaded-only two-pass structure
+and exact bracketed marker reads feed pure supported entrance/work access, hazard
+and shelter diagnostics. Current permissions/world/selection and shared128 manual
+read budget are checked. No donation, occupation, production or physical changes.
+BusinessPremises.reserveInspected can require that computed exact-building proof.
+
+Focused clean Wrapper33 unit+3 packaged passed33.223s. Final combined47 unit+3
+packaged passed41.629s after repairing four reproduced historical snapshot tests. Actual final packaged Paper
+passed access, changed marker, blocked route and missing shelter; restored100 cells,
+stopped/helper archived,120 DB healthy/FK-clean. Human command acceptance remains.
+Handbook0.32 is35 pages, rendered/reviewed. No migration or human server change.
+P4 remains8/16=50%; normal workplace donation/reuse and saved operating reviews
+are next. See WORKPLACE_INSPECTION.md for exact scope and failed-fixture history.
+
+## Earlier October31 — workplace reservation groundwork
 
 October31: SQL-owner BusinessPremises reserves an explicitly permitted registered
 workplace for an existing fixed-marker business, with exclusive retained occupancy,

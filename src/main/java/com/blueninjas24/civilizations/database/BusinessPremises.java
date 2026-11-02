@@ -1,6 +1,7 @@
 package com.blueninjas24.civilizations.database;
 
 import com.blueninjas24.civilizations.construction.BuildingLayout;
+import com.blueninjas24.civilizations.construction.WorkplaceInspection;
 import com.blueninjas24.civilizations.construction.ConstructionTemplate.Position;
 import java.sql.*;
 import java.util.*;
@@ -49,6 +50,23 @@ public final class BusinessPremises {
                 String release=r.getString("release_operation");return Optional.of(new Hold(request,release==null?null:UUID.fromString(release),release==null?null:r.getLong("released_ms")));
             }
         }
+    }
+    /** Combine computed physical suitability with the existing transactional hold checks.
+     * This still creates only a hold; it cannot activate production or grant a native write permit. */
+    public Hold reserveInspected(Request request,WorkplaceInspection.Assessment assessment,Set<UUID> worlds,long now)throws SQLException{
+        Objects.requireNonNull(request);Objects.requireNonNull(assessment);
+        if(!c.getAutoCommit())throw new SQLException("Inspected premises reservation needs idle SQL owner");
+        var evidence=assessment.evidence();var observed=evidence.structure();
+        var entry=new BuildingRegistry(c).find(request.building()).orElseThrow(()->new BuildingRegistry.Declined("Unknown inspected premises"));
+        var firm=new BusinessRepository(c).findFounding(request.business()).orElseThrow(()->new BuildingRegistry.Declined("Unknown inspected business"));
+        var site=firm.site();
+        if(!assessment.suitable()||!observed.layoutHash().equals(request.layoutHash())||!entry.layout().fingerprint().equals(observed.layoutHash())
+           ||!observed.world().equals(site.worldId())||observed.capturedMillis()>now||now-observed.capturedMillis()>5000
+           ||!evidence.marker().equals(new Position(site.x(),site.y(),site.z()))
+           ||evidence.kind().isEmpty()||!evidence.kind().orElseThrow().industry().equals(firm.business().industry()))throw new BuildingRegistry.Declined("Fresh suitable exact-building and fixed-workplace inspection required");
+        // Frozen layout/site/founding terms cannot change between these owner-thread checks and reserve().
+        // Current consent, closure, marker freshness and collision checks still occur in its transaction.
+        return reserve(request,worlds,now);
     }
     /** Fresh positive fixed-marker evidence locates the firm; it does not prove the whole building usable.
      * Exact replay returns history even after release/reclamation, never renewed permission. */

@@ -36,6 +36,11 @@ public final class PaperDwellingSurvey {
     public static PaperDwellingSurvey forHomeDeclaration(UUID world,BuildingLayout.Bounds structure,long now) {
         return new PaperDwellingSurvey(world,structure,com.blueninjas24.civilizations.construction.HomeDeclaration.regionHash(world,structure),now);
     }
+    /** Reuse only the bounded structural reader; this does not invoke housing or grant workplace capacity. */
+    public static PaperDwellingSurvey forWorkplace(BuildingLayout layout,long now){
+        if(layout.kind()!=BuildingLayout.Kind.WORKPLACE)throw new IllegalArgumentException("Workplace survey requires a workplace declaration");
+        var survey=new PaperDwellingSurvey(layout.world(),layout.structure(),layout.fingerprint(),now);survey.revalidate=true;return survey;
+    }
     private PaperDwellingSurvey(UUID world,BuildingLayout.Bounds bounds,String hash,long now) {
         requireMainThread();worldId=Objects.requireNonNull(world);this.bounds=Objects.requireNonNull(bounds);this.hash=Objects.requireNonNull(hash);
         if(now<0||bounds.volume()>BuildingLayout.MAX_STRUCTURE_VOLUME)throw new IllegalArgumentException("Invalid housing survey time/volume");

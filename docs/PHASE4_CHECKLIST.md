@@ -74,6 +74,12 @@ and final hosted/human phase acceptance remain unchecked separately.
 
 ## Current verification and next delivery
 
+November1: native workplace access/shelter assessment, exact marker bracketing,
+inspected-hold matching and operator workplacecheck preview are verified.47 unit+
+3 packaged combined checks (including repaired old snapshot expectations) and
+actual restored Paper passed. Item2.4 still needs donation,
+saved operational reviews and ordinary reuse; count stays8/16=50%. Handbook0.32.
+
 October31 workplace reuse groundwork: schema120 now retains exclusive business/
 building holds tied to current use consent and positive fixed-marker evidence.
 Older firms without holds still block inferred vacancy; release/history is tested.
